@@ -49,7 +49,7 @@ public class MeetingVoteManager
         var vote = new VoteData(voter);
         vote.DoVote(exiled, 1);
         allVotes[voter] = vote;
-        EndMeeting(false);
+        EndMeeting(false,true);
     }
     /// <summary>
     /// 投票を行います．投票者が既に投票している場合は票を上書きします
@@ -103,16 +103,16 @@ public class MeetingVoteManager
     {
         if (meetingHud.discussionTimer - (float)Main.NormalOptions.DiscussionTime >= Main.NormalOptions.VotingTime || AllVotes.Values.All(vote => vote.HasVoted))
         {
-            EndMeeting();
+            EndMeeting(Roles.Crewmate.BalancerChecker.Balancer == 255);
         }
     }
     /// <summary>
     /// 無条件で会議を終了します
     /// </summary>
     /// <param name="applyVoteMode">スキップと同数投票の設定を適用するかどうか</param>
-    public void EndMeeting(bool applyVoteMode = true)
+    public void EndMeeting(bool applyVoteMode = true, bool ClearAndExile = false)
     {
-        var result = CountVotes(applyVoteMode);
+        var result = CountVotes(applyVoteMode, ClearAndExile);
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole();
         logger.Info($"追放者: {logName} で会議を終了します");
 
@@ -154,16 +154,12 @@ public class MeetingVoteManager
     /// </summary>
     /// <param name="applyVoteMode">スキップと同数投票の設定を適用するかどうか</param>
     /// <returns>([Key: 投票先,Value: 票数]の辞書, 追放される人, 同数投票かどうか)</returns>
-    public VoteResult CountVotes(bool applyVoteMode)
+    public VoteResult CountVotes(bool applyVoteMode, bool ClearAndExile = false)
     {
         // 投票モードに従って投票を変更
         if (applyVoteMode && Options.VoteMode.GetBool())
         {
             ApplySkipAndNoVoteMode();
-        }
-        foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-        {
-            role.ChangeVote();
         }
 
         // Key: 投票された人
@@ -183,7 +179,7 @@ public class MeetingVoteManager
             votes[vote.VotedFor] += vote.NumVotes;
         }
 
-        return new VoteResult(votes);
+        return new VoteResult(votes,ClearAndExile);
     }
     /// <summary>
     /// スキップモードと無投票モードに応じて，投票を上書きしたりプレイヤーを死亡させたりします
@@ -206,12 +202,16 @@ public class MeetingVoteManager
                 switch (noVoteMode)
                 {
                     case VoteMode.Suicide:
-                        SetVote(vote.Voter, vote.Voter, isIntentional: false);
-                        logger.Info($"無投票のため {voterName} に自投票させます");
+                        MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Suicide, vote.Voter);
+                        logger.Info($"無投票のため {voterName} に自殺させます");
                         break;
                     case VoteMode.Skip:
                         SetVote(vote.Voter, Skip, isIntentional: false);
                         logger.Info($"無投票のため {voterName} にスキップさせます");
+                        break;
+                    case VoteMode.SelfVote:
+                        SetVote(vote.Voter, vote.Voter, isIntentional: false);
+                        logger.Info($"無投票のため {voterName} に自投票させます");
                         break;
                 }
             }
@@ -283,7 +283,7 @@ public class MeetingVoteManager
         /// </summary>
         public readonly bool IsTie;
 
-        public VoteResult(Dictionary<byte, int> votedCounts)
+        public VoteResult(Dictionary<byte, int> votedCounts,bool ClearAndExile = false)
         {
             this.votedCounts = votedCounts;
 
@@ -308,8 +308,15 @@ public class MeetingVoteManager
                 logger.Info($"最多得票者: {GetVoteName(mostVotedPlayers[0])}");
             }
 
+            var c = false;
+            foreach (var pc in PlayerControl.AllPlayerControls)
+            {
+                var n = pc.GetRoleClass()?.VotingResults(ref Exiled, ref IsTie, votedCounts, mostVotedPlayers, ClearAndExile);
+                if (n.HasValue && n.Value) c = true;
+            }
+
             // 同数投票時の特殊モード
-            if (IsTie && Options.VoteMode.GetBool())
+            if (IsTie && Options.VoteMode.GetBool() && !c)
             {
                 var tieMode = (TieMode)Options.WhenTie.GetValue();
                 switch (tieMode)

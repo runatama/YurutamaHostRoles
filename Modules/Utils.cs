@@ -20,6 +20,7 @@ using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Crewmate;
+//using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
 
 namespace TownOfHost
@@ -218,6 +219,7 @@ namespace TownOfHost
                         || seen.Is(CustomRoles.GM)
                         || (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool())
                         || (Options.LoversRole.GetBool() && seer.Is(CustomRoles.Lovers) && seen.Is(CustomRoles.Lovers))
+                        //|| (Options.InsiderMode.GetBool() && seer.GetCustomRole().IsImpostor())
                         || (Options.RoleImpostor.GetBool() && seer.GetCustomRole().IsImpostor() && seen.GetCustomRole().IsImpostor());
             var (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId);
 
@@ -256,6 +258,9 @@ namespace TownOfHost
                         case CustomRoles.LastImpostor:
                             roleText = GetRoleString("Last-") + roleText;
                             break;
+                            //case CustomRoles.LastNeutral:
+                            //roleText = GetRoleString("Last-") + roleText;
+                            //break;
                     }
                 }
             }
@@ -279,6 +284,18 @@ namespace TownOfHost
                         case CustomRoles.Watcher:
                             sb.Append(Watcher.SubRoleMark);
                             break;
+                            /*case CustomRoles.Speeding:
+                                sb.Append(Speeding.SubRoleMark);
+                                break;
+                            case CustomRoles.Moon:
+                                sb.Append(Moon.SubRoleMark);
+                                break;
+                            case CustomRoles.Guesser:
+                                sb.Append(Guesser.SubRoleMark);
+                                break;
+                            case CustomRoles.NotConvener:
+                                sb.Append(NotConvener.SubRoleMark);
+                                break;*/
                     }
                 }
             }
@@ -499,6 +516,7 @@ namespace TownOfHost
                 if (Options.SyncButtonMode.GetBool()) { SendMessage(GetString("SyncButtonModeInfo"), PlayerId); }
                 if (Options.SabotageTimeControl.GetBool()) { SendMessage(GetString("SabotageTimeControlInfo"), PlayerId); }
                 if (Options.RandomMapsMode.GetBool()) { SendMessage(GetString("RandomMapsModeInfo"), PlayerId); }
+                //if (Options.InsiderMode.GetBool()) { SendMessage(GetString("InsiderModeInfo"), PlayerId); }
                 if (Options.IsStandardHAS) { SendMessage(GetString("StandardHASInfo"), PlayerId); }
                 if (Options.EnableGM.GetBool()) { SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId); }
                 foreach (var role in CustomRolesHelper.AllStandardRoles)
@@ -652,9 +670,15 @@ namespace TownOfHost
             sb.AppendFormat("<size={0}>", ActiveSettingsSize);
             sb.Append("<size=100%>").Append(GetString("Roles")).Append('\n').Append("</size>");
             sb.AppendFormat("\n{0}:{1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString());
-            foreach (CustomRoles role in CustomRolesHelper.AllStandardRoles)
+            CustomRoles[] roles = null;
+            if (Options.CurrentGameMode == CustomGameMode.Standard) roles = CustomRolesHelper.AllStandardRoles;
+            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) roles = CustomRolesHelper.AllHASRoles;
+            if (roles != null)
             {
-                if (role.IsEnable()) sb.AppendFormat("\n{0}:{1}x{2}", GetRoleName(role), $"{role.GetChance()}%", role.GetCount());
+                foreach (CustomRoles role in roles)
+                {
+                    if (role.IsEnable()) sb.AppendFormat("\n{0}:{1}x{2}", GetRoleName(role), $"{role.GetChance()}%", role.GetCount());
+                }
             }
             return sb.ToString();
         }
@@ -671,8 +695,17 @@ namespace TownOfHost
                     if (rr != role.GetCustomRoleTypes() && role.IsEnable())
                     {
                         rr = role.GetCustomRoleTypes();
-                        if (role is CustomRoles.Workhorse or CustomRoles.Watcher
-                            or CustomRoles.Lovers or CustomRoles.LastImpostor)
+                        if (role is
+                            CustomRoles.Workhorse or
+                            CustomRoles.Watcher or
+                            CustomRoles.Lovers or
+                            CustomRoles.LastImpostor
+                            //CustomRoles.LastNeutral or
+                            //CustomRoles.Speeding or
+                            //CustomRoles.Moon or
+                            //CustomRoles.Guesser or
+                            //CustomRoles.NotConvener
+                            )
                             sb.AppendFormat($"\n ☆{GetString("Addons")}");
                         else
                         {
@@ -814,7 +847,9 @@ namespace TownOfHost
             foreach (var role in SubRoles)
             {
                 if (role is CustomRoles.NotAssigned or
-                            CustomRoles.LastImpostor) continue;
+                            CustomRoles.LastImpostor
+                //CustomRoles.LastNeutral
+                ) continue;
 
                 var RoleText = disableColor ? GetRoleName(role) : ColorString(GetRoleColor(role), GetRoleName(role));
                 sb.Append($"{ColorString(Color.white, " + ")}{RoleText}");
@@ -845,6 +880,17 @@ namespace TownOfHost
                 + $"\n/h addons {GetString("Command.h_addons")}"
                 + $"\n/h modes {GetString("Command.h_modes")}"
                 + $"\n/dump - {GetString("Command.dump")}"
+                );
+        }
+        public static void ShowHelpK()
+        {
+            SendMessage(
+                GetString("CommandList")
+                + $"\n/w - {GetString("Command.winnerteam")}"
+                + $"\n/forceend - {GetString("Command.forceend")}"
+                + $"\n/allplayertp - {GetString("Command.apt")}"
+                + $"\n/timer - {GetString("Command.timer")}"
+                + $"\n/voice - {GetString("Command.voice")}"
                 );
         }
         public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool removeTags = true)
@@ -1004,7 +1050,7 @@ namespace TownOfHost
                     SelfSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, isForMeeting: isForMeeting));
 
                     //RealNameを取得 なければ現在の名前をRealNamesに書き込む
-                    string SeerRealName = seer.GetRealName(isForMeeting);
+                    string SeerRealName = (seer.GetRoleClass() is IUseTheShButton) ? Main.AllPlayerNames[seer.PlayerId] : seer.GetRealName(isForMeeting);
 
                     if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
                         SeerRealName = seer.GetRoleInfo();
@@ -1038,6 +1084,7 @@ namespace TownOfHost
                     || IsActive(SystemTypes.Comms)
                     || isMushroomMixupActive
                     || Options.CurrentGameMode == CustomGameMode.TaskBattle
+                    || (seer.GetRoleClass() is IUseTheShButton) //ﾜﾝｸﾘｯｸシェイプボタン持ち
                     || NoCache
                     || ForceLoop
                 )
@@ -1077,6 +1124,9 @@ namespace TownOfHost
                                 if (Options.TaskBattletaskc.GetBool())
                                     TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
 
+                            /*if (Options.Taskcheck.GetBool())
+                                TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");*/
+
                             //他人の役職とタスクは幽霊が他人の役職を見れるようになっていてかつ、seerが死んでいる場合のみ表示されます。それ以外の場合は空になります。
                             var targetRoleData = GetRoleNameAndProgressTextData(seer, target);
                             var TargetRoleText = targetRoleData.enabled ? $"<size={fontSize}>{targetRoleData.text}</size>\r\n" : "";
@@ -1096,11 +1146,18 @@ namespace TownOfHost
                             }
 
                             //RealNameを取得 なければ現在の名前をRealNamesに書き込む
-                            string TargetPlayerName = target.GetRealName(isForMeeting);
+                            string TargetPlayerName = (seer.GetRoleClass() is IUseTheShButton) ? Main.AllPlayerNames[target.PlayerId] : target.GetRealName(isForMeeting);
 
                             //ターゲットのプレイヤー名の色を書き換えます。
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, isForMeeting);
 
+                            if (seer.Is(CustomRoles.Guesser))
+                            {
+                                if (seer.IsAlive() && target.IsAlive() && isForMeeting)
+                                {
+                                    TargetPlayerName = ColorString(Color.yellow, target.PlayerId.ToString()) + " " + TargetPlayerName;
+                                }
+                            }
                             string TargetDeathReason = "";
                             if (seer.KnowDeathReason(target))
                                 TargetDeathReason = $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})";
@@ -1143,6 +1200,9 @@ namespace TownOfHost
                 ventilationSystem.PlayersInsideVents.Clear();
                 ventilationSystem.IsDirty = true;
             }
+
+            // foreach (var pc in Main.AllAlivePlayerControls)
+            //   (pc.GetRoleClass() as IUseTheShButton)?.Shape(pc);
         }
 
         public static void ChangeInt(ref int ChangeTo, int input, int max)
@@ -1154,12 +1214,19 @@ namespace TownOfHost
         public static void CountAlivePlayers(bool sendLog = false)
         {
             int AliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
+            int AliveNeutalCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Neutral));
             if (Main.AliveImpostorCount != AliveImpostorCount)
             {
                 Logger.Info("生存しているインポスター:" + AliveImpostorCount + "人", "CountAliveImpostors");
                 Main.AliveImpostorCount = AliveImpostorCount;
                 LastImpostor.SetSubRole();
             }
+            /*if (Main.AliveNeutalCount != AliveNeutalCount)
+            {
+                Logger.Info("生存しているニュートラル:" + AliveNeutalCount + "人", "CountAliveNeutral");
+                Main.AliveNeutalCount = AliveNeutalCount;
+                LastNeutral.SetSubRole();
+            }*/
 
             if (sendLog)
             {

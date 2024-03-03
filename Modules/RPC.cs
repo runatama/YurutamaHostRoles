@@ -40,12 +40,15 @@ namespace TownOfHost
         KillerCount,
         SyncRoomTimer,
         SyncYomiage,
-        SetFTc,
-        SetFTtarget,
+        SetCount,
+        SetTarget,
         SetAntiRc,
         SetBbc,
         SetTKc,
-        SetChefTarget
+        SetChefTarget,
+        Guess,
+        GuessKill,
+        ShowPopUp,
     }
     public enum Sounds
     {
@@ -72,9 +75,10 @@ namespace TownOfHost
                     Logger.Info("役職:" + __instance.GetRealName() + " => " + role, "SetRole");
                     break;
                 case RpcCalls.SendChat:
-                    string text = subReader.ReadString();
-                    Logger.Info($"{__instance.GetNameWithRole()}:{text}", "SendChat");
-                    ChatCommands.OnReceiveChat(__instance, text);
+                    var text = subReader.ReadString();
+                    Logger.Info($"{__instance.GetNameWithRole()}:{text}", "ReceiveChat");
+                    ChatCommands.OnReceiveChat(__instance, text, out var canceled);
+                    if (canceled) return false;
                     break;
                 case RpcCalls.StartMeeting:
                     PlayerControl p = Utils.GetPlayerById(subReader.ReadByte());
@@ -168,6 +172,16 @@ namespace TownOfHost
                     else _ = GameStartManagerPatch.SetTimer(0);
                     Logger.Info($"{timer - 0.5f}", "settimer");
                     break;
+                case CustomRPC.ShowPopUp:
+                    string msg = reader.ReadString();
+                    HudManager.Instance.ShowPopUp(msg);
+                    break;
+                /*case CustomRPC.Guess:
+                    GuessManager.ReceiveRPC(reader, __instance);
+                    break;
+                case CustomRPC.GuessKill:
+                    GuessManager.RpcClientGuess(Utils.GetPlayerById(reader.ReadByte()));
+                    break;*/
                 case CustomRPC.SyncYomiage:
                     if (Main.SyncYomiage.Value)
                     {
@@ -322,6 +336,14 @@ namespace TownOfHost
             catch { }
             Logger.Info($"FromNetID:{targetNetId}({from}) TargetClientID:{targetClientId}({target}) CallID:{callId}({rpcName})", "SendRPC");
         }
+        public static void ShowPopUp(this PlayerControl pc, string msg)
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.GetClientId());
+            writer.Write(msg);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpc))]
         public static string GetRpcName(byte callId)
         {
             string rpcName;

@@ -12,6 +12,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.AddOns.Impostor;
+//using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
 
 namespace TownOfHost
@@ -389,6 +390,8 @@ namespace TownOfHost
             Main.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
             if (player.PlayerId == LastImpostor.currentId)
                 LastImpostor.SetKillCooldown();
+            //if (player.PlayerId == LastNeutral.currentId && player is LNKiller)
+            //LastNeutral.SetKillCooldown();
         }
         public static bool CanMakeMadmate(this PlayerControl player)
         {

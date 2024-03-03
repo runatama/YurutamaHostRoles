@@ -111,7 +111,7 @@ namespace TownOfHost
 #if DEBUG
                 IdDuplicated = true;
 #endif
-                Logger.Error($"ID:{id}が重複しています name:{name}", "OptionItem");
+                Logger.Error($"ID:{id}が重複しています name:{name},{_fastOptions[id].Name}", "OptionItem");
             }
         }
 
@@ -278,6 +278,7 @@ namespace TownOfHost
     {
         MainSettings,
         ImpostorRoles,
+        MadmateRoles,
         CrewmateRoles,
         NeutralRoles,
         Addons

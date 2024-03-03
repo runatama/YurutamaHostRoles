@@ -7,6 +7,10 @@ using InnerNet;
 using Mathf = UnityEngine.Mathf;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Common;
+using AsmResolver.Collections;
+using Rewired;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Modules
 {
@@ -89,8 +93,6 @@ namespace TownOfHost.Modules
                     AURoleOptions.EngineerInVentMaxTime = Options.MadmateVentMaxTime.GetFloat();
                     if (Options.MadmateHasImpostorVision.GetBool())
                         opt.SetVision(true);
-                    if (Options.MadmateCanSeeOtherVotes.GetBool())
-                        opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                     break;
             }
 
@@ -103,17 +105,40 @@ namespace TownOfHost.Modules
                     case CustomRoles.Watcher:
                         opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                         break;
+                        /*case CustomRoles.Moon:
+                            if (Utils.IsActive(SystemTypes.Electrical))
+                            {
+                                opt.SetFloat(FloatOptionNames.CrewLightMod, 5);
+                            }
+                            break;*/
                 }
             }
+
+            //キルクール0に設定+修正する設定をONにしたと気だけ呼び出す。
+            if (Options.FixZeroKillCooldown.GetBool() && AURoleOptions.KillCooldown == 0 && Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var ZerokillCooldown))
+            {//0に限りなく近い小数にしてキルできない状態回避する
+                AURoleOptions.KillCooldown = Mathf.Max(0.00000000000000000000000000000000000000000001f, ZerokillCooldown);
+            }
+            else
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
             {
                 AURoleOptions.KillCooldown = Mathf.Max(0f, killCooldown);
             }
 
-            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
+            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))//スピーディング実装時は入れる&& !player.Is(CustomRoles.Speeding))
             {
-                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 3f);
+                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 5f);
+            }/*
+            else
+            if (player.Is(CustomRoles.Speeding) && (Trapper.Tora||TimeTraveler.Skill))
+            {
+                AURoleOptions.PlayerSpeedMod = Main.MinSpeed;
             }
+            else
+            if (player.Is(CustomRoles.Speeding))
+            {
+                AURoleOptions.PlayerSpeedMod = Speeding.Speed;
+            }*/
 
             state.taskState.hasTasks = Utils.HasTasks(player.Data, false);
             if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead)
