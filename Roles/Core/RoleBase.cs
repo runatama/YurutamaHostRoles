@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using Hazel;
 using AmongUs.GameOptions;
+
 using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Core;
@@ -150,6 +152,16 @@ public abstract class RoleBase : IDisposable
     /// <param name="target">変身先</param>
     public virtual void OnShapeshift(PlayerControl target)
     { }
+
+    /// <summary>
+    /// シェイプシフトされる前に呼ばれる関数
+    /// falseを返すとシェイプシフトをなかったことにできる
+    /// 自分自身について呼ばれるため本人確認不要
+    /// Host以外も呼ばれるので注意
+    /// </summary>
+    /// <param name="target">変身先</param>
+    /// <param name="shouldAnimate">アニメーションを再生するか</param>
+    public virtual bool CheckShapeshift(PlayerControl target, ref bool shouldAnimate) => true;
 
     /// <summary>
     /// タスクターンに常時呼ばれる関数
@@ -340,29 +352,23 @@ public abstract class RoleBase : IDisposable
     }
 
     /// <summary>
-    /// ホストからチャットが送られてきた時の情報 TOHk
-    /// </summary>
-    public virtual void Chat(ChatController __instance)
-    { }
-    /// <summary>
-    /// 参加側からチャットが送られてきた時の情報 TOHk
-    /// </summary>
-    public virtual void Chat2(PlayerControl player, string text)
-    { }
-    public virtual bool Pet(PlayerControl __instance) => false;
-    /// <summary>
-    /// 投票が終わったあとの票変更 TOHk
-    /// </summary>
-    public virtual void ChangeVote()
-    { }
-
-    /// <summary>
     /// 会議をキャンセルするために使う<br/>
     /// <see cref="OnReportDeadBody"/>より先に呼ばれる、キャンセルした場合は呼ばれない<br/>
     /// trueを返すとキャンセルされる
     /// </summary>
     public virtual bool CancelReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target) => false;
 
+    /// <summary>
+    /// 占い結果で表示される役職を変更することができる<br/>
+    /// NotAssignedを返すと変更されない
+    /// </summary>
+    public virtual CustomRoles GetFtResults(PlayerControl player) => CustomRoles.NotAssigned;
+
+    /// <summary>
+    /// 投票結果を返す<br/>
+    /// trueを返すと追放の「ランダム追放」「全員追放」などが実行されない
+    /// </summary>
+    public virtual bool VotingResults(ref GameData.PlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile) => false;
     protected static AudioClip GetIntroSound(RoleTypes roleType) =>
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
 

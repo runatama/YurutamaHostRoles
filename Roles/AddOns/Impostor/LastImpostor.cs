@@ -9,11 +9,13 @@ namespace TownOfHost.Roles.AddOns.Impostor
         private static readonly int Id = 80000;
         public static byte currentId = byte.MaxValue;
         public static OptionItem KillCooldown;
+        //public static OptionItem GiveGuesser;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1));
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor])
                 .SetValueFormat(OptionFormat.Seconds);
+            //GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
         }
         public static void Init() => currentId = byte.MaxValue;
         public static void Add(byte id) => currentId = id;
@@ -50,7 +52,11 @@ namespace TownOfHost.Roles.AddOns.Impostor
                     SetKillCooldown();
                     pc.SyncSettings();
                     Utils.NotifyRoles();
-                    break;
+                    /*if (GiveGuesser.GetBool())
+                    {
+                        pc.RpcSetCustomRole(CustomRoles.Guesser);
+                    }
+                    break;*/
                 }
             }
         }

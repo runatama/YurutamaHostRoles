@@ -89,7 +89,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
     static Dictionary<byte, int> CheckVentD = new();
     private static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, OptionName.KillCooldown, new(2.5f, 180f, 2.5f), 30f, false)
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, OptionName.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCoolDown = FloatOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(2.5f, 180f, 2.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
@@ -209,6 +209,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
                 {
                     if (target.GetCustomRole().IsImpostor()) return;
                     PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Kill;
+                    target.SetRealKiller(Player);
                     target.RpcMurderPlayer(target, true);
                     if (TpKillCooldownReset) Player.SetKillCooldown(KillCooldown);
                 }

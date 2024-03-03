@@ -219,6 +219,7 @@ public static class CustomRoleManager
         if (player.Data.Role.Role == RoleTypes.Shapeshifter)
         {
             Main.CheckShapeshift.TryAdd(player.PlayerId, false);
+            (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
         }
     }
     public static void OtherRolesAdd(PlayerControl pc)
@@ -230,6 +231,15 @@ public static class CustomRoleManager
                 case CustomRoles.Watcher:
                     Watcher.Add(pc.PlayerId);
                     break;
+                    /*case CustomRoles.Speeding:
+                        Speeding.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Moon:
+                        Moon.Add(pc.PlayerId);
+                        break;
+                    case CustomRoles.Guesser:
+                        Guesser.Add(pc.PlayerId);
+                        break;*/
             }
         }
     }
@@ -390,6 +400,9 @@ public enum CustomRoles
     TeleportKiller,
     AntiReporter,
     Tairou,
+    Evilgambler,
+    Noisemaker,
+    Magician,
     //Madmate
     MadGuardian,
     Madmate,
@@ -397,6 +410,8 @@ public enum CustomRoles
     SKMadmate,
     //TOH-k
     MadJester,
+    MadTeller,
+    MadBait,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,
@@ -420,6 +435,12 @@ public enum CustomRoles
     Bakery,
     FortuneTeller,
     TaskStar,
+    PonkotuTeller,
+    UltraStar,
+    MeetingSheriff,
+    GuardMaster,
+    Shyboy,
+    Balancer,
     //Neutral
     Arsonist,
     Egoist,
@@ -435,19 +456,24 @@ public enum CustomRoles
     Chef,
     JackalMafia,
     CountKiller,
+    GrimReaper,
     TaskPlayerB,
     //HideAndSeek
     HASFox,
     HASTroll,
     //GM
     GM,
-    Debugger,
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,
+    //LastNeutral,
     Lovers,
     Watcher,
+    //Moon,
     Workhorse,
+    //Speeding,
+    Guesser,
+    //NotConvener,
 }
 public enum CustomRoleTypes
 {

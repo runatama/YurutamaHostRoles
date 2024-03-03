@@ -128,6 +128,7 @@ namespace TownOfHost.Roles.Impostor
                             if (target2.IsAlive())
                             {
                                 PlayerState.GetByPlayerId(target2.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                                target2.SetRealKiller(Player);
                                 target2.RpcMurderPlayer(target2, true);
                                 RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
                                 Logger.Info($"{target.name}を爆発させました。", "bomber");

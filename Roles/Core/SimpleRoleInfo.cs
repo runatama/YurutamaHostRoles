@@ -80,7 +80,7 @@ public class SimpleRoleInfo
             tab = CustomRoleType switch
             {
                 CustomRoleTypes.Impostor => TabGroup.ImpostorRoles,
-                CustomRoleTypes.Madmate => TabGroup.ImpostorRoles,
+                CustomRoleTypes.Madmate => TabGroup.MadmateRoles,
                 CustomRoleTypes.Crewmate => TabGroup.CrewmateRoles,
                 CustomRoleTypes.Neutral => TabGroup.NeutralRoles,
                 _ => tab

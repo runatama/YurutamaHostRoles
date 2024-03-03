@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 using static TownOfHost.Translator;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
@@ -158,14 +159,16 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             SendRPC();
             if (!CanBeKilledBy(target))
             {
+                //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
                 killer.RpcMurderPlayer(killer);
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = CustomDeathReason.Misfire;
                 if (!MisfireKillsTarget.GetBool())
                 {
                     info.DoKill = false;
                     return;
                 }
             }
+
             killer.ResetKillCooldown();
         }
         return;
@@ -192,7 +195,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
 
         return cRole.GetCustomRoleTypes() switch
         {
-            CustomRoleTypes.Impostor => true,
+            CustomRoleTypes.Impostor => cRole is not CustomRoles.Tairou,
             CustomRoleTypes.Madmate => KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool(),
             CustomRoleTypes.Neutral => CanKillNeutrals.GetValue() == 0 || !KillTargetOptions.TryGetValue(cRole, out var option) || option.GetBool(),
             _ => false,
