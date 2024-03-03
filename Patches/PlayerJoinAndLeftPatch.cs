@@ -3,6 +3,7 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using InnerNet;
+using Hazel;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles;

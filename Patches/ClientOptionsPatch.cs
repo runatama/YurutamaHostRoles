@@ -1,4 +1,5 @@
 using HarmonyLib;
+using UnityEngine;
 
 using TownOfHost.Modules.ClientOptions;
 
@@ -18,6 +19,7 @@ namespace TownOfHost
         private static ClientActionItem UseZoom;
         private static ClientActionItem SyncYomiage;
         private static ClientActionItem CustomName;
+        private static ClientActionItem HideResetToDefault;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -66,9 +68,13 @@ namespace TownOfHost
             {
                 SyncYomiage = ClientOptionItem.Create("SyncYomiage", Main.SyncYomiage, __instance);
             }
-            if ((CustomName == null || CustomName.ToggleButton == null) && (Main.IsHalloween || Main.IsChristmas))
+            if ((CustomName == null || CustomName.ToggleButton == null) && Main.CustomNameD())
             {
                 CustomName = ClientOptionItem.Create("CustomName", Main.CustomName, __instance);
+            }
+            if (HideResetToDefault == null || HideResetToDefault.ToggleButton == null)
+            {
+                HideResetToDefault = ClientOptionItem.Create("HideResetToDefault", Main.HideResetToDefault, __instance);
             }
             if (ModUnloaderScreen.Popup == null)
             {
@@ -78,6 +84,14 @@ namespace TownOfHost
         private static void ForceEndProcess()
         {
             if (!GameStates.IsInGame) return;
+            //左シフトが押されているなら強制廃村
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                GameManager.Instance.enabled = false;
+                CustomWinnerHolder.WinnerTeam = CustomWinner.None;
+                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                return;
+            }
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
             GameManager.Instance.LogicFlow.CheckEndCriteria();
         }

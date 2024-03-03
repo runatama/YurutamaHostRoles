@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using InnerNet;
-
+using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 
@@ -25,8 +25,6 @@ namespace TownOfHost
         public static bool Prefix(ChatController __instance)
         {
             __instance.timeSinceLastMessage = 3f;
-            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-                role.Chat(__instance);
 
             // クイックチャットなら横流し
             if (__instance.quickChatField.Visible)
@@ -48,6 +46,9 @@ namespace TownOfHost
             var cancelVal = "";
             Main.isChatCommand = true;
             Logger.Info(text, "SendChat");
+            ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
+            //if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) canceled = true;
+
             switch (args[0])
             {
                 case "/dump":
@@ -64,6 +65,27 @@ namespace TownOfHost
                     }
                     if (version_text != "") HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, version_text);
                     break;
+                case "/voice":
+                case "/vo":
+                    canceled = true;
+                    var voc = 0;
+                    byte vo0id = PlayerControl.LocalPlayer.PlayerId;
+                    if ((args.Length < 2 ? "" : args[1]) == "set" && (args.Length < 3 ? "" : args[2]) != "")
+                        if (byte.TryParse(args[2], out vo0id))
+                            voc += 2;
+                    subArgs = args.Length < 2 ? "" : args[voc + 1];
+                    string subArgs2 = args.Length < 3 ? "" : args[voc + 2];
+                    string subArgs3 = args.Length < 4 ? "" : args[voc + 3];
+                    string subArgs4 = args.Length < 5 ? "" : args[voc + 4];
+                    if (subArgs != "" && subArgs2 != "" && subArgs3 != "" && subArgs4 != "")
+                    {
+                        var vopc = Utils.GetPlayerById(vo0id);
+                        YomiageS[vopc.Data.DefaultOutfit.ColorId] = $"{subArgs} {subArgs2} {subArgs3} {subArgs4}";
+                        if (AmongUsClient.Instance.AmHost) RPC.SyncYomiage();
+                        if (vo0id != PlayerControl.LocalPlayer.PlayerId) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, $"{vopc.name}の声設定を変更しました。");
+                    }
+                    else Utils.SendMessage("使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程", PlayerControl.LocalPlayer.PlayerId);
+                    break;
                 default:
                     Main.isChatCommand = false;
                     if (Main.UseYomiage.Value && PlayerControl.LocalPlayer.IsAlive()) Yomiage(PlayerControl.LocalPlayer.Data.DefaultOutfit.ColorId, text).Wait();
@@ -78,6 +100,58 @@ namespace TownOfHost
                     case "/winner":
                         canceled = true;
                         Utils.SendMessage("Winner: " + string.Join(",", Main.winnerList.Select(b => Main.AllPlayerNames[b])));
+                        break;
+                    //勝者指定
+                    case "/sw":
+                        canceled = true;
+                        if (!GameStates.IsInGame) break;
+                        subArgs = args.Length < 2 ? "" : args[1];
+                        switch (subArgs)
+                        {
+                            case "crewmate":
+                            case "クルーメイト":
+                            case "クルー":
+                                GameManager.Instance.enabled = false;
+                                CustomWinnerHolder.WinnerTeam = CustomWinner.Crewmate;
+                                foreach (var player in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Crewmate)))
+                                {
+                                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                                }
+                                GameEndChecker.StartEndGame(GameOverReason.HumansByTask);
+                                break;
+                            case "impostor":
+                            case "インポスター":
+                                GameManager.Instance.enabled = false;
+                                CustomWinnerHolder.WinnerTeam = CustomWinner.Impostor;
+                                foreach (var player in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate)))
+                                {
+                                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                                }
+                                GameEndChecker.StartEndGame(GameOverReason.ImpostorByKill);
+                                break;
+                            case "none":
+                            case "全滅":
+                                GameManager.Instance.enabled = false;
+                                CustomWinnerHolder.WinnerTeam = CustomWinner.None;
+                                GameEndChecker.StartEndGame(GameOverReason.ImpostorByKill);
+                                break;
+                            case "jackal":
+                            case "ジャッカル":
+                                GameManager.Instance.enabled = false;
+                                CustomWinnerHolder.WinnerTeam = CustomWinner.Jackal;
+                                GameEndChecker.StartEndGame(GameOverReason.ImpostorByKill);
+                                break;
+                            case "廃村":
+                                GameManager.Instance.enabled = false;
+                                CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
+                                GameEndChecker.StartEndGame(GameOverReason.ImpostorByKill);
+                                break;
+                            default:
+                                __instance.AddChat(PlayerControl.LocalPlayer, "次の中から勝利させたい陣営を選んでね\ncrewmate\nクルー\nクルーメイト\nimpostor\nインポスター\njackal\nジャッカル\nnone\n全滅\n廃村");
+                                cancelVal = "/sw ";
+                                break;
+                        }
+                        ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Admin, 0);
                         break;
 
                     case "/l":
@@ -134,8 +208,7 @@ namespace TownOfHost
                                         break;
                                 }
                                 break;
-                            case "myplayer":
-                            case "mp":
+                            case "my":
                             case "m":
                                 Utils.ShowActiveSettings(PlayerControl.LocalPlayer.PlayerId);
                                 break;
@@ -170,70 +243,87 @@ namespace TownOfHost
                     case "/h":
                     case "/help":
                         canceled = true;
-                        subArgs = args.Length < 2 ? "" : args[1];
+                        var suba1 = 0;
+                        byte playerh = 255;
+                        subArgs = args.Length < 2 + suba1 ? "" : args[1 + suba1];
+                        if (subArgs is "m" or "my")
+                        {
+                            suba1++;
+                            playerh = PlayerControl.LocalPlayer.PlayerId;
+                            subArgs = args.Length < 2 + suba1 ? "" : args[1 + suba1];
+                        }
                         switch (subArgs)
                         {
                             case "r":
                             case "roles":
-                                subArgs = args.Length < 3 ? "" : args[2];
-                                GetRolesInfo(subArgs);
+                                subArgs = args.Length < 3 + suba1 ? "" : args[2 + suba1];
+                                GetRolesInfo(subArgs, playerh);
                                 break;
 
                             case "a":
                             case "addons":
-                                subArgs = args.Length < 3 ? "" : args[2];
+                                subArgs = args.Length < 3 + suba1 ? "" : args[2 + suba1];
                                 switch (subArgs)
                                 {
                                     case "lastimpostor":
                                     case "limp":
-                                        Utils.SendMessage(Utils.GetRoleName(CustomRoles.LastImpostor) + GetString("LastImpostorInfoLong"));
+                                        Utils.SendMessage(Utils.GetRoleName(CustomRoles.LastImpostor) + GetString("LastImpostorInfoLong"), playerh);
                                         break;
 
                                     default:
-                                        Utils.SendMessage($"{GetString("Command.h_args")}:\n lastimpostor(limp)");
+                                        Utils.SendMessage($"{GetString("Command.h_args")}:\n lastimpostor(limp)", playerh);
                                         break;
                                 }
                                 break;
 
                             case "m":
                             case "modes":
-                                subArgs = args.Length < 3 ? "" : args[2];
+                                subArgs = args.Length < 3 + suba1 ? "" : args[2 + suba1];
                                 switch (subArgs)
                                 {
                                     case "hideandseek":
                                     case "has":
-                                        Utils.SendMessage(GetString("HideAndSeekInfo"));
+                                        Utils.SendMessage(GetString("HideAndSeekInfo"), playerh);
                                         break;
 
                                     case "taskbattle":
                                     case "tbm":
-                                        Utils.SendMessage(GetString("TaskBattleInfo"));
+                                        Utils.SendMessage(GetString("TaskBattleInfo"), playerh);
                                         break;
 
                                     case "nogameend":
                                     case "nge":
-                                        Utils.SendMessage(GetString("NoGameEndInfo"));
+                                        Utils.SendMessage(GetString("NoGameEndInfo"), playerh);
                                         break;
 
                                     case "syncbuttonmode":
                                     case "sbm":
-                                        Utils.SendMessage(GetString("SyncButtonModeInfo"));
+                                        Utils.SendMessage(GetString("SyncButtonModeInfo"), playerh);
                                         break;
+
+                                    /*case "InsiderMode":
+                                    case "im":
+                                        Utils.SendMessage(GetString("InsiderModeInfo"));
+                                        break;*/
 
                                     case "randommapsmode":
                                     case "rmm":
-                                        Utils.SendMessage(GetString("RandomMapsModeInfo"));
+                                        Utils.SendMessage(GetString("RandomMapsModeInfo"), playerh);
                                         break;
 
                                     default:
-                                        Utils.SendMessage($"{GetString("Command.h_args")}:\n hideandseek(has), nogameend(nge), syncbuttonmode(sbm), randommapsmode(rmm), taskbattle(tbm)");
+                                        Utils.SendMessage($"{GetString("Command.h_args")}:\n hideandseek(has), nogameend(nge), syncbuttonmode(sbm), randommapsmode(rmm), taskbattle(tbm), InsiderMode(im)", playerh);
                                         break;
                                 }
                                 break;
 
                             case "n":
                             case "now":
-                                Utils.ShowActiveSettingsHelp();
+                                Utils.ShowActiveSettingsHelp(playerh);
+                                break;
+                            case "k":
+                            case "tohk":
+                                Utils.ShowHelpK();
                                 break;
 
                             default:
@@ -266,7 +356,7 @@ namespace TownOfHost
                                         if (p.PlayerId != PlayerControl.LocalPlayer.PlayerId)
                                         {
                                             var rolea = p.GetCustomRole();
-                                            if (role.GetRoleInfo()?.Description is { } description)
+                                            if (rolea.GetRoleInfo()?.Description is { } description)
                                             {
                                                 Utils.SendMessage(description.FullFormatHelp, p.PlayerId, removeTags: false);
                                             }
@@ -367,21 +457,6 @@ namespace TownOfHost
                         canceled = true;
                         if (!GameStates.IsInGame)
                             Utils.ShowTimer();
-                        break;
-
-                    case "/voice":
-                    case "/vo":
-                        canceled = true;
-                        subArgs = args.Length < 2 ? "" : args[1];
-                        string subArgs2 = args.Length < 2 ? "" : args[2];
-                        string subArgs3 = args.Length < 2 ? "" : args[3];
-                        string subArgs4 = args.Length < 2 ? "" : args[4];
-                        if (subArgs != "" && subArgs2 != "" && subArgs3 != "" && subArgs4 != "")
-                        {
-                            YomiageS[PlayerControl.LocalPlayer.Data.DefaultOutfit.ColorId] = $"{subArgs} {subArgs2} {subArgs3} {subArgs4}";
-                            RPC.SyncYomiage();
-                        }
-                        else Utils.SendMessage("使用方法:\n/vo 音質 音量 速度 音程", PlayerControl.LocalPlayer.PlayerId);
                         break;
 
                     case "/debug":
@@ -515,7 +590,7 @@ namespace TownOfHost
         }
 
         public static string LastL = "N";
-        public static void GetRolesInfo(string role, byte player = 0)
+        public static void GetRolesInfo(string role, byte player = 255)
         {
 
             // 初回のみ処理
@@ -548,9 +623,15 @@ namespace TownOfHost
 
                 // 属性
                 roleCommands.Add((CustomRoles)(-5), $"== {GetString("Addons")} ==");  // 区切り用
+                //roleCommands.Add(CustomRoles.LastNeutral, Main.ChangeSomeLanguage.Value ? GetString("LastNeutral") : "ln");
+                roleCommands.Add(CustomRoles.LastImpostor, Main.ChangeSomeLanguage.Value ? GetString("LastImpostor") : "li");
                 roleCommands.Add(CustomRoles.Lovers, Main.ChangeSomeLanguage.Value ? GetString("Lovers") : "lo");
                 roleCommands.Add(CustomRoles.Watcher, Main.ChangeSomeLanguage.Value ? GetString("Watcher") : "wat");
                 roleCommands.Add(CustomRoles.Workhorse, Main.ChangeSomeLanguage.Value ? GetString("Workhorse") : "wh");
+                //roleCommands.Add(CustomRoles.Speeding, Main.ChangeSomeLanguage.Value ? GetString("Speeding") : "sd");
+                //roleCommands.Add(CustomRoles.Guesser, Main.ChangeSomeLanguage.Value ? GetString("Guesser") : "Gr");
+                //roleCommands.Add(CustomRoles.Moon, Main.ChangeSomeLanguage.Value ? GetString("Moon") : "Mo");
+                //roleCommands.Add(CustomRoles.NotConvener, Main.ChangeSomeLanguage.Value ? GetString("NotConvener") : "Nc");
 
                 // HAS
                 roleCommands.Add((CustomRoles)(-6), $"== {GetString("HideAndSeek")} ==");  // 区切り用
@@ -570,7 +651,6 @@ namespace TownOfHost
                 if (String.Compare(role, roleName, true) == 0 || String.Compare(role, roleShort, true) == 0)
                 {
                     var roleInfo = r.Key.GetRoleInfo();
-                    var pid = player == 0 ? 255 : player;
                     if (roleInfo != null && roleInfo.Description != null)
                     {
                         Utils.SendMessage(roleInfo.Description.FullFormatHelp, sendTo: player, removeTags: false);
@@ -602,6 +682,113 @@ namespace TownOfHost
             msg += rolemsg;
             Utils.SendMessage(msg, player);
         }
+        public static string FixRoleNameInput(string text)
+        {
+            return text switch
+            {
+                "GM" or "gm" or "ゲームマスター" => GetString("GM"),
+
+                //インポスター
+                "アンチレポーター" => GetString("AntiReporter"),
+                "ボマー" or "爆弾魔" => GetString("Bomber"),
+                "バウンティハンター" => GetString("BountyHunter"),
+                "ダイスキラー" => GetString("Dicekiller"),
+                "イビルギャンブラー" => GetString("Evilgambler"),
+                "イビルハッカー" => GetString("EvilHacker"),
+                "イビルトラッカー" => GetString("EvilTracker"),
+                "花火職人" => GetString("FireWorks"),
+                "インサイダー" => GetString("Insider"),
+                "メアー" => GetString("Mare"),
+                "ネコカボチャ" => GetString("Nekokabocha"),
+                "ペンギン" => GetString("Penguin"),
+                "パペッティア" => GetString("Puppeteer"),
+                "シリアルキラー" => GetString("SerialKiller"),
+                "シェイプマスター" => GetString("shapeMaster"),
+                "スナイパー" => GetString("Sniper"),
+                "ステルス" => GetString("Stealth"),
+                "大狼" or "たいろう" or "大老" => GetString("Tairou"),
+                "テレポートキラー" => GetString("TeleportKiller"),
+                "タイムシーフ" => GetString("TimeThief"),
+                "吸血鬼" or "ヴァンパイア" => GetString("Vampire"),
+                "ウォーロック" => GetString("Warlock"),
+                "魔女" or "ウィッチ" => GetString("Witch"),
+                "マフィア" => GetString("Mafia"),
+                "ラストインポスター" => GetString("LastImpostor"),
+                "シェイプシフター" => GetString("NormalShapeshifter"),
+
+                //マッドメイト
+                "マッドメイト" => GetString("Madmate"),
+                "マッドガーディアン" => GetString("MadGuardian"),
+                "マッドジェスター" => GetString("MadJester"),
+                "マッドテラー" => GetString("MadTeller"),
+                "マッドスニッチ" => GetString("MadSnitch"),
+                "サイドキックマッドメイト" => GetString("SKMadmate"),
+
+                //クルーメイト
+                "ベイト" => GetString("Bait"),
+                "ディクテーター" => GetString("Dictator"),
+                "ドクター" => GetString("Doctor"),
+                "ライター" => GetString("Lighter"),
+                "メイヤー" => GetString("Mayor"),
+                "サボタージュマスター" => GetString("SabotageMaster"),
+                "シーア" => GetString("Seer"),
+                "シェリフ" => GetString("Sheriff"),
+                "スニッチ" => GetString("Snitch"),
+                "スピードブースター" => GetString("SpeedBooster"),
+                "トラッパー" => GetString("Trapper"),
+                "タイムマネージャー" => GetString("TimeManager"),
+                "パン屋" => GetString("Bakery"),
+                "占い師" => GetString("FortuneTeller"),
+                "ぽんこつ占い師" or "ポンコツ占い師" => GetString("PonkotuTeller"),
+                "エンジニア" => GetString("NormalEngineer"),
+                "科学者" => GetString("NormalScientist"),
+                "タスクスター" => GetString("Taskstar"),
+                "ベントマスター" => GetString("VentMaster"),
+                "トイレファン" => GetString("ToiletFan"),
+                "ウルトラスター" => GetString("UltraStar"),
+
+                //第3陣営
+                "アーソニスト" => GetString("Arsonist"),
+                "シェフ" => GetString("Chef"),
+                "カウントキラー" => GetString("Countkiller"),
+                "エゴイスト" => GetString("Egoist"),
+                "エクスキューショナー" => GetString("Executioner"),
+                "死神" => GetString("GrimReaper"),
+                "ジャッカル" => GetString("Jackal"),
+                "ジャッカルマフィア" => GetString("JackalMafia"),
+                "ジェスター" => GetString("Jester"),
+                "恋人" or "ラバーズ" => GetString("Lovers"),
+                "オポチュニスト" => GetString("Opportunist"),
+                "ペスト医師" => GetString("PlagueDoctor"),
+                "リモートキラー" => GetString("Remotekiller"),
+                "テロリスト" => GetString("Terrorist"),
+                "シュレディンガーの猫" or "シュレ猫" => GetString("SchrodingerCat"),
+                "Eシュレディンガーの猫" or "Eシュレ猫" => GetString("EgoSchrodingerCat"),
+                "Jシュレディンガーの猫" or "Jシュレ猫" => GetString("JSchrodingerCat"),
+
+                _ => text,
+            };
+        }
+        public static bool GetRoleByInputName(string input, out CustomRoles output, bool includeVanilla = false)
+        {
+            output = new();
+            input = Regex.Replace(input, @"[0-9]+", string.Empty);
+            input = Regex.Replace(input, @"\s", string.Empty);
+            input = Regex.Replace(input, @"[\x01-\x1F,\x7F]", string.Empty);
+            input = input.ToLower().Trim().Replace("是", string.Empty);
+            if (input == "" || input == string.Empty) return false;
+            input = FixRoleNameInput(input).ToLower();
+            foreach (CustomRoles role in Enum.GetValues(typeof(CustomRoles)))
+            {
+                if (!includeVanilla && role.IsVanilla() && role != CustomRoles.GuardianAngel) continue;
+                //if (input == GuessManager.ChangeNormal2Vanilla(role))
+                {
+                    output = role;
+                    return true;
+                }
+            }
+            return false;
+        }
         private static void ConcatCommands(CustomRoleTypes roleType)
         {
             var roles = CustomRoleManager.AllRolesInfo.Values.Where(role => role.CustomRoleType == roleType);
@@ -611,19 +798,24 @@ namespace TownOfHost
                 roleCommands[role.RoleName] = Main.ChangeSomeLanguage.Value ? GetString($"{role.RoleName}") : role.ChatCommand;
             }
         }
-        public static void OnReceiveChat(PlayerControl player, string text)
+        public static void OnReceiveChat(PlayerControl player, string text, out bool canceled)
         {
-            if (!AmongUsClient.Instance.AmHost)
+            if (player != null)
             {
-                if (Main.UseYomiage.Value && player.IsAlive()) Yomiage(player.Data.DefaultOutfit.ColorId, text).Wait();
-                return;
+                var tag = !player.Data.IsDead ? "SendChatAlive" : "SendChatDead";
             }
-            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-            {
-                role.Chat2(player, text);
-            }
+
+            canceled = false;
+
+            if (!AmongUsClient.Instance.AmHost) return;
             string[] args = text.Split(' ');
             string subArgs = "";
+            if (player.PlayerId != 0)
+            {
+                ChatManager.SendMessage(player, text);
+            }
+            //if (GuessManager.GuesserMsg(player, text)) { canceled = true; return; }
+
             switch (args[0])
             {
                 case "/l":

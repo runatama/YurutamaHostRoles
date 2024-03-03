@@ -8,6 +8,7 @@ using UnityEngine;
 using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
@@ -33,12 +34,13 @@ public static class MeetingHudPatch
         public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] byte suspectPlayerId /* 投票された人 */ )
         {
             var voter = Utils.GetPlayerById(srcPlayerId);
-            if (voter.GetRoleClass()?.CheckVoteAsVoter(suspectPlayerId, voter) == false)
-            {
-                __instance.RpcClearVote(voter.GetClientId());
-                Logger.Info($"{voter.GetNameWithRole()} は投票しない", nameof(CastVotePatch));
-                return false;
-            }
+            foreach (var pc in Main.AllPlayerControls)
+                if (pc.GetRoleClass()?.CheckVoteAsVoter(suspectPlayerId, voter) == false)
+                {
+                    __instance.RpcClearVote(voter.GetClientId());
+                    Logger.Info($"{voter.GetNameWithRole()} は投票しない => {srcPlayerId}", nameof(CastVotePatch));
+                    return false;
+                }
 
             MeetingVoteManager.Instance?.SetVote(srcPlayerId, suspectPlayerId);
             return true;
@@ -156,7 +158,16 @@ public static class MeetingHudPatch
                             break;
                     }
                 }
-
+                foreach (var subRole in seer.GetCustomSubRoles())
+                {
+                    switch (subRole)
+                    {
+                        case CustomRoles.Guesser:
+                            if (!seer.Data.IsDead && !target.Data.IsDead)
+                                pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
+                            break;
+                    }
+                }
                 //会議画面ではインポスター自身の名前にSnitchマークはつけません。
 
                 pva.NameText.text += sb.ToString();
@@ -183,6 +194,12 @@ public static class MeetingHudPatch
                     __instance.CheckForEndVoting();
                 });
             }
+            if (BalancerChecker.Balancer != 255)
+            {
+                if (!Utils.GetPlayerById(Balancer.target1).IsAlive()
+                    || !Utils.GetPlayerById(Balancer.target2).IsAlive())
+                    MeetingVoteManager.Instance.EndMeeting(false);
+            }
         }
     }
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
@@ -197,6 +214,8 @@ public static class MeetingHudPatch
                 AntiBlackout.SetIsDead();
                 Main.AllPlayerControls.Do(pc => RandomSpawn.FirstTP[pc.PlayerId] = true);
                 RandomSpawn.FastSpawnPosition.Clear();
+                foreach (var pc in Main.AllPlayerControls)
+                    (pc.GetRoleClass() as IUseTheShButton)?.ResetS(pc);
             }
             // MeetingVoteManagerを通さずに会議が終了した場合の後処理
             MeetingVoteManager.Instance?.Destroy();

@@ -11,6 +11,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Crewmate;
+//using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
 
 namespace TownOfHost
@@ -110,12 +111,20 @@ namespace TownOfHost
             CustomRoleManager.Initialize();
             FallFromLadder.Reset();
             LastImpostor.Init();
+            //LastNeutral.Init();
             TargetArrow.Init();
             DoubleTrigger.Init();
             Watcher.Init();
+            //Speeding.Init();
+            //Moon.Init();
+            //Guesser.Init();
             Workhorse.Init();
+            PlayerSkinPatch.RemoveAll();
+            //NotConvener.Init();
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
+            //GuessManager.Guessreset();
+            SelfVoteManager.Init();
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
             MeetingStates.MeetingCalled = false;
@@ -140,12 +149,20 @@ namespace TownOfHost
 
             RoleAssignManager.SelectAssignRoles();
 
+            if (Options.EnableGM.GetBool())
+            {
+                PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
+                PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate);
+                PlayerControl.LocalPlayer.Data.IsDead = true;
+            }
+
             if (Options.CurrentGameMode != CustomGameMode.HideAndSeek)
             {
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                 {
                     foreach (var pc in Main.AllPlayerControls)
                     {
+                        if(pc.Is(CustomRoles.GM)) continue;
                         pc.RpcSetCustomRole(CustomRoles.TaskPlayerB);
                         if (Options.TaskBattleCanVent.GetBool()) pc.RpcSetRole(RoleTypes.Engineer);
                         else pc.RpcSetRole(RoleTypes.Crewmate);
@@ -168,12 +185,8 @@ namespace TownOfHost
                     }
 
                     if (Options.EnableGM.GetBool())
-                    {
                         AllPlayers.RemoveAll(x => x == PlayerControl.LocalPlayer);
-                        PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
-                        PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate);
-                        PlayerControl.LocalPlayer.Data.IsDead = true;
-                    }
+
                     Dictionary<(byte, byte), RoleTypes> rolesMap = new();
                     foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
                     {
@@ -301,6 +314,7 @@ namespace TownOfHost
                 }
                 AssignLoversRoles();
                 AddOnsAssignData.AssignAddOnsFromList();
+                AddOnsAssignDataNotImp.AssignAddOnsFromList();
 
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
@@ -335,14 +349,13 @@ namespace TownOfHost
                     roleOpt.SetRoleRate(roleTypes, 0, 0);
                 }
                 GameEndChecker.SetPredicateToNormal();
-
-                GameOptionsSender.AllSenders.Clear();
-                foreach (var pc in Main.AllPlayerControls)
-                {
-                    GameOptionsSender.AllSenders.Add(
-                        new PlayerGameOptionsSender(pc)
-                    );
-                }
+            }
+            GameOptionsSender.AllSenders.Clear();
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                GameOptionsSender.AllSenders.Add(
+                    new PlayerGameOptionsSender(pc)
+                );
             }
 
             /*

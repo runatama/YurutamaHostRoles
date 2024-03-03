@@ -49,6 +49,12 @@ namespace TownOfHost
                         break;
                 }
             }
+            var ResetToDefault = GameObject.Find("ResetToDefault");
+            if (ResetToDefault != null && Main.HideResetToDefault.Value)
+            {
+                ResetToDefault.SetActive(false);
+            }
+
             var template = Object.FindObjectsOfType<StringOption>().FirstOrDefault();
             if (template == null) return;
 

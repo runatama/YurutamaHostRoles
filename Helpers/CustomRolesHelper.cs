@@ -51,7 +51,27 @@ namespace TownOfHost
                 CustomRoles.Impostor or
                 CustomRoles.Shapeshifter;
         }
+        public static bool IsAddOn(this CustomRoles roles)
+        {
+            return
+                roles is
+                CustomRoles.LastImpostor or
+                //CustomRoles.LastNeutral or
+                //CustomRoles.Moon or
+                //CustomRoles.Guesser or
+                //CustomRoles.Speeding or
+                //CustomRoles.NotConvener or
+                CustomRoles.Watcher or
+                CustomRoles.Workhorse;
+        }
 
+        public static bool IsWhiteCrew(this CustomRoles roles)
+        {
+            return
+                roles is
+                CustomRoles.UltraStar or
+                CustomRoles.TaskStar;
+        }
         public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
         {
             CustomRoleTypes type = CustomRoleTypes.Crewmate;
@@ -137,5 +157,6 @@ namespace TownOfHost
         Jackal,
         Remotekiller,
         TaskPlayer,
+        GrimReaper,
     }
 }

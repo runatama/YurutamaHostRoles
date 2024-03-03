@@ -14,6 +14,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.AddOns.Crewmate;
+using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost
 {
@@ -259,6 +260,24 @@ namespace TownOfHost
             }
         }
     }
+
+    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
+    class CheckShapeshiftPatch
+    {
+        public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] ref bool shouldAnimate)
+        {
+            var button = (__instance.GetRoleClass() as IUseTheShButton)?.CheckShapeshift(__instance, target);
+            if (button.HasValue)
+            {
+                shouldAnimate = false;
+                return button.Value;
+            }
+            var r = __instance.GetRoleClass()?.CheckShapeshift(target, ref shouldAnimate);
+            if (!r.HasValue) return true;
+            return r.Value;
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
     class ReportDeadBodyPatch
     {
@@ -276,6 +295,29 @@ namespace TownOfHost
                 Logger.Warn($"{__instance.GetNameWithRole()}:通報禁止中のため可能になるまで待機します", "ReportDeadBody");
                 return false;
             }
+            if (__instance.Is(CustomRoleTypes.Madmate) && Options.MadmateCannotReport.GetBool())
+            {
+                Logger.Info($"{__instance.GetNameWithRole()}はMadmateCannotReportの設定がONのため、レポートできません。", "ReportDeadBody");
+                return false;
+            }
+            /*if (__instance.Is(CustomRoles.NotConvener))
+            {
+                if (NotConvener.Mode == NotConvener.Convener.ConvenerAll)
+                {
+                    Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                if (target == null && NotConvener.Mode == NotConvener.Convener.NotButton)
+                {
+                    Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                if (target != null && NotConvener.Mode == NotConvener.Convener.NotReport)
+                {
+                    Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+            }*/
             if (!AmongUsClient.Instance.AmHost) return true;
 
             //通報者が死んでいる場合、本処理で会議がキャンセルされるのでここで止める
@@ -358,7 +400,7 @@ namespace TownOfHost
 
             if (AmongUsClient.Instance.AmHost)
             {//実行クライアントがホストの場合のみ実行
-                if (GameStates.IsLobby && (ModUpdater.hasUpdate || ModUpdater.isBroken || !Main.AllowPublicRoom || !VersionChecker.IsSupported || !ModUpdater.publicok || !Main.IsPublicAvailableOnThisVersion) && AmongUsClient.Instance.IsGamePublic)
+                if (GameStates.IsLobby && (ModUpdater.hasUpdate || ModUpdater.isBroken || !Main.AllowPublicRoom || !VersionChecker.IsSupported || !ModUpdater.publicok || (!Main.IsPublicAvailableOnThisVersion && !Patches.CustomServerHelper.IsCs())) && AmongUsClient.Instance.IsGamePublic)
                     AmongUsClient.Instance.ChangeGamePublic(false);
 
                 if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[__instance.PlayerId] && ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Count > 0)
@@ -398,7 +440,6 @@ namespace TownOfHost
                     HudManager.Instance.KillButton.SetTarget(closest);
                 }
             }
-
 
             //役職テキストの表示
             var RoleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");
@@ -663,12 +704,11 @@ namespace TownOfHost
                     }
                 }
             }
-            else
-            {
-                //属性クラスの扱いを決定するまで仮置き
-                ret &= Workhorse.OnCompleteTask(pc);
-            }
+            
+            //属性クラスの扱いを決定するまで仮置き
+            ret &= Workhorse.OnCompleteTask(pc);
             Utils.NotifyRoles();
+
             return ret;
         }
     }

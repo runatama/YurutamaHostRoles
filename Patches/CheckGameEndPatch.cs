@@ -9,6 +9,8 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
+//using TownOfHost.Roles.AddOns.Impostor;
+//using TownOfHost.Roles.AddOns.Neutral;
 
 namespace TownOfHost
 {
@@ -65,6 +67,13 @@ namespace TownOfHost
                     //追加勝利陣営
                     foreach (var pc in Main.AllPlayerControls)
                     {
+                        /*if (!pc.Is(CustomRoles.Terrorist) && pc.Is(CustomRoles.LastNeutral) && pc.IsAlive() && LastNeutral.GiveOpportunist.GetBool()
+                        )
+                        {
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);
+                        }
+                        else*/
                         if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                         {
                             var winnerRole = pc.GetCustomRole();
@@ -177,6 +186,7 @@ namespace TownOfHost
                 int Imp = Utils.AlivePlayersCount(CountTypes.Impostor);
                 int Jackal = Utils.AlivePlayersCount(CountTypes.Jackal);
                 int Remotekiller = Utils.AlivePlayersCount(CountTypes.Remotekiller);
+                int GrimReaper = Utils.AlivePlayersCount(CountTypes.GrimReaper);
                 int Crew = Utils.AlivePlayersCount(CountTypes.Crew);
 
                 if (Imp == 0 && Crew == 0 && Jackal == 0 && Remotekiller == 0) //全滅
@@ -188,6 +198,12 @@ namespace TownOfHost
                 {
                     reason = GameOverReason.ImpostorByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
+                }
+                else if (Imp == 1 && Crew == 0 && GrimReaper == 1)//死神勝利(1)
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
+                    CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
                 else if (Jackal == 0 && Remotekiller == 0 && Crew <= Imp) //インポスター勝利
                 {
@@ -206,6 +222,12 @@ namespace TownOfHost
                     reason = GameOverReason.ImpostorByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Remotekiller);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Remotekiller);
+                }
+                else if (Jackal == 0 && Imp == 0 && GrimReaper == 1 && Remotekiller == 0)//死神勝利(2)
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
+                    CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
                 else if (Jackal == 0 && Remotekiller == 0 && Imp == 0) //クルー勝利
                 {
