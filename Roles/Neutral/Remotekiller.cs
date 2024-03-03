@@ -5,7 +5,7 @@ using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral
 {
-    public sealed class Remotekiller : RoleBase, IKiller, ISchrodingerCatOwner
+    public sealed class Remotekiller : RoleBase, ILNKiller, ISchrodingerCatOwner
     {
         public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
@@ -34,6 +34,7 @@ namespace TownOfHost.Roles.Neutral
         )
         {
             KillCooldown = RKillCooldown.GetFloat();
+            Rtarget = 111;
         }
 
         private static OptionItem RKillCooldown;
@@ -49,7 +50,7 @@ namespace TownOfHost.Roles.Neutral
 
         private static void SetupOptionItem()
         {
-            RKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(2.5f, 180f, 2.5f), 30f, false)
+            RKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             RKillAnimation = BooleanOptionItem.Create(RoleInfo, 11, OptionName.KillAnimation, true, false);
         }
@@ -90,6 +91,7 @@ namespace TownOfHost.Roles.Neutral
                 {
                     _ = new LateTask(() =>
                     {
+                        target.SetRealKiller(user);
                         user.RpcMurderPlayer(target, true);
                     }, 1f);
                 }

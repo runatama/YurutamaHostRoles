@@ -11,7 +11,7 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             typeof(MadJester),
             player => new MadJester(player),
             CustomRoles.MadJester,
-            () => RoleTypes.Crewmate,
+            () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             60050,
             SetupOptionItem,
@@ -27,9 +27,16 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
+        canVent = OptionCanVent.GetBool();
     }
+    private static OptionItem OptionCanVent;
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
+    private static bool canVent;
+    enum OptionName
+    {
+        CanVent,
+    }
 
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
@@ -37,7 +44,8 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     public static void SetupOptionItem()
     {
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 10);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
+        Tasks = Options.OverrideTasksData.Create(RoleInfo, 11);
     }
 
     public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)

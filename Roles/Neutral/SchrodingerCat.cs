@@ -93,10 +93,6 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         {
             opt.SetVision(true);
         }
-        if (Options.MadmateCanSeeOtherVotes.GetBool())
-        {
-            opt.SetBool(BoolOptionNames.AnonymousVotes, false);
-        }
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
@@ -105,6 +101,11 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         //自殺ならスルー
         if (info.IsSuicide) return true;
 
+        if (killer.Is(CustomRoles.GrimReaper))
+        {
+            return true;
+        }
+        else
         if (Team == TeamType.None)
         {
             info.CanKill = false;
