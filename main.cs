@@ -41,7 +41,7 @@ namespace TownOfHost
         // デバッグキーの認証インスタンス
         public static HashAuth DebugKeyAuth { get; private set; }
         // デバッグキーのハッシュ値
-        public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
+        public const string DebugKeyHash = "8e5f06e453e7d11f78ad96b2ca28ff472e085bdb053189612a0a2e0be7973841";
         // デバッグキーのソルト
         public const string DebugKeySalt = "59687b";
         // デバッグキーのコンフィグ入力
@@ -50,7 +50,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.45";
+        public const string PluginVersion = "5.1.48";
         // サポートされている最低のAmongUsバージョン
         public static readonly string LowestSupportedVersion = "2023.11.28";
         // このバージョンのみで公開ルームを無効にする場合
@@ -78,6 +78,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> UseZoom { get; private set; }
         public static ConfigEntry<bool> SyncYomiage { get; private set; }
         public static ConfigEntry<bool> CustomName { get; private set; }
+        public static ConfigEntry<bool> HideResetToDefault { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
         public static ConfigEntry<string> Preset1 { get; private set; }
@@ -111,6 +112,7 @@ namespace TownOfHost
         public static Dictionary<byte, float> AllPlayerSpeed = new();
         public const float MinSpeed = 0.0001f;
         public static int AliveImpostorCount;
+        public static int AliveNeutalCount;
         public static int SKMadmateNowCount;
         public static Dictionary<byte, bool> CheckShapeshift = new();
         public static Dictionary<byte, byte> ShapeshiftTarget = new();
@@ -122,6 +124,9 @@ namespace TownOfHost
         public static bool IsChristmas = DateTime.Now.Month == 12 && DateTime.Now.Day is 24 or 25;
         public static bool IsInitialRelease = DateTime.Now.Month == 10 && DateTime.Now.Day is 31;
         public static bool IsHalloween = DateTime.Now.Month == 10 && DateTime.Now.Day is 31;
+        public static bool IsWhite = DateTime.Now.Month == 3 && DateTime.Now.Day is 14;
+        public static bool IsGoldenWeek = DateTime.Now.Month == 5 && DateTime.Now.Day is 3 or 4 or 5;
+        public static bool CustomNameD() => IsChristmas || IsHalloween || IsWhite || IsGoldenWeek;
         public static bool DebugAntiblackout = true;
 
         public const float RoleTextSize = 2f;
@@ -148,6 +153,7 @@ namespace TownOfHost
             UseZoom = Config.Bind("Client Options", "UseZoom", false);
             SyncYomiage = Config.Bind("Client Options", "SyncYomiage", true);
             CustomName = Config.Bind("Client Options", "CustomName", true);
+            HideResetToDefault = Config.Bind("Client Options", "Hide ResetToDefault", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost-K");
@@ -203,9 +209,15 @@ namespace TownOfHost
                     {CustomRoles.GM, "#ff5b70"},
                     //サブ役職
                     {CustomRoles.LastImpostor, "#ff1919"},
+                    //{CustomRoles.LastNeutral,"#cccccc"},
                     {CustomRoles.Lovers, "#ff6be4"},
                     {CustomRoles.Watcher, "#800080"},
                     {CustomRoles.Workhorse, "#00ffff"},
+                    //{CustomRoles.Speeding, "#33ccff"},
+                    //{CustomRoles.Moon,"#ffff33"},
+                    //{CustomRoles.Guesser,"#999900"},
+                    //デバフ
+                    //{CustomRoles.NotConvener,"#006666"},
 
                     {CustomRoles.NotAssigned, "#ffffff"}
                 };
@@ -256,10 +268,14 @@ namespace TownOfHost
         Torched,
         Sniped,
         Revenge,
+        Revenge1,
         Execution,
         Infected,
+        Grim,
         Disconnected,
         Fall,
+        Magic,
+        Guess,
         etc = -1
     }
     //WinData
@@ -280,6 +296,7 @@ namespace TownOfHost
         Jackal = CustomRoles.Jackal,
         Remotekiller = CustomRoles.Remotekiller,
         Chef = CustomRoles.Chef,
+        GrimReaper = CustomRoles.GrimReaper,
         CountKiller = CustomRoles.CountKiller,
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
