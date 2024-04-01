@@ -15,10 +15,11 @@ public sealed class Evilgambler : RoleBase, IImpostor
                 CustomRoleTypes.Impostor,
                 3000,
                 SetupOptionItem,
-                "eg"
+                "eg",
+                from: From.SuperNewRoles
             );
     public Evilgambler(PlayerControl player)
-: base(
+    : base(
     RoleInfo,
     player
     )

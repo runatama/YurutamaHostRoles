@@ -17,7 +17,8 @@ public sealed class NekoKabocha : RoleBase, IImpostor, INekomata
             3300,
             SetupOptionItems,
             "nk",
-            introSound: () => PlayerControl.LocalPlayer.KillSfx
+            introSound: () => PlayerControl.LocalPlayer.KillSfx,
+            from: From.TOR_GM_Edition
         );
     public NekoKabocha(PlayerControl player)
     : base(

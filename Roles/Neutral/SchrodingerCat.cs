@@ -26,7 +26,8 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             SetupOptionItem,
             "sc",
             "#696969",
-            introSound: () => GetIntroSound(RoleTypes.Impostor)
+            introSound: () => GetIntroSound(RoleTypes.Impostor),
+            from: From.TOR_GM_Haoming_Edition
         );
     public SchrodingerCat(PlayerControl player)
     : base(
@@ -89,10 +90,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
     /// </summary>
     public static void ApplyMadCatOptions(IGameOptions opt)
     {
-        if (Options.MadmateHasImpostorVision.GetBool())
-        {
-            opt.SetVision(true);
-        }
+        opt.SetVision(true);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
@@ -221,16 +219,12 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         Team = team;
         if (AmongUsClient.Instance.AmHost)
         {
-            using var sender = CreateSender(CustomRPC.SetSchrodingerCatTeam);
+            using var sender = CreateSender();
             sender.Writer.Write((byte)team);
         }
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetSchrodingerCatTeam)
-        {
-            return;
-        }
         Team = (TeamType)reader.ReadByte();
     }
 

@@ -27,7 +27,8 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
                 IsInitiallyAssignableCallBack =
                     () => Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1,
                 AssignCountRule = new(1, 1, 1)
-            }
+            },
+            from: From.TownOfHost
         );
     public Egoist(PlayerControl player)
     : base(

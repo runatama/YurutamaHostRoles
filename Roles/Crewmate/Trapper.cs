@@ -15,7 +15,8 @@ public sealed class Trapper : RoleBase
             20800,
             SetupOptionItem,
             "tra",
-            "#5a8fd0"
+            "#5a8fd0",
+            from: From.TownOfHost
         );
     public Trapper(PlayerControl player)
     : base(

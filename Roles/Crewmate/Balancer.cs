@@ -4,10 +4,12 @@ using System.Linq;
 using System.Collections.Generic;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Madmate;
 
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
 using static TownOfHost.Modules.MeetingTimeManager;
+using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Balancer : RoleBase
@@ -23,7 +25,8 @@ public sealed class Balancer : RoleBase
             SetupOptionItem,
             "bal",
             "#cff100",
-            introSound: () => GetIntroSound(RoleTypes.Crewmate)
+            introSound: () => GetIntroSound(RoleTypes.Crewmate),
+            from: From.SuperNewRoles
         );
     public Balancer(PlayerControl player)
     : base(
@@ -32,51 +35,75 @@ public sealed class Balancer : RoleBase
     )
     {
         meetingtime = OptionMeetingTime.GetInt();
+        s = OptionS.GetBool();
         target1 = 255;
         target2 = 255;
+        Target1 = 255;
+        Target2 = 255;
         used = false;
-        BalancerChecker.Balancer = 255;
+        Id = 255;
         nickname = null;
     }
 
     static OptionItem OptionMeetingTime;
+    static OptionItem OptionS;
 
-    public static byte target1, target2;
-    static bool used;
+    //共有用
+    public static byte target1 = 255, target2 = 255;
+    public static byte Id = 255;
     public static int meetingtime;
     static string nickname;
+    static bool s; //誰かが死亡するまで、能力を使えない
+    //プレイヤーによって操作できる
+    byte Target1, Target2;
+    bool used;
 
     enum Option
     {
-        meetingtime
+        meetingtime,
+        sbalancer
     }
 
     private static void SetupOptionItem()
     {
         OptionMeetingTime = IntegerOptionItem.Create(RoleInfo, 10, Option.meetingtime, new(15, 120, 1), 30, false)
             .SetValueFormat(OptionFormat.Seconds);
+        OptionS = BooleanOptionItem.Create(RoleInfo, 11, Option.sbalancer, false, false);
     }
 
     public override void Add()
         => AddS(Player);
     public override void OnDestroy()
-        => BalancerChecker.Balancer = 255;
+    {
+        Id = 255;
+        if (Target1 != 255 && Target2 != 255)
+        {
+            Utils.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
+            Utils.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
+        }
+        target1 = 255;
+        target2 = 255;
+        if (nickname != null)
+            Main.nickName = nickname;
+        nickname = null;
+    }
 
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
+        if (MadAvenger.Skill) return true;
         //誰かが天秤を発動していて、自分ではないなら実行しない
-        if (BalancerChecker.Balancer is not 255 && BalancerChecker.Balancer != Player.PlayerId) return true;
+        if (Id is not 255 && Id != Player.PlayerId) return true;
         //発動してるなら～
-        if (BalancerChecker.Balancer is not 255)
+        if (Id is not 255)
         {
             //投票先が天秤のターゲットではないなら投票しない
-            if (votedForId == target1 || votedForId == target2)
+            if (votedForId == Target1 || votedForId == Target2)
                 return true;
             return false;
         }
 
         //通常会議の処理 投票した人が自分ではない or 能力使用済みならここから先は実行しない
-        if (voter.PlayerId != Player.PlayerId || used)
+        if (voter.PlayerId != Player.PlayerId || used || (s && !GameStates.AlreadyDied))
             return true;
 
         //天秤モードかチェック
@@ -85,14 +112,14 @@ public sealed class Balancer : RoleBase
             if (status is VoteStatus.Self)
             {
                 //ターゲットの情報をリセット
-                target1 = 255;
-                target2 = 255;
-                Utils.SendMessage("天秤モードになりました！\n天秤に掛けたいプレイヤー2人に投票する\nスキップでキャンセル、\nもう一度自投票することで自身に票が入る", Player.PlayerId);
+                Target1 = 255;
+                Target2 = 255;
+                Utils.SendMessage("天秤モードになりました！\n天秤に掛けたいプレイヤー2人に投票する\n" + GetString("VoteSkillMode"), Player.PlayerId); //正直前のメッセージの方が好きby ky
             }
             if (status is VoteStatus.Skip)
             {
                 SetMode(Player, false);
-                Utils.SendMessage("天秤モードをキャンセルしました", Player.PlayerId);
+                Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
             }
             //選ぶ処理
             if (status is VoteStatus.Vote)
@@ -103,7 +130,7 @@ public sealed class Balancer : RoleBase
         }
         else
         {
-            if (votedForId == Player.PlayerId && ((target1 != 255 && target2 == 255) || (target1 == 255 && target2 != 255)))
+            if (votedForId == Player.PlayerId && ((Target1 != 255 && Target2 == 255) || (Target1 == 255 && Target2 != 255)))
             {
                 Vote();
                 return false;
@@ -114,40 +141,43 @@ public sealed class Balancer : RoleBase
         void Vote()
         {
             //1一目が決まってないなら一人目を決める
-            if (target1 == 255)
-                target1 = votedForId;
+            if (Target1 == 255)
+                Target1 = votedForId;
             //二人目が決まってないなら二人目を決める
-            else if (target2 == 255)
-                target2 = votedForId;
+            else if (Target2 == 255)
+                Target2 = votedForId;
 
             //同じ人なら二人目をリセット
-            if (target1 == target2)
-                target2 = 255;
+            if (Target1 == Target2)
+                Target2 = 255;
 
             //プレイヤーの状態を取得
-            var p1 = Utils.GetPlayerById(target1);
-            var p2 = Utils.GetPlayerById(target2);
+            var p1 = Utils.GetPlayerById(Target1);
+            var p2 = Utils.GetPlayerById(Target2);
 
             //切断or死んでいるならリセット
             if (!p1.IsAlive())
-                target1 = 255;
+                Target1 = 255;
             if (!p2.IsAlive())
-                target2 = 255;
+                Target2 = 255;
 
             //どちらかの情報があるならチャットで伝える
-            if (target1 != 255 || target2 != 255)
+            if (Target1 != 255 || Target2 != 255)
             {
                 //どちらかが決まっていなかったら一人目
-                var n = (target1 != 255 && target2 != 255) ? "二人目を" : "一人目を";
-                Utils.SendMessage($"{n}{Main.AllPlayerNames[votedForId]}にしました", Player.PlayerId);
+                var n = (Target1 != 255 && Target2 != 255) ? "二人目を" : "一人目を";
+                Utils.SendMessage($"{n}{Utils.GetPlayerColor(Utils.GetPlayerById(votedForId), true)}にしました", Player.PlayerId);
             }
 
             //二人決まったなら会議を終了
-            if (target1 != 255 && target2 != 255)
+            if (Target1 != 255 && Target2 != 255)
             {
                 used = true;
+                target1 = Target1;
+                target2 = Target2;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
+                Voteresult = "<color=#cff100>☆　天秤会議の時間だ。　☆</color>\n" + Utils.GetPlayerColor(Utils.GetPlayerById(Target1), true) + "と" + Utils.GetPlayerColor(Utils.GetPlayerById(Target2), true) + "が天秤にかけられた。\n\nどちらかに投票せよ。";
             }
         }
     }
@@ -155,13 +185,13 @@ public sealed class Balancer : RoleBase
     public override bool VotingResults(ref GameData.PlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
     {
         //天秤モードじゃないor自分の天秤じゃないなら実行しない
-        if (BalancerChecker.Balancer != Player.PlayerId) return false;
+        if (Id != Player.PlayerId) return false;
 
         //ディクテーターなどの強制的に会議を終わらせるものなら生存確認の処理スキップ
         if (!ClearAndExile)
         {
-            var d1 = Utils.GetPlayerById(target1);
-            var d2 = Utils.GetPlayerById(target2);
+            var d1 = Utils.GetPlayerById(Target1);
+            var d2 = Utils.GetPlayerById(Target2);
 
             //二人とも切断or死んでいるなら同数
             if (!d1.IsAlive() && !d2.IsAlive())
@@ -188,8 +218,8 @@ public sealed class Balancer : RoleBase
         Dictionary<byte, int> data = new(2)
         {
             //セット
-            { target1, 0 },
-            { target2, 0 }
+            { Target1, 0 },
+            { Target2, 0 }
         };
 
         //投票をカウント、投票してない場合はどちらかに投票させる
@@ -203,7 +233,7 @@ public sealed class Balancer : RoleBase
             //ディクテーターなどの強制的に会議を終わらせるものではないならランダム投票
             if (!voted.HasVoted && !ClearAndExile)
             {
-                var id = rand.Next(0, 2) is 0 ? target1 : target2;
+                var id = rand.Next(0, 2) is 0 ? Target1 : Target2;
                 Instance.SetVote(voted.Voter, id, isIntentional: false);
                 data[id] += 1;
             }
@@ -241,41 +271,45 @@ public sealed class Balancer : RoleBase
                 Utils.GetPlayerById(playerId)?.SetRealKiller(null);
             }
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
+            Voteresult = Utils.GetPlayerColor(Utils.GetPlayerById(Target1)) + "と" + Utils.GetPlayerColor(Utils.GetPlayerById(Target2)) + GetString("fortuihou");
         }
         return true;
     }
 
-    public override void AfterMeetingTasks()
+    public override void BalancerAfterMeetingTasks()
     {
         //天秤会議になってない状態なら
-        if (BalancerChecker.Balancer == 255 && target1 is not 255 && target2 is not 255)
+        if (Id == 255 && Target1 is not 255 && Target2 is not 255)
         {
             //天秤会議にする
-            BalancerChecker.Balancer = Player.PlayerId;
+            Id = Player.PlayerId;
             //対象の名前を天秤の色に
-            foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == target1 || pc.PlayerId == target2))
+            foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
                 pc.RpcSetName("<color=red>★" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "<color=red>★");
             Balancer(meetingtime);
             PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
-            //アナウンス
-            Utils.SendMessage($"{Main.AllPlayerNames[target1]}と{Main.AllPlayerNames[target2]}が天秤に掛けられました！\n\nどちらかに投票せよ！");
+            //アナウンス(合体させるからコメントアウト)
+            //Utils.SendMessage($"{Main.AllPlayerNames[Target1]}と{Main.AllPlayerNames[Target2]}が天秤に掛けられました！\n\nどちらかに投票せよ！");
 
             _ = new LateTask(() =>
             {
                 //名前を戻す
-                Utils.GetPlayerById(target1).RpcSetName(Main.AllPlayerNames[target1]);
-                Utils.GetPlayerById(target2).RpcSetName(Main.AllPlayerNames[target2]);
+                Utils.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
+                Utils.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
             }, 0.5f);
 
             return;
         }
+    }
+    public override void AfterMeetingTasks()
+    {
         //自分の天秤会議じゃないなら実行しない
-        else if (BalancerChecker.Balancer != Player.PlayerId)
+        if (Id != Player.PlayerId)
             return;
 
         //名前を戻す
-        Utils.GetPlayerById(target1).RpcSetName(Main.AllPlayerNames[target1]);
-        Utils.GetPlayerById(target2).RpcSetName(Main.AllPlayerNames[target2]);
+        Utils.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
+        Utils.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
 
         if (nickname != null)
             Main.nickName = nickname;
@@ -285,14 +319,11 @@ public sealed class Balancer : RoleBase
         _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: false, ForceLoop: true, NoCache: true), 0.2f);
 
         //リセット
-        BalancerChecker.Balancer = 255;
+        Id = 255;
+        Target1 = 255;
+        Target2 = 255;
         target1 = 255;
         target2 = 255;
+        return;
     }
-}
-
-//天秤会議かチェックする
-class BalancerChecker
-{
-    public static byte Balancer = 255;
 }

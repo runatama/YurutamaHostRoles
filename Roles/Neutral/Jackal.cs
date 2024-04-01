@@ -23,7 +23,8 @@ namespace TownOfHost.Roles.Neutral
                 assignInfo: new RoleAssignInfo(CustomRoles.Jackal, CustomRoleTypes.Neutral)
                 {
                     AssignCountRule = new(1, 1, 1)
-                }
+                },
+                from: From.TheOtherRoles
             );
         public Jackal(PlayerControl player)
         : base(

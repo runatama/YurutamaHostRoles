@@ -25,7 +25,8 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             "sh",
             "#f8cd46",
             true,
-            introSound: () => GetIntroSound(RoleTypes.Crewmate)
+            introSound: () => GetIntroSound(RoleTypes.Crewmate),
+            from: From.SheriffMod
         );
     public Sheriff(PlayerControl player)
     : base(
@@ -123,13 +124,11 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetSheriffShotLimit);
+        using var sender = CreateSender();
         sender.Writer.Write(ShotLimit);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.SetSheriffShotLimit) return;
-
         ShotLimit = reader.ReadInt32();
     }
     public float CalculateKillCooldown() => CanUseKillButton() ? CurrentKillCooldown : 0f;
@@ -157,10 +156,10 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             }
             ShotLimit--;
             SendRPC();
-            if (!CanBeKilledBy(target))
+            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTR))
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
                 killer.RpcMurderPlayer(killer);
                 if (!MisfireKillsTarget.GetBool())
                 {
@@ -200,5 +199,11 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoleTypes.Neutral => CanKillNeutrals.GetValue() == 0 || !KillTargetOptions.TryGetValue(cRole, out var option) || option.GetBool(),
             _ => false,
         };
+
+    }
+    public bool OverrideKillButton(out string text)
+    {
+        text = "Sheriff_Kill";
+        return true;
     }
 }

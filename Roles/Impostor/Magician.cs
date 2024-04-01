@@ -59,8 +59,8 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
     bool ResetL;// マジックで消す予定の人
 
     float count;
-    static float killc;
-    static List<byte> KillList = new();
+    float killc;
+    List<byte> KillList = new();
 
     enum Option
     {
@@ -136,7 +136,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         }
         if (check)
         {
-            Player.SyncSettings();
+            Player.MarkDirtySettings();
             Player.RpcResetAbilityCooldown();
         }
     }
@@ -156,9 +156,9 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
             else
             {
                 var position = target.transform.position;
-                target.RpcSnapTo(new Vector2(9999f, 9999f));
+                target.RpcSnapToForced(new Vector2(9999f, 9999f));
                 target.RpcMurderPlayer(target, true);
-                _ = new LateTask(() => target.RpcSnapTo(position), 0.5f);
+                _ = new LateTask(() => target.RpcSnapToForced(position), 0.5f);
             }
             state.DeathReason = CustomDeathReason.Magic;
             state.SetDead();

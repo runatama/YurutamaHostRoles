@@ -9,7 +9,7 @@ using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
 
-public sealed class FireWorks : RoleBase, IImpostor
+public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
 {
     public enum FireWorksState
     {
@@ -29,7 +29,8 @@ public sealed class FireWorks : RoleBase, IImpostor
             CustomRoleTypes.Impostor,
             1700,
             SetupCustomOption,
-            "fw"
+            "fw",
+            from: From.TownOfHost
         );
     public FireWorks(PlayerControl player)
     : base(
@@ -39,28 +40,43 @@ public sealed class FireWorks : RoleBase, IImpostor
     {
         FireWorksCount = OptionFireWorksCount.GetInt();
         FireWorksRadius = OptionFireWorksRadius.GetFloat();
+        UseShBotton = OptionUseShBotton.GetBool();
+        Cankill = OptionCankillAlltime.GetBool();
+        Cool = OptionCooldown.GetFloat();
     }
 
     static OptionItem OptionFireWorksCount;
     static OptionItem OptionFireWorksRadius;
+    static OptionItem OptionUseShBotton;
+    static OptionItem OptionCankillAlltime;
+    static OptionItem OptionCooldown;
     enum OptionName
     {
         FireWorksMaxCount,
         FireWorksRadius,
+        FireWUseSh,
+        FireWankillAlltime
     }
 
     int FireWorksCount;
     float FireWorksRadius;
+    float Cool;
     int NowFireWorksCount;
+    bool UseShBotton;
+    bool Cankill;
     List<Vector3> FireWorksPosition = new();
     FireWorksState State = FireWorksState.Initial;
 
     public static void SetupCustomOption()
     {
-        OptionFireWorksCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.FireWorksMaxCount, new(1, 3, 1), 1, false)
+        OptionFireWorksCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.FireWorksMaxCount, new(1, 5, 1), 1, false)
             .SetValueFormat(OptionFormat.Pieces);
         OptionFireWorksRadius = FloatOptionItem.Create(RoleInfo, 11, OptionName.FireWorksRadius, new(0.5f, 3f, 0.5f), 1f, false)
             .SetValueFormat(OptionFormat.Multiplier);
+        OptionUseShBotton = BooleanOptionItem.Create(RoleInfo, 12, OptionName.FireWUseSh, false, false);
+        OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWankillAlltime, false, false);
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Add()
@@ -72,16 +88,81 @@ public sealed class FireWorks : RoleBase, IImpostor
 
     public bool CanUseKillButton()
     {
+        if (Cankill) return true;
         if (!Player.IsAlive()) return false;
         return (State & FireWorksState.CanUseKill) != 0;
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterDuration = State != FireWorksState.FireEnd ? 1f : 30f;
+        AURoleOptions.ShapeshifterDuration = 1f;
+        AURoleOptions.ShapeshifterCooldown = Cool;
     }
+    public bool UseOCButton => UseShBotton;
+    public void OnClick()
+    {
+        if (!UseShBotton) return;
+        Logger.Info($"FireWorks ShapeShift", "FireWorks");
+        switch (State)
+        {
+            case FireWorksState.Initial:
+            case FireWorksState.SettingFireWorks:
+                Logger.Info("花火を一個設置", "FireWorks");
+                FireWorksPosition.Add(Player.transform.position);
+                NowFireWorksCount--;
+                if (NowFireWorksCount == 0)
+                    State = Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
+                else
+                    State = FireWorksState.SettingFireWorks;
+                break;
+            case FireWorksState.ReadyFire:
+                Logger.Info("花火を爆破", "FireWorks");
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    //爆破処理はホストのみ
+                    bool suicide = false;
+                    foreach (var fireTarget in Main.AllAlivePlayerControls)
+                    {
+                        foreach (var pos in FireWorksPosition)
+                        {
+                            var dis = Vector2.Distance(pos, fireTarget.transform.position);
+                            if (dis > FireWorksRadius) continue;
 
+                            if (fireTarget == Player)
+                            {
+                                //自分は後回し
+                                suicide = true;
+                            }
+                            else
+                            {
+                                PlayerState.GetByPlayerId(fireTarget.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                                fireTarget.SetRealKiller(Player);
+                                fireTarget.RpcMurderPlayer(fireTarget);
+                            }
+                        }
+                    }
+                    if (suicide)
+                    {
+                        var totalAlive = Main.AllAlivePlayerControls.Count();
+                        //自分が最後の生き残りの場合は勝利のために死なない
+                        if (totalAlive != 1)
+                        {
+                            MyState.DeathReason = CustomDeathReason.Misfire;
+                            Player.RpcMurderPlayer(Player);
+                        }
+                    }
+                    Player.MarkDirtySettings();
+                }
+                State = FireWorksState.FireEnd;
+                break;
+            default:
+                break;
+        }
+        Utils.NotifyRoles();
+    }
+    public bool CheckShapeshift(PlayerControl Player, PlayerControl target) => !UseShBotton;
     public override void OnShapeshift(PlayerControl target)
     {
+        if (UseShBotton) return;
         var shapeshifting = !Is(target);
         Logger.Info($"FireWorks ShapeShift", "FireWorks");
         if (!shapeshifting) return;

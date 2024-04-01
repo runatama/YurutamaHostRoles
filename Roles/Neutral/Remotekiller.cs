@@ -39,7 +39,7 @@ namespace TownOfHost.Roles.Neutral
 
         private static OptionItem RKillCooldown;
         private static OptionItem RKillAnimation;
-        private static byte Rtarget;
+        private byte Rtarget;
         private static float KillCooldown;
 
         public bool CanBeLastImpostor { get; } = false;

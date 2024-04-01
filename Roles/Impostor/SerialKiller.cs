@@ -19,7 +19,8 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoleTypes.Impostor,
                 1100,
                 SetUpOptionItem,
-                "sk"
+                "sk",
+                from: From.TOR_GM_Edition
             );
         public SerialKiller(PlayerControl player)
         : base(

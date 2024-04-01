@@ -55,8 +55,8 @@ public sealed class UltraStar : RoleBase
     {
         //ホストじゃない or タスクターンじゃない or 生存していない ならブロック
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !player.IsAlive()) return;
-        {//見やすいように
-            colorchange %= 9;
+        {//参考→https://github.com/Yumenopai/TownOfHost_Y/releases/tag/v514.20.3
+            colorchange %= 18;
             if (colorchange is >= 0 and < 1) player.RpcSetColor(8);
             else if (colorchange is >= 1 and < 2) player.RpcSetColor(1);
             else if (colorchange is >= 2 and < 3) player.RpcSetColor(10);
@@ -75,7 +75,7 @@ public sealed class UltraStar : RoleBase
             else if (colorchange is >= 15 and < 16) player.RpcSetColor(12);
             else if (colorchange is >= 16 and < 17) player.RpcSetColor(9);
             else if (colorchange is >= 17 and < 18) player.RpcSetColor(16);
-            colorchange += Time.fixedDeltaTime;
+            colorchange += Time.fixedDeltaTime * 2;
         }
         if (cankill)
         {

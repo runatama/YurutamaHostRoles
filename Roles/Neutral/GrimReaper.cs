@@ -151,5 +151,10 @@ namespace TownOfHost.Roles.Neutral
             text = GetString("WarlockCurseButtonText");
             return true;
         }
+        public bool OverrideKillButton(out string text)
+        {
+            text = "Grim_Kill";
+            return true;
+        }
     }
 }

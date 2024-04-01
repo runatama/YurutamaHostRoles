@@ -16,7 +16,8 @@ public sealed class Mayor : RoleBase
             SetupOptionItem,
             "my",
             "#204d42",
-            introSound: () => GetIntroSound(RoleTypes.Crewmate)
+            introSound: () => GetIntroSound(RoleTypes.Crewmate),
+            from: From.TownOfUs
         );
     public Mayor(PlayerControl player)
     : base(
@@ -98,7 +99,7 @@ public sealed class Mayor : RoleBase
     {
         // 既定値
         var (votedForId, numVotes, doVote) = base.ModifyVote(voterId, sourceVotedForId, isIntentional);
-        if (voterId == Player.PlayerId && Count >= Utils.AllAlivePlayersCount && Kakusei)//()要らないかも
+        if (voterId == Player.PlayerId && Count >= Utils.AllAlivePlayersCount && Kakusei)
         {
             numVotes = AdditionalVote + KadditionaVote + 1;
         }

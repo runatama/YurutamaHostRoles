@@ -72,13 +72,11 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
     }
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.KillerCount);
+        using var sender = CreateSender();
         sender.Writer.Write(VictoryCount);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType != CustomRPC.KillerCount) return;
-
         VictoryCount = reader.ReadInt32();
     }
     public bool CanUseKillButton() => Player.IsAlive() && VictoryCount > 0;
