@@ -50,9 +50,9 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.48";
+        public const string PluginVersion = "5.1.61.0";
         // サポートされている最低のAmongUsバージョン
-        public static readonly string LowestSupportedVersion = "2023.11.28";
+        public static readonly string LowestSupportedVersion = "2024.3.5";
         // このバージョンのみで公開ルームを無効にする場合
         public static readonly bool IsPublicAvailableOnThisVersion = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
@@ -79,6 +79,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> SyncYomiage { get; private set; }
         public static ConfigEntry<bool> CustomName { get; private set; }
         public static ConfigEntry<bool> HideResetToDefault { get; private set; }
+        public static ConfigEntry<bool> CustomSprite { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
         public static ConfigEntry<string> Preset1 { get; private set; }
@@ -100,10 +101,29 @@ namespace TownOfHost
         public static List<int> clientIdList;
         public static List<(string, byte, string)> MessagesToSend;
         public static bool isChatCommand = false;
-        public static List<PlayerControl> LoversPlayers = new();
-        public static bool isLoversDead = true;
+        public static List<PlayerControl> ALoversPlayers = new();
+        public static bool isALoversDead = true;
+        public static List<PlayerControl> BLoversPlayers = new();
+        public static bool isBLoversDead = true;
+        public static List<PlayerControl> CLoversPlayers = new();
+        public static bool isCLoversDead = true;
+        public static List<PlayerControl> DLoversPlayers = new();
+        public static bool isDLoversDead = true;
+        public static List<PlayerControl> ELoversPlayers = new();
+        public static bool isELoversDead = true;
+        public static List<PlayerControl> FLoversPlayers = new();
+        public static bool isFLoversDead = true;
+        public static List<PlayerControl> GLoversPlayers = new();
+        public static bool isGLoversDead = true;
+        public static List<PlayerControl> MaMaLoversPlayers = new();
+        public static bool isMaLoversDead = true;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
         public static bool HnSFlag = false;
+        public static List<List<byte>> TaskBattleTeams = new();
+        public static bool RTAMode = false;
+        public static bool EditMode = false;
+        public static int page = 0;
+        public static Dictionary<int, List<Vector2>> CustomSpawnPosition = new();
         //public static bool TaskBattleOptionv = false;
 
         /// <summary>
@@ -122,11 +142,11 @@ namespace TownOfHost
         public static float DefaultCrewmateVision;
         public static float DefaultImpostorVision;
         public static bool IsChristmas = DateTime.Now.Month == 12 && DateTime.Now.Day is 24 or 25;
+        public static bool White = DateTime.Now.Month == 3 && DateTime.Now.Day is 14;
         public static bool IsInitialRelease = DateTime.Now.Month == 10 && DateTime.Now.Day is 31;
         public static bool IsHalloween = DateTime.Now.Month == 10 && DateTime.Now.Day is 31;
-        public static bool IsWhite = DateTime.Now.Month == 3 && DateTime.Now.Day is 14;
-        public static bool IsGoldenWeek = DateTime.Now.Month == 5 && DateTime.Now.Day is 3 or 4 or 5;
-        public static bool CustomNameD() => IsChristmas || IsHalloween || IsWhite || IsGoldenWeek;
+        public static bool GoldenWeek = DateTime.Now.Month == 5 && DateTime.Now.Day is 3 or 4 or 5;
+        public static bool April = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
         public static bool DebugAntiblackout = true;
 
         public const float RoleTextSize = 2f;
@@ -135,7 +155,6 @@ namespace TownOfHost
         public static IEnumerable<PlayerControl> AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive() && p.PlayerId <= 15);
 
         public static Main Instance;
-
         public override void Load()
         {
             Instance = this;
@@ -146,7 +165,7 @@ namespace TownOfHost
             ForceJapanese = Config.Bind("Client Options", "Force Japanese", false);
             JapaneseRoleName = Config.Bind("Client Options", "Japanese Role Name", true);
             ShowResults = Config.Bind("Result", "Show Results", true);
-            ChangeSomeLanguage = Config.Bind("Client Options", "Change Some Language", false);
+            ChangeSomeLanguage = Config.Bind("Client Options", "Change Some Language", true);
             Hiderecommendedsettings = Config.Bind("Client Options", "Hide recommended settings", false);
             UseWebHook = Config.Bind("Client Options", "UseWebHook", false);
             UseYomiage = Config.Bind("Client Options", "UseYomiage", false);
@@ -154,6 +173,7 @@ namespace TownOfHost
             SyncYomiage = Config.Bind("Client Options", "SyncYomiage", true);
             CustomName = Config.Bind("Client Options", "CustomName", true);
             HideResetToDefault = Config.Bind("Client Options", "Hide ResetToDefault", false);
+            CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost-K");
@@ -209,15 +229,40 @@ namespace TownOfHost
                     {CustomRoles.GM, "#ff5b70"},
                     //サブ役職
                     {CustomRoles.LastImpostor, "#ff1919"},
-                    //{CustomRoles.LastNeutral,"#cccccc"},
-                    {CustomRoles.Lovers, "#ff6be4"},
-                    {CustomRoles.Watcher, "#800080"},
+                    {CustomRoles.LastNeutral,"#cccccc"},
                     {CustomRoles.Workhorse, "#00ffff"},
-                    //{CustomRoles.Speeding, "#33ccff"},
-                    //{CustomRoles.Moon,"#ffff33"},
-                    //{CustomRoles.Guesser,"#999900"},
+
+                    {CustomRoles.Watcher, "#800080"},
+                    {CustomRoles.Speeding, "#33ccff"},
+                    {CustomRoles.Moon,"#ffff33"},
+                    {CustomRoles.Guesser,"#999900"},
+                    {CustomRoles.Sun,"#ec6800"},
+                    {CustomRoles.Director,"#cee4ae"},
+                    {CustomRoles.Connecting,"#96514d"},
+                    {CustomRoles.Serial,"#ff1919"},
+                    {CustomRoles.AdditionalVoter,"#93ca76"},
+                    {CustomRoles.Opener,"#007bbb"},
+                    {CustomRoles.Bakeneko,"#ffcc99"},
+                    {CustomRoles.Psychic,"#9933ff"},
+                    {CustomRoles.Nurse,"#ffadd6"},
                     //デバフ
-                    //{CustomRoles.NotConvener,"#006666"},
+                    {CustomRoles.NotConvener,"#006666"},
+                    {CustomRoles.Notvoter,"#6c848d"},
+                    {CustomRoles.Water,"#17184b"},
+                    {CustomRoles.LowBattery,"#660000"},
+                    {CustomRoles.Slacker,"#460e44"},
+                    {CustomRoles.Elector,"#544a47"},
+                    {CustomRoles.Transparent,"#7b7c7d"},
+
+                    //第三属性
+                    {CustomRoles.ALovers, "#ff6be4"},
+                    {CustomRoles.BLovers, "#d70035"},
+                    {CustomRoles.CLovers, "#fac559"},
+                    {CustomRoles.DLovers, "#6c9bd2"},
+                    {CustomRoles.ELovers, "#00885a"},
+                    {CustomRoles.FLovers, "#fdede4"},
+                    {CustomRoles.GLovers, "#af0082"},
+                    {CustomRoles.MaLovers, "#f09199"},
 
                     {CustomRoles.NotAssigned, "#ffffff"}
                 };
@@ -276,6 +321,7 @@ namespace TownOfHost
         Fall,
         Magic,
         Guess,
+        TeleportKill,
         etc = -1
     }
     //WinData
@@ -289,7 +335,14 @@ namespace TownOfHost
         Jester = CustomRoles.Jester,
         PlagueDoctor = CustomRoles.PlagueDoctor,
         Terrorist = CustomRoles.Terrorist,
-        Lovers = CustomRoles.Lovers,
+        ALovers = CustomRoles.ALovers,
+        BLovers = CustomRoles.BLovers,
+        CLovers = CustomRoles.CLovers,
+        DLovers = CustomRoles.DLovers,
+        ELovers = CustomRoles.ELovers,
+        FLovers = CustomRoles.FLovers,
+        GLovers = CustomRoles.GLovers,
+        MaLovers = CustomRoles.MaLovers,
         Executioner = CustomRoles.Executioner,
         Arsonist = CustomRoles.Arsonist,
         Egoist = CustomRoles.Egoist,
@@ -298,6 +351,7 @@ namespace TownOfHost
         Chef = CustomRoles.Chef,
         GrimReaper = CustomRoles.GrimReaper,
         CountKiller = CustomRoles.CountKiller,
+        God = CustomRoles.God,
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
     }
@@ -330,5 +384,12 @@ namespace TownOfHost
         Default,
         All,
         Random
+    }
+
+    public enum CombinationRoles
+    {
+        None,
+        AssassinandMerlin,
+        DriverandBraid
     }
 }
