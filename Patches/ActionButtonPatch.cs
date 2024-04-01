@@ -26,8 +26,8 @@ public static class AbilityButtonDoClickPatch
 {
     public static bool Prefix()
     {
-        if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown) return true;
-        if (PlayerControl.LocalPlayer.GetRoleClass() is IUseTheShButton sb)
+        if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown || !PlayerControl.LocalPlayer.CanMove || Utils.IsActive(SystemTypes.MushroomMixupSabotage)) return true;
+        if (PlayerControl.LocalPlayer.GetRoleClass() is IUseTheShButton sb && sb.UseOCButton)
         {
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();
             sb.OnClick();

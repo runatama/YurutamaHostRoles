@@ -30,7 +30,7 @@ namespace TownOfHost
                 }
 
                 foreach (var subRole in PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SubRoles)
-                    __instance.RoleBlurbText.text += "\n" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
+                    __instance.RoleBlurbText.text += "<size=75%>\n" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                 __instance.RoleText.text += Utils.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId);
 
             }, 0.01f, "Override Role Text");
@@ -85,7 +85,6 @@ namespace TownOfHost
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
 
             Utils.NotifyRoles();
-
             GameStates.InGame = true;
         }
     }
@@ -230,12 +229,21 @@ namespace TownOfHost
         public static void Postfix(IntroCutscene __instance)
         {
             if (!GameStates.IsInGame) return;
+
             Main.introDestroyed = true;
+            var mapId = Main.NormalOptions.MapId;
+            // エアシップではまだ湧かない
+            if ((MapNames)mapId != MapNames.Airship)
+            {
+                foreach (var state in PlayerState.AllPlayerStates.Values)
+                {
+                    state.HasSpawned = true;
+                }
+            }
             if (AmongUsClient.Instance.AmHost)
             {
-                if (Main.NormalOptions.MapId != 4)
+                if (mapId != 4)
                 {
-                    Main.AllPlayerControls.Do(pc => pc.RpcResetAbilityCooldown());
                     if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {
@@ -251,7 +259,7 @@ namespace TownOfHost
                 if (RandomSpawn.IsRandomSpawn())
                 {
                     RandomSpawn.SpawnMap map;
-                    switch (Main.NormalOptions.MapId)
+                    switch (mapId)
                     {
                         case 0:
                             map = new RandomSpawn.SkeldSpawnMap();

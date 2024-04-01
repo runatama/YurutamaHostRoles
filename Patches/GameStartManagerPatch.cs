@@ -11,6 +11,7 @@ using Object = UnityEngine.Object;
 using TownOfHost.Modules;
 using static TownOfHost.Translator;
 using TownOfHost.Roles;
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {
@@ -18,10 +19,12 @@ namespace TownOfHost
     {
         public static float GetTimer() => timer;
         public static float SetTimer(float time) => timer = time;
+        public static float Timer2 = 0; //毎秒タイマー送るのはあれだから
         private static float timer = 600f;
         private static TextMeshPro warningText;
         public static TextMeshPro HideName;
         private static TextMeshPro timerText;
+        private static TextMeshPro GameMaster;
         private static SpriteRenderer cancelButton;
 
         [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
@@ -34,6 +37,11 @@ namespace TownOfHost
                 __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                 // Reset lobby countdown timer
                 timer = 600f;
+                //ゲームマスターONのテキスト HideNameの後に作るとおかしくなるので先にInstantiateしておく
+                GameMaster = Object.Instantiate(__instance.GameRoomNameCode, __instance.StartButton.transform.parent);
+                GameMaster.gameObject.SetActive(false);
+                GameMaster.name = "GMText";
+                GameMaster.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.GM), GetString("GameMasterON"));
 
                 HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
                 HideName.gameObject.SetActive(true);
@@ -105,6 +113,10 @@ namespace TownOfHost
                     __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
                     HideName.enabled = false;
                 }
+
+                // GameMaster Text
+                GameMaster.gameObject.SetActive(Options.EnableGM.GetBool());
+                GameMaster.transform.localPosition = new Vector3(0f, GameStates.IsCountDown ? 0f : AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame ? -0.4f : -0.6f);
             }
             public static void Postfix(GameStartManager __instance)
             {
@@ -161,11 +173,8 @@ namespace TownOfHost
                 }
 
                 // Lobby timer
-                if (
-                !GameData.Instance
-                || AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame
-                ) return;
-
+                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+                    return;
                 timer = Mathf.Max(0f, timer -= Time.deltaTime);
                 int minutes = (int)timer / 60;
                 int seconds = (int)timer % 60;
@@ -199,6 +208,28 @@ namespace TownOfHost
                     return false;
                 }
 
+                if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleTeamMode.GetBool())
+                {
+                    //チェック
+                    var teamc = Math.Min(Options.TaskBattleTeamC.GetFloat(), Main.AllPlayerControls.Count());
+                    var playerc = Main.AllPlayerControls.Count() / teamc;
+
+                    //チーム数でプレイヤーが足りない場合
+                    if (Options.TaskBattleTeamC.GetFloat() > Main.AllPlayerControls.Count())
+                    {
+                        var msg = GetString("Warning.MoreTeamsThanPlayers");
+                        Logger.SendInGame(msg);
+                        Logger.Warn(msg, "BeginGame");
+                    }
+                    //合計タスク数が足りない場合
+                    if (Options.TaskBattleTeamWinType.GetBool() && Main.NormalOptions.TotalTaskCount * playerc < Options.TaskBattleTeamWinTaskc.GetFloat())
+                    {
+                        var msg = GetString("Warning.TBTask");
+                        Logger.SendInGame(msg);
+                        Logger.Warn(msg, "BeginGame");
+                    }
+                }
+
                 RoleAssignManager.CheckRoleCount();
 
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
@@ -210,7 +241,7 @@ namespace TownOfHost
                 Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
                 AURoleOptions.ShapeshifterCooldown = 0f;
 
-                PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt));
+                PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
 
                 __instance.ReallyBegin(false);
                 TemplateManager.SendTemplate("Start", noErr: true);
@@ -250,7 +281,7 @@ namespace TownOfHost
                 if (GameStates.IsCountDown)
                 {
                     Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
-                    PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions));
+                    PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
                 }
             }
         }
@@ -272,6 +303,16 @@ namespace TownOfHost
         {
             __result = Main.NormalOptions.NumImpostors;
             return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(LobbyTimerExtensionUI), nameof(LobbyTimerExtensionUI.ShowLobbyTimer))]
+    class ShowLobbyTimerPatch
+    {
+        public static void Postfix(LobbyTimerExtensionUI __instance, [HarmonyArgument(0)] int timeRemainingSeconds)
+        {
+            //タイマー関連だからここに置かせて！
+            GameStartManagerPatch.SetTimer(timeRemainingSeconds + 1);
         }
     }
 }

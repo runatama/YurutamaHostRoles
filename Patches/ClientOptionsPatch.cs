@@ -20,6 +20,7 @@ namespace TownOfHost
         private static ClientActionItem SyncYomiage;
         private static ClientActionItem CustomName;
         private static ClientActionItem HideResetToDefault;
+        private static ClientActionItem CustomSprite;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -48,7 +49,7 @@ namespace TownOfHost
             {
                 ChangeSomeLanguage = ClientOptionItem.Create("ChangeSomeLanguage", Main.ChangeSomeLanguage, __instance);
             }
-            if (ForceEnd == null || ForceEnd.ToggleButton == null)
+            if ((ForceEnd == null || ForceEnd.ToggleButton == null) && AmongUsClient.Instance.AmHost)
             {
                 ForceEnd = ClientActionItem.Create("ForceEnd", ForceEndProcess, __instance);
             }
@@ -68,7 +69,7 @@ namespace TownOfHost
             {
                 SyncYomiage = ClientOptionItem.Create("SyncYomiage", Main.SyncYomiage, __instance);
             }
-            if ((CustomName == null || CustomName.ToggleButton == null) && Main.CustomNameD())
+            if ((CustomName == null || CustomName.ToggleButton == null) && (Main.IsHalloween || Main.IsChristmas || Main.White || Main.GoldenWeek || Main.April))
             {
                 CustomName = ClientOptionItem.Create("CustomName", Main.CustomName, __instance);
             }
@@ -76,10 +77,18 @@ namespace TownOfHost
             {
                 HideResetToDefault = ClientOptionItem.Create("HideResetToDefault", Main.HideResetToDefault, __instance);
             }
+            if (CustomSprite == null || CustomSprite.ToggleButton == null)
+            {
+                CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance);
+            }
             if (ModUnloaderScreen.Popup == null)
             {
                 ModUnloaderScreen.Init(__instance);
             }
+
+            if (!AmongUsClient.Instance.AmHost && ForceEnd != null)
+                ForceEnd = null;
+
         }
         private static void ForceEndProcess()
         {
