@@ -3,13 +3,15 @@ using System.Linq;
 using System.Collections.Generic;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Common;
+using Rewired;
 
 namespace TownOfHost.Modules;
 
 public class MeetingVoteManager
 {
     public IReadOnlyDictionary<byte, VoteData> AllVotes => allVotes;
-    private Dictionary<byte, VoteData> allVotes = new(15);
+    private static Dictionary<byte, VoteData> allVotes = new(15);
     private readonly MeetingHud meetingHud;
 
     public static MeetingVoteManager Instance => _instance;
@@ -49,7 +51,7 @@ public class MeetingVoteManager
         var vote = new VoteData(voter);
         vote.DoVote(exiled, 1);
         allVotes[voter] = vote;
-        EndMeeting(false,true);
+        EndMeeting(false, true);
     }
     /// <summary>
     /// 投票を行います．投票者が既に投票している場合は票を上書きします
@@ -74,20 +76,54 @@ public class MeetingVoteManager
         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
         {
             var (roleVoteFor, roleNumVotes, roleDoVote) = role.ModifyVote(voter, voteFor, isIntentional);
+
             if (roleVoteFor.HasValue)
             {
                 logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
                 voteFor = roleVoteFor.Value;
             }
-            if (roleNumVotes.HasValue)
+            var player = Utils.GetPlayerById(voter);
+            var pc = Utils.GetPlayerById(voteFor);
+            if (!pc.IsAlive() && voteFor != Skip && voteFor != NoVote)
+            {
+                logger.Info($"{role.Player.GetNameWithRole()} 相手が死んでいるので投票は取り消されます");
+                doVote = false;
+            }
+
+            //追加投票
+            if (roleNumVotes.HasValue && player.Is(CustomRoles.AdditionalVoter))//アディショナルヴォウター+追加投票餅役
+            {
+                numVotes = AdditionalVoter.AdditionalVote.GetInt() + roleNumVotes.Value;
+                logger.Info($"アディショナルヴォウター:{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {roleNumVotes.Value}+{AdditionalVoter.AdditionalVote.GetInt()} に変更します");
+            }
+            else
+            if (roleNumVotes.HasValue)//アディショナルヴォウターがない追加投票訳
             {
                 logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {roleNumVotes.Value} に変更します");
                 numVotes = roleNumVotes.Value;
+            }
+            else
+            if (player.Is(CustomRoles.AdditionalVoter))//アディショナルヴォウター
+            {
+                logger.Info($"アディショナルヴォウター:{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {AdditionalVoter.AdditionalVote.GetInt()} +1 に変更します");
+                numVotes = AdditionalVoter.AdditionalVote.GetInt() + 1;
+            }
+
+            if (player.Is(CustomRoles.Notvoter))
+            {
+                logger.Info($"{role.Player.GetNameWithRole()} の {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を 0 に変更します");
+                numVotes = 0;
             }
             if (!roleDoVote)
             {
                 logger.Info($"{role.Player.GetNameWithRole()} によって投票は取り消されます");
                 doVote = roleDoVote;
+            }
+            else
+            if (player.Is(CustomRoles.Elector) && voteFor == Skip)
+            {
+                logger.Info($"{role.Player.GetNameWithRole()} スキップ投票は取り消されます");
+                doVote = false;
             }
         }
 
@@ -103,9 +139,10 @@ public class MeetingVoteManager
     {
         if (meetingHud.discussionTimer - (float)Main.NormalOptions.DiscussionTime >= Main.NormalOptions.VotingTime || AllVotes.Values.All(vote => vote.HasVoted))
         {
-            EndMeeting(Roles.Crewmate.BalancerChecker.Balancer == 255);
+            EndMeeting(Roles.Crewmate.Balancer.Id == 255);
         }
     }
+    public static string Voteresult;
     /// <summary>
     /// 無条件で会議を終了します
     /// </summary>
@@ -115,6 +152,8 @@ public class MeetingVoteManager
         var result = CountVotes(applyVoteMode, ClearAndExile);
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole();
         logger.Info($"追放者: {logName} で会議を終了します");
+
+        if (Voteresult == "") Voteresult = result.Exiled == null ? (result.IsTie ? Translator.GetString("votetie") : Translator.GetString("voteskip")) : Utils.GetPlayerColor(Utils.GetPlayerById(result.Exiled.Object.PlayerId)) + Translator.GetString("fortuihou");
 
         var states = new List<MeetingHud.VoterState>();
         foreach (var voteArea in meetingHud.playerStates)
@@ -134,6 +173,7 @@ public class MeetingVoteManager
                 });
             }
         }
+
         if (AntiBlackout.OverrideExiledPlayer)
         {
             meetingHud.RpcVotingComplete(states.ToArray(), null, true);
@@ -179,7 +219,7 @@ public class MeetingVoteManager
             votes[vote.VotedFor] += vote.NumVotes;
         }
 
-        return new VoteResult(votes,ClearAndExile);
+        return new VoteResult(votes, ClearAndExile);
     }
     /// <summary>
     /// スキップモードと無投票モードに応じて，投票を上書きしたりプレイヤーを死亡させたりします
@@ -254,7 +294,15 @@ public class MeetingVoteManager
         public byte VotedFor { get; private set; } = NoVote;
         public int NumVotes { get; private set; } = 1;
         public bool IsSkip => VotedFor == Skip && !PlayerState.GetByPlayerId(Voter).IsDead;
-        public bool HasVoted => VotedFor != NoVote || PlayerState.GetByPlayerId(Voter).IsDead;
+        //ミーテやゲッサーいるからSKip入れてるorスキップ以外の誰か(死んでない)人に入れてるor死んでるだとtrueになる。
+        public bool HasVoted => HasVotedCheck();
+        public bool HasVotedCheck()
+        {
+            if (PlayerState.GetByPlayerId(Voter).IsDead || VotedFor == Skip) return true;
+            if (VotedFor is Skip or NoVote) return false;
+            if (Utils.GetPlayerById(VotedFor) != null) return !PlayerState.GetByPlayerId(VotedFor).IsDead;
+            return false;
+        }
 
         public VoteData(byte voter) => Voter = voter;
 
@@ -283,7 +331,7 @@ public class MeetingVoteManager
         /// </summary>
         public readonly bool IsTie;
 
-        public VoteResult(Dictionary<byte, int> votedCounts,bool ClearAndExile = false)
+        public VoteResult(Dictionary<byte, int> votedCounts, bool ClearAndExile = false)
         {
             this.votedCounts = votedCounts;
 
@@ -311,8 +359,8 @@ public class MeetingVoteManager
             var c = false;
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
-                var n = pc.GetRoleClass()?.VotingResults(ref Exiled, ref IsTie, votedCounts, mostVotedPlayers, ClearAndExile);
-                if (n.HasValue && n.Value) c = true;
+                if (pc.GetRoleClass()?.VotingResults(ref Exiled, ref IsTie, votedCounts, mostVotedPlayers, ClearAndExile) ?? false)
+                    c = true; //どれかがtrueを返すと以下の特殊モードが実行されなくなる
             }
 
             // 同数投票時の特殊モード
@@ -322,12 +370,15 @@ public class MeetingVoteManager
                 switch (tieMode)
                 {
                     case TieMode.All:
+                        Voteresult = "";
                         var toExile = mostVotedPlayers.Where(id => id != Skip).ToArray();
                         foreach (var playerId in toExile)
                         {
                             Utils.GetPlayerById(playerId)?.SetRealKiller(null);
+                            Voteresult += Utils.GetPlayerColor(Utils.GetPlayerById(playerId)) + ",";
                         }
                         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
+                        Voteresult = Voteresult + Translator.GetString("fortuihou");
                         Exiled = null;
                         logger.Info("全員追放します");
                         break;
@@ -336,6 +387,8 @@ public class MeetingVoteManager
                         Exiled = GameData.Instance.GetPlayerById(exileId);
                         IsTie = false;
                         logger.Info($"ランダム追放: {GetVoteName(exileId)}");
+                        var player = Utils.GetPlayerById(exileId);
+                        Voteresult = Utils.GetPlayerColor(player) + Translator.GetString("fortuihou");
                         break;
                 }
             }

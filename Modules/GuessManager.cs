@@ -1,4 +1,4 @@
-/*using Hazel;
+using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,19 +12,29 @@ using static TownOfHost.Translator;
 using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.Madmate;
 
 namespace TownOfHost;
 
+//参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.0.1
+//上手くいかない部分はこっちも参考にしました→https://github.com/AsumuAkaguma/TownOfHost_ForE/releases/tag/vBOMB!
 public static class GuessManager
 {
 
     public static Dictionary<byte, int> GuesserGuessed = new();
+    public static Dictionary<byte, int> TGuess = new();
 
     [GameModuleInitializer]
     public static void Guessreset()
     {
         Logger.Info("全員のゲスをリセットするぜ!!", "Guesser");
         GuesserGuessed.Clear();
+        TGuess.Clear();//ゲスでターン終了したらリセットされないので
+    }
+    public static void Reset()
+    {
+        Logger.Info("会議制限を解除するぜ", "Guesser");
+        TGuess.Clear();
     }
 
     public static bool CheckCommond(ref string msg, string command, bool exact = true)
@@ -48,29 +58,6 @@ public static class GuessManager
         return false;
     }
 
-    public static byte GetColorFromMsg(string msg)
-    {
-        if (ComfirmIncludeMsg(msg, "赤|レッド|red")) return 0;
-        if (ComfirmIncludeMsg(msg, "青|ブルー|blue")) return 1;
-        if (ComfirmIncludeMsg(msg, "緑|グリーン|green")) return 2;
-        if (ComfirmIncludeMsg(msg, "桃|ピンク|pink")) return 3;
-        if (ComfirmIncludeMsg(msg, "橙|オレンジ|orange")) return 4;
-        if (ComfirmIncludeMsg(msg, "黄|イエロー|yellow")) return 5;
-        if (ComfirmIncludeMsg(msg, "黒|ブラック|black")) return 6;
-        if (ComfirmIncludeMsg(msg, "白|ホワイト|white")) return 7;
-        if (ComfirmIncludeMsg(msg, "紫|パープル|perple")) return 8;
-        if (ComfirmIncludeMsg(msg, "茶|ブラウン|brown")) return 9;
-        if (ComfirmIncludeMsg(msg, "水|シアン|cyan")) return 10;
-        if (ComfirmIncludeMsg(msg, "黄緑|ライム|lime")) return 11;
-        if (ComfirmIncludeMsg(msg, "栗|マルーン|maroon")) return 12;
-        if (ComfirmIncludeMsg(msg, "薔薇|ローズ|rose")) return 13;
-        if (ComfirmIncludeMsg(msg, "ﾊﾞﾅﾅ|バナナ|banana")) return 14;
-        if (ComfirmIncludeMsg(msg, "灰|グレー|gray")) return 15;
-        if (ComfirmIncludeMsg(msg, "ﾀﾝ|タン|tan")) return 16;
-        if (ComfirmIncludeMsg(msg, "珊瑚|コーラル|coral")) return 17;
-        else return byte.MaxValue;
-    }
-
     private static bool ComfirmIncludeMsg(string msg, string key)
     {
         var keys = key.Split('|');
@@ -81,62 +68,129 @@ public static class GuessManager
         return false;
     }
 
-    public static bool NotGueesFlag = false;
     public static bool GuesserMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         var originMsg = msg;
 
         if (!AmongUsClient.Instance.AmHost) return false;
         if (!GameStates.IsInGame || pc == null) return false;
-        if (!pc.Is(CustomRoles.Guesser)) return false;
 
-        int operate = 0; // 1:ID 2:猜测
+        int operate = 0;
         msg = msg.ToLower().TrimStart().TrimEnd();
-        if (CheckCommond(ref msg, "id")) operate = 1;
-        else if (CheckCommond(ref msg, "bt", false)) operate = 2;
+        if (CheckCommond(ref msg, "bt", false)) operate = 2;
         else return false;
 
-        if (!pc.IsAlive())
-        {
-            if (!isUI) Utils.SendMessage(GetString("GuessDead"), pc.PlayerId);
-            else pc.ShowPopUp(GetString("GuessDead"));
-            return true;
-        }
+        if (!pc.IsAlive()) return true;//本当は悪あがきはやめなって処理入れたかった(´・ω・｀)
         if (operate == 2)
         {
-            if (
-            pc.Is(CustomRoles.Guesser) && (Guesser.TryHideMsg.GetBool() || LastImpostor.GiveGuesser.GetBool() || LastNeutral.GiveGuesser.GetBool())
-            )
-            {
+            //ゲッサー能力なくても生きててかつどれかの設定でHidemeg有効なってたらメッセージを隠す。
+            if ((pc.IsAlive() && (Guesser.TryHideMsg.GetBool() || LastImpostor.TryHideMsg.GetBool())) || LastNeutral.TryHideMsg.GetBool())
                 ChatManager.SendPreviousMessagesToAll();
-            }
-            else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
-            if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
+            //Notゲッサーはここで処理を止める。
+            if (!pc.Is(CustomRoles.Guesser)
+                && !(pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool())
+                && !(pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()))
             {
-                if (!isUI) Utils.SendMessage(error, pc.PlayerId);
-                else pc.ShowPopUp(error);
+                Utils.SendMessage("ごめんね。\nこの/btコマンドはゲッサーの能力なんだ。\nゲッサー能力が君には無いだから使えないよ。\n君に渡したその銃は水鉄砲だよ(?)", pc.PlayerId, Utils.ColorString(Palette.AcceptedGreen, "【====君にはまだ渡せないね。====】</color>"));
                 return true;
             }
-
+            if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
+            {
+                Utils.SendMessage(error, pc.PlayerId, "<color=#e6b422>【====その銃の使い方を教えるね====】</color>");
+                return true;
+            }
+            if (MadAvenger.Skill)
+            {
+                return true;
+            }
             var target = Utils.GetPlayerById(targetId);
             if (target != null)
             {
                 bool guesserSuicide = false;
                 if (!GuesserGuessed.ContainsKey(pc.PlayerId)) GuesserGuessed.Add(pc.PlayerId, 0);
-                if (pc.Is(CustomRoles.Guesser) && GuesserGuessed[pc.PlayerId] >= Guesser.CanGuessTime.GetInt())
+                if (!TGuess.ContainsKey(pc.PlayerId)) TGuess.Add(pc.PlayerId, 0);
+
+                //弾補充処理
+                if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.AddTama.GetBool() && pc.Is(CustomRoles.Guesser) && GuesserGuessed[pc.PlayerId] >= LastImpostor.CanGuessTime.GetInt() + Guesser.CanGuessTime.GetInt())
                 {
-                    Utils.SendMessage("ゲッサーの上限に達しているよ。無駄撃ちはやめな", pc.PlayerId, Utils.ColorString(Color.green, "【===弾数確認はした方がいいぜ===】"));
+                    Utils.SendMessage("ゲーム中に打てる回数の上限に達しているよ。無駄撃ちはやめな★", pc.PlayerId, Utils.ColorString(Color.green, "【===弾数確認はした方がいいぜ===】"));
                     return true;
                 }
+                else
+                //弾補充なし。
+                if (pc.Is(CustomRoles.LastImpostor) && (!LastImpostor.AddTama.GetBool() || !pc.Is(CustomRoles.Guesser)) && GuesserGuessed[pc.PlayerId] >= LastImpostor.CanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("ゲーム中に打てる回数の上限に達しているよ。無駄撃ちはやめな★", pc.PlayerId, Utils.ColorString(Color.green, "【===弾数確認はした方がいいぜ===】"));
+                    return true;
+                }
+                else
+                if (pc.Is(CustomRoles.LastImpostor) && TGuess[pc.PlayerId] >= LastImpostor.OwnCanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("1会議中に打てる回数の上限に達しているよ。\n次ターンには使えるから待ちな。", pc.PlayerId, Utils.ColorString(Color.magenta, "【===その銃は使い捨てなんだ===】"));
+                    return true;
+                }
+                //弾補充処理
+                if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.AddTama.GetBool() && pc.Is(CustomRoles.Guesser) && GuesserGuessed[pc.PlayerId] >= LastImpostor.CanGuessTime.GetInt() + Guesser.CanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("ゲーム中に打てる回数の上限に達しているよ。無駄撃ちはやめな★", pc.PlayerId, Utils.ColorString(Color.green, "【===弾数確認はした方がいいぜ===】"));
+                    return true;
+                }
+                else
+                //弾補充なし。
+                if (pc.Is(CustomRoles.LastImpostor) && (!LastImpostor.AddTama.GetBool() || !pc.Is(CustomRoles.Guesser)) && GuesserGuessed[pc.PlayerId] >= LastImpostor.CanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("ゲーム中に打てる回数の上限に達しているよ。無駄撃ちはやめな★", pc.PlayerId, Utils.ColorString(Color.green, "【===弾数確認はした方がいいぜ===】"));
+                    return true;
+                }
+                else
+                if (pc.Is(CustomRoles.LastImpostor) && TGuess[pc.PlayerId] >= LastImpostor.OwnCanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("1会議中に打てる回数の上限に達しているよ。\n次ターンには使えるから待ちな。", pc.PlayerId, Utils.ColorString(Color.magenta, "【===その銃は使い捨てなんだ===】"));
+                    return true;
+                }
+                else//ラスポスで弾補充/ラスニュで弾補充されたなら上で処理。
+                if (!(pc.Is(CustomRoles.LastImpostor) && LastImpostor.AddTama.GetBool()) && !(pc.Is(CustomRoles.LastNeutral) && LastNeutral.AddTama.GetBool()) && pc.Is(CustomRoles.Guesser) && GuesserGuessed[pc.PlayerId] >= Guesser.CanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("ゲーム中に打てる回数の上限に達しているよ。無駄撃ちはやめな★", pc.PlayerId, Utils.ColorString(Color.green, "【===弾数確認はした方がいいぜ===】"));
+                    return true;
+                }
+                else//ラスポス,ラスニュならうえで処理した奴適応させるからここでは処理しない。
+                if (!(pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool()) && !(pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) && pc.Is(CustomRoles.Guesser) && TGuess[pc.PlayerId] >= Guesser.OwnCanGuessTime.GetInt())
+                {
+                    Utils.SendMessage("1会議中に打てる回数の上限に達しているよ。\n次ターンには使えるから待ちな。", pc.PlayerId, Utils.ColorString(Color.magenta, "【===その銃は使い捨てなんだ===】"));
+                    return true;
+                }
+
                 if (role == CustomRoles.GM || target.Is(CustomRoles.GM))
                 {
                     Utils.SendMessage("ゲームマスターを打つことはできないよ。他にしな。", pc.PlayerId, Utils.ColorString(Color.blue, "【===ホストがそんなに醜いのかい?===】"));
                     return true;
                 }
-                if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() && !Guesser.CanGuessTaskDoneSnitch.GetBool() && !pc.Is(CustomRoleTypes.Crewmate))
+                //スニッチ
+                if (pc.Is(CustomRoles.Guesser) && target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() && !Guesser.ICanGuessTaskDoneSnitch.GetBool() && pc.Is(CustomRoleTypes.Impostor))
                 {
-                    Utils.SendMessage("君は人外?タスク終わってるスニッチを打つことはできないよ。", pc.PlayerId, Utils.ColorString(Color.black, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                    Utils.SendMessage("君はインポスターだろ?\nタスク終わってるスニッチを打つことはできないよ。", pc.PlayerId, Utils.ColorString(Color.black, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                    return true;
+                }
+                if (pc.Is(CustomRoles.LastImpostor) && target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() && !LastImpostor.ICanGuessTaskDoneSnitch.GetBool() && pc.Is(CustomRoleTypes.Impostor))
+                {
+                    Utils.SendMessage("君はインポスターだろ?\nタスク終わってるスニッチを打つことはできないよ。", pc.PlayerId, Utils.ColorString(Color.black, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                    return true;
+                }
+                if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() && !Guesser.MCanGuessTaskDoneSnitch.GetBool() && pc.Is(CustomRoleTypes.Madmate))
+                {
+                    Utils.SendMessage("君はマッドメイトだろ?\nタスク終わってるスニッチを打つことはできないよ。", pc.PlayerId, Utils.ColorString(Color.black, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                    return true;
+                }
+                if (pc.Is(CustomRoles.Guesser) && target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() && !Guesser.NCanGuessTaskDoneSnitch.GetBool() && pc.Is(CustomRoleTypes.Neutral))
+                {
+                    Utils.SendMessage("君はニュートラルだろ?\nタスク終わってるスニッチを打つことはできないよ。", pc.PlayerId, Utils.ColorString(Color.black, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                    return true;
+                }
+                if (pc.Is(CustomRoles.LastNeutral) && target.Is(CustomRoles.Snitch) && target.AllTasksCompleted() && !LastNeutral.ICanGuessTaskDoneSnitch.GetBool() && pc.Is(CustomRoleTypes.Neutral))
+                {
+                    Utils.SendMessage("君はニュートラルだろ?\nタスク終わってるスニッチを打つことはできないよ。", pc.PlayerId, Utils.ColorString(Color.black, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
                     return true;
                 }
 
@@ -148,23 +202,53 @@ public static class GuessManager
                 {
                     return true;
                 }
+                if (pc.Is(CustomRoles.Egoist) && target.Is(CustomRoleTypes.Impostor) && Guesser.ICanGuessNakama.GetBool())
+                {
+                    return true;
+                }
                 if (pc.PlayerId == target.PlayerId)
                 {
                     Utils.SendMessage("自分ゲスしてどないしたん?\n嫌なことあったんやったらワイが話聞くで?", pc.PlayerId, Utils.ColorString(Color.cyan, "【===君は何をしているんだい?===】"));
                     guesserSuicide = true;
                 }
-                else if (pc.Is(CustomRoleTypes.Crewmate) && role.IsCrewmate() && !Guesser.CanGuessNakama.GetBool() && !pc.Is(CustomRoles.Madmate))
+                else if (role.IsRiaju() && target.GetCustomRole().IsRiaju())
+                {//ラバーズって打っててどれかのラバーズなら破滅★
+                    guesserSuicide = false;
+                }
+                else if (pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoleTypes.Madmate) &&
+                        (
+                        (role.IsCrewmate() && !Guesser.CCanGuessNakama.GetBool()) ||
+                        (role.IsWhiteCrew() && !Guesser.CCanWhiteCrew.GetBool())))
                 {
                     guesserSuicide = true;
                 }
-                else if (pc.Is(CustomRoleTypes.Impostor) &&
-                        role.IsImpostor() && !Guesser.CanGuessNakama.GetBool() ||
-                        (role.IsWhiteCrew() && !Guesser.CanWhiteCrew.GetBool()))
+                else if (pc.Is(CustomRoles.Guesser) && pc.Is(CustomRoleTypes.Impostor) &&
+                (
+                    (role.IsImpostor() && !Guesser.ICanGuessNakama.GetBool()) ||
+                    (role.IsWhiteCrew() && !Guesser.ICanWhiteCrew.GetBool())))
                 {
                     guesserSuicide = true;
                 }
-                else if (!pc.Is(CustomRoleTypes.Neutral) &&
-                        role.IsWhiteCrew() && !Guesser.CanWhiteCrew.GetBool())
+                else if (pc.Is(CustomRoles.LastImpostor) && pc.Is(CustomRoleTypes.Impostor) &&
+                        ((role.IsImpostor() && !LastImpostor.ICanGuessNakama.GetBool()) ||
+                        (role.IsWhiteCrew() && !LastImpostor.ICanWhiteCrew.GetBool())))
+                {
+                    guesserSuicide = true;
+                }
+                else if (pc.Is(CustomRoleTypes.Madmate) && (
+                        (role.IsImpostor() && !Guesser.MCanGuessNakama.GetBool()) ||
+                        (role.IsMadmate() && !Guesser.MCanGuessNakama.GetBool()) ||
+                        (role.IsWhiteCrew() && !Guesser.MCanWhiteCrew.GetBool())))
+                {
+                    guesserSuicide = true;
+                }
+                else if (pc.Is(CustomRoles.Guesser) && pc.Is(CustomRoleTypes.Neutral) &&
+                        role.IsWhiteCrew() && !Guesser.NCanWhiteCrew.GetBool())
+                {
+                    guesserSuicide = true;
+                }
+                else if (pc.Is(CustomRoles.LastNeutral) && pc.Is(CustomRoleTypes.Neutral) &&
+                        role.IsWhiteCrew() && !Guesser.NCanWhiteCrew.GetBool())
                 {
                     guesserSuicide = true;
                 }
@@ -176,12 +260,7 @@ public static class GuessManager
 
                 var dp = guesserSuicide ? pc : target;
                 var tempDeathReason = CustomDeathReason.Guess;
-                if (Guesser.ChangeGuessDeathReason.GetBool()
-                    )
-                {
-                    tempDeathReason = guesserSuicide ? CustomDeathReason.Misfire : CustomDeathReason.Guess;
-                }
-
+                tempDeathReason = guesserSuicide ? CustomDeathReason.Misfire : CustomDeathReason.Guess;
                 target = dp;
 
                 Logger.Info($"ゲッサー：{target.GetNameWithRole()} ", "Guesser");
@@ -189,6 +268,7 @@ public static class GuessManager
                 string Name = dp.GetRealName();
 
                 GuesserGuessed[pc.PlayerId]++;
+                TGuess[pc.PlayerId]++;
 
                 _ = new LateTask(() =>
                 {
@@ -207,9 +287,9 @@ public static class GuessManager
                     {
                         foreach (var pc in Main.AllPlayerControls)
                         {
-                            Utils.SendMessage(Name + GetString("Meetingkill"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), GetString("MSKillTitle")));
+                            Utils.SendMessage(Utils.GetPlayerColor(dp, true) + GetString("Meetingkill"), pc.PlayerId, GetString("MSKillTitle"));
                         }
-                    }, 0.4f, "Guess Msg");
+                    }, 0.1f, "Guess Msg");
 
                 }, 0.2f, "Guesser Kill");
             }
@@ -242,7 +322,7 @@ public static class GuessManager
 
     public static TextMeshPro nameText(this PlayerControl p) => p.cosmetics.nameText;
     public static TextMeshPro NameText(this PoolablePlayer p) => p.cosmetics.nameText;
-    public static void RpcGuesserMurderPlayer(this PlayerControl pc, float delay = 0f) //ゲッサー用の殺し方
+    public static void RpcGuesserMurderPlayer(this PlayerControl pc, float delay = 0f)
     {
         // DEATH STUFF //
         var amOwner = pc.AmOwner;
@@ -250,11 +330,12 @@ public static class GuessManager
         pc.RpcExileV2();
         var playerState = PlayerState.GetByPlayerId(pc.PlayerId);
         playerState.SetDead();
-        //Main.PlayerStates[pc.PlayerId].SetDead();
+        PlayerState.AllPlayerStates[pc.PlayerId].SetDead();
         var meetingHud = MeetingHud.Instance;
         var hudManager = DestroyableSingleton<HudManager>.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
+        foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
@@ -278,13 +359,19 @@ public static class GuessManager
         {
             if (playerVoteArea.VotedFor != pc.PlayerId) continue;
             playerVoteArea.UnsetVote();
+            meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
+            meetingHud.ClearVote();
+            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
             if (!voteAreaPlayer.AmOwner) continue;
+            meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
             meetingHud.ClearVote();
+            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
         }
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable, -1);
         writer.Write(pc.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "GuessMeetingCheck");
     }
     public static void RpcClientGuess(PlayerControl pc)
     {
@@ -293,6 +380,7 @@ public static class GuessManager
         var hudManager = DestroyableSingleton<HudManager>.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
+        foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
@@ -317,10 +405,17 @@ public static class GuessManager
         {
             if (playerVoteArea.VotedFor != pc.PlayerId) continue;
             playerVoteArea.UnsetVote();
+            meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
+            meetingHud.ClearVote();
+            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
             var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
             if (!voteAreaPlayer.AmOwner) continue;
+            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
+            meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
             meetingHud.ClearVote();
+            playerVoteArea.UnsetVote();
         }
+        _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "GuessMeetingCheck");
     }
     private static bool MsgToPlayerAndRole(string msg, out byte id, out CustomRoles role, out string error)
     {
@@ -344,7 +439,7 @@ public static class GuessManager
             //byte color = GetColorFromMsg(msg);
             //好吧我不知道怎么取某位玩家的颜色，等会了的时候再来把这里补上
             id = byte.MaxValue;
-            error = GetString("GuessHelp");
+            error = "おっと何か打ち方を間違えているようだね。\n / bt ID 役職名\nで撃つんだ。IDは各プレイヤーの左にある黄色い数字だ。";
             role = new();
             return false;
         }
@@ -353,14 +448,14 @@ public static class GuessManager
         PlayerControl target = Utils.GetPlayerById(id);
         if (target == null || target.Data.IsDead)
         {
-            error = GetString("GuessNull");
+            error = "おっとそいつは回線落ちかすでに死んでいる。\n死体撃ちはやめてくれ。";
             role = new();
             return false;
         }
 
         if (!ChatCommands.GetRoleByInputName(msg, out role, true))
         {
-            error = GetString("GuessHelp");
+            error = "おっと何か打ち方を間違えているようだね。\n / bt ID 役職名\nで撃つんだ。IDは各プレイヤーの左にある黄色い数字だ。";
             return false;
         }
 
@@ -370,7 +465,6 @@ public static class GuessManager
 
     public static string ChangeNormal2Vanilla(CustomRoles role)
     {
-        //ノーマル系役職ならバニラに変える
         switch (role)
         {
             case CustomRoles.Engineer:
@@ -402,4 +496,4 @@ public static class GuessManager
         CustomRoles role = (CustomRoles)reader.ReadByte();
         GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
     }
-}*/
+}

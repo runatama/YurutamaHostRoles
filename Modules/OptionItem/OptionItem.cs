@@ -28,10 +28,12 @@ namespace TownOfHost
 
         // 任意情報 (空・nullを許容する または、ほとんど初期値で問題ない値)
         public Color NameColor { get; protected set; }
+        public string Fromtext { get; protected set; }
         public OptionFormat ValueFormat { get; protected set; }
         public CustomGameMode GameMode { get; protected set; }
         public bool IsHeader { get; protected set; }
         public bool IsHidden { get; protected set; }
+        public bool HideValue { get; protected set; }
         public Dictionary<string, string> ReplacementDictionary
         {
             get => _replacementDictionary;
@@ -64,8 +66,7 @@ namespace TownOfHost
         // - 直接的な呼び出し
         public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
-        // コンストラクタ
-        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue)
+        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false)
         {
             // 必須情報の設定
             Id = id;
@@ -75,6 +76,8 @@ namespace TownOfHost
             IsSingleValue = isSingleValue;
 
             // 任意情報の初期値設定
+            HideValue = hidevalue;
+            Fromtext = From;
             NameColor = Color.white;
             ValueFormat = OptionFormat.None;
             GameMode = CustomGameMode.All;
@@ -101,7 +104,6 @@ namespace TownOfHost
                     AllValues[i] = DefaultValue;
                 }
             }
-
             if (_fastOptions.TryAdd(id, this))
             {
                 _allOptions.Add(this);
@@ -180,7 +182,7 @@ namespace TownOfHost
         {
             if (OptionBehaviour is not null and StringOption opt)
             {
-                opt.TitleText.text = GetName();
+                opt.TitleText.text = GetName() + Fromtext;
                 opt.ValueText.text = GetString();
                 opt.oldValue = opt.Value = CurrentValue;
             }
@@ -281,6 +283,7 @@ namespace TownOfHost
         MadmateRoles,
         CrewmateRoles,
         NeutralRoles,
+        Combinations,
         Addons
     }
     public enum OptionFormat

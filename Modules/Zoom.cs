@@ -12,8 +12,8 @@ namespace TownOfHost
         {
             if (Main.UseZoom.Value && (GameStates.IsFreePlay || (GameStates.IsInGame && !PlayerControl.LocalPlayer.IsAlive() && GameStates.IsInTask)))
             {
-                //チャットなど開いていて、動けない状態なら操作を無効にする
-                if (!PlayerControl.LocalPlayer.CanMove) return;
+                //チャットなど開いていて、動けない状態 or ｴﾃﾞｨｯﾄﾓｰﾄﾞ なら操作を無効にする
+                if (!PlayerControl.LocalPlayer.CanMove || (GameStates.IsFreePlay && Main.EditMode)) return;
 
                 if (Input.mouseScrollDelta.y < 0) size += (int)1.5;
                 if (Input.mouseScrollDelta.y > 0 && size > 1.5) size -= (int)1.5;

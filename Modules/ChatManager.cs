@@ -6,15 +6,20 @@ using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Modules.ChatManager
 {
+    //参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.0.1
     public class ChatManager
     {
         public static bool cancel = false;
         private static List<string> chatHistory = new();
         private const int maxHistorySize = 20;
+        public static void ResetChat()
+        {
+            chatHistory.Clear();
+        }
         public static bool CheckCommond(ref string msg, string command, bool exact = true)
         {
             var comList = command.Split('|');
-            for (int i = 0; i < comList.Count(); i++)
+            for (int i = 0; i < comList.Length; i++)
             {
                 if (exact)
                 {
@@ -31,41 +36,18 @@ namespace TownOfHost.Modules.ChatManager
             }
             return false;
         }
-        public static bool CheckName(ref string msg, string command, bool exact = true)
-        {
-            var comList = command.Split('|');
-            foreach (var com in comList)
-            {
-                if (exact)
-                {
-                    if (msg.Contains(com))
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    int index = msg.IndexOf(com);
-                    if (index != -1)
-                    {
-                        msg = msg.Remove(index, com.Length);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
         public static void SendMessage(PlayerControl player, string message)
         {
             int operate = 0; // 1:ID 2:猜测
             string msg = message;
             string playername = player.GetNameWithRole();
             message = message.ToLower().TrimStart().TrimEnd();
-            if (!player.IsAlive()) return; //|| !AmongUsClient.Instance.AmHost
+            if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return; //
             if (GameStates.IsInGame) operate = 3;
             if (CheckCommond(ref msg, "id")) operate = 1;
             else if (CheckCommond(ref msg, "bt", false)) operate = 2;
+            else if (CheckCommond(ref msg, "system", false)) operate = 2;
+
             if (operate == 1)
             {
                 Logger.Info($"これは記録しない", "ChatManager");
@@ -108,20 +90,10 @@ namespace TownOfHost.Modules.ChatManager
             for (int i = chatHistory.Count; i < 30; i++)
             {
                 msg = "/";
-                if (rd.Next(1, 100) < 20)
-                {
-                    msg += "id";
-                }
-                else
-                {
-                    msg += specialTexts[rd.Next(0, specialTexts.Length - 1)];
-                    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                    msg += rd.Next(0, 15).ToString();
-                    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                    CustomRoles role = roles[rd.Next(0, roles.Count)];
-                    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                    msg += Utils.GetRoleName(role);
-                }
+                msg += specialTexts[rd.Next(0, specialTexts.Length - 1)] + " ";
+                msg += rd.Next(0, 15).ToString() + " ";
+                CustomRoles role = roles[rd.Next(0, roles.Count)];
+                msg += Utils.GetRoleName(role) + " ";
 
                 var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
@@ -148,7 +120,6 @@ namespace TownOfHost.Modules.ChatManager
                         {
                             //var deathReason = (PlayerState.DeathReason)senderPlayer.PlayerId;
                             senderPlayer.Revive();
-
 
                             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
 

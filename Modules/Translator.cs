@@ -115,7 +115,7 @@ namespace TownOfHost
                         _ => res
                     };
                 }
-                if (Main.IsWhite)
+                if (Main.White)
                 {
                     res = str switch
                     {
@@ -126,7 +126,7 @@ namespace TownOfHost
                         _ => res
                     };
                 }
-                if (Main.IsGoldenWeek)
+                if (Main.GoldenWeek)
                 {
                     res = str switch
                     {

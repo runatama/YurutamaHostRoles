@@ -12,8 +12,9 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.AddOns.Impostor;
-//using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
+using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost
 {
@@ -104,7 +105,8 @@ namespace TownOfHost
                 Logger.Warn("CustomSubRoleを取得しようとしましたが、対象がnullでした。", "getCustomSubRole");
                 return new() { CustomRoles.NotAssigned };
             }
-            return PlayerState.GetByPlayerId(player.PlayerId).SubRoles;
+            else
+                return PlayerState.GetByPlayerId(player.PlayerId).SubRoles;
         }
         public static CountTypes GetCountTypes(this PlayerControl player)
         {
@@ -138,6 +140,13 @@ namespace TownOfHost
             //seer: 上の変更を確認することができるプレイヤー
             if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
             if (seer == null) seer = player;
+
+            if (Main.LastNotifyNames is null)
+                Main.LastNotifyNames = new();
+
+            if (!Main.LastNotifyNames.ContainsKey((player.PlayerId, seer.PlayerId)))
+                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = "nulldao"; //nullチェック
+
             if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
             {
                 //Logger.info($"Cancel:{player.name}:{name} for {seer.name}", "RpcSetNamePrivate");
@@ -211,13 +220,14 @@ namespace TownOfHost
             messageWriter.Write(colorId);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
-        public static void RpcResetAbilityCooldown(this PlayerControl target)
+        public static void RpcResetAbilityCooldown(this PlayerControl target, bool log = true)
         {
             if (target == null || !AmongUsClient.Instance.AmHost)
             {
                 return;
             }
-            Logger.Info($"アビリティクールダウンのリセット:{target.name}({target.PlayerId})", "RpcResetAbilityCooldown");
+            HudManagerPatch.BottonHud();
+            if (log) Logger.Info($"アビリティクールダウンのリセット:{target.name}({target.PlayerId})", "RpcResetAbilityCooldown");
             if (PlayerControl.LocalPlayer == target)
             {
                 //targetがホストだった場合
@@ -390,8 +400,10 @@ namespace TownOfHost
             Main.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
             if (player.PlayerId == LastImpostor.currentId)
                 LastImpostor.SetKillCooldown();
-            //if (player.PlayerId == LastNeutral.currentId && player is LNKiller)
-            //LastNeutral.SetKillCooldown();
+            if (player.PlayerId == LastNeutral.currentId && player is ILNKiller)
+                LastNeutral.SetKillCooldown();
+            if (player.Is(CustomRoles.Serial))
+                Main.AllPlayerKillCooldown[player.PlayerId] = Serial.KillCooldown.GetFloat();
         }
         public static bool CanMakeMadmate(this PlayerControl player)
         {
@@ -459,6 +471,8 @@ namespace TownOfHost
         public static void NoCheckStartMeeting(this PlayerControl reporter, GameData.PlayerInfo target)
         { /*サボタージュ中でも関係なしに会議を起こせるメソッド
             targetがnullの場合はボタンとなる*/
+            GameStates.Meeting = true;
+            Utils.NotifyRoles(isForMeeting: true, ForceLoop: true, NoCache: true);
             MeetingRoomManager.Instance.AssignSelf(reporter, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
             reporter.RpcStartMeeting(target);
@@ -516,7 +530,8 @@ namespace TownOfHost
                 return deathReasonSeeable.CheckSeeDeathReason(seen);
             }
             // IDeathReasonSeeable未対応役職はこちら
-            return seer.Is(CustomRoleTypes.Madmate) && Options.MadmateCanSeeDeathReason.GetBool();
+            return (seer.Is(CustomRoleTypes.Madmate) && Options.MadmateCanSeeDeathReason.GetBool())
+            || (seer.Is(CustomRoles.Nurse) && (!Utils.IsActive(SystemTypes.Comms) || Nurse.CanSeeComms.GetBool()));
         }
         public static string GetRoleInfo(this PlayerControl player, bool InfoLong = false)
         {
@@ -575,9 +590,18 @@ namespace TownOfHost
             }
             return null;
         }
-        public static void RpcSnapTo(this PlayerControl pc, Vector2 position)
+        public static void RpcSnapToForced(this PlayerControl pc, Vector2 position)
         {
-            pc.NetTransform.RpcSnapTo(position);
+            var netTransform = pc.NetTransform;
+            if (AmongUsClient.Instance.AmClient)
+            {
+                netTransform.SnapTo(position, (ushort)(netTransform.lastSequenceId + 128));
+            }
+            ushort newSid = (ushort)(netTransform.lastSequenceId + 2);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(netTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.Reliable);
+            NetHelpers.WriteVector2(position, messageWriter);
+            messageWriter.Write(newSid);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
         public static void RpcSnapToDesync(this PlayerControl pc, PlayerControl target, Vector2 position)
         {
@@ -615,6 +639,13 @@ namespace TownOfHost
             }
             return !state.IsDead;
         }
+
+        public static PlayerControl GetKillTarget(this PlayerControl player)
+        {
+            var players = player.GetPlayersInAbilityRangeSorted(false);
+            return players.Count <= 0 ? null : players[0];
+        }
+
         //アプデ対応の参考
         //https://github.com/Hyz-sui/TownOfHost-H
         public const MurderResultFlags SuccessFlags = MurderResultFlags.Succeeded | MurderResultFlags.DecisionByHost;
