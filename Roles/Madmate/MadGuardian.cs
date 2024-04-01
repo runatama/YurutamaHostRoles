@@ -17,7 +17,8 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
             10100,
             SetupOptionItem,
             "mg",
-            introSound: () => GetIntroSound(RoleTypes.Impostor)
+            introSound: () => GetIntroSound(RoleTypes.Impostor),
+            from: From.TownOfHost
         );
     public MadGuardian(PlayerControl player)
     : base(

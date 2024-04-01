@@ -61,7 +61,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     enum Option
     {
         collectrect,
-        Maximum,
+        Ucount,
         tRole,
         Votemode,
         meetingmc
@@ -76,7 +76,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         Optioncollect = FloatOptionItem.Create(RoleInfo, 10, Option.collectrect, new(0f, 100f, 2f), 100f, false)
             .SetValueFormat(OptionFormat.Percent);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Maximum, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
@@ -87,20 +87,19 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     private void SendRPC()
     {
-        using var sender = CreateSender(CustomRPC.SetCount);
+        using var sender = CreateSender();
         sender.Writer.Write(count);
     }
-    public override void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public override void ReceiveRPC(MessageReader reader)
     {
-        if (rpcType == CustomRPC.SetCount)
-        {
-            count = reader.ReadInt32();
-        }
+        count = reader.ReadInt32();
     }
     public override void OnStartMeeting() => mcount = 0;
     public override string GetProgressText(bool comms = false) => Utils.ColorString(!IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
+
+        if (MadAvenger.Skill) return true;
         if (Max > count && Is(voter) && IsTaskFinished && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
@@ -130,6 +129,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         int chance = IRandom.Instance.Next(1, 101);
         var target = Utils.GetPlayerById(votedForId);
+        if (!target.IsAlive()) return;
         count++;
         mcount++;
         if (chance < collect)
@@ -140,13 +140,13 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : target.GetCustomRole();
             var s = "です" + (role.IsImpostorTeam() ? "!" : "...");
             SendRPC();
-            Utils.SendMessage(target.name + "さんを占いました。\n結果は.." + (srole ? GetString($"{role}") : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(Utils.GetPlayerColor(target, true) + "さんを占いました。\n結果は.." + (srole ? GetString($"{role}").Color(target.GetRoleColor()) : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
         else
         {
             Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(失敗)", "MadTeller");
             SendRPC();
-            Utils.SendMessage(target.name + "さんを占おうとしましたが占いに失敗しました。\n(´・ω・｀)ｼｮﾎﾞｰﾝ" + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(Utils.GetPlayerColor(target, true) + "さんを占おうとしましたが占いに失敗しました。\n(´・ω・｀)ｼｮﾎﾞｰﾝ" + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
     }
     public override bool OnCompleteTask()

@@ -16,7 +16,8 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             60050,
             SetupOptionItem,
             "mje",
-            introSound: () => GetIntroSound(RoleTypes.Impostor)
+            introSound: () => GetIntroSound(RoleTypes.Impostor),
+            from: From.au_libhalt_net
         );
     public MadJester(PlayerControl player)
     : base(

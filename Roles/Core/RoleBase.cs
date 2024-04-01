@@ -88,9 +88,9 @@ public abstract class RoleBase : IDisposable
     protected class RoleRPCSender : IDisposable
     {
         public MessageWriter Writer;
-        public RoleRPCSender(RoleBase role, CustomRPC rpcType)
+        public RoleRPCSender(RoleBase role)
         {
-            Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpcType, SendOption.Reliable, -1);
+            Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CustomRoleSync, SendOption.Reliable, -1);
             Writer.Write(role.Player.PlayerId);
         }
         public void Dispose()
@@ -104,9 +104,9 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="rpcType">送信するCustomRPC</param>
     /// <returns>送信に使用するRoleRPCSender</returns>
-    protected RoleRPCSender CreateSender(CustomRPC rpcType)
+    protected RoleRPCSender CreateSender()
     {
-        return new RoleRPCSender(this, rpcType);
+        return new RoleRPCSender(this);
     }
     /// <summary>
     /// RPCを受け取った時に呼ばれる関数
@@ -114,7 +114,7 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="reader">届いたRPCの情報</param>
     /// <param name="rpcType">届いたCustomRPC</param>
-    public virtual void ReceiveRPC(MessageReader reader, CustomRPC rpcType)
+    public virtual void ReceiveRPC(MessageReader reader)
     { }
     /// <summary>
     /// 能力ボタンを使えるかどうか
@@ -191,7 +191,14 @@ public abstract class RoleBase : IDisposable
     /// <param name="id"></param>
     /// <returns>falseを返すとベントから追い出され、他人からアニメーションも見られません</returns>
     public virtual bool OnEnterVent(PlayerPhysics physics, int ventId) => true;
-
+    /// <summary>
+    /// ベント移動を封じるかの関数。
+    /// OnEnterVentの方が速く呼ばれる。
+    /// </summary>
+    /// <param name="physics"></param>
+    /// <param name="Id"></param>
+    /// <returns>falseを返すとベント移動が出来ません。</returns>
+    public virtual bool CantVentIdo(PlayerPhysics physics, int ventId) => true;
     /// <summary>
     /// ミーティングが始まった時に呼ばれる関数
     /// </summary>
@@ -229,6 +236,12 @@ public abstract class RoleBase : IDisposable
     /// タスクターンが始まる直前に毎回呼ばれる関数
     /// </summary>
     public virtual void AfterMeetingTasks()
+    { }
+
+    /// <summary>
+    /// 天秤会議が始まる直前に毎回呼ばれる関数
+    /// </summary>
+    public virtual void BalancerAfterMeetingTasks()
     { }
 
     /// <summary>
@@ -350,6 +363,11 @@ public abstract class RoleBase : IDisposable
         };
         return str.HasValue ? GetString(str.Value) : "Invalid";
     }
+    /// <summary>
+    /// アビリティボタンの画像を変更します。
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
 
     /// <summary>
     /// 会議をキャンセルするために使う<br/>
@@ -369,6 +387,13 @@ public abstract class RoleBase : IDisposable
     /// trueを返すと追放の「ランダム追放」「全員追放」などが実行されない
     /// </summary>
     public virtual bool VotingResults(ref GameData.PlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile) => false;
+
+    /// <summary>
+    /// ベントの出入り、移動で呼び出される
+    /// </summary>
+    public virtual void OnVentilationSystemUpdate(PlayerControl user, VentilationSystem.Operation Operation, int ventId)
+    { }
+
     protected static AudioClip GetIntroSound(RoleTypes roleType) =>
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
 

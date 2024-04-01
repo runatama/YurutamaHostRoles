@@ -128,7 +128,14 @@ public static class CustomRoleManager
         }
 
         //サブロール処理ができるまではラバーズをここで処理
-        FixedUpdatePatch.LoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.ALoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.BLoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.CLoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.DLoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.FLoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.ELoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.GLoversSuicide(attemptTarget.PlayerId);
+        FixedUpdatePatch.MadonnaLoversSuicide(attemptTarget.PlayerId);
 
         //以降共通処理
         var targetState = PlayerState.GetByPlayerId(attemptTarget.PlayerId);
@@ -195,6 +202,7 @@ public static class CustomRoleManager
         MarkOthers.Clear();
         LowerOthers.Clear();
         SuffixOthers.Clear();
+        OnEnterVentOthers.Clear();
         CheckMurderInfos.Clear();
         OnMurderPlayerOthers.Clear();
         OnFixedUpdateOthers.Clear();
@@ -222,6 +230,7 @@ public static class CustomRoleManager
             (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
         }
     }
+
     public static void OtherRolesAdd(PlayerControl pc)
     {
         foreach (var subRole in pc.GetCustomSubRoles())
@@ -231,15 +240,64 @@ public static class CustomRoleManager
                 case CustomRoles.Watcher:
                     Watcher.Add(pc.PlayerId);
                     break;
-                    /*case CustomRoles.Speeding:
-                        Speeding.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Moon:
-                        Moon.Add(pc.PlayerId);
-                        break;
-                    case CustomRoles.Guesser:
-                        Guesser.Add(pc.PlayerId);
-                        break;*/
+                case CustomRoles.Speeding:
+                    Speeding.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Moon:
+                    Moon.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Guesser:
+                    Guesser.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Sun:
+                    Sun.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Director:
+                    Director.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Connecting:
+                    Connecting.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Serial:
+                    Serial.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.AdditionalVoter:
+                    AdditionalVoter.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Opener:
+                    Opener.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Bakeneko:
+                    Bakeneko.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Psychic:
+                    Psychic.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Nurse:
+                    Nurse.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Notvoter:
+                    Notvoter.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Transparent:
+                    Transparent.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.NotConvener:
+                    NotConvener.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Water:
+                    Water.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.LowBattery:
+                    LowBattery.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Slacker:
+                    Slacker.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Elector:
+                    Elector.Add(pc.PlayerId);
+                    break;
+
             }
         }
     }
@@ -248,15 +306,17 @@ public static class CustomRoleManager
     /// </summary>
     /// <param name="reader"></param>
     /// <param name="rpcType"></param>
-    public static void DispatchRpc(MessageReader reader, CustomRPC rpcType)
+    public static void DispatchRpc(MessageReader reader)
     {
         var playerId = reader.ReadByte();
-        GetByPlayerId(playerId)?.ReceiveRPC(reader, rpcType);
+        GetByPlayerId(playerId)?.ReceiveRPC(reader);
     }
     //NameSystem
     public static HashSet<Func<PlayerControl, PlayerControl, bool, string>> MarkOthers = new();
     public static HashSet<Func<PlayerControl, PlayerControl, bool, bool, string>> LowerOthers = new();
     public static HashSet<Func<PlayerControl, PlayerControl, bool, string>> SuffixOthers = new();
+    //Vent
+    public static HashSet<Func<PlayerPhysics, int, bool>> OnEnterVentOthers = new();
     /// <summary>
     /// seer,seenが役職であるかに関わらず発動するMark
     /// 登録されたすべてを結合する。
@@ -310,6 +370,20 @@ public static class CustomRoleManager
         return sb.ToString();
     }
     /// <summary>
+    /// ベントに入ることが確定した後に呼ばれる
+    /// </summary>
+    public static void OnEnterVent(PlayerPhysics physics, int ventId)
+    {
+        //bool check = false;
+        foreach (var vent in OnEnterVentOthers)
+        {
+            /*var r = */
+            vent(physics, ventId);
+            //if (!r) check = false;
+        }
+        //return check;
+    }
+    /// <summary>
     /// オブジェクトの破棄
     /// </summary>
     public static void Dispose()
@@ -318,6 +392,7 @@ public static class CustomRoleManager
         MarkOthers.Clear();
         LowerOthers.Clear();
         SuffixOthers.Clear();
+        OnEnterVentOthers.Clear();
         CheckMurderInfos.Clear();
         OnMurderPlayerOthers.Clear();
         OnFixedUpdateOthers.Clear();
@@ -403,15 +478,25 @@ public enum CustomRoles
     Evilgambler,
     Noisemaker,
     Magician,
+    Decrescendo,
+    Alien,
+    Limiter,
+    ProgressKiller,
+    Mole,
+    Driver,
+    Evilswapper,
     //Madmate
     MadGuardian,
     Madmate,
     MadSnitch,
+    MadAvenger,
     SKMadmate,
     //TOH-k
     MadJester,
     MadTeller,
     MadBait,
+    MadReduced,
+    Braid,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,
@@ -441,6 +526,10 @@ public enum CustomRoles
     GuardMaster,
     Shyboy,
     Balancer,
+    ShrineMaiden,
+    Comebacker,
+    TimeTraveler,
+    VentOpener,
     //Neutral
     Arsonist,
     Egoist,
@@ -457,23 +546,46 @@ public enum CustomRoles
     JackalMafia,
     CountKiller,
     GrimReaper,
+    Madonna,
+    God,
     TaskPlayerB,
     //HideAndSeek
     HASFox,
     HASTroll,
     //GM
     GM,
+    //Combination
+    Assassin,
+    Merlin,
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,
-    //LastNeutral,
-    Lovers,
+    LastNeutral,
     Watcher,
-    //Moon,
+    Moon,
     Workhorse,
-    //Speeding,
+    Speeding,
     Guesser,
-    //NotConvener,
+    Sun,
+    Director,
+    Connecting,
+    Serial,
+    AdditionalVoter,
+    Opener,
+    Psychic,
+    Bakeneko,
+    Nurse,
+    //デバフ
+    Notvoter,
+    NotConvener,
+    Water,
+    Slacker,
+    LowBattery,
+    Elector,
+    Transparent,
+    //第三属性
+    ALovers, BLovers, CLovers, DLovers, ELovers, FLovers, GLovers,
+    MaLovers,
 }
 public enum CustomRoleTypes
 {
