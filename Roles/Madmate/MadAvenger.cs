@@ -19,7 +19,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoleTypes.Madmate,
             10500,
             SetupOptionItem,
-            "mjb",
+            "mAe",
             introSound: () => GetIntroSound(RoleTypes.Impostor)
         );
     public MadAvenger(PlayerControl player)
@@ -34,6 +34,8 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         Cooldown = OptionCooldown.GetFloat(); ;
         Skill = false;
         Guessd = new(GameData.Instance.PlayerCount);
+        fin = false;
+        can = false;
     }
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
@@ -44,6 +46,8 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     public static bool Skill;
     float Cooldown;
     float Count;
+    bool fin;
+    bool can;
     enum OptionName { TaskBattleVentCooldown, MRCount, kakumeimaevento }
 
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
@@ -58,23 +62,29 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.EngineerCooldown = MyTaskState.CompletedTasksCount <= MyTaskState.AllTasksCount - 1 ? Options.MadmateVentCooldown.GetFloat() + 1 : Cooldown;
-        AURoleOptions.EngineerInVentMaxTime = MyTaskState.CompletedTasksCount <= MyTaskState.AllTasksCount - 1 ? Options.MadmateVentMaxTime.GetFloat() : 1;
+        AURoleOptions.EngineerCooldown = !fin ? Options.MadmateVentCooldown.GetFloat() + 1 : Cooldown;
+        AURoleOptions.EngineerInVentMaxTime = !fin ? Options.MadmateVentMaxTime.GetFloat() : 1;
     }
 
     public override bool OnCompleteTask()
     {
-        Player.RpcResetAbilityCooldown();
-        Player.MarkDirtySettings();
         if (IsTaskFinished)
         {
-            Player.RpcProtectedMurderPlayer();
+            fin = true;
+            Player.MarkDirtySettings();
+            _ = new LateTask(() =>
+            {
+                can = true;
+                Player.RpcProtectedMurderPlayer();
+                Player.RpcResetAbilityCooldown();
+            }, 0.18f, "Reset");
+
         }
         return true;
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
-        if (!IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count) return OptionVent.GetBool();
+        if ((!IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count) || !can) return OptionVent.GetBool();
         if (Main.AliveImpostorCount != 0)
         {
             PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Suicide;
@@ -105,15 +115,15 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         //seeおよびseenが自分である場合以外は関係なし
         if (!Is(seer) || !Is(seen)) return "";
 
-        return Utils.ColorString(IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? "\nご主人が全滅していたら革命会議を起こせるぞ。" : "\nその時が来るまで準備しろ");
+        return Utils.ColorString(IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? "\n" + GetString("MadAvengerchallengeMeeting") : "\n" + GetString("MadAvengerreserve"));
     }
     public override void OnReportDeadBody(PlayerControl ___, GameData.PlayerInfo __)
     {
         if (!Skill) return;
-        _ = new LateTask(() => Utils.SendMessage("なにか雰囲気がいつもと違う..."), 3.0f, "Kakumeikaigi");
-        _ = new LateTask(() => Utils.SendMessage("そう思った時にはもう手遅れだった。"), 4.5f, "Kakumeikaigi");
-        _ = new LateTask(() => Utils.SendMessage("この中の船員が今...革命を...起こそうとしているっ!!!"), 6.0f, "Kakumeikaigi");
-        _ = new LateTask(() => Utils.SendMessage("<size=175%><b>＿人人人人人人＿\n＞　</b><color=#ff1919>革命会議</color><b>　＜\n￣ＹＹＹＹＹＹ￣</b>\n\n<size=75%><line-height=1.8pic>★革命会議です。\n革命会議中はマッドアベンジャー以外投票,\n会議中の能力使用はできません。\nマッドアベンジャーが生存しているすべての\n死神,ジャッカル,ジャッカルマフィア\nカウントキラー,エゴイスト,リモートキラー\nに投票するとインポスター陣営の勝利です。\n上記の役職以外に投票すると自殺し会議が終了します。", title: " <color=#ff1919>【===革命の時間だ。===】"), 6.5f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger1")), 3.0f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger2")), 4.5f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger3")), 6.0f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage("<size=175%><b>＿人人人人人人＿\n＞　</b><color=#ff1919>" + GetString("Skill.MadAvenger4") + "</color><b>　＜\n￣ＹＹＹＹＹＹ￣</b>\n\n<size=75%><line-height=1.8pic>" + GetString("Skill.MadAvengerInfo"), title: " <color=#ff1919>" + GetString("MadAvengerMeeting")), 6.5f, "Kakumeikaigi");
     }
     public List<PlayerControl> Guessd;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
@@ -124,14 +134,14 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         {
             if (!Is(voter))
             {
-                Utils.SendMessage("おっと...今革命を起こしている途中なんだ。\n部外者は大人しく観戦しな。\n", title: "<color=#ff1919>【===革命の時間だ。===】");
+                Utils.SendMessage(GetString("MadAvengerCantVote"), voter.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
                 return false;
             }
             if (Is(voter)) //革命家の投票
             {
                 if (votedForId == 253 || votedForId == Player.PlayerId) //
                 {
-                    Utils.SendMessage("おっと...君は今革命を起こしている途中なんだ。\nこの会議で生存しているニュートラルのキル人外を全員当てればインポスター陣営の勝利だ。\n", Player.PlayerId, "<color=#ff1919>【===革命の時間だ。===】");
+                    Utils.SendMessage(GetString("Skill.MadAvengerCantSkip"), Player.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
                     return false;
                 }
                 else
@@ -141,22 +151,22 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                     {
                         if (Guessd.Contains(pc))
                         {
-                            Utils.SendMessage("そいつはもう推測に成功したよ。\nまだニュートラルキラーが残ってるから他を殺るんだ。", Player.PlayerId, "<color=#ff1919>【===革命の時間だ。===】");
+                            Utils.SendMessage(GetString("Skill.MadAvengerGuessed"), Player.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
                             return false;
                         }
                         Guessd.Add(pc);
                         Player.RpcProtectedMurderPlayer();
-                        Utils.SendMessage("良く当てた!\nそいつはニュートラルキラーだ。", Player.PlayerId, "<color=#ff1919>【===革命の時間だ。===】");
+                        Utils.SendMessage(GetString("Skill.MadAvengersuccess"), Player.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
                         foreach (var Guessdpc in Guessd)
                         {
                             var pc1 = Main.AllAlivePlayerControls.Where(pc1 => pc1.IsNeutralKiller() || pc1.Is(CustomRoles.GrimReaper)).Count();
                             if (Guessd.Count == pc1)
                             {
                                 //革命成功
-                                _ = new LateTask(() => Utils.SendMessage("ふっふっふ...", title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 0.5f, "Kakumeiseikou");
-                                _ = new LateTask(() => Utils.SendMessage("君たちに良いお知らせがある。", title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 1.5f, "Kakumeiseikou");
-                                _ = new LateTask(() => Utils.SendMessage("この船は私が乗っ取らせてもらった!!", title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 3.0f, "Kakumeiseikou");
-                                _ = new LateTask(() => Utils.SendMessage("君たちに明日は訪れない。", title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 4.5f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger5"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 0.5f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger6"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 1.5f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger7"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 3.0f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger8"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 4.5f, "Kakumeiseikou");
                                 _ = new LateTask(() =>//殺害処理
                                 {
                                     foreach (var pc in Main.AllAlivePlayerControls)

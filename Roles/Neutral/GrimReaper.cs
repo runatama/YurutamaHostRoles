@@ -15,7 +15,7 @@ namespace TownOfHost.Roles.Neutral
                 CustomRoles.GrimReaper,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
-                52100,
+                52500,
                 SetupOptionItem,
                 "GR",
                 "#4b0082",
@@ -64,6 +64,7 @@ namespace TownOfHost.Roles.Neutral
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);//正味サボ使用不可でもいい気がする
             OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             OptionCanbotton = BooleanOptionItem.Create(RoleInfo, 14, OptionName.Canbotton, false, false);
+            RoleAddAddons.Create(RoleInfo, 15);
         }
         public float CalculateKillCooldown() => KillCooldown;
         public bool CanUseSabotageButton() => CanUseSabotage;

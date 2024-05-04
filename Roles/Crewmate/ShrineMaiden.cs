@@ -122,7 +122,7 @@ public sealed class ShrineMaiden : RoleBase
                 if (CheckSelfVoteMode(Player, votedForId, out var status))
                 {
                     if (status is VoteStatus.Self)
-                        Utils.SendMessage("占いモードになりました！\n\n占いたいプレイヤーに投票→占い能力発動\n" + GetString("VoteSkillMode"), Player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Divied"), GetString("Vote.Divied")) + GetString("VoteSkillMode"), Player.PlayerId);
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)
@@ -156,11 +156,11 @@ public sealed class ShrineMaiden : RoleBase
 
         if (t1 == t2)
         {
-            Utils.SendMessage(Utils.GetPlayerColor(target1, true) + "さんと" + Utils.GetPlayerColor(target2, true) + $"さんを占いました。\n結果は..同陣営でした!\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("ShrineMaidencollect"), Utils.GetPlayerColor(target1, true), Utils.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
         else
         {
-            Utils.SendMessage(Utils.GetPlayerColor(target1, true) + "さんと" + Utils.GetPlayerColor(target2, true) + $"さんを占いました。\n結果は..同陣営ではありませんでした...\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("ShrineMaidencollect"), Utils.GetPlayerColor(target1, true), Utils.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
     }
 }

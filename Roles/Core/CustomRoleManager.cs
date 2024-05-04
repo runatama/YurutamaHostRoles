@@ -67,6 +67,7 @@ public static class CustomRoleManager
                 {
                     if (!targetRole.OnCheckMurderAsTarget(info))
                     {
+                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                         return false;
                     }
                 }
@@ -144,7 +145,13 @@ public static class CustomRoleManager
             //死因が設定されていない場合は死亡判定
             targetState.DeathReason = CustomDeathReason.Kill;
         }
-
+        //あっ!死ぬ前にどこにいたかだけ教えてね!
+        var room = "";
+        if (Utils.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom() != null)
+        {
+            room = Translator.GetString($"{Utils.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom().RoomId}");
+            room = $"〔{room}〕";
+        }
         targetState.SetDead();
         attemptTarget.SetRealKiller(attemptKiller, true);
 
@@ -154,6 +161,12 @@ public static class CustomRoleManager
 
         Utils.SyncAllSettings();
         Utils.NotifyRoles();
+        //サブロールは表示めんどいしながいから省略★
+        if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
+        {
+            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Kill]　{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId)}]　{room}";
+            if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{Utils.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
+        }
     }
     /// <summary>
     /// その他視点からのMurderPlayer処理
@@ -163,7 +176,7 @@ public static class CustomRoleManager
 
     public static void OnFixedUpdate(PlayerControl player)
     {
-        if (GameStates.IsInTask)
+        if (GameStates.IsInTask && !GameStates.Meeting)
         {
             player.GetRoleClass()?.OnFixedUpdate(player);
             //その他視点処理があれば実行
@@ -224,7 +237,7 @@ public static class CustomRoleManager
         {
             OtherRolesAdd(player);
         }
-        if (player.Data.Role.Role == RoleTypes.Shapeshifter)
+        if (player.Data.Role.Role == RoleTypes.Shapeshifter || player.GetCustomRole().GetRoleInfo()?.BaseRoleType?.Invoke() == RoleTypes.Shapeshifter)
         {
             Main.CheckShapeshift.TryAdd(player.PlayerId, false);
             (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
@@ -237,8 +250,8 @@ public static class CustomRoleManager
         {
             switch (subRole)
             {
-                case CustomRoles.Watcher:
-                    Watcher.Add(pc.PlayerId);
+                case CustomRoles.watching:
+                    watching.Add(pc.PlayerId);
                     break;
                 case CustomRoles.Speeding:
                     Speeding.Add(pc.PlayerId);
@@ -249,11 +262,14 @@ public static class CustomRoleManager
                 case CustomRoles.Guesser:
                     Guesser.Add(pc.PlayerId);
                     break;
-                case CustomRoles.Sun:
-                    Sun.Add(pc.PlayerId);
+                case CustomRoles.Lighting:
+                    Lighting.Add(pc.PlayerId);
                     break;
-                case CustomRoles.Director:
-                    Director.Add(pc.PlayerId);
+                case CustomRoles.Tiebreaker:
+                    Tiebreaker.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.Management:
+                    Management.Add(pc.PlayerId);
                     break;
                 case CustomRoles.Connecting:
                     Connecting.Add(pc.PlayerId);
@@ -261,20 +277,20 @@ public static class CustomRoleManager
                 case CustomRoles.Serial:
                     Serial.Add(pc.PlayerId);
                     break;
-                case CustomRoles.AdditionalVoter:
-                    AdditionalVoter.Add(pc.PlayerId);
+                case CustomRoles.PlusVote:
+                    PlusVote.Add(pc.PlayerId);
                     break;
                 case CustomRoles.Opener:
                     Opener.Add(pc.PlayerId);
                     break;
-                case CustomRoles.Bakeneko:
-                    Bakeneko.Add(pc.PlayerId);
+                case CustomRoles.Revenger:
+                    Revenger.Add(pc.PlayerId);
                     break;
-                case CustomRoles.Psychic:
-                    Psychic.Add(pc.PlayerId);
+                case CustomRoles.seeing:
+                    seeing.Add(pc.PlayerId);
                     break;
-                case CustomRoles.Nurse:
-                    Nurse.Add(pc.PlayerId);
+                case CustomRoles.Autopsy:
+                    Autopsy.Add(pc.PlayerId);
                     break;
                 case CustomRoles.Notvoter:
                     Notvoter.Add(pc.PlayerId);
@@ -282,14 +298,14 @@ public static class CustomRoleManager
                 case CustomRoles.Transparent:
                     Transparent.Add(pc.PlayerId);
                     break;
-                case CustomRoles.NotConvener:
-                    NotConvener.Add(pc.PlayerId);
+                case CustomRoles.NonReport:
+                    NonReport.Add(pc.PlayerId);
                     break;
                 case CustomRoles.Water:
                     Water.Add(pc.PlayerId);
                     break;
-                case CustomRoles.LowBattery:
-                    LowBattery.Add(pc.PlayerId);
+                case CustomRoles.Clumsy:
+                    Clumsy.Add(pc.PlayerId);
                     break;
                 case CustomRoles.Slacker:
                     Slacker.Add(pc.PlayerId);
@@ -297,7 +313,13 @@ public static class CustomRoleManager
                 case CustomRoles.Elector:
                     Elector.Add(pc.PlayerId);
                     break;
+                case CustomRoles.Amnesia:
+                    Amnesia.Add(pc.PlayerId);
+                    break;
 
+                case CustomRoles.Amanojaku:
+                    Amanojaku.Add(pc.PlayerId);
+                    break;
             }
         }
     }
@@ -483,8 +505,8 @@ public enum CustomRoles
     Limiter,
     ProgressKiller,
     Mole,
-    Driver,
-    Evilswapper,
+    EvilAddoer,
+    MadWorker,
     //Madmate
     MadGuardian,
     Madmate,
@@ -496,7 +518,6 @@ public enum CustomRoles
     MadTeller,
     MadBait,
     MadReduced,
-    Braid,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,
@@ -528,8 +549,9 @@ public enum CustomRoles
     Balancer,
     ShrineMaiden,
     Comebacker,
-    TimeTraveler,
-    VentOpener,
+    WolfBoy,
+    WhiteHacker,
+    NiceAddoer,
     //Neutral
     Arsonist,
     Egoist,
@@ -547,7 +569,9 @@ public enum CustomRoles
     CountKiller,
     GrimReaper,
     Madonna,
-    God,
+    Workaholic,
+    Monochromer,
+    Jackaldoll,
     TaskPlayerB,
     //HideAndSeek
     HASFox,
@@ -555,37 +579,41 @@ public enum CustomRoles
     //GM
     GM,
     //Combination
-    Assassin,
-    Merlin,
+    Driver,
+    Braid,
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,
     LastNeutral,
-    Watcher,
-    Moon,
     Workhorse,
-    Speeding,
-    Guesser,
-    Sun,
-    Director,
-    Connecting,
-    Serial,
-    AdditionalVoter,
-    Opener,
-    Psychic,
-    Bakeneko,
-    Nurse,
-    //デバフ
-    Notvoter,
-    NotConvener,
-    Water,
-    Slacker,
-    LowBattery,
-    Elector,
-    Transparent,
     //第三属性
     ALovers, BLovers, CLovers, DLovers, ELovers, FLovers, GLovers,
-    MaLovers,
+    MaLovers, Amanojaku,
+
+    //バフ
+    Guesser,
+    Serial,
+    Connecting,
+    watching,
+    PlusVote,
+    Tiebreaker,
+    Autopsy,
+    Revenger,
+    Speeding,
+    Management,
+    Opener,
+    seeing,
+    Lighting,
+    Moon,
+    //デバフ
+    Amnesia,
+    Notvoter,
+    Elector,
+    NonReport,
+    Transparent,
+    Water,
+    Clumsy,
+    Slacker,
 }
 public enum CustomRoleTypes
 {

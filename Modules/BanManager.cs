@@ -45,7 +45,7 @@ namespace TownOfHost
                     var additionalInfo = "";
                     //if (CheckEACList(player?.FriendCode, player?.GetHashedPuid())) additionalInfo = " //added by EAC";
                     File.AppendAllText(BAN_LIST_PATH, $"{player?.FriendCode},{player?.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}{additionalInfo}\n");
-                    Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
+                    Logger.seeingame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
                 }
                 else Logger.Info($"Failed to add player {player?.PlayerName.RemoveHtmlTags()}/{player?.FriendCode}/{player?.GetHashedPuid()} to ban list!", "AddBanPlayer");
             }
@@ -65,7 +65,7 @@ namespace TownOfHost
                     if (Regex.IsMatch(player.PlayerName, line))
                     {
                         AmongUsClient.Instance.KickPlayer(player.Id, false);
-                        Logger.SendInGame(string.Format(GetString("Message.KickedByDenyName"), player.PlayerName, line));
+                        Logger.seeingame(string.Format(GetString("Message.KickedByDenyName"), player.PlayerName, line));
                         Logger.Info($"{player.PlayerName}は名前が「{line}」に一致したためキックされました。", "Kick");
                         return;
                     }
@@ -76,13 +76,24 @@ namespace TownOfHost
                 Logger.Exception(ex, "CheckDenyNamePlayer");
             }
         }
+        //ホスト以外のModプレイヤーをキック
+        /*public static void CheckMod(ClientData player)
+        {
+            if (!AmongUsClient.Instance.AmHost || !Options.KickModClient.GetBool()) return;
+            if (Utils.GetPlayerById(player.Id).IsModClient())
+            {
+                AmongUsClient.Instance.KickPlayer(player.Id, false);
+                Logger.seeingame(string.Format(GetString("Message.KickedByModClient"), player.PlayerName));
+                Logger.Info($"{player.PlayerName}はModClientだったのでキックしました。", "Kick");
+            }
+        }*/
         public static void CheckBanPlayer(InnerNet.ClientData player)
         {
             if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
             if (CheckBanList(player?.FriendCode, player?.GetHashedPuid()))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
-                Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
+                Logger.seeingame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
                 Logger.Info($"{player.PlayerName}は過去にBAN済みのためBANされました。", "BAN");
                 return;
             }

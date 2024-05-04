@@ -86,7 +86,7 @@ namespace TownOfHost.Roles
             if (min > max || min > numImpostors || max > numImpostors)
             {
                 var msg = GetString("Warning.NotMatchImpostorCount");
-                Logger.SendInGame(msg);
+                Logger.seeingame(msg);
                 Logger.Warn(msg, "BeginGame");
                 result = false;
             }
@@ -96,7 +96,7 @@ namespace TownOfHost.Roles
             if (roleMinCount > playerCount)
             {
                 var msg = GetString("Warning.NotMatchRoleCount");
-                Logger.SendInGame(msg);
+                Logger.seeingame(msg);
                 Logger.Warn(msg, "BeginGame");
                 result = false;
             }

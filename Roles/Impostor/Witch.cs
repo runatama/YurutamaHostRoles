@@ -3,7 +3,6 @@ using System.Text;
 using Hazel;
 
 using AmongUs.GameOptions;
-using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;

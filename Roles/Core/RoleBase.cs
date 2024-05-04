@@ -154,6 +154,12 @@ public abstract class RoleBase : IDisposable
     { }
 
     /// <summary>
+    /// 自視点のみ変身する
+    /// 抜け殻を自視点のみに残すことが可能
+    /// </summary>
+    public virtual bool CanDesyncShapeshift => false;
+
+    /// <summary>
     /// シェイプシフトされる前に呼ばれる関数
     /// falseを返すとシェイプシフトをなかったことにできる
     /// 自分自身について呼ばれるため本人確認不要
@@ -192,8 +198,9 @@ public abstract class RoleBase : IDisposable
     /// <returns>falseを返すとベントから追い出され、他人からアニメーションも見られません</returns>
     public virtual bool OnEnterVent(PlayerPhysics physics, int ventId) => true;
     /// <summary>
-    /// ベント移動を封じるかの関数。
-    /// OnEnterVentの方が速く呼ばれる。
+    /// ベント移動を封じるかの関数。<br/>
+    /// OnEnterVentの方が速く呼ばれる。</br>
+    /// 基本的にこれは移動を封じる時のみ使う。
     /// </summary>
     /// <param name="physics"></param>
     /// <param name="Id"></param>
@@ -204,6 +211,11 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     public virtual void OnStartMeeting()
     { }
+    /// <summary>
+    /// ミーティングが始まった時同数などと一緒に表示されるメッセージ
+    /// </summary>
+    /// <returns></returns>
+    public virtual string MeetingMeg() => "";
 
     /// <summary>
     /// 自分が投票した瞬間，票がカウントされる前に呼ばれる<br/>
@@ -242,6 +254,11 @@ public abstract class RoleBase : IDisposable
     /// 天秤会議が始まる直前に毎回呼ばれる関数
     /// </summary>
     public virtual void BalancerAfterMeetingTasks()
+    { }
+    /// <summary>
+    /// モノクラー等に使う。シェイプ後,イントロ後,タスクターン始めに呼ばれる。
+    /// </summary>
+    public virtual void Colorchnge()
     { }
 
     /// <summary>
@@ -348,7 +365,7 @@ public abstract class RoleBase : IDisposable
     public virtual string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false) => "";
 
     /// <summary>
-    /// シェイプシフトボタンのテキストを変更します
+    /// アビリティボタンのテキストを変更します
     /// </summary>
     public virtual string GetAbilityButtonText()
     {
@@ -363,11 +380,6 @@ public abstract class RoleBase : IDisposable
         };
         return str.HasValue ? GetString(str.Value) : "Invalid";
     }
-    /// <summary>
-    /// アビリティボタンの画像を変更します。
-    /// </summary>
-    /// <param name="text"></param>
-    /// <returns></returns>
 
     /// <summary>
     /// 会議をキャンセルするために使う<br/>
@@ -394,9 +406,19 @@ public abstract class RoleBase : IDisposable
     public virtual void OnVentilationSystemUpdate(PlayerControl user, VentilationSystem.Operation Operation, int ventId)
     { }
 
+    /// <summary>
+    /// 名前を一時的に変更する時に使う<br/>
+    /// NotifyRoles時に呼び出される
+    /// </summary>
+    /// <param name = "name" > 変更する名前 </ param >
+    /// <param name = "NoMarker" > マーカーや追加情報を表示しない </ param >
+    /// <returns>名前を変更するかどうか</returns>
+    public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
+
     protected static AudioClip GetIntroSound(RoleTypes roleType) =>
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
-
+    public static AudioClip GetIntrosound(RoleTypes roleType) =>
+        RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
     protected enum GeneralOption
     {
         Cooldown,
@@ -404,6 +426,9 @@ public abstract class RoleBase : IDisposable
         CanVent,
         ImpostorVision,
         CanUseSabotage,
-        CanCreateMadmate,
+        CanCreateSideKick,
+        Duration,
+        cantaskcount,
+        meetingmc,
     }
 }

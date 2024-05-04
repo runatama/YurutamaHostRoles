@@ -19,7 +19,7 @@ namespace TownOfHost
             _ = new LateTask(() =>
             {
                 CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
-                if (!role.IsVanilla())
+                if (!role.IsVanilla() && !PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                 {
                     __instance.YouAreText.color = Utils.GetRoleColor(role);
                     __instance.RoleText.text = Utils.GetRoleName(role);
@@ -30,8 +30,11 @@ namespace TownOfHost
                 }
 
                 foreach (var subRole in PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SubRoles)
+                {
+                    if (subRole == CustomRoles.Amnesia) continue;
                     __instance.RoleBlurbText.text += "<size=75%>\n" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
-                __instance.RoleText.text += Utils.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId);
+                }
+                __instance.RoleText.text += Utils.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, amkesu: true);
 
             }, 0.01f, "Override Role Text");
 
@@ -105,17 +108,22 @@ namespace TownOfHost
         {
             //チーム表示変更
             CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+            var pc = PlayerControl.LocalPlayer;
 
             if (role.GetRoleInfo()?.IntroSound is AudioClip introSound)
             {
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = introSound;
             }
+            if (pc.Is(CustomRoles.Amnesia))
+            {
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = RoleBase.GetIntrosound(role.GetRoleInfo().BaseRoleType.Invoke());
+            }
 
             switch (role.GetCustomRoleTypes())
             {
                 case CustomRoleTypes.Neutral:
-                    __instance.TeamTitle.text = Utils.GetRoleName(role);
-                    __instance.TeamTitle.color = Utils.GetRoleColor(role);
+                    __instance.TeamTitle.text = GetString("Neutral");
+                    __instance.TeamTitle.color = pc.Is(CustomRoles.Amnesia) ? Palette.DisabledGrey : Utils.GetRoleColor(role);
                     __instance.ImpostorText.gameObject.SetActive(true);
                     __instance.ImpostorText.text = role switch
                     {
@@ -124,13 +132,15 @@ namespace TownOfHost
                         CustomRoles.JackalMafia => GetString("TeamJackal"),
                         _ => GetString("NeutralInfo"),
                     };
-                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+                    if (pc.Is(CustomRoles.Amnesia)) __instance.ImpostorText.text = GetString("NeutralInfo");
+                    __instance.BackgroundBar.material.color = pc.Is(CustomRoles.Amnesia) ? Palette.DisabledGrey : Utils.GetRoleColor(role);
                     break;
                 case CustomRoleTypes.Madmate:
-                    __instance.TeamTitle.text = GetString("Madmate");
-                    __instance.TeamTitle.color = Utils.GetRoleColor(CustomRoles.Madmate);
-                    __instance.ImpostorText.text = GetString("TeamImpostor");
-                    StartFadeIntro(__instance, Palette.CrewmateBlue, Palette.ImpostorRed);
+                    __instance.TeamTitle.text = pc.Is(CustomRoles.Amnesia) ? GetString("Neutral") : GetString("Madmate");
+                    __instance.TeamTitle.color = pc.Is(CustomRoles.Amnesia) ? Palette.DisabledGrey : Utils.GetRoleColor(CustomRoles.Madmate);
+                    __instance.ImpostorText.text = pc.Is(CustomRoles.Amnesia) ? GetString("NeutralInfo") : GetString("TeamImpostor");
+                    if (!pc.Is(CustomRoles.Amnesia)) StartFadeIntro(__instance, Palette.CrewmateBlue, Palette.ImpostorRed);
+                    else __instance.BackgroundBar.material.color = Palette.DisabledGrey;
                     break;
             }
             switch (role)
@@ -143,6 +153,15 @@ namespace TownOfHost
                         ? GetString(StringNames.NumImpostorsS)
                         : string.Format(GetString(StringNames.NumImpostorsP), numImpostors);
                     __instance.ImpostorText.text = text.Replace("[FF1919FF]", "<color=#FF1919FF>").Replace("[]", "</color>");
+                    break;
+                case CustomRoles.WolfBoy:
+                    __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    var WnumImpostors = Main.NormalOptions.NumImpostors;
+                    var Wtext = WnumImpostors == 1
+                        ? GetString(StringNames.NumImpostorsS)
+                        : string.Format(GetString(StringNames.NumImpostorsP), WnumImpostors);
+                    __instance.ImpostorText.text = Wtext.Replace("[808080]", "<color=#808080>").Replace("[]", "</color>");
                     break;
 
                 case CustomRoles.GM:
@@ -202,7 +221,7 @@ namespace TownOfHost
     {
         public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Sheriff))
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Sheriff) || PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
             {
                 //シェリフの場合はキャンセルしてBeginCrewmateに繋ぐ
                 yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
@@ -249,6 +268,9 @@ namespace TownOfHost
                         {
                             Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                         }, 2f, "FixKillCooldownTask");
+                    if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                    GameStates.Intro = false;
+                    GameStates.AfterIntro = true;
                 }
                 _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
                 if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
@@ -256,6 +278,7 @@ namespace TownOfHost
                     PlayerControl.LocalPlayer.RpcExile();
                     PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SetDead();
                 }
+
                 if (RandomSpawn.IsRandomSpawn())
                 {
                     RandomSpawn.SpawnMap map;
@@ -279,7 +302,6 @@ namespace TownOfHost
                             break;
                     }
                 }
-
                 // そのままだとホストのみDesyncImpostorの暗室内での視界がクルー仕様になってしまう
                 var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
                 var amDesyncImpostor = roleInfo?.IsDesyncImpostor == true;
@@ -287,6 +309,18 @@ namespace TownOfHost
                 {
                     PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
                 }
+                _ = new LateTask(() => Utils.DelTask(), 1.25f, "Fix all task");
+                GameStates.task = true;
+
+                //desyneインポかつ置き換えがimp以外ならそれにする。
+                if (amDesyncImpostor && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
+                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
+
+                foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                {
+                    role.Colorchnge();
+                }
+                if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
             }
             Logger.Info("OnDestroy", "IntroCutscene");
         }

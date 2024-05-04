@@ -37,6 +37,7 @@ namespace TownOfHost
                 __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                 // Reset lobby countdown timer
                 timer = 600f;
+                Timer2 = 0f;
                 //ゲームマスターONのテキスト HideNameの後に作るとおかしくなるので先にInstantiateしておく
                 GameMaster = Object.Instantiate(__instance.GameRoomNameCode, __instance.StartButton.transform.parent);
                 GameMaster.gameObject.SetActive(false);
@@ -189,6 +190,8 @@ namespace TownOfHost
                     && Main.version.CompareTo(version.version) == 0
                     && version.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})";
             }
+            private static bool Client(byte playerId)
+                => Main.playerVersion.TryGetValue(playerId, out var version);
         }
 
         [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.BeginGame))]
@@ -202,7 +205,7 @@ namespace TownOfHost
                 if (invalidColor.Any())
                 {
                     var msg = GetString("Error.InvalidColor");
-                    Logger.SendInGame(msg);
+                    Logger.seeingame(msg);
                     msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.name}({p.Data.DefaultOutfit.ColorId})"));
                     Utils.SendMessage(msg);
                     return false;
@@ -218,14 +221,14 @@ namespace TownOfHost
                     if (Options.TaskBattleTeamC.GetFloat() > Main.AllPlayerControls.Count())
                     {
                         var msg = GetString("Warning.MoreTeamsThanPlayers");
-                        Logger.SendInGame(msg);
+                        Logger.seeingame(msg);
                         Logger.Warn(msg, "BeginGame");
                     }
                     //合計タスク数が足りない場合
                     if (Options.TaskBattleTeamWinType.GetBool() && Main.NormalOptions.TotalTaskCount * playerc < Options.TaskBattleTeamWinTaskc.GetFloat())
                     {
                         var msg = GetString("Warning.TBTask");
-                        Logger.SendInGame(msg);
+                        Logger.seeingame(msg);
                         Logger.Warn(msg, "BeginGame");
                     }
                 }

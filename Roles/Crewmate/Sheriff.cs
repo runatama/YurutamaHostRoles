@@ -197,6 +197,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoleTypes.Impostor => cRole is not CustomRoles.Tairou,
             CustomRoleTypes.Madmate => KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool(),
             CustomRoleTypes.Neutral => CanKillNeutrals.GetValue() == 0 || !KillTargetOptions.TryGetValue(cRole, out var option) || option.GetBool(),
+            CustomRoleTypes.Crewmate => cRole is CustomRoles.WolfBoy,
             _ => false,
         };
 

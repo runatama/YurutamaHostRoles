@@ -47,7 +47,7 @@ public sealed class SpeedBooster : RoleBase
 
     private static void SetupOptionItem()
     {
-        OptionUpSpeed = FloatOptionItem.Create(RoleInfo, 10, OptionName.SpeedBoosterUpSpeed, new(1.1f, 1.5f, 0.1f), 1.3f, false)
+        OptionUpSpeed = FloatOptionItem.Create(RoleInfo, 10, OptionName.SpeedBoosterUpSpeed, new(0.2f, 5.0f, 0.2f), 0.4f, false)
                 .SetValueFormat(OptionFormat.Multiplier);
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 11, OptionName.SpeedBoosterTaskTrigger, new(1, 99, 1), 5, false)
             .SetValueFormat(OptionFormat.Pieces);
@@ -73,7 +73,7 @@ public sealed class SpeedBooster : RoleBase
             else //ターゲットが0ならアップ先をプレイヤーをnullに
             {
                 BoostTarget = byte.MaxValue;
-                Logger.SendInGame("Error.SpeedBoosterNullException");
+                Logger.seeingame("Error.SpeedBoosterNullException");
                 Logger.Warn("スピードブースト先がnullです。", "SpeedBooster");
             }
         }

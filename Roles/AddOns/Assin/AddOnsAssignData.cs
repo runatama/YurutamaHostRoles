@@ -31,6 +31,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
+            CustomRoles.Jackaldoll,
             CustomRoles.HASFox,
             CustomRoles.HASTroll,
             CustomRoles.GM,

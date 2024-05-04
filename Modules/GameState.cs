@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using TownOfHost.Roles.Core;
+using UnityEngine;
 
 namespace TownOfHost
 {
@@ -33,6 +34,8 @@ namespace TownOfHost
         public bool HasSpawned { get; set; } = false;
         public Dictionary<byte, string> TargetColorData;
         public float NumberOfRemainingButtons = 0;
+        public bool TeleportedWithAntiBlackout = false;
+        public Vector2 SpawnPoint;
         public PlayerState(byte playerId)
         {
             MainRole = CustomRoles.NotAssigned;
@@ -226,6 +229,9 @@ namespace TownOfHost
         public static bool Meeting;
         public static bool IsMeeting => InGame && MeetingHud.Instance;
         public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
+        public static bool Intro;
+        public static bool AfterIntro;
+        public static bool task;
     }
     public static class MeetingStates
     {

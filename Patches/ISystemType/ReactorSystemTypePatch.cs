@@ -30,6 +30,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
         {
             return false;
         }
+        if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
         if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateReactorSystem(__instance, amount))
         {
@@ -48,6 +49,8 @@ public static class ReactorSystemTypeUpdateSystemPatch
             }
             var duration = (MapNames)Main.NormalOptions.MapId switch
             {
+                MapNames.Skeld => Options.SkeldReactor.GetFloat(),
+                MapNames.Mira => Options.Mirare.GetFloat(),
                 MapNames.Polus => Options.PolusReactorTimeLimit.GetFloat(),
                 MapNames.Fungle => Options.FungleReactorTimeLimit.GetFloat(),
                 _ => float.NaN,

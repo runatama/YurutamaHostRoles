@@ -5,6 +5,7 @@ using Hazel;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {

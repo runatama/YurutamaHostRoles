@@ -34,19 +34,22 @@ public sealed class Arsonist : RoleBase, IKiller
     {
         DouseTime = OptionDouseTime.GetFloat();
         DouseCooldown = OptionDouseCooldown.GetFloat();
+        Hani = OptionHani.GetFloat();
 
         TargetInfo = null;
         IsDoused = new(GameData.Instance.PlayerCount);
     }
     private static OptionItem OptionDouseTime;
     private static OptionItem OptionDouseCooldown;
+    private static OptionItem OptionHani;
 
     enum OptionName
     {
-        ArsonistDouseTime
+        ArsonistDouseTime, ASHani
     }
     private static float DouseTime;
     private static float DouseCooldown;
+    private static float Hani;
 
     public class TimerInfo
     {
@@ -64,10 +67,12 @@ public sealed class Arsonist : RoleBase, IKiller
 
     private static void SetupOptionItem()
     {
-        OptionDouseTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ArsonistDouseTime, new(1f, 10f, 1f), 3f, false)
+        OptionDouseTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ArsonistDouseTime, new(0.5f, 10f, 0.5f), 3f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionDouseCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(5f, 100f, 1f), 10f, false)
+        OptionDouseCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 1f), 10f, false)
             .SetValueFormat(OptionFormat.Seconds);
+        OptionHani = FloatOptionItem.Create(RoleInfo, 12, OptionName.ASHani, new(1.25f, 5f, 0.25f), 1.75f, false)
+        .SetValueFormat(OptionFormat.Multiplier);
     }
     public override void Add()
     {
@@ -166,7 +171,7 @@ public sealed class Arsonist : RoleBase, IKiller
                 {
                     float dis;
                     dis = Vector2.Distance(Player.transform.position, ar_target.transform.position);//距離を出す
-                    if (dis <= 1.75f)//一定の距離にターゲットがいるならば時間をカウント
+                    if (dis <= Hani)//一定の距離にターゲットがいるならば時間をカウント
                     {
                         TargetInfo.Timer += Time.fixedDeltaTime;
                     }

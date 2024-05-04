@@ -16,6 +16,11 @@ namespace TownOfHost
                     colorCode = target.GetRoleColorCode();
             }
             string openTag = "", closeTag = "";
+            if (seer == target && seer.Is(CustomRoles.Amnesia))
+            {
+                colorCode = seer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColorCode(CustomRoles.Crewmate) : (seer.Is(CustomRoleTypes.Impostor) ?
+                Utils.GetRoleColorCode(CustomRoles.Impostor) : Utils.GetRoleColorCode(CustomRoles.SchrodingerCat));
+            }
             if (colorCode != "")
             {
                 if (!colorCode.StartsWith('#'))

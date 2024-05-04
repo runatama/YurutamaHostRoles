@@ -7,17 +7,17 @@ using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.AddOns.Common
 {
-    public class AddOnsAssignDataNotImp
+    /// <summary>
+    /// 天邪鬼専用assign
+    /// </summary>
+    public class AmanojakuAssing
     {
-        static Dictionary<CustomRoles, AddOnsAssignDataNotImp> AllData = new();
+        static Dictionary<CustomRoles, AmanojakuAssing> AllData = new();
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
         OptionItem CrewmateMaximum;
         OptionItem CrewmateFixedRole;
         OptionItem CrewmateAssignTarget;
-        OptionItem MadmateMaximum;
-        OptionItem MadmateFixedRole;
-        OptionItem MadmateAssignTarget;
         OptionItem NeutralMaximum;
         OptionItem NeutralFixedRole;
         OptionItem NeutralAssignTarget;
@@ -25,6 +25,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
+            CustomRoles.Jackaldoll,
             CustomRoles.HASFox,
             CustomRoles.HASTroll,
             CustomRoles.GM,
@@ -32,10 +33,9 @@ namespace TownOfHost.Roles.AddOns.Common
         };
         static readonly IEnumerable<CustomRoles> ValidRoles = CustomRolesHelper.AllRoles.Where(role => !InvalidRoles.Contains(role));
         static CustomRoles[] CrewmateRoles = ValidRoles.Where(role => role.IsCrewmate()).ToArray();
-        static CustomRoles[] MadmateRoles = ValidRoles.Where(role => role.IsMadmate()).ToArray();
         static CustomRoles[] NeutralRoles = ValidRoles.Where(role => role.IsNeutral()).ToArray();
 
-        public AddOnsAssignDataNotImp(int idStart, CustomRoles role, bool assignCrewmate, bool assignMadmate, bool assignNeutral)
+        public AmanojakuAssing(int idStart, CustomRoles role, bool assignCrewmate, bool assignNeutral)
         {
             this.IdStart = idStart;
             this.Role = role;
@@ -50,18 +50,6 @@ namespace TownOfHost.Roles.AddOns.Common
                 var crewmateStringArray = CrewmateRoles.Select(role => role.ToString()).ToArray();
                 CrewmateAssignTarget = StringOptionItem.Create(idStart++, "Role", crewmateStringArray, 0, TabGroup.Addons, false)
                     .SetParent(CrewmateFixedRole);
-            }
-            if (assignMadmate)
-            {
-                MadmateMaximum = IntegerOptionItem.Create(idStart++, "%roleTypes%Maximum", new(0, 15, 1), 15, TabGroup.Addons, false)
-                    .SetParent(CustomRoleSpawnChances[role])
-                    .SetValueFormat(OptionFormat.Players);
-                MadmateMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.ImpostorRed, GetString("Madmate")) } };
-                MadmateFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
-                    .SetParent(MadmateMaximum);
-                var MadmateStringArray = MadmateRoles.Select(role => role.ToString()).ToArray();
-                MadmateAssignTarget = StringOptionItem.Create(idStart++, "Role", MadmateStringArray, 0, TabGroup.Addons, false)
-                    .SetParent(MadmateFixedRole);
             }
 
             if (assignNeutral)
@@ -78,12 +66,12 @@ namespace TownOfHost.Roles.AddOns.Common
             }
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
-            else Logger.Warn("重複したCustomRolesを対象とするAddOnsAssignDataNotImpが作成されました", "AddOnsAssignDataNotImp");
+            else Logger.Warn("重複したCustomRolesを対象とするAmanojakuAssingが作成されました", "AmanojakuAssing");
         }
-        public static AddOnsAssignDataNotImp Create(int idStart, CustomRoles role, bool assignCrewmate, bool assignMadmate, bool assignNeutral)
-            => new(idStart, role, assignCrewmate, assignMadmate, assignNeutral);
+        public static AmanojakuAssing Create(int idStart, CustomRoles role, bool assignCrewmate, bool assignNeutral)
+            => new(idStart, role, assignCrewmate, assignNeutral);
         ///<summary>
-        ///AddOnsAssignDataNotImpが存在する属性を一括で割り当て
+        ///AmanojakuAssingが存在する属性を一括で割り当て
         ///</summary>
         public static void AssignAddOnsFromList()
         {
@@ -95,15 +83,17 @@ namespace TownOfHost.Roles.AddOns.Common
 
                 foreach (var pc in assignTargetList)
                 {
+                    Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [Amanojaku]　" + string.Format(GetString("Log.Amanojaku"), Utils.GetPlayerColor(pc) + $"({Utils.GetTrueRoleName(pc.PlayerId, false)})");
                     PlayerState.GetByPlayerId(pc.PlayerId).SetSubRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
+                    Amanojaku.Add(pc.PlayerId);
                 }
             }
         }
         ///<summary>
         ///アサインするプレイヤーのList
         ///</summary>
-        private static List<PlayerControl> AssignTargetList(AddOnsAssignDataNotImp data)
+        private static List<PlayerControl> AssignTargetList(AmanojakuAssing data)
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
@@ -115,7 +105,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (crewmateMaximum > 0)
                 {
                     var crewmates = validPlayers.Where(pc
-                        => data.CrewmateFixedRole.GetBool() ? pc.Is(CrewmateRoles[data.CrewmateAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Crewmate)).ToList();
+                        => pc.IsAlive() && data.CrewmateFixedRole.GetBool() ? pc.Is(CrewmateRoles[data.CrewmateAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Crewmate)).ToList();
                     for (var i = 0; i < crewmateMaximum; i++)
                     {
                         if (crewmates.Count == 0) break;
@@ -126,30 +116,13 @@ namespace TownOfHost.Roles.AddOns.Common
                 }
             }
 
-            if (data.MadmateMaximum != null)
-            {
-                var MadmateMaximum = data.MadmateMaximum.GetInt();
-                if (MadmateMaximum > 0)
-                {
-                    var Madmates = validPlayers.Where(pc
-                        => data.MadmateFixedRole.GetBool() ? pc.Is(MadmateRoles[data.MadmateAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Madmate)).ToList();
-                    for (var i = 0; i < MadmateMaximum; i++)
-                    {
-                        if (Madmates.Count == 0) break;
-                        var selectedMadmate = Madmates[rnd.Next(Madmates.Count)];
-                        candidates.Add(selectedMadmate);
-                        Madmates.Remove(selectedMadmate);
-                    }
-                }
-            }
-
             if (data.NeutralMaximum != null)
             {
                 var neutralMaximum = data.NeutralMaximum.GetInt();
                 if (neutralMaximum > 0)
                 {
                     var neutrals = validPlayers.Where(pc
-                        => data.NeutralFixedRole.GetBool() ? pc.Is(NeutralRoles[data.NeutralAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Neutral)).ToList();
+                        => pc.IsAlive() && data.NeutralFixedRole.GetBool() ? pc.Is(NeutralRoles[data.NeutralAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Neutral)).ToList();
                     for (var i = 0; i < neutralMaximum; i++)
                     {
                         if (neutrals.Count == 0) break;

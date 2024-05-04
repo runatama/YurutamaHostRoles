@@ -72,9 +72,9 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         if (!KnowsImpostor()) return;
 
-        foreach (var impostor in Main.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
+        foreach (var impostor in Main.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.WolfBoy)))
         {
-            NameColorManager.Add(Player.PlayerId, impostor.PlayerId, impostor.GetRoleColorCode());
+            NameColorManager.Add(Player.PlayerId, impostor.PlayerId, Player.GetRoleColorCode());
         }
     }
 
@@ -95,6 +95,8 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             !canAlsoBeExposedToImpostor ||
             // インポスター→MadSnitchではない
             !seer.Is(CustomRoleTypes.Impostor) ||
+            //  狼少年ではない
+            !seer.Is(CustomRoles.WolfBoy) ||
             seen.GetRoleClass() is not MadSnitch madSnitch ||
             // マッドスニッチがまだインポスターを知らない
             !madSnitch.KnowsImpostor())

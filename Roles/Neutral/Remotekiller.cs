@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Neutral
                 CustomRoles.Remotekiller,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
-                50925,
+                51500,
                 SetupOptionItem,
                 "rk",
                 "#8f00ce",
@@ -53,6 +53,7 @@ namespace TownOfHost.Roles.Neutral
             RKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             RKillAnimation = BooleanOptionItem.Create(RoleInfo, 11, OptionName.KillAnimation, true, false);
+            RoleAddAddons.Create(RoleInfo, 12);
         }
         public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Remotekiller;
         public float CalculateKillCooldown() => KillCooldown;

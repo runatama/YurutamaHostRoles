@@ -53,10 +53,16 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
         //MadGuardianを切れるかの判定処理
         if (!IsTaskFinished) return true;
 
+        //ログ残してもよかったけど荒れるから...(｡•́ - •̀｡)
+        //Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [MadGuardian]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
         info.CanKill = false;
         if (!NameColorManager.TryGetData(killer, target, out var value) || value != RoleInfo.RoleColorCode)
         {
-            NameColorManager.Add(killer.PlayerId, target.PlayerId);
+            if (killer.Is(CustomRoles.WolfBoy))
+                NameColorManager.Add(killer.PlayerId, target.PlayerId, "#ff1919");
+            else
+                NameColorManager.Add(killer.PlayerId, target.PlayerId);
+
             if (CanSeeWhoTriedToKill)
                 NameColorManager.Add(target.PlayerId, killer.PlayerId, RoleInfo.RoleColorCode);
             Utils.NotifyRoles();

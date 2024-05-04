@@ -54,12 +54,12 @@ namespace TownOfHost.Modules
                     if (role is TimeThief)
                     {
                         // Hyz-sui: 会議時間をいじる役職が増えたら上限&下限設定の置き場所要検討
-                        MeetingTimeMin = TimeThief.LowerLimitVotingTime;
+                        MeetingTimeMin = Options.LowerLimitVotingTime.GetInt();
                     }
 
                     if (role is TimeManager)
                     {
-                        MeetingTimeMax = TimeManager.MeetingTimeLimit;
+                        MeetingTimeMax = Options.LowerLimitVotingTime.GetInt();
                     }
 
                     if (!role.Player.IsAlive() && meetingTimeAlterable.RevertOnDie)

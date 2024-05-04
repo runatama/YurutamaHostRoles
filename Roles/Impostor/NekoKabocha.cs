@@ -28,6 +28,7 @@ public sealed class NekoKabocha : RoleBase, IImpostor, INekomata
     {
         impostorsGetRevenged = optionImpostorsGetRevenged.GetBool();
         madmatesGetRevenged = optionMadmatesGetRevenged.GetBool();
+        NeutralsGetRevenged = optionNeutralsGetRevenged.GetBool();
         revengeOnExile = optionRevengeOnExile.GetBool();
     }
 
@@ -36,18 +37,22 @@ public sealed class NekoKabocha : RoleBase, IImpostor, INekomata
     private static BooleanOptionItem optionImpostorsGetRevenged;
     /// <summary>マッドに仕返し/道連れするかどうか</summary>
     private static BooleanOptionItem optionMadmatesGetRevenged;
+    /// <summary>ニュートラルに仕返し/道連れするかどうか</summary>
+    private static BooleanOptionItem optionNeutralsGetRevenged;
     private static BooleanOptionItem optionRevengeOnExile;
     private static void SetupOptionItems()
     {
         optionImpostorsGetRevenged = BooleanOptionItem.Create(RoleInfo, 10, OptionName.NekoKabochaImpostorsGetRevenged, false, false);
         optionMadmatesGetRevenged = BooleanOptionItem.Create(RoleInfo, 20, OptionName.NekoKabochaMadmatesGetRevenged, false, false);
-        optionRevengeOnExile = BooleanOptionItem.Create(RoleInfo, 30, OptionName.NekoKabochaRevengeOnExile, false, false);
+        optionNeutralsGetRevenged = BooleanOptionItem.Create(RoleInfo, 30, OptionName.NekoKabochaNeutralsGetRevenged, false, false);
+        optionRevengeOnExile = BooleanOptionItem.Create(RoleInfo, 40, OptionName.NekoKabochaRevengeOnExile, false, false);
     }
-    private enum OptionName { NekoKabochaImpostorsGetRevenged, NekoKabochaMadmatesGetRevenged, NekoKabochaRevengeOnExile, }
+    private enum OptionName { NekoKabochaImpostorsGetRevenged, NekoKabochaMadmatesGetRevenged, NekoKabochaNeutralsGetRevenged, NekoKabochaRevengeOnExile, }
     #endregion
 
     private static bool impostorsGetRevenged;
     private static bool madmatesGetRevenged;
+    private static bool NeutralsGetRevenged;
     private static bool revengeOnExile;
     private static readonly LogHandler logger = Logger.Handler(nameof(NekoKabocha));
 
@@ -77,6 +82,7 @@ public sealed class NekoKabocha : RoleBase, IImpostor, INekomata
         {
             CustomRoleTypes.Impostor => impostorsGetRevenged,
             CustomRoleTypes.Madmate => madmatesGetRevenged,
+            CustomRoleTypes.Neutral => NeutralsGetRevenged,
             _ => true,
         };
     }

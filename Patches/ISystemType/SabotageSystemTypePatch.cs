@@ -20,21 +20,20 @@ public static class SabotageSystemTypeUpdateSystemPatch
         isCooldownModificationEnabled = Options.ModifySabotageCooldown.GetBool();
         modifiedCooldownSec = Options.SabotageCooldown.GetFloat();
     }
-
+    static byte amount;
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
-        byte amount;
-        {
-            var newReader = MessageReader.Get(msgReader);
-            amount = newReader.ReadByte();
-            newReader.Recycle();
-        }
+        var newReader = MessageReader.Get(msgReader);
+        amount = newReader.ReadByte();
+        newReader.Recycle();
 
         var nextSabotage = (SystemTypes)amount;
         logger.Info($"PlayerName: {player.GetNameWithRole()}, SabotageType: {nextSabotage}");
 
         //HASモードではサボタージュ不可
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
+
+        //if (!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) return false;
 
         if (!CustomRoleManager.OnSabotage(player, nextSabotage))
         {
@@ -46,6 +45,14 @@ public static class SabotageSystemTypeUpdateSystemPatch
             //そもそもサボタージュボタン使用不可ならサボタージュ不可
             if (!killer.CanUseSabotageButton()) return false;
             //その他処理が必要であれば処理
+            if (roleClass.OnInvokeSabotage(nextSabotage))
+            {
+                Main.saabo = true;
+                Main.sabo = (SystemTypes)amount;
+                Main.LastSab = player.PlayerId;
+                var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
+                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+            }
             return roleClass.OnInvokeSabotage(nextSabotage);
         }
         else
@@ -60,6 +67,11 @@ public static class SabotageSystemTypeUpdateSystemPatch
         {
             return false;
         }
+        Main.saabo = true;
+        Main.sabo = (SystemTypes)amount;
+        Main.LastSab = player.PlayerId;
+        var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
+        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
         return true;
     }
     public static void Postfix(SabotageSystemType __instance, bool __runOriginal /* Prefixの結果，本体処理が実行されたかどうか */ )

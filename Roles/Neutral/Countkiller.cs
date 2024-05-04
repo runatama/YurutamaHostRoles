@@ -58,6 +58,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
         .SetValueFormat(OptionFormat.Times);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanVent, true, false);
         OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
+        RoleAddAddons.Create(RoleInfo, 14);
     }
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.CountKiller;
     public float CalculateKillCooldown() => KillCooldown;

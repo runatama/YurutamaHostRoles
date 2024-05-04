@@ -9,12 +9,14 @@ namespace TownOfHost.Roles.AddOns.Common
 {
     /// <summary>
     /// インポスター・マッドメイトのみが付与される属性。
+    /// 後ついでに狼少年にも。
     /// </summary>
     public class AddOnsAssignDataTeamImp
     {
         static Dictionary<CustomRoles, AddOnsAssignDataTeamImp> AllData = new();
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
+        OptionItem CrewmateMaximum;
         OptionItem ImpostorMaximum;
         OptionItem ImpostorFixedRole;
         OptionItem ImpostorAssignTarget;
@@ -25,6 +27,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
+            CustomRoles.Jackaldoll,
             CustomRoles.HASFox,
             CustomRoles.HASTroll,
             CustomRoles.GM,
@@ -34,10 +37,16 @@ namespace TownOfHost.Roles.AddOns.Common
         static CustomRoles[] ImpostorRoles = ValidRoles.Where(role => role.IsImpostor()).ToArray();
         static CustomRoles[] MadmateRoles = ValidRoles.Where(role => role.IsMadmate()).ToArray();
 
-        public AddOnsAssignDataTeamImp(int idStart, CustomRoles role, bool assignMadmate, bool assignImpostor)
+        public AddOnsAssignDataTeamImp(int idStart, CustomRoles role, bool assignCrew, bool assignMadmate, bool assignImpostor)
         {
             this.IdStart = idStart;
             this.Role = role;
+            if (assignCrew)
+            {
+                CrewmateMaximum = IntegerOptionItem.Create(idStart++, "WoMaximum", new(0, 15, 1), 15, TabGroup.Addons, false)
+                    .SetParent(CustomRoleSpawnChances[role])
+                    .SetValueFormat(OptionFormat.Players);
+            }
             if (assignImpostor)
             {
                 ImpostorMaximum = IntegerOptionItem.Create(idStart++, "%roleTypes%Maximum", new(0, 3, 1), 3, TabGroup.Addons, false)
@@ -66,8 +75,8 @@ namespace TownOfHost.Roles.AddOns.Common
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするAddOnsAssignDataTeamImpが作成されました", "AddOnsAssignDataTeamImp");
         }
-        public static AddOnsAssignDataTeamImp Create(int idStart, CustomRoles role, bool assignMadmate, bool assignImpostor)
-            => new(idStart, role, assignMadmate, assignImpostor);
+        public static AddOnsAssignDataTeamImp Create(int idStart, CustomRoles role, bool assignCrew, bool assignMadmate, bool assignImpostor)
+            => new(idStart, role, assignCrew, assignMadmate, assignImpostor);
         ///<summary>
         ///AddOnsAssignDataTeamImpが存在する属性を一括で割り当て
         ///</summary>
@@ -94,7 +103,22 @@ namespace TownOfHost.Roles.AddOns.Common
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
             var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
-
+            if (data.CrewmateMaximum != null)
+            {
+                var CrewmateMaximum = data.CrewmateMaximum.GetInt();
+                if (CrewmateMaximum > 0)
+                {
+                    var Crewmates = validPlayers.Where(pc
+                        => pc.Is(CustomRoles.WolfBoy)).ToList();
+                    for (var i = 0; i < CrewmateMaximum; i++)
+                    {
+                        if (Crewmates.Count == 0) break;
+                        var selectedImpostor = Crewmates[rnd.Next(Crewmates.Count)];
+                        candidates.Add(selectedImpostor);
+                        Crewmates.Remove(selectedImpostor);
+                    }
+                }
+            }
             if (data.ImpostorMaximum != null)
             {
                 var impostorMaximum = data.ImpostorMaximum.GetInt();

@@ -53,6 +53,7 @@ namespace TownOfHost
             if (AmongUsClient.Instance.AmHost && GameStates.InGame)
                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
 
+            Main.AssignSameRoles = false;
             CustomRoleManager.Dispose();
         }
     }
@@ -61,11 +62,11 @@ namespace TownOfHost
     {
         public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData client)
         {
-            Logger.Info($"{client.PlayerName}(ClientID:{client.Id})が参加", "Session");
+            Logger.Info($"{client.PlayerName}(ClientID:{client.Id})(FriendCode:{client.FriendCode})(PuiD:{client.GetHashedPuid()})が参加", "Session");
             if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool())
             {
                 AmongUsClient.Instance.KickPlayer(client.Id, false);
-                Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
+                Logger.seeingame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
                 Logger.Info($"フレンドコードがないプレイヤーを{client?.PlayerName}をキックしました。", "Kick");
             }
             if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
@@ -158,13 +159,16 @@ namespace TownOfHost
                 if (state.DeathReason == CustomDeathReason.etc) //死因が設定されていなかったら
                 {
                     state.DeathReason = CustomDeathReason.Disconnected;
-                    state.SetDead();
+                    Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Die]　{data.PlayerName} {GetString("DeathReason.Disconnected")}";
                 }
+                state.SetDead();
                 AntiBlackout.OnDisconnect(data.Character.Data);
                 PlayerGameOptionsSender.RemoveSender(data.Character);
+                Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
+                Utils.NotifyRoles(isForMeeting: true, NoCache: true);
             }
             Main.playerVersion.Remove(data.Character.PlayerId);
-            Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");
+            Logger.Info($"{data.PlayerName}(ClientID:{data.Id})(FriendCode:{data.FriendCode})(PuiD:{data.GetHashedPuid()})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");
         }
     }
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]
@@ -185,7 +189,7 @@ namespace TownOfHost
                 {
                     _ = new LateTask(() =>
                     {
-                        if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+                        if (!AmongUsClient.Instance.IsGameStarted && client.Character != null && !Main.AssignSameRoles)
                         {
                             Main.isChatCommand = true;
                             Utils.ShowLastResult(client.Character.PlayerId);

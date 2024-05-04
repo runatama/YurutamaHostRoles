@@ -44,7 +44,6 @@ namespace TownOfHost.Roles.Impostor
         float TarnLimit;
         float blastrange;
         float KillCooldown;
-        float Count;
         bool Limit;
 
         public bool CanBeLastImpostor { get; } = false;
@@ -53,7 +52,7 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 25f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionTarnLimit = FloatOptionItem.Create(RoleInfo, 10, OptionName.TarnLimit, new(0f, 5f, 1f), 2f, false);
+            OptionTarnLimit = FloatOptionItem.Create(RoleInfo, 10, OptionName.TarnLimit, new(1f, 5f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
             Optionblastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(0.5f, 20f, 0.5f), 5f, false);
         }
         public float CalculateKillCooldown() => KillCooldown;
@@ -85,21 +84,16 @@ namespace TownOfHost.Roles.Impostor
 
         public override void AfterMeetingTasks()
         {
-            if (Count + 1 >= TarnLimit && Player.IsAlive())
+            if (Main.day >= TarnLimit && Player.IsAlive())
             {
                 Limit = true;
-            }
-            else
-            if (!Limit && Player.IsAlive())
-            {
-                Count += 1;
             }
         }
         public override string GetProgressText(bool comms = false)
         {
             if (Limit && Player.IsAlive())
             {
-                return Utils.ColorString(Color.red, "\nどうやら俺はここまでみたいだ...");
+                return Utils.ColorString(Color.red, "\n" + GetString("LimiterBom"));
             }
             else
                 return Utils.ColorString(Color.red, "");

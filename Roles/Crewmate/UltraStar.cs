@@ -26,6 +26,7 @@ public sealed class UltraStar : RoleBase
         Speed = OptionSpeed.GetFloat();
         cankill = Optioncankill.GetBool();
         KillCool = Optionkillcool.GetFloat();
+        PlayerColor = player.Data.DefaultOutfit.ColorId;
     }
     private static OptionItem OptionSpeed;
     private static OptionItem Optioncankill;
@@ -38,6 +39,7 @@ public sealed class UltraStar : RoleBase
     }
     float colorchange;
     float outkill;
+    int PlayerColor;
     private static float Speed;
     private static bool cankill;
     private static float KillCool;
@@ -54,7 +56,7 @@ public sealed class UltraStar : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         //ホストじゃない or タスクターンじゃない or 生存していない ならブロック
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !player.IsAlive()) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.Meeting) return;
         {//参考→https://github.com/Yumenopai/TownOfHost_Y/releases/tag/v514.20.3
             colorchange %= 18;
             if (colorchange is >= 0 and < 1) player.RpcSetColor(8);
@@ -117,6 +119,7 @@ public sealed class UltraStar : RoleBase
             outkill = 0;
         }
     }
+    public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public override void ApplyGameOptions(IGameOptions opt)
     {
         Main.AllPlayerSpeed[Player.PlayerId] += Speed;//代入してたから修正()

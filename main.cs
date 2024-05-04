@@ -12,6 +12,7 @@ using UnityEngine;
 
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
+using TownOfHost.Modules;
 
 [assembly: AssemblyFileVersionAttribute(TownOfHost.Main.PluginVersion)]
 [assembly: AssemblyInformationalVersionAttribute(TownOfHost.Main.PluginVersion)]
@@ -40,6 +41,7 @@ namespace TownOfHost
         // == 認証設定 / Authentication Config ==
         // デバッグキーの認証インスタンス
         public static HashAuth DebugKeyAuth { get; private set; }
+        public static HashAuth ExplosionKeyAuth { get; private set; }
         // デバッグキーのハッシュ値
         public const string DebugKeyHash = "8e5f06e453e7d11f78ad96b2ca28ff472e085bdb053189612a0a2e0be7973841";
         // デバッグキーのソルト
@@ -50,7 +52,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.61.0";
+        public const string PluginVersion = "5.1.61.2";
         // サポートされている最低のAmongUsバージョン
         public static readonly string LowestSupportedVersion = "2024.3.5";
         // このバージョンのみで公開ルームを無効にする場合
@@ -69,7 +71,7 @@ namespace TownOfHost
         public static ConfigEntry<string> HideColor { get; private set; }
         public static ConfigEntry<bool> ForceJapanese { get; private set; }
         public static ConfigEntry<bool> JapaneseRoleName { get; private set; }
-        public static ConfigEntry<int> MessageWait { get; private set; }
+        public static ConfigEntry<float> MessageWait { get; private set; }
         public static ConfigEntry<bool> ShowResults { get; private set; }
         public static ConfigEntry<bool> ChangeSomeLanguage { get; private set; }
         public static ConfigEntry<bool> Hiderecommendedsettings { get; private set; }
@@ -80,6 +82,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> CustomName { get; private set; }
         public static ConfigEntry<bool> HideResetToDefault { get; private set; }
         public static ConfigEntry<bool> CustomSprite { get; private set; }
+        public static ConfigEntry<bool> HideSomeFriendCodes { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
         public static ConfigEntry<string> Preset1 { get; private set; }
@@ -91,6 +94,7 @@ namespace TownOfHost
         public static ConfigEntry<string> BetaBuildURL { get; private set; }
         public static ConfigEntry<float> LastKillCooldown { get; private set; }
         public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
+        public static ConfigEntry<bool> LastKickModClient { get; private set; }
         public static OptionBackupData RealOptionsData;
         public static Dictionary<byte, string> AllPlayerNames;
         public static Dictionary<(byte, byte), string> LastNotifyNames;
@@ -100,6 +104,7 @@ namespace TownOfHost
         public static List<byte> winnerList;
         public static List<int> clientIdList;
         public static List<(string, byte, string)> MessagesToSend;
+        public static string LastMeg;
         public static bool isChatCommand = false;
         public static List<PlayerControl> ALoversPlayers = new();
         public static bool isALoversDead = true;
@@ -118,12 +123,25 @@ namespace TownOfHost
         public static List<PlayerControl> MaMaLoversPlayers = new();
         public static bool isMaLoversDead = true;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
+        public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
         public static List<List<byte>> TaskBattleTeams = new();
         public static bool RTAMode = false;
         public static bool EditMode = false;
         public static int page = 0;
+        public static int day;
+        public static string gamelog;
+        public static bool AssignSameRoles = false;
+        public static Dictionary<string, CustomRoles> RoleatForcedEnd = new();
+        public static Dictionary<byte, string> LastLog = new();
+        public static Dictionary<byte, string> LastLogRole = new();
+        public static Dictionary<byte, string> LastLogPro = new();
+        public static string Alltask;
         public static Dictionary<int, List<Vector2>> CustomSpawnPosition = new();
+        public static byte LastSab;
+        public static SystemTypes sabo;
+        public static bool saabo;
+        public static (float, float) Time;
         //public static bool TaskBattleOptionv = false;
 
         /// <summary>
@@ -174,6 +192,7 @@ namespace TownOfHost
             CustomName = Config.Bind("Client Options", "CustomName", true);
             HideResetToDefault = Config.Bind("Client Options", "Hide ResetToDefault", false);
             CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
+            HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost-K");
@@ -194,6 +213,7 @@ namespace TownOfHost
             winnerList = new();
             VisibleTasksCount = false;
             MessagesToSend = new List<(string, byte, string)>();
+            LastMeg = "";
 
             Preset1 = Config.Bind("Preset Name Options", "Preset1", "Preset_1");
             Preset2 = Config.Bind("Preset Name Options", "Preset2", "Preset_2");
@@ -201,16 +221,19 @@ namespace TownOfHost
             Preset4 = Config.Bind("Preset Name Options", "Preset4", "Preset_4");
             Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
             BetaBuildURL = Config.Bind("Other", "BetaBuildURL", "");
-            MessageWait = Config.Bind("Other", "MessageWait", 1);
+            MessageWait = Config.Bind("Other", "MessageWait", 1f);
             LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
             LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
+            LastKickModClient = Config.Bind("Other", "LastKickModClientValue", false);
 
             PluginModuleInitializerAttribute.InitializeAll();
+            Blacklist.FetchBlacklist();
 
             IRandom.SetInstance(new NetRandomWrapper());
 
             hasArgumentException = false;
             ExceptionMessage = "";
+
             try
             {
 
@@ -220,6 +243,7 @@ namespace TownOfHost
                     {CustomRoles.SKMadmate, "#ff1919"},
                     //特殊クルー役職
                     //ニュートラル役職
+                    {CustomRoles.Jackaldoll,"#00b4eb"},
                     //HideAndSeek
                     {CustomRoles.HASFox, "#e478ff"},
                     {CustomRoles.HASTroll, "#00ff00"},
@@ -227,34 +251,38 @@ namespace TownOfHost
                     {CustomRoles.TaskPlayerB, "#9adfff"},
                     // GM
                     {CustomRoles.GM, "#ff5b70"},
-                    //サブ役職
+
+                    //属性
                     {CustomRoles.LastImpostor, "#ff1919"},
                     {CustomRoles.LastNeutral,"#cccccc"},
                     {CustomRoles.Workhorse, "#00ffff"},
 
-                    {CustomRoles.Watcher, "#800080"},
+                    {CustomRoles.watching, "#800080"},
                     {CustomRoles.Speeding, "#33ccff"},
                     {CustomRoles.Moon,"#ffff33"},
                     {CustomRoles.Guesser,"#999900"},
-                    {CustomRoles.Sun,"#ec6800"},
-                    {CustomRoles.Director,"#cee4ae"},
+                    {CustomRoles.Lighting,"#ec6800"},
+                    {CustomRoles.Management,"#cee4ae"},
                     {CustomRoles.Connecting,"#96514d"},
                     {CustomRoles.Serial,"#ff1919"},
-                    {CustomRoles.AdditionalVoter,"#93ca76"},
+                    {CustomRoles.PlusVote,"#93ca76"},
                     {CustomRoles.Opener,"#007bbb"},
-                    {CustomRoles.Bakeneko,"#ffcc99"},
-                    {CustomRoles.Psychic,"#9933ff"},
-                    {CustomRoles.Nurse,"#ffadd6"},
+                    {CustomRoles.Revenger,"#ffcc99"},
+                    {CustomRoles.seeing,"#61b26c"},
+                    {CustomRoles.Autopsy,"#80ffdd"},
+                    {CustomRoles.Tiebreaker,"#00552e"},
                     //デバフ
-                    {CustomRoles.NotConvener,"#006666"},
+                    {CustomRoles.NonReport,"#006666"},
                     {CustomRoles.Notvoter,"#6c848d"},
-                    {CustomRoles.Water,"#17184b"},
-                    {CustomRoles.LowBattery,"#660000"},
+                    {CustomRoles.Water,"#003f8e"},
+                    {CustomRoles.Clumsy,"#942343"},
                     {CustomRoles.Slacker,"#460e44"},
                     {CustomRoles.Elector,"#544a47"},
                     {CustomRoles.Transparent,"#7b7c7d"},
+                    {CustomRoles.Amnesia,"#4682b4"},
 
                     //第三属性
+                    {CustomRoles.Amanojaku,"#005243"},
                     {CustomRoles.ALovers, "#ff6be4"},
                     {CustomRoles.BLovers, "#d70035"},
                     {CustomRoles.CLovers, "#fac559"},
@@ -351,7 +379,8 @@ namespace TownOfHost
         Chef = CustomRoles.Chef,
         GrimReaper = CustomRoles.GrimReaper,
         CountKiller = CustomRoles.CountKiller,
-        God = CustomRoles.God,
+        Workaholic = CustomRoles.Workaholic,
+        Monochromer = CustomRoles.Monochromer,
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
     }

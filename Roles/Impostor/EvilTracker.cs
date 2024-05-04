@@ -22,7 +22,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
             2900,
             SetupOptionItem,
             "et",
-            canMakeMadmate: () => OptionCanCreateMadmate.GetBool(),
+            canMakeMadmate: () => OptionCanCreateSideKick.GetBool(),
             from: From.TOR_GM_Haoming_Edition
         );
 
@@ -35,7 +35,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
         CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
         CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
-        CanCreateMadmate = OptionCanCreateMadmate.GetBool() && CurrentTargetMode != TargetMode.Never;
+        CanCreateSideKick = OptionCanCreateSideKick.GetBool() && CurrentTargetMode != TargetMode.Never;
 
         TargetId = byte.MaxValue;
         CanSetTarget = CurrentTargetMode != TargetMode.Never;
@@ -56,7 +56,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     private static BooleanOptionItem OptionCanSeeKillFlash;
     private static StringOptionItem OptionTargetMode;
     private static BooleanOptionItem OptionCanSeeLastRoomInMeeting;
-    private static BooleanOptionItem OptionCanCreateMadmate;
+    private static BooleanOptionItem OptionCanCreateSideKick;
 
     enum OptionName
     {
@@ -67,7 +67,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     public static bool CanSeeKillFlash;
     private static TargetMode CurrentTargetMode;
     public static bool CanSeeLastRoomInMeeting;
-    private static bool CanCreateMadmate;
+    private static bool CanCreateSideKick;
 
     public byte TargetId;
     public bool CanSetTarget;
@@ -107,8 +107,8 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     {
         OptionCanSeeKillFlash = BooleanOptionItem.Create(RoleInfo, 10, OptionName.EvilTrackerCanSeeKillFlash, true, false);
         OptionTargetMode = StringOptionItem.Create(RoleInfo, 11, OptionName.EvilTrackerTargetMode, TargetModeText, 2, false);
-        OptionCanCreateMadmate = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateMadmate, false, false);
-        OptionCanCreateMadmate.SetParent(OptionTargetMode);
+        OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, false, false);
+        OptionCanCreateSideKick.SetParent(OptionTargetMode);
         OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.EvilTrackerCanSeeLastRoomInMeeting, false, false);
     }
     public bool CheckKillFlash(MurderInfo info) // IKillFlashSeeable
@@ -121,7 +121,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         var realKiller = target.GetRealKiller() ?? killer;
         return realKiller.Is(CustomRoleTypes.Impostor) && realKiller != target;
     }
-    public bool CanMakeSidekick() => CanCreateMadmate; // ISidekickable
+    public bool CanMakeSidekick() => CanCreateSideKick; // ISidekickable
 
     public override void ReceiveRPC(MessageReader reader)
     {

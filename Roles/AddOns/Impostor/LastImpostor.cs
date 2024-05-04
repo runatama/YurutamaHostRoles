@@ -14,15 +14,23 @@ namespace TownOfHost.Roles.AddOns.Impostor
         public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime; public static OptionItem TryHideMsg;
         public static OptionItem ICanGuessVanilla; public static OptionItem ICanGuessNakama; public static OptionItem ICanGuessTaskDoneSnitch;
         public static OptionItem ICanWhiteCrew; public static OptionItem AddTama;
-        //ディレクター
-        public static OptionItem GiveDire;
+        //マネジメント
+        public static OptionItem GiveManagement;
         public static OptionItem comms; public static OptionItem PercentGage; public static OptionItem Meeting;
         public static OptionItem PonkotuPercernt;
-        //ウォッチャー
-        public static OptionItem GiveWatcher;
+        //ウォッチング
+        public static OptionItem GiveWatching;
+        //シーイング
+        public static OptionItem Giveseeing;
+        public static OptionItem SCanSeeComms;
+        //オートプシー
+        public static OptionItem GiveAutopsy;
+        public static OptionItem ACanSeeComms;
+        //タイブレーカー
+        public static OptionItem GiveTiebreaker;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1), fromtext: "<color=#ffffff>From:<color=#00bfff>Town_Of_Host</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1), fromtext: "<color=#ffffff>From:<color=#00bfff>TownOfHost</color></size>");
             KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor])
                 .SetValueFormat(OptionFormat.Seconds);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
@@ -33,15 +41,20 @@ namespace TownOfHost.Roles.AddOns.Impostor
                     .SetValueFormat(OptionFormat.Players);
             TryHideMsg = BooleanOptionItem.Create(Id + 14, "TryHideMsg", true, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanGuessVanilla = BooleanOptionItem.Create(Id + 15, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(GiveGuesser);
-            ICanGuessNakama = BooleanOptionItem.Create(Id + 16, "CanGuessNakama", false, TabGroup.Addons, false).SetParent(GiveGuesser);
-            ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(Id + 17, "CanGuessTaskDoneSnitch", true, TabGroup.Addons, false).SetParent(GiveGuesser);
-            ICanWhiteCrew = BooleanOptionItem.Create(Id + 18, "CanWhiteCrew", true, TabGroup.Addons, false).SetParent(GiveGuesser);
-            GiveDire = BooleanOptionItem.Create(Id + 19, "GiveDire", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
-            PercentGage = BooleanOptionItem.Create(Id + 20, "PercentGage", false, TabGroup.Addons, false).SetParent(GiveDire);
+            ICanGuessNakama = BooleanOptionItem.Create(Id + 16, "CanGuessNakama", true, TabGroup.Addons, false).SetParent(GiveGuesser);
+            ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(Id + 17, "CanGuessTaskDoneSnitch", false, TabGroup.Addons, false).SetParent(GiveGuesser);
+            ICanWhiteCrew = BooleanOptionItem.Create(Id + 18, "CanWhiteCrew", false, TabGroup.Addons, false).SetParent(GiveGuesser);
+            GiveManagement = BooleanOptionItem.Create(Id + 19, "GiveManagement", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
+            PercentGage = BooleanOptionItem.Create(Id + 20, "PercentGage", false, TabGroup.Addons, false).SetParent(GiveManagement);
             PonkotuPercernt = BooleanOptionItem.Create(Id + 21, "PonkotuPercernt", true, TabGroup.Addons, false).SetParent(PercentGage);
-            comms = BooleanOptionItem.Create(Id + 22, "CanseeComms", false, TabGroup.Addons, false).SetParent(GiveDire);
-            Meeting = BooleanOptionItem.Create(Id + 23, "CanseeMeeting", false, TabGroup.Addons, false).SetParent(GiveDire);
-            GiveWatcher = BooleanOptionItem.Create(Id + 24, "GiveWat", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
+            comms = BooleanOptionItem.Create(Id + 22, "CanseeComms", false, TabGroup.Addons, false).SetParent(GiveManagement);
+            Meeting = BooleanOptionItem.Create(Id + 23, "CanseeMeeting", false, TabGroup.Addons, false).SetParent(GiveManagement);
+            GiveWatching = BooleanOptionItem.Create(Id + 24, "GiveWatching", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
+            Giveseeing = BooleanOptionItem.Create(Id + 25, "Giveseeing", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
+            SCanSeeComms = BooleanOptionItem.Create(Id + 26, "CanseeComms", true, TabGroup.Addons, false).SetParent(Giveseeing);
+            GiveAutopsy = BooleanOptionItem.Create(Id + 27, "GiveAutopsy", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
+            ACanSeeComms = BooleanOptionItem.Create(Id + 28, "CanseeComms", true, TabGroup.Addons, false).SetParent(GiveAutopsy);
+            GiveTiebreaker = BooleanOptionItem.Create(Id + 29, "GiveTiebreaker", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
         }
         public static void Init() => currentId = byte.MaxValue;
         public static void Add(byte id) => currentId = id;

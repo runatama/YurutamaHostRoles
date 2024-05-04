@@ -1,6 +1,5 @@
 using AmongUs.Data;
 using HarmonyLib;
-
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Neutral;
 
@@ -48,6 +47,7 @@ namespace TownOfHost
             }
 
             var mapId = Main.NormalOptions.MapId;
+
             // エアシップではまだ湧かない
             if ((MapNames)mapId != MapNames.Airship)
             {
@@ -86,7 +86,7 @@ namespace TownOfHost
             if (RandomSpawn.IsRandomSpawn())
             {
                 RandomSpawn.SpawnMap map;
-                switch (mapId)
+                switch (Main.NormalOptions.MapId)
                 {
                     case 0:
                         map = new RandomSpawn.SkeldSpawnMap();
@@ -106,6 +106,7 @@ namespace TownOfHost
                         break;
                 }
             }
+            GameStates.task = true;
             FallFromLadder.Reset();
             Utils.CountAlivePlayers(true);
             Utils.AfterMeetingTasks();

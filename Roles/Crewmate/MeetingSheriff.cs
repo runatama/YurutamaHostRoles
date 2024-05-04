@@ -90,7 +90,7 @@ public sealed class MeetingSheriff : RoleBase
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
                 if (status is VoteStatus.Self)
-                    Utils.SendMessage("正義執行モードになりました！\n\nシェリフの能力を使うプレイヤーに投票→シェリフの能力発動。\n" + GetString("VoteSkillMode"), Player.PlayerId);
+                    Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.MeetingSheriff"), GetString("Vote.MeetingSheriff")) + GetString("VoteSkillMode"), Player.PlayerId);
                 if (status is VoteStatus.Skip)
                     Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                 if (status is VoteStatus.Vote)
@@ -119,6 +119,9 @@ public sealed class MeetingSheriff : RoleBase
             target.RpcExileV2();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
+            Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [MeetingSheriff]　{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId)}]";
+            Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>)";
+
             Logger.Info($"{Player.GetNameWithRole()}がシェリフ成功({target.GetNameWithRole()}) 残り{Max - count}", "MeetingSheriff");
             Utils.SendMessage(Utils.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             hudManager.ShowKillAnimation(target.Data, target.Data);
@@ -148,6 +151,9 @@ public sealed class MeetingSheriff : RoleBase
         Player.RpcExileV2();
         state.DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
         state.SetDead();
+        Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [MeetingSheriff]　{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId)}]";
+        Main.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>)";
+
         Logger.Info($"{Player.GetNameWithRole()}がシェリフ失敗({target.GetNameWithRole()}) 残り{Max - count}", "MeetingSheriff");
         Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
         foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
@@ -181,6 +187,7 @@ public sealed class MeetingSheriff : RoleBase
             CustomRoleTypes.Impostor => role is not CustomRoles.Tairou,
             CustomRoleTypes.Madmate => cankillMad,
             CustomRoleTypes.Neutral => cankillN,
+            CustomRoleTypes.Crewmate => role is CustomRoles.WolfBoy,
             _ => false
         };
     }// ↓改良したの作っちゃった☆ 動くかはわかんない byけーわい

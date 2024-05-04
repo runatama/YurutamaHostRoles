@@ -24,17 +24,17 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
         player
     )
     {
-        CanseeComms = OptionCanSeeComms.GetBool();
+        CanseeComms = OptioACanSeeComms.GetBool();
     }
     private static bool CanseeComms;
-    private static OptionItem OptionCanSeeComms;
+    private static OptionItem OptioACanSeeComms;
     enum OptionName
     {
         CanseeComms,
     }
     private static void SetupOptionItem()
     {
-        OptionCanSeeComms = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanseeComms, true, false);
+        OptioACanSeeComms = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanseeComms, true, false);
     }
     public bool CheckKillFlash(MurderInfo info) // IKillFlashSeeable
     {

@@ -30,6 +30,9 @@ namespace TownOfHost
 
             Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
             Main.AllPlayerSpeed = new Dictionary<byte, float>();
+            Main.LastLog = new Dictionary<byte, string>();
+            Main.LastLogRole = new Dictionary<byte, string>();
+            Main.LastLogPro = new Dictionary<byte, string>();
 
             Main.SKMadmateNowCount = 0;
 
@@ -62,7 +65,7 @@ namespace TownOfHost
             if (invalidColor.Any())
             {
                 var msg = Translator.GetString("Error.InvalidColor");
-                Logger.SendInGame(msg);
+                Logger.seeingame(msg);
                 msg += "\n" + string.Join(",", invalidColor.Select(p => $"{p.name}({p.Data.DefaultOutfit.ColorId})"));
                 Utils.SendMessage(msg);
                 Logger.Error(msg, "CoStartGame");
@@ -107,34 +110,38 @@ namespace TownOfHost
                     Options.HideAndSeekKillDelayTimer = Options.StandardHASWaitingTime.GetFloat();
                 }
             }
+
             CustomRoleManager.Initialize();
             FallFromLadder.Reset();
             LastImpostor.Init();
             LastNeutral.Init();
             TargetArrow.Init();
             DoubleTrigger.Init();
-            Watcher.Init();
+            watching.Init();
             Serial.Init();
-            Director.Init();
+            Management.Init();
             Speeding.Init();
             Connecting.Init();
             Opener.Init();
             Moon.Init();
-            Sun.Init();
-            Psychic.Init();
-            Bakeneko.Init();
+            Tiebreaker.Init();
+            Amnesia.Init();
+            Lighting.Init();
+            seeing.Init();
+            Revenger.Init();
+            Amanojaku.Init();
             Guesser.Init();
-            Nurse.Init();
+            Autopsy.Init();
             Workhorse.Init();
             PlayerSkinPatch.RemoveAll();
-            NotConvener.Init();
+            NonReport.Init();
             Notvoter.Init();
-            AdditionalVoter.Init();
+            PlusVote.Init();
             Elector.Init();
             Water.Init();
             Slacker.Init();
             Transparent.Init();
-            LowBattery.Init();
+            Clumsy.Init();
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             GuessManager.Guessreset();
@@ -146,7 +153,18 @@ namespace TownOfHost
             MeetingStates.MeetingCalled = false;
             MeetingStates.FirstMeeting = true;
             GameStates.AlreadyDied = false;
+            GameStates.Intro = true;
+            GameStates.task = false;
+            GameStates.AfterIntro = false;
             MeetingVoteManager.Voteresult = "";
+            MeetingHudPatch.Oniku = "";
+            MeetingHudPatch.Send = "";
+            Main.day = 1;
+            Main.FixTaskNoPlayer.Clear();
+            Utils.TaskCh = true;
+            Main.saabo = false;
+            Main.Time = (Main.NormalOptions.DiscussionTime, Main.NormalOptions.VotingTime);
+            Main.gamelog = $"{GetString("GameLog")}\n<size=60%>{DateTime.Now:HH.mm.ss} [Start]\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= Main.AllAlivePlayerControls.Count())) Utils.CanVent = true;
             else Utils.CanVent = false;
         }
@@ -307,7 +325,7 @@ namespace TownOfHost
                         role = CustomRoles.Shapeshifter;
                         break;
                     default:
-                        Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
+                        Logger.seeingame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
                         break;
                 }
                 state.SetMainRole(role);
@@ -437,6 +455,18 @@ namespace TownOfHost
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
             SetColorPatch.IsAntiGlitchDisabled = false;
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                var color = Palette.CrewmateBlue;
+                if (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate)) color = Palette.ImpostorRed;
+                if (pc.Is(CustomRoleTypes.Neutral)) color = Utils.GetRoleColor(pc.GetCustomRole());
+                Main.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
+                Main.LastLogRole[pc.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), GetString($"{pc.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(pc.PlayerId);
+                var roleClass = CustomRoleManager.GetByPlayerId(pc.PlayerId);
+                if (roleClass != null)
+                    if (roleClass.HasTasks == HasTask.False)
+                        Main.FixTaskNoPlayer.Add(pc);
+            }
         }
         private static void AssignDesyncRole(CustomRoles role, List<PlayerControl> AllPlayers, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
         {
@@ -497,6 +527,7 @@ namespace TownOfHost
                 }
             }
         }
+
 
         private static List<PlayerControl> AssignCustomRolesFromList(CustomRoles role, List<PlayerControl> players, int RawCount = -1)
         {

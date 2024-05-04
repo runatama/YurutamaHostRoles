@@ -14,7 +14,7 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             typeof(Braid),
             player => new Braid(player),
             CustomRoles.Braid,
-            () => RoleTypes.Engineer,
+            () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             23000,
             null,
@@ -31,6 +31,9 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
+        Bseeing = OptionBseeing.GetBool();
+        Dseeing = OptionDseeing.GetBool();
+        canVent = OptionCanVent.GetBool();
         TaskFin = false;
         DriverseeKillFlash = false;
         Driverseedeathreason = false;
@@ -42,6 +45,7 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         GtaskTrigger = OptionGtaskTrigger.GetInt();
         VtaskTrigger = OptionVtaskTrigger.GetInt();
         BraidKillCooldown = OptionBraidKillCooldown.GetFloat();
+
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
 
@@ -53,11 +57,13 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public static bool Gado;
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-    public static bool Seeing;
+    public static bool Bseeing;
+    public static bool Dseeing;
     public static int KtaskTrigger;
     public static int DtaskTrigger;
     public static int GtaskTrigger;
     public static int VtaskTrigger;
+    public static bool canVent;
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
     public override bool OnCompleteTask()
@@ -93,13 +99,13 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         //seenが省略の場合seer
         seen ??= seer;
-        if (seer.PlayerId == Player.PlayerId && seen.Is(CustomRoles.Driver) && OptionSeeing.GetBool()) return Utils.ColorString(RoleInfo.RoleColor, "☆");
+        if (seer.Is(CustomRoles.Braid) && seen.Is(CustomRoles.Driver) && Dseeing) return Utils.ColorString(RoleInfo.RoleColor, "☆");
         else return "";
     }
     public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (seer.Is(CustomRoles.Driver) && seen.Is(CustomRoles.Braid) && OptionSeeing.GetBool()) return Utils.ColorString(RoleInfo.RoleColor, "☆");
+        if (seer.Is(CustomRoles.Driver) && seen.Is(CustomRoles.Braid) && Bseeing) return Utils.ColorString(RoleInfo.RoleColor, "☆");
         else return "";
     }
 }

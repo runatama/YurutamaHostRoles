@@ -6,7 +6,7 @@ namespace TownOfHost.Patches.ISystemType;
 [HarmonyPatch(typeof(SecurityCameraSystemType), nameof(SecurityCameraSystemType.UpdateSystem))]
 public static class SecurityCameraSystemTypeUpdateSystemPatch
 {
-    public static bool Prefix([HarmonyArgument(1)] MessageReader msgReader)
+    public static bool Prefix(PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         byte amount;
         {

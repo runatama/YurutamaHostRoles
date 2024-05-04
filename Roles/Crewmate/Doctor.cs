@@ -50,6 +50,6 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
     }
     public bool CheckSeeDeathReason(PlayerControl seen)//IDeathReasonSeeable
     {
-        return Utils.IsActive(SystemTypes.Comms) || CanseeComms;
+        return !Utils.IsActive(SystemTypes.Comms) || CanseeComms;
     }
 }

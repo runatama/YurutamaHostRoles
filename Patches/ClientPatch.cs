@@ -22,7 +22,7 @@ namespace TownOfHost
                 var message = "";
                 message = GetString("DisabledByProgram");
                 Logger.Info(message, "MakePublicPatch");
-                Logger.SendInGame(message);
+                Logger.seeingame(message);
                 return false;
             }
             if (ModUpdater.isBroken || ModUpdater.hasUpdate || !VersionChecker.IsSupported || (!Main.IsPublicAvailableOnThisVersion && !Patches.CustomServerHelper.IsCs()))
@@ -33,7 +33,7 @@ namespace TownOfHost
                 if (ModUpdater.isBroken) message = GetString("ModBrokenMessage");
                 if (ModUpdater.hasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
                 Logger.Info(message, "MakePublicPatch");
-                Logger.SendInGame(message);
+                Logger.seeingame(message);
                 return false;
             }
             return true;

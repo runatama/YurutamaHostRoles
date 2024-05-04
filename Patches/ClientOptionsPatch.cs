@@ -21,6 +21,7 @@ namespace TownOfHost
         private static ClientActionItem CustomName;
         private static ClientActionItem HideResetToDefault;
         private static ClientActionItem CustomSprite;
+        private static ClientActionItem HideSomeFriendCodes;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -80,6 +81,10 @@ namespace TownOfHost
             if (CustomSprite == null || CustomSprite.ToggleButton == null)
             {
                 CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance);
+            }
+            if (HideSomeFriendCodes == null || HideSomeFriendCodes.ToggleButton == null)
+            {
+                HideSomeFriendCodes = ClientOptionItem.Create("HideSomeFriendCodes", Main.HideSomeFriendCodes, __instance);
             }
             if (ModUnloaderScreen.Popup == null)
             {

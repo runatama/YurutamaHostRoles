@@ -53,7 +53,6 @@ namespace TownOfHost
                 foreach (var pc in Main.AllPlayerControls)
                 {
                     RpcSetSkin(pc);
-
                     // The code is intended to remove pets at dead players to combat a vanilla bug
                     if (!IsCamouflage && !pc.IsAlive())
                     {
@@ -61,16 +60,23 @@ namespace TownOfHost
                     }
                 }
                 Utils.NotifyRoles(NoCache: true);
+                if (!IsCamouflage)
+                {
+                    foreach (var role in Roles.Core.CustomRoleManager.AllActiveRoles.Values)
+                    {
+                        role.Colorchnge();
+                    }
+                }
             }
         }
-        public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false)
+        public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool kyousei = false)
         {
-            if (!(AmongUsClient.Instance.AmHost && Options.CommsCamouflage.GetBool())) return;
+            if (!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || kyousei)) return;
+            if (GameStates.IsLobby) return;
             if (target == null) return;
-
             var id = target.PlayerId;
 
-            if (IsCamouflage)
+            if (IsCamouflage && !kyousei)
             {
                 //コミュサボ中
 
@@ -80,7 +86,7 @@ namespace TownOfHost
 
             var newOutfit = CamouflageOutfit;
 
-            if (!IsCamouflage || ForceRevert)
+            if (!IsCamouflage || ForceRevert || kyousei)
             {
                 //コミュサボ解除または強制解除
 
@@ -93,7 +99,7 @@ namespace TownOfHost
                 newOutfit = PlayerSkins[id];
             }
 
-            if (newOutfit.Compare(target.Data.DefaultOutfit)) return;
+            if (newOutfit.Compare(target.Data.DefaultOutfit) && !kyousei) return;
 
             Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 

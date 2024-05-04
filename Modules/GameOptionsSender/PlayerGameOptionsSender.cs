@@ -91,12 +91,12 @@ namespace TownOfHost.Modules
                 case CustomRoleTypes.Madmate:
                     AURoleOptions.EngineerCooldown = Options.MadmateVentCooldown.GetFloat();
                     AURoleOptions.EngineerInVentMaxTime = Options.MadmateVentMaxTime.GetFloat();
-                    if (Options.MadmateHasSun.GetBool() || player.Is(CustomRoles.Sun))//サンがついてて
+                    if (Options.MadmateHasLighting.GetBool() || player.Is(CustomRoles.Lighting))//ライティングがついてて
                     {
                         //停電でムーンor停電無効設定ON
                         if (Utils.IsActive(SystemTypes.Electrical) && (Options.MadmateHasMoon.GetBool() || player.Is(CustomRoles.Moon)))
                         {
-                            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 4.5f);
+                            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 5f);
                         }
                         //停電でムーンor停電無効OFF
                         else if (Utils.IsActive(SystemTypes.Electrical))
@@ -107,11 +107,11 @@ namespace TownOfHost.Modules
                         else opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision);
                     }
                     else
-                    if (Options.MadmateHasMoon.GetBool() || player.Is(CustomRoles.Moon))//サン無しムーンのみ
+                    if (Options.MadmateHasMoon.GetBool() || player.Is(CustomRoles.Moon))//ライティング無しムーンのみ
                     {
                         if (Utils.IsActive(SystemTypes.Electrical))
                         {
-                            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 4.5f);
+                            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 5f);
                         }
                     }
                     if (Options.MadmateCanSeeOtherVotes.GetBool())
@@ -126,25 +126,52 @@ namespace TownOfHost.Modules
                 switch (subRole)
                 {
                     case CustomRoles.LastImpostor:
-                        if (LastImpostor.GiveWatcher.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+                        if (LastImpostor.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                         break;
                     case CustomRoles.LastNeutral:
-                        if (LastNeutral.GiveWatcher.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+                        if (LastNeutral.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                         break;
-                    case CustomRoles.Watcher:
+                    case CustomRoles.watching:
                         opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                         break;
-                    case CustomRoles.Sun:
+                    case CustomRoles.Moon:
                         if (player.GetCustomRole().IsMadmate()) break;//マッドならうえで処理してるからここではしない。
-                        if (Utils.IsActive(SystemTypes.Electrical) && player.Is(CustomRoles.Moon)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 4.5f); }
+                        if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 5f); }
+                        break;
+                    case CustomRoles.Lighting:
+                        if (player.GetCustomRole().IsMadmate()) break;//マッドならうえで処理してるからここではしない。
+                        if (Utils.IsActive(SystemTypes.Electrical) && player.Is(CustomRoles.Moon)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 5f); }
                         else//停電時はクルー視界
                         if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision); }
                         else opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision);
                         break;
-                    case CustomRoles.Moon:
-                        if (player.GetCustomRole().IsMadmate()) break;//マッドならうえで処理してるからここではしない。
-                        if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 4.5f); }
-                        break;
+                }
+            }
+
+            //書く役職の処
+            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool())
+            {
+                //Wac
+                if (data.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+
+                if (!player.Is(CustomRoleTypes.Impostor))
+                {
+                    //Moon
+                    if (data.GiveMoon.GetBool())
+                        if (!role.IsMadmate())
+                            if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 5f); }
+
+                    //Lighting
+                    if (data.GiveLighting.GetBool())
+                    {
+                        if (!role.IsMadmate())//マッドならうえで処理してるからここではしない。
+                        {
+                            if (Utils.IsActive(SystemTypes.Electrical) && (player.Is(CustomRoles.Moon) || data.GiveMoon.GetBool())) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 5f); }
+                            else//停電時はクルー視界
+                            if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision); }
+                            else opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision);
+                        }
+                    }
                 }
             }
 
@@ -154,7 +181,7 @@ namespace TownOfHost.Modules
                 AURoleOptions.KillCooldown = Mathf.Max(0.00000000000000000000000000000000000000000001f, ZerokillCooldown);
             }
             else
-            if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
+        if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
             {
                 AURoleOptions.KillCooldown = Mathf.Max(0f, killCooldown);
             }
@@ -162,6 +189,17 @@ namespace TownOfHost.Modules
             if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed) && !player.Is(CustomRoles.Speeding))
             {
                 AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 5f);
+            }
+            if (RoleAddAddons.AllData.TryGetValue(role, out var da) && data.GiveAddons.GetBool())
+            {
+                if (da.GiveSpeedingding.GetBool() && Trapper.Tora && !ReportDeadBodyPatch.CanReport[player.PlayerId])
+                {
+                    AURoleOptions.PlayerSpeedMod = Main.MinSpeed;
+                }
+                else if (da.GiveSpeedingding.GetBool())
+                {
+                    AURoleOptions.PlayerSpeedMod = da.Speed.GetFloat();
+                }
             }
             else
             if (player.Is(CustomRoles.Speeding) && Trapper.Tora && !ReportDeadBodyPatch.CanReport[player.PlayerId])
@@ -209,6 +247,11 @@ namespace TownOfHost.Modules
             AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);
             AURoleOptions.ProtectionDurationSeconds = 0f;
 
+            if (player.Is(CustomRoles.Jackaldoll) || player.Is(CustomRoles.SKMadmate))
+            {
+                AURoleOptions.ScientistBatteryCharge = 0.000000000000000000000000000000000000001f;
+                AURoleOptions.ScientistCooldown = 0;
+            }
             return opt;
         }
 

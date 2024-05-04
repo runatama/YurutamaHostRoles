@@ -13,7 +13,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoles.MadReduced,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            60150,
+            65150,
             SetupOptionItem,
             "mre",
             introSound: () => GetIntroSound(RoleTypes.Impostor)
@@ -28,6 +28,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
         canVent = OptionCanVent.GetBool();
         Vote = OptionVote.GetInt();
+        forvote = 225;
     }
     private static OptionItem OptionCanVent;
     private static OptionItem OptionVote;
@@ -62,18 +63,21 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             {
                 Skill = false;
                 numVotes = 1;
+                forvote = 255;
             }
             else
             if (sourceVotedForId == Skip)
             {
                 Skill = false;
                 numVotes = 1;
+                forvote = 255;
             }
             else
             if (sourceVotedForId == Player.PlayerId)
             {
                 Skill = false;
                 numVotes = 1;
+                forvote = 255;
             }
             else
             {
@@ -86,11 +90,16 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override void OnStartMeeting()
     {
+        if (!Player.IsAlive())
+        {
+            forvote = 255;
+            Skill = false;
+            return;
+        }
         if (Skill)
         {
             var T = Utils.GetPlayerById(forvote);
-            Skill = false;
-            Voteresult += "\n\n★さっきの会議で" + Utils.GetPlayerColor(T, true) + $"の投票数が<b>{Vote * -1}</b>票減っていたようだ...";
+            Voteresult += string.Format(Translator.GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote * -1}</b>");
         }
     }
 }

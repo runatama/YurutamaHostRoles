@@ -43,7 +43,7 @@ namespace TownOfHost
             }
             if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
-                Logger.SendInGame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole() + ", amount: " + amount);
+                Logger.seeingame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole() + ", amount: " + amount);
             }
         }
         public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
@@ -68,7 +68,7 @@ namespace TownOfHost
     {
         public static bool Prefix(ShipStatus __instance)
         {
-            return !(Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) || Options.AllowCloseDoors.GetBool();
+            return !(Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS);
         }
     }
     [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
@@ -149,6 +149,7 @@ namespace TownOfHost
             foreach (var state in PlayerState.AllPlayerStates.Values)
             {
                 state.HasSpawned = false;
+                state.TeleportedWithAntiBlackout = false;
             }
         }
     }

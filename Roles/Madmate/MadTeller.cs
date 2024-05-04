@@ -113,7 +113,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
                 if (CheckSelfVoteMode(Player, votedForId, out var status))
                 {
                     if (status is VoteStatus.Self)
-                        Utils.SendMessage("占いモードになりました！\n\n占いたいプレイヤーに投票→占い能力発動\n" + GetString("VoteSkillMode"), Player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Divied"), GetString("Vote.Divied")) + GetString("VoteSkillMode"), Player.PlayerId);
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)
@@ -140,13 +140,13 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : target.GetCustomRole();
             var s = "です" + (role.IsImpostorTeam() ? "!" : "...");
             SendRPC();
-            Utils.SendMessage(Utils.GetPlayerColor(target, true) + "さんを占いました。\n結果は.." + (srole ? GetString($"{role}").Color(target.GetRoleColor()) : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
         else
         {
             Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(失敗)", "MadTeller");
             SendRPC();
-            Utils.SendMessage(Utils.GetPlayerColor(target, true) + "さんを占おうとしましたが占いに失敗しました。\n(´・ω・｀)ｼｮﾎﾞｰﾝ" + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("Skill.MadTeller"), Utils.GetPlayerColor(target, true)) + "\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
     }
     public override bool OnCompleteTask()

@@ -160,6 +160,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     }
     public void ChangeRole()
     {
+        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Executioner]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.GetPlayerColor(TargetId, true), Translator.GetString("ChangeRolesAfterTargetKilled").Color(Utils.GetRoleColor(ChangeRolesAfterTargetKilled)));
         Player.RpcSetCustomRole(ChangeRolesAfterTargetKilled);
         Utils.NotifyRoles();
     }

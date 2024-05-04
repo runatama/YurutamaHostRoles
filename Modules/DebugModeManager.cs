@@ -23,6 +23,10 @@ namespace TownOfHost
             // AmDebugger = デバッグビルドである || デバッグキー認証が通った
             AmDebugger = AmDebugger || auth.CheckString(input);
         }
+        public static bool AuthBool(HashAuth auth, string input)
+        {
+            return auth.CheckString(input);
+        }
         public static void SetupCustomOption()
         {
             EnableDebugMode = BooleanOptionItem.Create(2, "EnableDebugMode", false, TabGroup.MainSettings, true)

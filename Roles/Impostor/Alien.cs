@@ -18,9 +18,9 @@ namespace TownOfHost.Roles.Impostor;
 // 追加したいなぁって思ってるの
 //ペンギン
 //マジシャン
-//ネコカボチャ
+//ネコカボチャ追加しといた(?)
 
-public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
+public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomata
 {
     public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
@@ -29,7 +29,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
                 CustomRoles.Alien,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                3340,
+                3350,
                 SetupOptionItem,
                 "Al",
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter)
@@ -53,6 +53,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         M = OptionM.GetInt();
         PK = OptionPK.GetInt();
         Mo = OptionMo.GetInt();
+        NK = OptionNK.GetInt();
         modeNone = true;
         modeV = false;
         modeE = false;
@@ -67,6 +68,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         modeM = false;
         modePK = false;
         modeMo = false;
+        modeNK = false;
         CustomRoleManager.OnFixedUpdateOthers.Add(OnFixedUpdateOthers);
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         TTMtg = OptionTTMtg.GetInt();
@@ -82,6 +84,10 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         AdditionalVote = OptionAdditionalVote.GetInt();
         Madseer = OptionMadseer.GetBool();
         Workhorseseer = OptionWorkhorseseer.GetBool();
+        impostorsGetRevenged = optionImpostorsGetRevenged.GetBool();
+        madmatesGetRevenged = optionMadmatesGetRevenged.GetBool();
+        NeutralsGetRevenged = optionNeutralsGetRevenged.GetBool();
+        revengeOnExile = optionRevengeOnExile.GetBool();
     }
 
     //ヴァンパイア
@@ -162,6 +168,25 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
     public static bool modePK;
     public static bool Madseer;
     public static bool Workhorseseer;
+    //ネコカボチャ
+    private static OptionItem OptionNK;
+    #region カスタムオプション
+    /// <summary>インポスターに仕返し/道連れするかどうか</summary>
+    private static BooleanOptionItem optionImpostorsGetRevenged;
+    /// <summary>マッドに仕返し/道連れするかどうか</summary>
+    private static BooleanOptionItem optionMadmatesGetRevenged;
+    /// <summary>ニュートラルに仕返し/道連れするかどうか</summary>
+    private static BooleanOptionItem optionNeutralsGetRevenged;
+    private static BooleanOptionItem optionRevengeOnExile;
+    #endregion
+    public static int NK;
+    public static bool modeNK;
+
+    private static bool impostorsGetRevenged;
+    private static bool madmatesGetRevenged;
+    private static bool NeutralsGetRevenged;
+    private static bool revengeOnExile;
+    private static readonly LogHandler logger = Logger.Handler(nameof(Alien));
     //秘匿設定
     static OptionItem OptionHitoku;
     static bool Hitoku;
@@ -181,7 +206,8 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         CTR, DeathReasonTairo,
         CM, MayorAdditionalVote,
         CMo,
-        CPk, Madseer, Workhorseseer
+        CPk, Madseer, Workhorseseer,
+        CNK, NekoKabochaImpostorsGetRevenged, NekoKabochaMadmatesGetRevenged, NekoKabochaNeutralsGetRevenged, NekoKabochaRevengeOnExile,
     }
     Dictionary<byte, float> BittenPlayers = new(14);
     private static void SetupOptionItem()
@@ -209,13 +235,18 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         OptionPK = FloatOptionItem.Create(RoleInfo, 31, OptionName.CPk, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         OptionMadseer = BooleanOptionItem.Create(RoleInfo, 32, OptionName.Madseer, false, false, OptionPK);
         OptionWorkhorseseer = BooleanOptionItem.Create(RoleInfo, 33, OptionName.Workhorseseer, false, false, OptionPK);
+        OptionNK = FloatOptionItem.Create(RoleInfo, 34, OptionName.CNK, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
+        optionImpostorsGetRevenged = BooleanOptionItem.Create(RoleInfo, 35, OptionName.NekoKabochaImpostorsGetRevenged, false, false, OptionNK);
+        optionMadmatesGetRevenged = BooleanOptionItem.Create(RoleInfo, 36, OptionName.NekoKabochaMadmatesGetRevenged, false, false, OptionNK);
+        optionNeutralsGetRevenged = BooleanOptionItem.Create(RoleInfo, 37, OptionName.NekoKabochaNeutralsGetRevenged, false, false, OptionNK);
+        optionRevengeOnExile = BooleanOptionItem.Create(RoleInfo, 38, OptionName.NekoKabochaRevengeOnExile, false, false, OptionNK);
         OptionN = FloatOptionItem.Create(RoleInfo, 8, OptionName.CNomal, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
     }
     public override string GetProgressText(bool comms = false)
     {
         //初手ターンは確定でNone.
         if (modeNone) return "<size=75%><color=#ff1919>mode:None</color></size>";
-        if (!Hitoku) return "<size=75%><color=#ff1919>mode:？</color></size>";
+        if (!Hitoku && !GameStates.Meeting) return "<size=75%><color=#ff1919>mode:？</color></size>";
         if (!Player.IsAlive()) return "";
         if (modeV) return "<size=75%><color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
         if (modeE) return "<size=75%><color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
@@ -229,6 +260,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         if (modeM) return "<size=75%><color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
         if (modeMo) return "<size=75%><color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
         if (modePK) return "<size=75%><color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
+        if (modeNK) return "<size=75%><color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
         if (modeN) return "<size=75%><color=#ff1919>mode:Normal</color></size>";
         return "<size=75%><color=#ff1919>mode:None</color></size>";
     }
@@ -249,7 +281,8 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         }
         BittenPlayers.Clear();
         //会議始めに何の能力だったかを伝える(霊界にも伝える)
-        foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.IsAlive() || pc.Is(CustomRoles.Alien)))
+        //会議中に切り替えれるようにしたからいらないっ
+        /*        foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.IsAlive() || pc.Is(CustomRoles.Alien)))
         {
             //メイヤーの時のみ通知秘匿にかかわらず通知
             if (modeM) Utils.SendMessage("今...君の能力は...\nメイヤーだよ。\nこの会議での投票数が増えるから気を付けてね。", pc.PlayerId);
@@ -269,7 +302,8 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
                 if (modePK) Utils.SendMessage("さっきまでの君の能力は...\nプログレスキラーだったよ。", pc.PlayerId);
                 if (modeN) Utils.SendMessage("さっきまでの君は...\nノーマル状態だったよ。", pc.PlayerId);
             }
-        }
+        }*/
+
         //modeE(イビルハッカーの時だけ)
         if (modeE)
         {
@@ -339,8 +373,9 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         modeM = false;
         modeMo = false;
         modePK = false;
+        modeNK = false;
 
-        int Count = MV + EH + Li + P + S + R + NM + TT + TR + M + Mo + PK + N;
+        int Count = MV + EH + Li + P + S + R + NM + TT + TR + M + Mo + PK + NK + N;
         int chance = IRandom.Instance.Next(1, Count);
         //ランダム
         if (chance <= MV)
@@ -413,6 +448,11 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
         {
             Logger.Info("Alienはプログレスキラーになりました。", "Alien");
             modePK = true;
+        }
+        if (chance <= MV + EH + Li + P + S + R + NM + TT + TR + M + Mo + PK + NK)
+        {
+            Logger.Info("Alienはネコカボチャになりました。", "Alien");
+            modeNK = true;
         }
         else//どれにもあてはまらないならとりあえずノーマル
         {
@@ -914,5 +954,39 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor
             numVotes = AdditionalVote + 1;
         }
         return (votedForId, numVotes, doVote);
+    }
+    //ここから先ネコカボチャ
+    public override void OnMurderPlayerAsTarget(MurderInfo info)
+    {
+        if (modeNK)
+        {
+            // 普通のキルじゃない．もしくはキルを行わない時はreturn
+            if (GameStates.IsMeeting || info.IsAccident || info.IsSuicide || !info.CanKill || !info.DoKill)
+            {
+                return;
+            }
+            // 殺してきた人を殺し返す
+            logger.Info("ネコカボチャの仕返し");
+            var killer = info.AttemptKiller;
+            if (!IsCandidate(killer))
+            {
+                logger.Info("キラーは仕返し対象ではないので仕返しされません");
+                return;
+            }
+            killer.SetRealKiller(Player);
+            PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = CustomDeathReason.Revenge;
+            Player.RpcMurderPlayer(killer);
+        }
+    }
+    public bool DoRevenge(CustomDeathReason deathReason) => modeNK && revengeOnExile && deathReason == CustomDeathReason.Vote;
+    public bool IsCandidate(PlayerControl player)
+    {
+        return player.GetCustomRole().GetCustomRoleTypes() switch
+        {
+            CustomRoleTypes.Impostor => impostorsGetRevenged,
+            CustomRoleTypes.Madmate => madmatesGetRevenged,
+            CustomRoleTypes.Neutral => NeutralsGetRevenged,
+            _ => true,
+        };
     }
 }

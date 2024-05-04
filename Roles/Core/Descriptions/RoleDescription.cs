@@ -50,7 +50,7 @@ public abstract class RoleDescription
                 {
                     sb.Append($"{rule}{Options.MadmateCanFixLightsOut.GetName()}: {Options.MadmateCanFixLightsOut.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateCanFixComms.GetName()}: {Options.MadmateCanFixComms.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateHasSun.GetName()}: {Options.MadmateHasSun.GetString()}\n");
+                    sb.Append($"{rule}{Options.MadmateHasLighting.GetName()}: {Options.MadmateHasLighting.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateHasMoon.GetName()}: {Options.MadmateHasMoon.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateCanSeeKillFlash.GetName()}: {Options.MadmateCanSeeKillFlash.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateCanSeeOtherVotes.GetName()}: {Options.MadmateCanSeeOtherVotes.GetString()}\n");
@@ -72,7 +72,7 @@ public abstract class RoleDescription
             {
                 builder.AppendFormat("<size={0}>\n", BlankLineSize);
                 builder.AppendFormat("<size={0}>{1}\n", InfoSize, Translator.GetString("Settings"));
-                builder.AppendFormat("<line-height=1.3pic><size={0}>{1}", BodySize, sb);
+                builder.AppendFormat("<line-height=1.0pic><size={0}>{1}", "50%", sb);
             }
             return builder.ToString();
         }

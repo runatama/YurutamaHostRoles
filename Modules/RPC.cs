@@ -27,6 +27,8 @@ namespace TownOfHost
         SyncYomiage,
         Guess,
         GuessKill,
+        DevExplosion,
+        ModUnload,
         CustomRoleSync
     }
     public enum Sounds
@@ -66,14 +68,14 @@ namespace TownOfHost
             }
             if (__instance.PlayerId != 0
                 && Enum.IsDefined(typeof(CustomRPC), (int)callId)
-                && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck)) //ホストではなく、CustomRPCで、VersionCheckではない
+                && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck || callId == (byte)CustomRPC.DevExplosion)) //ホストではなく、CustomRPCで、VersionCheckではない
             {
                 Logger.Warn($"{__instance?.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) ホスト以外から送信されたためキャンセルしました。", "CustomRPC");
                 if (AmongUsClient.Instance.AmHost)
                 {
                     AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
                     Logger.Warn($"不正なRPCを受信したため{__instance?.Data?.PlayerName}をキックしました。", "Kick");
-                    Logger.SendInGame(string.Format(GetString("Warning.InvalidRpc"), __instance?.Data?.PlayerName));
+                    Logger.seeingame(string.Format(GetString("Warning.InvalidRpc"), __instance?.Data?.PlayerName));
                 }
                 return false;
             }
@@ -195,6 +197,9 @@ namespace TownOfHost
                             ChatCommands.YomiageS[reader.ReadInt32()] = reader.ReadString();
                     }
                     break;
+                case CustomRPC.ModUnload:
+                    RPC.RpcModUnload(__instance.PlayerId);
+                    break;
                 case CustomRPC.CustomRoleSync:
                     CustomRoleManager.DispatchRpc(reader);
                     break;
@@ -238,6 +243,11 @@ namespace TownOfHost
             writer.Write(Main.ForkId);
             writer.EndMessage();
             Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new PlayerVersion(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+        }
+        public static void RpcModUnload(byte playerId)
+        {
+            Main.playerVersion.Remove(playerId);
+            Logger.Info($"Id{playerId}がMODをアンロードしました", "ModUnload");
         }
         public static void RpcSyncRoomTimer()
         {

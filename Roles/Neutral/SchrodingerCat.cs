@@ -9,6 +9,7 @@ using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -142,18 +143,29 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         if (CanSeeKillableTeammate)
         {
             var killerRoleId = killer.GetCustomRole();
-            var killerTeam = Main.AllPlayerControls.Where(player => (AmMadmate && player.Is(CustomRoleTypes.Impostor)) || player.Is(killerRoleId));
+            var killerTeam = Main.AllPlayerControls.Where(player => (AmMadmate && (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.WolfBoy))) || player.Is(killerRoleId));
             foreach (var member in killerTeam)
             {
-                NameColorManager.Add(member.PlayerId, Player.PlayerId, RoleInfo.RoleColorCode);
+                var c = RoleInfo.RoleColorCode;
+                if (member.Is(CustomRoles.WolfBoy))
+                {
+                    c = WolfBoy.Shurenekodotti.GetBool() ? Utils.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+                }
+                NameColorManager.Add(member.PlayerId, Player.PlayerId, c);
                 NameColorManager.Add(Player.PlayerId, member.PlayerId);
             }
         }
         else
         {
-            NameColorManager.Add(killer.PlayerId, Player.PlayerId, RoleInfo.RoleColorCode);
+            var c = RoleInfo.RoleColorCode;
+            if (killer.Is(CustomRoles.WolfBoy))
+            {
+                c = WolfBoy.Shurenekodotti.GetBool() ? Utils.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+            }
+            NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
             NameColorManager.Add(Player.PlayerId, killer.PlayerId);
         }
+        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [SchrodingerCat]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
     }
     public override void OverrideTrueRoleName(ref Color roleColor, ref string roleText)
     {

@@ -27,22 +27,18 @@ namespace TownOfHost.Roles.Impostor
         {
             KillCooldown = OptionKillCooldown.GetFloat();
             DecreaseMeetingTime = OptionDecreaseMeetingTime.GetInt();
-            LowerLimitVotingTime = OptionLowerLimitVotingTime.GetInt();
             ReturnStolenTimeUponDeath = OptionReturnStolenTimeUponDeath.GetBool();
         }
         private static OptionItem OptionKillCooldown;
         private static OptionItem OptionDecreaseMeetingTime;
-        private static OptionItem OptionLowerLimitVotingTime;
         private static OptionItem OptionReturnStolenTimeUponDeath;
         enum OptionName
         {
             TimeThiefDecreaseMeetingTime,
-            TimeThiefLowerLimitVotingTime,
             TimeThiefReturnStolenTimeUponDeath
         }
         public static float KillCooldown;
         public static int DecreaseMeetingTime;
-        public static int LowerLimitVotingTime;
         public static bool ReturnStolenTimeUponDeath;
 
         public bool RevertOnDie => ReturnStolenTimeUponDeath;
@@ -53,9 +49,7 @@ namespace TownOfHost.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             OptionDecreaseMeetingTime = IntegerOptionItem.Create(RoleInfo, 11, OptionName.TimeThiefDecreaseMeetingTime, new(0, 100, 1), 20, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionLowerLimitVotingTime = IntegerOptionItem.Create(RoleInfo, 12, OptionName.TimeThiefLowerLimitVotingTime, new(1, 300, 1), 10, false)
-                .SetValueFormat(OptionFormat.Seconds);
-            OptionReturnStolenTimeUponDeath = BooleanOptionItem.Create(RoleInfo, 13, OptionName.TimeThiefReturnStolenTimeUponDeath, true, false);
+            OptionReturnStolenTimeUponDeath = BooleanOptionItem.Create(RoleInfo, 12, OptionName.TimeThiefReturnStolenTimeUponDeath, true, false);
         }
         public float CalculateKillCooldown() => KillCooldown;
         public int CalculateMeetingTimeDelta()

@@ -131,7 +131,7 @@ public sealed class FortuneTeller : RoleBase
                 if (CheckSelfVoteMode(Player, votedForId, out var status))
                 {
                     if (status is VoteStatus.Self)
-                        Utils.SendMessage("占いモードになりました！\n\n投票→その人を占う\n" + GetString("VoteSkillMode"), Player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Divied"), GetString("Vote.Divied")) + GetString("VoteSkillMode"), Player.PlayerId);
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)
@@ -152,10 +152,10 @@ public sealed class FortuneTeller : RoleBase
         mcount++;//1会議のカウント
         var FtR = target.GetRoleClass()?.GetFtResults(Player); //結果を変更するかチェック
         var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : target.GetCustomRole(); ;
-        var s = "です" + (role.IsCrewmate() ? "!" : "...");
+        var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");
         Divination[votedForId] = role;
         SendRPC(votedForId, role);
-        Utils.SendMessage(Utils.GetPlayerColor(target, true) + "を占いました。\n結果は.." + (srole ? "<b>" + GetString($"{role}").Color(target.GetRoleColor()) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n{(onemeetingmaximum != 0 ? $"この会議では残り{Math.Min(onemeetingmaximum - mcount, Max - count)}" : $"残り{Max - count}")}回占うことができます" + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
+        Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}", "FortuneTeller");
     }
 }

@@ -8,8 +8,8 @@ public static class ColorHelper
     /// <param name="bright">最大明度にするかどうか．黒っぽい色を黒っぽいままにしたい場合はfalse</param>
     public static Color ToMarkingColor(this Color color, bool bright = true)
     {
-        Color.RGBToHSV(color, out var h, out _, out var v);
-        var markingColor = Color.HSVToRGB(h, MarkerSat, bright ? MarkerVal : v).SetAlpha(MarkerAlpha);
+        Color.RGBToHSV(color, out var h, out var s, out var v);
+        var markingColor = Color.HSVToRGB(h, s, bright ? MarkerVal : v).SetAlpha(MarkerAlpha);
         return markingColor;
     }
     /// <summary>白背景での可読性を保てる色に変換する</summary>
@@ -17,7 +17,7 @@ public static class ColorHelper
     {
         Color.RGBToHSV(color, out var h, out var s, out var v);
         // 適切な彩度でない場合は彩度を変更
-        if (s < ReadableSat)
+        /*if (s < ReadableSat)
         {
             s = ReadableSat;
         }
@@ -25,7 +25,7 @@ public static class ColorHelper
         if (v > ReadableVal)
         {
             v = ReadableVal;
-        }
+        }*/
         return Color.HSVToRGB(h, s, v);
     }
 
@@ -34,9 +34,9 @@ public static class ColorHelper
     /// <summary>マーカー色のV値 = 明度</summary>
     private const float MarkerVal = 1f;
     /// <summary>マーカー色のアルファ = 不透明度</summary>
-    private const float MarkerAlpha = 0.2f;
+    private const float MarkerAlpha = 0.125f;
     /// <summary>白背景テキスト色の最大S = 彩度</summary>
-    private const float ReadableSat = 0.8f;
+    private const float ReadableSat = 0.6f;
     /// <summary>白背景テキスト色の最大V = 明度</summary>
-    private const float ReadableVal = 0.8f;
+    private const float ReadableVal = 0.5f;
 }

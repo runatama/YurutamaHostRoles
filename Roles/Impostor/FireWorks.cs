@@ -40,21 +40,19 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     {
         FireWorksCount = OptionFireWorksCount.GetInt();
         FireWorksRadius = OptionFireWorksRadius.GetFloat();
-        UseShBotton = OptionUseShBotton.GetBool();
         Cankill = OptionCankillAlltime.GetBool();
         Cool = OptionCooldown.GetFloat();
+        FClick = true;
     }
 
     static OptionItem OptionFireWorksCount;
     static OptionItem OptionFireWorksRadius;
-    static OptionItem OptionUseShBotton;
     static OptionItem OptionCankillAlltime;
     static OptionItem OptionCooldown;
     enum OptionName
     {
         FireWorksMaxCount,
         FireWorksRadius,
-        FireWUseSh,
         FireWankillAlltime
     }
 
@@ -62,8 +60,8 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     float FireWorksRadius;
     float Cool;
     int NowFireWorksCount;
-    bool UseShBotton;
     bool Cankill;
+    bool FClick;
     List<Vector3> FireWorksPosition = new();
     FireWorksState State = FireWorksState.Initial;
 
@@ -73,7 +71,6 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
             .SetValueFormat(OptionFormat.Pieces);
         OptionFireWorksRadius = FloatOptionItem.Create(RoleInfo, 11, OptionName.FireWorksRadius, new(0.5f, 3f, 0.5f), 1f, false)
             .SetValueFormat(OptionFormat.Multiplier);
-        OptionUseShBotton = BooleanOptionItem.Create(RoleInfo, 12, OptionName.FireWUseSh, false, false);
         OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWankillAlltime, false, false);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
@@ -97,75 +94,15 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
         AURoleOptions.ShapeshifterDuration = 1f;
         AURoleOptions.ShapeshifterCooldown = Cool;
     }
-    public bool UseOCButton => UseShBotton;
+    public bool UseOCButton => true;
     public void OnClick()
     {
-        if (!UseShBotton) return;
-        Logger.Info($"FireWorks ShapeShift", "FireWorks");
-        switch (State)
+        if (FClick)
         {
-            case FireWorksState.Initial:
-            case FireWorksState.SettingFireWorks:
-                Logger.Info("花火を一個設置", "FireWorks");
-                FireWorksPosition.Add(Player.transform.position);
-                NowFireWorksCount--;
-                if (NowFireWorksCount == 0)
-                    State = Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
-                else
-                    State = FireWorksState.SettingFireWorks;
-                break;
-            case FireWorksState.ReadyFire:
-                Logger.Info("花火を爆破", "FireWorks");
-                if (AmongUsClient.Instance.AmHost)
-                {
-                    //爆破処理はホストのみ
-                    bool suicide = false;
-                    foreach (var fireTarget in Main.AllAlivePlayerControls)
-                    {
-                        foreach (var pos in FireWorksPosition)
-                        {
-                            var dis = Vector2.Distance(pos, fireTarget.transform.position);
-                            if (dis > FireWorksRadius) continue;
-
-                            if (fireTarget == Player)
-                            {
-                                //自分は後回し
-                                suicide = true;
-                            }
-                            else
-                            {
-                                PlayerState.GetByPlayerId(fireTarget.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                                fireTarget.SetRealKiller(Player);
-                                fireTarget.RpcMurderPlayer(fireTarget);
-                            }
-                        }
-                    }
-                    if (suicide)
-                    {
-                        var totalAlive = Main.AllAlivePlayerControls.Count();
-                        //自分が最後の生き残りの場合は勝利のために死なない
-                        if (totalAlive != 1)
-                        {
-                            MyState.DeathReason = CustomDeathReason.Misfire;
-                            Player.RpcMurderPlayer(Player);
-                        }
-                    }
-                    Player.MarkDirtySettings();
-                }
-                State = FireWorksState.FireEnd;
-                break;
-            default:
-                break;
+            FClick = false;
+            return;
         }
-        Utils.NotifyRoles();
-    }
-    public bool CheckShapeshift(PlayerControl Player, PlayerControl target) => !UseShBotton;
-    public override void OnShapeshift(PlayerControl target)
-    {
-        if (UseShBotton) return;
-        var shapeshifting = !Is(target);
         Logger.Info($"FireWorks ShapeShift", "FireWorks");
-        if (!shapeshifting) return;
         switch (State)
         {
             case FireWorksState.Initial:

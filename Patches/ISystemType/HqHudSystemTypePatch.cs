@@ -36,10 +36,11 @@ public static class HqHudSystemTypeUpdateSystemPatch
         {
             return false;
         }
-        if (player.Is(CustomRoles.LowBattery))
+        if (player.Is(CustomRoles.Clumsy))
         {
             return false;
         }
+        if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveClumsy.GetBool()) return false;
         if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHqHudSystem(__instance, amount))
         {
             return false;

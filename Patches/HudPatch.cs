@@ -5,6 +5,8 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
+using TownOfHost.Roles;
+using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost
 {
@@ -31,6 +33,7 @@ namespace TownOfHost
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
                 if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame || !Main.EditMode)
+                    && Options.CurrentGameMode != CustomGameMode.TaskBattle
                     && player.CanMove)
                 {
                     player.Collider.offset = new Vector2(0f, 127f);
@@ -71,6 +74,7 @@ namespace TownOfHost
             {
                 if (player.IsAlive())
                 {
+                    __instance.AdminButton.Hide();
                     var roleClass = player.GetRoleClass();
                     if (Main.CustomSprite.Value)
                     {
@@ -101,6 +105,7 @@ namespace TownOfHost
                     }
 
                     LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
+                    if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
                     LowerInfoText.enabled = LowerInfoText.text != "";
 
                     if (Main.RTAMode && GameStates.IsInTask)
@@ -135,6 +140,7 @@ namespace TownOfHost
                     {
                         case CustomRoles.Madmate:
                         case CustomRoles.SKMadmate:
+                        case CustomRoles.Jackaldoll:
                         case CustomRoles.Jester:
                             TaskTextPrefix += GetString(StringNames.FakeTasks);
                             break;
@@ -209,6 +215,7 @@ namespace TownOfHost
                 if (!GameStates.IsModHost) return;
                 var player = PlayerControl.LocalPlayer;
                 if (player == null) return;
+                if (CustomRoles.Amnesia.IsPresent() && Main.day <= Amnesia.Modoru.GetFloat()) return;
                 if (player == !GameStates.IsModHost) return;
                 if (!AmongUsClient.Instance.IsGameStarted) return;
 
@@ -238,7 +245,10 @@ namespace TownOfHost
 
             if (player.CanUseKillButton())
             {
-                ((Renderer)__instance.cosmetics.currentBodySprite.BodySprite).material.SetColor("_OutlineColor", Utils.GetRoleColor(player.GetCustomRole()));
+                Color color = PlayerControl.LocalPlayer.GetRoleColor();
+                if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
+                    Utils.GetRoleColor(CustomRoles.Impostor) : Utils.GetRoleColor(CustomRoles.SchrodingerCat));
+                ((Renderer)__instance.cosmetics.currentBodySprite.BodySprite).material.SetColor("_OutlineColor", color);
             }
         }
     }
@@ -249,6 +259,8 @@ namespace TownOfHost
         {
             var player = PlayerControl.LocalPlayer;
             Color color = PlayerControl.LocalPlayer.GetRoleColor();
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
+                Utils.GetRoleColor(CustomRoles.Impostor) : Utils.GetRoleColor(CustomRoles.SchrodingerCat));
             ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
             ((Renderer)__instance.myRend).material.SetColor("_AddColor", mainTarget ? color : Color.clear);
         }
@@ -293,11 +305,12 @@ namespace TownOfHost
         // タスク表示の文章が更新・適用された後に実行される
         public static void Postfix(TaskPanelBehaviour __instance)
         {
-            if (!GameStates.IsModHost) return;
+            if (!GameStates.IsModHost || GameStates.IsLobby) return;
             PlayerControl player = PlayerControl.LocalPlayer;
-
+            var role = player.GetCustomRole();
+            if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
             // 役職説明表示
-            if (!player.GetCustomRole().IsVanilla())
+            if (!role.IsVanilla())
             {
                 var RoleWithInfo = $"{player.GetTrueRoleName()}:\r\n";
                 RoleWithInfo += player.GetRoleInfo();
@@ -309,6 +322,17 @@ namespace TownOfHost
             {
                 __instance.taskText.text = RepairSender.GetText();
             }
+        }
+    }
+    [HarmonyPatch(typeof(FriendsListBar), nameof(FriendsListBar.Update))]
+    class FriendsListBarUpdatePatch
+    {
+        public static void Prefix(FriendsListBar __instance)
+        {
+            if (!Main.HideSomeFriendCodes.Value) return;
+            var FriendCodeText = GameObject.Find("FriendCodeText");
+            if (FriendCodeText && FriendCodeText.active)
+                FriendCodeText.SetActive(false);
         }
     }
 

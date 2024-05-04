@@ -3,6 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 
 using TownOfHost.Modules;
+using AmongUs.GameOptions;
 
 namespace TownOfHost
 {
@@ -53,13 +54,13 @@ namespace TownOfHost
             {
                 Logger.Info("Reload Custom Translation File", "KeyCommand");
                 Translator.LoadLangs();
-                Logger.SendInGame("Reloaded Custom Translation File");
+                Logger.seeingame("Reloaded Custom Translation File");
             }
             if (GetKeysDown(KeyCode.F5, KeyCode.X))
             {
                 Logger.Info("Export Custom Translation File", "KeyCommand");
                 Translator.ExportCustomTranslation();
-                Logger.SendInGame("Exported Custom Translation File");
+                Logger.seeingame("Exported Custom Translation File");
             }
             //ログファイルのダンプ
             if (GetKeysDown(KeyCode.F1, KeyCode.LeftControl))
@@ -94,6 +95,7 @@ namespace TownOfHost
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)
             {
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
+                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Vote]　" + Translator.GetString("voteskip") + "※Host";
                 GameStates.Meeting = false;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
@@ -138,6 +140,11 @@ namespace TownOfHost
                 Main.isChatCommand = true;
                 Utils.ShowActiveSettings();
             }
+            //キルフラッシュ
+            if (GetKeysDown(KeyCode.K, KeyCode.L, KeyCode.LeftControl) && GameStates.InGame)
+            {
+                Main.AllPlayerControls.Do(pc => pc.KillFlash(kiai: true));
+            }
             //TOH-Kオプションをデフォルトに設定
             if (GetKeysDown(KeyCode.Delete, KeyCode.LeftControl))
             {
@@ -171,7 +178,7 @@ namespace TownOfHost
             if (GetKeysDown(KeyCode.F2, KeyCode.LeftControl))
             {
                 Logger.isAlsoInGame = !Logger.isAlsoInGame;
-                Logger.SendInGame($"ログのゲーム内出力: {Logger.isAlsoInGame}");
+                Logger.seeingame($"ログのゲーム内出力: {Logger.isAlsoInGame}");
             }
             if (Input.GetKeyDown(KeyCode.R) && GameStates.IsCountDown && DebugModeManager.EnableTOHkDebugMode.GetBool())
             {

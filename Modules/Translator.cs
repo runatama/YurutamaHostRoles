@@ -95,7 +95,7 @@ namespace TownOfHost
                     {
                         "Bakery" => "ケーキ作りのパン屋",
                         "BakeryInfo" => "今日はパンじゃなくてケーキだよ！",
-                        "Arsonist" => "サンタクロース",
+                        "Arsonist" => "ライティングタクロース",
                         "ArsonistInfo" => "全員にプレゼントを渡して逃げろ！",
                         "ArsonistDouseButtonText" => "渡す",
                         "EnterVentToWin" => "ベントに入って逃げろ！",

@@ -16,7 +16,7 @@ public static class OptionSerializer
     public static void SaveToClipboard()
     {
         GUIUtility.systemCopyBuffer = GenerateOptionsString();
-        Logger.SendInGame(Utils.ColorString(Color.green, Translator.GetString("Message.CopiedOptions")));
+        Logger.seeingame(Utils.ColorString(Color.green, Translator.GetString("Message.CopiedOptions")));
     }
     public static void SaveToFile()
     {
@@ -27,7 +27,7 @@ public static class OptionSerializer
         var output = $"{exportDir.FullName}/Preset{OptionItem.CurrentPreset}_{DateTime.Now.Ticks}.txt";
         File.WriteAllText(output, GenerateOptionsString());
         Utils.OpenDirectory(exportDir.FullName);
-        Logger.SendInGame(Utils.ColorString(Color.green, Translator.GetString("Message.ExportedOptions")));
+        Logger.seeingame(Utils.ColorString(Color.green, Translator.GetString("Message.ExportedOptions")));
     }
     public static void LoadFromClipboard()
     {
@@ -94,7 +94,7 @@ public static class OptionSerializer
     {
         if (!AmongUsClient.Instance.AmHost)
         {
-            Logger.SendInGame(Translator.GetString("Message.OnlyHostCanLoadOptions"));
+            Logger.seeingame(Translator.GetString("Message.OnlyHostCanLoadOptions"));
             return;
         }
 
@@ -124,7 +124,7 @@ public static class OptionSerializer
             var entries = source.Split('&');
             LoadModOptionsString(entries[0]);
             LoadVanillaOptionsString(entries[1]);
-            Logger.SendInGame(Utils.ColorString(Color.green, Translator.GetString("Message.LoadedOptions")));
+            Logger.seeingame(Utils.ColorString(Color.green, Translator.GetString("Message.LoadedOptions")));
         }
         catch (Exception ex)
         {
@@ -134,7 +134,7 @@ public static class OptionSerializer
         return;
 
     Failed:
-        Logger.SendInGame(Translator.GetString("Message.FailedToLoadOptions"));
+        Logger.seeingame(Translator.GetString("Message.FailedToLoadOptions"));
     }
     /// <summary>
     /// <see cref="GenerateModOptionsString"/>で生成された形式の文字列を読み込んで現在のプリセットを上書きします

@@ -74,7 +74,11 @@ namespace TownOfHost
                 (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
             if (taskTypeIds.Count == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
-            if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0) NumShortTasks = 1; //タスク0対策
+            if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0)
+            {
+                NumShortTasks = 1; //タスク0対策
+                Main.FixTaskNoPlayer.Add(pc);
+            }
             if (hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return; //変更点がない場合
 
             //割り当て可能なタスクのIDが入ったリスト

@@ -8,6 +8,7 @@ using UnityEngine;
 using TownOfHost.Modules;
 using static TownOfHost.Translator;
 using Object = UnityEngine.Object;
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {
@@ -191,6 +192,7 @@ namespace TownOfHost
     public class GameOptionsMenuUpdatePatch
     {
         private static float _timer = 1f;
+        public static string find = "";
 
         public static void Postfix(GameOptionsMenu __instance)
         {
@@ -227,6 +229,16 @@ namespace TownOfHost
 
                     enabled = AmongUsClient.Instance.AmHost &&
                         !option.IsHiddenOn(Options.CurrentGameMode);
+                    //起動時以外で表示/非表示を切り替える際に使う
+                    /*if (enabled)
+                    {
+                    if (enabled && find != "")
+                    {
+                        enabled = option.Name.ToLower().Contains(find.ToLower())
+                        || (Enum.TryParse(typeof(CustomRoles), option.Name, true, out var role)
+                         ? Utils.GetCombinationCName((CustomRoles)role, false).ToLower().Contains(find.ToLower())
+                         : GetString(option.Name).ToLower().Contains(find.ToLower()));
+                    }*/
 
                     var opt = option.OptionBehaviour.transform.Find("Background").GetComponent<SpriteRenderer>();
                     opt.size = new(5.0f, 0.45f);
@@ -288,9 +300,22 @@ namespace TownOfHost
         {
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
             if (option == null) return true;
+            /*string mark = "";
+            string addinfo = "";
+
+            if (Enum.TryParse(typeof(CustomRoles), option.Name, false, out var id))
+            {
+                var role = (CustomRoles)id;
+                if (role.IsAddOn())
+                {
+                    List<CustomRoles> list = new(1) { role };
+                    mark = Utils.GetSubRoleMarks(list, CustomRoles.NotAssigned);
+                    addinfo = "\n<size=1> " + GetString($"{role}InfoLong").Split('\n')[1] + "</size>";
+                }
+            }*/
 
             __instance.OnValueChanged = new Action<OptionBehaviour>((o) => { });
-            __instance.TitleText.text = option.GetName() + option.Fromtext;
+            __instance.TitleText.text = option.GetName() /*+ mark */+ option.Fromtext/* + addinfo*/;
             __instance.Value = __instance.oldValue = option.CurrentValue;
             __instance.ValueText.text = option.GetString();
 
@@ -306,6 +331,7 @@ namespace TownOfHost
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 1 && !Main.TaskBattleOptionv) option.CurrentValue++;
+            //if (option.Name == "KickModClient") Main.LastKickModClient.Value = true;
             option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
         }
@@ -319,6 +345,7 @@ namespace TownOfHost
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 0 && !Main.TaskBattleOptionv) option.CurrentValue--;
+            //if (option.Name == "KickModClient") Main.LastKickModClient.Value = false;
             option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
         }

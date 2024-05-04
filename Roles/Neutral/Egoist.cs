@@ -19,7 +19,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
             SetupOptionItem,
             "eg",
             "#5600ff",
-            canMakeMadmate: () => OptionCanCreateMadmate.GetBool(),
+            canMakeMadmate: () => OptionCanCreateSideKick.GetBool(),
             countType: CountTypes.Impostor,
             assignInfo: new RoleAssignInfo(CustomRoles.Egoist, CustomRoleTypes.Neutral)
             {
@@ -37,14 +37,14 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     )
     {
         KillCooldown = OptionKillCooldown.GetFloat();
-        CanCreateMadmate = OptionCanCreateMadmate.GetBool();
+        CanCreateSideKick = OptionCanCreateSideKick.GetBool();
     }
 
     static OptionItem OptionKillCooldown;
-    static OptionItem OptionCanCreateMadmate;
+    static OptionItem OptionCanCreateSideKick;
 
     private static float KillCooldown;
-    public static bool CanCreateMadmate;
+    public static bool CanCreateSideKick;
     private static PlayerControl egoist;
 
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Egoist;
@@ -53,7 +53,8 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     {
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionCanCreateMadmate = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateMadmate, false, false);
+        OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
+        RoleAddAddons.Create(RoleInfo, 12);
     }
     public override void Add()
     {
@@ -85,7 +86,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
         CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
     }
-    public bool CanMakeSidekick() => CanCreateMadmate;
+    public bool CanMakeSidekick() => CanCreateSideKick;
     public void ApplySchrodingerCatOptions(IGameOptions option)
     {
         option.SetVision(true);

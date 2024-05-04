@@ -43,7 +43,7 @@ namespace TownOfHost
             else sendToGameList.Remove(tag);
         }
         public static void Disable(string tag) { if (!disableList.Contains(tag)) disableList.Add(tag); }
-        public static void SendInGame(string text, bool isAlways = false)
+        public static void seeingame(string text, bool isAlways = false)
         {
             if (!isEnable) return;
             if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
@@ -53,7 +53,7 @@ namespace TownOfHost
             if (!isEnable || disableList.Contains(tag)) return;
             var logger = Main.Logger;
             string t = DateTime.Now.ToString("HH:mm:ss");
-            if (sendToGameList.Contains(tag) || isAlsoInGame) SendInGame($"[{tag}]{text}");
+            if (sendToGameList.Contains(tag) || isAlsoInGame) seeingame($"[{tag}]{text}");
             if (escapeCRLF)
                 text = text.Replace("\r", "\\r").Replace("\n", "\\n");
             string log_text = $"[{t}][{tag}]{text}";

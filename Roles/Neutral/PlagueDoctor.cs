@@ -21,7 +21,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             CustomRoles.PlagueDoctor,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            51100,
+            51900,
             SetupOptionItem,
             "pd",
             "#ff6633",

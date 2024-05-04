@@ -260,7 +260,6 @@ public sealed class TeleportKiller : RoleBase, IImpostor
         }
     }
 
-
     public static bool OnEnterVentOthers(PlayerPhysics physics, int id)
     {
         CheckVentD[physics.myPlayer.PlayerId] = id;

@@ -24,7 +24,7 @@ namespace TownOfHost
             GameStates.InGame = false;
 
             Logger.Info("-----------ゲーム終了-----------", "Phase");
-            if (!GameStates.IsModHost) return;
+            if (!GameStates.IsModHost || !AmongUsClient.Instance.AmHost) return;
 
             SummaryText = new();
             foreach (var id in PlayerState.AllPlayerStates.Keys)
@@ -32,6 +32,7 @@ namespace TownOfHost
 
             var sb = new StringBuilder(GetString("KillLog"));
             sb.Append("<size=70%>");
+
             foreach (var kvp in PlayerState.AllPlayerStates.OrderBy(x => x.Value.RealKiller.Item1.Ticks))
             {
                 var date = kvp.Value.RealKiller.Item1;
@@ -42,7 +43,15 @@ namespace TownOfHost
                 if (killerId != byte.MaxValue && killerId != targetId)
                     sb.Append($"\n\t\t⇐ {Utils.GetPlayerColor(Utils.GetPlayerById(killerId), true)}(<b>{Utils.GetTrueRoleName(killerId, false)}</b>{Utils.GetSubRolesText(killerId)})");
             }
-            KillLog = sb.ToString();
+            //KillLog = sb.ToString();
+            var meg = GetString($"{(CustomRoles)CustomWinnerHolder.WinnerTeam}") + GetString("Team") + GetString("Win");
+            if (CustomWinnerHolder.WinnerTeam == CustomWinner.Draw) meg = GetString("ForceEnd");
+            if (CustomWinnerHolder.WinnerTeam == CustomWinner.None) meg = GetString("EveryoneDied");
+
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
+            var s = "★".Color(winnerColor);
+            KillLog = Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+            Main.Alltask = Utils.AllTaskstext(false, false, false, false, false).RemoveHtmlTags();
 
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
             //winnerListリセット
@@ -136,6 +145,7 @@ namespace TownOfHost
             string CustomWinnerText = "";
             var AdditionalWinnerText = new StringBuilder(32);
             string CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Crewmate);
+            Main.AssignSameRoles = false;
 
             var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
             if (winnerRole >= 0)
@@ -201,6 +211,9 @@ namespace TownOfHost
                     __instance.BackgroundBar.material.color = Color.gray;
                     WinnerText.text = GetString("ForceEndText");
                     WinnerText.color = Color.gray;
+
+                    //次の試合に役職を引き継ぐなら
+
                     break;
                 //全滅
                 case CustomWinner.None:
@@ -247,6 +260,7 @@ namespace TownOfHost
                 Scale = new(1.5f, 0.5f),
                 FontSize = 2f,
             };
+            showHideButton.Button.gameObject.SetActive(!Main.AssignSameRoles);
 
             StringBuilder sb = new();
             if (Main.RTAMode && Options.CurrentGameMode == CustomGameMode.TaskBattle)
@@ -284,6 +298,7 @@ namespace TownOfHost
                 parent: showHideButton.Button.transform);
             roleSummary.transform.localPosition = new(1.7f, -0.4f, 0f);
             roleSummary.transform.localScale = new Vector3(1.2f, 1.2f, 1f);
+            roleSummary.gameObject.SetActive(!Main.AssignSameRoles);
 
             if (Main.UseWebHook.Value) Utils.WH_ShowLastResult();
 

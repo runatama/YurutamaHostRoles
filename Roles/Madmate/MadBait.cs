@@ -37,7 +37,7 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
-        if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && !killer.GetCustomRole().IsImpostor())
+        if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && (!killer.GetCustomRole().IsImpostor() || killer.GetCustomRole() == CustomRoles.WolfBoy))
             _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f, "MadBait Self Report");
     }
 }

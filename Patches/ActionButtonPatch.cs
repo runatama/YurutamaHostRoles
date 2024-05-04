@@ -1,6 +1,7 @@
 using HarmonyLib;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 
 namespace TownOfHost.Patches;
 
@@ -32,6 +33,19 @@ public static class AbilityButtonDoClickPatch
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();
             sb.OnClick();
             return false;
+        }
+        else
+        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Shapeshifter)
+        {
+            foreach (var p in Main.AllPlayerControls)
+            {
+                p.Data.Role.NameColor = Color.white;
+            }
+            PlayerControl.LocalPlayer.Data.Role.TryCast<ShapeshifterRole>().UseAbility();
+            foreach (var p in Main.AllPlayerControls)
+            {
+                p.Data.Role.NameColor = Color.white;
+            }
         }
         return true;
     }

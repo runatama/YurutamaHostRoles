@@ -114,7 +114,9 @@ public sealed class Balancer : RoleBase
                 //ターゲットの情報をリセット
                 Target1 = 255;
                 Target2 = 255;
-                Utils.SendMessage("天秤モードになりました！\n天秤に掛けたいプレイヤー2人に投票する\n" + GetString("VoteSkillMode"), Player.PlayerId); //正直前のメッセージの方が好きby ky
+                Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Balancer"), GetString("Vote.Balancer")) + GetString("VoteSkillMode"), Player.PlayerId);
+                //正直前のメッセージの方が好きby ky
+                //↑ﾏｴﾉｯﾃﾅﾆ..._(:3 」∠)_ byʕ⓿ᴥ⓿ʔ
             }
             if (status is VoteStatus.Skip)
             {
@@ -165,19 +167,20 @@ public sealed class Balancer : RoleBase
             if (Target1 != 255 || Target2 != 255)
             {
                 //どちらかが決まっていなかったら一人目
-                var n = (Target1 != 255 && Target2 != 255) ? "二人目を" : "一人目を";
-                Utils.SendMessage($"{n}{Utils.GetPlayerColor(Utils.GetPlayerById(votedForId), true)}にしました", Player.PlayerId);
+                var n = (Target1 != 255 && Target2 != 255) ? GetString("TowPlayer") : GetString("OnePlayer");
+                var s = string.Format(GetString("Skill.Balancer"), n, Utils.GetPlayerColor(Utils.GetPlayerById(votedForId), true));
+                Utils.SendMessage(s.ToString(), Player.PlayerId);
             }
 
             //二人決まったなら会議を終了
             if (Target1 != 255 && Target2 != 255)
             {
+                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(Utils.GetPlayerById(Target1), true), Utils.GetPlayerColor(Utils.GetPlayerById(Target2), true));
                 used = true;
                 target1 = Target1;
                 target2 = Target2;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
-                Voteresult = "<color=#cff100>☆　天秤会議の時間だ。　☆</color>\n" + Utils.GetPlayerColor(Utils.GetPlayerById(Target1), true) + "と" + Utils.GetPlayerColor(Utils.GetPlayerById(Target2), true) + "が天秤にかけられた。\n\nどちらかに投票せよ。";
             }
         }
     }
@@ -260,10 +263,10 @@ public sealed class Balancer : RoleBase
                 if (exileId is 0)
                 {
                     nickname = Main.nickName;
-                    Main.nickName = "どちらも追放された。<size=0>";
+                    Main.nickName = GetString("Balancer.Executad") + "<size=0>";
                 }
                 else
-                    Utils.GetPlayerById(exileId).RpcSetName("どちらも追放された。<size=0>");
+                    Utils.GetPlayerById(exileId).RpcSetName(GetString("Balancer.Executad") + "<size=0>");
             }, 4f, "dotiramotuihou☆");
             var toExile = data.Keys.ToArray();
             foreach (var playerId in toExile)
@@ -271,7 +274,8 @@ public sealed class Balancer : RoleBase
                 Utils.GetPlayerById(playerId)?.SetRealKiller(null);
             }
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
-            Voteresult = Utils.GetPlayerColor(Utils.GetPlayerById(Target1)) + "と" + Utils.GetPlayerColor(Utils.GetPlayerById(Target2)) + GetString("fortuihou");
+            Voteresult = GetString("Balancer.Executad");
+            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Vote]　" + GetString("Balancer.Executad");
         }
         return true;
     }
@@ -285,7 +289,7 @@ public sealed class Balancer : RoleBase
             Id = Player.PlayerId;
             //対象の名前を天秤の色に
             foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
-                pc.RpcSetName("<color=red>★" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "<color=red>★");
+                pc.RpcSetName("<color=red>Ω" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "<color=red>Ω");
             Balancer(meetingtime);
             PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
             //アナウンス(合体させるからコメントアウト)
@@ -294,8 +298,8 @@ public sealed class Balancer : RoleBase
             _ = new LateTask(() =>
             {
                 //名前を戻す
-                Utils.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
-                Utils.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
+                Utils.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
+                Utils.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
             }, 0.5f);
 
             return;
@@ -308,8 +312,8 @@ public sealed class Balancer : RoleBase
             return;
 
         //名前を戻す
-        Utils.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
-        Utils.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
+        Utils.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
+        Utils.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
 
         if (nickname != null)
             Main.nickName = nickname;

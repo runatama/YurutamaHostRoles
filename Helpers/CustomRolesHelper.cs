@@ -37,7 +37,7 @@ namespace TownOfHost
         {
             var roleInfo = role.GetRoleInfo();
             if (roleInfo != null)
-                return roleInfo.CustomRoleType == CustomRoleTypes.Neutral;
+                return roleInfo.CustomRoleType == CustomRoleTypes.Neutral || role == CustomRoles.Jackaldoll;
             return role is CustomRoles.HASTroll or CustomRoles.HASFox;
         }
         public static bool IsCrewmate(this CustomRoles role) => role.GetRoleInfo()?.CustomRoleType == CustomRoleTypes.Crewmate || (!role.IsImpostorTeam() && !role.IsNeutral());
@@ -63,24 +63,26 @@ namespace TownOfHost
                 CustomRoles.Moon or
                 CustomRoles.Guesser or
                 CustomRoles.Speeding or
-                CustomRoles.Watcher or
-                CustomRoles.Sun or
-                CustomRoles.Director or
+                CustomRoles.watching or
+                CustomRoles.Lighting or
+                CustomRoles.Management or
                 CustomRoles.Connecting or
                 CustomRoles.Serial or
-                CustomRoles.AdditionalVoter or
+                CustomRoles.PlusVote or
                 CustomRoles.Opener or
-                CustomRoles.Psychic or
-                CustomRoles.Bakeneko or
-                CustomRoles.Nurse or
+                CustomRoles.seeing or
+                CustomRoles.Revenger or
+                CustomRoles.Autopsy or
+                CustomRoles.Tiebreaker or
                 //デバフ
-                CustomRoles.NotConvener or
+                CustomRoles.NonReport or
                 CustomRoles.Notvoter or
                 CustomRoles.Elector or
                 CustomRoles.Water or
                 CustomRoles.Slacker or
                 CustomRoles.Transparent or
-                CustomRoles.LowBattery;
+                CustomRoles.Amnesia or
+                CustomRoles.Clumsy;
         }
         public static bool IsRiaju(this CustomRoles roles)
         {
@@ -93,6 +95,10 @@ namespace TownOfHost
             CustomRoles.FLovers or
             CustomRoles.GLovers or
             CustomRoles.MaLovers;
+        }
+        public static bool IsRiaju(this PlayerControl pc)
+        {
+            return pc.Is(CustomRoles.ALovers) || pc.Is(CustomRoles.BLovers) || pc.Is(CustomRoles.CLovers) || pc.Is(CustomRoles.DLovers) || pc.Is(CustomRoles.ELovers) || pc.Is(CustomRoles.FLovers) || pc.Is(CustomRoles.GLovers) || pc.Is(CustomRoles.MaLovers);
         }
 
         public static bool IsWhiteCrew(this CustomRoles roles)

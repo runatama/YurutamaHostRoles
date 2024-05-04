@@ -1,4 +1,3 @@
-using System;
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
@@ -15,12 +14,13 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             CustomRoles.Driver,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            2100,
+            15000,
             SetupOptionItems,
             "dr",
             tab: TabGroup.Combinations,
             assignInfo: new RoleAssignInfo(CustomRoles.Driver, CustomRoleTypes.Impostor)
             {
+                AssignCountRule = new(1, 1, 1),
                 AssignUnitRoles = new CustomRoles[2] { CustomRoles.Driver, CustomRoles.Braid }
             },
             combination: CombinationRoles.DriverandBraid
@@ -32,7 +32,6 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
     )
     {
         KillCooldown = OptionKillCooldown.GetFloat();
-        Braid.Seeing = OptionSeeing.GetBool();
     }
     public static OptionItem OptionBraidKillCooldown;
     public static OptionItem OptionKillCooldown;
@@ -44,7 +43,9 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
     public static OptionItem OptionGtaskTrigger;
     public static OptionItem OptionVote;
     public static OptionItem OptionVtaskTrigger;
-    public static OptionItem OptionSeeing;
+    public static OptionItem OptionBseeing;
+    public static OptionItem OptionDseeing;
+    public static OptionItem OptionCanVent;
     enum OptionName
     {
         KillCooldown,
@@ -53,7 +54,8 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         Driverseedeathreason,
         Gado,
         Vote, TaskTrigger,
-        seen
+        seen, Dseeing,
+        BCanVent
     }
     public static float BraidKillCooldown;
     public static float KillCooldown;
@@ -72,8 +74,10 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         OptionVtaskTrigger = FloatOptionItem.Create(RoleInfo, 16, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionVote);
         OptionGado = BooleanOptionItem.Create(RoleInfo, 17, OptionName.Gado, false, false);
         OptionGtaskTrigger = FloatOptionItem.Create(RoleInfo, 18, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionGado);
-        OptionSeeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.seen, false, false);
-        Braid.Tasks = Options.OverrideTasksData.Create(RoleInfo, 20, CustomRoles.Braid);
+        OptionBseeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.seen, false, false);
+        OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.Dseeing, false, false);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BCanVent, true, false);
+        Braid.Tasks = Options.OverrideTasksData.Create(RoleInfo, 50, CustomRoles.Braid);
     }
 
     public bool CheckKillFlash(MurderInfo info) => Braid.DriverseeKillFlash;
@@ -102,9 +106,38 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             killer.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(target);
             info.CanKill = false;
+            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Driver]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
             Logger.Info($"{target.GetNameWithRole()} : ガード残り{Guard}回", "GuardMaster");
             Utils.NotifyRoles();
         }
         return true;
+    }
+    public override void OnStartMeeting()
+    {
+        if (Player.IsAlive())
+        {
+            if (Braid.DriverseeKillFlash)
+            {
+                Utils.SendMessage("ブレイドからキルフラの能力を習得しました。", Player.PlayerId);
+            }
+            if (Braid.Driverseedeathreason)
+            {
+                Utils.SendMessage("ブレイドから死因の能力を習得しました。", Player.PlayerId);
+            }
+            if (Braid.Gado)
+            {
+                Utils.SendMessage("ブレイドからガードの能力を習得しました。", Player.PlayerId);
+            }
+            if (Braid.DriverseeVote)
+            {
+                Utils.SendMessage("ブレイドから匿名投票解除しました。", Player.PlayerId);
+            }
+            if (Braid.TaskFin)
+            {
+                Utils.SendMessage("ブレイドからキルクール減少能力を習得しました。", Player.PlayerId);
+            }
+            //チャットに装飾は夜藍に任せますwww
+            //文章はりぃりぃに任せます
+        }
     }
 }

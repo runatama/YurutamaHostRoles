@@ -36,17 +36,25 @@ namespace TownOfHost.Modules.ChatManager
             }
             return false;
         }
+        public static bool CommandCheck(string meg)
+        {
+            var m = meg;
+            if (m.StartsWith("/")) return true;
+            return false;
+        }
         public static void SendMessage(PlayerControl player, string message)
         {
             int operate = 0; // 1:ID 2:猜测
             string msg = message;
             string playername = player.GetNameWithRole();
+            string me = Main.LastMeg;
             message = message.ToLower().TrimStart().TrimEnd();
             if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return; //
             if (GameStates.IsInGame) operate = 3;
-            if (CheckCommond(ref msg, "id")) operate = 1;
-            else if (CheckCommond(ref msg, "bt", false)) operate = 2;
-            else if (CheckCommond(ref msg, "system", false)) operate = 2;
+            if (!GameStates.IsInGame) operate = 6;
+            if (CheckCommond(ref msg, "bt", false)) operate = 2;
+            else if (CommandCheck(message)) operate = 1;
+            else if (me == msg) operate = 5;
 
             if (operate == 1)
             {
@@ -60,14 +68,25 @@ namespace TownOfHost.Modules.ChatManager
                 message = msg;
                 cancel = false;
             }
-            else if (operate == 4)
+            else if (operate == 5)
+            {
+                Logger.Info($"これはシステムメッセージなので記録しない", "ChatManager");
+                message = msg;
+                cancel = false;
+            }
+            else if (operate == 4)//特定の人物が喋ったら消すなどに。
             {
                 Logger.Info($"{msg}，は記録しない", "ChatManager");
                 message = msg;
                 SendPreviousMessagesToAll();
             }
+            else if (operate == 6)
+            {
+                if (Main.UseYomiage.Value && player.IsAlive()) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
+            }
             else if (operate == 3)
             {
+                if (Main.UseYomiage.Value && player.IsAlive()) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
                 message = msg;
                 string chatEntry = $"{player.PlayerId}: {message}";
                 chatHistory.Add(chatEntry);

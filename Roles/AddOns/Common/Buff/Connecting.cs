@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Connecting, new(2, 15, 1));
-            AddOnsAssignDataTeamImp.Create(Id + 10, CustomRoles.Connecting, true, true);
+            AddOnsAssignDataTeamImp.Create(Id + 10, CustomRoles.Connecting, true, true, true);
         }
         public static void Init()
         {

@@ -84,7 +84,8 @@ public class Snitch : RoleBase
     private static bool IsSnitchTarget(PlayerControl target)
     {
         return target.Is(CustomRoleTypes.Impostor)
-            || (CanFindNeutralKiller && target.IsNeutralKiller());
+            || (CanFindNeutralKiller && target.IsNeutralKiller())
+            || target.Is(CustomRoles.WolfBoy);
     }
 
     /// <summary>
@@ -103,6 +104,7 @@ public class Snitch : RoleBase
 
         //キラーじゃなければ無し
         if (!IsSnitchTarget(seer)) return "";
+        if (seer.Is(CustomRoles.WolfBoy)) return "";
         //タスクが進んでいなければ無し
         if (ExposedList.Count == 0) return "";
 
@@ -149,7 +151,7 @@ public class Snitch : RoleBase
         foreach (var targetId in TargetList)
         {
             var arrow = TargetArrow.GetArrows(seer, targetId);
-            arrows += CanGetColoredArrow ? Utils.ColorString(TargetColorlist[targetId], arrow) : arrow;
+            arrows += CanGetColoredArrow ? Utils.ColorString(Utils.GetPlayerById(targetId).Is(CustomRoles.WolfBoy) ? Palette.ImpostorRed : TargetColorlist[targetId], arrow) : arrow;
         }
         return arrows;
     }
@@ -190,7 +192,7 @@ public class Snitch : RoleBase
             IsComplete = true;
             foreach (var targetId in TargetList)
             {
-                NameColorManager.Add(Player.PlayerId, targetId);
+                NameColorManager.Add(Player.PlayerId, targetId, Utils.GetPlayerById(targetId).Is(CustomRoles.WolfBoy) ? "#ff1919" : "");
 
                 if (EnableTargetArrow)
                     TargetArrow.Add(Player.PlayerId, targetId);
