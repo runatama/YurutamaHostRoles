@@ -718,12 +718,15 @@ namespace TownOfHost
             TaskCh = false;
             foreach (var pc in Main.FixTaskNoPlayer)
             {
-                if (pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Impostor ||
-                    pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter) continue;
-                foreach (var task in pc.myTasks)
-                    pc.RpcCompleteTask(task.Id);
-                Main.FixTaskNoPlayer.Remove(pc);
+                if (pc != null)
+                {
+                    if (pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Impostor ||
+                        pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter) continue;
+                    foreach (var task in pc.myTasks)
+                        pc.RpcCompleteTask(task.Id);
+                }
             }
+            Main.FixTaskNoPlayer.Clear();
             TaskCh = true;
         }
         private static string GetProgressText(PlayerControl seer, PlayerControl seen = null, bool Mane = true)
