@@ -44,15 +44,16 @@ namespace TownOfHost
         public static HashAuth ExplosionKeyAuth { get; private set; }
         // デバッグキーのハッシュ値
         public const string DebugKeyHash = "8e5f06e453e7d11f78ad96b2ca28ff472e085bdb053189612a0a2e0be7973841";
+        public const string ExplosionKeyHash = "e7d88aaf7ea075752792089196d9441c838e6ff47432a719fad6e17cd50a441e";
         // デバッグキーのソルト
         public const string DebugKeySalt = "59687b";
         // デバッグキーのコンフィグ入力
         public static ConfigEntry<string> DebugKeyInput { get; private set; }
-
+        public static ConfigEntry<string> ExplosionKeyInput { get; private set; }
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.61.21";
+        public const string PluginVersion = "5.1.61.3";
         // サポートされている最低のAmongUsバージョン
         public static readonly string LowestSupportedVersion = "2024.3.5";
         // このバージョンのみで公開ルームを無効にする場合
@@ -73,7 +74,6 @@ namespace TownOfHost
         public static ConfigEntry<bool> JapaneseRoleName { get; private set; }
         public static ConfigEntry<float> MessageWait { get; private set; }
         public static ConfigEntry<bool> ShowResults { get; private set; }
-        public static ConfigEntry<bool> ChangeSomeLanguage { get; private set; }
         public static ConfigEntry<bool> Hiderecommendedsettings { get; private set; }
         public static ConfigEntry<bool> UseWebHook { get; private set; }
         public static ConfigEntry<bool> UseYomiage { get; private set; }
@@ -142,6 +142,8 @@ namespace TownOfHost
         public static SystemTypes sabo;
         public static bool saabo;
         public static (float, float) Time;
+        public static Dictionary<byte, int> Guard;
+        public static int GameCount = 0;
         //public static bool TaskBattleOptionv = false;
 
         /// <summary>
@@ -175,6 +177,7 @@ namespace TownOfHost
         public static Main Instance;
         public override void Load()
         {
+            GameCount = 0;
             Instance = this;
 
             //Client Options
@@ -183,7 +186,6 @@ namespace TownOfHost
             ForceJapanese = Config.Bind("Client Options", "Force Japanese", false);
             JapaneseRoleName = Config.Bind("Client Options", "Japanese Role Name", true);
             ShowResults = Config.Bind("Result", "Show Results", true);
-            ChangeSomeLanguage = Config.Bind("Client Options", "Change Some Language", true);
             Hiderecommendedsettings = Config.Bind("Client Options", "Hide recommended settings", false);
             UseWebHook = Config.Bind("Client Options", "UseWebHook", false);
             UseYomiage = Config.Bind("Client Options", "UseYomiage", false);
@@ -194,6 +196,7 @@ namespace TownOfHost
             CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
             HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
+            ExplosionKeyInput = Config.Bind("Authentication", "Explosion Key", "");
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost-K");
             TownOfHost.Logger.Enable();
@@ -206,6 +209,7 @@ namespace TownOfHost
 
             // 認証関連-初期化
             DebugKeyAuth = new HashAuth(DebugKeyHash, DebugKeySalt);
+            ExplosionKeyAuth = new HashAuth(ExplosionKeyHash, DebugKeySalt);
 
             // 認証関連-認証
             DebugModeManager.Auth(DebugKeyAuth, DebugKeyInput.Value);
@@ -271,6 +275,7 @@ namespace TownOfHost
                     {CustomRoles.seeing,"#61b26c"},
                     {CustomRoles.Autopsy,"#80ffdd"},
                     {CustomRoles.Tiebreaker,"#00552e"},
+                    {CustomRoles.Guarding, "#7b68ee"},
                     //デバフ
                     {CustomRoles.NonReport,"#006666"},
                     {CustomRoles.Notvoter,"#6c848d"},
@@ -280,6 +285,7 @@ namespace TownOfHost
                     {CustomRoles.Elector,"#544a47"},
                     {CustomRoles.Transparent,"#7b7c7d"},
                     {CustomRoles.Amnesia,"#4682b4"},
+                    {CustomRoles.SlowStarter,"#ff00ff"},
 
                     //第三属性
                     {CustomRoles.Amanojaku,"#005243"},
@@ -377,10 +383,10 @@ namespace TownOfHost
         Jackal = CustomRoles.Jackal,
         Remotekiller = CustomRoles.Remotekiller,
         Chef = CustomRoles.Chef,
+        Monochromer = CustomRoles.Monochromer,
         GrimReaper = CustomRoles.GrimReaper,
         CountKiller = CustomRoles.CountKiller,
         Workaholic = CustomRoles.Workaholic,
-        Monochromer = CustomRoles.Monochromer,
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
     }

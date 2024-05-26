@@ -17,7 +17,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static OptionItem Neu;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Revenger, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Revenger, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.Revenger, true, true, true, true);
             Imp = BooleanOptionItem.Create(Id + 50, "NekoKabochaImpostorsGetRevenged", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
             Crew = BooleanOptionItem.Create(Id + 51, "NekomataCanCrew", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);

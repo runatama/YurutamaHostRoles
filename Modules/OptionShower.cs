@@ -117,6 +117,7 @@ namespace TownOfHost
                 if (opt.Value.Name == "GiveNotvoter" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveWater" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveSpeeding" && !opt.Value.GetBool()) continue;
+                if (opt.Value.Name == "GiveGuarding" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveClumsy" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveSlacker" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "Maximum") continue; //Maximumの項目は飛ばす

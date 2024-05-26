@@ -13,7 +13,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static List<byte> playerIdList = new();
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Lighting, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Lighting, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignDataNotImp.Create(Id + 10, CustomRoles.Lighting, true, true, true);
         }
         public static void Init()

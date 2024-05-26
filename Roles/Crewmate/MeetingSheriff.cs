@@ -18,7 +18,7 @@ public sealed class MeetingSheriff : RoleBase
             CustomRoles.MeetingSheriff,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20450,
+            20500,
             SetupOptionItem,
             "Ms",
             "#f8cd46",
@@ -85,7 +85,7 @@ public sealed class MeetingSheriff : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (MadAvenger.Skill) return true;
-        if (Max > count && Is(voter) && MyTaskState.CompletedTasksCount >= cantaskcount && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
@@ -182,6 +182,8 @@ public sealed class MeetingSheriff : RoleBase
     }
     bool CanBeKilledBy(CustomRoles role)
     {
+        if (role == CustomRoles.SKMadmate) return cankillMad;
+        if (role == CustomRoles.Jackaldoll) return cankillN;
         return role.GetCustomRoleTypes() switch
         {
             CustomRoleTypes.Impostor => role is not CustomRoles.Tairou,

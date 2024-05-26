@@ -26,6 +26,11 @@ namespace TownOfHost
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
             ErrorText.Instance.Clear();
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc == null) continue;
+                Logger.Info($"FriendCore:{pc.FriendCode},Puid:{pc.GetClient().GetHashedPuid()}", "Session");
+            }
             if (AmongUsClient.Instance.AmHost) //以下、ホストのみ実行
             {
                 if (Main.NormalOptions.KillCooldown == 0f)

@@ -1,24 +1,23 @@
 using AmongUs.GameOptions;
-
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
-public sealed class Bait : RoleBase
+public sealed class InSender : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
-            typeof(Bait),
-            player => new Bait(player),
-            CustomRoles.Bait,
+            typeof(InSender),
+            player => new InSender(player),
+            CustomRoles.InSender,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20060,
+            20080,
             SetupOptionItem,
-            "ba",
-            "#00f7ff",
-            from: From.TheOtherRoles
+            "in",
+            "#eee8aa",
+            from: From.RevolutionaryHostRoles
         );
-    public Bait(PlayerControl player)
+    public InSender(PlayerControl player)
     : base(
         RoleInfo,
         player
@@ -44,8 +43,11 @@ public sealed class Bait : RoleBase
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
-        if (target.Is(CustomRoles.Bait) && !info.IsSuicide)
-            _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f, "Bait Self Report");
+        if (target.Is(CustomRoles.InSender) && !target.Is(CustomRoles.Transparent) && !info.IsSuicide)
+            _ = new LateTask(() =>
+            {
+                ReportDeadBodyPatch.DieCheckReport(target, target, false);
+            }, 0.15f, "InSender Self Report");
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask()

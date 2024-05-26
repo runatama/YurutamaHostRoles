@@ -96,12 +96,16 @@ namespace TownOfHost.Roles.Neutral
 
             }
         }
-        public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, GameData.PlayerInfo __)
         {
             foreach (var targetId in GrimPlayers.Keys)
             {
                 var target = Utils.GetPlayerById(targetId);
                 KillBitten(target, true);
+                if (repo == target)
+                {
+                    ReportDeadBodyPatch.DieCheckReport(repo, __);
+                }
             }
             GrimPlayers.Clear();
         }

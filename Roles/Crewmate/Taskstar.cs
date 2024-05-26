@@ -28,8 +28,9 @@ public sealed class TaskStar : RoleBase
     {
         Options.OverrideTasksData.Create(RoleInfo, 20);
     }
-    public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText)
+    public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
+        addon = false;
         if (IsTaskFinished)
             enabled = true;
     }

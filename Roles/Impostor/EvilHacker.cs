@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
+using HarmonyLib;
 using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
@@ -38,6 +39,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
 
         CustomRoleManager.OnMurderPlayerOthers.Add(HandleMurderRoomNotify);
         instances.Add(this);
+        Name.Clear();
     }
     public override void OnDestroy()
     {
@@ -59,6 +61,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     private static bool canSeeImpostorMark;
     private static bool canSeeKillFlash;
     private static bool canSeeMurderRoom;
+    static Dictionary<byte, string> Name = new();
 
     private static HashSet<EvilHacker> instances = new(1);
 
@@ -85,6 +88,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
 
     public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
     {
+        Name.Clear();
         if (!Player.IsAlive())
         {
             return;
@@ -92,6 +96,8 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         var admins = AdminProvider.CalculateAdmin();
         var builder = new StringBuilder(512);
 
+        var m = new StringBuilder(512);
+        var g = 0;
         // 送信するメッセージを生成
         foreach (var admin in admins)
         {
@@ -115,11 +121,18 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                 builder.Append('(').Append(Translator.GetString("Deadbody"));
                 builder.Append('×').Append(entry.NumDeadBodies).Append(')');
             }
-            builder.Append('\n');
+            m.Append(builder);
+            m.Append('\n');
+            var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+            var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+            Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
+
+            builder.Clear();
+            g++;
         }
 
         // 送信
-        var message = builder.ToString();
+        var message = m.ToString();
         var title = Utils.ColorString(Color.green, Translator.GetString("LastAdminInfo"));
 
         _ = new LateTask(() =>
@@ -199,7 +212,14 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (isForMeeting || !canSeeMurderRoom || seer != Player || seen != Player || activeNotifies.Count <= 0)
+        if (isForMeeting)
+        {
+            if (!Name.ContainsKey(seen.PlayerId)) return "";
+            if (Name[seen.PlayerId] is "" or null) return "";
+
+            return "<color=#8cffff><size=1.5>" + Name[seen.PlayerId] + "</color></size>";
+        }
+        if (!canSeeMurderRoom || seer != Player || seen != Player || activeNotifies.Count <= 0)
         {
             return base.GetSuffix(seer, seen, isForMeeting);
         }

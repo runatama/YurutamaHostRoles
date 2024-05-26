@@ -118,26 +118,25 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         {
             if (Braid.DriverseeKillFlash)
             {
-                Utils.SendMessage("ブレイドからキルフラの能力を習得しました。", Player.PlayerId);
+                Utils.SendMessage("キルフラの能力を習得しました。", Player.PlayerId);
             }
             if (Braid.Driverseedeathreason)
             {
-                Utils.SendMessage("ブレイドから死因の能力を習得しました。", Player.PlayerId);
+                Utils.SendMessage("死因の能力を習得しました。", Player.PlayerId);
             }
             if (Braid.Gado)
             {
-                Utils.SendMessage("ブレイドからガードの能力を習得しました。", Player.PlayerId);
+                Utils.SendMessage("ガードの能力を習得しました。", Player.PlayerId);
             }
             if (Braid.DriverseeVote)
             {
-                Utils.SendMessage("ブレイドから匿名投票解除しました。", Player.PlayerId);
+                Utils.SendMessage("匿名投票解除しました。", Player.PlayerId);
             }
             if (Braid.TaskFin)
             {
-                Utils.SendMessage("ブレイドからキルクール減少能力を習得しました。", Player.PlayerId);
+                Utils.SendMessage("キルクール減少しました。", Player.PlayerId);
             }
-            //チャットに装飾は夜藍に任せますwww
-            //文章はりぃりぃに任せます
+            //マークにしたいようですね
         }
     }
 }

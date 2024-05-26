@@ -245,6 +245,7 @@ public static class MeetingHudPatch
                             break;
                     }
                 }
+                pva.NameText.text += sb.ToString();
                 //本人のsubrole処理
                 foreach (var subRole in seer.GetCustomSubRoles())
                 {
@@ -253,21 +254,21 @@ public static class MeetingHudPatch
                         case CustomRoles.Guesser:
                             if (!seer.Is(CustomRoles.Guesser)) break;
                             if (!seer.Data.IsDead && target == seer)
-                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size>";
+                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                                 pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
                             break;
                         case CustomRoles.LastImpostor:
                             if (!LastImpostor.GiveGuesser.GetBool()) break;
                             if (!seer.Data.IsDead && target == seer)
-                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size>";
+                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                                 pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
                             break;
                         case CustomRoles.LastNeutral:
                             if (!LastNeutral.GiveGuesser.GetBool()) break;
                             if (!seer.Data.IsDead && target == seer)
-                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size>";
+                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                                 pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
                             break;
@@ -276,13 +277,12 @@ public static class MeetingHudPatch
                 if (RoleAddAddons.AllData.TryGetValue(seer.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
                 {
                     if (!seer.Data.IsDead && target == seer)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size>";
+                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
                     if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                         pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
                 }
-                //会議画面ではインポスター自身の名前にSnitchマークはつけません。
 
-                pva.NameText.text += sb.ToString();
+                //会議画面ではインポスター自身の名前にSnitchマークはつけません。
             }
         }
     }

@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static OptionItem CanSeeComms;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Autopsy, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Autopsy, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.Autopsy, true, true, true, true);
             CanSeeComms = BooleanOptionItem.Create(Id + 50, "CanseeComms", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Autopsy]);
         }

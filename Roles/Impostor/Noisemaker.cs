@@ -50,7 +50,7 @@ public sealed class Noisemaker : RoleBase, IImpostor
             int chance = IRandom.Instance.Next(1, 101);
             if (chance <= Probability)
             {
-                Logger.Info($"{killer?.Data?.PlayerName}: フラ全体通知成功", "Noisemaker");
+                Logger.Info($"{killer?.Data?.PlayerName}: フラ全体通知", "Noisemaker");
                 foreach (var player in PlayerControl.AllPlayerControls)
                 {
                     player.KillFlash();
@@ -58,7 +58,7 @@ public sealed class Noisemaker : RoleBase, IImpostor
             }
             else
             {
-                Logger.Info($"{killer?.Data?.PlayerName}: フラ全体通知失敗", "Noisemaker");
+                Logger.Info($"{killer?.Data?.PlayerName}: フラ通知は無し", "Noisemaker");
             }
         }
     }

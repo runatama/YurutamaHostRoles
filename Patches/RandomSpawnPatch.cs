@@ -194,10 +194,9 @@ namespace TownOfHost
                     penguin?.OnSpawnAirship();
                 }
                 player.RpcResetAbilityCooldown();
-
-                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled && Options.CurrentGameMode != CustomGameMode.TaskBattle)
-                    player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
-
+                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
+                    Options.CurrentGameMode != CustomGameMode.TaskBattle
+                ) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
                 GameStates.Intro = false;
                 GameStates.AfterIntro = true;
                 if (IsRandomSpawn())

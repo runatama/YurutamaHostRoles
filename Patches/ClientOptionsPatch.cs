@@ -12,7 +12,6 @@ namespace TownOfHost
         private static ClientActionItem JapaneseRoleName;
         private static ClientActionItem UnloadMod;
         private static ClientActionItem DumpLog;
-        private static ClientActionItem ChangeSomeLanguage;
         private static ClientActionItem ForceEnd;
         private static ClientActionItem WebHookD;
         private static ClientActionItem Yomiage;
@@ -45,10 +44,6 @@ namespace TownOfHost
             if (DumpLog == null || DumpLog.ToggleButton == null)
             {
                 DumpLog = ClientActionItem.Create("DumpLog", Utils.DumpLog, __instance);
-            }
-            if (ChangeSomeLanguage == null || ChangeSomeLanguage.ToggleButton == null)
-            {
-                ChangeSomeLanguage = ClientOptionItem.Create("ChangeSomeLanguage", Main.ChangeSomeLanguage, __instance);
             }
             if ((ForceEnd == null || ForceEnd.ToggleButton == null) && AmongUsClient.Instance.AmHost)
             {

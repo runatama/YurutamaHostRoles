@@ -13,6 +13,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Crewmate;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost
 {
@@ -232,7 +233,6 @@ namespace TownOfHost
                     shapeshifter.OnlySeeMePet(shapeshifter.Data.DefaultOutfit.PetId);
                 }
             }
-
             //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
             if (!shapeshifting)
             {
@@ -550,18 +550,17 @@ namespace TownOfHost
             //以下、ボタンが押されることが確定したものとする。
             //=============================================
             GameStates.task = false;
-
-            Main.AllPlayerControls
-                .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
             if (target != null)
             {
                 Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Meeting]　" + Utils.GetPlayerColor(target.PlayerId, true) + Translator.GetString("Meeting.Report") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
                 MeetingHudPatch.Oniku = Utils.GetPlayerColor(target.PlayerId, true) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
+                Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), Palette.GetColorName(Camouflage.PlayerSkins[target.PlayerId].ColorId).Color(Palette.PlayerColors[Camouflage.PlayerSkins[target.PlayerId].ColorId])) + "</i></u></color>";
             }
             else
             {
                 Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Meeting]　" + Translator.GetString("Meeting.Button") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
                 MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
+                Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
             }
             foreach (var kvp in PlayerState.AllPlayerStates)
             {
@@ -580,6 +579,8 @@ namespace TownOfHost
                 pc.RpcChColor(pc, (byte)id);
                 pc.RpcChColor(PlayerControl.LocalPlayer, (byte)id);
             }
+            Main.AllPlayerControls
+                .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
 
             var State = PlayerState.GetByPlayerId(__instance.PlayerId);
             if (State.NumberOfRemainingButtons > 0 && target is null)
@@ -599,6 +600,150 @@ namespace TownOfHost
             PlayerControl.LocalPlayer.RpcSetNameEx(name);
             await Task.Delay(time);
             PlayerControl.LocalPlayer.RpcSetNameEx(revertName);
+        }
+        /// <summary>
+        /// 死者でもReportさせる奴。
+        /// </summary>
+        /// <param name="repo">通報者</param>
+        /// <param name="target">死体(null=button)</param>
+        /// <param name="ch">属性等のチェック入れるか</param>
+        public static void DieCheckReport(PlayerControl repo, PlayerControl target = null, bool ch = true) => DieCheckReport(repo, target.Data, ch);
+        /// <summary>
+        /// 死者でもReportさせるやーつ
+        /// </summary>
+        /// <param name="repo">通報者</param>
+        /// <param name="target">死体(null=button)</param>
+        /// <param name="ch">属性等のチェック入れるか</param>
+        public static void DieCheckReport(PlayerControl repo, GameData.PlayerInfo target = null, bool ch = true)
+        {
+            if (GameStates.IsMeeting) return;
+            if (ch)
+            {
+                if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var da) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
+                {
+                    if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll)
+                    {
+                        Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                    if (target == null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotButton)
+                    {
+                        Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                    if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport)
+                    {
+                        Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                }
+                else
+                if (repo.Is(CustomRoles.NonReport))
+                {
+                    if (NonReport.Mode == NonReport.Convener.ConvenerAll)
+                    {
+                        Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                    if (target == null && NonReport.Mode == NonReport.Convener.NotButton)
+                    {
+                        Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                    if (target != null && NonReport.Mode == NonReport.Convener.NotReport)
+                    {
+                        Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                }
+
+                if (target != null)
+                {
+                    var tage = Utils.GetPlayerById(target.PlayerId);
+                    if (tage.Is(CustomRoles.Transparent))
+                    {
+                        Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                    else if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool())
+                    {
+                        Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                    else
+                    if (!Musisuruoniku[tage.PlayerId])
+                    {
+                        Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
+                        return;
+                    }
+                }
+                if (!AmongUsClient.Instance.AmHost) return;
+                foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                {
+                    if (role.CancelReportDeadBody(repo, target)) return;
+                }
+
+                if (Options.SyncButtonMode.GetBool() && target == null)
+                {
+                    Logger.Info("最大:" + Options.SyncedButtonCount.GetInt() + ", 現在:" + Options.UsedButtonCount, "ReportDeadBody");
+                    if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
+                    {
+                        Logger.Info("使用可能ボタン回数が最大数を超えているため、ボタンはキャンセルされました。", "ReportDeadBody");
+                        return;
+                    }
+                    else Options.UsedButtonCount++;
+                    if (Options.SyncedButtonCount.GetFloat() == Options.UsedButtonCount)
+                    {
+                        Logger.Info("使用可能ボタン回数が最大数に達しました。", "ReportDeadBody");
+                    }
+                }
+            }
+
+            GameStates.Meeting = true;
+            GameStates.task = false;
+
+            if (target != null)
+            {
+                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Meeting]　" + Utils.GetPlayerColor(target.PlayerId, true) + Translator.GetString("Meeting.Report") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
+                MeetingHudPatch.Oniku = Utils.GetPlayerColor(target.PlayerId, true) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
+                Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), Palette.GetColorName(Camouflage.PlayerSkins[target.PlayerId].ColorId).Color(Palette.PlayerColors[Camouflage.PlayerSkins[target.PlayerId].ColorId])) + "</i></u></color>";
+            }
+            else
+            {
+                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Meeting]　" + Translator.GetString("Meeting.Button") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
+                MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
+                Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
+            }
+            Utils.NotifyRoles(isForMeeting: true, NoCache: true);
+
+            MeetingRoomManager.Instance.AssignSelf(repo, target);
+            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
+            repo.RpcStartMeeting(target);
+
+            foreach (var kvp in PlayerState.AllPlayerStates)
+            {
+                var pc = Utils.GetPlayerById(kvp.Key);
+                kvp.Value.LastRoom = pc.GetPlainShipRoom();
+            }
+            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+            {
+                role.OnReportDeadBody(repo, target);
+            }
+
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc.Is(CustomRoles.UltraStar)) continue;
+                var id = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
+                pc.RpcChColor(pc, (byte)id);
+                pc.RpcChColor(PlayerControl.LocalPlayer, (byte)id);
+            }
+            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
+
+            MeetingTimeManager.OnReportDeadBody();
+
+            Utils.NotifyRoles(isForMeeting: true, NoCache: true);
+
+            Utils.SyncAllSettings();
         }
     }
     /*[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.StartMeeting))]
@@ -755,7 +900,6 @@ namespace TownOfHost
                 if (GameStates.InGame && !(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (__instance.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false) && !__instance.Data.IsDead)
                     foreach (var p in Main.AllPlayerControls)
                     {
-                        if (p == null) continue;
                         p.Data.Role.NameColor = Color.white;
                     }
                 //キルターゲットの上書き処理
@@ -768,7 +912,6 @@ namespace TownOfHost
             {
                 foreach (var pc in Main.AllPlayerControls)
                 {
-                    if (pc == null) continue;
                     pc.Data.DefaultOutfit.ColorId = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
                     pc.Data.DefaultOutfit.HatId = Camouflage.PlayerSkins[pc.PlayerId].HatId;
                     pc.Data.DefaultOutfit.SkinId = Camouflage.PlayerSkins[pc.PlayerId].SkinId;
@@ -830,7 +973,7 @@ namespace TownOfHost
                     RealName = RealName.ApplyNameColorData(seer, target, false);
 
                     //seer役職が対象のMark
-                    if (seerRole != null) Mark.Append(seerRole?.GetMark(seer, target, false));
+                    Mark.Append(seerRole?.GetMark(seer, target, false));
                     //seerに関わらず発動するMark
                     Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
@@ -872,6 +1015,16 @@ namespace TownOfHost
                     else if (__instance.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Data.IsDead)
                     {
                         Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                    }
+                    //プログレスキラー
+                    if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.Workhorseseer)
+                    {
+                        Mark.Append($"<color=blue>♦</color>");
+                    }
+                    //エーリアン
+                    if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modePK && Alien.Workhorseseer)
+                    {
+                        Mark.Append($"<color=blue>♦</color>");
                     }
 
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
@@ -939,7 +1092,7 @@ namespace TownOfHost
                         Suffix.Append("<color=#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
                     }
                     //seer役職が対象のSuffix
-                    if (seerRole != null) Suffix.Append(seerRole?.GetSuffix(seer, target));
+                    Suffix.Append(seerRole?.GetSuffix(seer, target));
 
                     //seerに関わらず発動するSuffix
                     Suffix.Append(CustomRoleManager.GetSuffixOthers(seer, target));
@@ -949,7 +1102,7 @@ namespace TownOfHost
                     }*/
                     if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
                         RealName = $"<size=0>{RealName}</size> ";
-                    if (seer.Is(CustomRoles.Monochromer) && !GameStates.Meeting && seer.IsAlive())
+                    if (seer.Is(CustomRoles.Monochromer) && seer.IsAlive())
                         RealName = $"<size=0>{RealName}</size> ";
 
                     string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})" : "";
@@ -964,7 +1117,6 @@ namespace TownOfHost
                         //名前が2行になると役職テキストを上にずらす必要がある
                         RoleText.transform.SetLocalY(0.35f);
                         target.cosmetics.nameText.text += "\r\n" + Suffix.ToString();
-
                     }
                     else
                     {
@@ -1275,15 +1427,17 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                     __instance.RpcBootFromVent(id);
 
-                if (((!user.GetRoleClass()?.OnEnterVent(__instance, id) ?? false) ||
+                if ((!user.GetRoleClass()?.OnEnterVent(__instance, id) ?? false ||
                     ((user.Data.Role.Role != RoleTypes.Engineer || user.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Engineer) && //エンジニアでなく
                 !user.CanUseImpostorVentButton()) || //インポスターベントも使えない
                 Utils.CanVent//ベントが使えない状態
                 ) || user.Is(CustomRoles.SKMadmate) || user.Is(CustomRoles.Jackaldoll))
+
                 {
+                    if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
                     var sender = CustomRpcSender.Create("Farthest Vent")
-                        .StartMessage();
+                    .StartMessage();
                     foreach (var pc in Main.AllPlayerControls)
                     {
                         if (pc == user || pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue; //本人とホストは別の処理

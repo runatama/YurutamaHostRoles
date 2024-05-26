@@ -197,6 +197,18 @@ namespace TownOfHost
                             ChatCommands.YomiageS[reader.ReadInt32()] = reader.ReadString();
                     }
                     break;
+                case CustomRPC.DevExplosion:
+                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, reader.ReadString()) || !__instance.IsModClient())
+                        break; //認証が通らなかったorMOD導入判定じゃない場合は不正なのでブロック
+                    Logger.Info("(^_-)-☆", "RPC Dev");
+                    if (AmongUsClient.Instance.AmHost)
+                    {
+                        Main.AllPlayerControls.Where(pc => pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                            .Do(pc => AmongUsClient.Instance.KickPlayer(pc.GetClientId(), true));
+                        AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
+                        SceneChanger.ChangeScene("MainMenu");
+                    }
+                    break;
                 case CustomRPC.ModUnload:
                     RPC.RpcModUnload(__instance.PlayerId);
                     break;

@@ -33,7 +33,7 @@ public abstract class RoleDescription
             builder.AppendFormat("<size={0}>{1}", SecondSize, Translator.GetString("Basis"));
             builder.AppendFormat("<line-height=1.3pic><size={0}>:{1}\n", SecondSize, Translator.GetString(RoleInfo.BaseRoleType.Invoke().ToString()));
             //From
-            if (RoleInfo.From != From.None) builder.AppendFormat("<line-height=1.3pic><size={0}>{1}\n", SecondSize, Utils.GetFrom(RoleInfo));
+            if (RoleInfo.From != From.None) builder.AppendFormat("<line-height=1.3pic><size={0}>{1}\n", SecondSize, Utils.GetFrom(RoleInfo).RemoveSizeTags());
 
             //説明
             builder.AppendFormat("<line-height=1.3pic><size={0}>\n", BlankLineSize);

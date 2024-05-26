@@ -98,7 +98,7 @@ namespace TownOfHost.Roles.Impostor
             else
                 return Utils.ColorString(Color.red, "");
         }
-        public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, GameData.PlayerInfo __)
         {
             if (Limit && Player.IsAlive())
             {
@@ -106,6 +106,10 @@ namespace TownOfHost.Roles.Impostor
                 Player.SetRealKiller(Player);
                 Player.RpcMurderPlayer(Player, true);
                 RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
+            }
+            if (Limit && repo == Player)
+            {
+                ReportDeadBodyPatch.DieCheckReport(Player, __);
             }
         }
     }

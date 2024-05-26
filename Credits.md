@@ -25,6 +25,7 @@
 ノンレポート<br>
 ライティング<br>
 クラムシー<br>
+ガーディング<br>
 ### 参考
 help rolesコマンドの日本語化<br>
 会議で自分の役職を表示する<br>
@@ -36,7 +37,7 @@ help rolesコマンドの日本語化<br>
 ## [RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)
 
 ### 参考
-ボタンの見た目を変更
+一部役職の移植、ボタンの見た目を変更
 
 ## [Town Of Host](https://github.com/tukasa0001/TownOfHost) 
 **本家**

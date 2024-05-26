@@ -203,7 +203,12 @@ namespace TownOfHost
                 rtimer = Mathf.Max(0f, rtimer -= Time.deltaTime);
                 int minutes = (int)rtimer / 60;
                 int seconds = (int)rtimer % 60;
-                GameOptionsMenuPatch.Timer.text = Utils.ColorString(rtimer <= 60 ? Color.red : Color.white, $"{minutes:00}:{seconds:00}");
+
+                string Color = "<color=#ffffff>";
+                if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
+                if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
+                if (minutes <= 0) Color = "<color=red>";//1分切ったら。
+                GameOptionsMenuPatch.Timer.text = $"{Color}{minutes:00}:{seconds:00}";
             }
 
             if (__instance.transform.parent.parent.name == "Game Settings") return;
@@ -230,15 +235,13 @@ namespace TownOfHost
                     enabled = AmongUsClient.Instance.AmHost &&
                         !option.IsHiddenOn(Options.CurrentGameMode);
                     //起動時以外で表示/非表示を切り替える際に使う
-                    /*if (enabled)
-                    {
                     if (enabled && find != "")
                     {
                         enabled = option.Name.ToLower().Contains(find.ToLower())
                         || (Enum.TryParse(typeof(CustomRoles), option.Name, true, out var role)
-                         ? Utils.GetCombinationCName((CustomRoles)role, false).ToLower().Contains(find.ToLower())
-                         : GetString(option.Name).ToLower().Contains(find.ToLower()));
-                    }*/
+                        ? Utils.GetCombinationCName((CustomRoles)role, false).ToLower().Contains(find.ToLower())
+                        : GetString(option.Name).ToLower().Contains(find.ToLower()));
+                    }
 
                     var opt = option.OptionBehaviour.transform.Find("Background").GetComponent<SpriteRenderer>();
                     opt.size = new(5.0f, 0.45f);
@@ -331,7 +334,6 @@ namespace TownOfHost
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 1 && !Main.TaskBattleOptionv) option.CurrentValue++;
-            //if (option.Name == "KickModClient") Main.LastKickModClient.Value = true;
             option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
         }
@@ -345,7 +347,6 @@ namespace TownOfHost
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 0 && !Main.TaskBattleOptionv) option.CurrentValue--;
-            //if (option.Name == "KickModClient") Main.LastKickModClient.Value = false;
             option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
         }
@@ -372,6 +373,12 @@ namespace TownOfHost
                         ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
                         break;
                     case StringNames.ShapeshifterCooldown:
+                        ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
+                        break;
+                    case StringNames.ScientistCooldown:
+                        ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
+                        break;
+                    case StringNames.ScientistBatteryCharge:
                         ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
                         break;
                     default:

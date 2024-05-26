@@ -27,7 +27,7 @@ public static class AbilityButtonDoClickPatch
 {
     public static bool Prefix()
     {
-        if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown || !PlayerControl.LocalPlayer.CanMove || Utils.IsActive(SystemTypes.MushroomMixupSabotage)) return true;
+        if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown || !PlayerControl.LocalPlayer.CanMove || Utils.IsActive(SystemTypes.MushroomMixupSabotage) || !PlayerControl.LocalPlayer.IsAlive()) return true;
         if (PlayerControl.LocalPlayer.GetRoleClass() is IUseTheShButton sb && sb.UseOCButton)
         {
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();
@@ -37,15 +37,17 @@ public static class AbilityButtonDoClickPatch
         else
         if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Shapeshifter)
         {
+            if (!(PlayerControl.LocalPlayer.GetRoleClass()?.CanUseAbilityButton() ?? false)) return false;
             foreach (var p in Main.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }
-            PlayerControl.LocalPlayer.Data.Role.TryCast<ShapeshifterRole>().UseAbility();
+            PlayerControl.LocalPlayer.Data.Role.Cast<ShapeshifterRole>().UseAbility();
             foreach (var p in Main.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }
+            return true;
         }
         return true;
     }

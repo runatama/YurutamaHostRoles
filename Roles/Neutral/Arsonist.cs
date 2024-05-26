@@ -34,6 +34,7 @@ public sealed class Arsonist : RoleBase, IKiller
     {
         DouseTime = OptionDouseTime.GetFloat();
         DouseCooldown = OptionDouseCooldown.GetFloat();
+        if (OptionDouseCooldown.GetFloat() == 0) DouseCooldown = 0.00000000000000000001f;//0sでも塗れるように
         Hani = OptionHani.GetFloat();
 
         TargetInfo = null;

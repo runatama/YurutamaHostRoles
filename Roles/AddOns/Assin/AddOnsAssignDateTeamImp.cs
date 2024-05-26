@@ -159,4 +159,100 @@ namespace TownOfHost.Roles.AddOns.Common
             return candidates;
         }
     }
+    /// <summary>
+    /// マフィング用
+    /// </summary>
+    public class AddOnsAssignDataOnlyImp
+    {
+        static Dictionary<CustomRoles, AddOnsAssignDataOnlyImp> AllData = new();
+        public CustomRoles Role { get; private set; }
+        public int IdStart { get; private set; }
+        OptionItem ImpostorMaximum;
+        OptionItem ImpostorFixedRole;
+        OptionItem ImpostorAssignTarget;
+        static readonly CustomRoles[] InvalidRoles =
+        {
+            CustomRoles.GuardianAngel,
+            CustomRoles.SKMadmate,
+            CustomRoles.Jackaldoll,
+            CustomRoles.HASFox,
+            CustomRoles.HASTroll,
+            CustomRoles.GM,
+            CustomRoles.TaskPlayerB,
+            CustomRoles.Mafia//マフィングの他に必要になれば。うん。
+        };
+        static readonly IEnumerable<CustomRoles> ValidRoles = CustomRolesHelper.AllRoles.Where(role => !InvalidRoles.Contains(role));
+        static CustomRoles[] ImpostorRoles = ValidRoles.Where(role => role.IsImpostor()).ToArray();
+
+        public AddOnsAssignDataOnlyImp(int idStart, CustomRoles role, bool assignImpostor)
+        {
+            this.IdStart = idStart;
+            this.Role = role;
+            if (assignImpostor)
+            {
+                ImpostorMaximum = IntegerOptionItem.Create(idStart++, "%roleTypes%Maximum", new(0, 3, 1), 3, TabGroup.Addons, false)
+                    .SetParent(CustomRoleSpawnChances[role])
+                    .SetValueFormat(OptionFormat.Players);
+                ImpostorMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.ImpostorRed, GetString("TeamImpostor")) } };
+                ImpostorFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
+                    .SetParent(ImpostorMaximum);
+                var impostorStringArray = ImpostorRoles.Select(role => role.ToString()).ToArray();
+                ImpostorAssignTarget = StringOptionItem.Create(idStart++, "Role", impostorStringArray, 0, TabGroup.Addons, false)
+                    .SetParent(ImpostorFixedRole);
+            }
+
+            if (!AllData.ContainsKey(role)) AllData.Add(role, this);
+            else Logger.Warn("重複したCustomRolesを対象とするAddOnsAssignDataOnlyImpが作成されました", "AddOnsAssignDataOnlyImp");
+        }
+        public static AddOnsAssignDataOnlyImp Create(int idStart, CustomRoles role, bool assignImpostor)
+            => new(idStart, role, assignImpostor);
+        ///<summary>
+        ///AddOnsAssignDataOnlyImpが存在する属性を一括で割り当て
+        ///</summary>
+        public static void AssignAddOnsFromList()
+        {
+            foreach (var kvp in AllData)
+            {
+                var (role, data) = kvp;
+                if (!role.IsPresent()) continue;
+                var assignTargetList = AssignTargetList(data);
+
+                foreach (var pc in assignTargetList)
+                {
+                    PlayerState.GetByPlayerId(pc.PlayerId).SetSubRole(role);
+                    Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
+                }
+            }
+        }
+        ///<summary>
+        ///アサインするプレイヤーのList
+        ///</summary>
+        private static List<PlayerControl> AssignTargetList(AddOnsAssignDataOnlyImp data)
+        {
+            var rnd = IRandom.Instance;
+            var candidates = new List<PlayerControl>();
+            var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            if (data.ImpostorMaximum != null)
+            {
+                var impostorMaximum = data.ImpostorMaximum.GetInt();
+                if (impostorMaximum > 0)
+                {
+                    var impostors = validPlayers.Where(pc
+                        => data.ImpostorFixedRole.GetBool() ? pc.Is(ImpostorRoles[data.ImpostorAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Impostor)).ToList();
+                    for (var i = 0; i < impostorMaximum; i++)
+                    {
+                        if (impostors.Count == 0) break;
+                        var selectedImpostor = impostors[rnd.Next(impostors.Count)];
+                        candidates.Add(selectedImpostor);
+                        impostors.Remove(selectedImpostor);
+                    }
+                }
+            }
+
+            while (candidates.Count > data.Role.GetRealCount())
+                candidates.RemoveAt(rnd.Next(candidates.Count));
+
+            return candidates;
+        }
+    }
 }

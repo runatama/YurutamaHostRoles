@@ -63,6 +63,7 @@ namespace TownOfHost
                 CustomRoles.Moon or
                 CustomRoles.Guesser or
                 CustomRoles.Speeding or
+                CustomRoles.Guarding or
                 CustomRoles.watching or
                 CustomRoles.Lighting or
                 CustomRoles.Management or
@@ -82,7 +83,8 @@ namespace TownOfHost
                 CustomRoles.Slacker or
                 CustomRoles.Transparent or
                 CustomRoles.Amnesia or
-                CustomRoles.Clumsy;
+                CustomRoles.Clumsy or
+                CustomRoles.SlowStarter;
         }
         public static bool IsRiaju(this CustomRoles roles)
         {
@@ -100,7 +102,6 @@ namespace TownOfHost
         {
             return pc.Is(CustomRoles.ALovers) || pc.Is(CustomRoles.BLovers) || pc.Is(CustomRoles.CLovers) || pc.Is(CustomRoles.DLovers) || pc.Is(CustomRoles.ELovers) || pc.Is(CustomRoles.FLovers) || pc.Is(CustomRoles.GLovers) || pc.Is(CustomRoles.MaLovers);
         }
-
         public static bool IsWhiteCrew(this CustomRoles roles)
         {
             return

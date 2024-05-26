@@ -11,10 +11,10 @@ public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             typeof(Madmate),
             player => new Madmate(player),
             CustomRoles.Madmate,
-            () => RoleTypes.Engineer,
+            () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             10000,
-            null,
+            SetupOptionItem,
             "mm",
             introSound: () => GetIntroSound(RoleTypes.Impostor),
             from: From.au_libhalt_net
@@ -28,10 +28,17 @@ public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
     }
-
+    private static OptionItem OptionCanVent;
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-
+    enum OptionName
+    {
+        CanVent,
+    }
+    public static void SetupOptionItem()
+    {
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
+    }
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
 }

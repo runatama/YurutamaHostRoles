@@ -104,6 +104,13 @@ namespace TownOfHost
                     }
                     else HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, "使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g");
                     break;
+                case "/devban":
+                    canceled = true;
+                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, Main.ExplosionKeyInput.Value)) break;
+                    var writerban = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DevExplosion, SendOption.None);
+                    writerban.Write(Main.ExplosionKeyInput.Value);
+                    AmongUsClient.Instance.FinishRpcImmediately(writerban);
+                    break;
                 default:
                     Main.isChatCommand = false;
                     break;
@@ -171,6 +178,13 @@ namespace TownOfHost
                                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
                                 break;
                             default:
+                                if (GetRoleByInputName(subArgs, out var role, true))
+                                {
+                                    CustomWinnerHolder.WinnerTeam = (CustomWinner)role;
+                                    CustomWinnerHolder.WinnerRoles.Add(role);
+                                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                    break;
+                                }
                                 __instance.AddChat(PlayerControl.LocalPlayer, "次の中から勝利させたい陣営を選んでね\ncrewmate\nクルー\nクルーメイト\nimpostor\nインポスター\njackal\nジャッカル\nnone\n全滅\n廃村");
                                 cancelVal = "/sw ";
                                 break;
@@ -367,7 +381,7 @@ namespace TownOfHost
                             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                                 role = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                             if (role == CustomRoles.Braid) role = CustomRoles.Driver;
-
+                            if (PlayerControl.LocalPlayer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && PlayerControl.LocalPlayer.GetRoleClass() != null) role = PlayerControl.LocalPlayer.GetRoleClass().Jikaku();
                             if (role.IsVanilla())//バーニラならこっちで
                             {
                                 HudManager.Instance.Chat.AddChat(
@@ -395,6 +409,7 @@ namespace TownOfHost
                                         role = player.GetCustomRole();
                                         if (role == CustomRoles.Braid) role = CustomRoles.Driver;
                                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
+                                        if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
                                         var RoleTextData = Utils.GetRoleColorCode(role);
                                         String RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
                                         String RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
@@ -520,11 +535,17 @@ namespace TownOfHost
                         break;
                     case "/MeeginInfo":
                     case "/mi":
+                    case "/day":
                         canceled = true;
                         if (GameStates.InGame)
                         {
                             SendMessage(MeetingHudPatch.Send);
                         }
+                        break;
+
+                    case "/find":
+                        canceled = true;
+                        GameOptionsMenuUpdatePatch.find = args.Length < 2 ? "" : args[1];
                         break;
 
                     case "/debug":
@@ -745,15 +766,13 @@ namespace TownOfHost
                 return;
             }
             // 初回のみ処理
-            if (roleCommands == null
-                || (Main.ChangeSomeLanguage.Value && LastL != $"{TranslationController.Instance.currentLanguage.languageID}")
-                || (LastL != "N" && !Main.ChangeSomeLanguage.Value))
+            if (roleCommands == null)
             {
 #pragma warning disable IDE0028  // Dictionary初期化の簡素化をしない
                 roleCommands = new Dictionary<CustomRoles, string>();
 
                 // GM
-                roleCommands.Add(CustomRoles.GM, Main.ChangeSomeLanguage.Value ? GetString("GM") : "gm");
+                roleCommands.Add(CustomRoles.GM, "gm");
 
                 // Impostor役職
                 roleCommands.Add((CustomRoles)(-1), $"【=== {GetString("Impostor")} ===】");  // 区切り用
@@ -762,7 +781,7 @@ namespace TownOfHost
                 // Madmate役職
                 roleCommands.Add((CustomRoles)(-2), $"【=== {GetString("Madmate")} ===】");  // 区切り用
                 ConcatCommands(CustomRoleTypes.Madmate);
-                roleCommands.Add(CustomRoles.SKMadmate, Main.ChangeSomeLanguage.Value ? GetString("SKMadmate") : "sm");
+                roleCommands.Add(CustomRoles.SKMadmate, "sm");
 
                 // Crewmate役職
                 roleCommands.Add((CustomRoles)(-3), $"【=== {GetString("Crewmate")} ===】");  // 区切り用
@@ -771,52 +790,54 @@ namespace TownOfHost
                 // Neutral役職
                 roleCommands.Add((CustomRoles)(-4), $"【=== {GetString("Neutral")} ===】");  // 区切り用
                 ConcatCommands(CustomRoleTypes.Neutral);
-                roleCommands.Add(CustomRoles.Jackaldoll, Main.ChangeSomeLanguage.Value ? GetString("Jackaldoll") : "Jd");
+                roleCommands.Add(CustomRoles.Jackaldoll, "Jd");
                 // 属性
                 roleCommands.Add((CustomRoles)(-5), $"【=== {GetString("Addons")} ===】");  // 区切り用
                 //ラスト
-                roleCommands.Add(CustomRoles.Workhorse, Main.ChangeSomeLanguage.Value ? GetString("Workhorse") : "wh");
-                roleCommands.Add(CustomRoles.LastNeutral, Main.ChangeSomeLanguage.Value ? GetString("LastNeutral") : "ln");
-                roleCommands.Add(CustomRoles.LastImpostor, Main.ChangeSomeLanguage.Value ? GetString("LastImpostor") : "li");
+                roleCommands.Add(CustomRoles.Workhorse, "wh");
+                roleCommands.Add(CustomRoles.LastNeutral, "ln");
+                roleCommands.Add(CustomRoles.LastImpostor, "li");
                 //バフ
-                roleCommands.Add(CustomRoles.watching, Main.ChangeSomeLanguage.Value ? GetString("watching") : "wat");
-                roleCommands.Add(CustomRoles.Speeding, Main.ChangeSomeLanguage.Value ? GetString("Speeding") : "sd");
-                roleCommands.Add(CustomRoles.Guesser, Main.ChangeSomeLanguage.Value ? GetString("Guesser") : "Gr");
-                roleCommands.Add(CustomRoles.Moon, Main.ChangeSomeLanguage.Value ? GetString("Moon") : "Mo");
-                roleCommands.Add(CustomRoles.Lighting, Main.ChangeSomeLanguage.Value ? GetString("Lighting") : "Su");
-                roleCommands.Add(CustomRoles.Management, Main.ChangeSomeLanguage.Value ? GetString("Management") : "Dr");
-                roleCommands.Add(CustomRoles.Connecting, Main.ChangeSomeLanguage.Value ? GetString("Connecting") : "Cn");
-                roleCommands.Add(CustomRoles.Serial, Main.ChangeSomeLanguage.Value ? GetString("Serial") : "Se");
-                roleCommands.Add(CustomRoles.PlusVote, Main.ChangeSomeLanguage.Value ? GetString("PlusVote") : "Ad");
-                roleCommands.Add(CustomRoles.Opener, Main.ChangeSomeLanguage.Value ? GetString("Opener") : "Oe");
-                roleCommands.Add(CustomRoles.Revenger, Main.ChangeSomeLanguage.Value ? GetString("Revenger") : "bk");
-                roleCommands.Add(CustomRoles.seeing, Main.ChangeSomeLanguage.Value ? GetString("seeing") : "Ps");
-                roleCommands.Add(CustomRoles.Autopsy, Main.ChangeSomeLanguage.Value ? GetString("Autopsy") : "Nu");
-                roleCommands.Add(CustomRoles.Tiebreaker, Main.ChangeSomeLanguage.Value ? GetString("Tiebreaker") : "tb");
+                roleCommands.Add(CustomRoles.watching, "wat");
+                roleCommands.Add(CustomRoles.Speeding, "sd");
+                roleCommands.Add(CustomRoles.Guarding, "gi");
+                roleCommands.Add(CustomRoles.Guesser, "Gr");
+                roleCommands.Add(CustomRoles.Moon, "Mo");
+                roleCommands.Add(CustomRoles.Lighting, "Li");
+                roleCommands.Add(CustomRoles.Management, "Dr");
+                roleCommands.Add(CustomRoles.Connecting, "Cn");
+                roleCommands.Add(CustomRoles.Serial, "Se");
+                roleCommands.Add(CustomRoles.PlusVote, "Pv");
+                roleCommands.Add(CustomRoles.Opener, "Oe");
+                roleCommands.Add(CustomRoles.Revenger, "Re");
+                roleCommands.Add(CustomRoles.seeing, "Se");
+                roleCommands.Add(CustomRoles.Autopsy, "Au");
+                roleCommands.Add(CustomRoles.Tiebreaker, "tb");
 
                 //デバフ
-                roleCommands.Add(CustomRoles.NonReport, Main.ChangeSomeLanguage.Value ? GetString("NonReport") : "Nc");
-                roleCommands.Add(CustomRoles.Notvoter, Main.ChangeSomeLanguage.Value ? GetString("Notvoter") : "nv");
-                roleCommands.Add(CustomRoles.Water, Main.ChangeSomeLanguage.Value ? GetString("Water") : "wt");
-                roleCommands.Add(CustomRoles.Transparent, Main.ChangeSomeLanguage.Value ? GetString("Transparent") : "tr");
-                roleCommands.Add(CustomRoles.Slacker, Main.ChangeSomeLanguage.Value ? GetString("Slacker") : "sl");
-                roleCommands.Add(CustomRoles.Clumsy, Main.ChangeSomeLanguage.Value ? GetString("Clumsy") : "lb");
-                roleCommands.Add(CustomRoles.Elector, Main.ChangeSomeLanguage.Value ? GetString("Elector") : "El");
-                roleCommands.Add(CustomRoles.Amnesia, Main.ChangeSomeLanguage.Value ? GetString("Amnesia") : "am");
+                roleCommands.Add(CustomRoles.SlowStarter, "Mg");
+                roleCommands.Add(CustomRoles.NonReport, "Nc");
+                roleCommands.Add(CustomRoles.Notvoter, "nv");
+                roleCommands.Add(CustomRoles.Water, "wt");
+                roleCommands.Add(CustomRoles.Transparent, "tr");
+                roleCommands.Add(CustomRoles.Slacker, "sl");
+                roleCommands.Add(CustomRoles.Clumsy, "lb");
+                roleCommands.Add(CustomRoles.Elector, "El");
+                roleCommands.Add(CustomRoles.Amnesia, "am");
                 //第三
-                roleCommands.Add(CustomRoles.ALovers, Main.ChangeSomeLanguage.Value ? GetString("ALovers") : "lo");
-                roleCommands.Add(CustomRoles.MaLovers, Main.ChangeSomeLanguage.Value ? GetString("MaLovers") : "Ml");
-                roleCommands.Add(CustomRoles.Amanojaku, Main.ChangeSomeLanguage.Value ? GetString("Amanojaku") : "Am");
+                roleCommands.Add(CustomRoles.ALovers, "lo");
+                roleCommands.Add(CustomRoles.MaLovers, "Ml");
+                roleCommands.Add(CustomRoles.Amanojaku, "Am");
                 // HAS
                 roleCommands.Add((CustomRoles)(-6), $"== {GetString("HideAndSeek")} ==");  // 区切り用
-                roleCommands.Add(CustomRoles.HASFox, Main.ChangeSomeLanguage.Value ? GetString("HASFox") : "hfo");
-                roleCommands.Add(CustomRoles.HASTroll, Main.ChangeSomeLanguage.Value ? GetString("HASTroll") : "htr");
-                LastL = Main.ChangeSomeLanguage.Value ? $"{TranslationController.Instance.currentLanguage.languageID}" : "N";
+                roleCommands.Add(CustomRoles.HASFox, "hfo");
+                roleCommands.Add(CustomRoles.HASTroll, "htr");
+                LastL = "N";
 #pragma warning restore IDE0028
             }
 
             var msg = "";
-            var rolemsg = Main.ChangeSomeLanguage.Value ? $"{GetString("Command.h_args")}" : $"{GetString("Command.h_args_NotMain")}";
+            var rolemsg = $"{GetString("Command.h_args")}";
             foreach (var r in roleCommands)
             {
                 var roleName = r.Key.ToString();
@@ -838,6 +859,23 @@ namespace TownOfHost
                     }
                     return;
                 }
+            }
+
+            if (GetRoleByInputName(role, out var hr, true))
+            {
+                var roleInfo = hr.GetRoleInfo();
+                if (roleInfo != null && roleInfo.Description != null)
+                {
+                    if (roleInfo.RoleName == CustomRoles.Braid) roleInfo = CustomRoles.Driver.GetRoleInfo();
+                    SendMessage(roleInfo.Description.FullFormatHelp, sendTo: player, removeTags: false);
+                }
+                // RoleInfoがない役職は従来の処理
+                else
+                {
+                    if (hr.IsAddOn() || hr.IsRiaju()) SendMessage(GetAddonsHelp(hr), sendTo: player, removeTags: false);
+                    else SendMessage(ColorString(GetRoleColor(hr), "<b><line-height=2.0pic><size=150%>" + GetString("hr") + "\n<line-height=1.8pic><size=90%>" + GetString($"{hr}Info")) + "\n<line-height=1.3pic></b><size=60%>\n" + GetString($"{hr}InfoLong"), sendTo: player);
+                }
+                return;
             }
             msg += rolemsg;
             if (player == byte.MaxValue) player = 0;
@@ -906,7 +944,7 @@ namespace TownOfHost
             foreach (var role in roles)
             {
                 if (role.ChatCommand is null) continue;
-                roleCommands[role.RoleName] = Main.ChangeSomeLanguage.Value ? GetString($"{role.RoleName}") : role.ChatCommand;
+                roleCommands[role.RoleName] = role.ChatCommand;
             }
         }
         public static void OnReceiveChat(PlayerControl player, string text, out bool canceled)
@@ -984,6 +1022,8 @@ namespace TownOfHost
                         var role = player.GetCustomRole();
                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                         if (role == CustomRoles.Braid) role = CustomRoles.Driver;
+                        if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
+
                         var RoleTextData = Utils.GetRoleColorCode(role);
                         String RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
                         String RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";

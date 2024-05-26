@@ -18,6 +18,7 @@ namespace TownOfHost
     {
         public static Dictionary<byte, string> SummaryText = new();
         public static string KillLog = "";
+        public static string outputLog = "";
         public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
         {
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +51,10 @@ namespace TownOfHost
 
             var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
             var s = "★".Color(winnerColor);
-            KillLog = Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+            KillLog = $"{GetString("GameLog")}\n" + Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+            outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+
+            LastGameSave.CreateIfNotExists();
             Main.Alltask = Utils.AllTaskstext(false, false, false, false, false).RemoveHtmlTags();
 
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
@@ -104,6 +108,8 @@ namespace TownOfHost
             foreach (var pc in winner)
             {
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
+
+                if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) && Main.winnerList.Contains(pc.PlayerId)) continue;
 
                 TempData.winners.Add(new WinningPlayerData(pc.Data));
                 Main.winnerList.Add(pc.PlayerId);
@@ -211,9 +217,6 @@ namespace TownOfHost
                     __instance.BackgroundBar.material.color = Color.gray;
                     WinnerText.text = GetString("ForceEndText");
                     WinnerText.color = Color.gray;
-
-                    //次の試合に役職を引き継ぐなら
-
                     break;
                 //全滅
                 case CustomWinner.None:
@@ -243,19 +246,19 @@ namespace TownOfHost
 
             var showInitially = Main.ShowResults.Value;
             showHideButton = new SimpleButton(
-               __instance.transform,
-               "ShowHideResultsButton",
-               new(-4.5f, 2.6f, -14f),  // BackgroundLayer(z=-13)より手前
-               new(0, 136, 209, byte.MaxValue),
-               new(0, 196, byte.MaxValue, byte.MaxValue),
-               () =>
-               {
-                   var setToActive = !roleSummary.gameObject.activeSelf;
-                   roleSummary.gameObject.SetActive(setToActive);
-                   Main.ShowResults.Value = setToActive;
-                   showHideButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
-               },
-               GetString(showInitially ? "HideResults" : "ShowResults"))
+                __instance.transform,
+                "ShowHideResultsButton",
+                new(-4.5f, 2.6f, -14f),  // BackgroundLayer(z=-13)より手前
+                new(0, 136, 209, byte.MaxValue),
+                new(0, 196, byte.MaxValue, byte.MaxValue),
+                () =>
+                {
+                    var setToActive = !roleSummary.gameObject.activeSelf;
+                    roleSummary.gameObject.SetActive(setToActive);
+                    Main.ShowResults.Value = setToActive;
+                    showHideButton.Label.text = GetString(setToActive ? "HideResults" : "ShowResults");
+                },
+                GetString(showInitially ? "HideResults" : "ShowResults"))
             {
                 Scale = new(1.5f, 0.5f),
                 FontSize = 2f,

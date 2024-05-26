@@ -71,7 +71,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
             }
             if (pc.GetRoleClass() is IImpostor impostor)
             {
-                return impostor.CanBeLastImpostor;
+                return true;
             }
             return true;
         }
@@ -88,9 +88,10 @@ namespace TownOfHost.Roles.AddOns.Impostor
                 {
                     pc.RpcSetCustomRole(CustomRoles.LastImpostor);
                     Add(pc.PlayerId);
-                    SetKillCooldown();
+                    if ((pc.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true) SetKillCooldown();
                     pc.SyncSettings();
                     Utils.NotifyRoles();
+                    Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";
                     break;
                 }
             }

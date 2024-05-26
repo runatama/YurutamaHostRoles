@@ -5,7 +5,6 @@ using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Madmate;
 using static TownOfHost.Translator;
-using System;
 
 namespace TownOfHost.Roles.Crewmate;
 
@@ -35,10 +34,14 @@ public sealed class WhiteHacker : RoleBase
         Max = OptionMaximum.GetFloat();
         cont = 0;
         use = false;
+        kakusei = !Kakusei.GetBool();
     }
 
     private static OptionItem Optioncantaskcount;
     private static OptionItem OptionMaximum;
+
+    static OptionItem Kakusei;
+    bool kakusei;
     private static float cantaskcount;
     private int P;
     static float Max;
@@ -47,7 +50,8 @@ public sealed class WhiteHacker : RoleBase
     enum Option
     {
         cantaskcount,
-        WHcont
+        WHcont,
+        UKakusei
     }
 
     private static void SetupOptionItem()
@@ -55,6 +59,7 @@ public sealed class WhiteHacker : RoleBase
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 10, Option.cantaskcount, new(0, 99, 1), 5, false);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.WHcont, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 12, Option.UKakusei, true, false);
     }
     private void SendRPC()
     {
@@ -71,7 +76,7 @@ public sealed class WhiteHacker : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (MadAvenger.Skill) return true;
-        if (Is(voter) && MyTaskState.CompletedTasksCount >= cantaskcount && Max > cont)
+        if (Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && Max > cont)
         {
             if (Player.PlayerId == votedForId || votedForId == 253)
             {
@@ -109,7 +114,7 @@ public sealed class WhiteHacker : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
+    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
 
     public string GetLastRoom(PlayerControl seen)
     {
@@ -124,5 +129,11 @@ public sealed class WhiteHacker : RoleBase
         }
 
         return text;
+    }
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override bool OnCompleteTask()
+    {
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        return true;
     }
 }

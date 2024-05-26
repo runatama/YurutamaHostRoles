@@ -11,6 +11,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost
 {
@@ -47,7 +48,8 @@ namespace TownOfHost
 
                         Main.AllPlayerControls
                             .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && (!pc.GetCustomRole().IsRiaju()
-                            || !pc.Is(CustomRoles.Amanojaku) || !pc.Is(CustomRoles.Jackaldoll) || !pc.Is(CustomRoles.SKMadmate)))
+                            && !pc.Is(CustomRoles.Amanojaku) && !pc.Is(CustomRoles.Jackaldoll) && !pc.Is(CustomRoles.SKMadmate)
+                            && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff))))
                             .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                         foreach (var pc in Main.AllPlayerControls)
                         {
@@ -134,20 +136,6 @@ namespace TownOfHost
                     //追加勝利陣営
                     foreach (var pc in Main.AllPlayerControls)
                     {
-                        if (!pc.Is(CustomRoles.Terrorist) && pc.Is(CustomRoles.LastNeutral) && pc.IsAlive() && LastNeutral.GiveOpportunist.GetBool()
-                        )
-                        {
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);
-                        }
-                        if (pc.Is(CustomRoles.Amanojaku) && !reason.Equals(GameOverReason.HumansByTask) && !reason.Equals(GameOverReason.HumansByVote)
-                        && (!pc.Is(CustomRoles.LastNeutral) || !LastNeutral.GiveOpportunist.GetBool()) && (pc.IsAlive() || !Amanojaku.Seizon.GetBool()))
-                        {
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
-                        }
-                        else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-
                         if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                         {
                             var winnerRole = pc.GetCustomRole();
@@ -155,9 +143,33 @@ namespace TownOfHost
                             {
                                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                                 CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
+                                continue;
                             }
                         }
+                        if (!pc.Is(CustomRoles.Terrorist) && pc.Is(CustomRoles.LastNeutral) && pc.IsAlive() && LastNeutral.GiveOpportunist.GetBool()
+                        )
+                        {
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);
+                            continue;
+                        }
+                        if (pc.Is(CustomRoles.Amanojaku) && !reason.Equals(GameOverReason.HumansByTask) && !reason.Equals(GameOverReason.HumansByVote)
+                        && (!pc.Is(CustomRoles.LastNeutral) || !LastNeutral.GiveOpportunist.GetBool()) && (pc.IsAlive() || !Amanojaku.Seizon.GetBool()))
+                        {
+                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
+                            continue;
+                        }
+                        else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
                     }
+
+                    /*if (God.CheckWin())
+                    {
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.God);
+                        Main.AllPlayerControls
+                            .Where(p => p.Is(CustomRoles.God) && p.IsAlive())
+                            .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                    }*/
                 }
                 ShipStatus.Instance.enabled = false;
                 StartEndGame(reason);
@@ -426,8 +438,11 @@ namespace TownOfHost
                 if (Options.TaskBattleTeamMode.GetBool())
                 {
                     foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == null) continue;
                         if (pc.AllTasksCompleted())
                             win = true;
+                    }
                 }
                 if (win)
                 {
@@ -442,9 +457,10 @@ namespace TownOfHost
             {
                 foreach (var t in Main.TaskBattleTeams)
                 {
+                    if (t == null) continue;
                     var task = 0;
                     foreach (var id in t)
-                        task += Utils.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
+                        task += PlayerState.GetByPlayerId(id).taskState.CompletedTasksCount;
                     if (Options.TaskBattleTeamWinTaskc.GetFloat() <= task)
                     {
                         reason = GameOverReason.HumansByTask;

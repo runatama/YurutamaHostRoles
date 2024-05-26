@@ -349,6 +349,10 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |┣マッドメイト役職もタスク終えたらマーク付ける　　|
 |┗ワークホースが付いたプレイヤーにマーク付ける　　|
 |ネコカボチャになる確率　　　　　　　|
+|┣インポスターを道連れにする        |
+|┗マッドメイトを道連れにする　　　　　|
+|┗ニュートラルを道連れにする　　　　　|
+|┗追放された時に誰かを道連れにする　　|
 |ノーマル状態になる確率　　　　　　　|
 
 ### ProgressKiller/プログレスキラー
@@ -391,7 +395,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 判定：インポスターorシェイプシフター<br>
 
 モード変更アクションにシェイプシフトとワンクリックボタンを追加。<br>
-[役職の説明はこちらこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#witch%E9%AD%94%E5%A5%B3)
+[役職の説明はこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#witch%E9%AD%94%E5%A5%B3)
 
 ### 追加設定
 |設定名　　　　　　　　　　　|                                                        |
@@ -404,7 +408,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 判定：シェイプシフター<br>
 
 花火の設置方法をワンクリックボタンに変更<br>
-[役職の説明はこちらこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#fireworks%E8%8A%B1%E7%81%AB%E8%81%B7%E4%BA%BA)
+[役職の説明はこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#fireworks%E8%8A%B1%E7%81%AB%E8%81%B7%E4%BA%BA)
 
 ### Sniper/スナイパー
 陣営：インポスター<br>
@@ -413,7 +417,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 所持弾数を最大99に変更<br>
 所持弾数が0の時にシェイプシフトできるかの設定追加。<br>
 打ち切ってなくてもキルできるかの設定追加。<br>
-[役職の説明はこちらこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#sniper%E3%82%B9%E3%83%8A%E3%82%A4%E3%83%91%E3%83%BC)
+[役職の説明はこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#sniper%E3%82%B9%E3%83%8A%E3%82%A4%E3%83%91%E3%83%BC)
 
 ### 追加設定
 |設定名    　　　　　　　　　  |
@@ -426,7 +430,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 判定：シェイプシフター<br>
 
 シェイプシフト使用時のアニメーションを再生するかの設定追加<br>
-[役職の説明はこちらこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#shapemaster%E3%82%B7%E3%82%A7%E3%82%A4%E3%83%97%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC)
+[役職の説明はこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#shapemaster%E3%82%B7%E3%82%A7%E3%82%A4%E3%83%97%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC)
 
 ### 追加設定
 |設定名    　　　　　　　　　  |
@@ -984,7 +988,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 判定：インポスター<br>
 カウント：ジャッカル<br>
 
-でサイドキックを作成できるか<br>
+サイドキックを作成できるか<br>
 属性を付与するかの設定追加<br>
 
 ～サイドキックの作り方～<br>
@@ -1329,6 +1333,36 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 ウィッチ,ジャッカルのサイドキックで言うとワンクリックボタンを押した時のキルターゲットに対して効果を発揮する～<br>
 見たいな感じです。<br>
 
+#### 外部リンク
+　TownOfHost-K
+　　[Twitter(X)](https://x.com/Tohkserver_k)
+
+　暇な人 KY/けーわい
+　　TOHKの開発者(いちばんえらいひと)
+　　[Youtube](https://www.youtube.com/@MTGC_KY)
+　　[Twitter(X)](https://x.com/ky_mario_ky)
+　　[Bluesky](https://bsky.app/profile/kymario.bsky.social)
+
+　タイガー
+　　TOHKの開発者
+　　[Youtube](https://www.youtube.com/@torataiga-)
+　　[Twitter(X)](https://x.com/TVppJ90s9G2sPkq)
+　　[Bluesky](https://bsky.app/profile/taiga1.bsky.social)
+
+　夜藍
+　　TOHKの開発者
+　　[Youtube](https://www.youtube.com/@Yoran_Furan)
+　　[Twitter(X)](https://x.com/Yoran_FuranOshi)
+　　[Bluesky](https://bsky.app/profile/yoran-furanoshi.bsky.social)
+
+　ねむa
+　　TOHKの開発者、TOH-KBotの開発者
+　　[Twitter(X)](https://x.com/nemu_adatoomou)
+
+　りぃりぃ
+　　TOHKのサポーター
+　　[Twitter(X)](https://x.com/rixirixi0202)
+
 #### クレジット
 [Town Of Host](https://github.com/tukasa0001/TownOfHost)
 　偉大なる本家様！
@@ -1340,7 +1374,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 　機能や一部処理の参考にさせて頂きました！
 
 [RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)
-　カスタムボタンの参考にさせて頂きました！
+　カスタムボタンの参考、一部役職を移行させて頂きました！
 
 [Town Of Host-H](https://github.com/Hyz-sui/TownOfHost-H) 
 　10.24アプデの対応で参考にさせていただきました！

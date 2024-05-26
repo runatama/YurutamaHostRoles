@@ -7,8 +7,6 @@ using InnerNet;
 using Mathf = UnityEngine.Mathf;
 
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.AddOns.Common;
-using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 
@@ -185,31 +183,9 @@ namespace TownOfHost.Modules
             {
                 AURoleOptions.KillCooldown = Mathf.Max(0f, killCooldown);
             }
-
-            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed) && !player.Is(CustomRoles.Speeding))
+            if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
             {
                 AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 5f);
-            }
-            if (RoleAddAddons.AllData.TryGetValue(role, out var da) && data.GiveAddons.GetBool())
-            {
-                if (da.GiveSpeedingding.GetBool() && Trapper.Tora && !ReportDeadBodyPatch.CanReport[player.PlayerId])
-                {
-                    AURoleOptions.PlayerSpeedMod = Main.MinSpeed;
-                }
-                else if (da.GiveSpeedingding.GetBool())
-                {
-                    AURoleOptions.PlayerSpeedMod = da.Speed.GetFloat();
-                }
-            }
-            else
-            if (player.Is(CustomRoles.Speeding) && Trapper.Tora && !ReportDeadBodyPatch.CanReport[player.PlayerId])
-            {
-                AURoleOptions.PlayerSpeedMod = Main.MinSpeed;
-            }
-            else
-            if (player.Is(CustomRoles.Speeding))
-            {
-                AURoleOptions.PlayerSpeedMod = Speeding.Speed;
             }
 
             state.taskState.hasTasks = Utils.HasTasks(player.Data, false);
@@ -252,6 +228,7 @@ namespace TownOfHost.Modules
                 AURoleOptions.ScientistBatteryCharge = 0.000000000000000000000000000000000000001f;
                 AURoleOptions.ScientistCooldown = 0;
             }
+
             return opt;
         }
 

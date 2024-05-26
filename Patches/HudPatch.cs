@@ -6,13 +6,12 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
 using TownOfHost.Roles;
-using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost
 {
     public static class CustomButton
     {
-        public static Sprite Get(string name) => Utils.LoadSprite($"TownOfHost.Resources.{name}.png", 115f);
+        public static Sprite Get(string name) => Utils.LoadSprite($"TownOfHost.Resources.Button.{name}.png", 115f);
     }
 
     [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -106,6 +105,8 @@ namespace TownOfHost
 
                     LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
                     if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
+                    if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) LowerInfoText.text = "";
+
                     LowerInfoText.enabled = LowerInfoText.text != "";
 
                     if (Main.RTAMode && GameStates.IsInTask)
@@ -175,7 +176,7 @@ namespace TownOfHost
             }
 
             if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.enabled = false;
-            if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+            if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && DebugModeManager.IsDebugMode)
             {
                 RepairSender.enabled = !RepairSender.enabled;
                 RepairSender.Reset();
@@ -207,6 +208,7 @@ namespace TownOfHost
         }
         //カスタムぼたーん。
         //参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.5.1
+        public static bool ch;
         public static void BottonHud()
         {
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -215,7 +217,12 @@ namespace TownOfHost
                 if (!GameStates.IsModHost) return;
                 var player = PlayerControl.LocalPlayer;
                 if (player == null) return;
-                if (CustomRoles.Amnesia.IsPresent() && Main.day <= Amnesia.Modoru.GetFloat()) return;
+                if (CustomRoles.Amnesia.IsPresent() && Main.day <= Roles.AddOns.Common.Amnesia.Modoru.GetFloat()) return;
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;
+                }
+                if (ch) return;
                 if (player == !GameStates.IsModHost) return;
                 if (!AmongUsClient.Instance.IsGameStarted) return;
 
@@ -261,7 +268,11 @@ namespace TownOfHost
             Color color = PlayerControl.LocalPlayer.GetRoleColor();
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
                 Utils.GetRoleColor(CustomRoles.Impostor) : Utils.GetRoleColor(CustomRoles.SchrodingerCat));
-            ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
+            if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null)
+            {
+                color = Utils.GetRoleColor(player.GetRoleClass().Jikaku());
+            }
+        ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
             ((Renderer)__instance.myRend).material.SetColor("_AddColor", mainTarget ? color : Color.clear);
         }
     }
@@ -309,6 +320,7 @@ namespace TownOfHost
             PlayerControl player = PlayerControl.LocalPlayer;
             var role = player.GetCustomRole();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
+            if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
             // 役職説明表示
             if (!role.IsVanilla())
             {

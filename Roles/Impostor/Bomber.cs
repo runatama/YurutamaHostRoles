@@ -19,7 +19,7 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Bomber,
                 () => RoleTypes.Shapeshifter,
                 CustomRoleTypes.Impostor,
-                1302,
+                1350,
                 SetupOptionItem,
                 "bb"
             );
@@ -89,6 +89,7 @@ namespace TownOfHost.Roles.Impostor
             var (killer, target) = info.AttemptTuple;
 
             if (target.Is(CustomRoles.Bait)) return;
+            if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
 
             //誰かに噛まれていなければ登録

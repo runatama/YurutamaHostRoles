@@ -75,22 +75,29 @@ namespace TownOfHost.Roles.Neutral
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOCButton => SK;
         public override bool CanUseAbilityButton() => SK;
+
         public void OnClick()
         {
             if (!SK) return;
+            if (JackalDoll.sidekick.GetInt() <= JackalDoll.side)
+            {
+                SK = false;
+                return;
+            }
             var target = Player.GetKillTarget();
             if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) return;
-
             SK = false;
             Player.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(Player);
             target.RpcProtectedMurderPlayer(target);
             Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sidekick]　" + string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})");
             target.RpcSetCustomRole(CustomRoles.Jackaldoll);
+            JackalDoll.Sidekick(target);
             Main.FixTaskNoPlayer.Add(target);
             Utils.MarkEveryoneDirtySettings();
             Utils.NotifyRoles();
             Utils.DelTask();
+            JackalDoll.side++;
             Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(target.PlayerId);
         }
     }

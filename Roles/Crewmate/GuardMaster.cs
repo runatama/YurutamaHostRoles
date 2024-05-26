@@ -28,7 +28,6 @@ public sealed class GuardMaster : RoleBase
     }
     private static OptionItem OptionAddGuardCount;
     private static OptionItem OptoonCheck;
-    private static Options.OverrideTasksData Tasks;
     private static int AddGuardCount;
     private static bool CanSeeCheck;
     int Guard = 0;
@@ -42,7 +41,7 @@ public sealed class GuardMaster : RoleBase
         OptoonCheck = BooleanOptionItem.Create(RoleInfo, 10, OptionName.MadGuardianCanSeeWhoTriedToKill, true, false);
         OptionAddGuardCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.AddGuardCount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
+        Options.OverrideTasksData.Create(RoleInfo, 20);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
@@ -58,7 +57,7 @@ public sealed class GuardMaster : RoleBase
             Utils.NotifyRoles();
         }
         killer.RpcProtectedMurderPlayer(target);
-        target.RpcProtectedMurderPlayer(target);
+        if (CanSeeCheck) target.RpcProtectedMurderPlayer(target);
         info.CanKill = false;
         Guard--;
         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [GuardMaster]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
@@ -72,5 +71,5 @@ public sealed class GuardMaster : RoleBase
             Guard += AddGuardCount;
         return true;
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})");
+    public override string GetProgressText(bool comms = false) => CanSeeCheck ? Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})") : "";
 }

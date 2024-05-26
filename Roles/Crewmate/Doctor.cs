@@ -45,7 +45,7 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ScientistCooldown = 0f;
+        AURoleOptions.ScientistCooldown = 0.1f;
         AURoleOptions.ScientistBatteryCharge = TaskCompletedBatteryCharge;
     }
     public bool CheckSeeDeathReason(PlayerControl seen)//IDeathReasonSeeable

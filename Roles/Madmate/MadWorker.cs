@@ -32,7 +32,6 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         ventCooldown = OptionVentCooldown.GetFloat();
         CannotWinAtDeath = true;
     }
-    private static Options.OverrideTasksData Tasks;
     private static OptionItem OptionCanVent;
     private static OptionItem OptionVentCooldown;
     enum OptionName
@@ -50,7 +49,7 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
         OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentCooldown, new(0f, 180f, 2.5f), 0f, false, OptionCanVent)
                 .SetValueFormat(OptionFormat.Seconds);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
+        Options.OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

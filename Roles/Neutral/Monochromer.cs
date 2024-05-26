@@ -65,6 +65,7 @@ public sealed class Monochromer : RoleBase
     }
     public override void Colorchnge()
     {
+        if (!Player.IsAlive()) return;
         foreach (var pc in Main.AllPlayerControls)
         {
             if (pc == Player) continue;

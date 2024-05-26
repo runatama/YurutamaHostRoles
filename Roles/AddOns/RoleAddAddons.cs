@@ -38,8 +38,11 @@ namespace TownOfHost
         //オープナー
         public OptionItem GiveOpener;
         //スピーディング
-        public OptionItem GiveSpeedingding;
+        public OptionItem GiveSpeeding;
         public OptionItem Speed;
+        //ガーディング
+        public OptionItem GiveGuarding;
+        public OptionItem Guard;
         //イレクター
         public OptionItem GiveElector;
         //ノンレポート
@@ -88,8 +91,10 @@ namespace TownOfHost
             Crew = BooleanOptionItem.Create(idStart++, "NekomataCanCrew", true, tab, false).SetParent(GiveRevenger);
             Mad = BooleanOptionItem.Create(idStart++, "NekoKabochaMadmatesGetRevenged", true, tab, false).SetParent(GiveRevenger);
             Neu = BooleanOptionItem.Create(idStart++, "NekomataCanNeu", true, tab, false).SetParent(GiveRevenger);
-            GiveSpeedingding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons);
-            Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeedingding);
+            GiveSpeeding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons);
+            Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding);
+            GiveGuarding = BooleanOptionItem.Create(idStart++, "GiveGuarding", false, tab, false).SetParent(GiveAddons);
+            Guard = FloatOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding);
             GiveManagement = BooleanOptionItem.Create(idStart++, "GiveManagement", false, tab, false).SetParent(GiveAddons);
             PercentGage = BooleanOptionItem.Create(idStart++, "PercentGage", false, tab, false).SetParent(GiveManagement);
             PonkotuPercernt = BooleanOptionItem.Create(idStart++, "PonkotuPercernt", true, tab, false).SetParent(PercentGage);

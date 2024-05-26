@@ -19,7 +19,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static OptionItem PonkotuPercernt;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Management, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Management, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.Management, true, true, true, true);
             OptionPercentGage = BooleanOptionItem.Create(Id + 50, "PercentGage", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]);
             PonkotuPercernt = BooleanOptionItem.Create(Id + 51, "PonkotuPercernt", true, TabGroup.Addons, false).SetParent(OptionPercentGage);

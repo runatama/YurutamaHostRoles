@@ -28,9 +28,15 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
     }
     static OptionItem CanAddMad;
     static OptionItem OptionCankill;
+    static OptionItem Cankill;
     bool SKMad;
+    enum Option
+    {
+        MafiaCankill
+    }
     public static void SetupCustomOption()
     {
+        Cankill = IntegerOptionItem.Create(RoleInfo, 9, Option.MafiaCankill, new(1, 3, 1), 2, false).SetValueFormat(OptionFormat.Players);
         OptionCankill = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
         CanAddMad = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
     }
@@ -43,15 +49,14 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
     public bool CanUseKillButton()
     {
         if (PlayerState.AllPlayerStates == null) return false;
-        //マフィアを除いた生きているインポスターの人数  Number of Living Impostors excluding mafia
         int livingImpostorsNum = 0;
         foreach (var pc in Main.AllAlivePlayerControls)
         {
             var role = pc.GetCustomRole();
-            if (role != CustomRoles.Mafia && role.IsImpostor()) livingImpostorsNum++;
+            if (role.IsImpostor()) livingImpostorsNum++;
         }
 
-        return livingImpostorsNum <= 0;
+        return livingImpostorsNum <= (Cankill.GetFloat() - 1);
     }
     public void OnClick()
     {

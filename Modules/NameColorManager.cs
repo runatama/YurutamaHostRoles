@@ -21,6 +21,10 @@ namespace TownOfHost
                 colorCode = seer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColorCode(CustomRoles.Crewmate) : (seer.Is(CustomRoleTypes.Impostor) ?
                 Utils.GetRoleColorCode(CustomRoles.Impostor) : Utils.GetRoleColorCode(CustomRoles.SchrodingerCat));
             }
+            if (seer == target && seer.GetRoleClass() != null && seer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+            {
+                colorCode = Utils.GetRoleColorCode(seer.GetRoleClass().Jikaku());
+            }
             if (colorCode != "")
             {
                 if (!colorCode.StartsWith('#'))

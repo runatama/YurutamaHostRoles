@@ -35,6 +35,7 @@ public sealed class FortuneTeller : RoleBase
         Divination.Clear();
         count = 0;
         mcount = 0;
+        kakusei = !Kakusei.GetBool();
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         rolename = Optionrolename.GetBool();
         srole = OptionRole.GetBool();
@@ -48,7 +49,7 @@ public sealed class FortuneTeller : RoleBase
     private static OptionItem OptionRole;
     private static OptionItem OptionCanTaskcount;
     private static OptionItem Option1MeetingMaximum;
-
+    static OptionItem Kakusei;
     public float Max;
     public VoteMode Votemode;
     public bool rolename;
@@ -57,6 +58,7 @@ public sealed class FortuneTeller : RoleBase
     float cantaskcount;
     float onemeetingmaximum;
     float mcount;
+    bool kakusei;
     Dictionary<byte, CustomRoles> Divination = new();
 
     enum Option
@@ -67,6 +69,7 @@ public sealed class FortuneTeller : RoleBase
         tRole, //占い時役職を表示するか、陣営を表示するかの設定
         cantaskcount,//効果を発揮タスク数
         meetingmc,//1会議に占える数(最大で)
+        UKakusei
     }
     public enum VoteMode
     {
@@ -87,6 +90,7 @@ public sealed class FortuneTeller : RoleBase
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 14, Option.cantaskcount, new(0, 99, 1), 5, false);
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
             .SetValueFormat(OptionFormat.Times);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, Option.UKakusei, true, false);
     }
 
     private void SendRPC(byte targetid, CustomRoles role)
@@ -112,12 +116,12 @@ public sealed class FortuneTeller : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override void OnStartMeeting() => mcount = 0;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (MadAvenger.Skill) return true;
-        if (Max > count && Is(voter) && MyTaskState.CompletedTasksCount >= cantaskcount && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             var target = Utils.GetPlayerById(votedForId);
             if (Votemode == VoteMode.uvote)
@@ -157,5 +161,11 @@ public sealed class FortuneTeller : RoleBase
         SendRPC(votedForId, role);
         Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}", "FortuneTeller");
+    }
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override bool OnCompleteTask()
+    {
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        return true;
     }
 }

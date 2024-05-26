@@ -47,11 +47,14 @@ public static class SabotageSystemTypeUpdateSystemPatch
             //その他処理が必要であれば処理
             if (roleClass.OnInvokeSabotage(nextSabotage))
             {
-                Main.saabo = true;
-                Main.sabo = (SystemTypes)amount;
-                Main.LastSab = player.PlayerId;
-                var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
-                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    Main.sabo = (SystemTypes)amount;
+                    var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
+                    if (!Main.saabo) Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+                    Main.saabo = true;
+                    Main.LastSab = player.PlayerId;
+                }
             }
             return roleClass.OnInvokeSabotage(nextSabotage);
         }
@@ -67,11 +70,17 @@ public static class SabotageSystemTypeUpdateSystemPatch
         {
             return false;
         }
-        Main.saabo = true;
-        Main.sabo = (SystemTypes)amount;
-        Main.LastSab = player.PlayerId;
-        var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
-        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+        if (AmongUsClient.Instance.AmHost)
+        {
+            if (!Main.saabo)
+            {
+                Main.sabo = (SystemTypes)amount;
+                var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
+                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+                Main.saabo = true;
+                Main.LastSab = player.PlayerId;
+            }
+        }
         return true;
     }
     public static void Postfix(SabotageSystemType __instance, bool __runOriginal /* Prefixの結果，本体処理が実行されたかどうか */ )

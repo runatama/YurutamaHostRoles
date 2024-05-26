@@ -6,6 +6,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
+using HarmonyLib;
 
 namespace TownOfHost.Roles.Madmate;
 public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
@@ -110,6 +111,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
+        if (GameStates.Meeting) return "";
         //seenが省略の場合seer
         seen ??= seer;
         //seeおよびseenが自分である場合以外は関係なし
@@ -119,11 +121,15 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override void OnReportDeadBody(PlayerControl ___, GameData.PlayerInfo __)
     {
+        Utils.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
         if (!Skill) return;
+        _ = new LateTask(() => Main.AllPlayerControls.Do(x => x.KillFlash(kiai: true)), 1.0f, "Kakumeikaigi");
+        _ = new LateTask(() => Main.AllPlayerControls.Do(x => x.KillFlash(kiai: true)), 2.5f, "Kakumeikaigi");
+        _ = new LateTask(() => Main.AllPlayerControls.Do(x => x.KillFlash(kiai: true)), 4.0f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger1")), 3.0f, "Kakumeikaigi");
-        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger2")), 4.5f, "Kakumeikaigi");
-        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger3")), 6.0f, "Kakumeikaigi");
-        _ = new LateTask(() => Utils.SendMessage("<size=175%><b>＿人人人人人人＿\n＞　</b><color=#ff1919>" + GetString("Skill.MadAvenger4") + "</color><b>　＜\n￣ＹＹＹＹＹＹ￣</b>\n\n<size=75%><line-height=1.8pic>" + GetString("Skill.MadAvengerInfo"), title: " <color=#ff1919>" + GetString("MadAvengerMeeting")), 6.5f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger2")), 6.0f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger3")), 9.0f, "Kakumeikaigi");
+        _ = new LateTask(() => Utils.SendMessage("<size=175%><b>＿人人人人人人＿\n＞　</b><color=#ff1919>" + GetString("Skill.MadAvenger4") + "</color><b>　＜\n￣ＹＹＹＹＹＹ￣</b>\n\n<size=75%><line-height=1.8pic>" + GetString("Skill.MadAvengerInfo"), title: " <color=#ff1919>" + GetString("MadAvengerMeeting")), 11f, "Kakumeikaigi");
     }
     public List<PlayerControl> Guessd;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
@@ -134,7 +140,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         {
             if (!Is(voter))
             {
-                Utils.SendMessage(GetString("MadAvengerCantVote"), voter.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
+                Utils.SendMessage(GetString("Skill.MadAvengerCantVote"), voter.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
                 return false;
             }
             if (Is(voter)) //革命家の投票
@@ -164,9 +170,9 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                             {
                                 //革命成功
                                 _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger5"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 0.5f, "Kakumeiseikou");
-                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger6"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 1.5f, "Kakumeiseikou");
-                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger7"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 3.0f, "Kakumeiseikou");
-                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger8"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 4.5f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger6"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 3.5f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger7"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 6.5f, "Kakumeiseikou");
+                                _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger8"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 9.5f, "Kakumeiseikou");
                                 _ = new LateTask(() =>//殺害処理
                                 {
                                     foreach (var pc in Main.AllAlivePlayerControls)
@@ -185,7 +191,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                                     }
                                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
                                     CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
-                                }, 7f, "Kakumeiseikou");
+                                }, 15f, "Kakumeiseikou");
                                 return true;
                             }
                         }

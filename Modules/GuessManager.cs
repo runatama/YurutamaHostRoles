@@ -161,7 +161,7 @@ public static class GuessManager
                     if (NeuHantei(pc, target)) guesserSuicide = true;
 
                 //自殺が決まってないなら処理
-                if (CheckTargetRoles(target, role) && guesserSuicide)
+                if (CheckTargetRoles(target, role) && !guesserSuicide)
                 {
                     guesserSuicide = true;
                 }

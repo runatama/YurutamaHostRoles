@@ -189,6 +189,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
+        if (GameStates.Meeting) return "";
         //seenが省略の場合seer
         seen ??= seer;
         //seeおよびseenが自分である場合以外は関係なし

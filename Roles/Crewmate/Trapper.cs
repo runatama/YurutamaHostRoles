@@ -34,7 +34,6 @@ public sealed class Trapper : RoleBase
     }
 
     private static float BlockMoveTime;
-    public static bool Tora;
 
     private static void SetupOptionItem()
     {
@@ -49,11 +48,9 @@ public sealed class Trapper : RoleBase
         var tmpSpeed = Main.AllPlayerSpeed[killer.PlayerId];
         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed;
         ReportDeadBodyPatch.CanReport[killer.PlayerId] = false;
-        Tora = true;
         killer.MarkDirtySettings();
         _ = new LateTask(() =>
         {
-            Tora = false;
             Main.AllPlayerSpeed[killer.PlayerId] = tmpSpeed;
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
             killer.MarkDirtySettings();

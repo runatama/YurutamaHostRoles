@@ -301,7 +301,7 @@ public abstract class RoleBase : IDisposable
     /// <param name="enabled">RoleNameを表示するかどうか</param>
     /// <param name="roleColor">RoleNameの色</param>
     /// <param name="roleText">RoleNameのテキスト</param>
-    public virtual void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref Color roleColor, ref string roleText)
+    public virtual void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     { }
     /// <summary>
     /// seerによる表示上のRoleNameの書き換え
@@ -310,7 +310,7 @@ public abstract class RoleBase : IDisposable
     /// <param name="enabled">RoleNameを表示するかどうか</param>
     /// <param name="roleColor">RoleNameの色</param>
     /// <param name="roleText">RoleNameのテキスト</param>
-    public virtual void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText)
+    public virtual void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     { }
     /// <summary>
     /// 本来の役職名の書き換え
@@ -415,6 +415,11 @@ public abstract class RoleBase : IDisposable
     /// <returns>名前を変更するかどうか</returns>
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
 
+    /// <summary>
+    /// 覚醒等で使えたら!<br/>
+    /// 自身を別役職だと思い込む。
+    /// </summary>
+    public virtual CustomRoles Jikaku() => CustomRoles.NotAssigned;
     protected static AudioClip GetIntroSound(RoleTypes roleType) =>
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
     public static AudioClip GetIntrosound(RoleTypes roleType) =>

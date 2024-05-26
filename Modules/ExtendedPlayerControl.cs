@@ -364,6 +364,10 @@ namespace TownOfHost
         }
         public static Color GetRoleColor(this PlayerControl player)
         {
+            if (player.GetRoleClass() != null && player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+            {
+                return Utils.GetRoleColor(player.GetRoleClass().Jikaku());
+            }
             if (player.Is(CustomRoles.Amnesia))
             {
                 if (player.Is(CustomRoleTypes.Impostor)) return Palette.ImpostorRed;
@@ -423,6 +427,10 @@ namespace TownOfHost
 
             var roleCanUse = (pc.GetRoleClass() as IKiller)?.CanUseKillButton();
 
+            if (pc.Is(CustomRoles.SlowStarter) && !pc.Is(CustomRoles.Mafia))
+            {
+                roleCanUse = SlowStarter.CanUseKill();
+            }
             return roleCanUse ?? pc.Is(CustomRoleTypes.Impostor);
         }
         public static bool CanUseImpostorVentButton(this PlayerControl pc)
@@ -442,7 +450,7 @@ namespace TownOfHost
         public static void ResetKillCooldown(this PlayerControl player)
         {
             Main.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
-            if (player.PlayerId == LastImpostor.currentId)
+            if (player.PlayerId == LastImpostor.currentId && ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true))
                 LastImpostor.SetKillCooldown();
             if (player.PlayerId == LastNeutral.currentId && (player.GetRoleClass() is ILNKiller))
                 LastNeutral.SetKillCooldown();
@@ -515,7 +523,9 @@ namespace TownOfHost
         public static void NoCheckStartMeeting(this PlayerControl reporter, GameData.PlayerInfo target)
         { /*サボタージュ中でも関係なしに会議を起こせるメソッド
             targetがnullの場合はボタンとなる*/
+            Utils.MeetingMoji = $"<color={Main.ModColor}><u><i>★</color>" + "<color=#ffffff>" + GetString("MI.Kyousei") + "</i></u></color>";
             GameStates.Meeting = true;
+            GameStates.task = false;
             Utils.NotifyRoles(isForMeeting: true, ForceLoop: true, NoCache: true);
             MeetingRoomManager.Instance.AssignSelf(reporter, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
@@ -614,6 +624,10 @@ namespace TownOfHost
             var roleClass = player.GetRoleClass();
             var role = player.GetCustomRole();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
+            if (roleClass != null && roleClass?.Jikaku() != CustomRoles.NotAssigned)
+            {
+                role = roleClass.Jikaku();
+            }
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
                 InfoLong = false;
 
@@ -723,6 +737,7 @@ namespace TownOfHost
             }
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void OnlySeeMePet(this PlayerControl pc, string petid)
         {
             //Main.AllPlayerControls.Do(p => p.RpcSetPet("")); //ペットを全員視点消して本人視点のみ付けるRPCを送信

@@ -118,7 +118,15 @@ namespace TownOfHost
         public static OptionItem DisableUploadData;
         public static OptionItem DisableStartReactor;
         public static OptionItem DisableResetBreaker;
-
+        public static OptionItem DisableCatchFish;
+        public static OptionItem DisableDivertPower;
+        public static OptionItem DisableFuelEngins;
+        public static OptionItem DisableInspectSample;
+        public static OptionItem DisableRebootWifi;
+        public static OptionItem DisableInseki;
+        public static OptionItem disableCalibrateDistributor;
+        public static OptionItem disableVentCleaning;
+        public static OptionItem disableHelpCritter;
         //TaskBattle
         public static OptionItem TaskBattleSet;
         public static OptionItem TaskBattleCanVent;
@@ -130,7 +138,7 @@ namespace TownOfHost
         public static OptionItem TaskBattleTeamC;
         public static OptionItem TaskBattleTeamWinType;
         public static OptionItem TaskBattleTeamWinTaskc;
-
+        public static OptionItem TaskSoroeru;
         //デバイスブロック
         public static OptionItem DisableDevices;
         public static OptionItem DisableSkeldDevices;
@@ -358,6 +366,7 @@ namespace TownOfHost
         public static OptionItem CanseeVoteresult;
         public static OptionItem VRcanseemitidure;
         public static OptionItem Onlyseepet;
+        public static OptionItem CommnTaskResetAssing;
         public static OptionItem DisableTaskWin;
         public static OptionItem GhostCanSeeOtherRoles;
         public static OptionItem GhostCanSeeOtherTasks;
@@ -366,6 +375,7 @@ namespace TownOfHost
         public static OptionItem GhostIgnoreTasks;
         public static OptionItem GhostIgnoreAllTasks;
         public static OptionItem GhostCanSeeNumberOfButtonsOnOthers;
+        public static OptionItem GhostIgnoreKillflash;
         public static OptionItem CommsCamouflage;
         public static OptionItem RoleImpostor;
         public static OptionItem ALoversRole;
@@ -455,24 +465,26 @@ namespace TownOfHost
             RoleAssignManager.SetupOptionItem();
 
             //タスクバトル
-            TaskBattleSet = BooleanOptionItem.Create(100317, "TaskBattleSet", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle)
+            TaskBattleSet = BooleanOptionItem.Create(200317, "TaskBattleSet", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle)
                 .SetHeader(true)
                 .SetColorcode("#87crfa");
-            TaskBattleCanVent = BooleanOptionItem.Create(100307, "TaskBattleCanVent", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
+            TaskBattleCanVent = BooleanOptionItem.Create(200307, "TaskBattleCanVent", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattleVentCooldown = FloatOptionItem.Create(100308, "TaskBattleVentCooldown", new(0f, 99f, 1f), 5f, TabGroup.MainSettings, false).SetParent(TaskBattleCanVent)
+            TaskBattleVentCooldown = FloatOptionItem.Create(200308, "TaskBattleVentCooldown", new(0f, 99f, 1f), 5f, TabGroup.MainSettings, false).SetParent(TaskBattleCanVent)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattletaska = BooleanOptionItem.Create(100309, "TaskBattleTaska", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
-            TaskBattletaskc = BooleanOptionItem.Create(100311, "TaskBattleTaskc", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
-            TaskBattletasko = BooleanOptionItem.Create(100312, "TaskBattleTasko", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
-            TaskBattleTeamMode = BooleanOptionItem.Create(100313, "TaskBattleTeamMode", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
+            TaskBattletaska = BooleanOptionItem.Create(200309, "TaskBattleTaska", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
+            TaskBattletaskc = BooleanOptionItem.Create(200311, "TaskBattleTaskc", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
+            TaskBattletasko = BooleanOptionItem.Create(200312, "TaskBattleTasko", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
+            TaskBattleTeamMode = BooleanOptionItem.Create(200313, "TaskBattleTeamMode", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattleTeamC = FloatOptionItem.Create(100314, "TaskBattleTeamC", new(1f, 15f, 1f), 2f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
+            TaskBattleTeamC = FloatOptionItem.Create(200314, "TaskBattleTeamC", new(1f, 15f, 1f), 2f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattleTeamWinType = BooleanOptionItem.Create(100315, "TaskBattleTeamWT", false, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
+            TaskBattleTeamWinType = BooleanOptionItem.Create(200315, "TaskBattleTeamWT", false, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattleTeamWinTaskc = FloatOptionItem.Create(100316, "TaskBattleTeamWinTaskc", new(1f, 999f, 1f), 20f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamWinType)
+            TaskBattleTeamWinTaskc = FloatOptionItem.Create(200316, "TaskBattleTeamWinTaskc", new(1f, 999f, 1f), 20f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamWinType)
+                .SetGameMode(CustomGameMode.TaskBattle);
+            TaskSoroeru = BooleanOptionItem.Create(200318, "TaskSoroeru", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
                 .SetGameMode(CustomGameMode.TaskBattle);
 
             //特殊モード
@@ -570,6 +582,7 @@ namespace TownOfHost
             Autopsy.SetupCustomOption();
             Revenger.SetupCustomOption();
             Speeding.SetupCustomOption();
+            Guarding.SetupCustomOption();
             Management.SetupCustomOption();
             seeing.SetupCustomOption();
             Opener.SetupCustomOption();
@@ -577,6 +590,7 @@ namespace TownOfHost
             Moon.SetupCustomOption();
             //デバフ達
             Amnesia.SetupCustomOption();
+            SlowStarter.SetupCustomOption();
             Notvoter.SetupCustomOption();
             Elector.SetupCustomOption();
             NonReport.SetupCustomOption();
@@ -699,7 +713,24 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All);
             DisableResetBreaker = BooleanOptionItem.Create(100306, "DisableResetBreakerTask", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
                 .SetGameMode(CustomGameMode.All);
-
+            DisableCatchFish = BooleanOptionItem.Create(100307, "DisableCatchFish", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            DisableDivertPower = BooleanOptionItem.Create(100308, "DisableDivertPower", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            DisableFuelEngins = BooleanOptionItem.Create(100309, "DisableFuelEngins", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            DisableInspectSample = BooleanOptionItem.Create(100310, "DisableInspectSample", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            DisableRebootWifi = BooleanOptionItem.Create(100311, "DisableRebootWifi", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            DisableInseki = BooleanOptionItem.Create(100312, "DisableInseki", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            disableCalibrateDistributor = BooleanOptionItem.Create(100313, "disableCalibrateDistributor", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            disableVentCleaning = BooleanOptionItem.Create(100314, "disableVentCleaning", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
+            disableHelpCritter = BooleanOptionItem.Create(100315, "disableHelpCritter", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                .SetGameMode(CustomGameMode.All);
             //サボ
             Sabotage = BooleanOptionItem.Create(100800, "Sabotage", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
@@ -869,6 +900,9 @@ namespace TownOfHost
             GhostCanSeeNumberOfButtonsOnOthers = BooleanOptionItem.Create(901_006, "GhostCanSeeNumberOfButtonsOnOthers", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#666699");
+            GhostIgnoreKillflash = BooleanOptionItem.Create(901_007, "GhostIgnoreKillflash", true, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All)
+            .SetColorcode("#666699");
             GhostIgnoreTasks = BooleanOptionItem.Create(901_000, "GhostIgnoreTasks", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#666699");
@@ -888,6 +922,9 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(CanseeVoteresult);
             Onlyseepet = BooleanOptionItem.Create(900_004, "Onlyseepet", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#cc3366");
+            CommnTaskResetAssing = BooleanOptionItem.Create(900_005, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
 
@@ -924,7 +961,7 @@ namespace TownOfHost
                 .RegisterUpdateValueEvent(
                     (object obj, OptionItem.UpdateValueEventArgs args) => IRandom.SetInstanceById(args.CurrentValue)
                 );
-            sotodererukomando = BooleanOptionItem.Create(1_000_007, "sotodererukomando", false, TabGroup.MainSettings, false)
+            sotodererukomando = BooleanOptionItem.Create(1_000_007, "sotodererukomando", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#00c1ff");
 

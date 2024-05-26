@@ -33,6 +33,7 @@ public sealed class ShrineMaiden : RoleBase
         Repo = false;
         count = 0;
         mcount = 0;
+        kakusei = !Kakusei.GetBool();
         cantaskcount = Optioncantaskcount.GetFloat();
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
@@ -43,6 +44,8 @@ public sealed class ShrineMaiden : RoleBase
     private static OptionItem OptionVoteMode;
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
+    static OptionItem Kakusei;
+    bool kakusei;
     public float Max;
     public VoteMode Votemode;
     int count;
@@ -57,7 +60,8 @@ public sealed class ShrineMaiden : RoleBase
         Ucount,
         Votemode,
         cantaskcount,
-        meetingmc
+        meetingmc,
+        UKakusei
     }
     public enum VoteMode
     {
@@ -73,6 +77,7 @@ public sealed class ShrineMaiden : RoleBase
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, Option.cantaskcount, new(0, 99, 1), 5, false);
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
             .SetValueFormat(OptionFormat.Times);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, Option.UKakusei, true, false);
     }
 
     public override void Add()
@@ -105,11 +110,11 @@ public sealed class ShrineMaiden : RoleBase
         Oniku = 111;
     }
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (MadAvenger.Skill) return true;
-        if (Repo && Max > count && Is(voter) && MyTaskState.CompletedTasksCount >= cantaskcount && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Repo && Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
             {
@@ -160,7 +165,13 @@ public sealed class ShrineMaiden : RoleBase
         }
         else
         {
-            Utils.SendMessage(string.Format(GetString("ShrineMaidencollect"), Utils.GetPlayerColor(target1, true), Utils.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("ShrineMaidennotcollect"), Utils.GetPlayerColor(target1, true), Utils.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
+    }
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override bool OnCompleteTask()
+    {
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        return true;
     }
 }

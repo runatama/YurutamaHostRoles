@@ -15,7 +15,7 @@ public class Snitch : RoleBase
             CustomRoles.Snitch,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20500,
+            20550,
             SetupOptionItem,
             "sn",
             "#b8fb4f",

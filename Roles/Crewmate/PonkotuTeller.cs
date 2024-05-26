@@ -39,6 +39,7 @@ public sealed class PonkotuTeller : RoleBase
         cantaskcount = Optioncantaskcount.GetFloat();
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
+        kakusei = !Kakusei.GetBool();
     }
 
     private static OptionItem Optioncollect;
@@ -47,6 +48,8 @@ public sealed class PonkotuTeller : RoleBase
     private static OptionItem OptionVoteMode;
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
+    static OptionItem Kakusei;
+    bool kakusei;
     public float collect;
     public float Max;
     public bool srole;
@@ -64,7 +67,8 @@ public sealed class PonkotuTeller : RoleBase
         Votemode,
         tRole,
         cantaskcount,
-        meetingmc
+        meetingmc,
+        UKakusei
     }
     public enum VoteMode
     {
@@ -83,6 +87,7 @@ public sealed class PonkotuTeller : RoleBase
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, Option.cantaskcount, new(0, 99, 1), 5, false);
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
             .SetValueFormat(OptionFormat.Times);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, Option.UKakusei, true, false);
     }
 
     public override void Add()
@@ -98,11 +103,11 @@ public sealed class PonkotuTeller : RoleBase
         count = reader.ReadInt32();
     }
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (MadAvenger.Skill) return true;
-        if (Max > count && Is(voter) && MyTaskState.CompletedTasksCount >= cantaskcount && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
             {
@@ -153,5 +158,11 @@ public sealed class PonkotuTeller : RoleBase
             SendRPC();
             Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + $"..?" + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
+    }
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override bool OnCompleteTask()
+    {
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        return true;
     }
 }

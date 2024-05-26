@@ -6,6 +6,8 @@ using TownOfHost.Roles.Core.Interfaces;
 namespace TownOfHost.Roles.Neutral;
 public sealed class Jester : RoleBase, IKiller
 {
+    //Memo
+    //エンジニア置き換えのベントをいつかする。
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(Jester),

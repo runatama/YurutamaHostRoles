@@ -65,6 +65,7 @@ namespace TownOfHost.Roles.Neutral
             var (killer, target) = info.AttemptTuple;
 
             if (target.Is(CustomRoles.Bait)) return;
+            if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
             //登録
             killer.SetKillCooldown(KillCooldown);

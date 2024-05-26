@@ -33,6 +33,7 @@ namespace TownOfHost
             Main.LastLog = new Dictionary<byte, string>();
             Main.LastLogRole = new Dictionary<byte, string>();
             Main.LastLogPro = new Dictionary<byte, string>();
+            Main.Guard = new Dictionary<byte, int>();
 
             Main.SKMadmateNowCount = 0;
 
@@ -111,6 +112,7 @@ namespace TownOfHost
                 }
             }
 
+            RpcSetTasksPatch.HostFin = false;
             CustomRoleManager.Initialize();
             FallFromLadder.Reset();
             LastImpostor.Init();
@@ -121,6 +123,7 @@ namespace TownOfHost
             Serial.Init();
             Management.Init();
             Speeding.Init();
+            Guarding.Init();
             Connecting.Init();
             Opener.Init();
             Moon.Init();
@@ -139,6 +142,7 @@ namespace TownOfHost
             PlusVote.Init();
             Elector.Init();
             Water.Init();
+            SlowStarter.Init();
             Slacker.Init();
             Transparent.Init();
             Clumsy.Init();
@@ -155,16 +159,21 @@ namespace TownOfHost
             GameStates.AlreadyDied = false;
             GameStates.Intro = true;
             GameStates.task = false;
+            HudManagerPatch.ch = false;
             GameStates.AfterIntro = false;
             MeetingVoteManager.Voteresult = "";
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
+            Utils.MeetingMoji = "";
             Main.day = 1;
             Main.FixTaskNoPlayer.Clear();
             Utils.TaskCh = true;
             Main.saabo = false;
+            JackalDoll.side = 0;
+            Main.GameCount++;
             Main.Time = (Main.NormalOptions.DiscussionTime, Main.NormalOptions.VotingTime);
-            Main.gamelog = $"{GetString("GameLog")}\n<size=60%>{DateTime.Now:HH.mm.ss} [Start]\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
+            var c = string.Format(GetString("log.Start"), Main.GameCount);
+            Main.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= Main.AllAlivePlayerControls.Count())) Utils.CanVent = true;
             else Utils.CanVent = false;
         }
@@ -399,6 +408,7 @@ namespace TownOfHost
                 AddOnsAssignDataNotImp.AssignAddOnsFromList();
                 AddOnsAssignDataTeamImp.AssignAddOnsFromList();
                 AddOnsAssignData.AssignAddOnsFromList();
+                AddOnsAssignDataOnlyImp.AssignAddOnsFromList();
 
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
@@ -452,21 +462,42 @@ namespace TownOfHost
                 }
             }
             */
-            Utils.CountAlivePlayers(true);
-            Utils.SyncAllSettings();
-            SetColorPatch.IsAntiGlitchDisabled = false;
+
+            //コネクティングが1ならコネクティングを削除
+            if (Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Connecting)).Count() == 1)
+            {
+                Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Connecting)).ToArray().Do(
+                            p => PlayerState.GetByPlayerId(p.PlayerId).RemoveSubRole(CustomRoles.Connecting));
+            }
+
+            //役職選定後に処理する奴。
             foreach (var pc in Main.AllPlayerControls)
             {
+                //Log
                 var color = Palette.CrewmateBlue;
                 if (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate)) color = Palette.ImpostorRed;
                 if (pc.Is(CustomRoleTypes.Neutral)) color = Utils.GetRoleColor(pc.GetCustomRole());
                 Main.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
-                Main.LastLogRole[pc.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), GetString($"{pc.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(pc.PlayerId);
+                Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), GetString($"{pc.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(pc.PlayerId);
+                //FixTask
                 var roleClass = CustomRoleManager.GetByPlayerId(pc.PlayerId);
                 if (roleClass != null)
                     if (roleClass.HasTasks == HasTask.False)
                         Main.FixTaskNoPlayer.Add(pc);
+                //Addons
+                Main.Guard.Add(pc.PlayerId, 0);
+                if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.Guard;
+                if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
+                //RoleAddons
+                if (RoleAddAddons.AllData.TryGetValue(pc.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
+                {
+                    if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
+                    if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
+                }
             }
+            Utils.CountAlivePlayers(true);
+            Utils.SyncAllSettings();
+            SetColorPatch.IsAntiGlitchDisabled = false;
         }
         private static void AssignDesyncRole(CustomRoles role, List<PlayerControl> AllPlayers, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
         {

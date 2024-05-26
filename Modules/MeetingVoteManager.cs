@@ -92,20 +92,26 @@ public class MeetingVoteManager
             }
 
             //追加投票
-            if (roleNumVotes.HasValue)//プラスポートがない追加投票訳
+            if (roleNumVotes.HasValue)//追加投票訳
             {
-                logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {roleNumVotes.Value} に変更します");
-                numVotes = roleNumVotes.Value;
+                if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
+                {
+                    if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + data.AdditionalVote.GetInt() + PlusVote.AdditionalVote.GetInt();
+                    else numVotes = roleNumVotes.Value + data.AdditionalVote.GetInt();
+                }
+                else if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + PlusVote.AdditionalVote.GetInt();
+                else numVotes = roleNumVotes.Value;
+                logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {numVotes} に変更します");
             }
-            //追加投票
-            if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
+            else if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
             {
-                numVotes += data.AdditionalVote.GetInt();
+                if (player.Is(CustomRoles.PlusVote)) numVotes = data.AdditionalVote.GetInt() + PlusVote.AdditionalVote.GetInt() + 1;
+                else numVotes = data.AdditionalVote.GetInt() + 1;
             }
-            if (player.Is(CustomRoles.PlusVote))//プラスポート
+            else if (player.Is(CustomRoles.PlusVote))//プラスポート
             {
-                logger.Info($"プラスポート:{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {PlusVote.AdditionalVote.GetInt()} +1 に変更します");
-                numVotes += PlusVote.AdditionalVote.GetInt();
+                logger.Info($"プラスポート:{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {numVotes}+{PlusVote.AdditionalVote.GetInt()}  に変更します");
+                numVotes = PlusVote.AdditionalVote.GetInt();
             }
 
             if (player.Is(CustomRoles.Notvoter))
@@ -114,27 +120,26 @@ public class MeetingVoteManager
                 numVotes = 0;
             }
             else
-            if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var dat) && data.GiveAddons.GetBool() && dat.GiveNotvoter.GetBool())
-                if (!roleDoVote)
-                {
-                    logger.Info($"{role.Player.GetNameWithRole()} によって投票は取り消されます");
-                    doVote = roleDoVote;
-                }
-                else
-                if (player.Is(CustomRoles.Elector) && voteFor == Skip)
+            if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveNotvoter.GetBool())
+            {
+                logger.Info($"{role.Player.GetNameWithRole()} の {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を 0 に変更します");
+                numVotes = 0;
+            }
+
+            if (player.Is(CustomRoles.Elector) && voteFor == Skip)
+            {
+                logger.Info($"{role.Player.GetNameWithRole()} スキップ投票は取り消されます");
+                doVote = false;
+            }
+            else
+            if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var da))
+            {
+                if (da.GiveElector.GetBool() && voteFor == Skip)
                 {
                     logger.Info($"{role.Player.GetNameWithRole()} スキップ投票は取り消されます");
                     doVote = false;
                 }
-                else
-                if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var da))
-                {
-                    if (da.GiveElector.GetBool() && voteFor == Skip)
-                    {
-                        logger.Info($"{role.Player.GetNameWithRole()} スキップ投票は取り消されます");
-                        doVote = false;
-                    }
-                }
+            }
         }
 
         if (doVote)

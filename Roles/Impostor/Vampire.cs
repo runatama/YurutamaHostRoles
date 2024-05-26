@@ -33,16 +33,21 @@ namespace TownOfHost.Roles.Impostor
             KillDelay = OptionKillDelay.GetFloat();
 
             BittenPlayers.Clear();
+            Spped = SpeedDownCount.GetFloat();
+            tmpSpeed = Main.NormalOptions.PlayerSpeedMod;
         }
 
         static OptionItem OptionKillDelay;
+        static OptionItem SpeedDown;
+        static OptionItem SpeedDownCount;
         enum OptionName
         {
-            VampireKillDelay
+            VampireKillDelay, VamSpeedDown, VamSpeedDownCount
         }
 
         static float KillDelay;
-
+        static float Spped;
+        static float tmpSpeed;
         public bool CanBeLastImpostor { get; } = false;
         Dictionary<byte, float> BittenPlayers = new(14);
 
@@ -50,6 +55,9 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.VampireKillDelay, new(1f, 1000f, 1f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
+            SpeedDown = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VamSpeedDown, true, false);
+            SpeedDownCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.VamSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown)
+            .SetValueFormat(OptionFormat.Seconds);
         }
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
@@ -57,6 +65,7 @@ namespace TownOfHost.Roles.Impostor
             var (killer, target) = info.AttemptTuple;
 
             if (target.Is(CustomRoles.Bait)) return;
+            if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
 
             //誰かに噛まれていなければ登録
@@ -82,15 +91,41 @@ namespace TownOfHost.Roles.Impostor
                 else
                 {
                     BittenPlayers[targetId] += Time.fixedDeltaTime;
+
+                    if (SpeedDown.GetBool() && timer >= Spped)
+                    {
+                        var target = Utils.GetPlayerById(targetId);
+                        if (target.IsAlive())
+                        {
+                            var x = KillDelay - Spped;
+                            float Swariai = (KillDelay - Spped - (timer - Spped)) / x;
+                            float Sp = tmpSpeed * Swariai;
+
+                            if (KillDelay - timer <= 0.5f) Sp = Main.MinSpeed;//これは残り0,5sになったら静止させてｳｸﾞｯ...ｺｺﾏﾃﾞｶｯ...ってするやつ。
+
+                            if (Sp >= Main.MinSpeed && Sp < tmpSpeed)
+                            {
+                                Main.AllPlayerSpeed[target.PlayerId] = Sp;
+                                target.MarkDirtySettings();
+                                //Logger.Info($"OK:{Sp}", "Vam");
+                            }
+                            //else
+                            //Logger.Info($"Fall:{Sp}", "Vam");
+                        }
+                    }
                 }
             }
         }
-        public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, GameData.PlayerInfo __)
         {
             foreach (var targetId in BittenPlayers.Keys)
             {
                 var target = Utils.GetPlayerById(targetId);
                 KillBitten(target, true);
+                if (repo == target)
+                {
+                    ReportDeadBodyPatch.DieCheckReport(repo, __);
+                }
             }
             BittenPlayers.Clear();
         }
@@ -108,6 +143,20 @@ namespace TownOfHost.Roles.Impostor
         private void KillBitten(PlayerControl target, bool isButton = false)
         {
             var vampire = Player;
+
+            _ = new LateTask(() =>
+            {
+                Main.AllPlayerSpeed[target.PlayerId] = tmpSpeed;
+
+                if (target.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[target.PlayerId] = AddOns.Common.Speeding.Speed;
+                //RoleAddons
+                if (RoleAddAddons.AllData.TryGetValue(target.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
+                {
+                    if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[target.PlayerId] = d.Speed.GetFloat();
+                }
+                _ = new LateTask(() => target.MarkDirtySettings(), 0.9f, "Do-ki");
+            }, 0.4f, "Modosu");
+
             if (target.IsAlive())
             {
                 PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
@@ -126,6 +175,7 @@ namespace TownOfHost.Roles.Impostor
             {
                 Logger.Info($"Vampireに噛まれている{target.name}はすでに死んでいました。", "Vampire.KillBitten");
             }
+
         }
     }
 }
