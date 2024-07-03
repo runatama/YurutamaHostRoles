@@ -31,41 +31,41 @@ namespace TownOfHost.Roles.Impostor
         {
             KillDelay = OptionKillDelay.GetFloat();
             Blastrange = OptionBlastrange.GetFloat();
-            ExplosionPlayers.Clear();
-            Explosion = OptionExplosion.GetInt();
+            BomberExplosionPlayers.Clear();
+            BomberExplosion = OptionBomberExplosion.GetInt();
             Cooldown = OptionCooldown.GetFloat();
-            ExplosionMode = false;
+            BomberExplosionMode = false;
         }
 
         static OptionItem OptionKillDelay;
         static OptionItem OptionBlastrange;
-        static OptionItem OptionExplosion;
+        static OptionItem OptionBomberExplosion;
         static OptionItem OptionCooldown;
         static OptionItem OptionOC;
         enum OptionName
         {
             BomberKillDelay,
             blastrange,
-            Explosion,
+            BomberExplosion,
             Cooldown,
             UOcShButton
         }
 
         static float KillDelay;
         static float Blastrange = 1;
-        int Explosion;
-        bool ExplosionMode;
+        int BomberExplosion;
+        bool BomberExplosionMode;
         static float Cooldown;
 
         public bool CanBeLastImpostor { get; } = false;
-        Dictionary<byte, float> ExplosionPlayers = new(14);
+        Dictionary<byte, float> BomberExplosionPlayers = new(14);
 
         private static void SetupOptionItem()
         {
             OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.BomberKillDelay, new(1f, 1000f, 1f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionBlastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(1f, 30f, 0.5f), 1f, false);
-            OptionExplosion = IntegerOptionItem.Create(RoleInfo, 12, OptionName.Explosion, new(1, 99, 1), 2, false);
+            OptionBomberExplosion = IntegerOptionItem.Create(RoleInfo, 12, OptionName.BomberExplosion, new(1, 99, 1), 2, false);
             OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.Cooldown, new(0f, 999f, 1f), 0, false);
             OptionOC = BooleanOptionItem.Create(RoleInfo, 14, OptionName.UOcShButton, false, false);
         }
@@ -73,18 +73,18 @@ namespace TownOfHost.Roles.Impostor
         private void SendRPC()
         {
             using var sender = CreateSender();
-            sender.Writer.Write(Explosion);
-            sender.Writer.Write(ExplosionMode);
+            sender.Writer.Write(BomberExplosion);
+            sender.Writer.Write(BomberExplosionMode);
         }
         public override void ReceiveRPC(MessageReader reader)
         {
-            Explosion = reader.ReadInt32();
-            ExplosionMode = reader.ReadBoolean();
+            BomberExplosion = reader.ReadInt32();
+            BomberExplosionMode = reader.ReadBoolean();
         }
 
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
-            if (!ExplosionMode) return;
+            if (!BomberExplosionMode) return;
             if (!info.CanKill) return; //キル出来ない相手には無効
             var (killer, target) = info.AttemptTuple;
 
@@ -93,43 +93,43 @@ namespace TownOfHost.Roles.Impostor
             if (info.IsFakeSuicide) return;
 
             //誰かに噛まれていなければ登録
-            if (!ExplosionPlayers.ContainsKey(target.PlayerId))
+            if (!BomberExplosionPlayers.ContainsKey(target.PlayerId))
             {
-                Explosion--;
+                BomberExplosion--;
                 SendRPC();
-                ExplosionMode = false;
+                BomberExplosionMode = false;
                 killer.RpcResetAbilityCooldown();
                 killer.SetKillCooldown();
-                ExplosionPlayers.Add(target.PlayerId, 0f);
+                BomberExplosionPlayers.Add(target.PlayerId, 0f);
                 Utils.NotifyRoles(SpecifySeer: Player);
             }
             info.DoKill = false;
         }
         public override void OnShapeshift(PlayerControl target)
         {
-            if (target.PlayerId != Player.PlayerId && 0 < Explosion && !UseOCButton)
+            if (target.PlayerId != Player.PlayerId && 0 < BomberExplosion && !UseOCButton)
             {
-                ExplosionMode = !ExplosionMode;
+                BomberExplosionMode = !BomberExplosionMode;
             }
         }
         public void OnClick()
         {
             var target = Player.GetKillTarget();
-            if (0 >= Explosion || target == null) return;
-            Explosion--;
+            if (0 >= BomberExplosion || target == null) return;
+            BomberExplosion--;
             SendRPC();
-            ExplosionMode = false;
+            BomberExplosionMode = false;
             Player.RpcResetAbilityCooldown();
             Player.RpcProtectedMurderPlayer(target);
-            ExplosionPlayers.Add(target.PlayerId, 0f);
+            BomberExplosionPlayers.Add(target.PlayerId, 0f);
             Utils.NotifyRoles(SpecifySeer: Player);
         }
-        public override string GetProgressText(bool comms = false) => ExplosionMode ? "<color=red>◆" : "" + Utils.ColorString(0 < Explosion ? Color.red : Color.gray, $"({Explosion})");
+        public override string GetProgressText(bool comms = false) => BomberExplosionMode ? "<color=red>◆" : "" + Utils.ColorString(0 < BomberExplosion ? Color.red : Color.gray, $"({BomberExplosion})");
         public override void OnFixedUpdate(PlayerControl _)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
 
-            foreach (var (targetId, timer) in ExplosionPlayers.ToArray())
+            foreach (var (targetId, timer) in BomberExplosionPlayers.ToArray())
             {
                 if (timer >= KillDelay)
                 {
@@ -152,24 +152,24 @@ namespace TownOfHost.Roles.Impostor
                         }
                     }
 
-                    ExplosionPlayers.Remove(targetId);
+                    BomberExplosionPlayers.Remove(targetId);
                 }
                 else
                 {
-                    ExplosionPlayers[targetId] += Time.fixedDeltaTime;
+                    BomberExplosionPlayers[targetId] += Time.fixedDeltaTime;
                 }
             }
         }
 
         public bool UseOCButton => OptionOC.GetBool();
-        public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
         {
-            ExplosionPlayers.Clear();
+            BomberExplosionPlayers.Clear();
         }
         public bool OverrideKillButtonText(out string text)
         {
             text = GetString("BomberButtonText");
-            if (!ExplosionMode) return false;
+            if (!BomberExplosionMode) return false;
             return true;
         }
         public override void ApplyGameOptions(IGameOptions opt)

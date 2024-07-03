@@ -35,14 +35,14 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     static OptionItem ImpRepo;
     enum Option
     {
-        MBrandomrepo, MBImprepo
+        MadBaitRandomReport, MadBaitIgnoreImpostor
     }
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
     public static void SetupOptionItem()
     {
-        RandomRepo = BooleanOptionItem.Create(RoleInfo, 10, Option.MBrandomrepo, true, false);
-        ImpRepo = BooleanOptionItem.Create(RoleInfo, 11, Option.MBImprepo, false, false, RandomRepo);
+        RandomRepo = BooleanOptionItem.Create(RoleInfo, 10, Option.MadBaitRandomReport, true, false);
+        ImpRepo = BooleanOptionItem.Create(RoleInfo, 11, Option.MadBaitIgnoreImpostor, false, false, RandomRepo);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
@@ -54,7 +54,7 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             var nise = Main.AllAlivePlayerControls.Where(x => !x.GetCustomRole().IsImpostor() && !x.Is(CustomRoles.WolfBoy)).ToArray();
             if (!ImpRepo.GetBool()) nise = Main.AllAlivePlayerControls.ToArray();
             var rand = IRandom.Instance;
-            var P = nise[rand.Next(0, nise.Count())];
+            var P = nise[rand.Next(0, nise.Length)];
             _ = new LateTask(() => P.CmdReportDeadBody(target.Data), 0.15f, "Bait Self Report");
         }
     }

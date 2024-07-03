@@ -41,6 +41,7 @@ public interface IKiller
 
     /// <summary>
     /// キラーとしてのCheckMurder処理<br/>
+    /// <br/>"※キル後の処理をここでしない"<br/><br/>
     /// 通常キルはブロックされることを考慮しなくてもよい。<br/>
     /// 通常キル以外の能力はinfo.CanKill=falseの場合は効果発揮しないよう実装する。<br/>
     /// キルを行わない場合はinfo.DoKill=falseとする。

@@ -107,6 +107,14 @@ namespace TownOfHost
                         // SnapTo先が湧き位置だったら湧き処理に進む
                         if (IsAirshipVanillaSpawnPosition(position))
                         {
+                            if (!state.TeleportedWithAntiBlackout && !MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool())
+                            {
+                                state.SpawnPoint = position;
+                                player.RpcSnapToForced(new(999f, 999f));
+                                player.RpcProtectedMurderPlayer();
+                                state.TeleportedWithAntiBlackout = true;
+                                return false;
+                            }
                             AirshipSpawn(player);
                             return false;
                         }
@@ -164,13 +172,22 @@ namespace TownOfHost
                     return false;
                 }
                 // ランダムスポーンが有効ならバニラの湧きをキャンセル
-                if (IsRandomSpawn())
+                if (IsRandomSpawn() || (!MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool()))
                 {
                     // バニラ処理のRpcSnapToForcedをAirshipSpawnに置き換えたもの
                     __instance.gotButton = true;
                     PlayerControl.LocalPlayer.SetKinematic(true);
                     PlayerControl.LocalPlayer.NetTransform.SetPaused(true);
-                    AirshipSpawn(PlayerControl.LocalPlayer);
+                    var state = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId);
+                    if (!state.TeleportedWithAntiBlackout && !MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool())
+                    {
+                        state.SpawnPoint = spawnPoint.Location;
+                        PlayerControl.LocalPlayer.RpcSnapToForced(new(999f, 999f));
+                        PlayerControl.LocalPlayer.RpcProtectedMurderPlayer();
+                        state.TeleportedWithAntiBlackout = true;
+                    }
+                    else
+                        AirshipSpawn(PlayerControl.LocalPlayer);
                     DestroyableSingleton<HudManager>.Instance.PlayerCam.SnapToTarget();
                     __instance.StopAllCoroutines();
                     __instance.StartCoroutine(__instance.CoSpawnAt(PlayerControl.LocalPlayer, spawnPoint));
@@ -241,7 +258,7 @@ namespace TownOfHost
         public static void SetupCustomOption()
         {
             // Skeld
-            Options.RandomSpawnSkeld = BooleanOptionItem.Create(103000, StringNames.MapNameSkeld, false, TabGroup.MainSettings, false).SetColorcode("#888888").SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
+            Options.RandomSpawnSkeld = BooleanOptionItem.Create(103000, StringNames.MapNameSkeld, false, TabGroup.MainSettings, false).SetColorcode("#666666").SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnSkeldCafeteria = BooleanOptionItem.Create(103001, StringNames.Cafeteria, true, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnSkeld).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnSkeldWeapons = BooleanOptionItem.Create(103002, StringNames.Weapons, true, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnSkeld).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnSkeldShields = BooleanOptionItem.Create(103003, StringNames.Shields, true, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnSkeld).SetGameMode(CustomGameMode.All);
@@ -273,7 +290,7 @@ namespace TownOfHost
             Options.RandomSpawnMiraOffice = BooleanOptionItem.Create(103113, StringNames.Office, false, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnMira).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnMiraGreenhouse = BooleanOptionItem.Create(103114, StringNames.Greenhouse, false, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnMira).SetGameMode(CustomGameMode.All);
             // Polus
-            Options.RandomSpawnPolus = BooleanOptionItem.Create(103200, StringNames.MapNamePolus, false, TabGroup.MainSettings, false).SetColorcode("#660066").SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
+            Options.RandomSpawnPolus = BooleanOptionItem.Create(103200, StringNames.MapNamePolus, false, TabGroup.MainSettings, false).SetColorcode("#980098").SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnPolusOfficeLeft = BooleanOptionItem.Create(103201, SpawnPoint.OfficeLeft, true, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnPolus).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnPolusBoilerRoom = BooleanOptionItem.Create(103202, StringNames.BoilerRoom, true, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnPolus).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnPolusSecurity = BooleanOptionItem.Create(103203, StringNames.Security, true, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnPolus).SetGameMode(CustomGameMode.All);

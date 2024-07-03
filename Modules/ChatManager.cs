@@ -55,6 +55,7 @@ namespace TownOfHost.Modules.ChatManager
             if (CheckCommond(ref msg, "bt", false)) operate = 2;
             else if (CommandCheck(message)) operate = 1;
             else if (me == msg) operate = 5;
+            else if (message.RemoveHtmlTags() != message) operate = 5;//tagが含まれてるならシステムメッセ
 
             if (operate == 1)
             {

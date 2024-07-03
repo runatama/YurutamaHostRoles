@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Hazel;
 using UnityEngine;
 using AmongUs.GameOptions;
@@ -47,8 +46,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
     {
         SheriffShotLimit,
         SheriffCanKillAllAlive,
-        ImpostorVision,
-        Shurenekodotti
+        WolfBoySchrodingerCatTime
     }
     public static Dictionary<SchrodingerCat.TeamType, OptionItem> SchrodingerCatKillTargetOptions = new();
     public int ShotLimit = 0;
@@ -59,13 +57,14 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
     public override CustomRoles GetFtResults(PlayerControl player) => CustomRoles.Impostor;
     private static void SetupOptionItem()
     {
-        KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 990f, 1f), 30f, false)
+        KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
+        Options.OverrideKilldistance.Create(RoleInfo, 8);
         ShotLimitOpt = IntegerOptionItem.Create(RoleInfo, 11, OptionName.SheriffShotLimit, new(1, 15, 1), 15, false)
             .SetValueFormat(OptionFormat.Times);
         CanKillAllAlive = BooleanOptionItem.Create(RoleInfo, 12, OptionName.SheriffCanKillAllAlive, true, false);
-        ImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, OptionName.ImpostorVision, true, false);
-        Shurenekodotti = BooleanOptionItem.Create(RoleInfo, 14, OptionName.Shurenekodotti, false, false);
+        ImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
+        Shurenekodotti = BooleanOptionItem.Create(RoleInfo, 14, OptionName.WolfBoySchrodingerCatTime, false, false);
     }
     public override void Add()
     {
@@ -109,10 +108,10 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
             }
             ShotLimit--;
             SendRPC();
-            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTR))
+            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTairo))
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
                 killer.RpcMurderPlayer(killer);
                 info.DoKill = false;
                 return;
@@ -141,5 +140,10 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoleTypes.Impostor => cRole is not CustomRoles.Tairou,
             _ => true,
         };
+    }
+    public bool OverrideKillButton(out string text)
+    {
+        text = "WolfBoy_Kill";
+        return true;
     }
 }

@@ -86,7 +86,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         }
     }
 
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         Name.Clear();
         if (!Player.IsAlive())

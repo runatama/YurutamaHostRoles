@@ -18,7 +18,7 @@ public sealed class MeetingSheriff : RoleBase
             CustomRoles.MeetingSheriff,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20500,
+            20600,
             SetupOptionItem,
             "Ms",
             "#f8cd46",
@@ -33,21 +33,21 @@ public sealed class MeetingSheriff : RoleBase
         Max = OptionSheriffShotLimit.GetFloat();
         count = 0;
         mcount = 0;
-        cankillMad = OptioncankillMad.GetBool();
-        cankillN = OptioncankillN.GetBool();
+        MeetingSheriffCanKillMadMate = OptionMeetingSheriffCanKillMadMate.GetBool();
+        MeetingSheriffCanKillNeutrals = OptionMeetingSheriffCanKillNeutrals.GetBool();
         cantaskcount = Optioncantaskcount.GetFloat();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
     }
 
     private static OptionItem OptionSheriffShotLimit;
-    private static OptionItem OptioncankillMad;
-    private static OptionItem OptioncankillN;
+    private static OptionItem OptionMeetingSheriffCanKillMadMate;
+    private static OptionItem OptionMeetingSheriffCanKillNeutrals;
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
     public float Max;
     float cantaskcount;
-    bool cankillMad;
-    bool cankillN;
+    bool MeetingSheriffCanKillMadMate;
+    bool MeetingSheriffCanKillNeutrals;
     int count;
     float onemeetingmaximum;
     float mcount;
@@ -56,8 +56,8 @@ public sealed class MeetingSheriff : RoleBase
     {
         SheriffShotLimit,
         cantaskcount,//効果を発揮タスク数
-        cankillMad,
-        cankillN,
+        MeetingSheriffCanKillMadMate,
+        MeetingSheriffCanKillNeutrals,
         meetingmc
     }
     private static void SetupOptionItem()
@@ -65,9 +65,9 @@ public sealed class MeetingSheriff : RoleBase
         OptionSheriffShotLimit = FloatOptionItem.Create(RoleInfo, 10, Option.SheriffShotLimit, new(1f, 15f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 11, Option.cantaskcount, new(0, 99, 1), 5, false);
-        OptioncankillMad = BooleanOptionItem.Create(RoleInfo, 12, Option.cankillMad, true, false);
-        OptioncankillN = BooleanOptionItem.Create(RoleInfo, 13, Option.cankillN, true, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
+        OptionMeetingSheriffCanKillMadMate = BooleanOptionItem.Create(RoleInfo, 12, Option.MeetingSheriffCanKillMadMate, true, false);
+        OptionMeetingSheriffCanKillNeutrals = BooleanOptionItem.Create(RoleInfo, 13, Option.MeetingSheriffCanKillNeutrals, true, false);
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
     }
 
@@ -113,13 +113,13 @@ public sealed class MeetingSheriff : RoleBase
         mcount++;//1会議のカウント
         SendRPC();
 
-        if (CanBeKilledBy(target.GetCustomRole()) && !(target.Is(CustomRoles.Alien) && Alien.modeTR))
+        if (CanBeKilledBy(target.GetCustomRole()) && !(target.Is(CustomRoles.Alien) && Alien.modeTairo))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
             target.RpcExileV2();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
-            Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [MeetingSheriff]　{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId)}]";
+            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MeetingSheriff]　{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]";
             Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>)";
 
             Logger.Info($"{Player.GetNameWithRole()}がシェリフ成功({target.GetNameWithRole()}) 残り{Max - count}", "MeetingSheriff");
@@ -149,9 +149,9 @@ public sealed class MeetingSheriff : RoleBase
         }
         state = PlayerState.GetByPlayerId(Player.PlayerId);
         Player.RpcExileV2();
-        state.DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+        state.DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
         state.SetDead();
-        Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [MeetingSheriff]　{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId)}]";
+        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MeetingSheriff]　{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]";
         Main.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>)";
 
         Logger.Info($"{Player.GetNameWithRole()}がシェリフ失敗({target.GetNameWithRole()}) 残り{Max - count}", "MeetingSheriff");
@@ -182,13 +182,13 @@ public sealed class MeetingSheriff : RoleBase
     }
     bool CanBeKilledBy(CustomRoles role)
     {
-        if (role == CustomRoles.SKMadmate) return cankillMad;
-        if (role == CustomRoles.Jackaldoll) return cankillN;
+        if (role == CustomRoles.SKMadmate) return MeetingSheriffCanKillMadMate;
+        if (role == CustomRoles.Jackaldoll) return MeetingSheriffCanKillNeutrals;
         return role.GetCustomRoleTypes() switch
         {
             CustomRoleTypes.Impostor => role is not CustomRoles.Tairou,
-            CustomRoleTypes.Madmate => cankillMad,
-            CustomRoleTypes.Neutral => cankillN,
+            CustomRoleTypes.Madmate => MeetingSheriffCanKillMadMate,
+            CustomRoleTypes.Neutral => MeetingSheriffCanKillNeutrals,
             CustomRoleTypes.Crewmate => role is CustomRoles.WolfBoy,
             _ => false
         };

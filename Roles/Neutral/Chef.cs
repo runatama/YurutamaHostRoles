@@ -16,8 +16,8 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
             CustomRoles.Chef,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            60000,
-            null,
+            59000,
+            SetUpOptionItem,
             "ch",
             "#ff6633",
             true,
@@ -35,6 +35,10 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
 
     public bool CanKill { get; private set; } = false;
     public List<byte> ChefTarget;
+    public static void SetUpOptionItem()
+    {
+        Options.OverrideKilldistance.Create(RoleInfo, 10);
+    }
     public bool CanUseSabotageButton() => false;
     public bool CanUseImpostorVentButton() => false;
     public bool CanUseKillButton() => true;
@@ -43,7 +47,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         text = GetString("ChefButtonText");
         return true;
     }
-    public float CalculateKillCooldown() => 1f;
+    public float CalculateKillCooldown() => 0.1f;
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(false);
@@ -76,6 +80,12 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     {
         //seenが省略の場合seer
         seen ??= seer;
+        if (seer == seen)
+        {
+            var c = GetCtargetCount();
+            return Player.IsAlive() && c.Item1 == c.Item2 ? "<color=#dddd00>★</color>" : "";
+        }
+        else
         if (ChefTarget.Contains(seen.PlayerId))
             return Utils.ColorString(RoleInfo.RoleColor, "▲");
         else return "";
@@ -103,7 +113,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         var c = GetCtargetCount();
         return Player.IsAlive() && c.Item1 == c.Item2;
     }
-    public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
         var c = GetCtargetCount();

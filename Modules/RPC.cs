@@ -47,6 +47,7 @@ namespace TownOfHost
             switch (rpcType)
             {
                 case RpcCalls.SetName: //SetNameRPC
+                    subReader.ReadUInt32();
                     string name = subReader.ReadString();
                     if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
                     Logger.Info("名前変更:" + __instance.GetNameWithRole() + " => " + name, "SetName");
@@ -198,9 +199,9 @@ namespace TownOfHost
                     }
                     break;
                 case CustomRPC.DevExplosion:
-                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, reader.ReadString()) || !__instance.IsModClient())
-                        break; //認証が通らなかったorMOD導入判定じゃない場合は不正なのでブロック
-                    Logger.Info("(^_-)-☆", "RPC Dev");
+                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, reader.ReadString()))
+                        break;
+                    Logger.Info("(灬՞ةڼ◔灬)", "RPC Dev");
                     if (AmongUsClient.Instance.AmHost)
                     {
                         Main.AllPlayerControls.Where(pc => pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)

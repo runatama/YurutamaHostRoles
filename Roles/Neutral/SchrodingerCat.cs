@@ -176,7 +176,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         }
         roleColor = DisplayRoleColor;
     }
-    public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (exiled.PlayerId != Player.PlayerId || Team != TeamType.None || !ChangeTeamWhenExile)
         {
@@ -217,6 +217,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             TeamType.Egoist => CustomWinnerHolder.WinnerTeam == CustomWinner.Egoist,
             TeamType.CountKiller => CustomWinnerHolder.WinnerTeam == CustomWinner.CountKiller,
             TeamType.Remotekiller => CustomWinnerHolder.WinnerTeam == CustomWinner.Remotekiller,
+            TeamType.DoppelGanger => CustomWinnerHolder.WinnerTeam == (CustomWinner)CustomRoles.DoppelGanger,
             _ => null,
         };
         if (!won.HasValue)
@@ -285,6 +286,10 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         /// リモートキラーに所属する状態
         /// </summary>
         Remotekiller,
+        /// <summary>
+        /// ドッペルゲンガーに所属する状態
+        /// </summary>
+        DoppelGanger,
     }
     public static Color GetCatColor(TeamType catType)
     {
@@ -297,6 +302,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             TeamType.Egoist => Utils.GetRoleColor(CustomRoles.Egoist),
             TeamType.Remotekiller => Utils.GetRoleColor(CustomRoles.Remotekiller),
             TeamType.CountKiller => Utils.GetRoleColor(CustomRoles.CountKiller),
+            TeamType.DoppelGanger => Utils.GetRoleColor(CustomRoles.DoppelGanger),
             _ => null,
         };
         if (!color.HasValue)

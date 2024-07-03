@@ -39,9 +39,9 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         CurrentKillCooldown = KillCooldown.GetFloat();
     }
 
-    private static OptionItem KillCooldown;
+    public static OptionItem KillCooldown;
     private static OptionItem MisfireKillsTarget;
-    private static OptionItem ShotLimitOpt;
+    public static OptionItem ShotLimitOpt;
     private static OptionItem CanKillAllAlive;
     public static OptionItem CanKillNeutrals;
     enum OptionName
@@ -65,8 +65,9 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
 
     private static void SetupOptionItem()
     {
-        KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 990f, 1f), 30f, false)
+        KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 990f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
+        Options.OverrideKilldistance.Create(RoleInfo, 8);
         MisfireKillsTarget = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SheriffMisfireKillsTarget, false, false);
         ShotLimitOpt = IntegerOptionItem.Create(RoleInfo, 12, OptionName.SheriffShotLimit, new(1, 15, 1), 15, false)
             .SetValueFormat(OptionFormat.Times);
@@ -156,10 +157,10 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             }
             ShotLimit--;
             SendRPC();
-            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTR))
+            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTairo))
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.DeathReasonTairo ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.DeathReasonTairo ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
                 killer.RpcMurderPlayer(killer);
                 if (!MisfireKillsTarget.GetBool())
                 {

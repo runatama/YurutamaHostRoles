@@ -33,36 +33,36 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         mg.Clear();
         Cooldown = OptionColldown.GetFloat();
         Use = OptionMax.GetInt();
-        ResetMeeting = OptionResetMeeting.GetBool();
-        Resetse = OptionResetse.GetFloat();
+        AntiReporterResetMeeting = OptionAntiReporterResetMeeting.GetBool();
+        AntiReporterResetse = OptionAntiReporterResetse.GetFloat();
     }
     bool megaphone;
     Dictionary<byte, float> mg = new(14);
     static OptionItem OptionColldown;
     static OptionItem OptionMax;
-    static OptionItem OptionResetMeeting;
-    static OptionItem OptionResetse;
+    static OptionItem OptionAntiReporterResetMeeting;
+    static OptionItem OptionAntiReporterResetse;
     static OptionItem OptionOC;
     enum OptionName
     {
         Cooldown,
-        MaximumA,
-        ResetMeeting,
-        Resetse,
+        AntiReporterMaximum,
+        AntiReporterResetMeeting,
+        AntiReporterResetse,
         UOcShButton
     }
     static float Cooldown;
     static int Use;
-    static bool ResetMeeting;
-    static float Resetse;
+    static bool AntiReporterResetMeeting;
+    static float AntiReporterResetse;
     private static void SetupOptionItem()
     {
         OptionColldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.Cooldown, new(1f, 1000f, 1f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionMax = IntegerOptionItem.Create(RoleInfo, 11, OptionName.MaximumA, new(1, 1000, 1), 3, false)
+        OptionMax = IntegerOptionItem.Create(RoleInfo, 11, OptionName.AntiReporterMaximum, new(1, 1000, 1), 3, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionResetMeeting = BooleanOptionItem.Create(RoleInfo, 12, OptionName.ResetMeeting, true, false);
-        OptionResetse = FloatOptionItem.Create(RoleInfo, 13, OptionName.Resetse, new(0f, 999f, 1f), 20f, false)
+        OptionAntiReporterResetMeeting = BooleanOptionItem.Create(RoleInfo, 12, OptionName.AntiReporterResetMeeting, true, false);
+        OptionAntiReporterResetse = FloatOptionItem.Create(RoleInfo, 13, OptionName.AntiReporterResetse, new(0f, 999f, 1f), 20f, false, infinity: true)
             .SetValueFormat(OptionFormat.Seconds);
         OptionOC = BooleanOptionItem.Create(RoleInfo, 14, OptionName.UOcShButton, false, false);
     }
@@ -115,14 +115,14 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
     }
     public bool UseOCButton => OptionOC.GetBool();
     public override string GetProgressText(bool comms = false) => megaphone ? "<color=red>◆" : "" + Utils.ColorString(Use > 0 ? Color.red : Color.gray, $"({Use})");
-    public override bool CancelReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         Logger.Info("!!!", "mg");
         return mg.ContainsKey(reporter.PlayerId);
     }
     public bool OverrideKillButtonText(out string text)
     {
-        text = Resetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText");
+        text = AntiReporterResetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText");
         if (!megaphone) return false;
         if (OptionOC.GetBool()) return false;
         return true;
@@ -130,21 +130,21 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
     public override string GetAbilityButtonText()
     {
         if (!OptionOC.GetBool()) return "";
-        return Resetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText"); ;
+        return AntiReporterResetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText"); ;
     }
 
     public override void OnStartMeeting()
     {
-        if (ResetMeeting == true) mg.Clear();
+        if (AntiReporterResetMeeting == true) mg.Clear();
     }
     public override bool CanUseAbilityButton() => Use > 0;
     public override void OnFixedUpdate(PlayerControl _)
     {
-        if (!AmongUsClient.Instance.AmHost || Resetse == 0) return;
+        if (!AmongUsClient.Instance.AmHost || AntiReporterResetse == 0) return;
 
         foreach (var (targetId, timer) in mg.ToArray())
         {
-            if (timer >= Resetse)
+            if (timer >= AntiReporterResetse)
             {
                 mg.Remove(targetId);
             }

@@ -7,6 +7,7 @@ using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
+//using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
 {
@@ -279,7 +280,8 @@ namespace TownOfHost
                     GameStates.Intro = false;
                     GameStates.AfterIntro = true;
                 }
-                _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+                if (!(Options.CurrentGameMode is CustomGameMode.Standard && Main.SetRoleOverride))
+                    _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
                 if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
                 {
                     PlayerControl.LocalPlayer.RpcExile();
@@ -309,6 +311,7 @@ namespace TownOfHost
                             break;
                     }
                 }
+
                 // そのままだとホストのみDesyncImpostorの暗室内での視界がクルー仕様になってしまう
                 var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
                 var amDesyncImpostor = roleInfo?.IsDesyncImpostor == true;
@@ -322,12 +325,48 @@ namespace TownOfHost
                 //desyneインポかつ置き換えがimp以外ならそれにする。
                 if (roleInfo?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
-
-                foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                foreach (var pc in Main.AllPlayerControls)
                 {
-                    role.Colorchnge();
+                    if (pc == PlayerControl.LocalPlayer) continue;
+                    pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
+                }
+                _ = new LateTask(() =>
+                {
+                    foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                    {
+                        role.StartGameTasks();
+                    }
+                }, 0.3f, "");
+
+                _ = new LateTask(() =>
+                {
+                    foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                        role.Colorchnge();
+                }, 0.15f, "Color and Black");
+
+                _ = new LateTask(() =>
+            {
+                foreach (var s in PlayerState.AllPlayerStates)
+                {
+                    if (s.Value == null) continue;
+                    s.Value.IsBlackOut = false;
+                    if (Utils.GetPlayerById(s.Key) == null) continue;
+                    Utils.GetPlayerById(s.Key).SyncSettings();
+                    Utils.NotifyRoles();
+                }
+            }, 0.5f, "");
+
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc == null) continue;
+                    var ri = pc.GetCustomRole().GetRoleInfo();
+                    if (ri?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
+                    {
+                        pc.RpcResetAbilityCooldown();
+                    }
                 }
                 if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
             Logger.Info("OnDestroy", "IntroCutscene");
         }

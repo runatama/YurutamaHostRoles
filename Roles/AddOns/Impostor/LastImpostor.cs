@@ -31,8 +31,9 @@ namespace TownOfHost.Roles.AddOns.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1), fromtext: "<color=#ffffff>From:<color=#00bfff>TownOfHost</color></size>");
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor])
+            KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor])
                 .SetValueFormat(OptionFormat.Seconds);
+            OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastImpostor);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
             CanGuessTime = FloatOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser)
                 .SetValueFormat(OptionFormat.Players);

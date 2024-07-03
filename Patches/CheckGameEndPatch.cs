@@ -12,6 +12,7 @@ using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost
 {
@@ -47,9 +48,9 @@ namespace TownOfHost
                         if (Monochromer.CheckWin()) break;
 
                         Main.AllPlayerControls
-                            .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && (!pc.GetCustomRole().IsRiaju()
+                            .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsRiaju()
                             && !pc.Is(CustomRoles.Amanojaku) && !pc.Is(CustomRoles.Jackaldoll) && !pc.Is(CustomRoles.SKMadmate)
-                            && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff))))
+                            && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff)))
                             .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                         foreach (var pc in Main.AllPlayerControls)
                         {
@@ -162,14 +163,6 @@ namespace TownOfHost
                         }
                         else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
                     }
-
-                    /*if (God.CheckWin())
-                    {
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.God);
-                        Main.AllPlayerControls
-                            .Where(p => p.Is(CustomRoles.God) && p.IsAlive())
-                            .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-                    }*/
                 }
                 ShipStatus.Instance.enabled = false;
                 StartEndGame(reason);
@@ -234,7 +227,7 @@ namespace TownOfHost
                     // 蘇生
                     playerInfo.IsDead = false;
                     // 送信
-                    GameData.Instance.SetDirtyBit(0b_1u << playerId);
+                    playerInfo.SetDirtyBit(0b_1u << playerId);
                     AmongUsClient.Instance.SendAllStreamedObjects();
                 }
                 // ゲーム終了を確実に最後に届けるための遅延

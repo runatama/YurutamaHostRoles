@@ -8,6 +8,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
+using System;
 
 namespace TownOfHost
 {
@@ -15,6 +16,7 @@ namespace TownOfHost
     public static class CredentialsPatch
     {
         public static SpriteRenderer TohkLogo { get; private set; }
+        public static TextMeshPro credentialsText;
 
         [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
         class PingTrackerUpdatePatch
@@ -22,7 +24,16 @@ namespace TownOfHost
             static StringBuilder sb = new();
             static void Postfix(PingTracker __instance)
             {
-                __instance.text.alignment = TextAlignmentOptions.TopRight;
+                if (!credentialsText)
+                {
+                    credentialsText = UnityEngine.Object.Instantiate(__instance.text, __instance.transform.parent);
+                    credentialsText.name = "credentialsText";
+                    credentialsText.transform.parent = __instance.transform.parent;
+                    UnityEngine.Object.Destroy(credentialsText.GetComponent<PingTracker>());
+                    UnityEngine.Object.Destroy(credentialsText.GetComponent<AspectPosition>());
+                }
+
+                credentialsText.alignment = TextAlignmentOptions.TopRight;
 
                 sb.Clear();
 
@@ -37,13 +48,12 @@ namespace TownOfHost
                 if (DebugModeManager.IsDebugMode)
                 {
                     sb.Append("\r\n");
-                    sb.Append(DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>デバッグモード" : Utils.ColorString(Color.green, "デバッグモード"));
+                    sb.Append(DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
                 }
 
-                var offset_x = 1.2f; //右端からのオフセット
-                if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.active) offset_x += 0.8f; //チャットボタンがある場合の追加オフセット
-                if (FriendsListManager.InstanceExists && FriendsListManager._instance.FriendsListButton.Button.active) offset_x += 0.8f; //フレンドリストボタンがある場合の追加オフセット
-                __instance.GetComponent<AspectPosition>().DistanceFromEdge = new Vector3(offset_x, 0f, 0f);
+                var offset_x = 2.5f; //右端からのオフセット
+                if (HudManager.InstanceExists && HudManager._instance.Chat.gameObject.active) offset_x += 0.6f; //チャットがある場合の追加オフセット
+                credentialsText.transform.localPosition = new Vector3(5.6779f - offset_x, 3.0745f, 0f);
 
                 if (GameStates.IsLobby)
                 {
@@ -51,7 +61,7 @@ namespace TownOfHost
                         sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.EgoistCannotWin")));
                 }
 
-                __instance.text.text += sb.ToString();
+                credentialsText.text = sb.ToString();
             }
         }
         [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
@@ -61,7 +71,9 @@ namespace TownOfHost
             static void Postfix(VersionShower __instance)
             {
                 TMPTemplate.SetBase(__instance.text);
-                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}";
+                var Debugver = "";
+                if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
+                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Debugver;
 #if DEBUG
                 Main.credentialsText += $"\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
 #endif
@@ -120,9 +132,27 @@ namespace TownOfHost
                     SpecialEventText.text = $"何とは言いませんが、特別な日ですね。\n<size=15%>\n\n末永く爆発しろ</size>";
                     SpecialEventText.color = Utils.GetRoleColor(CustomRoles.ALovers);
                 }
+                if (!Main.NotKigenDebug && Main.DebugVersion)
+                {
+                    var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
+                    int Re = Main.ReleaseYear * 10000 + Main.ReleaseMonth * 100 + Main.ReleaseDay;
+                    int Rem = Main.DebugvalidityYear * 10000 + Main.DebugvalidityMonth * 100 + Main.DebugvalidityDay;
+
+                    if (!(Re <= now && now <= Rem))
+                    {
+                        if (GameStates.IsModHost && !GameStates.IsNotJoined)
+                        {
+                            Hazel.MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ModUnload, Hazel.SendOption.Reliable);
+                            AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        }
+                        SpecialEventText.text = "<size=65%><b>期限切れの為このDebugバージョンを使用することが出来ません！</size><size=50%>\nこれに関してのお問い合わせは遠慮しな...してください。";
+                        SpecialEventText.color = Color.magenta;
+                        SpecialEventText.SetOutlineColor(Color.white);
+                        SpecialEventText.SetOutlineThickness(0.1f);
+                    }
+                }
             }
         }
-
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
         class TitleLogoPatch
         {

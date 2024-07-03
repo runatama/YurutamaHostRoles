@@ -22,8 +22,8 @@ public sealed class Arsonist : RoleBase, IKiller
             "ar",
             "#ff6633",
             true,
-            introSound: () => GetIntroSound(RoleTypes.Crewmate)
-            , from: From.TownOfUs
+            introSound: () => GetIntroSound(RoleTypes.Crewmate),
+            from: From.TownOfUs
         );
     public Arsonist(PlayerControl player)
     : base(
@@ -46,7 +46,7 @@ public sealed class Arsonist : RoleBase, IKiller
 
     enum OptionName
     {
-        ArsonistDouseTime, ASHani
+        ArsonistDouseTime, ArsonistRange
     }
     private static float DouseTime;
     private static float DouseCooldown;
@@ -72,8 +72,9 @@ public sealed class Arsonist : RoleBase, IKiller
             .SetValueFormat(OptionFormat.Seconds);
         OptionDouseCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 1f), 10f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionHani = FloatOptionItem.Create(RoleInfo, 12, OptionName.ASHani, new(1.25f, 5f, 0.25f), 1.75f, false)
+        OptionHani = FloatOptionItem.Create(RoleInfo, 12, OptionName.ArsonistRange, new(1.25f, 5f, 0.25f), 1.75f, false)
         .SetValueFormat(OptionFormat.Multiplier);
+        Options.OverrideKilldistance.Create(RoleInfo, 13);
     }
     public override void Add()
     {
@@ -135,7 +136,7 @@ public sealed class Arsonist : RoleBase, IKiller
         }
         info.DoKill = false;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         TargetInfo = null;
     }
@@ -188,7 +189,7 @@ public sealed class Arsonist : RoleBase, IKiller
             }
         }
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
     {
         if (GameStates.IsInGame && IsDouseDone(Player))
         {
@@ -210,6 +211,7 @@ public sealed class Arsonist : RoleBase, IKiller
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
             return true;
         }
+        nouryoku = true;
         return false;
     }
     public bool OverrideKillButtonText(out string text)

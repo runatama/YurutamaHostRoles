@@ -37,22 +37,22 @@ namespace TownOfHost.Roles.Neutral
             CanVent = OptionCanVent.GetBool();
             CanUseSabotage = OptionCanUseSabotage.GetBool();
             HasImpostorVision = OptionHasImpostorVision.GetBool();
-            Canbotton = OptionCanbotton.GetBool();
+            GrimReaperCanButtom = OptionGrimReaperCanButtom.GetBool();
         }
 
         private static OptionItem OptionKillCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
         private static OptionItem OptionHasImpostorVision;
-        private static OptionItem OptionCanbotton;
+        private static OptionItem OptionGrimReaperCanButtom;
         private static float KillCooldown;
         public static bool CanVent;
         public static bool CanUseSabotage;
         private static bool HasImpostorVision;
-        private static bool Canbotton;
+        private static bool GrimReaperCanButtom;
         enum OptionName
         {
-            Canbotton,
+            GrimReaperCanButtom,
         }
 
         Dictionary<byte, float> GrimPlayers = new(14);
@@ -63,7 +63,7 @@ namespace TownOfHost.Roles.Neutral
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);//正味サボ使用不可でもいい気がする
             OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
-            OptionCanbotton = BooleanOptionItem.Create(RoleInfo, 14, OptionName.Canbotton, false, false);
+            OptionGrimReaperCanButtom = BooleanOptionItem.Create(RoleInfo, 14, OptionName.GrimReaperCanButtom, false, false);
             RoleAddAddons.Create(RoleInfo, 15);
         }
         public float CalculateKillCooldown() => KillCooldown;
@@ -96,7 +96,7 @@ namespace TownOfHost.Roles.Neutral
 
             }
         }
-        public override void OnReportDeadBody(PlayerControl repo, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {
             foreach (var targetId in GrimPlayers.Keys)
             {
@@ -137,14 +137,14 @@ namespace TownOfHost.Roles.Neutral
                 Logger.Info($"死神キル:{target.name}は会議始まる前に死んだぜ", "GrimReaper");
             }
         }
-        public override bool CancelReportDeadBody(PlayerControl repo, GameData.PlayerInfo oniku)
+        public override bool CancelReportDeadBody(PlayerControl repo, NetworkedPlayerInfo oniku)
         {
             if (repo.Is(CustomRoles.GrimReaper) && oniku != null)//死体通報はデフォでさせない。
             {
                 Logger.Info("死神だから会議をキャンセル。", "GrimReaper");
                 return true;
             }
-            if (repo.Is(CustomRoles.GrimReaper) && oniku == null && !Canbotton)//ボタン使用不可でボタンであろう場面のみ
+            if (repo.Is(CustomRoles.GrimReaper) && oniku == null && !GrimReaperCanButtom)//ボタン使用不可でボタンであろう場面のみ
             {
                 Logger.Info("死神はボタンも使えない。", "GrimReaper");
                 return true;

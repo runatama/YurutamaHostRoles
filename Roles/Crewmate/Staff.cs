@@ -1,6 +1,5 @@
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Core.Interfaces;
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Staff : RoleBase
 {
@@ -9,7 +8,7 @@ public sealed class Staff : RoleBase
             typeof(Staff),
             player => new Staff(player),
             CustomRoles.Staff,
-            () => RoleTypes.Engineer,
+            () => CanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             74827,
             SetupOptionItem,
@@ -30,31 +29,29 @@ public sealed class Staff : RoleBase
     }
     enum OptionName
     {
-        BaitKakusei,
         Kakuseitask
     }
 
     public bool EndedTaskInAlive = false;
-
+    static OptionItem CanUseVent;
     static OptionItem Kakusei;
     static OptionItem Task;
     bool kakusei;
     int ta;
     private static void SetupOptionItem()
     {
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 10, OptionName.BaitKakusei, true, false);
-        Task = FloatOptionItem.Create(RoleInfo, 11, OptionName.Kakuseitask, new(0f, 10f, 1f), 5f, false, Kakusei);
+        CanUseVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, true, false);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.TaskKakusei, true, false);
+        Task = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Kakuseitask, new(0f, 10f, 1f), 5f, false, Kakusei);
     }
 
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : (CanUseVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate);
     public override bool OnCompleteTask()
     {
-        if (IsTaskFinished)
-        {
-            if (Player.IsAlive()) EndedTaskInAlive = true;
-        }
+        if (IsTaskFinished && Player.IsAlive()) EndedTaskInAlive = true;
+
         //これはFinの外にしないとタスク数での覚醒上手くいないゼ。
-        if (MyTaskState.CompletedTasksCount >= ta) kakusei = true;
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
 
         return true;
     }

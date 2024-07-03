@@ -4,7 +4,6 @@ using InnerNet;
 using UnityEngine;
 
 using TownOfHost.Modules;
-using TownOfHost.Patches;
 
 using static TownOfHost.Translator;
 
@@ -25,7 +24,7 @@ namespace TownOfHost
                 Logger.seeingame(message);
                 return false;
             }
-            if (ModUpdater.isBroken || ModUpdater.hasUpdate || !VersionChecker.IsSupported || (!Main.IsPublicAvailableOnThisVersion && !Patches.CustomServerHelper.IsCs()))
+            if (!Main.IsPublicRoomAllowed())
             {
                 var message = "";
                 if (!Main.IsPublicAvailableOnThisVersion) message = GetString("PublicNotAvailableOnThisVersion");
@@ -47,7 +46,7 @@ namespace TownOfHost
         {
             MMOnlineManagerUpdatePatch.check = true;
             MMOnlineManagerUpdatePatch.LastServer = ServerManager.Instance.CurrentRegion.TranslateName;
-            if (!(ModUpdater.hasUpdate || ModUpdater.isBroken || !VersionChecker.IsSupported || !ModUpdater.publicok || (!Main.IsPublicAvailableOnThisVersion && !CustomServerHelper.IsCs()))) return;
+            if (Main.IsPublicRoomAllowed()) return;
             var obj = GameObject.Find("NormalMenu/Buttons/FindGameButton/FindGameButton");
             if (obj)
             {
@@ -89,7 +88,7 @@ namespace TownOfHost
             if (LastServer != ServerManager.Instance.CurrentRegion.TranslateName)
             {
                 LastServer = ServerManager.Instance.CurrentRegion.TranslateName;
-                if (!CustomServerHelper.IsCs())
+                if (!Main.IsCs())
                 {
                     if (!GameObject.Find("CanNotJoinPublic"))
                         MMOnlineManagerStartPatch.Postfix(__instance);

@@ -35,30 +35,34 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
         CanVent = OptionCanVent.GetBool();
         HasImpostorVision = OptionHasImpostorVision.GetBool();
         KillCount = 0;
+        WinFuragu = false;
     }
     static OptionItem OptionKillCooldown;
+    static OptionItem OptionAddWin;
     private static OptionItem OptionVictoryCount;
     private static OptionItem OptionHasImpostorVision;
     public static OptionItem OptionCanVent;
 
     enum OptionName
     {
-        VictoryCount
+        CountKillerVictoryCount, CountKillerAddWin
     }
     private int VictoryCount;
     public static bool CanVent;
     private static bool HasImpostorVision;
     private static float KillCooldown;
     int KillCount = 0;
+    bool WinFuragu;
     private static void SetupOptionItem()
     {
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionVictoryCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.VictoryCount, new(1, 10, 1), 5, false)
+        OptionVictoryCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.CountKillerVictoryCount, new(1, 10, 1), 5, false)
         .SetValueFormat(OptionFormat.Times);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanVent, true, false);
-        OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
-        RoleAddAddons.Create(RoleInfo, 14);
+        OptionAddWin = BooleanOptionItem.Create(RoleInfo, 13, OptionName.CountKillerAddWin, true, false);
+        OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.ImpostorVision, true, false);
+        RoleAddAddons.Create(RoleInfo, 15);
     }
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.CountKiller;
     public float CalculateKillCooldown() => KillCooldown;
@@ -98,12 +102,23 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
             SendRPC();
             killer.ResetKillCooldown();
 
-            if (KillCount >= VictoryCount) Win();
+            if (KillCount >= VictoryCount)
+            {
+                Win();
+                WinFuragu = true;
+            }
         }
         return;
     }
+    public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+    {
+        seen ??= seer;
+        if ((seen == seer) && WinFuragu && OptionAddWin.GetBool()) return "<color=#dddd00>★</color>";
+        return "";
+    }
     public void Win()
     {
+        if (OptionAddWin.GetBool()) return;
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CountKiller);
         CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
     }

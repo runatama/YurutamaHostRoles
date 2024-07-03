@@ -11,6 +11,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
+using InnerNet;
 
 namespace TownOfHost
 {
@@ -23,6 +24,8 @@ namespace TownOfHost
         private static SimpleButton gitHubButton;
         private static SimpleButton TwitterXButton;
         private static SimpleButton TOHkBOTButton;
+        //private static SimpleButton VersionChangeButton;
+        public static GameObject VersionMenu;
         public static AnnouncementPopUp updatea;
 
         [HarmonyPatch(nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.Normal)]
@@ -103,7 +106,7 @@ namespace TownOfHost
                     isActive: false);
             }
             // アップデート(詳細)ボタンを生成
-            if (UpdateButton2 == null)
+            if (SimpleButton.IsNullOrDestroyed(UpdateButton2))
             {
                 UpdateButton2 = CreateButton(
                     "UpdateButton2",
@@ -200,6 +203,8 @@ namespace TownOfHost
             {
                 CredentialsPatch.TohkLogo.gameObject.SetActive(false);
             }
+            if (VersionMenu != null)
+                VersionMenu.SetActive(false);
         }
         [HarmonyPatch(nameof(MainMenuManager.ResetScreen)), HarmonyPostfix]
         public static void ResetScreenPostfix()
@@ -208,6 +213,8 @@ namespace TownOfHost
             {
                 CredentialsPatch.TohkLogo.gameObject.SetActive(true);
             }
+            if (VersionMenu != null)
+                VersionMenu.SetActive(false);
         }
     }
     public class ModNews
@@ -409,6 +416,26 @@ namespace TownOfHost
                         + "\n\n多分次のアップデートは大型じゃなくて公式アプデ対応だと思います。知らんけど。\nK開発者さんしっかり働いてy(((殴\n\nby \"やかん\"でも\"よるあい\"でもないよ。夜藍(よらん)だよ。"
                         ,
                         Date = "2024-05-26T00:00:00Z"
+                    };
+                    AllModNews.Add(news);
+                }
+                {
+                    var news = new ModNews
+                    {
+                        Number = 100013,
+                        Title = "このメッセージは1週間後、自動で削除される・・・",
+                        SubTitle = "<color=#387859>TownOfHost-K Debug <size=70%> v.5.1.61.4</size>",
+                        ShortTitle = "<color=#387859>◇TOH-K Debug</color>",
+                        Text =
+                        "★Debug版限定通知機能について★\n"
+                        + "<size=80%>デバッグ版でのみ、違反したのではないかという疑わしき行動を行った場合、\n開発者に一部情報が送信されます\n予めご了承ください。</size>\n"
+                        + "★注意事項★\n<size=80%>・期限が切れたデバッグ版をどうにかこうにかして使用する / しようとする事。\n・Debug版の二次配布\n・その他開発者が禁止とした行為。\n・参加者にTOH - Kの正式リリースだ、本家TOHの最新版だ！等、自称、偽る行為\n※万が一禁止事項を行った場合や開発者の忠告に従わない場合は、\n二度とTOH-Kを利用できなく致します\n尚、二次配布等そのような行為を検知した場合、\n開発者にAmongUsの名前、フレンドコード等の情報が送信される場合があります。ご了承ください。"
+                        + "\n・バグが発生した場合、必ずバグ報告フォームに報告すること。\n・バグだけではなく少しでも挙動が変だったら必ず報告すること\n・利用前に下記に掲載している不具合等の連絡に必ず目を通すこと。\n・入室時のシステムメッセージで表示されますが、主催者が参加者にTOH - Kのデバッグであることを伝えるようにお願いします。\n・Modの動作に関する事以外聞かない事。\n※導入方法を聞くのは遠慮しなさいってことです。\n・チケット発行した時点で上記に記載されたものに同意し、良からぬ行為をした場合いかなる処罰も受け入れることとします。"
+                        + "\n\n</size>デバッグ版だよ!!7/10まで!!\n期間限定！！()\n\n<size=80%>"
+                        + "ジャッカルのサイドキックだったり...\nロビーで設定を見るってすると歯車が表示され押してみると・・・\n幽霊役職だったり...\nおっと。紹介はここまでのようだ\n己の目で是非とも確かめに行ってくれ。\nPs.2回目とか出した時記載めんどくさくなるのでリリースの時に一斉にどーんってします。\n\n【Memo】\n"
+                        + "ファントムは封印しています。\n\nMr.Yrfより(??)"
+                        ,
+                        Date = "2024-07-03T00:00:00Z"
                     };
                     AllModNews.Add(news);
                 }

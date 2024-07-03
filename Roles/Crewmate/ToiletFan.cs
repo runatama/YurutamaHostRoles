@@ -43,12 +43,13 @@ public sealed class ToiletFan : RoleBase
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.Cooldown, new(0f, 10f, 1f), 5f, false)
             .SetValueFormat(OptionFormat.Seconds);
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
     {
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 79);
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 80);
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
+        nouryoku = true;
         return false;
     }
 }

@@ -16,7 +16,7 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 
 ## リリース
 
-AmongUsバージョン : **2024.3.5**<br>
+AmongUsバージョン : **2024.3.5~**<br>
 
 **最新版は[こちら](https://github.com/KYMario/TownOfHost-K/releases/latest)**
 
@@ -103,7 +103,7 @@ Modが使えなくなるよ!<br>
 | ---------------------------------------- | --------------------------------------------- | --------------- |
 | /w                                       | 勝利した陣営を表示                             | どこでも        |
 | /forceend<br>/fe                         | 廃村として終了する (エラー時でも大体廃村できる)   |  ゲーム内       |
-| /sw　勝利させたい陣営               　　　　|  勝利させたい陣営を勝利判定にする                |  ゲーム内       |
+| /sw　勝利させたい陣営(役職名)       　　　　|  勝利させたい陣営,役職を勝利判定にする         |  ゲーム内       |
 | /allplayertp<br>/apt                     | 全てのプレイヤーをロビーの真ん中にテレポートする| ロビー内        |
 
 #### 全クライアント
@@ -136,7 +136,6 @@ Modが使えなくなるよ!<br>
 | ----------------------------------- | ------------------------------------------------- | ---------------  |
 | 廃村                                | ホストが押すと廃村が行われる(非ホストだと表示されない) | ゲーム内         |
 | 読み上げ                            | 読み上げのON/OFF                                    | どこでも         |
-| 一部言語に対応させる                | /help rolesでも言語を変えるかのON/OFF                 | どこでも         |
 | ウェブフック                        | ゲーム開始時や終了時にWebHookが送信するかのON/OFF     | どこでも         |
 | ズームを有効にする                  | 画面のサイズ？を変えれるようにするかのON/OFF           | どこでも/死亡時  |
 | 読み上げの同期                      | ホストと声の設定を同期                               | どこでも         |
@@ -213,7 +212,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |-------------------------------------- |
 |キルクール　　　　　　　              　|
 |クールダウン　　　　　　              　|
-|テレポートできる回数(0で無制限)　  　　　|
+|テレポートできる回数　  　　　|
 |シェイプ持続時間　　　     　       　  |
 |自爆を有効にする                       |
 |┣ ターゲットがベント時自爆する          |
@@ -252,7 +251,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |成功時のクールタイム　　　　　|
 |失敗時のクールタイム　　　　　|
 
-### Noisemaker/ノイズメーカー
+### Notifier/ノーティファー
 陣営：インポスター<br>
 判定：インポスター<br>
 
@@ -277,7 +276,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |設定名　　　　　　　　　　　|
 |------------------------------|
 |クールダウン　　　　　　　　　 　　|
-|マジックを使える回数(0で無制限)　　|
+|マジックを使える回数　　|
 |マジックの範囲　　　　　　　　　　　|
 |マジックに必要なキル数　|
 |マジックで消された人を会議で表示する　|
@@ -335,7 +334,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |ステルスになる確率　　　　　　　　|
 |┗暗転の持続時間　　　　　　　　　|
 |リモートキラーになる確率　　　　　|
-|ノイズメーカーになる確率　　　　　|
+|ノーティファーになる確率　　　　　|
 |┗フラッシュが発生する確率　　　　|
 |タイムシーフになる確率　　　　　　|
 |┣減少する会議時間　　　　　　　　|
@@ -476,7 +475,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |┣投票　　　　　　　　 　　|
 |┗自投票　　　　　　　 　　|
 |陣営ではなく役職を占う  |
-|1会議中に能力を使える回数(0で無制限)　|
+|1会議中に能力を使える回数　|
 |マッドテラーのタスク数　　|
 
 ### MadBait/マッドベイト
@@ -486,7 +485,9 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 
 クルーだがインポスターの味方をする<br>
 インポスター陣営以外の人にキルされた時自身をキルした人に<br>
-強制的にセルフレポートさせる事ができる。
+強制的にセルフレポートさせる事ができる。<br>
+インポスター陣営の人にキルされた場合、<br>
+生存者からランダムにセルフレポートさせる。
 
 ### MadAvenger/マッドアベンジャー
 陣営：インポスター<br>
@@ -574,6 +575,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 **美味しいパンが焼けました～！**<br>
 
 パン屋が生存していると、会議開始時にパン屋生存コメントがチャット欄に表示される。
+たま～～にレアメッセージが出るかも...?
 
 ### FortuneTeller/占い師
 陣営：クルーメイト<br>
@@ -593,7 +595,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |名前の上に結果を残す　　　|
 |陣営ではなく役職を占う  |
 |能力を発揮するタスク数　　|
-|1会議中に能力を使える回数(0で無制限)　|
+|1会議中に能力を使える回数　|
 
 ### PonkotuTeller/ぽんこつ占い師
 陣営：クルーメイト<br>
@@ -614,7 +616,8 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |┗自投票　　　　　　　 　　|
 |陣営ではなく役職を占う  |
 |能力を発揮するタスク数　　|
-|1会議中に能力を使える回数(0で無制限)　|
+|1会議中に能力を使える回数　|
+|能力を発揮するまで自覚できない|
 
 ### UltraStar/ウルトラスター
 陣営：クルーメイト<br>
@@ -665,13 +668,14 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |能力を発揮するタスク数　　　　　　|
 |マッド系役職をキルできるか　　　　|
 |ニュートラル系役職をキルできるか　|
-|1会議中に能力を使える回数(0で無制限)　|
+|1会議中に能力を使える回数　|
 
 ### GuardMaster/ガードマスター
 陣営：クルーメイト<br>
 判定：クルーメイト<br>
 
-タスクを全て完了させると設定回数キルをガードできる。また、いつキルをガードしたかが分かる。
+タスクを全て完了させると設定回数キルをガードできる。
+また、設定によっていつキルをガードしたかが分かる。
 
 ### 設定
 |設定名　　　　　　　　 　　　　 |
@@ -740,7 +744,8 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |┣投票　　　　　　　　　　　|
 |┗自投票　　　　　　　　　　　|
 |能力を発揮するタスク数　　　|
-|1会議での能力使用可能回数(0で無制限)　|
+|1会議での能力使用可能回数　|
+|能力を発揮するまで自覚できない|
 
 ### NiceAddoner/ナイスアドナー
 陣営：クルーメイト<br>
@@ -765,6 +770,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |--------------------|
 |効果を発揮するタスク数|
 |追跡可能回数　　　　　|
+|能力を発揮するまで自覚できない|
 
 ### WolfBoy/狼少年
 陣営：クルーメイト<br>
@@ -780,11 +786,37 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 ### 設定
 |設定名　　　　       　　　　|
 |---------------------------|
-|キルクーク　　　　　　　　　　|
+|キルクール　　　　　　　　　　|
 |キル可能回数　　　　　　　　　|
 |全員生存時にキルできる　　　　|
 |インポスター視界　　　　　　　|
 |シュレ猫の変化先をマッドにする|
+
+### Staff/スタッフ
+陣営：クルーメイト<br>
+判定：クルーメイト/エンジニア<br>
+
+生存中にタスクを完了させないとクルー陣営が勝利しても自身が勝利できない。
+
+[RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)より
+
+### 設定
+|設定名　　　　       　　　　　　　　　|
+|-------------------------------------|
+|ベントが使える　　　　　　　　　　　　　|
+|一定数タスクを完了させるまで自覚できない|
+
+### InSender/インセンダー
+陣営：クルーメイト<br>
+判定：クルーメイト<br>
+
+自身がキルされた場合、自身の死体を自身が通報する。
+[RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)より
+
+### 設定
+|設定名　　　　       　　　　　　　　　|
+|-------------------------------------|
+|一定数タスクを完了させるまで自覚できない|
 
 ### Mayor/メイヤー
 陣営：クルーメイト<br>
@@ -852,6 +884,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |ジャッカルがジャッカルマフィアを視認できる |
 |ジャッカルがジャッカルマフィアをキルできる |
 |サイドキックを作成できる　　　　　　　　　 |
+| ┗ サイドキックのクールダウン　　　　　　　|
 |属性を付与する　　　　　　　　　　　　　　　|
 
 ### Jackaldoll/ジャッカルドール
@@ -1001,6 +1034,7 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |設定名　　　　                           |
 |---------------------------------------- |
 |サイドキックを作成できる　　　　　　　　　 |
+| ┗ サイドキックのクールダウン　　　　　　　|
 |属性を付与する　　　　　　　　　　　　　　　|
 
 ### Jester/ジェスター
@@ -1334,50 +1368,54 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 見たいな感じです。<br>
 
 #### 外部リンク
-　TownOfHost-K
-　　[Twitter(X)](https://x.com/Tohkserver_k)
+　TownOfHost-K<br>
+　　[Twitter(X)](https://x.com/Tohkserver_k)<br>
 
-　暇な人 KY/けーわい
-　　TOHKの開発者(いちばんえらいひと)
-　　[Youtube](https://www.youtube.com/@MTGC_KY)
-　　[Twitter(X)](https://x.com/ky_mario_ky)
-　　[Bluesky](https://bsky.app/profile/kymario.bsky.social)
+　暇な人 KY/けーわい<br>
+　　TOHKの開発者(いちばんえらいひと)<br>
+　　[Youtube](https://www.youtube.com/@MTGC_KY)<br>
+　　[Twitter(X)](https://x.com/ky_mario_ky)<br>
+　　[Bluesky](https://bsky.app/profile/kymario.bsky.social)<br>
 
-　タイガー
-　　TOHKの開発者
-　　[Youtube](https://www.youtube.com/@torataiga-)
-　　[Twitter(X)](https://x.com/TVppJ90s9G2sPkq)
-　　[Bluesky](https://bsky.app/profile/taiga1.bsky.social)
+　タイガー<br>
+　　TOHKの開発者<br>
+　　[Youtube](https://www.youtube.com/@torataiga-)<br>
+　　[Twitter(X)](https://x.com/TVppJ90s9G2sPkq)<br>
+　　[Bluesky](https://bsky.app/profile/taiga1.bsky.social)<br>
 
-　夜藍
-　　TOHKの開発者
-　　[Youtube](https://www.youtube.com/@Yoran_Furan)
-　　[Twitter(X)](https://x.com/Yoran_FuranOshi)
-　　[Bluesky](https://bsky.app/profile/yoran-furanoshi.bsky.social)
+　夜藍<br>
+　　TOHKの開発者<br>
+　　[Youtube](https://www.youtube.com/@Yoran_Furan)<br>
+　　[Twitter(X)](https://x.com/Yoran_FuranOshi)<br>
+　　[Bluesky](https://bsky.app/profile/yoran-furanoshi.bsky.social)<br>
 
-　ねむa
-　　TOHKの開発者、TOH-KBotの開発者
-　　[Twitter(X)](https://x.com/nemu_adatoomou)
+　ねむa<br>
+　　TOHKの開発者、TOH-KBotの開発者<br>
+　　[Twitter(X)](https://x.com/nemu_adatoomou)<br>
 
-　りぃりぃ
-　　TOHKのサポーター
-　　[Twitter(X)](https://x.com/rixirixi0202)
+　はろん<br>
+　　TOHKの開発者<br>
+　　[Twitter(X)](https://x.com/HellWeen11)<br>
+
+　りぃりぃ<br>
+　　TOHKのサポーター<br>
+　　[Twitter(X)](https://x.com/rixirixi0202)<br>
 
 #### クレジット
-[Town Of Host](https://github.com/tukasa0001/TownOfHost)
-　偉大なる本家様！
+[Town Of Host](https://github.com/tukasa0001/TownOfHost)<br>
+　偉大なる本家様！<br>
 
-[Town Of Host_Y](https://github.com/Yumenopai/TownOfHost_Y)
-　機能やワーカホリックなどの役職,属性を参考...?移植させて頂きました！
+[Town Of Host_Y](https://github.com/Yumenopai/TownOfHost_Y)<br>
+　機能やワーカホリックなどの役職,属性を参考...?移植させて頂きました！<br>
 
-[Town Of Host For E](https://github.com/AsumuAkaguma/TownOfHost_ForE) 
-　機能や一部処理の参考にさせて頂きました！
+[Town Of Host For E](https://github.com/AsumuAkaguma/TownOfHost_ForE) <br>
+　機能や一部処理の参考にさせて頂きました！<br>
 
-[RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)
-　カスタムボタンの参考、一部役職を移行させて頂きました！
+[RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)<br>
+　カスタムボタンの参考、一部役職を移行させて頂きました！<br>
 
-[Town Of Host-H](https://github.com/Hyz-sui/TownOfHost-H) 
-　10.24アプデの対応で参考にさせていただきました！
+[Town Of Host-H](https://github.com/Hyz-sui/TownOfHost-H) <br>
+　10.24アプデの対応で参考にさせていただきました！<br>
 
-[SuperNewRoles](https://github.com/ykundesu/SuperNewRoles) 
-　一部役職や機能,ブラックリスト,コード...様々な部分参考にさせて頂きました！
+[SuperNewRoles](https://github.com/ykundesu/SuperNewRoles) <br>
+　一部役職や機能,ブラックリスト,コード...様々な部分参考にさせて頂きました！<br>

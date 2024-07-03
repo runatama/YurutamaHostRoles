@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AmongUs.Data;
 using AmongUs.GameOptions;
@@ -18,6 +19,7 @@ namespace TownOfHost
         public static void Postfix(AmongUsClient __instance)
         {
             while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
+            if (Main.NormalOptions.NumImpostors == 0 && GameStates.IsOnlineGame) Main.NormalOptions.NumImpostors = 1;
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();
             RPC.RpcVersionCheck();
@@ -39,6 +41,15 @@ namespace TownOfHost
                 AURoleOptions.SetOpt(Main.NormalOptions.Cast<IGameOptions>());
                 if (AURoleOptions.ShapeshifterCooldown == 0f)
                     AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
+
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+                _ = new LateTask(() => Main.DebugCheck(), 0.5f, "");
             }
         }
     }
@@ -56,8 +67,10 @@ namespace TownOfHost
             }
 
             if (AmongUsClient.Instance.AmHost && GameStates.InGame)
+            {
                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
-
+                LastGameSave.CreateIfNotExists(oti: true);//落ちでも保存
+            }
             Main.AssignSameRoles = false;
             CustomRoleManager.Dispose();
         }
@@ -104,6 +117,8 @@ namespace TownOfHost
             //            main.RealNames.Remove(data.Character.PlayerId);
             if (GameStates.IsInGame)
             {
+                SelectRolesPatch.disc.Add(data.Character.PlayerId);
+
                 if (data.Character.Is(CustomRoles.ALovers) && !data.Character.Data.IsDead)
                     foreach (var lovers in Main.ALoversPlayers.ToArray())
                     {
@@ -211,6 +226,13 @@ namespace TownOfHost
                             Utils.ShowKillLog(client.Character.PlayerId);
                         }
                     }, 3f, "DisplayKillLog");
+                }
+                if (Main.DebugVersion)
+                {
+                    var kigen = "";
+                    if (!Main.NotKigenDebug)
+                        kigen = $"\n\n・このデバッグ版の有効期限⇒{Main.DebugvalidityYear}年{Main.DebugvalidityMonth}月{Main.DebugvalidityDay}日";
+                    _ = new LateTask(() => Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。バグが発生した場合はDiscordで報告すること!{kigen}", client.Character.PlayerId, "<color=red>【=====これはデバッグ版です=====】</color>"), 3.1f, "DebugMeg");
                 }
             }
         }

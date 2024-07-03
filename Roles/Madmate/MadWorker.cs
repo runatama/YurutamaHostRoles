@@ -36,7 +36,6 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static OptionItem OptionVentCooldown;
     enum OptionName
     {
-        CanVent,
         VentCooldown
     }
     private static bool canSeeKillFlash;
@@ -46,7 +45,7 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static float ventCooldown;
     private static void SetupOptionItem()
     {
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
         OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentCooldown, new(0f, 180f, 2.5f), 0f, false, OptionCanVent)
                 .SetValueFormat(OptionFormat.Seconds);
         Options.OverrideTasksData.Create(RoleInfo, 20);

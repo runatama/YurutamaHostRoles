@@ -27,21 +27,21 @@ namespace TownOfHost.Roles.Impostor
             player
         )
         {
-            TarnLimit = OptionTarnLimit.GetFloat();
+            LimiterTarnLimit = OptionLimiterTarnLimit.GetFloat();
             blastrange = Optionblastrange.GetFloat();
             KillCooldown = OptionKillCooldown.GetFloat();
         }
 
-        static OptionItem OptionTarnLimit;
+        static OptionItem OptionLimiterTarnLimit;
         static OptionItem Optionblastrange;
         static OptionItem OptionKillCooldown;
         enum OptionName
         {
-            TarnLimit,
+            LimiterTarnLimit,
             blastrange,
         }
 
-        float TarnLimit;
+        float LimiterTarnLimit;
         float blastrange;
         float KillCooldown;
         bool Limit;
@@ -52,7 +52,7 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 25f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionTarnLimit = FloatOptionItem.Create(RoleInfo, 10, OptionName.TarnLimit, new(1f, 5f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
+            OptionLimiterTarnLimit = FloatOptionItem.Create(RoleInfo, 10, OptionName.LimiterTarnLimit, new(1f, 5f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
             Optionblastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(0.5f, 20f, 0.5f), 5f, false);
         }
         public float CalculateKillCooldown() => KillCooldown;
@@ -73,7 +73,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public bool OverrideKillButtonText(out string text)
         {
-            text = GetString("FireWorksExplosionButtonText");
+            text = GetString("FireWorksBomberExplosionButtonText");
             return Limit;
         }
         public bool OverrideKillButton(out string text)
@@ -84,7 +84,7 @@ namespace TownOfHost.Roles.Impostor
 
         public override void AfterMeetingTasks()
         {
-            if (Main.day >= TarnLimit && Player.IsAlive())
+            if (Main.day >= LimiterTarnLimit && Player.IsAlive())
             {
                 Limit = true;
             }
@@ -98,7 +98,7 @@ namespace TownOfHost.Roles.Impostor
             else
                 return Utils.ColorString(Color.red, "");
         }
-        public override void OnReportDeadBody(PlayerControl repo, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {
             if (Limit && Player.IsAlive())
             {

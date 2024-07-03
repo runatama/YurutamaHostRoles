@@ -35,15 +35,144 @@ public static class MeetingHudPatch
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
     public static class CastVotePatch
     {
+        ///0→/m
+        ///1→/n
+        ///2→/n r
+        ///-1→次ページへ
+
+        /// <summary>
+        /// 2→役職処理  0→通常処理 1→Infomode 3→Infomode(2)
+        /// </summary>
+        public static Dictionary<byte, int> InfoMode = new();
         public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] byte suspectPlayerId /* 投票された人 */ )
         {
             var voter = Utils.GetPlayerById(srcPlayerId);
             var votefor = Utils.GetPlayerById(suspectPlayerId);
+
+            Dictionary<byte, int> Menu1 = new();
+            Dictionary<byte, int> Menu2 = new();
+
+            if (Options.UseSelfVoteInfo.GetBool())
+            {
+                var i = 0;
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    if (!pc.IsAlive()) continue;
+                    if (pc.PlayerId == srcPlayerId) continue;
+
+                    Menu1.Add(pc.PlayerId, i + 1 == Main.AllAlivePlayerControls.Count() ? -1 : i);
+                    if (!(i + 1 == Main.AllAlivePlayerControls.Count())) i++;
+                }
+                if (i <= 2)
+                {
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        if (!pc.IsAlive()) continue;
+                        if (pc.PlayerId == srcPlayerId) continue;
+                        Menu2.Add(pc.PlayerId, i);
+                        i++;
+                    }
+                }
+
+                if (srcPlayerId == suspectPlayerId)
+                {
+                    if (InfoMode[srcPlayerId] == 0)//InfoMode発動
+                    {
+                        var s = GetString("InfoF") + "<size=70%>";
+                        __instance.RpcClearVote(voter.GetClientId());
+                        InfoMode[srcPlayerId] = 1;
+                        foreach (var no in Menu1.Keys)
+                        {
+                            if (Menu1.ContainsKey(no))
+                            {
+                                if (Menu1[no] == 0)
+                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNo1");
+                                if (Menu1[no] == 1)
+                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNo2");
+                                if (Menu1[no] == 2)
+                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNo3");
+                                if (Menu1[no] == -1)
+                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNext");
+                            }
+                        }
+                        Utils.SendMessage(s, srcPlayerId);
+                        return false;
+                    }
+                    if (InfoMode[srcPlayerId] == 1)//InfoMode解除(役職能力)
+                    {
+                        __instance.RpcClearVote(voter.GetClientId());
+                        InfoMode[srcPlayerId] = 2;
+                        Utils.SendMessage(GetString("InfoRole"), srcPlayerId);
+                        return false;
+                    }
+                }
+
+                if (InfoMode[srcPlayerId] == 1)
+                {
+                    __instance.RpcClearVote(voter.GetClientId());
+                    var ch = false;
+                    if (Menu1.ContainsKey(suspectPlayerId))
+                    {
+                        var p = Menu1[suspectPlayerId];
+                        if (p == -1)
+                        {
+                            ch = true;
+                            InfoMode[srcPlayerId] = 3;
+
+                            Utils.SendMessage(GetString("InfoMenu2"), srcPlayerId);
+                        }
+                        if (p == 0)// /m
+                        {
+                            var role = voter.GetCustomRole();
+                            if (voter.Is(CustomRoles.Amnesia)) role = voter.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
+                            if (role == CustomRoles.Braid) role = CustomRoles.Driver;
+                            if (voter.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && voter.GetRoleClass() != null) role = voter.GetRoleClass().Jikaku();
+                            if (voter.IsGorstRole()) role = PlayerState.GetByPlayerId(voter.PlayerId).GhostRole;
+                            var RoleTextData = Utils.GetRoleColorCode(role);
+                            string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
+                            string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                            if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
+                                Utils.SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(voter.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{voter.GetRoleInfo(true)}" + voter.GetRoleInfo(true), voter.PlayerId, RoleInfoTitle);
+                            else if (role.GetRoleInfo()?.Description is { } description) Utils.SendMessage(description.FullFormatHelp, voter.PlayerId, RoleInfoTitle, removeTags: false);
+                            else Utils.SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(voter.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{voter.GetRoleInfo(true)}", voter.PlayerId, RoleInfoTitle);
+                            Utils.GetAddonsHelp(voter);
+                        }
+                        if (p == 1)// /n
+                            Utils.ShowActiveSettings(srcPlayerId);
+                        if (p == 2)// /n r
+                            Utils.ShowActiveRoles(srcPlayerId);
+                    }
+                    if (!ch)
+                    {
+                        InfoMode[srcPlayerId] = 0;
+                        Utils.SendMessage(GetString("InfoVote"), srcPlayerId);
+                    }
+                    return false;
+                }
+                if (InfoMode[srcPlayerId] == 3)
+                {
+                    __instance.RpcClearVote(voter.GetClientId());
+
+                    var p = Menu2[suspectPlayerId];
+                    if (Menu2.ContainsKey(suspectPlayerId))
+                    {
+                        if (p == 1)// /n
+                            Utils.ShowActiveSettings(srcPlayerId);
+                        if (p == 2)// /n r
+                            Utils.ShowActiveRoles(srcPlayerId);
+                    }
+                    InfoMode[srcPlayerId] = 0;
+                    Utils.SendMessage(GetString("InfoVote"), srcPlayerId);
+                    return false;
+                }
+            }
+
             foreach (var pc in Main.AllPlayerControls)
                 if (pc.GetRoleClass()?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
                     Logger.Info($"{voter.GetNameWithRole()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
+                    InfoMode[srcPlayerId] = 2;
                     return false;
                 }
                 else
@@ -51,6 +180,7 @@ public static class MeetingHudPatch
                 {
                     Utils.SendMessage("君はイレクターなんだよ。\nスキップできない属性でね。\n誰かに投票してね。", voter.PlayerId);
                     __instance.RpcClearVote(voter.GetClientId());
+                    InfoMode[srcPlayerId] = 2;
                     Logger.Info($"{voter.GetNameWithRole()} イレクター発動 => {srcPlayerId}", nameof(CastVotePatch));
                     return false;
                 }
@@ -75,6 +205,11 @@ public static class MeetingHudPatch
         public static void Postfix(MeetingHud __instance)
         {
             MeetingVoteManager.Start();
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (CastVotePatch.InfoMode.ContainsKey(pc.PlayerId))
+                    CastVotePatch.InfoMode[pc.PlayerId] = 0;
+            }
 
             SoundManager.Instance.ChangeAmbienceVolume(0f);
             if (!GameStates.IsModHost) return;
@@ -89,7 +224,7 @@ public static class MeetingHudPatch
                 roleTextMeeting.transform.localPosition = new Vector3(0f, -0.18f, 0f);
                 roleTextMeeting.fontSize = 1.5f;
                 (roleTextMeeting.enabled, roleTextMeeting.text)
-                    = Utils.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, pc);
+                    = Utils.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, pc, PlayerControl.LocalPlayer == pc);
                 roleTextMeeting.gameObject.name = "RoleTextMeeting";
                 roleTextMeeting.enableWordWrapping = false;
 
@@ -188,6 +323,7 @@ public static class MeetingHudPatch
                 if (target == null) continue;
 
                 var sb = new StringBuilder();
+                var fsb = new StringBuilder();
 
                 //会議画面での名前変更
                 //自分自身の名前の色を変更
@@ -197,7 +333,7 @@ public static class MeetingHudPatch
                 //とりあえずSnitchは会議中にもインポスターを確認することができる仕様にしていますが、変更する可能性があります。
 
                 if (seer.KnowDeathReason(target))
-                    sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})");
+                    sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})");
 
                 sb.Append(seerRole?.GetMark(seer, target, true));
                 sb.Append(CustomRoleManager.GetMarkOthers(seer, target, true));
@@ -245,7 +381,7 @@ public static class MeetingHudPatch
                             break;
                     }
                 }
-                pva.NameText.text += sb.ToString();
+
                 //本人のsubrole処理
                 foreach (var subRole in seer.GetCustomSubRoles())
                 {
@@ -254,35 +390,45 @@ public static class MeetingHudPatch
                         case CustomRoles.Guesser:
                             if (!seer.Is(CustomRoles.Guesser)) break;
                             if (!seer.Data.IsDead && target == seer)
-                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
+                                fsb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
-                                pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
+                                fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             break;
                         case CustomRoles.LastImpostor:
                             if (!LastImpostor.GiveGuesser.GetBool()) break;
                             if (!seer.Data.IsDead && target == seer)
-                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
+                                fsb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
-                                pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
+                                fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             break;
                         case CustomRoles.LastNeutral:
                             if (!LastNeutral.GiveGuesser.GetBool()) break;
                             if (!seer.Data.IsDead && target == seer)
-                                pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
+                                fsb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
-                                pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
+                                fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             break;
                     }
                 }
                 if (RoleAddAddons.AllData.TryGetValue(seer.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
                 {
                     if (!seer.Data.IsDead && target == seer)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n") + pva.NameText.text + "<size=30%>\n </size></line-height>";
+                        fsb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                     if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
-                        pva.NameText.text = Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " " + pva.NameText.text;
+                        fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                 }
 
+                var Info = "";
                 //会議画面ではインポスター自身の名前にSnitchマークはつけません。
+                var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+
+                if (p.ToArray().AddRangeToArray(a.ToArray())[0] != null)
+                    if (p.ToArray().AddRangeToArray(a.ToArray())[0] == target)
+                    {
+                        Info = $"<color=#ffffff><line-height=95%>" + $"Day.{Main.day}".Color(Palette.Orange) + $"\n{Utils.MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
+                    }
+                pva.NameText.text = sb.ToString().RemoveText() + (Info == "" ? "" : "\n") + Info + fsb.ToString() + pva.NameText.text + sb.ToString() + fsb.ToString().RemoveText() + Info.RemoveText() + ((Info != "" && seer != target) ? "\n " : "");
             }
         }
     }
@@ -321,6 +467,11 @@ public static class MeetingHudPatch
         public static void Postfix()
         {
             MeetingStates.FirstMeeting = false;
+            foreach (var kvp in PlayerState.AllPlayerStates)
+            {
+                kvp.Value.IsBlackOut = false;
+                Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
+            }
             Logger.Info("------------会議終了------------", "Phase");
             if (AmongUsClient.Instance.AmHost)
             {

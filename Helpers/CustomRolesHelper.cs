@@ -47,9 +47,12 @@ namespace TownOfHost
                 role is CustomRoles.Crewmate or
                 CustomRoles.Engineer or
                 CustomRoles.Scientist or
+                CustomRoles.Noisemaker or
+                CustomRoles.Tracker or
                 CustomRoles.GuardianAngel or
                 CustomRoles.Impostor or
-                CustomRoles.Shapeshifter;
+                CustomRoles.Shapeshifter or
+                CustomRoles.Phantom;
         }
         public static bool IsAddOn(this CustomRoles roles)
         {
@@ -84,7 +87,9 @@ namespace TownOfHost
                 CustomRoles.Transparent or
                 CustomRoles.Amnesia or
                 CustomRoles.Clumsy or
-                CustomRoles.SlowStarter;
+                CustomRoles.SlowStarter or
+                CustomRoles.InfoPoor
+                ;
         }
         public static bool IsRiaju(this CustomRoles roles)
         {
@@ -109,6 +114,20 @@ namespace TownOfHost
                 CustomRoles.UltraStar or
                 CustomRoles.TaskStar;
         }
+        public static bool IsGorstRole(this PlayerControl pc)
+        {
+            return pc.Is(CustomRoles.GuardianAngel) ||
+                    pc.Is(CustomRoles.DemonicTracker) ||
+                    pc.Is(CustomRoles.DemonicCrusher)
+                    ;
+        }
+        public static bool IsGorstRole(this CustomRoles role)
+        {
+            return role is CustomRoles.GuardianAngel
+                        or CustomRoles.DemonicTracker
+                        or CustomRoles.DemonicCrusher
+                        ;
+        }
         public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
         {
             CustomRoleTypes type = CustomRoleTypes.Crewmate;
@@ -129,9 +148,12 @@ namespace TownOfHost
                 var roleOpt = Main.NormalOptions.RoleOptions;
                 return role switch
                 {
-                    CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
-                    CustomRoles.Scientist => roleOpt.GetNumPerGame(RoleTypes.Scientist),
-                    CustomRoles.Shapeshifter => roleOpt.GetNumPerGame(RoleTypes.Shapeshifter),
+                    CustomRoles.Engineer => Options.GetRoleCount(role),
+                    CustomRoles.Scientist => Options.GetRoleCount(role),
+                    CustomRoles.Shapeshifter => Options.GetRoleCount(role),
+                    CustomRoles.Phantom => Options.GetRoleCount(role),
+                    CustomRoles.Tracker => Options.GetRoleCount(role),
+                    CustomRoles.Noisemaker => Options.GetRoleCount(role),
                     CustomRoles.GuardianAngel => roleOpt.GetNumPerGame(RoleTypes.GuardianAngel),
                     CustomRoles.Crewmate => roleOpt.GetNumPerGame(RoleTypes.Crewmate),
                     _ => 0
@@ -149,9 +171,12 @@ namespace TownOfHost
                 var roleOpt = Main.NormalOptions.RoleOptions;
                 return role switch
                 {
-                    CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),
-                    CustomRoles.Scientist => roleOpt.GetChancePerGame(RoleTypes.Scientist),
-                    CustomRoles.Shapeshifter => roleOpt.GetChancePerGame(RoleTypes.Shapeshifter),
+                    CustomRoles.Engineer => Options.GetRoleChance(role),
+                    CustomRoles.Scientist => Options.GetRoleChance(role),
+                    CustomRoles.Shapeshifter => Options.GetRoleChance(role),
+                    CustomRoles.Tracker => Options.GetRoleChance(role),
+                    CustomRoles.Noisemaker => Options.GetRoleChance(role),
+                    CustomRoles.Phantom => Options.GetRoleChance(role),
                     CustomRoles.GuardianAngel => roleOpt.GetChancePerGame(RoleTypes.GuardianAngel),
                     CustomRoles.Crewmate => roleOpt.GetChancePerGame(RoleTypes.Crewmate),
                     _ => 0

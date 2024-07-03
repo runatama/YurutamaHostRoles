@@ -5,7 +5,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Crewmate;
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
 
 namespace TownOfHost
 {
@@ -48,16 +48,14 @@ namespace TownOfHost
         }
     }
 
-    [HarmonyPatch(typeof(GameData), nameof(GameData.RpcSetTasks))]
+    [HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.RpcSetTasks))]
     class RpcSetTasksPatch
     {
         //タスクを割り当ててRPCを送る処理が行われる直前にタスクを上書きするPatch
         //バニラのタスク割り当て処理自体には干渉しない
         public static Il2CppSystem.Collections.Generic.List<byte> Soroeru = new();
         public static bool HostFin;
-        public static void Prefix(GameData __instance,
-        [HarmonyArgument(0)] byte playerId,
-        [HarmonyArgument(1)] ref Il2CppStructArray<byte> taskTypeIds)
+        public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
         {
             //null対策
             if (Main.RealOptionsData == null)
@@ -66,7 +64,7 @@ namespace TownOfHost
                 return;
             }
 
-            var pc = Utils.GetPlayerById(playerId);
+            var pc = Utils.GetPlayerById(__instance.PlayerId);
             CustomRoles? RoleNullable = pc?.GetCustomRole();
             if (RoleNullable == null) return;
             CustomRoles role = RoleNullable.Value;
@@ -93,7 +91,9 @@ namespace TownOfHost
                 NumShortTasks = 1; //タスク0対策
                 Main.FixTaskNoPlayer.Add(pc);
             }
-            if (!Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return; //変更点がない場合
+            //変更点がない場合
+            if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskSoroeru.GetBool()) &&
+                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return;
 
             //割り当て可能なタスクのIDが入ったリスト
             //本来のRpcSetTasksの第二引数のクローン
@@ -115,6 +115,22 @@ namespace TownOfHost
             int start1 = Main.NormalOptions.NumCommonTasks;
             int start2 = 0;
             int start3 = 0;
+
+            if (Options.CommnTaskResetAssing.GetBool() && hasCommonTasks)
+            {
+                //コモンの再割り当て
+                Il2CppSystem.Collections.Generic.List<NormalPlayerTask> CommnTasks = new();
+                foreach (var task in ShipStatus.Instance.CommonTasks)
+                    CommnTasks.Add(task);
+                Shuffle<NormalPlayerTask>(CommnTasks);
+                ShipStatus.Instance.AddTasksFromList(
+                    ref start1,
+                    start1,
+                    TasksList,
+                    usedTaskTypes,
+                    CommnTasks
+                );
+            }
 
             //割り当て可能なロングタスクのリスト
             Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
@@ -143,21 +159,6 @@ namespace TownOfHost
                 usedTaskTypes,
                 ShortTasks
             );
-            if (Options.CommnTaskResetAssing.GetBool() && hasCommonTasks)
-            {
-                //コモンの再割り当て
-                Il2CppSystem.Collections.Generic.List<NormalPlayerTask> CommnTasks = new();
-                foreach (var task in ShipStatus.Instance.CommonTasks)
-                    CommnTasks.Add(task);
-                Shuffle<NormalPlayerTask>(CommnTasks);
-                ShipStatus.Instance.AddTasksFromList(
-                    ref start1,
-                    start1,
-                    TasksList,
-                    usedTaskTypes,
-                    CommnTasks
-                );
-            }
 
             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                 if (Options.TaskSoroeru.GetBool())

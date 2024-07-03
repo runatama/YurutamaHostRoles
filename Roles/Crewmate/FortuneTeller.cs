@@ -67,9 +67,6 @@ public sealed class FortuneTeller : RoleBase
         Votemode,
         rolename, //占った相手の名前の上に占い結果を表示するかの設定
         tRole, //占い時役職を表示するか、陣営を表示するかの設定
-        cantaskcount,//効果を発揮タスク数
-        meetingmc,//1会議に占える数(最大で)
-        UKakusei
     }
     public enum VoteMode
     {
@@ -87,10 +84,10 @@ public sealed class FortuneTeller : RoleBase
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
         Optionrolename = BooleanOptionItem.Create(RoleInfo, 12, Option.rolename, true, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
-        OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 14, Option.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
+        OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, Option.UKakusei, true, false);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false);
     }
 
     private void SendRPC(byte targetid, CustomRoles role)
@@ -139,7 +136,6 @@ public sealed class FortuneTeller : RoleBase
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)
-
                         Uranai(votedForId);
                     SetMode(Player, status is VoteStatus.Self);
                     return false;

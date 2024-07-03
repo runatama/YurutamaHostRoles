@@ -48,8 +48,10 @@ public abstract class RoleBase : IDisposable
         this.hasTasks = hasTasks ?? (roleInfo.CustomRoleType == CustomRoleTypes.Crewmate ? () => HasTask.True : () => HasTask.False);
         HasAbility = hasAbility ?? roleInfo.BaseRoleType.Invoke() is
             RoleTypes.Shapeshifter or
+            RoleTypes.Phantom or
             RoleTypes.Engineer or
             RoleTypes.Scientist or
+            RoleTypes.Tracker or
             RoleTypes.GuardianAngel or
             RoleTypes.CrewmateGhost or
             RoleTypes.ImpostorGhost;
@@ -170,6 +172,15 @@ public abstract class RoleBase : IDisposable
     public virtual bool CheckShapeshift(PlayerControl target, ref bool shouldAnimate) => true;
 
     /// <summary>
+    /// 透明化 発動前に呼ばれる関数
+    /// falseを返すと透明化をなかったことにできる
+    /// 自分自身について呼ばれるため本人確認不要
+    /// Host以外も呼ばれるので注意
+    /// </summary>
+    /// <returns>cancelするならfalse</returns>
+    public virtual bool CheckVanish() => true;
+
+    /// <summary>
     /// タスクターンに常時呼ばれる関数
     /// 自分自身について呼ばれるため本人確認不要
     /// Host以外も呼ばれるので注意
@@ -186,7 +197,7 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="reporter">通報したプレイヤー</param>
     /// <param name="target">通報されたプレイヤー</param>
-    public virtual void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public virtual void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     { }
 
     /// <summary>
@@ -196,7 +207,7 @@ public abstract class RoleBase : IDisposable
     /// <param name="physics"></param>
     /// <param name="id"></param>
     /// <returns>falseを返すとベントから追い出され、他人からアニメーションも見られません</returns>
-    public virtual bool OnEnterVent(PlayerPhysics physics, int ventId) => true;
+    public virtual bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool Nouryoku) => true;
     /// <summary>
     /// ベント移動を封じるかの関数。<br/>
     /// OnEnterVentの方が速く呼ばれる。</br>
@@ -241,13 +252,18 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <param name="exiled">追放されるプレイヤー</param>
     /// <param name="DecidedWinner">勝者を確定させるか</param>
-    public virtual void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public virtual void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     { }
 
     /// <summary>
     /// タスクターンが始まる直前に毎回呼ばれる関数
     /// </summary>
     public virtual void AfterMeetingTasks()
+    { }
+    /// <summary>
+    /// ゲーム開始のイントロ後に呼ばれる関数。
+    /// </summary>
+    public virtual void StartGameTasks()
     { }
 
     /// <summary>
@@ -373,10 +389,12 @@ public abstract class RoleBase : IDisposable
         {
             RoleTypes.Engineer => StringNames.VentAbility,
             RoleTypes.Scientist => StringNames.VitalsAbility,
+            RoleTypes.Tracker => StringNames.TrackerAbility,
             RoleTypes.Shapeshifter => StringNames.ShapeshiftAbility,
+            RoleTypes.Phantom => StringNames.PhantomAbility,
             RoleTypes.GuardianAngel => StringNames.ProtectAbility,
             RoleTypes.ImpostorGhost or RoleTypes.CrewmateGhost => StringNames.HauntAbilityName,
-            _ => null
+            _ => null//アプデ対応用
         };
         return str.HasValue ? GetString(str.Value) : "Invalid";
     }
@@ -386,7 +404,7 @@ public abstract class RoleBase : IDisposable
     /// <see cref="OnReportDeadBody"/>より先に呼ばれる、キャンセルした場合は呼ばれない<br/>
     /// trueを返すとキャンセルされる
     /// </summary>
-    public virtual bool CancelReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target) => false;
+    public virtual bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) => false;
 
     /// <summary>
     /// 占い結果で表示される役職を変更することができる<br/>
@@ -398,7 +416,7 @@ public abstract class RoleBase : IDisposable
     /// 投票結果を返す<br/>
     /// trueを返すと追放の「ランダム追放」「全員追放」などが実行されない
     /// </summary>
-    public virtual bool VotingResults(ref GameData.PlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile) => false;
+    public virtual bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile) => false;
 
     /// <summary>
     /// ベントの出入り、移動で呼び出される
@@ -416,6 +434,21 @@ public abstract class RoleBase : IDisposable
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
 
     /// <summary>
+    /// ペットを撫でようとしたとき呼び出される。<br/>
+    /// falseを返すとキャンセルされる<br/>
+    /// 自分自身について呼ばれるため本人確認不要
+    /// Host以外も呼ばれるので注意
+    /// </summary>
+    public virtual bool OnPet() => true;
+
+    /// <summary>
+    /// Host用。
+    /// タスクが出来るか。
+    /// falseだとできない。
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool CanTask() => Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
+
     /// 覚醒等で使えたら!<br/>
     /// 自身を別役職だと思い込む。
     /// </summary>
@@ -435,5 +468,10 @@ public abstract class RoleBase : IDisposable
         Duration,
         cantaskcount,
         meetingmc,
+        animate,
+        TaskKakusei,
+        Kakuseitask,
+        UKakusei,
+        OptionCount
     }
 }

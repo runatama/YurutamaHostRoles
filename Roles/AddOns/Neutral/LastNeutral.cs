@@ -7,6 +7,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
         private static readonly int Id = 79300;
         public static byte currentId = byte.MaxValue;
         public static OptionItem KillCooldown;
+        public static OptionItem ChKilldis;
         //追加勝利
         public static OptionItem GiveOpportunist;
         //ゲッサー
@@ -31,8 +32,10 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastNeutral, new(1, 1, 1));
-            KillCooldown = FloatOptionItem.Create(Id + 9, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral])
+            KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral])
                 .SetValueFormat(OptionFormat.Seconds);
+            ChKilldis = BooleanOptionItem.Create(Id + 7, "ChKilldis", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
+            OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastNeutral);
             GiveOpportunist = BooleanOptionItem.Create(Id + 10, "GiveOpportunist", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
             CanGuessTime = FloatOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser)

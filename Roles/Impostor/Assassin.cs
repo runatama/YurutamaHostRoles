@@ -45,7 +45,7 @@ public sealed class Assassin : RoleBase, IImpostor
     //配信とかで使ってあげてください(
     //ちなみにマーリン死んでたら終わり☆
 
-    public override bool VotingResults(ref GameData.PlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
+    public override bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
     {
         if (Exiled != null)
         {
@@ -86,7 +86,7 @@ public sealed class Assassin : RoleBase, IImpostor
         return false;
     }
 
-    public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (MeetingStates is not 2 and not 3) return;
 

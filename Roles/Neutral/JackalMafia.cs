@@ -33,38 +33,45 @@ namespace TownOfHost.Roles.Neutral
         )
         {
             KillCooldown = OptionKillCooldown.GetFloat();
+            Cooldown = OptionCooldown.GetFloat();
             CanVent = OptionCanVent.GetBool();
             CanUseSabotage = OptionCanUseSabotage.GetBool();
             HasImpostorVision = OptionHasImpostorVision.GetBool();
             JackalCanKillMafia = OptionJJackalCanKillMafia.GetBool();
             JackalCanAlsoBeExposedToJMafia = OptionJackalCanAlsoBeExposedToJMafia.GetBool();
-            MafiaCanAlsoBeExposedToJackal = OptionJMafiaCanAlsoBeExposedToJackal.GetBool();
+            JackalMafiaCanAlsoBeExposedToJackal = OptionJJackalMafiaCanAlsoBeExposedToJackal.GetBool();
             CustomRoleManager.MarkOthers.Add(GetMarkOthers);
             SK = CanmakeSK.GetBool();
+            Fall = false;
         }
 
         private static OptionItem OptionKillCooldown;
+        private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
         private static OptionItem OptionHasImpostorVision;
         private static OptionItem OptionJackalCanAlsoBeExposedToJMafia;
-        private static OptionItem OptionJMafiaCanAlsoBeExposedToJackal;
+        private static OptionItem OptionJJackalMafiaCanAlsoBeExposedToJackal;
         private static OptionItem OptionJJackalCanKillMafia;
         static OptionItem CanmakeSK;
+        public static OptionItem OptionDoll;
         private static float KillCooldown;
+        private static float Cooldown;
         public static bool CanVent;
         public static bool CanUseSabotage;
         private static bool HasImpostorVision;
         private static bool JackalCanAlsoBeExposedToJMafia;
-        private static bool MafiaCanAlsoBeExposedToJackal;
+        private static bool JackalMafiaCanAlsoBeExposedToJackal;
         private static bool JackalCanKillMafia;
         bool SK;
+        bool Fall;
         enum JackalOption
         {
             JackalCanAlsoBeExposedToJMafia,
-            MafiaCanAlsoBeExposedToJackal,
+            JackalMafiaCanAlsoBeExposedToJackal,
             JackalCanKillMafia
         }
+        enum opt { dool, JackaldollShoukaku }
         private static void SetupOptionItem()
         {
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
@@ -73,10 +80,13 @@ namespace TownOfHost.Roles.Neutral
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);
             OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             OptionJJackalCanKillMafia = BooleanOptionItem.Create(RoleInfo, 14, JackalOption.JackalCanKillMafia, false, false);
-            OptionJMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 16, JackalOption.MafiaCanAlsoBeExposedToJackal, false, false);
+            OptionJJackalMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 16, JackalOption.JackalMafiaCanAlsoBeExposedToJackal, false, false);
             OptionJackalCanAlsoBeExposedToJMafia = BooleanOptionItem.Create(RoleInfo, 17, JackalOption.JackalCanAlsoBeExposedToJMafia, true, false);
             CanmakeSK = BooleanOptionItem.Create(RoleInfo, 18, GeneralOption.CanCreateSideKick, true, false);
-            RoleAddAddons.Create(RoleInfo, 19);
+            OptionCooldown = FloatOptionItem.Create(RoleInfo, 19, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false, CanmakeSK)
+            .SetValueFormat(OptionFormat.Seconds);
+            OptionDoll = BooleanOptionItem.Create(RoleInfo, 20, opt.JackaldollShoukaku, false, false, CanmakeSK);
+            RoleAddAddons.Create(RoleInfo, 21);
         }   //↑あってるかは知らない、
         public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Jackal;
         public float CalculateKillCooldown() => KillCooldown;
@@ -85,14 +95,18 @@ namespace TownOfHost.Roles.Neutral
         public override bool OnInvokeSabotage(SystemTypes systemType) => CanUseSabotage;
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.ShapeshifterCooldown = 1f;
+            AURoleOptions.ShapeshifterCooldown = Fall ? 1f : Cooldown;
             AURoleOptions.ShapeshifterDuration = 1f;
             opt.SetVision(HasImpostorVision);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOCButton => SK;
         public override bool CanUseAbilityButton() => SK;
-
+        public override void AfterMeetingTasks()
+        {
+            Fall = false;
+            Player.SyncSettings();
+        }
         public void OnClick()
         {
             if (!SK) return;
@@ -102,15 +116,20 @@ namespace TownOfHost.Roles.Neutral
                 return;
             }
             var target = Player.GetKillTarget();
-            if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) return;
-
+            if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist))
+            {
+                Fall = true;
+                _ = new LateTask(() => Player.MarkDirtySettings(), 0.2f, "SidekickFall");
+                _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f, "SidekickFall");
+                return;
+            }
             SK = false;
             Player.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(Player);
             target.RpcProtectedMurderPlayer(target);
             Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sidekick]　" + string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})");
             target.RpcSetCustomRole(CustomRoles.Jackaldoll);
-            JackalDoll.Sidekick(target);
+            JackalDoll.Sidekick(target, Player);
             Main.FixTaskNoPlayer.Add(target);
             Utils.MarkEveryoneDirtySettings();
             Utils.NotifyRoles();
@@ -143,7 +162,7 @@ namespace TownOfHost.Roles.Neutral
         {
             //seenが省略の場合seer
             seen ??= seer;
-            if (seer.PlayerId == Player.PlayerId && seen.Is(CustomRoles.Jackal) && MafiaCanAlsoBeExposedToJackal) return Utils.ColorString(RoleInfo.RoleColor, "★");
+            if (seer.PlayerId == Player.PlayerId && seen.Is(CustomRoles.Jackal) && JackalMafiaCanAlsoBeExposedToJackal) return Utils.ColorString(RoleInfo.RoleColor, "★");
             else return "";
         }
         public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)

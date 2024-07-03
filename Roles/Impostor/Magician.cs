@@ -65,10 +65,10 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
     enum Option
     {
         Cooldown,
-        MaximumM,
+        MagicianMaximum,
         MagicianRadius,
-        ShowD,
-        rtM,
+        MagicianShowD,
+        MagicianrtM,
         MagicianResetM,
         MagicianResetL,
     }
@@ -77,13 +77,13 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
     {
         OptionMagicCooldown = FloatOptionItem.Create(RoleInfo, 10, Option.Cooldown, new FloatValueRule(0, 120, 1), 15, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.MaximumM, new FloatValueRule(0, 99, 1), 3, false)
+        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.MagicianMaximum, new FloatValueRule(0, 99, 1), 3, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
         OptionRadius = FloatOptionItem.Create(RoleInfo, 12, Option.MagicianRadius, new(0.5f, 3f, 0.5f), 1.5f, false)
             .SetValueFormat(OptionFormat.Multiplier);
-        OptionRt = FloatOptionItem.Create(RoleInfo, 13, Option.rtM, new FloatValueRule(0, 99, 1), 1, false)
+        OptionRt = FloatOptionItem.Create(RoleInfo, 13, Option.MagicianrtM, new FloatValueRule(0, 99, 1), 1, false)
         .SetValueFormat(OptionFormat.Players);
-        OptionShow = BooleanOptionItem.Create(RoleInfo, 14, Option.ShowD, false, false);
+        OptionShow = BooleanOptionItem.Create(RoleInfo, 14, Option.MagicianShowD, false, false);
         OptionResetM = BooleanOptionItem.Create(RoleInfo, 15, Option.MagicianResetM, true, false);
         OptionResetL = BooleanOptionItem.Create(RoleInfo, 16, Option.MagicianResetL, false, false);
     }
@@ -127,7 +127,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
             KillList.Add(target.PlayerId);
             Player.RpcProtectedMurderPlayer(target);
             MagicCooldown = (count >= Maximum && Maximum != 0) ? 999 : DefaultCooldown;
-            _ = new LateTask(() => Utils.NotifyRoles(Player), 0.1f);
+            _ = new LateTask(() => Utils.NotifyRoles(), 0.1f);
         }
         else
         {
@@ -167,7 +167,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         killc -= rt;
         Player.SetKillCooldown();
         _ = new LateTask(() => (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player), 0.3f);
-        _ = new LateTask(() => Utils.NotifyRoles(Player), 0.1f);
+        _ = new LateTask(() => Utils.NotifyRoles(), 0.1f);
     }
 
     public override string GetAbilityButtonText() => GetString("MagicButtonText");

@@ -11,7 +11,7 @@ namespace TownOfHost
 {
     class Webhook
     {
-        public static void Send(string text, string name = "TownOfHost-K", string avatar = "https://cdn.discordapp.com/icons/1094609365023068250/96b4ffedcf4fa82ca1aba3e729466e82.webp?size=96")
+        public static void Send(string text, string name = "TownOfHost-K", string avatar = "https://cdn.discordapp.com/attachments/1219855613752774657/1254725875535183933/TabIcon_MainSettings.png?ex=667a8a08&is=66793888&hm=dc20a50c7cadab0a15a215c19abcde6006fbef9911299ab82e452b7cf5242f57&")
         {
             ClientOptionsManager.CheckOptions();
             if (ClientOptionsManager.WebhookUrl == "none" || !Main.UseWebHook.Value) return;
@@ -27,6 +27,13 @@ namespace TownOfHost
             awaiter.GetResult();
         }
     }
+
+    //コード公開の時はURL消す!!!!!!!!!!!!!!!!
+    class Alert
+    {
+
+    }
+
     class Logger
     {
         public static bool isEnable;
@@ -46,7 +53,7 @@ namespace TownOfHost
         public static void seeingame(string text, bool isAlways = false)
         {
             if (!isEnable) return;
-            if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
+            if (DestroyableSingleton<HudManager>._instance) DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
         }
         private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "")
         {

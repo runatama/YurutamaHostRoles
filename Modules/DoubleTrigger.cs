@@ -27,7 +27,9 @@ namespace TownOfHost
             return PlayerIdList.Contains(killer.PlayerId);
         }
 
-        ///     一回目アクション時 false、2回目アクション時true
+        /// <summary>
+        /// 一回目アクション時 false、2回目アクション時true
+        /// </summary>
         public static bool CheckDoubleTrigger(this PlayerControl killer, PlayerControl target, Action firstAction)
         {
             if (FirstTriggerTimer.ContainsKey(killer.PlayerId))

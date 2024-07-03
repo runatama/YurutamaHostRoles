@@ -12,6 +12,7 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Crewmate;
 using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost
 {
@@ -96,6 +97,17 @@ namespace TownOfHost
         public static OptionItem MadmateVentMaxTime;
         public static OptionItem MadmateCanMovedByVent;
 
+        //幽霊役職
+        public static OptionItem GRRoleOp;
+        public static OptionItem GRCanSeeOtherRoles;
+        public static OptionItem GRCanSeeOtherTasks;
+        public static OptionItem GRCanSeeOtherVotes;
+        public static OptionItem GRCanSeeDeathReason;
+        public static OptionItem GRCanSeeKillerColor;
+        public static OptionItem GRCanSeeAllTasks;
+        public static OptionItem GRCanSeeKillflash;
+        public static OptionItem GRCanSeeNumberOfButtonsOnOthers;
+
         public static OptionItem KillFlashDuration;
 
         // HideAndSeek
@@ -123,6 +135,7 @@ namespace TownOfHost
         public static OptionItem DisableFuelEngins;
         public static OptionItem DisableInspectSample;
         public static OptionItem DisableRebootWifi;
+        //
         public static OptionItem DisableInseki;
         public static OptionItem disableCalibrateDistributor;
         public static OptionItem disableVentCleaning;
@@ -367,15 +380,18 @@ namespace TownOfHost
         public static OptionItem VRcanseemitidure;
         public static OptionItem Onlyseepet;
         public static OptionItem CommnTaskResetAssing;
+        public static OptionItem UseSelfVoteInfo;
+
         public static OptionItem DisableTaskWin;
         public static OptionItem GhostCanSeeOtherRoles;
         public static OptionItem GhostCanSeeOtherTasks;
         public static OptionItem GhostCanSeeOtherVotes;
         public static OptionItem GhostCanSeeDeathReason;
+        public static OptionItem GhostCanSeeKillerColor;
         public static OptionItem GhostIgnoreTasks;
-        public static OptionItem GhostIgnoreAllTasks;
+        public static OptionItem GhostCanSeeAllTasks;
+        public static OptionItem GhostCanSeeKillflash;
         public static OptionItem GhostCanSeeNumberOfButtonsOnOthers;
-        public static OptionItem GhostIgnoreKillflash;
         public static OptionItem CommsCamouflage;
         public static OptionItem RoleImpostor;
         public static OptionItem ALoversRole;
@@ -396,10 +412,13 @@ namespace TownOfHost
         public static OptionItem ColorNameMode;
         public static OptionItem ChangeNameToRoleInfo;
         public static OptionItem RoleAssigningAlgorithm;
+        public static OptionItem AssignSameRoleAfterForcedEnding;
         public static OptionItem sotodererukomando;
+        public static OptionItem AntiBlackOutSpawnVer;
 
         public static OptionItem ApplyDenyNameList;
         public static OptionItem KickPlayerFriendCodeNotExist;
+        //public static OptionItem KickModClient;
         public static OptionItem ApplyBanList;
 
         public static readonly string[] suffixModes =
@@ -547,7 +566,7 @@ namespace TownOfHost
             MadmateVentCooldown = FloatOptionItem.Create(101011, "MadmateVentCooldown", new(0f, 180f, 2.5f), 0f, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Seconds);
-            MadmateVentMaxTime = FloatOptionItem.Create(101018, "MadmateVentMaxTime", new(0f, 180f, 2.5f), 0f, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption)
+            MadmateVentMaxTime = FloatOptionItem.Create(101018, "MadmateVentMaxTime", new(0f, 180f, 2.5f), 0f, TabGroup.MadmateRoles, false, infinity: true).SetColorcode("#8cffff").SetParent(MadMateOption)
                 .SetValueFormat(OptionFormat.Seconds);
             MadmateCanMovedByVent = BooleanOptionItem.Create(101013, "MadmateCanMovedByVent", true, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption);
 
@@ -593,11 +612,53 @@ namespace TownOfHost
             SlowStarter.SetupCustomOption();
             Notvoter.SetupCustomOption();
             Elector.SetupCustomOption();
+            InfoPoor.SetupCustomOption();
             NonReport.SetupCustomOption();
             Transparent.SetupCustomOption();
             Water.SetupCustomOption();
             Clumsy.SetupCustomOption();
             Slacker.SetupCustomOption();
+            //ゆーれーやくしょく
+
+            DemonicTracker.SetupCustomOption();
+            DemonicCrusher.SetupCustomOption();
+            //幽霊役職の設定
+            GRRoleOp = BooleanOptionItem.Create(102001, "GRRoleOptions", false, TabGroup.GhostRoles, false)
+                .SetHeader(true)
+                .SetColorcode("#666699")
+                .SetGameMode(CustomGameMode.All);
+            GRCanSeeOtherRoles = BooleanOptionItem.Create(102002, "GRCanSeeOtherRoles", false, TabGroup.GhostRoles, false)
+                .SetColorcode("#444466")
+                .SetGameMode(CustomGameMode.All)
+                .SetParent(GRRoleOp);
+            GRCanSeeOtherTasks = BooleanOptionItem.Create(102003, "GRCanSeeOtherTasks", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(Color.yellow)
+                .SetParent(GRRoleOp);
+            GRCanSeeOtherVotes = BooleanOptionItem.Create(102004, "GRCanSeeOtherVotes", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#800080")
+                .SetParent(GRRoleOp);
+            GRCanSeeDeathReason = BooleanOptionItem.Create(102005, "GRCanSeeDeathReason", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#80ffdd")
+                .SetParent(GRRoleOp);
+            GRCanSeeKillerColor = BooleanOptionItem.Create(102006, "GRCanSeeKillerColor", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#80ffdd")
+                .SetParent(GRCanSeeDeathReason);
+            GRCanSeeAllTasks = BooleanOptionItem.Create(102007, "GRCanSeeAllTasks", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#cee4ae")
+                .SetParent(GRRoleOp);
+            GRCanSeeNumberOfButtonsOnOthers = BooleanOptionItem.Create(102008, "GRCanSeeNumberOfButtonsOnOthers", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#d7c447")
+                .SetParent(GRRoleOp);
+            GRCanSeeKillflash = BooleanOptionItem.Create(102009, "GRCanSeeKillflash", false, TabGroup.GhostRoles, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#61b26c")
+                .SetParent(GRRoleOp);
             #endregion
 
             KillFlashDuration = FloatOptionItem.Create(90000, "KillFlashDuration", new(0.1f, 0.45f, 0.05f), 0.3f, TabGroup.MainSettings, false)
@@ -700,7 +761,7 @@ namespace TownOfHost
             // タスク無効化
             DisableTasks = BooleanOptionItem.Create(100300, "DisableTasks", false, TabGroup.MainSettings, false).SetParent(MapModification)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666666");
+                .SetColorcode("#dedede");
             DisableSwipeCard = BooleanOptionItem.Create(100301, "DisableSwipeCardTask", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
                 .SetGameMode(CustomGameMode.All);
             DisableSubmitScan = BooleanOptionItem.Create(100302, "DisableSubmitScanTask", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
@@ -734,7 +795,7 @@ namespace TownOfHost
             //サボ
             Sabotage = BooleanOptionItem.Create(100800, "Sabotage", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
-                .SetColorcode("#990000")
+                .SetColorcode("#b71e1e")
                 .SetGameMode(CustomGameMode.Standard);
             // リアクターの時間制御
             SabotageTimeControl = BooleanOptionItem.Create(100801, "SabotageTimeControl", false, TabGroup.MainSettings, false).SetParent(Sabotage)
@@ -797,13 +858,13 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All);
             AddedTheSkeld = BooleanOptionItem.Create(100401, "AddedTheSkeld", false, TabGroup.MainSettings, false).SetParent(RandomMapsMode)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#888888");
+                .SetColorcode("#666666");
             AddedMiraHQ = BooleanOptionItem.Create(100402, "AddedMIRAHQ", false, TabGroup.MainSettings, false).SetParent(RandomMapsMode)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#ff6633");
             AddedPolus = BooleanOptionItem.Create(100403, "AddedPolus", false, TabGroup.MainSettings, false).SetParent(RandomMapsMode)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#660066");
+                .SetColorcode("#980098");
             AddedTheAirShip = BooleanOptionItem.Create(100404, "AddedTheAirShip", false, TabGroup.MainSettings, false).SetParent(RandomMapsMode)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#ff3300");
@@ -883,29 +944,33 @@ namespace TownOfHost
             //幽霊設定
             GhostCanSeeOtherRoles = BooleanOptionItem.Create(901_001, "GhostCanSeeOtherRoles", true, TabGroup.MainSettings, false)
                 .SetHeader(true)
-                .SetColorcode("#666699")
+                .SetColorcode("#bbbbdd")
                 .SetGameMode(CustomGameMode.All);
             GhostCanSeeOtherTasks = BooleanOptionItem.Create(901_002, "GhostCanSeeOtherTasks", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666699");
+                .SetColorcode("#bbbbdd");
             GhostCanSeeOtherVotes = BooleanOptionItem.Create(901_003, "GhostCanSeeOtherVotes", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666699");
+                .SetColorcode("#bbbbdd");
             GhostCanSeeDeathReason = BooleanOptionItem.Create(901_004, "GhostCanSeeDeathReason", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666699");
-            GhostIgnoreAllTasks = BooleanOptionItem.Create(901_005, "GhostIgnoreAllTasks", true, TabGroup.MainSettings, false)
+                .SetColorcode("#bbbbdd");
+            GhostCanSeeKillerColor = BooleanOptionItem.Create(901_005, "GhostCanSeeKillerColor", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666699");
-            GhostCanSeeNumberOfButtonsOnOthers = BooleanOptionItem.Create(901_006, "GhostCanSeeNumberOfButtonsOnOthers", true, TabGroup.MainSettings, false)
+                .SetColorcode("#bbbbdd")
+                .SetParent(GhostCanSeeDeathReason);
+            GhostCanSeeAllTasks = BooleanOptionItem.Create(901_006, "GhostCanSeeAllTasks", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666699");
-            GhostIgnoreKillflash = BooleanOptionItem.Create(901_007, "GhostIgnoreKillflash", true, TabGroup.MainSettings, false)
-            .SetGameMode(CustomGameMode.All)
-            .SetColorcode("#666699");
+                .SetColorcode("#bbbbdd");
+            GhostCanSeeNumberOfButtonsOnOthers = BooleanOptionItem.Create(901_007, "GhostCanSeeNumberOfButtonsOnOthers", true, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#bbbbdd");
+            GhostCanSeeKillflash = BooleanOptionItem.Create(901_008, "GhostCanSeeKillflash", true, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#bbbbdd");
             GhostIgnoreTasks = BooleanOptionItem.Create(901_000, "GhostIgnoreTasks", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#666699");
+                .SetColorcode("#bbbbdd");
 
             // その他
             FixFirstKillCooldown = BooleanOptionItem.Create(900_000, "FixFirstKillCooldown", false, TabGroup.MainSettings, false)
@@ -925,6 +990,9 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
             CommnTaskResetAssing = BooleanOptionItem.Create(900_005, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#cc3366");
+            UseSelfVoteInfo = BooleanOptionItem.Create(900_006, "UseSelfVoteInfo", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
 
@@ -961,15 +1029,25 @@ namespace TownOfHost
                 .RegisterUpdateValueEvent(
                     (object obj, OptionItem.UpdateValueEventArgs args) => IRandom.SetInstanceById(args.CurrentValue)
                 );
+#if DEBUG
+            AssignSameRoleAfterForcedEnding = BooleanOptionItem.Create(1_000_086, "AssignSameRoleAfterForcedEnding", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.Standard);
+#endif
             sotodererukomando = BooleanOptionItem.Create(1_000_007, "sotodererukomando", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#00c1ff");
-
+#if DEBUG
+            AntiBlackOutSpawnVer = BooleanOptionItem.Create(1_000_008, "AntiBlackOutSpawnVer", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.Standard)
+                .SetColorcode("#ec0808");
+#endif
             ApplyDenyNameList = BooleanOptionItem.Create(1_000_100, "ApplyDenyNameList", true, TabGroup.MainSettings, true)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.All);
             KickPlayerFriendCodeNotExist = BooleanOptionItem.Create(1_000_101, "KickPlayerFriendCodeNotExist", false, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All);
+            //KickModClient = BooleanOptionItem.Create(1_000_102, "KickModClient", false, TabGroup.MainSettings, true)
+            //.SetGameMode(CustomGameMode.All);
             ApplyBanList = BooleanOptionItem.Create(1_000_110, "ApplyBanList", true, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All);
 
@@ -985,9 +1063,21 @@ namespace TownOfHost
         public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: Utils.GetFrom(info), combination: info.Combination);
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
         {
-            if (role.IsVanilla() || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
+            if ((role is CustomRoles.Crewmate or CustomRoles.Impostor or CustomRoles.Phantom or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
+            if (role.IsVanilla())
+            {
+                switch (role)
+                {
+                    case CustomRoles.Shapeshifter: id = 30; break;
+                    case CustomRoles.Phantom: id = 40; break;
+                    case CustomRoles.Engineer: id = 200; break;
+                    case CustomRoles.Scientist: id = 250; break;
+                    case CustomRoles.Tracker: id = 300; break;
+                    case CustomRoles.Noisemaker: id = 350; break;  //アプデ対応用
+                }
+            }
             assignCountRule ??= new(1, 15, 1);
-            var from = "<line-height=25%><size=25%>\n</size><size=50%><pos=60%></color> " + fromtext + "</size>";
+            var from = "<line-height=25%><size=25%>\n</size><size=60%><pos=50%></color> <b>" + fromtext + "</b></size>";
 
             var spawnOption = IntegerOptionItem.Create(id, combination == CombinationRoles.None ? role.ToString() : combination.ToString(), new(0, 100, 10), 0, tab, false, from)
                 .SetColor(Utils.GetRoleColor(role))
@@ -1006,6 +1096,50 @@ namespace TownOfHost
             if (combination != CombinationRoles.None) Combinations.Add(combination);
             CustomRoleSpawnChances.Add(role, spawnOption);
             CustomRoleCounts.Add(role, countOption);
+        }
+        public class OverrideKilldistance
+        {
+            public static Dictionary<CustomRoles, OverrideKilldistance> AllData = new();
+            public CustomRoles Role { get; private set; }
+            public int IdStart { get; private set; }
+            public OptionItem Killdistance;
+            public enum KillDistance
+            {
+                KDShort,//ショート
+                KDMidium,//ミドル
+                KDLong//ロング
+            }
+
+            public OverrideKilldistance(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned)
+            {
+                this.IdStart = idStart;
+                this.Role = role;
+                var r = chrole == CustomRoles.NotAssigned ? role : chrole;
+                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(r), Utils.GetRoleName(r)) } };
+                Killdistance = StringOptionItem.Create(IdStart++, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, tab, false)
+                .SetParent(CustomRoleSpawnChances[role]);
+                Killdistance.ReplacementDictionary = replacementDic;
+
+                role = chrole == CustomRoles.NotAssigned ? role : chrole;
+
+                if (!AllData.ContainsKey(role)) AllData.Add(role, this);
+                else Logger.Warn("重複したCustomRolesを対象とするOverrideKilldistanceが作成されました", "OverrideKilldistance");
+            }
+            public static OverrideKilldistance Create(int idStart, TabGroup tab, CustomRoles role)
+            {
+                return new OverrideKilldistance(idStart, tab, role);
+            }
+            /// <summary>
+            /// キルディスタンスの上書き設定。
+            /// </summary>
+            /// <param name="idStart">ID</param>
+            /// <param name="tab">タブ</param>
+            /// <param name="role">設定に出すロール</param>
+            /// <param name="chrole">設定名(ユニット用)</param>
+            public static OverrideKilldistance Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned)
+            {
+                return new OverrideKilldistance(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename);
+            }
         }
         /// <summary>
         /// ID+4?まで使うから重複注意
@@ -1032,7 +1166,8 @@ namespace TownOfHost
             {
                 this.IdStart = idStart;
                 this.Role = role;
-                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.GetRoleName(chrole == CustomRoles.NotAssigned ? role : chrole) } };
+                var r = chrole == CustomRoles.NotAssigned ? role : chrole;
+                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(r), Utils.GetRoleName(r)) } };
                 doOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab, false).SetParent(CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
                 doOverride.ReplacementDictionary = replacementDic;

@@ -49,6 +49,17 @@ public static class AbilityButtonDoClickPatch
             }
             return true;
         }
+        else
+        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Phantom)
+        {
+            if (!(PlayerControl.LocalPlayer.GetRoleClass()?.CanUseAbilityButton() ?? false)) return false;
+            foreach (var p in Main.AllPlayerControls)
+            {
+                p.Data.Role.NameColor = Color.white;
+            }
+            PlayerControl.LocalPlayer.Data.Role.Cast<PhantomRole>().UseAbility();
+            return true;
+        }
         return true;
     }
 }

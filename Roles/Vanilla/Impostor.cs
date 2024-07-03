@@ -11,7 +11,8 @@ public sealed class Impostor : RoleBase, IImpostor
         SimpleRoleInfo.CreateForVanilla(
             typeof(Impostor),
             player => new Impostor(player),
-            RoleTypes.Impostor
+            RoleTypes.Impostor,
+            null
         );
     public Impostor(PlayerControl player)
     : base(

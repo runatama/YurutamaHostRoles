@@ -3,7 +3,6 @@ using HarmonyLib;
 using UnityEngine;
 
 using TownOfHost.Modules;
-using AmongUs.GameOptions;
 
 namespace TownOfHost
 {
@@ -155,7 +154,12 @@ namespace TownOfHost
             {
                 PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
             }
-
+            if (GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false) && GameStates.IsLobby)
+            {
+                GameSettingMenuStartPatch.ModSettingsTab.CloseMenu();
+                GameSettingMenu.Instance.GameSettingsTab.CloseMenu();
+                GameSettingMenu.Instance.RoleSettingsTab.CloseMenu();
+            }
             //--以下デバッグモード用コマンド--//
             if (!DebugModeManager.IsDebugMode) return;
 
@@ -209,12 +213,6 @@ namespace TownOfHost
             {
                 HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
                 HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
-            }
-            //タスクカウントの表示切替
-            if (Input.GetKeyDown(KeyCode.Equals))
-            {
-                Main.VisibleTasksCount = !Main.VisibleTasksCount;
-                DestroyableSingleton<HudManager>.Instance.Notifier.AddItem("VisibleTaskCountが" + Main.VisibleTasksCount.ToString() + "に変更されました。");
             }
             //エアシップのトイレのドアを全て開ける
             if (Input.GetKeyDown(KeyCode.P))

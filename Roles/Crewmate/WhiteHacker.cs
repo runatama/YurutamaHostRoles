@@ -49,17 +49,15 @@ public sealed class WhiteHacker : RoleBase
     bool use;
     enum Option
     {
-        cantaskcount,
-        WHcont,
-        UKakusei
+        WhiteHackerTrackTimes,
     }
 
     private static void SetupOptionItem()
     {
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 10, Option.cantaskcount, new(0, 99, 1), 5, false);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.WHcont, new(1f, 99f, 1f), 1f, false)
+        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.WhiteHackerTrackTimes, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 12, Option.UKakusei, true, false);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.UKakusei, true, false);
     }
     private void SendRPC()
     {
@@ -100,7 +98,7 @@ public sealed class WhiteHacker : RoleBase
         if (!use)
             P = 255;
     }
-    public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __) => use = false;
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => use = false;
     // 表示系の関数群
     public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {

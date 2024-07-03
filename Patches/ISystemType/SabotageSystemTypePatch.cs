@@ -33,7 +33,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
         //HASモードではサボタージュ不可
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
 
-        //if (!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) return false;
+        if (!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) return false;
 
         if (!CustomRoleManager.OnSabotage(player, nextSabotage))
         {

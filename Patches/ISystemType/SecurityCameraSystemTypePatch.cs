@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Hazel;
+//using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost.Patches.ISystemType;
 
@@ -14,7 +15,15 @@ public static class SecurityCameraSystemTypeUpdateSystemPatch
             amount = newReader.ReadByte();
             newReader.Recycle();
         }
+#if DEBUG
+        var state = PlayerState.GetByPlayerId(player.PlayerId);
 
+        if (!ExileControllerWrapUpPatch.AllSpawned && ExileControllerWrapUpPatch.SpawnTimer <= 0
+            && !state.TeleportedWithAntiBlackout && amount == SecurityCameraSystemType.DecrementOp)
+        {
+            state.TeleportedWithAntiBlackout = true;
+        }
+#endif
         // カメラ無効時，バニラプレイヤーはカメラを開けるので点滅させない
         if (amount == SecurityCameraSystemType.IncrementOp)
         {

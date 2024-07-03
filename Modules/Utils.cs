@@ -22,6 +22,7 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Crewmate;
 using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.Ghost;
 using static TownOfHost.Translator;
 using HarmonyLib;
 
@@ -146,7 +147,7 @@ namespace TownOfHost
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
             if (seer.Is(CustomRoles.GM)) return true;
-            if (seer.Data.IsDead && Options.GhostIgnoreKillflash.GetBool() && target != seer) return true;
+            if (seer.Data.IsDead && Options.GhostCanSeeKillflash.GetBool() && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
             if (seer.GetRoleClass() is IKillFlashSeeable killFlashSeeable)
@@ -208,10 +209,10 @@ namespace TownOfHost
         /// <param name="seer">見る側</param>
         /// <param name="seen">見られる側</param>
         /// <returns>RoleName + ProgressTextを表示するか、構築する色とテキスト(bool, Color, string)</returns>
-        public static (bool enabled, string text) GetRoleNameAndProgressTextData(PlayerControl seer, PlayerControl seen = null)
+        public static (bool enabled, string text) GetRoleNameAndProgressTextData(PlayerControl seer, PlayerControl seen = null, bool Mane = true)
         {
             var roleName = GetDisplayRoleName(seer, seen);
-            var progressText = GetProgressText(seer, seen);
+            var progressText = GetProgressText(seer, seen, Mane);
             var text = roleName + (roleName != "" ? " " : "") + progressText;
             return (text != "", text);
         }
@@ -227,7 +228,7 @@ namespace TownOfHost
             //デフォルト値
             bool enabled = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool())
+                        || (Main.VisibleTasksCount && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
                         || (Options.ALoversRole.GetBool() && seer.Is(CustomRoles.ALovers) && seen.Is(CustomRoles.ALovers))
                         || (Options.BLoversRole.GetBool() && seer.Is(CustomRoles.BLovers) && seen.Is(CustomRoles.BLovers))
                         || (Options.CLoversRole.GetBool() && seer.Is(CustomRoles.CLovers) && seen.Is(CustomRoles.CLovers))
@@ -243,7 +244,7 @@ namespace TownOfHost
             //属性が見れるか
             bool addon = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool())
+                        || (Main.VisibleTasksCount && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
                         || (Options.InsiderMode.GetBool() && seer.GetCustomRole().IsImpostor());
 
             var (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId, addon);
@@ -268,7 +269,7 @@ namespace TownOfHost
         /// <param name="mainRole">表示する役職</param>
         /// <param name="subRolesList">表示する属性のList</param>
         /// <returns>RoleNameを構築する色とテキスト(Color, string)</returns>
-        public static (Color color, string text) GetRoleNameData(CustomRoles mainRole, List<CustomRoles> subRolesList, bool showSubRoleMarks = true)
+        public static (Color color, string text) GetRoleNameData(CustomRoles mainRole, List<CustomRoles> subRolesList, CustomRoles GhostRole, bool showSubRoleMarks = true)
         {
             string roleText = "";
             Color roleColor = Color.white;
@@ -299,6 +300,8 @@ namespace TownOfHost
                     }
                 }
             }
+
+            if (GhostRole != CustomRoles.NotAssigned) roleText = $"<size=60%>({roleText})</size><size=80%>{ColorString(GetRoleColor(GhostRole), GetString($"{GhostRole}"))}</size>";
 
             string subRoleMarks = showSubRoleMarks ? GetSubRoleMarks(subRolesList, mainRole) : "";
             if (roleText != "" && subRoleMarks != "")
@@ -387,6 +390,9 @@ namespace TownOfHost
                         case CustomRoles.Elector:
                             sb.Append(Elector.SubRoleMark);
                             break;
+                        case CustomRoles.InfoPoor:
+                            sb.Append(InfoPoor.SubRoleMark);
+                            break;
                     }
                 }
             }
@@ -400,9 +406,9 @@ namespace TownOfHost
         private static (Color color, string text) GetTrueRoleNameData(byte playerId, bool showSubRoleMarks = true)
         {
             var state = PlayerState.GetByPlayerId(playerId);
-            if (state == null || CustomRoleManager.GetByPlayerId(playerId) == null || GetPlayerById(playerId) == null)
+            if (state == null)
             {
-                var (c, t) = (Color.white, "");
+                var (c, t) = (Color.white, "Error(´・ω・｀)");
                 return (c, t);
             }
             var Subrole = new List<CustomRoles>(state.SubRoles);
@@ -410,96 +416,105 @@ namespace TownOfHost
             if (state.MainRole != CustomRoles.NotAssigned && state != null && GetPlayerById(playerId) != null)
                 if (RoleAddAddons.AllData.TryGetValue(state.MainRole, out var data))
                 {
-                    if (data.GiveAddons.GetBool())
+                    if (data != null)
+                        if (data.GiveAddons.GetBool())
+                        {
+                            if (data.GiveGuesser.GetBool() && !Subrole.Any(x => x == CustomRoles.Guesser))
+                                Subrole.Add(CustomRoles.Guesser);
+                            if (data.GiveWatching.GetBool() && !Subrole.Any(x => x == CustomRoles.watching))
+                                Subrole.Add(CustomRoles.watching);
+                            if (data.GivePlusVote.GetBool() && !Subrole.Any(x => x == CustomRoles.PlusVote))
+                                Subrole.Add(CustomRoles.PlusVote);
+                            if (data.GiveTiebreaker.GetBool() && !Subrole.Any(x => x == CustomRoles.Tiebreaker))
+                                Subrole.Add(CustomRoles.Tiebreaker);
+                            if (data.GiveAutopsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Autopsy))
+                                Subrole.Add(CustomRoles.Autopsy);
+                            if (data.GiveRevenger.GetBool() && !Subrole.Any(x => x == CustomRoles.Revenger))
+                                Subrole.Add(CustomRoles.Revenger);
+                            if (data.GiveSpeeding.GetBool() && !Subrole.Any(x => x == CustomRoles.Speeding))
+                                Subrole.Add(CustomRoles.Speeding);
+                            if (data.GiveGuarding.GetBool() && !Subrole.Any(x => x == CustomRoles.Guarding))
+                                Subrole.Add(CustomRoles.Guarding);
+                            if (data.GiveManagement.GetBool() && !Subrole.Any(x => x == CustomRoles.Management))
+                                Subrole.Add(CustomRoles.Management);
+                            if (data.Giveseeing.GetBool() && !Subrole.Any(x => x == CustomRoles.seeing))
+                                Subrole.Add(CustomRoles.seeing);
+                            if (data.GiveOpener.GetBool() && !Subrole.Any(x => x == CustomRoles.Opener))
+                                Subrole.Add(CustomRoles.Opener);
+                            if (!state.MainRole.IsImpostor())
+                            {
+                                if (data.GiveLighting.GetBool() && !Subrole.Any(x => x == CustomRoles.Lighting))
+                                    Subrole.Add(CustomRoles.Lighting);
+                                if (data.GiveMoon.GetBool() && !Subrole.Any(x => x == CustomRoles.Moon))
+                                    Subrole.Add(CustomRoles.Moon);
+                            }
+                            if (data.GiveNotvoter.GetBool() && !Subrole.Any(x => x == CustomRoles.Notvoter))
+                                Subrole.Add(CustomRoles.Notvoter);
+                            if (data.GiveElector.GetBool() && !Subrole.Any(x => x == CustomRoles.Elector))
+                                Subrole.Add(CustomRoles.Elector);
+                            if (data.GiveInfoPoor.GetBool() && !Subrole.Any(x => x == CustomRoles.InfoPoor))
+                                Subrole.Add(CustomRoles.InfoPoor);
+                            if (data.GiveNonReport.GetBool() && !Subrole.Any(x => x == CustomRoles.NonReport))
+                                Subrole.Add(CustomRoles.NonReport);
+                            if (data.GiveTransparent.GetBool() && !Subrole.Any(x => x == CustomRoles.Transparent))
+                                Subrole.Add(CustomRoles.Transparent);
+                            if (data.GiveWater.GetBool() && !Subrole.Any(x => x == CustomRoles.Water))
+                                Subrole.Add(CustomRoles.Water);
+                            if (data.GiveClumsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Clumsy))
+                                Subrole.Add(CustomRoles.Clumsy);
+                            if (data.GiveSlacker.GetBool() && !Subrole.Any(x => x == CustomRoles.Slacker))
+                                Subrole.Add(CustomRoles.Slacker);
+                        }
+                    if (state.SubRoles.Any(x => x is CustomRoles.LastImpostor))
                     {
-                        if (data.GiveGuesser.GetBool() && !Subrole.Any(x => x == CustomRoles.Guesser))
-                            Subrole.Add(CustomRoles.Guesser);
-                        if (data.GiveWatching.GetBool() && !Subrole.Any(x => x == CustomRoles.watching))
-                            Subrole.Add(CustomRoles.watching);
-                        if (data.GivePlusVote.GetBool() && !Subrole.Any(x => x == CustomRoles.PlusVote))
-                            Subrole.Add(CustomRoles.PlusVote);
-                        if (data.GiveTiebreaker.GetBool() && !Subrole.Any(x => x == CustomRoles.Tiebreaker))
-                            Subrole.Add(CustomRoles.Tiebreaker);
-                        if (data.GiveAutopsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Autopsy))
+                        if (LastImpostor.GiveAutopsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Autopsy))
                             Subrole.Add(CustomRoles.Autopsy);
-                        if (data.GiveRevenger.GetBool() && !Subrole.Any(x => x == CustomRoles.Revenger))
-                            Subrole.Add(CustomRoles.Revenger);
-                        if (data.GiveSpeeding.GetBool() && !Subrole.Any(x => x == CustomRoles.Speeding))
-                            Subrole.Add(CustomRoles.Speeding);
-                        if (data.GiveGuarding.GetBool() && !Subrole.Any(x => x == CustomRoles.Guarding))
-                            Subrole.Add(CustomRoles.Guarding);
-                        if (data.GiveManagement.GetBool() && !Subrole.Any(x => x == CustomRoles.Management))
+                        if (LastImpostor.GiveGuesser.GetBool() & !Subrole.Any(x => x == CustomRoles.Guesser))
+                            Subrole.Add(CustomRoles.Guesser);
+                        if (LastImpostor.GiveManagement.GetBool() && !Subrole.Any(x => x == CustomRoles.Management))
                             Subrole.Add(CustomRoles.Management);
-                        if (data.Giveseeing.GetBool() && !Subrole.Any(x => x == CustomRoles.seeing))
+                        if (LastImpostor.Giveseeing.GetBool() && !Subrole.Any(x => x == CustomRoles.seeing))
                             Subrole.Add(CustomRoles.seeing);
-                        if (data.GiveOpener.GetBool() && !Subrole.Any(x => x == CustomRoles.Opener))
-                            Subrole.Add(CustomRoles.Opener);
-                        if (data.GiveLighting.GetBool() && !Subrole.Any(x => x == CustomRoles.Lighting))
-                            Subrole.Add(CustomRoles.Lighting);
-                        if (data.GiveMoon.GetBool() && !Subrole.Any(x => x == CustomRoles.Moon))
-                            Subrole.Add(CustomRoles.Moon);
-                        if (data.GiveNotvoter.GetBool() && !Subrole.Any(x => x == CustomRoles.Notvoter))
-                            Subrole.Add(CustomRoles.Notvoter);
-                        if (data.GiveElector.GetBool() && !Subrole.Any(x => x == CustomRoles.Elector))
-                            Subrole.Add(CustomRoles.Elector);
-                        if (data.GiveNonReport.GetBool() && !Subrole.Any(x => x == CustomRoles.NonReport))
-                            Subrole.Add(CustomRoles.NonReport);
-                        if (data.GiveTransparent.GetBool() && !Subrole.Any(x => x == CustomRoles.Transparent))
-                            Subrole.Add(CustomRoles.Transparent);
-                        if (data.GiveWater.GetBool() && !Subrole.Any(x => x == CustomRoles.Water))
-                            Subrole.Add(CustomRoles.Water);
-                        if (data.GiveClumsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Clumsy))
-                            Subrole.Add(CustomRoles.Clumsy);
-                        if (data.GiveSlacker.GetBool() && !Subrole.Any(x => x == CustomRoles.Slacker))
-                            Subrole.Add(CustomRoles.Slacker);
+                        if (LastImpostor.GiveTiebreaker.GetBool() && !Subrole.Any(x => x == CustomRoles.Tiebreaker))
+                            Subrole.Add(CustomRoles.Tiebreaker);
+                        if (LastImpostor.GiveWatching.GetBool() && !Subrole.Any(x => x == CustomRoles.watching))
+                            Subrole.Add(CustomRoles.watching);
+                    }
+                    if (state.SubRoles.Any(x => x is CustomRoles.LastNeutral))
+                    {
+                        if (LastNeutral.GiveAutopsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Autopsy))
+                            Subrole.Add(CustomRoles.Autopsy);
+                        if (LastNeutral.GiveGuesser.GetBool() && !Subrole.Any(x => x == CustomRoles.Guesser))
+                            Subrole.Add(CustomRoles.Guesser);
+                        if (LastNeutral.GiveManagement.GetBool() && !Subrole.Any(x => x == CustomRoles.Management))
+                            Subrole.Add(CustomRoles.Management);
+                        if (LastNeutral.Giveseeing.GetBool() && !Subrole.Any(x => x == CustomRoles.seeing))
+                            Subrole.Add(CustomRoles.seeing);
+                        if (LastNeutral.GiveTiebreaker.GetBool() && !Subrole.Any(x => x == CustomRoles.Tiebreaker))
+                            Subrole.Add(CustomRoles.Tiebreaker);
+                        if (LastNeutral.GiveWatching.GetBool() && !Subrole.Any(x => x == CustomRoles.watching))
+                            Subrole.Add(CustomRoles.watching);
                     }
                 }
-            if (state.SubRoles.Any(x => x is CustomRoles.LastImpostor))
-            {
-                if (LastImpostor.GiveAutopsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Autopsy))
-                    Subrole.Add(CustomRoles.Autopsy);
-                if (LastImpostor.GiveGuesser.GetBool() & !Subrole.Any(x => x == CustomRoles.Guesser))
-                    Subrole.Add(CustomRoles.Guesser);
-                if (LastImpostor.GiveManagement.GetBool() && !Subrole.Any(x => x == CustomRoles.Management))
-                    Subrole.Add(CustomRoles.Management);
-                if (LastImpostor.Giveseeing.GetBool() && !Subrole.Any(x => x == CustomRoles.seeing))
-                    Subrole.Add(CustomRoles.seeing);
-                if (LastImpostor.GiveTiebreaker.GetBool() && !Subrole.Any(x => x == CustomRoles.Tiebreaker))
-                    Subrole.Add(CustomRoles.Tiebreaker);
-                if (LastImpostor.GiveWatching.GetBool() && !Subrole.Any(x => x == CustomRoles.watching))
-                    Subrole.Add(CustomRoles.watching);
-            }
-            if (state.SubRoles.Any(x => x is CustomRoles.LastNeutral))
-            {
-                if (LastNeutral.GiveAutopsy.GetBool() && !Subrole.Any(x => x == CustomRoles.Autopsy))
-                    Subrole.Add(CustomRoles.Autopsy);
-                if (LastNeutral.GiveGuesser.GetBool() && !Subrole.Any(x => x == CustomRoles.Guesser))
-                    Subrole.Add(CustomRoles.Guesser);
-                if (LastNeutral.GiveManagement.GetBool() && !Subrole.Any(x => x == CustomRoles.Management))
-                    Subrole.Add(CustomRoles.Management);
-                if (LastNeutral.Giveseeing.GetBool() && !Subrole.Any(x => x == CustomRoles.seeing))
-                    Subrole.Add(CustomRoles.seeing);
-                if (LastNeutral.GiveTiebreaker.GetBool() && !Subrole.Any(x => x == CustomRoles.Tiebreaker))
-                    Subrole.Add(CustomRoles.Tiebreaker);
-                if (LastNeutral.GiveWatching.GetBool() && !Subrole.Any(x => x == CustomRoles.watching))
-                    Subrole.Add(CustomRoles.watching);
-            }
-            var (color, text) = GetRoleNameData(state.MainRole, Subrole, showSubRoleMarks);
+            var (color, text) = GetRoleNameData(state.MainRole, Subrole, state.GhostRole, showSubRoleMarks);
             CustomRoleManager.GetByPlayerId(playerId)?.OverrideTrueRoleName(ref color, ref text);
-            if (GetPlayerById(playerId).Is(CustomRoles.Amnesia))
+            if (GetPlayerById(playerId) != null)
             {
-                var c = CustomRoles.Crewmate;
-                if (GetPlayerById(playerId).Is(CustomRoleTypes.Impostor)) c = CustomRoles.Impostor;
-                (color, text) = GetRoleNameData(c, Subrole, showSubRoleMarks);
-                if (GetPlayerById(playerId).Is(CustomRoleTypes.Neutral) || GetPlayerById(playerId).Is(CustomRoleTypes.Madmate))
+                if (GetPlayerById(playerId).Is(CustomRoles.Amnesia))
                 {
-                    text = GetString("Neutral");
-                    color = Palette.DisabledGrey;
+                    var c = CustomRoles.Crewmate;
+                    if (GetPlayerById(playerId).Is(CustomRoleTypes.Impostor)) c = CustomRoles.Impostor;
+                    (color, text) = GetRoleNameData(c, Subrole, state.GhostRole, showSubRoleMarks);
+                    if (GetPlayerById(playerId).Is(CustomRoleTypes.Neutral) || GetPlayerById(playerId).Is(CustomRoleTypes.Madmate))
+                    {
+                        text = GetString("Neutral");
+                        color = Palette.DisabledGrey;
+                    }
                 }
-            }
-            if (GetPlayerById(playerId).GetRoleClass() != null && GetPlayerById(playerId).GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
-            {
-                (color, text) = GetRoleNameData(GetPlayerById(playerId).GetRoleClass().Jikaku(), Subrole, showSubRoleMarks);
+                if (GetPlayerById(playerId).GetRoleClass() != null && GetPlayerById(playerId).GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+                {
+                    (color, text) = GetRoleNameData(GetPlayerById(playerId).GetRoleClass().Jikaku(), Subrole, state.GhostRole, showSubRoleMarks);
+                }
             }
             return (color, text);
         }
@@ -550,28 +565,30 @@ namespace TownOfHost
             if (borudo) return "<b>" + ColorString(Main.PlayerColors[player], $"{GetPlayerById(player).name}</b>");
             else return ColorString(Main.PlayerColors[player], $"{GetPlayerById(player).name}");
         }
-        public static string GetFrom(SimpleRoleInfo info)
+        public static string GetFrom(SimpleRoleInfo info) => GetFrom(info.From);
+        public static string GetFrom(From from)
         {
-            string Fromtext = "From:";
-            switch (info.From)
+            string Fromtext = "<color=#000000>From:</color>";
+            switch (from)
             {
                 case From.None: Fromtext = ""; break;
                 case From.TheOtherRoles: Fromtext += $"<color=#ff0000>TheOtherRoles</color>"; break;
                 case From.TOR_GM_Edition: Fromtext += $"<color=#ff0000>TOR GM Edition</color>"; break;
                 case From.TOR_GM_Haoming_Edition: Fromtext += $"<color=#ff0000>TOR GM Haoming</color>"; break;
                 case From.SuperNewRoles: Fromtext += "<color=#ffa500>Super</color><color=#ff0000>New</color><color=#00ff00>Roles</color>"; break;
-                case From.ExtremeRoles: Fromtext += $"<color=#d3d3d3>{info.From}</color>"; break;
-                case From.NebulaontheShip: Fromtext += $"<color=#191970>{info.From}</color>"; break;
+                case From.ExtremeRoles: Fromtext += $"<color=#d3d3d3>{from}</color>"; break;
+                case From.NebulaontheShip: Fromtext += $"<color=#191970>{from}</color>"; break;
                 case From.au_libhalt_net: Fromtext += $"<color=#ffc0cb>au libhalt net</color>"; break;
-                case From.FoolersMod: Fromtext += $"<color=#00ff00>{info.From}</color>"; break;
-                case From.SheriffMod: Fromtext += $"<color=#f8cd46>{info.From}</color>"; break;
-                case From.Jester: Fromtext += $"<color=#ec62a5>{info.From}</color>"; break;
-                case From.TownOfUs: Fromtext += $"<color=#daa520>{info.From}</color>"; break;
-                case From.TownOfHost: Fromtext += $"<color=#00bfff>{info.From}</color>"; break;
-                case From.TownOfHost_Y: Fromtext += $"<color=#ffff00>TownOfHost_Y</color>"; break;
+                case From.FoolersMod: Fromtext += $"<color=#006400>{from}</color>"; break;
+                case From.SheriffMod: Fromtext += $"<color=#f8cd46>{from}</color>"; break;
+                case From.Jester: Fromtext += $"<color=#ec62a5>{from}</color>"; break;
+                case From.TownOfUs: Fromtext += $"<color=#daa520>{from}</color>"; break;
+                case From.TownOfHost: Fromtext += $"<color=#00bfff>{from}</color>"; break;
+                case From.TownOfHost_Y: Fromtext += $"<color=#dddd00>TownOfHost_Y</color>"; break;
                 case From.TownOfHost_for_E: Fromtext += $"<color=#18e744>TownOfHost for E</color>"; break;
                 case From.TownOfHost_E: Fromtext += $"<color=#ffc0cb>TownOfHost E</color>"; break;
-                case From.RevolutionaryHostRoles: Fromtext += $"<color=#00ff7f>RHR</color>"; break;
+                case From.RevolutionaryHostRoles: Fromtext += $"<color=#3cb371>RevolutionaryHostRoles</color>"; break;
+                case From.Love_Couple_Mod: Fromtext += "<color=#ff6be4>Love Couple Mod</color>"; break;
             }
             return Fromtext;
         }
@@ -594,6 +611,14 @@ namespace TownOfHost
             return role.GetRoleInfo()?.Combination == CombinationRoles.None ? GetRoleName(role) : GetString(role.GetRoleInfo().Combination.ToString());
         }
 
+        public static bool CanDeathReasonKillerColor(this byte playerId)
+        {
+            var pc = GetPlayerById(playerId);
+            if (pc == null) return false;
+            if (!pc.IsAlive() && pc.IsGorstRole()) return Options.GRCanSeeKillerColor.GetBool();
+            if (!pc.IsAlive() && !pc.IsGorstRole()) return Options.GhostCanSeeKillerColor.GetBool();
+            return false;
+        }
         public static string GetVitalText(byte playerId, bool RealKillerColor = false)
         {
             var state = PlayerState.GetByPlayerId(playerId);
@@ -604,7 +629,7 @@ namespace TownOfHost
             if (RealKillerColor)
             {
                 var KillerId = state.GetRealKiller();
-                Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : GetRoleColor(CustomRoles.Doctor);
+                Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : new Color32(162, 194, 230, 255);
                 deathReason = ColorString(color, deathReason);
             }
             return deathReason;
@@ -641,7 +666,7 @@ namespace TownOfHost
             return (text, color);
         }
 
-        public static bool HasTasks(GameData.PlayerInfo p, bool ForRecompute = true)
+        public static bool HasTasks(NetworkedPlayerInfo p, bool ForRecompute = true)
         {
             if (GameStates.IsLobby) return false;
             //Tasksがnullの場合があるのでその場合タスク無しとする
@@ -727,6 +752,7 @@ namespace TownOfHost
                             hasTasks &= !ForRecompute;
                             break;
                     }
+
             }
             return hasTasks;
         }
@@ -738,8 +764,7 @@ namespace TownOfHost
             {
                 if (pc != null)
                 {
-                    if (pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Impostor ||
-                        pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter) continue;
+                    if (pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) continue;
                     foreach (var task in pc.myTasks)
                         pc.RpcCompleteTask(task.Id);
                 }
@@ -753,10 +778,10 @@ namespace TownOfHost
             seen ??= seer;
             var comms = IsActive(SystemTypes.Comms);
             bool enabled = seer == seen
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && Options.GhostCanSeeOtherTasks.GetBool());
+                        || (Main.VisibleTasksCount && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherTasks.GetBool()) && Options.GhostCanSeeOtherTasks.GetBool());
             string text = GetProgressText(seen.PlayerId, comms, Mane);
 
-            if (Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() && !seer.IsAlive()) text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";
+            if (Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool())) text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";
 
             //seer側による変更
             seer.GetRoleClass()?.OverrideProgressTextAsSeer(seen, ref enabled, ref text);
@@ -808,6 +833,10 @@ namespace TownOfHost
         {
             var pc = GetPlayerById(playerId);
             if (pc == null) return "";
+            if (pc.Is(CustomRoles.GM))
+                if (Options.GhostCanSeeAllTasks.GetBool())
+                    return AllTaskstext(false, false, false, comms, true);
+
             var state = PlayerState.GetByPlayerId(playerId);
             if (state == null) return "";
 
@@ -815,6 +844,37 @@ namespace TownOfHost
             var info = GetPlayerInfoById(playerId);
             var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(state.MainRole).ShadeColor(0.5f); //タスク完了後の色
             var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
+
+            if (pc.Is(CustomRoles.Amnesia))
+            {
+                CustomRoles role = (CustomRoles)pc.GetCustomRole().GetRoleTypes();
+                if (role.IsImpostor())
+                {
+                    TaskCompleteColor = GetRoleColor(state.MainRole).ShadeColor(0.5f);
+                    NonCompleteColor = Color.white;
+                }
+                else
+                {
+                    TaskCompleteColor = Color.green;
+                    NonCompleteColor = Color.yellow;
+                }
+            }
+
+            if (pc.GetRoleClass() != null && pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+            {
+                var role = pc.GetRoleClass().Jikaku();
+
+                if (role.IsCrewmate() && !pc.IsRiaju() && pc.IsAlive())
+                {
+                    TaskCompleteColor = Color.green;
+                    NonCompleteColor = Color.yellow;
+                }
+                else
+                {
+                    TaskCompleteColor = GetRoleColor(state.MainRole).ShadeColor(0.5f);
+                    NonCompleteColor = Color.white;
+                }
+            }
 
             if (Workhorse.IsThisRole(playerId))
                 NonCompleteColor = Workhorse.RoleColor;
@@ -825,6 +885,11 @@ namespace TownOfHost
             string Completed = comms ? "?" : $"{state.taskState.CompletedTasksCount}";
             if (Mane && !pc.Is(CustomRoles.Amnesia) && !(pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned) && pc.GetRoleClass() != null)
             {
+                if (!pc.IsAlive() && Options.GhostCanSeeAllTasks.GetBool() && (!pc.IsGorstRole() || Options.GRCanSeeAllTasks.GetBool()))//死んでて霊界がタスク進捗を見れるがON
+                {
+                    if (state == null || state.taskState == null || !state.taskState.hasTasks) return AllTaskstext(false, false, false, comms, true);
+                    else return ColorString(TextColor, $"({Completed}/{state.taskState.AllTasksCount})") + AllTaskstext(false, false, false, comms, true);
+                }
                 //ラスポスの処理
                 if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveManagement.GetBool()) return AllTaskstext(LastImpostor.PercentGage.GetBool(), LastImpostor.PonkotuPercernt.GetBool(), LastImpostor.Meeting.GetBool(), comms, LastImpostor.comms.GetBool());
                 //ラスニュの処理
@@ -834,18 +899,12 @@ namespace TownOfHost
                 {
                     if (state == null || state.taskState == null || !state.taskState.hasTasks) return AllTaskstext(data.PercentGage.GetBool(), data.PonkotuPercernt.GetBool(), data.Meeting.GetBool(), comms, data.comms.GetBool());
                     else return ColorString(TextColor, $"({Completed}/{state.taskState.AllTasksCount})") + AllTaskstext(data.PercentGage.GetBool(), data.PonkotuPercernt.GetBool(), data.Meeting.GetBool(), comms, data.comms.GetBool());
-
                 }
-                //ディレクターの処理
+                //マネジメントの処理
                 else if (pc.Is(CustomRoles.Management))
                 {
                     if (state == null || state.taskState == null || !state.taskState.hasTasks) return AllTaskstext(Management.PercentGage, Management.PonkotuPercernt.GetBool(), Management.Meeting.GetBool(), comms, Management.comms);
                     else return ColorString(TextColor, $"({Completed}/{state.taskState.AllTasksCount})") + AllTaskstext(Management.PercentGage, Management.PonkotuPercernt.GetBool(), Management.Meeting.GetBool(), comms, Management.comms);
-                }
-                if (!pc.IsAlive() && Options.GhostIgnoreAllTasks.GetBool())//死んでて霊界がタスク進捗を見れるがON
-                {
-                    if (state == null || state.taskState == null || !state.taskState.hasTasks) return AllTaskstext(false, false, false, comms, true);
-                    else return ColorString(TextColor, $"({Completed}/{state.taskState.AllTasksCount})") + AllTaskstext(false, false, false, comms, true);
                 }
                 if (state == null || state.taskState == null || !state.taskState.hasTasks) return "";
                 else return ColorString(TextColor, $"({Completed}/{state.taskState.AllTasksCount})");
@@ -987,16 +1046,7 @@ namespace TownOfHost
         private static void CheckPageChange(byte PlayerId, StringBuilder sb, bool force = false, string title = "")
         {
             if (sb.ToString().RemoveHtmlTags() == "") return;
-            if (PlayerId == 0)
-            {
-                if (sb.ToString().RemoveHtmlTags() == "") return;
-                HudManager.Instance.Chat.AddChat(
-                                    PlayerControl.LocalPlayer,
-                                    sb.ToString());
-                sb.Clear();
-                sb.AppendFormat("<line-height=45%><size={0}>", ActiveSettingsSize);
-                return;
-            }
+
             //2Byte文字想定で1000byt越えるならページを変える
             if (force || sb.Length > 750)
             {
@@ -1123,7 +1173,7 @@ namespace TownOfHost
 
             void P(StringBuilder sb)
             {
-                var n = sb.ToString().Split("\n").Count();
+                var n = sb.ToString().Split("\n").Length;
                 if (n >= 60)
                 {
                     if (sb.ToString().RemoveHtmlTags() != "")
@@ -1146,7 +1196,7 @@ namespace TownOfHost
                 sb.Append("\n");
             }
             sb.Append("</line-height></size>" + GetString("Settings") + "\n<line-height=60%><size=70%>");
-            sb.Append($"Mod:<color={Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginVersion}</color>\n");
+            sb.Append($"Mod:<color={Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginVersion} {(Main.DebugVersion ? $"☆{GetString("Debug")}☆" : "")}</color>\n");
             sb.Append($"Map:{Constants.MapNames[Main.NormalOptions.MapId]}\n");
             sb.Append($"{GetString("Impostor")}:{Main.NormalOptions.NumImpostors.ToString()}\n");
             sb.Append($"{GetString("NumEmergencyMeetings")}:{Main.NormalOptions.NumEmergencyMeetings.ToString()}\n");
@@ -1252,6 +1302,7 @@ namespace TownOfHost
                 if (opt.Value.Name == "GiveLighting" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveMoon" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveElector" && !opt.Value.GetBool()) continue;
+                if (opt.Value.Name == "GiveInfoPoor" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveNonReport" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveTransparent" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveNotvoter" && !opt.Value.GetBool()) continue;
@@ -1441,36 +1492,50 @@ namespace TownOfHost
             if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null)
                 role = player.GetRoleClass().Jikaku();
 
-            if (player.PlayerId == 0)
+            /*if (player.PlayerId == 0)
             {
                 if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                     role = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                 if (role == CustomRoles.Braid) role = CustomRoles.Driver;
                 if (PlayerControl.LocalPlayer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && PlayerControl.LocalPlayer.GetRoleClass() != null) role = PlayerControl.LocalPlayer.GetRoleClass().Jikaku();
-                if (role.IsVanilla())//バーニラならこっちで
+                if (role is CustomRoles.Crewmate or CustomRoles.Impostor)//バーニラならこっちで
                 {
                     HudManager.Instance.Chat.AddChat(
                         PlayerControl.LocalPlayer,
-                        "<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor()) + "</b>\n<size=90%><line-height=1.8pic>" + PlayerControl.LocalPlayer.GetRoleInfo(true));
+                        $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
                 }
                 else
                     HudManager.Instance.Chat.AddChat(
-
                         PlayerControl.LocalPlayer,
                         role.GetRoleInfo()?.Description?.FullFormatHelp ??
                         // roleInfoがない役職
-                        GetString(role.ToString()) + PlayerControl.LocalPlayer.GetRoleInfo(true));
+                        $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
                 GetAddonsHelp(PlayerControl.LocalPlayer);
                 return;
+            }*/
+            if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
+            {
+                var RoleTextData = GetRoleColorCode(role);
+                //var SendRoleInfo = "";
+                string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
+                string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                {
+                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
+                }
+                //addon(一回これで応急手当。)
+                GetAddonsHelp(player);
+                return;
             }
-            if (!role.IsVanilla() && role.GetRoleInfo()?.Description is { } description)
+
+            if (role.GetRoleInfo()?.Description is { } description)
             {
                 var RoleTextData = GetRoleColorCode(role);
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
                 string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
                 SendMessage(description.FullFormatHelp, player.PlayerId, title: RoleInfoTitle, removeTags: false);
+                GetAddonsHelp(player);
+                return;
             }
-            // roleInfoがない役職
             else
             {
                 var RoleTextData = GetRoleColorCode(role);
@@ -1478,11 +1543,11 @@ namespace TownOfHost
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
                 string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
                 {
-                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=90%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
+                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
                 }
+                //addon(一回これで応急手当。)
+                GetAddonsHelp(player);
             }
-            //addon(一回これで応急手当。)
-            GetAddonsHelp(player);
         }
         public static void GetAddonsHelp(PlayerControl player)
         {
@@ -1494,131 +1559,131 @@ namespace TownOfHost
             var AddRoleInfoTitleString = $"{GetString("AddonInfoTitle")}";
             var AddRoleInfoTitle = $"<color={AddRoleTextData}>{AddRoleInfoTitleString}";
             var s = new StringBuilder();
-            var sb = new StringBuilder();
-            var lp = new StringBuilder();
-            var ln = new StringBuilder();
-            var wh = new StringBuilder();
-            var am = new StringBuilder();
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[CustomRoles.Guesser], ref sb);
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[CustomRoles.LastImpostor], ref lp);
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[CustomRoles.LastNeutral], ref ln);
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[CustomRoles.Workhorse], ref wh);
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[CustomRoles.Amanojaku], ref am);
 
             var k = "<line-height=2.0pic><size=100%>~~~~~~~~~~~~~~~~~~~~~~~~\n\n<size=150%><b>";
             //バフ
-            if (player.Is(CustomRoles.Guesser)) s.Append(k + "<color=#999900>" + GetString("Guesser") + " ∮\n<size=90%><line-height=1.8pic>" + GetString("GuesserInfo") + "\n</b></color><size=60%>From:<color=#ff0000>The Other Roles</color></size>\n<size=60%></color><line-height=1.3pic><line-height=1.3pic>" + GetString("GuesserInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + sb.ToString() + "\n");
+            if (player.Is(CustomRoles.Guesser)) s.Append(k + AddonInfo(CustomRoles.Guesser, "∮", From.TheOtherRoles));
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.Serial)) s.Append(k + "<color=#ff1919>" + GetString("Serial") + " ∂\n<size=90%><line-height=1.8pic>" + GetString("SerialInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("SerialInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.Serial]) + "\n");
-            if ((player.Is(CustomRoles.Connecting) && !player.Is(CustomRoles.WolfBoy))
-                || (player.Is(CustomRoles.Connecting) && !player.IsAlive())) s.Append(k + "<color=#96514d>" + GetString("Connecting") + " Ψ\n<size=90%><line-height=1.8pic>" + GetString("ConnectingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("ConnectingInfoLong") + "\n");
-            if (player.Is(CustomRoles.watching)) s.Append(k + "<color=#800080>" + GetString("watching") + " ∑\n<size=90%><line-height=1.8pic>" + GetString("watchingInfo") + "\n</b></color><size=60%>From:<color=#ff0000>TOR GM Edition</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("watchingInfoLong") + "\n");
-            if (player.Is(CustomRoles.PlusVote)) s.Append(k + "<color=#93ca76>" + GetString("PlusVote") + " р\n<size=90%><line-height=1.8pic>" + GetString("PlusVoteInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("PlusVoteInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.PlusVote]) + "\n");
-            if (player.Is(CustomRoles.Tiebreaker)) s.Append(k + "<color=#00552e>" + GetString("Tiebreaker") + " т\n<size=90%><line-height=1.8pic>" + GetString("TiebreakerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("TiebreakerInfoLong") + "\n");
+            if (player.Is(CustomRoles.Serial)) s.Append(k + AddonInfo(CustomRoles.Serial, "∂"));
+            if ((player.Is(CustomRoles.Connecting) && !player.Is(CustomRoles.WolfBoy)) || (player.Is(CustomRoles.Connecting) && !player.IsAlive()))
+                s.Append(k + AddonInfo(CustomRoles.Connecting, "Ψ") + "\n");
+            if (player.Is(CustomRoles.watching)) s.Append(k + AddonInfo(CustomRoles.watching, "∑", From.TOR_GM_Edition) + "\n");
+            if (player.Is(CustomRoles.PlusVote)) s.Append(k + AddonInfo(CustomRoles.PlusVote, "р", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Tiebreaker)) s.Append(k + AddonInfo(CustomRoles.Tiebreaker, "т", From.TheOtherRoles) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.Autopsy)) s.Append(k + "<color=#80ffdd>" + GetString("Autopsy") + " Å\n<size=90%><line-height=1.8pic>" + GetString("AutopsyInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("AutopsyInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.Autopsy]) + "\n");
-            if (player.Is(CustomRoles.Revenger)) s.Append(k + "<color=#ffcc99>" + GetString("Revenger") + " я\n<size=90%><line-height=1.8pic>" + GetString("RevengerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("RevengerInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.Revenger]) + "\n");
-            if (player.Is(CustomRoles.Speeding)) s.Append(k + "<color=#33ccff>" + GetString("Speeding") + " ∈\n<size=90%><line-height=1.8pic>" + GetString("SpeedingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("SpeedingInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.Speeding]) + "\n");
-            if (player.Is(CustomRoles.Guarding)) s.Append(k + "<color=#7b68ee>" + GetString("Guarding") + " ζ\n<size=90%><line-height=1.8pic>" + GetString("GuardingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("GuardingInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.Guarding]) + "\n");
-            if (player.Is(CustomRoles.Management)) s.Append(k + "<color=#cee4ae>" + GetString("Management") + " θ\n<size=90%><line-height=1.8pic>" + GetString("ManagementInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("ManagementInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.Management]) + "\n");
-            if (player.Is(CustomRoles.Opener)) s.Append(k + "<color=#007bbb>" + GetString("Opener") + " п\n<size=90%><line-height=1.8pic>" + GetString("OpenerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("OpenerInfoLong") + "\n");
+            if (player.Is(CustomRoles.Autopsy)) s.Append(k + AddonInfo(CustomRoles.Autopsy, "Å", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Revenger)) s.Append(k + AddonInfo(CustomRoles.Revenger, "Я", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Speeding)) s.Append(k + AddonInfo(CustomRoles.Speeding, "∈") + "\n");
+            if (player.Is(CustomRoles.Guarding)) s.Append(k + AddonInfo(CustomRoles.Guarding, "ζ", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Management)) s.Append(k + AddonInfo(CustomRoles.Management, "θ", From.TownOfHost_Y) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.seeing)) s.Append(k + "<color=#61b26c>" + GetString("seeing") + " ☯\n<size=90%><line-height=1.8pic>" + GetString("seeingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("seeingInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.seeing]) + "\n");
-            if (player.Is(CustomRoles.Lighting)) s.Append(k + "<color=#ec6800>" + GetString("Lighting") + " ＊\n<size=90%><line-height=1.8pic>" + GetString("LightingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("LightingInfoLong") + "\n");
-            if (player.Is(CustomRoles.Moon)) s.Append(k + "<color=#ffff33>" + GetString("Moon") + " э\n<size=90%><line-height=1.8pic>" + GetString("MoonInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("MoonInfoLong") + "\n");
+            if (player.Is(CustomRoles.Opener)) s.Append(k + AddonInfo(CustomRoles.Opener, "п") + "\n");
+            if (player.Is(CustomRoles.seeing)) s.Append(k + AddonInfo(CustomRoles.seeing, "☯", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Lighting)) s.Append(k + AddonInfo(CustomRoles.Lighting, "＊", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Moon)) s.Append(k + AddonInfo(CustomRoles.Moon, "э") + "\n");
 
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
             //デバフ
-            if (player.Is(CustomRoles.SlowStarter)) s.Append(k + "<color=#ff00ff>" + GetString("SlowStarter") + " Ｓs\n<size=90%><line-height=1.8pic>" + GetString("SlowStarterInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("SlowStarterInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.SlowStarter]) + "\n");
-            if (player.Is(CustomRoles.Notvoter)) s.Append(k + "<color=#6c848d>" + GetString("Notvoter") + " Ｖ\n<size=90%><line-height=1.8pic>" + GetString("NotvoterInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("NotvoterInfoLong") + "\n");
-            if (player.Is(CustomRoles.Elector)) s.Append(k + "<color=#544a47>" + GetString("Elector") + " Ｅ\n<size=90%><line-height=1.8pic>" + GetString("ElectorInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("ElectorInfoLong") + "\n");
-            if (player.Is(CustomRoles.NonReport)) s.Append(k + "<color=#006666>" + GetString("NonReport") + " Ｒ\n<size=90%><line-height=1.8pic>" + GetString("NonReportInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("NonReportInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.NonReport]) + "\n");
-            if (player.Is(CustomRoles.Transparent)) s.Append(k + "<color=#7b7c7d>" + GetString("Transparent") + " Ｔ\n<size=90%><line-height=1.8pic>" + GetString("TransparentInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("TransparentInfoLong") + "\n");
-            if (player.Is(CustomRoles.Water)) s.Append(k + "<color=#003f8e>" + GetString("Water") + " Ｗ\n<size=90%><line-height=1.8pic>" + GetString("WaterInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("WaterInfoLong") + "\n");
-            if (player.Is(CustomRoles.Clumsy)) s.Append(k + "<color=#942343>" + GetString("Clumsy") + " Ｃ\n<size=90%><line-height=1.8pic>" + GetString("ClumsyInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("ClumsyInfoLong") + "\n");
-            if (player.Is(CustomRoles.Slacker)) s.Append(k + "<color=#460e44>" + GetString("Slacker") + " ＳＬ\n<size=90%><line-height=1.8pic>" + GetString("SlackerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("SlackerInfoLong") + "\n");
+            if (player.Is(CustomRoles.SlowStarter)) s.Append(k + AddonInfo(CustomRoles.SlowStarter, "Ｓs") + "\n");
+            if (player.Is(CustomRoles.Notvoter)) s.Append(k + AddonInfo(CustomRoles.Notvoter, "Ｖ") + "\n");
+            if (player.Is(CustomRoles.Elector)) s.Append(k + AddonInfo(CustomRoles.Elector, "Ｅ") + "\n");
+            if (player.Is(CustomRoles.InfoPoor)) s.Append(k + AddonInfo(CustomRoles.InfoPoor, "Ｉ", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.NonReport)) s.Append(k + AddonInfo(CustomRoles.NonReport, "Ｒ", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Transparent)) s.Append(k + AddonInfo(CustomRoles.Transparent, "Ｔ") + "\n");
+            if (player.Is(CustomRoles.Water)) s.Append(k + AddonInfo(CustomRoles.Water, "Ｗ") + "\n");
+            if (player.Is(CustomRoles.Clumsy)) s.Append(k + AddonInfo(CustomRoles.Clumsy, "Ｃ", From.TownOfHost_Y) + "\n");
+            if (player.Is(CustomRoles.Slacker)) s.Append(k + AddonInfo(CustomRoles.Slacker, "ＳＬ") + "\n");
 
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
             //第三
-            if (player.Is(CustomRoles.ALovers)) s.Append(k + "<color=#ff6be4>" + GetString("ALovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("ALoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.ALovers]) + "\n");
-            if (player.Is(CustomRoles.BLovers)) s.Append(k + "<color=#d70035>" + GetString("BLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("BLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.BLovers]) + "\n");
-            if (player.Is(CustomRoles.CLovers)) s.Append(k + "<color=#fac559>" + GetString("CLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("CLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.CLovers]) + "\n");
-            if (player.Is(CustomRoles.DLovers)) s.Append(k + "<color=#6c9bd2>" + GetString("DLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("DLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.DLovers]) + "\n");
-            if (player.Is(CustomRoles.ELovers)) s.Append(k + "<color=#00885a>" + GetString("ELovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("ELoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.ELovers]) + "\n");
-            if (player.Is(CustomRoles.FLovers)) s.Append(k + "<color=#fdede4>" + GetString("FLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("FLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.FLovers]) + "\n");
-            if (player.Is(CustomRoles.GLovers)) s.Append(k + "<color=#af0082>" + GetString("GLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("GLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ShowAddonSet(Options.CustomRoleSpawnChances[CustomRoles.GLovers]) + "\n");
-            if (player.Is(CustomRoles.MaLovers)) s.Append(k + "<color=#f09199>" + GetString("MaLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("MaLoversInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("MaLoversInfoLong") + "\n");
+            if (player.Is(CustomRoles.ALovers)) s.Append(k + AddonInfo(CustomRoles.ALovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.BLovers)) s.Append(k + AddonInfo(CustomRoles.BLovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.CLovers)) s.Append(k + AddonInfo(CustomRoles.CLovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.DLovers)) s.Append(k + AddonInfo(CustomRoles.DLovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.ELovers)) s.Append(k + AddonInfo(CustomRoles.ELovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.FLovers)) s.Append(k + AddonInfo(CustomRoles.FLovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.GLovers)) s.Append(k + AddonInfo(CustomRoles.GLovers, "♥", From.Love_Couple_Mod) + "\n");
+            if (player.Is(CustomRoles.MaLovers)) s.Append(k + AddonInfo(CustomRoles.MaLovers, "♥", From.Love_Couple_Mod) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
             //ラスト系
-            if (player.Is(CustomRoles.LastImpostor)) s.Append(k + "<color=#ff1919>" + GetString("LastImpostor") + "\n<size=90%><line-height=1.8pic>" + GetString("LastImpostorInfo") + "\n</b></color><size=60%>From:<color=#00bfff>Town Of Host</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("LastImpostorInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + lp.ToString() + "\n");
-            if (player.Is(CustomRoles.LastNeutral)) s.Append(k + "<color=#cccccc>" + GetString("LastNeutral") + "\n<size=90%><line-height=1.8pic>" + GetString("LastNeutralInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("LastNeutralInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + ln.ToString() + "\n");
-            if (player.Is(CustomRoles.Workhorse)) s.Append(k + "<color=#00ffff>" + GetString("Workhorse") + "\n<size=90%><line-height=1.8pic>" + GetString("WorkhorseInfo") + "\n</b></color><size=60%>From:<color=#00bfff>Town Of Host</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("WorkhorseInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + wh.ToString() + "\n");
-            if (player.Is(CustomRoles.Amanojaku)) s.Append(k + "<color=#005243>" + GetString("Amanojaku") + "\n<size=90%><line-height=1.8pic>" + GetString("AmanojakuInfo") + "\n</b></color>\n<size=60%></color><line-height=1.3pic>" + GetString("AmanojakuInfoLong") + "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + am.ToString() + "\n");
+            if (player.Is(CustomRoles.LastImpostor)) s.Append(k + AddonInfo(CustomRoles.LastImpostor, "", From.TownOfHost) + "\n");
+            if (player.Is(CustomRoles.LastNeutral)) s.Append(k + AddonInfo(CustomRoles.LastNeutral, "") + "\n");
+            if (player.Is(CustomRoles.Workhorse)) s.Append(k + AddonInfo(CustomRoles.Workhorse, "", From.TownOfHost) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
 
-            if (s.ToString() != "" && s.Length != 0)
-            {
-                if (player.PlayerId == 0)
-                {
-                    HudManager.Instance.Chat.AddChat(
-                                        PlayerControl.LocalPlayer,
-                                        s.ToString());
-                }
-                else SendMessage(s.ToString(), player.PlayerId, AddRoleInfoTitle, removeTags: false);
-            }
+            if (s.ToString().RemoveHtmlTags() != "" && s.Length != 0)
+                SendMessage(s.ToString(), player.PlayerId, AddRoleInfoTitle, removeTags: false);
         }
         public static string GetAddonsHelp(CustomRoles role)
         {
             var s = "";
             var k = "<line-height=2.0pic><size=150%>";
             //バフ
-            if (role == CustomRoles.Guesser) s += k + "<color=#999900>" + GetString("Guesser") + " ∮\n<size=90%><line-height=1.8pic>" + GetString("GuesserInfo") + "\n</color><size=60%>From:<color=#ff0000>The Other Roles</color></size>\n<size=60%></color><line-height=1.3pic><line-height=1.3pic>" + GetString("GuesserInfoLong");
-            if (role == CustomRoles.Serial) s += k + "<color=#ff1919>" + GetString("Serial") + " ∂\n<size=90%><line-height=1.8pic>" + GetString("SerialInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("SerialInfoLong");
-            if (role == CustomRoles.Connecting) s += k + "<color=#96514d>" + GetString("Connecting") + " Ψ\n<size=90%><line-height=1.8pic>" + GetString("ConnectingInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("ConnectingInfoLong");
-            if (role == CustomRoles.watching) s += k + "<color=#800080>" + GetString("watching") + " ∑\n<size=90%><line-height=1.8pic>" + GetString("watchingInfo") + "\n</color><size=60%>From:<color=#ff0000>TOR GM Edition</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("watchingInfoLong");
-            if (role == CustomRoles.PlusVote) s += k + "<color=#93ca76>" + GetString("PlusVote") + " р\n<size=90%><line-height=1.8pic>" + GetString("PlusVoteInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("PlusVoteInfoLong");
-            if (role == CustomRoles.Tiebreaker) s += k + "<color=#00552e>" + GetString("Tiebreaker") + " т\n<size=90%><line-height=1.8pic>" + GetString("TiebreakerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("TiebreakerInfoLong");
-            if (role == CustomRoles.Autopsy) s += k + "<color=#80ffdd>" + GetString("Autopsy") + " Å\n<size=90%><line-height=1.8pic>" + GetString("AutopsyInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("AutopsyInfoLong");
-            if (role == CustomRoles.Revenger) s += k + "<color=#ffcc99>" + GetString("Revenger") + " Я\n<size=90%><line-height=1.8pic>" + GetString("RevengerInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("RevengerInfoLong");
-            if (role == CustomRoles.Speeding) s += k + "<color=#33ccff>" + GetString("Speeding") + " ∈\n<size=90%><line-height=1.8pic>" + GetString("SpeedingInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("SpeedingInfoLong");
-            if (role == CustomRoles.Guarding) s += k + "<color=#7b68ee>" + GetString("Guarding") + " ζ\n<size=90%><line-height=1.8pic>" + GetString("GuardingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("GuardingInfoLong");
-            if (role == CustomRoles.Management) s += k + "<color=#cee4ae>" + GetString("Management") + " θ\n<size=90%><line-height=1.8pic>" + GetString("ManagementInfo") + "\n<size=60%></color><line-height=1.3pic>" + GetString("ManagementInfoLong");
-            if (role == CustomRoles.Opener) s += k + "<color=#007bbb>" + GetString("Opener") + " п\n<size=90%><line-height=1.8pic>" + GetString("OpenerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("OpenerInfoLong");
-            if (role == CustomRoles.seeing) s += k + "<color=#61b26c>" + GetString("seeing") + " ☯\n<size=90%><line-height=1.8pic>" + GetString("seeingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("seeingInfoLong");
-            if (role == CustomRoles.Lighting) s += k + "<color=#ec6800>" + GetString("Lighting") + " ＊\n<size=90%><line-height=1.8pic>" + GetString("LightingInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("LightingInfoLong");
-            if (role == CustomRoles.Moon) s += k + "<color=#ffff33>" + GetString("Moon") + " э\n<size=90%><line-height=1.8pic>" + GetString("MoonInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("MoonInfoLong");
+            if (role == CustomRoles.Guesser) s += k + AddonInfo(role, "∮", From.TheOtherRoles);
+            if (role == CustomRoles.Serial) s += k + AddonInfo(role, "∂");
+            if (role == CustomRoles.Connecting) s += k + AddonInfo(role, "Ψ");
+            if (role == CustomRoles.watching) s += k + AddonInfo(role, "∑", From.TOR_GM_Edition);
+            if (role == CustomRoles.PlusVote) s += k + AddonInfo(role, "р", From.TownOfHost_Y);
+            if (role == CustomRoles.Tiebreaker) s += k + AddonInfo(role, "т", From.TheOtherRoles);
+            if (role == CustomRoles.Autopsy) s += k + AddonInfo(role, "Å", From.TownOfHost_Y);
+            if (role == CustomRoles.Revenger) s += k + AddonInfo(role, "Я", From.TownOfHost_Y);
+            if (role == CustomRoles.Speeding) s += k + AddonInfo(role, "∈");
+            if (role == CustomRoles.Guarding) s += k + AddonInfo(role, "ζ", From.TownOfHost_Y);
+            if (role == CustomRoles.Management) s += k + AddonInfo(role, "θ", From.TownOfHost_Y);
+            if (role == CustomRoles.Opener) s += k + AddonInfo(role, "п");
+            if (role == CustomRoles.seeing) s += k + AddonInfo(role, "☯", From.TownOfHost_Y);
+            if (role == CustomRoles.Lighting) s += k + AddonInfo(role, "＊", From.TownOfHost_Y);
+            if (role == CustomRoles.Moon) s += k + AddonInfo(role, "э");
 
             //デバフ
-            if (role == CustomRoles.Amnesia) s += k + "<color=#4682b4>" + GetString("Amnesia") + " \n<size=90%><line-height=1.8pic>" + GetString("AmnesiaInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("AmnesiaInfoLong");
-            if (role == CustomRoles.SlowStarter) s += k + "<color=#ff00ff>" + GetString("SlowStarter") + " Ｓs\n<size=90%><line-height=1.8pic>" + GetString("SlowStarterInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("SlowStarterInfoLong");
-            if (role == CustomRoles.Notvoter) s += k + "<color=#6c848d>" + GetString("Notvoter") + " Ｖ\n<size=90%><line-height=1.8pic>" + GetString("NotvoterInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("NotvoterInfoLong");
-            if (role == CustomRoles.Elector) s += k + "<color=#544a47>" + GetString("Elector") + " Ｅ\n<size=90%><line-height=1.8pic>" + GetString("ElectorInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("ElectorInfoLong");
-            if (role == CustomRoles.NonReport) s += k + "<color=#006666>" + GetString("NonReport") + " Ｒ\n<size=90%><line-height=1.8pic>" + GetString("NonReportInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("NonReportInfoLong");
-            if (role == CustomRoles.Transparent) s += k + "<color=#7b7c7d>" + GetString("Transparent") + " Ｔ\n<size=90%><line-height=1.8pic>" + GetString("TransparentInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("TransparentInfoLong");
-            if (role == CustomRoles.Water) s += k + "<color=#003f8e>" + GetString("Water") + " Ｗ\n<size=90%><line-height=1.8pic>" + GetString("WaterInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("WaterInfoLong");
-            if (role == CustomRoles.Clumsy) s += k + "<color=#942343>" + GetString("Clumsy") + " Ｃ\n<size=90%><line-height=1.8pic>" + GetString("ClumsyInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("ClumsyInfoLong");
-            if (role == CustomRoles.Slacker) s += k + "<color=#460e44>" + GetString("Slacker") + " ＳＬ\n<size=90%><line-height=1.8pic>" + GetString("SlackerInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("SlackerInfoLong");
+            if (role == CustomRoles.Amnesia) s += k + AddonInfo(role, "");
+            if (role == CustomRoles.SlowStarter) s += k + AddonInfo(role, "Ｓs");
+            if (role == CustomRoles.Notvoter) s += k + AddonInfo(role, "Ｖ");
+            if (role == CustomRoles.Elector) s += k + AddonInfo(role, "Ｅ");
+            if (role == CustomRoles.InfoPoor) s += k + AddonInfo(role, "Ｉ", From.TownOfHost_Y);
+            if (role == CustomRoles.NonReport) s += k + AddonInfo(role, "Ｒ", From.TownOfHost_Y);
+            if (role == CustomRoles.Transparent) s += k + AddonInfo(role, "Ｔ");
+            if (role == CustomRoles.Water) s += k + AddonInfo(role, "Ｗ");
+            if (role == CustomRoles.Clumsy) s += k + AddonInfo(role, "Ｃ", From.TownOfHost_Y);
+            if (role == CustomRoles.Slacker) s += k + AddonInfo(role, "ＳＬ");
 
             //第三
-            if (role == CustomRoles.ALovers) s += k + "<color=#ff6be4>" + GetString("ALovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("ALoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.BLovers) s += k + "<color=#d70035>" + GetString("BLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("BLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.CLovers) s += k + "<color=#fac559>" + GetString("CLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("CLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.DLovers) s += k + "<color=#6c9bd2>" + GetString("DLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("DLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.ELovers) s += k + "<color=#00885a>" + GetString("ELovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("ELoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.FLovers) s += k + "<color=#fdede4>" + GetString("FLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("FLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.GLovers) s += k + "<color=#af0082>" + GetString("GLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("GLoversInfo") + "\n</b></color><size=60%>From:<color=#ff6be4>Love Couple Mod</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("ALoversInfoLong");
-            if (role == CustomRoles.MaLovers) s += k + "<color=#f09199>" + GetString("MaLovers") + "　♥\n<size=90%><line-height=1.8pic>" + GetString("MaLoversInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("MaLoversInfoLong");
+            if (role == CustomRoles.ALovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.BLovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.CLovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.DLovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.ELovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.FLovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.GLovers) s += k + AddonInfo(role, "♥", From.Love_Couple_Mod);
+            if (role == CustomRoles.MaLovers) s += k + AddonInfo(role, "♥");
 
             //ラスト
-            if (role == CustomRoles.LastImpostor) s += k + "<color=#ff1919>" + GetString("LastImpostor") + "\n<size=90%><line-height=1.8pic>" + GetString("LastImpostorInfo") + "\n</b></color><size=60%>From:<color=#00bfff>Town Of Host</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("LastImpostorInfoLong");
-            if (role == CustomRoles.LastNeutral) s += k + "<color=#cccccc>" + GetString("LastNeutral") + "\n<size=90%><line-height=1.8pic>" + GetString("LastNeutralInfo") + "\n</b><size=60%></color><line-height=1.3pic>" + GetString("LastNeutralInfoLong");
-            if (role == CustomRoles.Workhorse) s += k + "<color=#00ffff>" + GetString("Workhorse") + "\n<size=90%><line-height=1.8pic>" + GetString("WorkhorseInfo") + "\n</b></color><size=60%>From:<color=#00bfff>Town Of Host</color></size>\n<size=60%></color><line-height=1.3pic>" + GetString("WorkhorseInfoLong");
-            if (role == CustomRoles.Amanojaku) s += k + "<color=#005243>" + GetString("Amanojaku") + "\n<size=90%><line-height=1.8pic>" + GetString("AmanojakuInfo") + "\n</b></color>\n<size=60%></color><line-height=1.3pic>" + GetString("AmanojakuInfoLong");
-            var sb = new StringBuilder();
-            var a = "";
-            ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, Askesu: true);
-            if (sb.ToString() != "") a = "\n\n<size=90%>" + GetString("Settings") + "\n<size=60%>" + sb.ToString();
-            return s + a;
+            if (role == CustomRoles.LastImpostor) s += k + AddonInfo(role, "", From.TownOfHost);
+            if (role == CustomRoles.LastNeutral) s += k + AddonInfo(role, "");
+            if (role == CustomRoles.Workhorse) s += k + AddonInfo(role, "", From.TownOfHost);
+            if (role == CustomRoles.Amanojaku) s += k + AddonInfo(role, "");
+            //幽霊役職
+
+            if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role, "");
+            if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role, "");
+
+            return s;
+        }
+        public static string AddonInfo(CustomRoles role, string Mark, From from = From.None)
+        {
+            var m = "\n<size=90%><line-height=1.8pic>";
+            var f = $"\n{GetFrom(from)}\n";
+            var set = new StringBuilder();
+            var s = "";
+            if (Mark != "") Mark = $" {Mark}";
+            ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref set, Askesu: true);
+            if (set.ToString().RemoveHtmlTags() != "") s = $"\n\n<size=90%>{GetString("Settings")}\n<size=60%>{set}";
+            if (GetFrom(from).RemoveHtmlTags() == "") f = "";
+
+            var info = ColorString(GetRoleColor(role), GetString($"{role}") + Mark + m + GetString($"{role}Info"));
+            if (Mark == "") info = $"<b>{info}</b>";
+
+            return info + $"\n</b></color><size=60%>{f}<line-height=1.3pic>" + GetString($"{role}InfoLong") + s;
         }
         public static void ShowHelp()
         {
@@ -1661,13 +1726,14 @@ namespace TownOfHost
         public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool removeTags = true)
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            if (text.RemoveHtmlTags() == "") return;
             if (title == "") title = $"<color={Main.ModColor}>" + GetString($"DefaultSystemMessageTitle") + "</color>";
             var Text = new StringBuilder();
             if (removeTags)//ﾖｸﾜｶﾗﾝ!
             {
                 text.RemoveHtmlTags();
             }
-            Text.Append($"{text}");
+            Text.Append($"{text}<color=#ffffff></color>");//システムメッセ検知のために～
             var Send = Text.ToString();
             Main.LastMeg = Send;
             Main.MessagesToSend.Add((Send, sendTo, title));
@@ -1706,6 +1772,7 @@ namespace TownOfHost
                         break;
                     case SuffixModes.Timer:
                         if (GameStates.IsLocalGame) break;
+                        if (GameStates.IsCountDown) break;
                         float timerValue = GameStartManagerPatch.GetTimer();
                         if (timerValue < GameStartManagerPatch.Timer2 - 2 || GameStartManagerPatch.Timer2 < 25)
                             GameStartManagerPatch.Timer2 = timerValue;
@@ -1716,7 +1783,7 @@ namespace TownOfHost
                         if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
                         if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
                         if (minutes <= 0) Color = "<color=red>";//1分切ったら。
-                        name += $"\r\n{Color}{minutes:00}:{seconds:00}</color>";
+                        name += $" <size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size>";
                         break;
                 }
             }
@@ -1734,7 +1801,7 @@ namespace TownOfHost
             cachedPlayers[playerId] = player;
             return player;
         }
-        public static GameData.PlayerInfo GetPlayerInfoById(int PlayerId) =>
+        public static NetworkedPlayerInfo GetPlayerInfoById(int PlayerId) =>
             GameData.Instance.AllPlayers.ToArray().Where(info => info.PlayerId == PlayerId).FirstOrDefault();
         private static StringBuilder SelfMark = new(20);
         private static StringBuilder SelfSuffix = new(20);
@@ -1750,8 +1817,9 @@ namespace TownOfHost
 
             if (GameStates.IsLobby) return;
 
-            foreach (var pp in Main.AllPlayerControls)
-                Main.LastLogPro[pp.PlayerId] = GetProgressText(pp, Mane: false);
+            if (Main.introDestroyed)
+                foreach (var pp in Main.AllPlayerControls)
+                    Main.LastLogPro[pp.PlayerId] = GetProgressText(pp, Mane: false);
 
             var caller = new StackFrame(1, false);
             var callerMethod = caller.GetMethod();
@@ -1761,6 +1829,9 @@ namespace TownOfHost
             logger.Info("NotifyRolesが" + callerClassName + "." + callerMethodName + "から呼び出されました");
             HudManagerPatch.NowCallNotifyRolesCount++;
             HudManagerPatch.LastSetNameDesyncCount = 0;
+            var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+            Info += $"v{Main.version}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
+            Info += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
 
             var seerList = PlayerControl.AllPlayerControls;
             if (SpecifySeer != null)
@@ -1879,7 +1950,8 @@ namespace TownOfHost
                     ) && GameStates.Meeting
                     )
                     {
-                        SelfSuffix.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Guesser)}><size=50%>{GetString("GuessInfo")}</color></size>");
+                        var gi = $" <line-height=10%>\n<color={GetRoleColorCode(CustomRoles.Guesser)}><size=50%>{GetString("GuessInfo")}</color></size></line-height>";
+                        SelfSuffix.Append(gi);
                     }
                     //seer役職が対象のSuffix
                     SelfSuffix.Append(seerRole?.GetSuffix(seer, isForMeeting: isForMeeting));
@@ -1898,13 +1970,32 @@ namespace TownOfHost
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
                     var (enabled, text) = GetRoleNameAndProgressTextData(seer);
                     string SelfRoleName = enabled ? $"<size={fontSize}>{text}</size>" : "";
-                    string SelfDeathReason = ((TemporaryName ?? false) && nomarker) ? "" : seer.KnowDeathReason(seer) ? $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})" : "";
+                    string SelfDeathReason = ((TemporaryName ?? false) && nomarker) ? "" : seer.KnowDeathReason(seer) ? $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
                     string SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{(((TemporaryName ?? false) && nomarker) ? "" : SelfMark)}";
                     SelfName = SelfRoleName + "\r\n" + SelfName;
-                    SelfName += SelfSuffix.ToString() == "" ? "" : "\r\n " + SelfSuffix.ToString();
+                    var g = string.Format("<line-height={0}%>", isForMeeting ? "90" : "85");
+                    SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString() + "</line-height>");
                     if (!isForMeeting) SelfName = "<line-height=85%>" + SelfName + "\r\n";
 
+                    if (isForMeeting)
+                    {
+                        var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                        var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+
+                        if (p.ToArray().AddRangeToArray(a.ToArray())[0] != null)
+                            if (p.ToArray().AddRangeToArray(a.ToArray())[0] == seer)
+                            {
+                                var Name = (SelfSuffix.ToString() == "" ? "" : (SelfSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + Info + SelfName + Info.RemoveText() + "\r\n<size=1.5> ";
+                                SelfName = Name;
+                            }
+                            else
+                            {
+                                var Name = (SelfSuffix.ToString() == "" ? "" : (SelfSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + SelfName;
+                                SelfName = Name;
+                            }
+                    }
                     //適用
+                    Logger.Info(SelfName, "Name");
                     seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
                 }
                 //seerが死んでいる場合など、必要なときのみ第二ループを実行する
@@ -1921,13 +2012,15 @@ namespace TownOfHost
                     || seer.Is(CustomRoles.FLovers)
                     || seer.Is(CustomRoles.GLovers)
                     || seer.Is(CustomRoles.MaLovers)
-                    || seer.Is(CustomRoles.Connecting)
+                    || seer.Is(CustomRoles.Connecting)//NextUpdete
+                                                      //|| (seer.GetCustomRole().IsCrewmate() && CustomRoles.King.IsPresent())
                     || seer.Is(CustomRoles.Monochromer)
                     || Witch.IsSpelled()
                     || seer.Is(CustomRoles.Executioner)
                     || seer.Is(CustomRoles.Doctor) //seerがドクター
                     || seer.Is(CustomRoles.Puppeteer)
                     || seer.Is(CustomRoles.ProgressKiller)
+                    //|| seer.Is(CustomRoles.Curser)NextUpdete
                     || CustomRoles.TaskStar.IsEnable()
                     || seer.IsNeutralKiller() //seerがキル出来るニュートラル
                     || seer.Is(CustomRoles.Management)
@@ -2000,12 +2093,12 @@ namespace TownOfHost
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                             }
                             //プログレスキラー
-                            if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.Workhorseseer)
+                            if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
                             {
                                 TargetMark.Append($"<color=blue>♦</color>");
                             }
                             //エーリアン
-                            if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modePK && Alien.Workhorseseer)
+                            if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modeProgresskiller && Alien.ProgressWorkhorseseen)
                             {
                                 TargetMark.Append($"<color=blue>♦</color>");
                             }
@@ -2027,8 +2120,8 @@ namespace TownOfHost
                             }
 
                             //他人の役職とタスクは幽霊が他人の役職を見れるようになっていてかつ、seerが死んでいる場合のみ表示されます。それ以外の場合は空になります。
-                            var targetRoleData = GetRoleNameAndProgressTextData(seer, target);
-                            var TargetRoleText = targetRoleData.enabled ? $"<size={fontSize}>{targetRoleData.text}</size>\r\n" : "";
+                            var targetRoleData = GetRoleNameAndProgressTextData(seer, target, false);
+                            var TargetRoleText = targetRoleData.enabled ? $"<size={fontSize}>{targetRoleData.text}</size>\r\n" : $"";
 
                             TargetSuffix.Clear();
                             //seerに関わらず発動するLowerText
@@ -2082,7 +2175,7 @@ namespace TownOfHost
                             }
                             string TargetDeathReason = "";
                             if (seer.KnowDeathReason(target))
-                                TargetDeathReason = $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})";
+                                TargetDeathReason = $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})";
 
                             if (IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && !isForMeeting)
                                 TargetPlayerName = $"<size=0%>{TargetPlayerName}</size>";
@@ -2102,9 +2195,40 @@ namespace TownOfHost
                                     TargetPlayerName = "<color=#ffffff>" + TargetPlayerName + "</color>";
                             }
                             //全てのテキストを合成します。
-                            string TargetName = $"{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}";
-                            if (!isForMeeting && !seer.IsAlive()) TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
+                            var g = string.Format("<line-height={0}%>", isForMeeting ? "90" : "85");
+                            string TargetName = $"{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + g + TargetSuffix)}</line-height>";
+                            if (!isForMeeting && !seer.IsAlive())
+                                TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
 
+                            if (isForMeeting)
+                            {
+                                var TInfo = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+
+                                var IInfo = $"v{Main.version}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
+                                IInfo += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
+
+                                TInfo += IInfo;
+                                var Finfo = $" <size=0.9f>\n</size><color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+                                Finfo += IInfo;
+
+                                var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                                var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+
+                                if (p.ToArray().AddRangeToArray(a.ToArray())[0] != null)
+                                    if (p.ToArray().AddRangeToArray(a.ToArray())[0] == target)
+                                    {
+                                        if (targetRoleData.enabled)
+                                        {
+                                            var Name = (TargetSuffix.ToString() == "" ? "" : (TargetSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + Info + TargetName + Info.RemoveText() + "\r\n<size=1.5> ";
+                                            TargetName = Name;
+                                        }
+                                        else
+                                        {
+                                            var Name = (TargetSuffix.ToString() == "" ? "" : (TargetSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + TInfo + TargetName + Finfo.RemoveText();
+                                            TargetName = Name;
+                                        }
+                                    }
+                            }
                             //適用
                             target.RpcSetNamePrivate(TargetName, true, seer, force: NoCache);
                         }
@@ -2151,7 +2275,7 @@ namespace TownOfHost
                             var langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
                             if (Main.ForceJapanese.Value) langId = SupportedLangs.Japanese;
                             var a = langId == SupportedLangs.English ? "Loss of memory" : "Amnesia";
-                            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [{a}]　" + string.Format(GetString("Am.log"), GetPlayerColor(p));
+                            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [{a}]　" + string.Format(GetString("Am.log"), GetPlayerColor(p));
                         }
                     }
                 }
@@ -2162,7 +2286,11 @@ namespace TownOfHost
                     roleClass.AfterMeetingTasks();
                     roleClass.Colorchnge();
                 }
+                //NextUpdete
+                //if (AsistingAngel.ch())
+                //    AsistingAngel.Limit++;
                 DelTask();
+                //GhostRoleAssingData.AssignAddOnsFromList();
                 Main.day++;
                 Main.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
             }
@@ -2246,7 +2374,20 @@ namespace TownOfHost
             };
             Process.Start(startInfo);
         }
-        public static string GetLogtext(byte pc) => Main.LastLog[pc] + " " + Main.LastLogPro[pc] + " : " + GetVitalText(pc) + " " + Main.LastLogRole[pc];
+        public static string GetLogtext(byte pc)
+        {
+            var name = "('ω')";
+            if (Main.LastLog.ContainsKey(pc))
+                name = Main.LastLog[pc];
+            var pro = "(;;)";
+            if (Main.LastLogPro.ContainsKey(pc))
+                pro = Main.LastLogPro[pc];
+            var role = "_(:3 」∠)_";
+            if (Main.LastLogRole.ContainsKey(pc))
+                role = Main.LastLogRole[pc];
+
+            return name + " " + pro + " : " + GetVitalText(pc, true) + " " + role;
+        }
         public static string SummaryTexts(byte id, bool isForChat)
         {
             var builder = new StringBuilder();
@@ -2286,6 +2427,41 @@ namespace TownOfHost
         public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", "");
         public static string RemoveColorTags(this string str) => Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
         public static string RemoveSizeTags(this string str) => Regex.Replace(str, "</?size[^>]*?>", "");
+        public static string RemoveText(this string str)
+        {
+            bool musi = false;
+            string returns = "";
+
+            for (var i = 0; i < str.Length; i++)
+            {
+                string s = "";
+                s = str.Substring(i, 1);
+
+                {
+                    if (s == "<")
+                        musi = true;
+                    if (s == ">")
+                    {
+                        returns += ">";
+                        musi = false;
+                    }
+
+                    if (musi)
+                        returns += s;
+                    else
+                        if (s != ">")
+                    {
+                        if (s == "\n")
+                            returns += "\n ";
+                        else if (s == "\r")
+                            returns += "\r";
+                        else
+                            returns += " ";
+                    }
+                }
+            }
+            return returns;
+        }
         public static void FlashColor(Color color, float duration = 1f)
         {
             var hud = DestroyableSingleton<HudManager>.Instance;
@@ -2384,5 +2560,6 @@ namespace TownOfHost
         public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
         private const string ActiveSettingsSize = "50%";
         private const string ActiveSettingsLineHeight = "55%";
+        public const string AdditionalWinnerMark = "<color=#dddd00>★</color>";
     }
 }

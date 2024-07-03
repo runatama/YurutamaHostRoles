@@ -45,7 +45,6 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static Options.OverrideTasksData Tasks;
     enum OptionName
     {
-        CanVent,
         MadSnitchCanAlsoBeExposedToImpostor,
         MadSnitchTaskTrigger,
     }
@@ -58,7 +57,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     public static void SetupOptionItem()
     {
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
         OptionCanAlsoBeExposedToImpostor = BooleanOptionItem.Create(RoleInfo, 11, OptionName.MadSnitchCanAlsoBeExposedToImpostor, false, false);
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 12, OptionName.MadSnitchTaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
@@ -95,8 +94,9 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             !canAlsoBeExposedToImpostor ||
             // インポスター→MadSnitchではない
             !seer.Is(CustomRoleTypes.Impostor) ||
-            //  狼少年ではない
-            !seer.Is(CustomRoles.WolfBoy) ||
+            //  狼少年の場合は除く
+            seer.Is(CustomRoles.WolfBoy) ||
+
             seen.GetRoleClass() is not MadSnitch madSnitch ||
             // マッドスニッチがまだインポスターを知らない
             !madSnitch.KnowsImpostor())

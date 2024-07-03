@@ -10,6 +10,8 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
+//using AmongUs.Data.Player;
+//using AmongUs.Data.Settings;
 
 namespace TownOfHost
 {
@@ -25,11 +27,12 @@ namespace TownOfHost
             GameStates.InGame = false;
 
             Logger.Info("-----------ゲーム終了-----------", "Phase");
-            if (!GameStates.IsModHost || !AmongUsClient.Instance.AmHost) return;
+            if (!GameStates.IsModHost) return;
 
             SummaryText = new();
             foreach (var id in PlayerState.AllPlayerStates.Keys)
                 SummaryText[id] = Utils.SummaryTexts(id, false);
+            if (!AmongUsClient.Instance.AmHost) return;
 
             var sb = new StringBuilder(GetString("KillLog"));
             sb.Append("<size=70%>");
@@ -59,7 +62,7 @@ namespace TownOfHost
 
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
             //winnerListリセット
-            TempData.winners = new Il2CppSystem.Collections.Generic.List<WinningPlayerData>();
+            EndGameResult.CachedWinners = new Il2CppSystem.Collections.Generic.List<CachedPlayerData>();
             var winner = new List<PlayerControl>();
             foreach (var pc in Main.AllPlayerControls)
             {
@@ -111,7 +114,7 @@ namespace TownOfHost
 
                 if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) && Main.winnerList.Contains(pc.PlayerId)) continue;
 
-                TempData.winners.Add(new WinningPlayerData(pc.Data));
+                EndGameResult.CachedWinners.Add(new CachedPlayerData(pc.Data));
                 Main.winnerList.Add(pc.PlayerId);
             }
 
@@ -125,6 +128,8 @@ namespace TownOfHost
             }
             //オブジェクト破棄
             CustomRoleManager.Dispose();
+
+            Camouflage.PlayerSkins.Clear();
         }
     }
     [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.SetEverythingUp))]
@@ -217,6 +222,15 @@ namespace TownOfHost
                     __instance.BackgroundBar.material.color = Color.gray;
                     WinnerText.text = GetString("ForceEndText");
                     WinnerText.color = Color.gray;
+                    /*
+                                        //次の試合に役職を引き継ぐなら
+                                        if (Options.AssignSameRoleAfterForcedEnding.GetBool() && !Main.introDestroyed)
+                                        {
+                                            Main.AssignSameRoles = true;
+                                            Main.RoleatForcedEnd.Clear();
+                                            foreach (var pc in Main.AllPlayerControls)
+                                                Main.RoleatForcedEnd[BanManager.GetHashedPuid(pc.GetClient())] = pc.GetCustomRole();
+                                        }*/
                     break;
                 //全滅
                 case CustomWinner.None:

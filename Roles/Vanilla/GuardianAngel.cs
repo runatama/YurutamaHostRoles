@@ -11,6 +11,7 @@ public sealed class GuardianAngel : RoleBase
             typeof(GuardianAngel),
             player => new GuardianAngel(player),
             RoleTypes.GuardianAngel,
+            null,
             assignInfo: new RoleAssignInfo(CustomRoles.GuardianAngel, CustomRoleTypes.Crewmate)
             {
                 IsInitiallyAssignableCallBack =

@@ -60,7 +60,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     enum Option
     {
-        collectrect,
+        TellerCollectRect,
         Ucount,
         tRole,
         Votemode,
@@ -74,13 +74,13 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     private static void SetupOptionItem()
     {
-        Optioncollect = FloatOptionItem.Create(RoleInfo, 10, Option.collectrect, new(0f, 100f, 2f), 100f, false)
+        Optioncollect = FloatOptionItem.Create(RoleInfo, 10, Option.TellerCollectRect, new(0f, 100f, 2f), 100f, false)
             .SetValueFormat(OptionFormat.Percent);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 15);
     }

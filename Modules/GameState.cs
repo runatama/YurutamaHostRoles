@@ -13,6 +13,7 @@ namespace TownOfHost
         byte PlayerId;
         public CustomRoles MainRole;
         public List<CustomRoles> SubRoles;
+        public CustomRoles GhostRole;
         public CountTypes CountType { get; private set; }
         public bool IsDead { get; set; }
         public CustomDeathReason DeathReason { get; set; }
@@ -40,6 +41,7 @@ namespace TownOfHost
         {
             MainRole = CustomRoles.NotAssigned;
             SubRoles = new();
+            GhostRole = CustomRoles.NotAssigned;
             CountType = CountTypes.OutOfGame;
             PlayerId = playerId;
             IsDead = false;
@@ -61,9 +63,12 @@ namespace TownOfHost
                     RoleTypes.Crewmate => CustomRoles.Crewmate,
                     RoleTypes.Engineer => CustomRoles.Engineer,
                     RoleTypes.Scientist => CustomRoles.Scientist,
+                    RoleTypes.Tracker => CustomRoles.Tracker,
+                    RoleTypes.Noisemaker => CustomRoles.Noisemaker,
                     RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
                     RoleTypes.Impostor => CustomRoles.Impostor,
                     RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
+                    RoleTypes.Phantom => CustomRoles.Phantom,
                     _ => CustomRoles.Crewmate,
                 };
         }
@@ -95,7 +100,7 @@ namespace TownOfHost
             if (SubRoles.Contains(role))
                 SubRoles.Remove(role);
         }
-
+        public void SetGhostRole(CustomRoles role) => GhostRole = role;
         public void SetDead()
         {
             IsDead = true;
@@ -236,7 +241,7 @@ namespace TownOfHost
     public static class MeetingStates
     {
         public static DeadBody[] DeadBodies = null;
-        public static GameData.PlayerInfo ReportTarget = null;
+        public static NetworkedPlayerInfo ReportTarget = null;
         public static bool IsEmergencyMeeting => ReportTarget == null;
         public static bool IsExistDeadBody => DeadBodies.Length > 0;
         public static bool MeetingCalled = false;

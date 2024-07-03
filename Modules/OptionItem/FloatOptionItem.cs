@@ -9,33 +9,43 @@ namespace TownOfHost
         public FloatValueRule Rule;
 
         // コンストラクタ
-        public FloatOptionItem(int id, string name, float defaultValue, TabGroup tab, bool isSingleValue, FloatValueRule rule)
-        : base(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue)
+        public FloatOptionItem(int id, string name, float defaultValue, TabGroup tab, bool isSingleValue, FloatValueRule rule, bool infinity)
+        : base(id, name, rule.GetNearestIndex(defaultValue), tab, isSingleValue, infinity: infinity)
         {
             Rule = rule;
         }
         public static FloatOptionItem Create(
-            int id, string name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue
+            int id, string name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue, bool infinity = false
         )
         {
             return new FloatOptionItem(
-                id, name, defaultValue, tab, isSingleValue, rule
+                id, name, defaultValue, tab, isSingleValue, rule, infinity
             );
         }
         public static FloatOptionItem Create(
-            int id, Enum name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue
+            int id, Enum name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue, bool infinity = false
         )
         {
             return new FloatOptionItem(
-                id, name.ToString(), defaultValue, tab, isSingleValue, rule
+                id, name.ToString(), defaultValue, tab, isSingleValue, rule, infinity
             );
         }
         public static FloatOptionItem Create(
-            SimpleRoleInfo roleInfo, int idOffset, Enum name, FloatValueRule rule, float defaultValue, bool isSingleValue, OptionItem parent = null
+            SimpleRoleInfo roleInfo, int idOffset, Enum name, FloatValueRule rule, float defaultValue, bool isSingleValue, OptionItem parent = null, bool infinity = false
         )
         {
             var opt = new FloatOptionItem(
-                roleInfo.ConfigId + idOffset, name.ToString(), defaultValue, roleInfo.Tab, isSingleValue, rule
+                roleInfo.ConfigId + idOffset, name.ToString(), defaultValue, roleInfo.Tab, isSingleValue, rule, infinity
+            );
+            opt.SetParent(parent ?? roleInfo.RoleOption);
+            return opt;
+        }
+        public static FloatOptionItem Create(
+            SimpleRoleInfo roleInfo, int idOffset, string name, FloatValueRule rule, float defaultValue, bool isSingleValue, OptionItem parent = null, bool infinity = false
+        )
+        {
+            var opt = new FloatOptionItem(
+                roleInfo.ConfigId + idOffset, name.ToString(), defaultValue, roleInfo.Tab, isSingleValue, rule, infinity
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
             return opt;

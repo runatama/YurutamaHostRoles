@@ -15,12 +15,15 @@ using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Modules.ChatManager;
+using TownOfHost.Roles.Ghost;
+//using AmongUs.Data.Settings;
 
 namespace TownOfHost
 {
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGame))]
     class ChangeRoleSettings
     {
+        public static bool Itukanantokasuru;
         public static void Postfix(AmongUsClient __instance)
         {
             //注:この時点では役職は設定されていません。
@@ -34,6 +37,7 @@ namespace TownOfHost
             Main.LastLogRole = new Dictionary<byte, string>();
             Main.LastLogPro = new Dictionary<byte, string>();
             Main.Guard = new Dictionary<byte, int>();
+            GhostRoleAssingData.GhostAssingCount = new Dictionary<CustomRoles, int>();
 
             Main.SKMadmateNowCount = 0;
 
@@ -94,7 +98,7 @@ namespace TownOfHost
                 pc.cosmetics.nameText.text = pc.name;
 
                 var outfit = pc.Data.DefaultOutfit;
-                Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
+                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
                 Main.clientIdList.Add(pc.GetClientId());
             }
             Main.VisibleTasksCount = true;
@@ -112,12 +116,14 @@ namespace TownOfHost
                 }
             }
 
+            ExileControllerWrapUpPatch.AllSpawned = true;
             RpcSetTasksPatch.HostFin = false;
             CustomRoleManager.Initialize();
             FallFromLadder.Reset();
             LastImpostor.Init();
             LastNeutral.Init();
             TargetArrow.Init();
+            GetArrow.Init();
             DoubleTrigger.Init();
             watching.Init();
             Serial.Init();
@@ -136,11 +142,14 @@ namespace TownOfHost
             Guesser.Init();
             Autopsy.Init();
             Workhorse.Init();
+            DemonicTracker.Init();
+            DemonicCrusher.Init();
             PlayerSkinPatch.RemoveAll();
             NonReport.Init();
             Notvoter.Init();
             PlusVote.Init();
             Elector.Init();
+            InfoPoor.Init();
             Water.Init();
             SlowStarter.Init();
             Slacker.Init();
@@ -171,6 +180,7 @@ namespace TownOfHost
             Main.saabo = false;
             JackalDoll.side = 0;
             Main.GameCount++;
+            Itukanantokasuru = Options.CurrentGameMode == CustomGameMode.Standard && Main.SetRoleOverride;//いつかなんとかはするけど・・・
             Main.Time = (Main.NormalOptions.DiscussionTime, Main.NormalOptions.VotingTime);
             var c = string.Format(GetString("log.Start"), Main.GameCount);
             Main.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
@@ -245,7 +255,7 @@ namespace TownOfHost
                 }
                 else
                 {
-                    RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Shapeshifter };
+                    RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom };
                     foreach (var roleTypes in RoleTypesList)
                     {
                         var roleOpt = Main.NormalOptions.roleOptions;
@@ -279,8 +289,10 @@ namespace TownOfHost
             }
             //以下、バニラ側の役職割り当てが入る
         }
+        public static List<byte> disc = new();
         public static void Postfix()
         {
+            disc.Clear();
             if (!AmongUsClient.Instance.AmHost) return;
             RpcSetRoleReplacer.Release(); //保存していたSetRoleRpcを一気に書く
             RpcSetRoleReplacer.senders.Do(kvp => kvp.Value.SendMessage());
@@ -298,8 +310,11 @@ namespace TownOfHost
             List<PlayerControl> Impostors = new();
             List<PlayerControl> Scientists = new();
             List<PlayerControl> Engineers = new();
+            List<PlayerControl> Trackers = new();
+            List<PlayerControl> Noisemakers = new();
             List<PlayerControl> GuardianAngels = new();
             List<PlayerControl> Shapeshifters = new();
+            List<PlayerControl> Phantoms = new();
 
             foreach (var pc in Main.AllPlayerControls)
             {
@@ -325,6 +340,14 @@ namespace TownOfHost
                         Engineers.Add(pc);
                         role = CustomRoles.Engineer;
                         break;
+                    case RoleTypes.Tracker:
+                        Trackers.Add(pc);
+                        role = CustomRoles.Tracker;
+                        break;
+                    case RoleTypes.Noisemaker:
+                        Noisemakers.Add(pc);
+                        role = CustomRoles.Noisemaker;
+                        break;
                     case RoleTypes.GuardianAngel:
                         GuardianAngels.Add(pc);
                         role = CustomRoles.GuardianAngel;
@@ -333,11 +356,55 @@ namespace TownOfHost
                         Shapeshifters.Add(pc);
                         role = CustomRoles.Shapeshifter;
                         break;
+                    case RoleTypes.Phantom:
+                        Phantoms.Add(pc);
+                        role = CustomRoles.Phantom;
+                        break;
                     default:
                         Logger.seeingame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
                         break;
                 }
                 state.SetMainRole(role);
+            }
+
+            if (Options.CurrentGameMode == CustomGameMode.Standard && Main.SetRoleOverride)
+            {
+                _ = new LateTask(() =>
+                {
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
+                        if (playerInfo.Disconnected) disc.Add(pc.PlayerId);
+                        playerInfo.Disconnected = true;
+                        playerInfo.SetDirtyBit(0b_1u << pc.PlayerId);
+                    }
+                    _ = new LateTask(() => AmongUsClient.Instance.SendAllStreamedObjects(), 0.2f, "");
+                }, 2.2f, "");
+
+                _ = new LateTask(() =>
+                {
+                    var save = PlayerControl.LocalPlayer.Data.RoleType;
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer) continue;
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : save, pc.GetClientId());
+                        pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor && pc.GetCustomRole().IsCrewmate() ? RoleTypes.Crewmate : pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
+                    }
+                    PlayerControl.LocalPlayer.StartCoroutine(PlayerControl.LocalPlayer.CoSetRole(save, true));
+                }, 2.6f, "");
+
+                _ = new LateTask(() =>
+                {
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (disc.Contains(pc.PlayerId)) continue;
+                        var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
+                        playerInfo.Disconnected = false;
+                        playerInfo.SetDirtyBit(0b_1u << pc.PlayerId);
+                    }
+                    _ = new LateTask(() => AmongUsClient.Instance.SendAllStreamedObjects(), 0.2f, "");
+                }, 2.8f, "");
+
             }
 
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
@@ -396,8 +463,11 @@ namespace TownOfHost
                     {
                         RoleTypes.Impostor => Impostors,
                         RoleTypes.Shapeshifter => Shapeshifters,
+                        RoleTypes.Phantom => Phantoms,
                         RoleTypes.Scientist => Scientists,
                         RoleTypes.Engineer => Engineers,
+                        RoleTypes.Tracker => Trackers,
+                        RoleTypes.Noisemaker => Noisemakers,
                         RoleTypes.GuardianAngel => GuardianAngels,
                         _ => Crewmates,
                     };
@@ -436,7 +506,7 @@ namespace TownOfHost
                     }
                 }
 
-                RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Shapeshifter };
+                RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom };
                 foreach (var roleTypes in RoleTypesList)
                 {
                     var roleOpt = Main.NormalOptions.roleOptions;
@@ -473,6 +543,7 @@ namespace TownOfHost
             //役職選定後に処理する奴。
             foreach (var pc in Main.AllPlayerControls)
             {
+                MeetingHudPatch.CastVotePatch.InfoMode.Add(pc.PlayerId, 0);
                 //Log
                 var color = Palette.CrewmateBlue;
                 if (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate)) color = Palette.ImpostorRed;
@@ -494,6 +565,11 @@ namespace TownOfHost
                     if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
                     if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                 }
+            }
+            foreach (var s in PlayerState.AllPlayerStates)
+            {
+                if (s.Value == null) continue;
+                s.Value.IsBlackOut = true;
             }
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
@@ -539,7 +615,7 @@ namespace TownOfHost
                 }
                 RpcSetRoleReplacer.OverriddenSenderList.Add(senders[player.PlayerId]);
                 //ホスト視点はロール決定
-                player.SetRole(othersRole);
+                player.StartCoroutine(player.CoSetRole(othersRole, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard));
                 player.Data.IsDead = true;
             }
         }
@@ -558,7 +634,6 @@ namespace TownOfHost
                 }
             }
         }
-
 
         private static List<PlayerControl> AssignCustomRolesFromList(CustomRoles role, List<PlayerControl> players, int RawCount = -1)
         {
@@ -809,12 +884,12 @@ namespace TownOfHost
                     if (OverriddenSenderList.Contains(sender.Value)) continue;
                     if (sender.Value.CurrentState != CustomRpcSender.State.InRootMessage)
                         throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
-
                     foreach (var pair in StoragedData)
                     {
-                        pair.Item1.SetRole(pair.Item2);
+                        pair.Item1.StartCoroutine(pair.Item1.CoSetRole(pair.Item2, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard));
                         sender.Value.AutoStartRpc(pair.Item1.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
                             .Write((ushort)pair.Item2)
+                            .Write(Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard)
                             .EndRpc();
                     }
                     sender.Value.EndMessage();

@@ -1,3 +1,4 @@
+using System.Linq;
 using AmongUs.Data;
 using HarmonyLib;
 using TownOfHost.Roles.Core;
@@ -7,7 +8,9 @@ namespace TownOfHost
 {
     class ExileControllerWrapUpPatch
     {
-        public static GameData.PlayerInfo AntiBlackout_LastExiled;
+        public static NetworkedPlayerInfo AntiBlackout_LastExiled;
+        public static float SpawnTimer = 0;
+        public static bool AllSpawned = false;
         [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
         class BaseExileControllerPatch
         {
@@ -39,7 +42,7 @@ namespace TownOfHost
                 }
             }
         }
-        static void WrapUpPostfix(GameData.PlayerInfo exiled)
+        static void WrapUpPostfix(NetworkedPlayerInfo exiled)
         {
             if (AntiBlackout.OverrideExiledPlayer)
             {
@@ -59,14 +62,10 @@ namespace TownOfHost
 
             bool DecidedWinner = false;
             if (!AmongUsClient.Instance.AmHost) return; //ホスト以外はこれ以降の処理を実行しません
-            AntiBlackout.RestoreIsDead(doSend: false);
             if (exiled != null)
             {
                 var role = exiled.GetCustomRole();
                 var info = role.GetRoleInfo();
-                //霊界用暗転バグ対処
-                if (!AntiBlackout.OverrideExiledPlayer && info?.IsDesyncImpostor == true)
-                    exiled.Object?.ResetPlayerCam(1f);
 
                 exiled.IsDead = true;
                 PlayerState.GetByPlayerId(exiled.PlayerId).DeathReason = CustomDeathReason.Vote;
@@ -77,6 +76,48 @@ namespace TownOfHost
                 }
 
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) PlayerState.GetByPlayerId(exiled.PlayerId).SetDead();
+            }
+            if ((MapNames)mapId != MapNames.Airship || !Options.AntiBlackOutSpawnVer.GetBool())
+                AfterMeetingTasks();
+#if DEBUG
+            else
+            {
+                foreach (var state in PlayerState.AllPlayerStates)
+                {
+                    state.Value.TeleportedWithAntiBlackout = false;
+                    state.Value.SpawnPoint = new(999, 999);
+                }
+                SpawnTimer = 11;
+                AllSpawned = false;
+            }
+#endif
+        }
+        public static void AfterMeetingTasks()
+        {
+            //霊界用暗転バグ処置(移設)
+            if (AmongUsClient.Instance.AmHost)
+            {
+                _ = new LateTask(() => AntiBlackout.RestoreIsDead(doSend: false), 0.4f, "Res");
+                _ = new LateTask(() => Utils.NotifyRoles(), 0.6f, "");
+
+                if (Main.AllAlivePlayerControls.Any())
+                    foreach (var pc in Main.AllPlayerControls.Where(x => !x.IsAlive()))
+                    {
+                        if (pc == null) continue;
+                        var Drole = pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
+                        if (Drole) pc.Data.Object?.ResetPlayerCam(1.4f);
+                    }
+            }
+
+            //OFFならリセ
+            if (!Options.AntiBlackOutSpawnVer.GetBool())
+            {
+                foreach (var state in PlayerState.AllPlayerStates.Values)
+                {
+                    if (state == null) continue;
+                    state.TeleportedWithAntiBlackout = true;
+                }
+                AllSpawned = true;
             }
 
             foreach (var pc in Main.AllPlayerControls)
@@ -114,7 +155,7 @@ namespace TownOfHost
             Utils.NotifyRoles();
         }
 
-        static void WrapUpFinalizer(GameData.PlayerInfo exiled)
+        static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
         {
             //WrapUpPostfixで例外が発生しても、この部分だけは確実に実行されます。
             if (AmongUsClient.Instance.AmHost)

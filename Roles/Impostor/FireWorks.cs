@@ -42,7 +42,6 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
         FireWorksRadius = OptionFireWorksRadius.GetFloat();
         Cankill = OptionCankillAlltime.GetBool();
         Cool = OptionCooldown.GetFloat();
-        FClick = true;
     }
 
     static OptionItem OptionFireWorksCount;
@@ -53,7 +52,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     {
         FireWorksMaxCount,
         FireWorksRadius,
-        FireWankillAlltime
+        FireWorksCanKillAlways
     }
 
     int FireWorksCount;
@@ -61,7 +60,6 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     float Cool;
     int NowFireWorksCount;
     bool Cankill;
-    bool FClick;
     List<Vector3> FireWorksPosition = new();
     FireWorksState State = FireWorksState.Initial;
 
@@ -71,7 +69,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
             .SetValueFormat(OptionFormat.Pieces);
         OptionFireWorksRadius = FloatOptionItem.Create(RoleInfo, 11, OptionName.FireWorksRadius, new(0.5f, 3f, 0.5f), 1f, false)
             .SetValueFormat(OptionFormat.Multiplier);
-        OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWankillAlltime, false, false);
+        OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWorksCanKillAlways, false, false);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -97,11 +95,6 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     public bool UseOCButton => true;
     public void OnClick()
     {
-        if (FClick)
-        {
-            FClick = false;
-            return;
-        }
         Logger.Info($"FireWorks ShapeShift", "FireWorks");
         switch (State)
         {
@@ -191,7 +184,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     public override string GetAbilityButtonText()
     {
         if (State == FireWorksState.ReadyFire)
-            return GetString("FireWorksExplosionButtonText");
+            return GetString("FireWorksBomberExplosionButtonText");
         else
             return GetString("FireWorksInstallAtionButtonText");
     }

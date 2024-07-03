@@ -40,14 +40,14 @@ public sealed class Shyboy : RoleBase
     private static float Notshy;
     enum OptionName
     {
-        Shytime,
-        NotShy
+        ShyboyShytime,
+        ShyboyAfterMeetingNotShytime
     }
     private static float Shytime;
     private static void SetupOptionItem()
     {
-        OptionShytime = FloatOptionItem.Create(RoleInfo, 10, OptionName.Shytime, new(0f, 15f, 0.5f), 5f, false);
-        OptionNotShy = FloatOptionItem.Create(RoleInfo, 11, OptionName.NotShy, new(0f, 30f, 1f), 10f, false);
+        OptionShytime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ShyboyShytime, new(0f, 15f, 0.5f), 5f, false);
+        OptionNotShy = FloatOptionItem.Create(RoleInfo, 11, OptionName.ShyboyAfterMeetingNotShytime, new(0f, 30f, 1f), 10f, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -56,7 +56,7 @@ public sealed class Shyboy : RoleBase
         AURoleOptions.EngineerCooldown = (float)Coold;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku) => false;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -77,6 +77,8 @@ public sealed class Shyboy : RoleBase
         AfterMeeting += Time.fixedDeltaTime;
 
         var Shydeathdi = 5 * Main.DefaultCrewmateVision;
+        if (player.Is(CustomRoles.Lighting)) Shydeathdi = 5 * Main.DefaultImpostorVision;
+
         if (GameStates.IsInTask && Player.IsAlive() && Notshy <= AfterMeeting - 5)
         {
             if (tuuti)
@@ -92,7 +94,7 @@ public sealed class Shyboy : RoleBase
                 if (pc != player)
                 {
                     float HitoDistance = Vector2.Distance(GSpos, pc.transform.position);
-                    if (HitoDistance <= Shydeathdi && player.CanMove && pc.CanMove)
+                    if (HitoDistance <= Shydeathdi)
                     {
                         Hito = true;
                         break;

@@ -1,5 +1,6 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
+using TownOfHost.Roles.Core;
 using UnityEngine;
 
 namespace TownOfHost
@@ -7,11 +8,14 @@ namespace TownOfHost
     [HarmonyPatch(typeof(Console), nameof(Console.CanUse))]
     class CanUsePatch
     {
-        public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] GameData.PlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
+        public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
         {
             canUse = couldUse = false;
             //こいつをfalseでreturnしても、タスク(サボ含む)以外の使用可能な物は使えるまま(ボタンなど)
-            return __instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
+            if (!GameStates.InGame)
+                return __instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
+            else
+                return (__instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false)) && (PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? Utils.HasTasks(PlayerControl.LocalPlayer.Data, false));
         }
     }
     [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]
@@ -25,7 +29,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
     class CanUseVentPatch
     {
-        public static bool Prefix(Vent __instance, [HarmonyArgument(0)] GameData.PlayerInfo pc,
+        public static bool Prefix(Vent __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc,
             [HarmonyArgument(1)] ref bool canUse,
             [HarmonyArgument(2)] ref bool couldUse,
             ref float __result)

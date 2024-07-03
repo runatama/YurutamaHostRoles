@@ -40,8 +40,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     byte forvote;
     enum OptionName
     {
-        CanVent,
-        ReVote
+        MadReduecdVote
     }
 
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
@@ -49,8 +48,8 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
     public static void SetupOptionItem()
     {
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
-        OptionVote = FloatOptionItem.Create(RoleInfo, 11, OptionName.ReVote, new(-99f, -1f, 1f), -2f, false)
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
+        OptionVote = FloatOptionItem.Create(RoleInfo, 11, OptionName.MadReduecdVote, new(-99f, -1f, 1f), -2f, false)
             .SetValueFormat(OptionFormat.Votes);
     }
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)

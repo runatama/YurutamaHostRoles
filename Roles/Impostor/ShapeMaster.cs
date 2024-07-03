@@ -30,17 +30,12 @@ public sealed class ShapeMaster : RoleBase, IImpostor
     }
     private static OptionItem OptionShapeshiftDuration;
     static OptionItem OptionShapeAnime;
-    enum OptionName
-    {
-        ShapeMasterShapeshiftDuration,
-        animate
-    }
     private static float shapeshiftDuration;
     static bool anime;
     public static void SetupOptionItem()
     {
-        OptionShapeshiftDuration = FloatOptionItem.Create(RoleInfo, 10, OptionName.ShapeMasterShapeshiftDuration, new(1, 1000, 1), 10, false);
-        OptionShapeAnime = BooleanOptionItem.Create(RoleInfo, 11, OptionName.animate, false, false);
+        OptionShapeshiftDuration = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Duration, new(1, 1000, 1), 10, false);
+        OptionShapeAnime = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.animate, false, false);
     }
 
     public override void ApplyGameOptions(IGameOptions opt)

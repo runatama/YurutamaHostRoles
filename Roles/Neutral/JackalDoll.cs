@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class JackalDoll : RoleBase, IKiller
@@ -30,13 +31,16 @@ public sealed class JackalDoll : RoleBase, IKiller
         player
     )
     {
+        Oyabun.Clear();
+        shoukaku = false;
+        role.Clear();
     }
     static OptionItem JackaldieMode;
     static OptionItem RoleChe;
     public static OptionItem sidekick;
     enum Option
     {
-        JackaldieMode, dollRoleChe, dollside
+        JackaldolldieMode, JackaldollRoleChe, SideKickJackaldollMacCount
     }
     enum diemode
     {
@@ -45,6 +49,19 @@ public sealed class JackalDoll : RoleBase, IKiller
         rolech,
     };
     public static int side;
+    bool shoukaku;
+    /// <summary>
+    /// key→my
+    /// Va→oyabun
+    /// </summary>
+    /// <returns></returns>
+    static Dictionary<byte, PlayerControl> Oyabun = new();
+    /// <summary>
+    /// key →my
+    /// va→role
+    /// </summary>
+    /// <returns></returns>
+    static Dictionary<PlayerControl, CustomRoles> role = new();
     public static readonly CustomRoles[] ChangeRoles =
     {
         CustomRoles.Crewmate, CustomRoles.Madmate , CustomRoles.Jester, CustomRoles.Opportunist,
@@ -52,9 +69,9 @@ public sealed class JackalDoll : RoleBase, IKiller
     private static void SetupOptionItem()
     {
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
-        sidekick = IntegerOptionItem.Create(RoleInfo, 9, Option.dollside, new(0, 2, 1), 1, false);
-        JackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldieMode, EnumHelper.GetAllNames<diemode>(), 0, false);
-        RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.dollRoleChe, cRolesString, 3, false);
+        sidekick = IntegerOptionItem.Create(RoleInfo, 9, Option.SideKickJackaldollMacCount, new(0, 15, 1), 1, false);
+        JackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<diemode>(), 0, false);
+        RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false);
         RoleAddAddons.Create(RoleInfo, 20);
     }
 
@@ -74,8 +91,30 @@ public sealed class JackalDoll : RoleBase, IKiller
     public bool CanUseSabotageButton() => false;
     public bool CanUseImpostorVentButton() => false;
     public override bool CanUseAbilityButton() => false;
-    public static void Sidekick(PlayerControl pc)
+    public static void Sidekick(PlayerControl pc, PlayerControl oyabun)
     {
+        if (Oyabun.ContainsKey(pc.PlayerId))
+        {
+            Oyabun.Remove(pc.PlayerId);
+        }
+
+        if (oyabun.Is(CustomRoles.Jackal))
+        {
+            if (Jackal.OptionDoll.GetBool())
+            {
+                Oyabun.Add(pc.PlayerId, oyabun);
+                role.Add(pc, CustomRoles.Jackal);
+            }
+        }
+        if (oyabun.Is(CustomRoles.JackalMafia))
+        {
+            if (JackalMafia.OptionDoll.GetString() == "Sidekick")
+            {
+                Oyabun.Add(pc.PlayerId, oyabun);
+                role.Add(pc, CustomRoles.JackalMafia);
+            }
+        }
+
         //サイドキックがガード等発動しないため。
         if (RoleAddAddons.AllData.TryGetValue(CustomRoles.Jackaldoll, out var d) && d.GiveAddons.GetBool())
         {
@@ -85,7 +124,9 @@ public sealed class JackalDoll : RoleBase, IKiller
     }
     public override void AfterMeetingTasks()
     {
-        if (Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia)).Count() != 0) return;
+        if (Oyabun.ContainsKey(Player.PlayerId)) return;
+
+        if (Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia))) return;
 
         foreach (var Jd in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
         {
@@ -106,9 +147,10 @@ public sealed class JackalDoll : RoleBase, IKiller
             }
         }
     }
-    public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo t)
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo t)
     {
-        if (Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia)).Count() != 0) return;
+        if (Oyabun.ContainsKey(Player.PlayerId)) return;
+        if (Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia))) return;
 
         foreach (var Jd in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
         {
@@ -125,6 +167,30 @@ public sealed class JackalDoll : RoleBase, IKiller
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
                 Utils.NotifyRoles();
             }
+        }
+    }
+    public override void OnFixedUpdate(PlayerControl player)
+    {
+        if (!player.IsAlive()) return;
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        if (Oyabun.ContainsKey(player.PlayerId))
+        {
+            if (!Oyabun[player.PlayerId].IsAlive() && !shoukaku)
+            {
+                if (!role.ContainsKey(player)) role.Add(player, CustomRoles.Jackal);
+
+                player.RpcSetCustomRole(role[player], false);
+                shoukaku = true;
+            }
+            shoukaku = false;
+        }
+    }
+    public override void OverrideTrueRoleName(ref Color roleColor, ref string roleText)
+    {
+        if (Oyabun.ContainsKey(Player.PlayerId))
+        {
+            roleText = Translator.GetString("Sidekick") + Translator.GetString("Jackaldoll");
         }
     }
 }

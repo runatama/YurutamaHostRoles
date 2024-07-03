@@ -42,7 +42,7 @@ namespace TownOfHost.Roles.Impostor
         static OptionItem SpeedDownCount;
         enum OptionName
         {
-            VampireKillDelay, VamSpeedDown, VamSpeedDownCount
+            VampireKillDelay, VampireSpeedDown, VampireSpeedDownCount
         }
 
         static float KillDelay;
@@ -55,8 +55,8 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.VampireKillDelay, new(1f, 1000f, 1f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            SpeedDown = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VamSpeedDown, true, false);
-            SpeedDownCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.VamSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown)
+            SpeedDown = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VampireSpeedDown, true, false);
+            SpeedDownCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.VampireSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown)
             .SetValueFormat(OptionFormat.Seconds);
         }
         public void OnCheckMurderAsKiller(MurderInfo info)
@@ -116,7 +116,7 @@ namespace TownOfHost.Roles.Impostor
                 }
             }
         }
-        public override void OnReportDeadBody(PlayerControl repo, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {
             foreach (var targetId in BittenPlayers.Keys)
             {
@@ -175,7 +175,6 @@ namespace TownOfHost.Roles.Impostor
             {
                 Logger.Info($"Vampireに噛まれている{target.name}はすでに死んでいました。", "Vampire.KillBitten");
             }
-
         }
     }
 }

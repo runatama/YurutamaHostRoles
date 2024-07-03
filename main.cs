@@ -44,18 +44,61 @@ namespace TownOfHost
         public static HashAuth ExplosionKeyAuth { get; private set; }
         // デバッグキーのハッシュ値
         public const string DebugKeyHash = "8e5f06e453e7d11f78ad96b2ca28ff472e085bdb053189612a0a2e0be7973841";
+        // 部屋爆破キーのハッシュ値
         public const string ExplosionKeyHash = "e7d88aaf7ea075752792089196d9441c838e6ff47432a719fad6e17cd50a441e";
         // デバッグキーのソルト
         public const string DebugKeySalt = "59687b";
         // デバッグキーのコンフィグ入力
         public static ConfigEntry<string> DebugKeyInput { get; private set; }
         public static ConfigEntry<string> ExplosionKeyInput { get; private set; }
+
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.61.3";
+        public const string PluginVersion = "5.1.61.4";
+        public static string DebugFriendCode = "";
+
+        /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
+        public static bool DebugVersion = true;
+        //デバッグ有効期限
+        public static int DebugvalidityYear = 2024;//年
+        public static int DebugvalidityMonth = 7;//月
+        public static int DebugvalidityDay = 10;//日
+        //デバッグ版リリース日
+        public static int ReleaseYear = 2024;
+        public static int ReleaseMonth = 7;
+        public static int ReleaseDay = 3;
+        public static bool DebugCheck()
+        {
+            if (!NotKigenDebug && DebugVersion)
+            {
+                var client = PlayerControl.LocalPlayer.GetClient();
+                var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
+                int Re = ReleaseYear * 10000 + ReleaseMonth * 100 + ReleaseDay;
+                int Rem = DebugvalidityYear * 10000 + DebugvalidityMonth * 100 + DebugvalidityDay;
+                if (DebugFriendCode != "")
+                    if (DebugFriendCode != PlayerControl.LocalPlayer.FriendCode && DebugFriendCode != $"#{PlayerControl.LocalPlayer.FriendCode}")
+                    {
+                        //正式リリースの時には消す。
+                        AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
+                        Alert.Send()
+                        return false;
+                    }
+                if (!(Re <= now && now <= Rem))
+                {
+                    AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
+                    Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n `FriendCode:{client.FriendCode}`\nPuId:`{client.GetHashedPuid()}`");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        //開発版なのかのch。↑が000ならtrue。
+        public static bool NotKigenDebug => (DebugvalidityYear == 0 && DebugvalidityMonth == 0 && DebugvalidityDay == 0)
+                                            || (ReleaseYear == 0 && ReleaseMonth == 0 && ReleaseDay == 0);
         // サポートされている最低のAmongUsバージョン
-        public static readonly string LowestSupportedVersion = "2024.3.5";
+        public static readonly string LowestSupportedVersion = "2024.6.18";
         // このバージョンのみで公開ルームを無効にする場合
         public static readonly bool IsPublicAvailableOnThisVersion = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
@@ -65,8 +108,8 @@ namespace TownOfHost
         public static string ExceptionMessage;
         public static bool ExceptionMessageIsShown = false;
         public static string credentialsText;
-        public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
-        public static HideNSeekGameOptionsV07 HideNSeekSOptions => GameOptionsManager.Instance.currentHideNSeekGameOptions;
+        public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+        public static HideNSeekGameOptionsV08 HideNSeekSOptions => GameOptionsManager.Instance.currentHideNSeekGameOptions;
         //Client Options
         public static ConfigEntry<string> HideName { get; private set; }
         public static ConfigEntry<string> HideColor { get; private set; }
@@ -80,7 +123,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> UseZoom { get; private set; }
         public static ConfigEntry<bool> SyncYomiage { get; private set; }
         public static ConfigEntry<bool> CustomName { get; private set; }
-        public static ConfigEntry<bool> HideResetToDefault { get; private set; }
+        public static ConfigEntry<bool> ShowGameSettingsTMP { get; private set; }
         public static ConfigEntry<bool> CustomSprite { get; private set; }
         public static ConfigEntry<bool> HideSomeFriendCodes { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
@@ -144,6 +187,7 @@ namespace TownOfHost
         public static (float, float) Time;
         public static Dictionary<byte, int> Guard;
         public static int GameCount = 0;
+        public static bool SetRoleOverride = true;
         //public static bool TaskBattleOptionv = false;
 
         /// <summary>
@@ -192,7 +236,7 @@ namespace TownOfHost
             UseZoom = Config.Bind("Client Options", "UseZoom", false);
             SyncYomiage = Config.Bind("Client Options", "SyncYomiage", true);
             CustomName = Config.Bind("Client Options", "CustomName", true);
-            HideResetToDefault = Config.Bind("Client Options", "Hide ResetToDefault", false);
+            ShowGameSettingsTMP = Config.Bind("Client Options", "Show GameSettings", false);
             CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
             HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
@@ -281,11 +325,12 @@ namespace TownOfHost
                     {CustomRoles.Notvoter,"#6c848d"},
                     {CustomRoles.Water,"#003f8e"},
                     {CustomRoles.Clumsy,"#942343"},
-                    {CustomRoles.Slacker,"#460e44"},
+                    {CustomRoles.Slacker,"#980098"},
                     {CustomRoles.Elector,"#544a47"},
                     {CustomRoles.Transparent,"#7b7c7d"},
                     {CustomRoles.Amnesia,"#4682b4"},
                     {CustomRoles.SlowStarter,"#ff00ff"},
+                    {CustomRoles.InfoPoor ,"#555647"},
 
                     //第三属性
                     {CustomRoles.Amanojaku,"#005243"},
@@ -297,6 +342,10 @@ namespace TownOfHost
                     {CustomRoles.FLovers, "#fdede4"},
                     {CustomRoles.GLovers, "#af0082"},
                     {CustomRoles.MaLovers, "#f09199"},
+
+                    // 幽霊役職
+                    {CustomRoles.DemonicTracker,"#824880"},
+                    {CustomRoles.DemonicCrusher,"#522886"},
 
                     {CustomRoles.NotAssigned, "#ffffff"}
                 };
@@ -332,6 +381,26 @@ namespace TownOfHost
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
 
             Harmony.PatchAll();
+        }
+
+        public static bool IsCs()
+        {
+            if (ServerManager.Instance == null) return false;
+            var sn = ServerManager.Instance.CurrentRegion.TranslateName;
+            if (sn is StringNames.ServerNA or StringNames.ServerEU or StringNames.ServerAS or StringNames.ServerSA)
+                return false;
+            else return true;
+        }
+
+        public static bool IsPublicRoomAllowed(bool AllowCS = true)
+        {
+            if (!VersionChecker.IsSupported)
+                return false;
+            if (ModUpdater.version != null && ModUpdater.AllowPublicRoom != null)
+            {
+                return ModUpdater.AllowPublicRoom.Value;
+            }
+            return (AllowCS && IsCs()) || (!IsCs() && !ModUpdater.hasUpdate && !ModUpdater.isBroken && AllowPublicRoom && IsPublicAvailableOnThisVersion);
         }
     }
     public enum CustomDeathReason
@@ -387,6 +456,7 @@ namespace TownOfHost
         GrimReaper = CustomRoles.GrimReaper,
         CountKiller = CustomRoles.CountKiller,
         Workaholic = CustomRoles.Workaholic,
+        MassMedia = CustomRoles.MassMedia,
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
     }

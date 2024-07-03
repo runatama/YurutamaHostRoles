@@ -22,6 +22,7 @@ namespace TownOfHost
         public static float TaskBattleTimer = 0.0f;
         public static Vector2 TaskBattlep;
         public static TMPro.TextMeshPro LowerInfoText;
+        public static TMPro.TextMeshPro GameSettings;
         public static void Postfix(HudManager __instance)
         {
             if (!GameStates.IsModHost) return;
@@ -46,12 +47,24 @@ namespace TownOfHost
                     player.Collider.offset = new Vector2(0f, -0.3636f);
                 }
             }
+
             if (GameStates.IsLobby)
             {
-                __instance.GameSettings.text = OptionShower.GetText();
-                __instance.GameSettings.fontSizeMin =
-                __instance.GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
+                if (!GameSettings)
+                {
+                    GameSettings = Templates.TMPTemplate.Create("GameSettings");
+                    GameSettings.alignment = TMPro.TextAlignmentOptions.TopLeft;
+                    GameSettings.transform.SetParent(__instance.roomTracker.transform.parent);
+                    GameSettings.transform.localPosition = new(-3.325f, 2.78f);
+                }
+
+                GameSettings.text = OptionShower.GetText();
+                GameSettings.SetOutlineColor(Color.black);
+                GameSettings.SetOutlineThickness(0.1f);
+                GameSettings.fontSizeMin =
+                GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
             }
+            GameSettings.gameObject.SetActive(GameStates.IsLobby && Main.ShowGameSettingsTMP.Value);
 
             //カスタムスポーン位置設定中ならキルボタン等を非表示にする
             if (GameStates.IsFreePlay && Main.EditMode)
@@ -225,9 +238,11 @@ namespace TownOfHost
                 if (ch) return;
                 if (player == !GameStates.IsModHost) return;
                 if (!AmongUsClient.Instance.IsGameStarted) return;
+                if (player.GetCustomRole().IsVanilla()) return;
 
                 var __instance = DestroyableSingleton<HudManager>.Instance;
                 var roleClass = player.GetRoleClass();
+                if (roleClass == null) return;
                 if (Main.CustomSprite.Value)
                 {
                     if (roleClass != null)

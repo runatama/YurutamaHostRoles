@@ -135,6 +135,10 @@ public static class GuessManager
 
                 if (role.IsAddOn())
                     return true;
+
+                if (role.IsGorstRole())
+                    return true;
+
                 if (pc.Is(CustomRoleTypes.Impostor) && role == CustomRoles.Egoist)
                     return true;
                 if (pc.Is(CustomRoles.Egoist) && target.Is(CustomRoleTypes.Impostor) && Guesser.ICanGuessNakama.GetBool())
@@ -201,18 +205,26 @@ public static class GuessManager
                         }
                     }, 0.1f, "Guess Msg");
                 }, 0.2f, "Guesser Kill");
+
+                if (pc == dp)
+                {
+                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guess]　" + string.Format(GetString("guessfall"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role)));
+                }
+                else
+                {
+                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guess]　" + string.Format(GetString("guesssuccess"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dp, true) + $"(<b>{Utils.GetTrueRoleName(dp.PlayerId, false)}</b>)");
+                }
+
                 _ = new LateTask(() =>
                 {
                     string send = "";
                     if (pc == dp)
                     {
                         send = string.Format(GetString("Rgobaku"), Utils.GetPlayerColor(pc, true), Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role)));
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guess]　" + string.Format(GetString("guessfall"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role)));
                     }
                     else
                     {
                         send = string.Format(GetString("RMeetingKill"), Utils.GetPlayerColor(pc, true), Utils.GetPlayerColor(dp, true));
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guess]　" + string.Format(GetString("guesssuccess"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dp, true) + $"(<b>{Utils.GetTrueRoleName(dp.PlayerId, false)}</b>)");
                     }
                     foreach (var spl in Main.AllPlayerControls.Where(pc => !pc.IsAlive())) Utils.SendMessage(send, spl.PlayerId, GetString("RMSKillTitle"));
                 }, 2.0f, "Reikai Guess Msg");
@@ -233,11 +245,20 @@ public static class GuessManager
             case CustomRoles.Scientist:
                 if (role == CustomRoles.Scientist) result = false;
                 break;
+            case CustomRoles.Tracker:
+                if (role == CustomRoles.Tracker) result = false;
+                break;
+            case CustomRoles.Noisemaker:
+                if (role == CustomRoles.Noisemaker) result = false;
+                break;
             case CustomRoles.Impostor:
                 if (role == CustomRoles.Impostor) result = false;
                 break;
             case CustomRoles.Shapeshifter:
                 if (role == CustomRoles.Shapeshifter) result = false;
+                break;
+            case CustomRoles.Phantom:
+                if (role == CustomRoles.Phantom) result = false;
                 break;
         }
 
@@ -397,11 +418,20 @@ public static class GuessManager
             case CustomRoles.Scientist:
                 role = CustomRoles.Scientist;
                 break;
+            case CustomRoles.Tracker:
+                role = CustomRoles.Tracker;
+                break;
+            case CustomRoles.Noisemaker:
+                role = CustomRoles.Noisemaker;
+                break;
             case CustomRoles.Impostor:
                 role = CustomRoles.Impostor;
                 break;
             case CustomRoles.Shapeshifter:
                 role = CustomRoles.Shapeshifter;
+                break;
+            case CustomRoles.Phantom:
+                role = CustomRoles.Phantom;
                 break;
         }
 

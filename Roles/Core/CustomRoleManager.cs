@@ -9,6 +9,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost.Roles.Core;
 
@@ -24,6 +25,7 @@ public static class CustomRoleManager
     public static void Do<T>(this List<T> list, Action<T> action) => list.ToArray().Do(action);
     // == CheckMurder関連処理 ==
     public static Dictionary<byte, MurderInfo> CheckMurderInfos = new();
+
     /// <summary>
     ///
     /// </summary>
@@ -64,39 +66,33 @@ public static class CustomRoleManager
             if (killer.IsKiller)//一応今は属性ガード有線にしてますが
             {
                 if (targetRole != null)
-                    if (targetRole is Neutral.SchrodingerCat schrodingerCat)//シュレ猫かつチームがnoneの時のみ処理
-                        if (schrodingerCat.Team == Neutral.SchrodingerCat.TeamType.None)
-                            if (!targetRole.OnCheckMurderAsTarget(info))
-                            {
-                                CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
-                                return false;
-                            }
-
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
-                {
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                    {
-                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
-                        Main.Guard[attemptTarget.PlayerId]--;
-                        attemptKiller.RpcProtectedMurderPlayer(attemptTarget);
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
-                        Logger.Info($"{attemptTarget.GetNameWithRole()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
-                        Utils.NotifyRoles();
-                        return false;
-                    }
-                }
-                // ターゲットのキルチェック処理実行
-                if (targetRole != null)
-                {
                     if (!targetRole.OnCheckMurderAsTarget(info))
                     {
                         CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                         return false;
                     }
-                }
             }
+            //属性ガードがある場合はCankillのみ先にfalseで返す。
+            if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
+                if (Main.Guard[attemptTarget.PlayerId] > 0)
+                    info.CanKill = false;
+
             // キラーのキルチェック処理実行
             killer.OnCheckMurderAsKiller(info);
+
+            if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
+            {
+                if (Main.Guard[attemptTarget.PlayerId] > 0)
+                {
+                    CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
+                    Main.Guard[attemptTarget.PlayerId]--;
+                    attemptKiller.SetKillCooldown(target: attemptTarget);
+                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
+                    Logger.Info($"{attemptTarget.GetNameWithRole()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
+                    Utils.NotifyRoles();
+                    return false;
+                }
+            }
         }
 
         //キル可能だった場合のみMurderPlayerに進む
@@ -187,7 +183,7 @@ public static class CustomRoleManager
         //サブロールは表示めんどいしながいから省略★
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
-            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Kill]　{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId)}]　{room}";
+            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Kill]　{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}";
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{Utils.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
     }
@@ -349,6 +345,12 @@ public static class CustomRoleManager
                 case CustomRoles.Amanojaku:
                     Amanojaku.Add(pc.PlayerId);
                     break;
+                case CustomRoles.DemonicTracker:
+                    DemonicTracker.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.DemonicCrusher:
+                    DemonicCrusher.Add(pc.PlayerId);
+                    break;
             }
         }
     }
@@ -502,6 +504,7 @@ public enum CustomRoles
     //Impostor(Vanilla)
     Impostor,
     Shapeshifter,
+    Phantom,
     //Impostor
     BountyHunter,
     FireWorks,
@@ -527,7 +530,7 @@ public enum CustomRoles
     AntiReporter,
     Tairou,
     Evilgambler,
-    Noisemaker,
+    Notifier,
     Magician,
     Decrescendo,
     Alien,
@@ -535,6 +538,7 @@ public enum CustomRoles
     ProgressKiller,
     Mole,
     EvilAddoer,
+    Reloader,
     //Madmate
     MadGuardian,
     Madmate,
@@ -547,10 +551,13 @@ public enum CustomRoles
     MadBait,
     MadReduced,
     MadWorker,
+    MadTracker,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,
     Scientist,
+    Tracker,
+    Noisemaker,
     //Crewmate
     Bait,
     Lighter,
@@ -583,6 +590,7 @@ public enum CustomRoles
     NiceAddoer,
     InSender,
     Staff,
+    SwitchSheriff,
     //Neutral
     Arsonist,
     Egoist,
@@ -603,6 +611,8 @@ public enum CustomRoles
     Jackaldoll,
     Workaholic,
     Monochromer,
+    DoppelGanger,
+    MassMedia,
     TaskPlayerB,
     //HideAndSeek
     HASFox,
@@ -613,15 +623,7 @@ public enum CustomRoles
     Driver,
     Braid,
 
-    //開発中もしくは開発番専用役職置き場
-    //リリース前にチェックすることっ!(((
-#if DEBUG
-    //DEBUG only Crewmate
-    //DEBUG only Impostor
-    //DEBUG only Nuetral.
-    //DEBUG only Combination
-#endif
-
+    //DebugVersion
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,
@@ -656,7 +658,16 @@ public enum CustomRoles
     Water,
     Clumsy,
     Slacker,
-    SlowStarter
+    SlowStarter,
+    InfoPoor,
+
+    //GhostRoles
+
+    //MadmateGhost
+
+    DemonicCrusher,
+    DemonicTracker,
+    //CrewMateGhost
 }
 public enum CustomRoleTypes
 {

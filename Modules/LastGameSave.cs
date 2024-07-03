@@ -19,7 +19,7 @@ public static class LastGameSave
         CreateIfNotExists(true);
     }
 
-    public static void CreateIfNotExists(bool sakujo = false)
+    public static void CreateIfNotExists(bool sakujo = false, bool oti = false)
     {
         if (!File.Exists(PATH))
         {
@@ -88,6 +88,10 @@ public static class LastGameSave
             var sb = new StringBuilder();
 
             var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
+            if (oti)
+            {
+                sb.Append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + Main.gamelog + "\n\n<b>" + "</b>");
+            }
 
             sb.Append("""<align="center">""");
             sb.Append("<size=150%>").Append(GetString("LastResult")).Append("</size>");

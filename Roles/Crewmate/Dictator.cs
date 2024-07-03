@@ -36,6 +36,7 @@ public sealed class Dictator : RoleBase
         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Suicide, Player.PlayerId);
         Utils.GetPlayerById(sourceVotedForId).SetRealKiller(Player);
         MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, sourceVotedForId);
+        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Dictator]　" + string.Format(Translator.GetString("Dictator.log"), Utils.GetPlayerColor(Player));
         return (votedForId, numVotes, false);
     }
 }

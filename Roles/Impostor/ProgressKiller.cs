@@ -22,28 +22,28 @@ public sealed class ProgressKiller : RoleBase, IImpostor
         player
     )
     {
-        Madseer = OptionMadseer.GetBool();
-        Workhorseseer = OptionWorkhorseseer.GetBool();
+        ProgressKillerMadseen = OptionProgressKillerMadseen.GetBool();
+        ProgressWorkhorseseen = OptionProgressWorkhorseseen.GetBool();
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
-    public static OptionItem OptionMadseer;
-    public static OptionItem OptionWorkhorseseer;
+    public static OptionItem OptionProgressKillerMadseen;
+    public static OptionItem OptionProgressWorkhorseseen;
     enum OptionName
     {
-        Madseer,
-        Workhorseseer,
+        ProgressKillerMadseen,
+        ProgressWorkhorseseen,
     }
-    public static bool Madseer;
-    public static bool Workhorseseer;
+    public static bool ProgressKillerMadseen;
+    public static bool ProgressWorkhorseseen;
     private static void SetupOptionItem()
     {
-        OptionMadseer = BooleanOptionItem.Create(RoleInfo, 10, OptionName.Madseer, true, false);
-        OptionWorkhorseseer = BooleanOptionItem.Create(RoleInfo, 11, OptionName.Workhorseseer, true, false);
+        OptionProgressKillerMadseen = BooleanOptionItem.Create(RoleInfo, 10, OptionName.ProgressKillerMadseen, true, false);
+        OptionProgressWorkhorseseen = BooleanOptionItem.Create(RoleInfo, 11, OptionName.ProgressWorkhorseseen, true, false);
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (Madseer && seen.Is(CustomRoleTypes.Madmate) && seer.Is(CustomRoles.ProgressKiller) && seer != seen)
+        if (ProgressKillerMadseen && seen.Is(CustomRoleTypes.Madmate) && seer.Is(CustomRoles.ProgressKiller) && seer != seen)
         {
             if (seen.GetPlayerTaskState().IsTaskFinished)
                 return Utils.ColorString(RoleInfo.RoleColor, "☆");

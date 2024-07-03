@@ -4,7 +4,7 @@ namespace TownOfHost
 {
     static class PlayerOutfitExtension
     {
-        public static GameData.PlayerOutfit Set(this GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId)
+        public static NetworkedPlayerInfo.PlayerOutfit Set(this NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId)
         {
             instance.PlayerName = playerName;
             instance.ColorId = colorId;
@@ -14,7 +14,7 @@ namespace TownOfHost
             instance.PetId = petId;
             return instance;
         }
-        public static bool Compare(this GameData.PlayerOutfit instance, GameData.PlayerOutfit targetOutfit)
+        public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
         {
             return instance.ColorId == targetOutfit.ColorId &&
                     instance.HatId == targetOutfit.HatId &&
@@ -23,17 +23,17 @@ namespace TownOfHost
                     instance.PetId == targetOutfit.PetId;
 
         }
-        public static string GetString(this GameData.PlayerOutfit instance)
+        public static string GetString(this NetworkedPlayerInfo.PlayerOutfit instance)
         {
             return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
         }
     }
     public static class Camouflage
     {
-        static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", "");
+        static NetworkedPlayerInfo.PlayerOutfit CamouflageOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "");
 
         public static bool IsCamouflage;
-        public static Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = new();
+        public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = new();
 
         public static void Init()
         {
@@ -107,6 +107,7 @@ namespace TownOfHost
 
             target.SetColor(newOutfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
+                .Write(target.NetId)
                 .Write(newOutfit.ColorId)
                 .EndRpc();
 
@@ -125,11 +126,13 @@ namespace TownOfHost
                 .Write(newOutfit.VisorId)
                 .EndRpc();
 
-            target.SetPet(newOutfit.PetId);
-            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
-                .Write(newOutfit.PetId)
-                .EndRpc();
-
+            if (target.IsAlive())
+            {
+                target.SetPet(newOutfit.PetId);
+                sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
+                    .Write(newOutfit.PetId)
+                    .EndRpc();
+            }
             sender.SendMessage();
         }
     }

@@ -30,6 +30,7 @@ namespace TownOfHost
         public Color NameColor { get; protected set; }
         public string NameColorCode { get; protected set; }
         public string Fromtext { get; protected set; }
+        public bool Infinity { get; protected set; }
         public OptionFormat ValueFormat { get; protected set; }
         public CustomGameMode GameMode { get; protected set; }
         public bool IsHeader { get; protected set; }
@@ -67,7 +68,7 @@ namespace TownOfHost
         // - 直接的な呼び出し
         public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
-        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false)
+        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false, bool infinity = false)
         {
             // 必須情報の設定
             Id = id;
@@ -85,6 +86,7 @@ namespace TownOfHost
             GameMode = CustomGameMode.All;
             IsHeader = false;
             IsHidden = false;
+            Infinity = infinity;
 
             // オブジェクト初期化
             Children = new();
@@ -161,7 +163,9 @@ namespace TownOfHost
                 Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary)) :
                 $"<color={NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>";
         }
-        public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
+        //なんか設定画面での設定が上手く行ってないようなので。
+        //問題あるなら何とかしてね。オレハアキラメル
+        public virtual bool GetBool() => CurrentValue != 0/* && (Parent == null || Parent.GetBool())*/;
         public virtual int GetInt() => CurrentValue;
         public virtual float GetFloat() => CurrentValue;
         public virtual string GetString()
@@ -179,6 +183,7 @@ namespace TownOfHost
         public string ApplyFormat(string value)
         {
             if (ValueFormat == OptionFormat.None) return value;
+            if (value == "0" && Infinity) return "∞";
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 
@@ -187,7 +192,7 @@ namespace TownOfHost
         {
             if (OptionBehaviour is not null and StringOption opt)
             {
-                opt.TitleText.text = GetName() + Fromtext;
+                opt.TitleText.text = "<b>" + GetName() + Fromtext + "</b>";
                 opt.ValueText.text = GetString();
                 opt.oldValue = opt.Value = CurrentValue;
             }
@@ -289,7 +294,8 @@ namespace TownOfHost
         CrewmateRoles,
         NeutralRoles,
         Combinations,
-        Addons
+        Addons,
+        GhostRoles
     }
     public enum OptionFormat
     {

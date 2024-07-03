@@ -9,6 +9,9 @@ using Mathf = UnityEngine.Mathf;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.Ghost;
+using static TownOfHost.Options;
+using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Modules
 {
@@ -24,7 +27,7 @@ namespace TownOfHost.Modules
             .ToList().ForEach(sender => sender.SetDirty());
 
         public override IGameOptions BasedGameOptions =>
-            Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+            Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
         public override bool IsDirty { get; protected set; }
 
         public PlayerControl player;
@@ -76,6 +79,9 @@ namespace TownOfHost.Modules
             }
 
             var opt = BasedGameOptions;
+
+            AURoleOptions.ShapeshifterLeaveSkin = false;//スキンはデフォではOFFにする
+
             AURoleOptions.SetOpt(opt);
             var state = PlayerState.GetByPlayerId(player.PlayerId);
             opt.BlackOut(state.IsBlackOut);
@@ -83,7 +89,7 @@ namespace TownOfHost.Modules
             CustomRoles role = player.GetCustomRole();
             switch (role.GetCustomRoleTypes())
             {
-                case CustomRoleTypes.Impostor:
+                case CustomRoleTypes.Impostor: //アプデ対応用  [いらないかも]
                     AURoleOptions.ShapeshifterCooldown = Options.DefaultShapeshiftCooldown.GetFloat();
                     break;
                 case CustomRoleTypes.Madmate:
@@ -179,17 +185,17 @@ namespace TownOfHost.Modules
                 AURoleOptions.KillCooldown = Mathf.Max(0.00000000000000000000000000000000000000000001f, ZerokillCooldown);
             }
             else
-        if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
+            if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
             {
                 AURoleOptions.KillCooldown = Mathf.Max(0f, killCooldown);
             }
             if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
             {
-                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 5f);
+                AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 10f);
             }
 
             state.taskState.hasTasks = Utils.HasTasks(player.Data, false);
-            if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead)
+            if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
             if (Options.AdditionalEmergencyCooldown.GetBool() &&
                 Options.AdditionalEmergencyCooldownThreshold.GetInt() <= Utils.AllAlivePlayersCount)
@@ -222,6 +228,7 @@ namespace TownOfHost.Modules
 
             AURoleOptions.ShapeshifterCooldown = Mathf.Max(1f, AURoleOptions.ShapeshifterCooldown);
             AURoleOptions.ProtectionDurationSeconds = 0f;
+            AURoleOptions.ImpostorsCanSeeProtect = false;
 
             if (player.Is(CustomRoles.Jackaldoll) || player.Is(CustomRoles.SKMadmate))
             {
@@ -229,12 +236,31 @@ namespace TownOfHost.Modules
                 AURoleOptions.ScientistCooldown = 0;
             }
 
+            //キルレンジ
+            if (OverrideKilldistance.AllData.TryGetValue(role, out var killdistance))
+                opt.SetInt(Int32OptionNames.KillDistance, killdistance.Killdistance.GetInt());
+
+            if (player.Is(CustomRoles.LastImpostor) && OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastImpostor, out var kd))
+                opt.SetInt(Int32OptionNames.KillDistance, kd.Killdistance.GetInt());
+
+            if (player.Is(CustomRoles.LastNeutral))
+                if ((player.GetRoleClass() is ILNKiller || LastNeutral.ChKilldis.GetBool()) && OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastNeutral, out var killd))
+                    opt.SetInt(Int32OptionNames.KillDistance, killd.Killdistance.GetInt());
+
+            //幽霊役職用の奴
+            if (player.IsGorstRole())
+            {
+                if (player.Is(CustomRoles.DemonicTracker))
+                    AURoleOptions.GuardianAngelCooldown = DemonicTracker.CoolDown.GetFloat() == 0f ? 0.1f : DemonicTracker.CoolDown.GetFloat();
+                if (player.Is(CustomRoles.DemonicCrusher))
+                    AURoleOptions.GuardianAngelCooldown = DemonicCrusher.CoolDown.GetFloat() == 0f ? 0.1f : DemonicCrusher.CoolDown.GetFloat();
+            }
             return opt;
         }
 
         public override bool AmValid()
         {
-            return base.AmValid() && player != null && !player.Data.Disconnected && Main.RealOptionsData != null;
+            return base.AmValid() && player != null && /*!(player.Data.Disconnected && */!SelectRolesPatch.disc.Contains(player.PlayerId)/*)*/ && Main.RealOptionsData != null;
         }
     }
 }

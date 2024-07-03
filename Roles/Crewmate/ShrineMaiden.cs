@@ -59,9 +59,6 @@ public sealed class ShrineMaiden : RoleBase
     {
         Ucount,
         Votemode,
-        cantaskcount,
-        meetingmc,
-        UKakusei
     }
     public enum VoteMode
     {
@@ -74,10 +71,10 @@ public sealed class ShrineMaiden : RoleBase
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, Option.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, Option.meetingmc, new(0f, 99f, 1f), 0f, false)
+        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, Option.UKakusei, true, false);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false);
     }
 
     public override void Add()
@@ -92,7 +89,7 @@ public sealed class ShrineMaiden : RoleBase
     {
         count = reader.ReadInt32();
     }
-    public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo O)
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo O)
     {
         if (O != null)
         {

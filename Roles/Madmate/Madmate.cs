@@ -31,13 +31,9 @@ public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static OptionItem OptionCanVent;
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-    enum OptionName
-    {
-        CanVent,
-    }
     public static void SetupOptionItem()
     {
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
     }
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;

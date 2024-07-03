@@ -31,4 +31,10 @@ public sealed class Opportunist : RoleBase, IAdditionalWinner
     {
         return Player.IsAlive();
     }
+    public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+    {
+        seen ??= seer;
+        if ((seen == seer) && Player.IsAlive()) return "<color=#dddd00>★</color>";
+        return "";
+    }
 }

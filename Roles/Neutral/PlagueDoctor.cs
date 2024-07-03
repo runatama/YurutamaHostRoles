@@ -98,6 +98,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
            .SetValueFormat(OptionFormat.Seconds);
         OptionInfectCanInfectSelf = BooleanOptionItem.Create(RoleInfo, 15, OptionName.PlagueDoctorCanInfectSelf, false, true);
         OptionInfectCanInfectVent = BooleanOptionItem.Create(RoleInfo, 16, OptionName.PlagueDoctorCanInfectVent, false, true);
+        Options.OverrideKilldistance.Create(RoleInfo, 17);
     }
 
     private int InfectCount;
@@ -174,7 +175,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         //非感染者が死んだ場合勝利するかもしれない
         LateCheckWin = true;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         InfectActive = false;
     }

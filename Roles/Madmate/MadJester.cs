@@ -34,10 +34,6 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
     private static bool canVent;
-    enum OptionName
-    {
-        CanVent,
-    }
 
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
@@ -45,11 +41,11 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     public static void SetupOptionItem()
     {
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanVent, false, false);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 11);
     }
 
-    public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
         if (!IsTaskFinished) return;

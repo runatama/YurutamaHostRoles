@@ -16,7 +16,7 @@ namespace TownOfHost.Roles.Impostor
                 typeof(Witch),
                 player => new Witch(player),
                 CustomRoles.Witch,
-                () => ((SwitchTrigger)OptionModeSwitchAction.GetValue() is SwitchTrigger.OnShapeshift or SwitchTrigger.OcShButton) ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+                () => ((SwitchTrigger)OptionModeSwitchAction.GetValue() is SwitchTrigger.OnShapeshift or SwitchTrigger.WitchOcShButton) ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 1500,
                 SetupOptionItem,
@@ -51,7 +51,7 @@ namespace TownOfHost.Roles.Impostor
             TriggerVent,
             TriggerDouble,
             OnShapeshift,
-            OcShButton,
+            WitchOcShButton,
         };
 
         public bool IsSpellMode;
@@ -70,7 +70,7 @@ namespace TownOfHost.Roles.Impostor
         public override void ApplyGameOptions(IGameOptions opt)
         {
             AURoleOptions.ShapeshifterDuration = 1f;
-            AURoleOptions.ShapeshifterCooldown = NowSwitchTrigger is SwitchTrigger.OcShButton ? occool : 0;
+            AURoleOptions.ShapeshifterCooldown = NowSwitchTrigger is SwitchTrigger.WitchOcShButton ? occool : 0;
         }
         public override void Add()
         {
@@ -150,6 +150,22 @@ namespace TownOfHost.Roles.Impostor
             }
             return false;
         }
+        public override string MeetingMeg()
+        {
+            if (SpelledPlayer.Count == 0) return "";
+
+            var r = GetString("Skill.Witchf").Color(Palette.ImpostorRed) + "\n";
+            var tg = new List<byte>();
+
+            foreach (var pc in SpelledPlayer)
+            {
+                if (pc == byte.MaxValue) continue;
+                if (tg.Contains(pc)) continue;
+                tg.Add(pc);
+                r += (tg.Count == 0 ? "" : ",") + $"{Utils.GetPlayerColor(pc)}";
+            }
+            return r + GetString("Skill.WitchO");
+        }
         public void SetSpelled(PlayerControl target)
         {
             if (!IsSpelled(target.PlayerId))
@@ -160,17 +176,14 @@ namespace TownOfHost.Roles.Impostor
                 Player.SetKillCooldown();
             }
         }
-        public bool UseOCButton => NowSwitchTrigger is SwitchTrigger.OnShapeshift or SwitchTrigger.OcShButton;
+        public bool UseOCButton => NowSwitchTrigger is SwitchTrigger.OnShapeshift or SwitchTrigger.WitchOcShButton;
         public void OnClick()
         {
-            if (NowSwitchTrigger is SwitchTrigger.OcShButton)
+            if (NowSwitchTrigger is SwitchTrigger.WitchOcShButton)
             {
                 var target = Player.GetKillTarget();
                 if (target != null)
                 {
-                    SendRPC(target);
-                    Player.RpcResetAbilityCooldown();
-                    Player.RpcProtectedMurderPlayer(target);
                     SetSpelled(target);
                     Utils.NotifyRoles(SpecifySeer: Player);
                 }
@@ -241,7 +254,7 @@ namespace TownOfHost.Roles.Impostor
         {
             seen ??= seer;
             if (!Is(seen) || isForMeeting) return "";
-            if (NowSwitchTrigger is SwitchTrigger.OcShButton) return "";
+            if (NowSwitchTrigger is SwitchTrigger.WitchOcShButton) return "";
 
             var sb = new StringBuilder();
             sb.Append(isForHud ? GetString("WitchCurrentMode") : "Mode:");
@@ -265,7 +278,7 @@ namespace TownOfHost.Roles.Impostor
             text = default;
             return false;
         }
-        public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+        public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
         {
             if (NowSwitchTrigger is SwitchTrigger.TriggerVent)
             {

@@ -18,7 +18,6 @@ namespace TownOfHost
         private static ClientActionItem UseZoom;
         private static ClientActionItem SyncYomiage;
         private static ClientActionItem CustomName;
-        private static ClientActionItem HideResetToDefault;
         private static ClientActionItem CustomSprite;
         private static ClientActionItem HideSomeFriendCodes;
 
@@ -69,10 +68,6 @@ namespace TownOfHost
             {
                 CustomName = ClientOptionItem.Create("CustomName", Main.CustomName, __instance);
             }
-            if (HideResetToDefault == null || HideResetToDefault.ToggleButton == null)
-            {
-                HideResetToDefault = ClientOptionItem.Create("HideResetToDefault", Main.HideResetToDefault, __instance);
-            }
             if (CustomSprite == null || CustomSprite.ToggleButton == null)
             {
                 CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance);
@@ -92,7 +87,6 @@ namespace TownOfHost
         }
         private static void ForceEndProcess()
         {
-            if (!GameStates.IsInGame) return;
             //左シフトが押されているなら強制廃村
             if (Input.GetKey(KeyCode.LeftShift))
             {
@@ -101,6 +95,7 @@ namespace TownOfHost
                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
                 return;
             }
+            if (!GameStates.IsInGame) return;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
             GameManager.Instance.LogicFlow.CheckEndCriteria();
         }

@@ -52,10 +52,10 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         BraidKillCooldown,
         DriverseeKillFlash,
         Driverseedeathreason,
-        Gado,
-        Vote, TaskTrigger,
-        seen, Dseeing,
-        BCanVent
+        DriverGado,
+        DriverVote, TaskTrigger,
+        Driverseen, DriverTaskTrigger,
+        BraidCanVent
     }
     public static float BraidKillCooldown;
     public static float KillCooldown;
@@ -70,13 +70,13 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         OptionKtaskTrigger = FloatOptionItem.Create(RoleInfo, 12, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionDriverseeKillFlash);
         OptionDriverseedeathreason = BooleanOptionItem.Create(RoleInfo, 13, OptionName.Driverseedeathreason, false, false);
         OptionDtaskTrigger = FloatOptionItem.Create(RoleInfo, 14, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionDriverseedeathreason);
-        OptionVote = BooleanOptionItem.Create(RoleInfo, 15, OptionName.Vote, false, false);
+        OptionVote = BooleanOptionItem.Create(RoleInfo, 15, OptionName.DriverVote, false, false);
         OptionVtaskTrigger = FloatOptionItem.Create(RoleInfo, 16, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionVote);
-        OptionGado = BooleanOptionItem.Create(RoleInfo, 17, OptionName.Gado, false, false);
+        OptionGado = BooleanOptionItem.Create(RoleInfo, 17, OptionName.DriverGado, false, false);
         OptionGtaskTrigger = FloatOptionItem.Create(RoleInfo, 18, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionGado);
-        OptionBseeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.seen, false, false);
-        OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.Dseeing, false, false);
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BCanVent, true, false);
+        OptionBseeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.Driverseen, false, false);
+        OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.DriverTaskTrigger, false, false);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BraidCanVent, true, false);
         Braid.Tasks = Options.OverrideTasksData.Create(RoleInfo, 50, CustomRoles.Braid);
     }
 
@@ -107,7 +107,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             target.RpcProtectedMurderPlayer(target);
             info.CanKill = false;
             Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Driver]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
-            Logger.Info($"{target.GetNameWithRole()} : ガード残り{Guard}回", "GuardMaster");
+            Logger.Info($"{target.GetNameWithRole()} : ガード残り{Guard}回", "Driver");
             Utils.NotifyRoles();
         }
         return true;

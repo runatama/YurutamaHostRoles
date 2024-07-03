@@ -49,8 +49,8 @@ public sealed class Madonna : RoleBase
     bool Wakarero;
     enum Option
     {
-        limit,
-        LoverChenge
+        Madonnalimit,
+        MadonnaFallChenge
     }
 
     [GameModuleInitializer]
@@ -66,8 +66,8 @@ public sealed class Madonna : RoleBase
     private static void SetupOptionItem()
     {
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
-        Optionlimit = FloatOptionItem.Create(RoleInfo, 10, Option.limit, new(1f, 10f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
-        OptionLoverChenge = StringOptionItem.Create(RoleInfo, 11, Option.LoverChenge, cRolesString, 4, false);
+        Optionlimit = FloatOptionItem.Create(RoleInfo, 10, Option.Madonnalimit, new(1f, 10f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
+        OptionLoverChenge = StringOptionItem.Create(RoleInfo, 11, Option.MadonnaFallChenge, cRolesString, 4, false);
     }
 
     public override void Add()
@@ -106,7 +106,7 @@ public sealed class Madonna : RoleBase
             Player.RpcSetCustomRole(CustomRoles.MaLovers);
             Main.MaMaLoversPlayers.Add(Player);
             Main.MaMaLoversPlayers.Add(target);
-            Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [Madonna]　" + string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true));
+            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Madonna]　" + string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true));
 
             target.RpcProtectedMurderPlayer();
         }
@@ -117,7 +117,7 @@ public sealed class Madonna : RoleBase
             Logger.Info($"Player: {Player.name},Target: {target.name}　相手がラバーズなので断わられた{LoverChenge}に役職変更。", "Madonna");
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaMynotcollect"), Utils.GetPlayerColor(target, true), GetString($"{LoverChenge}")) + GetString("VoteSkillFin"), Player.PlayerId);
             Utils.SendMessage(string.Format(GetString("Skill.Madoonnanotcollect"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
-            Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [Madonna]　" + string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true));
+            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Madonna]　" + string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true));
             target.RpcProtectedMurderPlayer();
         }
     }

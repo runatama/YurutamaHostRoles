@@ -7,7 +7,7 @@ public static class ConstantsGetBroadcastVersionPatch
 {
     public static void Postfix(ref int __result)
     {
-        if (GameStates.IsLocalGame || GameStates.IsFreePlay || CustomServerHelper.IsCs())
+        if (GameStates.IsLocalGame || GameStates.IsFreePlay)
         {
             return;
         }
@@ -23,17 +23,6 @@ public static class ConstantsIsVersionModdedPatch
     {
         __result = true;
         return false;
-    }
-}
-public static class CustomServerHelper //名前適当だから気にしないでね
-{
-    public static bool IsCs()
-    {
-        if (ServerManager.Instance == null) return false;
-        var sn = ServerManager.Instance.CurrentRegion.TranslateName;
-        if (sn is StringNames.ServerNA or StringNames.ServerEU or StringNames.ServerAS or StringNames.ServerSA)
-            return false;
-        else return true;
     }
 }
 

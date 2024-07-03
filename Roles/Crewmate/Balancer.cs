@@ -60,15 +60,15 @@ public sealed class Balancer : RoleBase
 
     enum Option
     {
-        meetingtime,
-        sbalancer
+        BalancerMeetingTime,
+        Balancersbalancer
     }
 
     private static void SetupOptionItem()
     {
-        OptionMeetingTime = IntegerOptionItem.Create(RoleInfo, 10, Option.meetingtime, new(15, 120, 1), 30, false)
+        OptionMeetingTime = IntegerOptionItem.Create(RoleInfo, 10, Option.BalancerMeetingTime, new(15, 120, 1), 30, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionS = BooleanOptionItem.Create(RoleInfo, 11, Option.sbalancer, false, false);
+        OptionS = BooleanOptionItem.Create(RoleInfo, 11, Option.Balancersbalancer, false, false);
     }
 
     public override void Add()
@@ -185,7 +185,7 @@ public sealed class Balancer : RoleBase
         }
     }
 
-    public override bool VotingResults(ref GameData.PlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
+    public override bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
     {
         //天秤モードじゃないor自分の天秤じゃないなら実行しない
         if (Id != Player.PlayerId) return false;

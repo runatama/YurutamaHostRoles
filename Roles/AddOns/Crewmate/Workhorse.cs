@@ -67,11 +67,11 @@ namespace TownOfHost.Roles.AddOns.Crewmate
             if (AmongUsClient.Instance.AmHost)
             {
                 Add(pc.PlayerId);
-                GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>()); //タスクを再配布
+                pc.Data.RpcSetTasks(Array.Empty<byte>()); //タスクを再配布
                 pc.SyncSettings();
                 Utils.NotifyRoles();
             }
-            Main.gamelog += $"\n{System.DateTime.Now.ToString("HH.mm.ss")} [Workhorse]　" + string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true));
+            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Workhorse]　" + string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true));
 
             return false;
         }

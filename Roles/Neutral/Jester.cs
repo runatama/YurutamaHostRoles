@@ -36,14 +36,14 @@ public sealed class Jester : RoleBase, IKiller
     static OptionItem CanVentido;
     enum Option
     {
-        CanUseShape, MadmateCanMovedByVent
+        JesterCanUseShapeshift, MadmateCanMovedByVent
     }
     private static void SetupOptionItem()
     {
 
-        CanUseShape = BooleanOptionItem.Create(RoleInfo, 3, Option.CanUseShape, false, false);
+        CanUseShape = BooleanOptionItem.Create(RoleInfo, 3, Option.JesterCanUseShapeshift, false, false);
         Cooldown = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
-        Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 2.5f), 5f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
+        Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 2.5f), 5f, false, CanUseShape, infinity: true).SetValueFormat(OptionFormat.Seconds);
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 6, GeneralOption.CanVent, false, false);
         CanVentido = BooleanOptionItem.Create(RoleInfo, 7, Option.MadmateCanMovedByVent, false, false, CanUseVent);
     }
@@ -62,7 +62,7 @@ public sealed class Jester : RoleBase, IKiller
         opt.SetVision(false);
     }
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => CanVentido.GetBool();
-    public override void OnExileWrapUp(GameData.PlayerInfo exiled, ref bool DecidedWinner)
+    public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
 

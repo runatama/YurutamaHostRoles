@@ -25,6 +25,7 @@ public enum From
     TownOfHost_for_E,
     TownOfHost_E,
     RevolutionaryHostRoles,
+    Love_Couple_Mod
 
 }
 public class SimpleRoleInfo
@@ -167,6 +168,7 @@ public class SimpleRoleInfo
         Type classType,
         Func<PlayerControl, RoleBase> createInstance,
         RoleTypes baseRoleType,
+        OptionCreatorDelegate optionCreator,
         string colorCode = "",
         bool canMakeMadmate = false,
         RoleAssignInfo assignInfo = null,
@@ -188,6 +190,14 @@ public class SimpleRoleInfo
                 roleName = CustomRoles.Scientist;
                 customRoleType = CustomRoleTypes.Crewmate;
                 break;
+            case RoleTypes.Tracker:
+                roleName = CustomRoles.Tracker;
+                customRoleType = CustomRoleTypes.Crewmate;
+                break;
+            case RoleTypes.Noisemaker:
+                roleName = CustomRoles.Noisemaker;
+                customRoleType = CustomRoleTypes.Crewmate;
+                break;
             case RoleTypes.GuardianAngel:
                 roleName = CustomRoles.GuardianAngel;
                 customRoleType = CustomRoleTypes.Crewmate;
@@ -199,6 +209,11 @@ public class SimpleRoleInfo
                 break;
             case RoleTypes.Shapeshifter:
                 roleName = CustomRoles.Shapeshifter;
+                customRoleType = CustomRoleTypes.Impostor;
+                countType = CountTypes.Impostor;
+                break;
+            case RoleTypes.Phantom:
+                roleName = CustomRoles.Phantom;
                 customRoleType = CustomRoleTypes.Impostor;
                 countType = CountTypes.Impostor;
                 break;
@@ -215,7 +230,7 @@ public class SimpleRoleInfo
             customRoleType,
             countType,
             -1,
-            null,
+            optionCreator,
             null,
             colorCode,
             false,

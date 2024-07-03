@@ -112,6 +112,7 @@ namespace TownOfHost
                 if (opt.Value.Name == "GiveLighting" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveMoon" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveElector" && !opt.Value.GetBool()) continue;
+                if (opt.Value.Name == "GiveInfoPoor" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveNonReport" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveTransparent" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveNotvoter" && !opt.Value.GetBool()) continue;

@@ -34,8 +34,8 @@ public sealed class UltraStar : RoleBase
     enum OptionName
     {
         Speed,
-        UScankill,
-        USkillcool
+        UltraStarCankill,
+        UltraStarKillCoolDown
     }
     float colorchange;
     float outkill;
@@ -48,8 +48,8 @@ public sealed class UltraStar : RoleBase
     {
         OptionSpeed = FloatOptionItem.Create(RoleInfo, 9, OptionName.Speed, new(1.5f, 5f, 0.25f), 2.0f, false)
             .SetValueFormat(OptionFormat.Multiplier);
-        Optioncankill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.UScankill, false, false);
-        Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, OptionName.USkillcool, new(0f, 180f, 2.5f), 30f, false, Optioncankill)
+        Optioncankill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.UltraStarCankill, false, false);
+        Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, OptionName.UltraStarKillCoolDown, new(0f, 180f, 2.5f), 30f, false, Optioncankill)
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -119,7 +119,7 @@ public sealed class UltraStar : RoleBase
             outkill = 0;
         }
     }
-    public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public override void ApplyGameOptions(IGameOptions opt)
     {
         Main.AllPlayerSpeed[Player.PlayerId] += Speed;//代入してたから修正()

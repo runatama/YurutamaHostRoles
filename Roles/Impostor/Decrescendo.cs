@@ -44,11 +44,11 @@ public sealed class Decrescendo : RoleBase, IImpostor
     public static bool CanVent;
     enum OptionName
     {
-        KillerCount,
-        DeCanvent,
-        DeCanImpVi,
-        SaidaiCooldown,
-        Minsikai
+        DecrescendoKillerCount,
+        DecrescendoCanvent,
+        DecrescendoImpVision,
+        DecrescendoSaidaiCooldown,
+        DecrescendoMinsikai
     }
     /// <summary>キル数</summary>
     public int KillerCount;
@@ -66,13 +66,13 @@ public sealed class Decrescendo : RoleBase, IImpostor
     {
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        OptionSaidaiCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.SaidaiCooldown, new(0f, 180f, 2.5f), 60f, false)
+        OptionSaidaiCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.DecrescendoSaidaiCooldown, new(0f, 180f, 2.5f), 60f, false)
         .SetValueFormat(OptionFormat.Seconds);
-        KillerCountopt = IntegerOptionItem.Create(RoleInfo, 11, OptionName.KillerCount, new(1, 10, 1), 4, false)
+        KillerCountopt = IntegerOptionItem.Create(RoleInfo, 11, OptionName.DecrescendoKillerCount, new(1, 10, 1), 4, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 12, OptionName.DeCanvent, false, false);
-        OptionJaHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, OptionName.DeCanImpVi, false, false);
-        OptionMinsikai = FloatOptionItem.Create(RoleInfo, 14, OptionName.Minsikai, new(0.0f, 1.0f, 0.25f), 0.05f, false, OptionJaHasImpostorVision);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 12, OptionName.DecrescendoCanvent, false, false);
+        OptionJaHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, OptionName.DecrescendoImpVision, false, false);
+        OptionMinsikai = FloatOptionItem.Create(RoleInfo, 14, OptionName.DecrescendoMinsikai, new(0.0f, 1.0f, 0.25f), 0.05f, false, OptionJaHasImpostorVision);
     }
     public float CalculateKillCooldown()
     {

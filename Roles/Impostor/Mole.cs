@@ -26,7 +26,7 @@ namespace TownOfHost.Roles.Impostor
         {
         }
         public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
-        public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+        public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
         {
             _ = new LateTask(() =>
             {
@@ -38,7 +38,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public bool OverrideImpVentButton(out string text)
         {
-            text = "Mole.Vent";
+            text = "Mole_Vent";
             return true;
         }
     }

@@ -28,7 +28,6 @@ public sealed class InSender : RoleBase
     }
     enum OptionName
     {
-        BaitKakusei,
         Kakuseitask
     }
     static OptionItem Kakusei;
@@ -37,17 +36,14 @@ public sealed class InSender : RoleBase
     int ta;
     private static void SetupOptionItem()
     {
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 10, OptionName.BaitKakusei, true, false);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskKakusei, true, false);
         Task = FloatOptionItem.Create(RoleInfo, 11, OptionName.Kakuseitask, new(0f, 10f, 1f), 5f, false, Kakusei);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
-        if (target.Is(CustomRoles.InSender) && !target.Is(CustomRoles.Transparent) && !info.IsSuicide)
-            _ = new LateTask(() =>
-            {
-                ReportDeadBodyPatch.DieCheckReport(target, target, false);
-            }, 0.15f, "InSender Self Report");
+        if (target.Is(CustomRoles.InSender) && !info.IsSuicide && !info.IsFakeSuicide)
+            _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(target, target.Data, false), 0.15f, "InSender Self Report");
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask()

@@ -73,7 +73,7 @@ namespace TownOfHost.Roles.Neutral
             killer.RpcProtectedMurderPlayer(target);
             info.DoKill = false;
         }
-        public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
         {
             Rtarget = 111;
         }
@@ -82,7 +82,7 @@ namespace TownOfHost.Roles.Neutral
             text = GetString("rkTargetButtonText");
             return true;
         }
-        public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+        public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
         {
             var user = physics.myPlayer;
             if (Rtarget != 111 && Player.PlayerId == user.PlayerId)
@@ -95,7 +95,7 @@ namespace TownOfHost.Roles.Neutral
                     {
                         target.SetRealKiller(user);
                         user.RpcMurderPlayer(target, true);
-                    }, 1f);
+                    }, 1.2f);
                 }
                 else
                 {
@@ -107,6 +107,7 @@ namespace TownOfHost.Roles.Neutral
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.TaskComplete);
                 Logger.Info($"Remotekillerのターゲット{target.name}のキルに成功", "Remotekiller.kill");
                 Rtarget = 111;
+                nouryoku = true;
                 return !RKillAnimation.GetBool();
             }
             return true;

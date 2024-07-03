@@ -23,17 +23,17 @@ namespace TownOfHost.Roles.Impostor
                 player
             )
         {
-            DeathReasonTairo = OptionDeathReasonTairo.GetBool();
+            TairoDeathReason = OptionTairoDeathReason.GetBool();
         }
-        public static OptionItem OptionDeathReasonTairo;
+        public static OptionItem OptionTairoDeathReason;
         enum OptionName
         {
-            DeathReasonTairo
+            TairoDeathReason
         }
-        public static bool DeathReasonTairo;
+        public static bool TairoDeathReason;
         private static void SetupOptionItem()
         {
-            OptionDeathReasonTairo = BooleanOptionItem.Create(RoleInfo, 10, OptionName.DeathReasonTairo, true, false);
+            OptionTairoDeathReason = BooleanOptionItem.Create(RoleInfo, 10, OptionName.TairoDeathReason, true, false);
         }
         public override CustomRoles GetFtResults(PlayerControl player) => CustomRoles.Crewmate;
     }

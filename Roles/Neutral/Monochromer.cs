@@ -1,4 +1,3 @@
-using System.Linq;
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
@@ -35,16 +34,16 @@ public sealed class Monochromer : RoleBase
     bool color;
     enum Option
     {
-        kurosiro,
-        CanseeKiller,
-        MnColor
+        MonochromerMonochro,
+        MonochromerCanseeKiller,
+        MonochromerMarkColor
     }
     private static void SetupOptionItem()
     {
-        Kurosiro = BooleanOptionItem.Create(RoleInfo, 5, Option.kurosiro, false, false);
+        Kurosiro = BooleanOptionItem.Create(RoleInfo, 5, Option.MonochromerMonochro, false, false);
         HasImpostorVision = BooleanOptionItem.Create(RoleInfo, 6, GeneralOption.ImpostorVision, false, false);
-        OpCanseeKiller = BooleanOptionItem.Create(RoleInfo, 7, Option.CanseeKiller, true, false);
-        OpCanseeRoleColor = BooleanOptionItem.Create(RoleInfo, 8, Option.MnColor, false, false, OpCanseeKiller);
+        OpCanseeKiller = BooleanOptionItem.Create(RoleInfo, 7, Option.MonochromerCanseeKiller, true, false);
+        OpCanseeRoleColor = BooleanOptionItem.Create(RoleInfo, 8, Option.MonochromerMarkColor, false, false, OpCanseeKiller);
     }
     public override void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
@@ -83,8 +82,9 @@ public sealed class Monochromer : RoleBase
             else
                 pc.RpcChColor(Player, 15, true);
         }
+        Utils.NotifyRoles();
     }
-    public override void OnReportDeadBody(PlayerControl _, GameData.PlayerInfo __)
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
     {
         foreach (var pc in Main.AllPlayerControls)
         {

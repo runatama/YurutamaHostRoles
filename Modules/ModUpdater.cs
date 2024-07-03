@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
+using TownOfHost.Templates;
 using UnityEngine;
 using static TownOfHost.Translator;
 
@@ -22,10 +26,13 @@ namespace TownOfHost
         public static string latestTitle = null;
         public static string downloadUrl = null;
         public static GenericPopup InfoPopup;
-        public static bool publicok = Main.AllowPublicRoom;
+        public static bool? AllowPublicRoom = null;
         public static bool matchmaking = false;
         public static bool nothostbug = false;
         public static string body = "詳細のチェックに失敗しました";
+        public static List<Release> releases = new();
+        private static List<SimpleButton> buttons = new();
+        public static Versions version;
 
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.LowerThanNormal)]
         public static void StartPostfix()
@@ -36,15 +43,35 @@ namespace TownOfHost
             InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
             if (!isChecked)
             {
-                CheckRelease(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
+                //CheckVersionsJson().GetAwaiter().GetResult();
+                //CheckRelease(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
+            }/*
+            //オンライン無効化
+            if (version.NotAvailableOnline)
+            {
+                DestroyableSingleton<MainMenuManager>.Instance.PlayOnlineButton.gameObject.SetActive(false);
+                DestroyableSingleton<MainMenuManager>.Instance.playLocalButton.transform.SetLocalX(0);
+
+                TMPTemplate.SetBase(DestroyableSingleton<VersionShower>.Instance.text);
             }
+            if (version.NotAvailableOnline || !(version?.Info?.IsNullOrWhiteSpace() ?? true))
+            {
+                var text = TMPTemplate.Create("Info", (version?.Info?.IsNullOrWhiteSpace() ?? true) ? "このバージョンではオンラインプレイをすることができません。" : version.Info, Color.red);
+                text.transform.localPosition = new(0.68f, 1.7198f, -5f);
+                text.alignment = TMPro.TextAlignmentOptions.Left;
+                text.gameObject.SetActive(true);
+            }
+            AllowPublicRoom = version.AllowPublicRoom;
+            if (hasUpdate && (version?.Update?.Forced ?? false))
+                StartUpdate(downloadUrl);*/
             MainMenuManagerPatch.UpdateButton.Button.gameObject.SetActive(hasUpdate);
             MainMenuManagerPatch.UpdateButton.Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMPro.TMP_Text>().SetText($"{GetString("updateButton")}\n{latestTitle}");
             MainMenuManagerPatch.UpdateButton2.Button.gameObject.SetActive(hasUpdate);
         }
-        public static async Task<bool> CheckRelease(bool beta = false)
+        public static async Task<bool> CheckRelease(bool beta = false, bool all = false)
         {
-            string url = beta ? Main.BetaBuildURL.Value : URL + "/releases/latest";
+            bool updateCheck = version != null && version.Update.Version != null;
+            string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (updateCheck ? "/tags/" + version.Update.Version : (all ? "" : "/latest"));
             try
             {
                 string result;
@@ -59,12 +86,35 @@ namespace TownOfHost
                     }
                     result = await response.Content.ReadAsStringAsync();
                 }
-                JObject data = JObject.Parse(result);
+                JObject data = all ? null : JObject.Parse(result);
                 if (beta)
                 {
                     latestTitle = data["name"].ToString();
                     downloadUrl = data["url"].ToString();
                     hasUpdate = latestTitle != ThisAssembly.Git.Commit;
+                }
+                else if (all)
+                {
+                    releases = JsonSerializer.Deserialize<List<Release>>(result);
+                    foreach (var release in releases)
+                    {
+                        var assets = release.Assets;
+                        foreach (var asset in assets)
+                        {
+                            if (asset.Name == "TownOfHost-K_Steam.dll" && Constants.GetPlatformType() == Platforms.StandaloneSteamPC)
+                            {
+                                release.DownloadUrl = asset.DownloadUrl;
+                                break;
+                            }
+                            if (asset.Name == "TownOfHost-K_Epic.dll" && Constants.GetPlatformType() == Platforms.StandaloneEpicPC)
+                            {
+                                release.DownloadUrl = asset.DownloadUrl;
+                                break;
+                            }
+                            if (asset.Name == "TownOfHost-K.dll")
+                                release.DownloadUrl = asset.DownloadUrl;
+                        }
+                    }
                 }
                 else
                 {
@@ -86,8 +136,9 @@ namespace TownOfHost
                         if (assets[i]["name"].ToString() == "TownOfHost-K.dll")
                             downloadUrl = assets[i]["browser_download_url"].ToString();
                     }
-                    hasUpdate = latestVersion.CompareTo(Main.version) > 0;
+                    hasUpdate = latestVersion.CompareTo(Main.version) > 0 || version.Update.ShowUpdateButton || version.Update.Forced;
                 }
+                if (all) return true;
                 if (downloadUrl == null)
                 {
                     Logger.Error("ダウンロードURLを取得できませんでした。", "CheckRelease");
@@ -96,8 +147,8 @@ namespace TownOfHost
                 isChecked = true;
                 isBroken = false;
                 body = data["body"].ToString();
-                if (body.Contains("📢公開ルーム○")) publicok = true;
-                else if (body.Contains("📢公開ルーム×")) publicok = false;
+                //if (body.Contains("📢公開ルーム○")) publicok = true;
+                //else if (body.Contains("📢公開ルーム×")) publicok = false;
                 nothostbug = body.Contains("非ホストmodクライアントにバグあり");
             }
             catch (Exception ex)
@@ -199,44 +250,54 @@ namespace TownOfHost
                 }
             }
         }
-        public static async Task<bool> CheckR(int check)
+        /*
+        public static async Task<bool> CheckVersionsJson()
         {
-            string result;
-            using (HttpClient client = new())
+            using HttpClient client = new();
+            var url = "https://raw.githubusercontent.com/KYMario/TOHk-Test/main/versions.json";
+            client.DefaultRequestHeaders.Add("User-Agent", "TownOfHost-K Updater");
+            using var response = await client.GetAsync(new Uri(url), HttpCompletionOption.ResponseContentRead);
+            if (!response.IsSuccessStatusCode || response.Content == null)
             {
-                client.DefaultRequestHeaders.Add("User-Agent", "TownOfHost-K");
-                using var response = await client.GetAsync(new Uri(ModUpdater.URL + "/releases/latest"), HttpCompletionOption.ResponseContentRead);
-                if (!response.IsSuccessStatusCode || response.Content == null)
-                {
-                    Logger.Error($"ステータスコード: {response.StatusCode}", "CheckRelease-R");
-                    if (check == 0) return Main.AllowPublicRoom;
-                    else if (check == 1) return false;
-                }
-                result = await response.Content.ReadAsStringAsync();
+                Logger.Error($"ステータスコード: {response.StatusCode}", "CheckJson");
+                return false;
             }
-            JObject data = JObject.Parse(result);
-            if (check == 0)
+            var result = await response.Content.ReadAsStringAsync();
+            version = JsonSerializer.Deserialize<List<Versions>>(result).Where(ver => ver.Version == Main.version).First();
+            return true;
+        }*/
+        public class Release
+        {
+            [JsonPropertyName("tag_name")]
+            public string TagName { get; set; }
+            [JsonPropertyName("assets")]
+            public List<Asset> Assets { get; set; }
+
+            public string DownloadUrl { get; set; }
+
+            public class Asset
             {
-                if (data["body"].ToString().Contains("[公開ルームok]")) publicok = true;
-                else if (data["body"].ToString().Contains("[公開ルーム禁止！]")) publicok = false;
-                else publicok = Main.AllowPublicRoom;
-                if (data["body"].ToString().Contains("[マッチメイキングok]")) matchmaking = true;
-                else matchmaking = false;
-                return publicok;
+                [JsonPropertyName("name")]
+                public string Name { get; set; }
+                [JsonPropertyName("browser_download_url")]
+                public string DownloadUrl { get; set; }
             }
-            else
-            if (check == 1)
+        }
+        public class Versions
+        {
+            public Version Version { get; set; }
+            public bool? AllowPublicRoom { get; set; }
+            public bool Unavailable { get; set; }
+            public bool NotAvailableOnline { get; set; }
+            public string Info { get; set; }
+
+            public Updates Update { get; set; }
+            public class Updates
             {
-                return data["body"].ToString().Contains("[使用禁止バージョン]");
+                public Version Version { get; set; }
+                public bool Forced { get; set; }
+                public bool ShowUpdateButton { get; set; }
             }
-            else
-            if (check == 2)
-            {
-                if (data["body"].ToString().Contains("[マッチメイキングok]")) matchmaking = true;
-                else matchmaking = false;
-                return matchmaking;
-            }
-            return false;
         }
     }
 }

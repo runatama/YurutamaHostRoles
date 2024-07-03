@@ -45,9 +45,8 @@ public sealed class Mayor : RoleBase
     {
         MayorAdditionalVote,
         MayorHasPortableButton,
-        Kakusei,
-        KakuseiCount,
-        KaddionaVote,
+        MayorKakusei,
+        MayorKakuseiPlayerCount,
         MayorNumOfUseButton,
     }
     public static int AdditionalVote;
@@ -62,8 +61,8 @@ public sealed class Mayor : RoleBase
     {
         OptionAdditionalVote = IntegerOptionItem.Create(RoleInfo, 10, OptionName.MayorAdditionalVote, new(0, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Votes);
-        OptionKakusei = BooleanOptionItem.Create(RoleInfo, 11, OptionName.Kakusei, false, false);
-        OptionCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.KakuseiCount, new(1, 15, 1), 6, false, OptionKakusei)
+        OptionKakusei = BooleanOptionItem.Create(RoleInfo, 11, OptionName.MayorKakusei, false, false);
+        OptionCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.MayorKakuseiPlayerCount, new(1, 15, 1), 6, false, OptionKakusei)
             .SetValueFormat(OptionFormat.Players);
         OptionKadditionaVote = IntegerOptionItem.Create(RoleInfo, 13, OptionName.MayorAdditionalVote, new(1, 99, 1), 1, false, OptionKakusei)
             .SetValueFormat(OptionFormat.Votes);
@@ -79,12 +78,12 @@ public sealed class Mayor : RoleBase
             : opt.GetInt(Int32OptionNames.EmergencyCooldown);
         AURoleOptions.EngineerInVentMaxTime = 1;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target)
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (Is(reporter) && target == null) //ボタン
             LeftButtonCount--;
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
     {
         if (LeftButtonCount > 0)
         {

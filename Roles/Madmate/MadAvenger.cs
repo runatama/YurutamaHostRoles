@@ -16,7 +16,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             typeof(MadAvenger),
             player => new MadAvenger(player),
             CustomRoles.MadAvenger,
-            () => RoleTypes.Engineer,
+            () => RoleTypes.Tracker,
             CustomRoleTypes.Madmate,
             10500,
             SetupOptionItem,
@@ -49,7 +49,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     float Count;
     bool fin;
     bool can;
-    enum OptionName { TaskBattleVentCooldown, MRCount, kakumeimaevento }
+    enum OptionName { TaskBattleVentCooldown, MadAvengerMeetingPlayerCount, MadAvengerReserveTimeCanVent }
 
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
@@ -57,8 +57,8 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     public static void SetupOptionItem()
     {
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.TaskBattleVentCooldown, new(0f, 180f, 2.5f), 45f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionCount = FloatOptionItem.Create(RoleInfo, 14, OptionName.MRCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
-        OptionVent = BooleanOptionItem.Create(RoleInfo, 15, OptionName.kakumeimaevento, true, false);
+        OptionCount = FloatOptionItem.Create(RoleInfo, 14, OptionName.MadAvengerMeetingPlayerCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
+        OptionVent = BooleanOptionItem.Create(RoleInfo, 15, OptionName.MadAvengerReserveTimeCanVent, true, false);
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
@@ -83,9 +83,13 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         }
         return true;
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
     {
-        if ((!IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count) || !can) return OptionVent.GetBool();
+        if ((!IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count) || !can)
+        {
+            nouryoku = true;
+            return OptionVent.GetBool();
+        }
         if (Main.AliveImpostorCount != 0)
         {
             PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Suicide;
@@ -111,15 +115,15 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
-        if (GameStates.Meeting) return "";
         //seenが省略の場合seer
         seen ??= seer;
+        if (GameStates.Meeting) return "";
         //seeおよびseenが自分である場合以外は関係なし
         if (!Is(seer) || !Is(seen)) return "";
 
         return Utils.ColorString(IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? "\n" + GetString("MadAvengerchallengeMeeting") : "\n" + GetString("MadAvengerreserve"));
     }
-    public override void OnReportDeadBody(PlayerControl ___, GameData.PlayerInfo __)
+    public override void OnReportDeadBody(PlayerControl ___, NetworkedPlayerInfo __)
     {
         Utils.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
         if (!Skill) return;

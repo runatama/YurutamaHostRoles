@@ -63,6 +63,8 @@ namespace TownOfHost
         public OptionItem GiveMoon;
         //ライティング
         public OptionItem GiveLighting;
+        //インフォプアー
+        public OptionItem GiveInfoPoor;
         public RoleAddAddons(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned)
         {
             this.IdStart = idStart;
@@ -111,6 +113,7 @@ namespace TownOfHost
             //デバフ
             GiveNotvoter = BooleanOptionItem.Create(idStart++, "GiveNotvoter", false, tab, false).SetParent(GiveAddons);
             GiveElector = BooleanOptionItem.Create(idStart++, "GiveElector", false, tab, false).SetParent(GiveAddons);
+            GiveInfoPoor = BooleanOptionItem.Create(idStart++, "GiveInfoPoor", false, tab, false).SetParent(GiveAddons);
             GiveNonReport = BooleanOptionItem.Create(idStart++, "GiveNonReport", false, tab, false).SetParent(GiveAddons);
             OptionConvener = StringOptionItem.Create(idStart++, "ConverMode", EnumHelper.GetAllNames<Convener>(), 0, tab, false).SetParent(GiveNonReport);
 
