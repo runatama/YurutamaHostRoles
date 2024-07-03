@@ -16,7 +16,10 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 
 ## リリース
 
-AmongUsバージョン : **2024.3.5~**<br>
+> [!Note]
+> AmongUs最新2024.6.18では動きません!
+
+AmongUsバージョン : **~2024.3.5**<br>
 
 **最新版は[こちら](https://github.com/KYMario/TownOfHost-K/releases/latest)**
 
