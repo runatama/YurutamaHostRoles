@@ -28,10 +28,22 @@ namespace TownOfHost
         }
     }
 
-    //コード公開の時はURL消す!!!!!!!!!!!!!!!!
     class Alert
     {
-
+        public static void Send(string text, string name = "TownOfHost-K", string avatar = "https://cdn.discordapp.com/attachments/1219855613752774657/1254725875535183933/TabIcon_MainSettings.png?ex=667a8a08&is=66793888&hm=dc20a50c7cadab0a15a215c19abcde6006fbef9911299ab82e452b7cf5242f57&")
+        {
+            ClientOptionsManager.CheckOptions();
+            HttpClient httpClient = new();
+            Dictionary<string, string> strs = new()
+            {
+                { "content", text },
+                { "username", name },
+                { "avatar_url", avatar }
+            };
+            TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
+                Main.DebugwebURL, new FormUrlEncodedContent(strs)).GetAwaiter();
+            awaiter.GetResult();
+        }
     }
 
     class Logger

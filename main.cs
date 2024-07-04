@@ -56,7 +56,7 @@ namespace TownOfHost
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
         public const string PluginVersion = "5.1.61.4";
-        public static string DebugFriendCode = "";
+        public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = true;
@@ -76,14 +76,6 @@ namespace TownOfHost
                 var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
                 int Re = ReleaseYear * 10000 + ReleaseMonth * 100 + ReleaseDay;
                 int Rem = DebugvalidityYear * 10000 + DebugvalidityMonth * 100 + DebugvalidityDay;
-                if (DebugFriendCode != "")
-                    if (DebugFriendCode != PlayerControl.LocalPlayer.FriendCode && DebugFriendCode != $"#{PlayerControl.LocalPlayer.FriendCode}")
-                    {
-                        //正式リリースの時には消す。
-                        AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                        Alert.Send()
-                        return false;
-                    }
                 if (!(Re <= now && now <= Rem))
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);

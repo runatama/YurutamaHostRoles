@@ -113,6 +113,9 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     public void OnMurderPlayerAsKiller(MurderInfo info)
     {
         var (killer, target) = info.AppearanceTuple;
+        if (Target == byte.MaxValue || target.PlayerId != Target || !Cankill || Afterkill)
+            return;
+
         if (info.CanKill && info.DoKill) Afterkill = true;
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
