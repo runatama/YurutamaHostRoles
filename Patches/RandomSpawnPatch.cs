@@ -126,7 +126,7 @@ namespace TownOfHost
                                 return false;
                             }*/
                             AirshipSpawn(player);
-                            return false;
+                            return !IsRandomSpawn();
                         }
                         else
                         {
