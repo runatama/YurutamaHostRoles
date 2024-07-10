@@ -43,6 +43,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         Taskmode = true;
         nowcool = CurrentKillCooldown;
         last = 0;
+        f = 0;
     }
 
     public static OptionItem KillCooldown;
@@ -73,7 +74,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
 
     private static void SetupOptionItem()
     {
-        KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 990f, 0.5f), 30f, false)
+        KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 990f, 1f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
         Options.OverrideKilldistance.Create(RoleInfo, 8);
         Options.OverrideTasksData.Create(RoleInfo, 16);
@@ -209,32 +210,6 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         }
         return;
     }
-    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
-    {
-        if (Player.IsAlive())
-        {
-            if (AmongUsClient.Instance.AmHost)
-                foreach (var pc in Main.AllPlayerControls)
-                {
-                    if (pc == PlayerControl.LocalPlayer)
-                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
-                    else if (pc == Player)
-                        Player.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId());
-                    else Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
-                }
-            Taskmode = false;
-        }
-        else
-        {
-            if (AmongUsClient.Instance.AmHost)
-                foreach (var pc in Main.AllPlayerControls)
-                {
-                    if (pc != PlayerControl.LocalPlayer && pc.GetCustomRole().IsImpostor())
-                        pc.RpcSetRoleDesync(pc.IsAlive() ? pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() ?? (RoleTypes)pc.GetCustomRole() : RoleTypes.ImpostorGhost, Player.GetClientId());
-                }
-        }
-        Player.RpcResetAbilityCooldown(kousin: true);
-    }
     public override void AfterMeetingTasks()
     {
         _ = new LateTask(() =>
@@ -244,6 +219,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 {
                     foreach (var pc in Main.AllPlayerControls)
                     {
+                        if (Player == PlayerControl.LocalPlayer) continue;
                         if (pc == PlayerControl.LocalPlayer)
                             Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
                         else
@@ -252,12 +228,12 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                     Taskmode = true;
                 }
             nowcool = KillCooldown.GetFloat();
-        }, 0.2f, "");
+        }, 1.2f, "");
     }
     public override string GetProgressText(bool comms = false)
     {
         var r = Utils.ColorString(Ch() ? Color.yellow : Color.gray, $"({ShotLimit})");
-        if (!GameStates.Meeting && Ch()) r += Utils.ColorString(Color.yellow, Taskmode ? $" [Task]<color=#ffffff>({last})</color>" : $"  [Sheriff]<color=#ffffff>({last})</color>");
+        if (!GameStates.Meeting) r += Utils.ColorString(Color.yellow, Taskmode ? $" [Task]<color=#ffffff>({last})</color>" : $"  [Sheriff]<color=#ffffff>({last})</color>");
         return r;
     }
     public static bool CanBeKilledBy(PlayerControl player)
@@ -313,11 +289,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             Taskmode = !Taskmode;
         }
 
-        float kill = last;
-        if ((kill - 2) <= 0.5f) kill = 0.5f;
-        else kill = last - 2;
-
-        Main.AllPlayerKillCooldown[Player.PlayerId] = kill;
+        Main.AllPlayerKillCooldown[Player.PlayerId] = last <= 1 ? 0.01f : 255;
         Player.SyncSettings();
         _ = new LateTask(() => Player.SetKillCooldown(), 0.2f, "");
         nouryoku = true;
@@ -328,22 +300,23 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         if (!Player.IsAlive()) return true;
         return Taskmode;
     }
-    int last;
+    float last;
+    float f;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (GameStates.Meeting || GameStates.Intro) return;
+        if (!player.IsAlive() || nowcool == 0) return;
 
-        if (!player.IsAlive()) return;
-        if (nowcool > 1)
-            nowcool -= Time.fixedDeltaTime;
-        else if (nowcool != 0.5f) nowcool = 0.5f;
-        var now = (int)nowcool;
-        if (now != last)
+        if (f > 1f)
         {
-            if (now == 1f) player.SetKillCooldown();
-            last = now;
+            nowcool -= 1;
+            if (nowcool == 0)
+                player.SetKillCooldown(0.5f);
+            last = nowcool;
             Utils.NotifyRoles();
+            f = 0;
         }
+        f += Time.fixedDeltaTime;
     }
 }

@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
+using AmongUs.GameOptions;
 
 namespace TownOfHost.Modules;
 
@@ -192,22 +193,63 @@ public class MeetingVoteManager
                 });
             }
         }
+        if (!AntiBlackout.OverrideExiledPlayer)
+        {
+            var ch = true;
+            if (AmongUsClient.Instance.AmHost)
+            {
+                if (result.Exiled != null)
+                    if (result.Exiled == PlayerControl.LocalPlayer.Data)
+                    {
+                        foreach (var Player in Main.AllPlayerControls)
+                        {
+
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                var taishou = pc;
+                                var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
+                                taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                                if (pc == PlayerControl.LocalPlayer) continue;
+                                Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                            }
+                        }
+                        ch = false;
+                    }
+
+                if (ch)
+                    foreach (var Player in Main.AllPlayerControls)
+                    {
+                        foreach (var pc in Main.AllPlayerControls)
+                        {
+                            if (pc == PlayerControl.LocalPlayer) continue;
+                            var taishou = PlayerControl.LocalPlayer;
+                            var t = byte.MaxValue;
+                            if (!PlayerControl.LocalPlayer.IsAlive())
+                            {
+                                if (result.Exiled != null) t = result.Exiled.PlayerId;
+                                var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x.PlayerId != t && x != PlayerControl.LocalPlayer));
+                                taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                            }
+                            Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                        }
+                    }
+            }
+        }
 
         if (AntiBlackout.OverrideExiledPlayer)
         {
             meetingHud.RpcVotingComplete(states.ToArray(), null, true);
             ExileControllerWrapUpPatch.AntiBlackout_LastExiled = result.Exiled;
         }
-        else
-        {
-            meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
-        }
+        meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
+        //}
         if (result.Exiled != null)
         {
             MeetingHudPatch.CheckForDeathOnExile(CustomDeathReason.Vote, result.Exiled.PlayerId);
         }
         Destroy();
     }
+
     /// <summary>
     /// <see cref="AllVotes"/>から投票をカウントします
     /// </summary>

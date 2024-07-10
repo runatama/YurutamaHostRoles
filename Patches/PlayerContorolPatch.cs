@@ -15,6 +15,7 @@ using TownOfHost.Roles.AddOns.Crewmate;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Ghost;
+using TownOfHost.Roles.Neutral;
 //using InnerNet;
 
 namespace TownOfHost
@@ -178,7 +179,7 @@ namespace TownOfHost
                         (__instance.GetRoleClass() as IUseTheShButton)?.Shape(__instance);
                         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                             role.Colorchnge();
-                    }, 1, "");
+                    }, 0.25f, "");
                 }
                 if (target.shapeshifting)
                 {
@@ -379,9 +380,10 @@ namespace TownOfHost
                     targetm.RpcSetCustomRole(targetRole);
                     Logger.Info($"Make SKMadmate:{targetm.name}", "Shapeshift");
                     Main.SKMadmateNowCount++;
-                    //shapeshifter.RpcProtectedMurderPlayer(targetm);
-                    //targetm.RpcProtectedMurderPlayer(shapeshifter);
-                    //targetm.RpcProtectedMurderPlayer(targetm);
+                    shapeshifter.RpcProtectedMurderPlayer(targetm);
+                    targetm.RpcProtectedMurderPlayer(shapeshifter);
+                    targetm.RpcProtectedMurderPlayer(targetm);
+                    PlayerState.GetByPlayerId(targetm.PlayerId).SetCountType(CountTypes.Crew);
                     Main.LastLogRole[targetm.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(targetm.GetCustomRole()), Translator.GetString($"{targetm.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(targetm.PlayerId);
                     Utils.MarkEveryoneDirtySettings();
                     Utils.NotifyRoles();
@@ -471,6 +473,21 @@ namespace TownOfHost
                 Logger.Warn($"{__instance.GetNameWithRole()}:通報禁止中のため可能になるまで待機します", "ReportDeadBody");
                 return false;
             }
+
+            var c = false;
+            if (target != null)
+                if (__instance.Is(CustomRoles.MassMedia))
+                {
+                    foreach (var p in MassMedia.MassMedias)
+                    {
+                        if (p.Player == __instance)
+                        {
+                            if (p.Target == target.PlayerId)
+                                c = true;
+                        }
+                    }
+                }
+
             /*if (Utils.IsActive(SystemTypes.Comms) && Options.CommRepo.GetBool())
             {
                 GameStates.Meeting = false;
@@ -480,7 +497,7 @@ namespace TownOfHost
             }*/
             if (RoleAddAddons.AllData.TryGetValue(__instance.GetCustomRole(), out var da) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
             {
-                if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll)
+                if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
@@ -492,7 +509,7 @@ namespace TownOfHost
                     Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
                     return false;
                 }
-                if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport)
+                if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
@@ -502,7 +519,7 @@ namespace TownOfHost
             else
             if (__instance.Is(CustomRoles.NonReport))
             {
-                if (NonReport.Mode == NonReport.Convener.ConvenerAll)
+                if (NonReport.Mode == NonReport.Convener.ConvenerAll && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
@@ -514,7 +531,7 @@ namespace TownOfHost
                     Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
                     return false;
                 }
-                if (target != null && NonReport.Mode == NonReport.Convener.NotReport)
+                if (target != null && NonReport.Mode == NonReport.Convener.NotReport && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
@@ -525,20 +542,20 @@ namespace TownOfHost
             if (target != null)
             {
                 var tage = Utils.GetPlayerById(target.PlayerId);
-                if (tage.Is(CustomRoles.Transparent))
+                if (tage.Is(CustomRoles.Transparent) && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
                     return false;
                 }
-                else if (RoleAddAddons.AllData.TryGetValue(__instance.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool())
+                else if (RoleAddAddons.AllData.TryGetValue(__instance.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
                     return false;
                 }
                 else
-                if (!Musisuruoniku[tage.PlayerId])
+                if (!Musisuruoniku[tage.PlayerId] && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
@@ -626,7 +643,23 @@ namespace TownOfHost
             Utils.NotifyRoles(isForMeeting: true, NoCache: true);
 
             Utils.SyncAllSettings();
-            return true;
+
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (!pc.IsAlive() && (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false)))
+                    foreach (var Player in Main.AllPlayerControls)
+                    {
+                        if (Player == PlayerControl.LocalPlayer) continue;
+                        pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, Player.GetClientId());
+                    }
+            }
+
+            //サボ関係多分なしに～
+            //押したのなら強制で始める
+            MeetingRoomManager.Instance.AssignSelf(__instance, target);
+            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
+            __instance.RpcStartMeeting(target);
+            return false;
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)
         {
@@ -645,11 +678,26 @@ namespace TownOfHost
         public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool ch = true)
         {
             if (GameStates.IsMeeting) return;
+
+            var c = false;
+            if (target != null)
+                if (repo.Is(CustomRoles.MassMedia))
+                {
+                    foreach (var p in MassMedia.MassMedias)
+                    {
+                        if (p.Player == repo)
+                        {
+                            if (p.Target == target.PlayerId)
+                                c = true;
+                        }
+                    }
+                }
+
             if (ch)
             {
                 if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var da) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
                 {
-                    if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll)
+                    if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
                     {
                         Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
                         return;
@@ -659,7 +707,7 @@ namespace TownOfHost
                         Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
                         return;
                     }
-                    if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport)
+                    if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport && !c)
                     {
                         Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
                         return;
@@ -668,7 +716,7 @@ namespace TownOfHost
                 else
                 if (repo.Is(CustomRoles.NonReport))
                 {
-                    if (NonReport.Mode == NonReport.Convener.ConvenerAll)
+                    if (NonReport.Mode == NonReport.Convener.ConvenerAll && !c)
                     {
                         Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
                         return;
@@ -678,7 +726,7 @@ namespace TownOfHost
                         Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
                         return;
                     }
-                    if (target != null && NonReport.Mode == NonReport.Convener.NotReport)
+                    if (target != null && NonReport.Mode == NonReport.Convener.NotReport && !c)
                     {
                         Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
                         return;
@@ -688,18 +736,18 @@ namespace TownOfHost
                 if (target != null)
                 {
                     var tage = Utils.GetPlayerById(target.PlayerId);
-                    if (tage.Is(CustomRoles.Transparent))
+                    if (tage.Is(CustomRoles.Transparent) && !c)
                     {
                         Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
                         return;
                     }
-                    else if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool())
+                    else if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
                     {
                         Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
                         return;
                     }
                     else
-                    if (!Musisuruoniku[tage.PlayerId])
+                    if (!Musisuruoniku[tage.PlayerId] && !c)
                     {
                         Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
                         return;
@@ -751,12 +799,6 @@ namespace TownOfHost
                 MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
                 Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
             }
-            Utils.NotifyRoles(isForMeeting: true, NoCache: true);
-
-            MeetingRoomManager.Instance.AssignSelf(repo, target);
-            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
-            repo.RpcStartMeeting(target);
-
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
                 role.OnReportDeadBody(repo, target);
@@ -771,25 +813,30 @@ namespace TownOfHost
             }
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
 
+            Utils.NotifyRoles(isForMeeting: true, NoCache: true);
+
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (!pc.IsAlive() && (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false)))
+                    foreach (var Player in Main.AllPlayerControls)
+                    {
+                        if (Player == PlayerControl.LocalPlayer) continue;
+                        pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, Player.GetClientId());
+                    }
+            }
+
             MeetingTimeManager.OnReportDeadBody();
 
             Utils.NotifyRoles(isForMeeting: true, NoCache: true);
 
             Utils.SyncAllSettings();
+
+            MeetingRoomManager.Instance.AssignSelf(repo, target);
+            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
+            repo.RpcStartMeeting(target);
         }
     }
-    /*[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.StartMeeting))]
-    public static class PlayerControlStartMeetingPatch
-    {
-        public static void Prefix()
-        {
-            foreach (var kvp in PlayerState.AllPlayerStates)
-            {
-                var pc = Utils.GetPlayerById(kvp.Key);
-                kvp.Value.LastRoom = pc.GetPlainShipRoom();
-            }
-        }
-    }*/
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {
@@ -822,19 +869,7 @@ namespace TownOfHost
             }
 
             if (!GameStates.IsModHost) return;
-#if DEBUG
-            if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && !ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool())
-            {
-                var teleported = PlayerState.GetByPlayerId(player.PlayerId).TeleportedWithAntiBlackout;
-                if ((ExileControllerWrapUpPatch.SpawnTimer > 0 && teleported) || ExileControllerWrapUpPatch.SpawnTimer <= 0)
-                {
-                    var position = teleported ? new Vector2(999, 999) : new Vector2(8.6f, -10.3f);
-                    if ((Vector2)player.transform.position != position) player.RpcSnapToForced(position);
-                    player.RpcSetNamePrivate(teleported ? "<size=10>プレイヤーを待っています。</size>" : "<size=5>カメラを開いて閉じろ</size>");
-                }
-                return;
-            }
-#endif
+
             if (GameStates.IsLobby)
             {
                 if (AmongUsClient.Instance.AmHost)
@@ -852,6 +887,33 @@ namespace TownOfHost
                     }
                 }
             }
+            if (GameStates.InGame && MeetingStates.FirstMeeting && GameStates.FastAllSporn && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+            {
+                if (AmongUsClient.Instance.AmHost)
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        var po = pc.transform.position;
+                        if (pc.IsModClient()) continue;
+                        if (po.x < -80f || po.y < -80f)
+                        {
+                            var chance = IRandom.Instance.Next(6);
+                            Vector2 pos = new(-0.7f, 8.5f);
+                            switch (chance)
+                            {
+                                case 1: pos = new(-0.7f, -1); break;
+                                case 2: pos = new(-7.0f, -11.5f); break;
+                                case 3: pos = new(33.5f, -1.5f); break;
+                                case 4: pos = new(20.0f, 10.5f); break;
+                                case 5: pos = new(15.5f, 0.0f); break;
+                                default: break;
+                            }
+                            _ = new LateTask(() => pc.RpcSnapToForced(pos), 0.5f, "");
+                            RandomSpawn.AirshipSpawn(pc);
+                            if (!RandomSpawn.CustomNetworkTransformHandleRpcPatch.Player.Contains(pc.PlayerId))
+                                RandomSpawn.CustomNetworkTransformHandleRpcPatch.Player.Add(pc.PlayerId);
+                        }
+                    }
+            }
 
             TargetArrow.OnFixedUpdate(player);
             GetArrow.OnFixedUpdate(player);
@@ -859,6 +921,7 @@ namespace TownOfHost
             CustomRoleManager.OnFixedUpdate(player);
             if (Main.saabo)
             {
+                if (!GameStates.Meeting) Main.sabotagetime += Time.fixedDeltaTime;
                 if (!Utils.IsActive(Main.sabo))
                 {
                     var systemType = Main.sabo;
@@ -879,8 +942,10 @@ namespace TownOfHost
                     if (systemType == SystemTypes.MushroomMixupSabotage)
                         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MushroomMixup]　" + string.Format(Translator.GetString("Log.FixSab"), sb);
                     Main.saabo = false;
+                    Main.sabotagetime = 0;
                     Utils.NotifyRoles();
                 }
+
             }
             if (AmongUsClient.Instance.AmHost)
             {//実行クライアントがホストの場合のみ実行
@@ -981,8 +1046,8 @@ namespace TownOfHost
                     ELoversSuicide();
                     FLoversSuicide();
                     GLoversSuicide();
+                    MadonnaLoversSuicide();
                 }
-                if (GameStates.IsInGame) MadonnaLoversSuicide();
 
                 if (GameStates.IsInGame && player.AmOwner)
                     DisableDevice.FixedUpdate();
@@ -1691,11 +1756,6 @@ namespace TownOfHost
                     var self = seer.PlayerId == target.PlayerId;
                     var seerIsKiller = seer.GetRoleClass() is IKiller;
 
-                    if (((self && targetIsKiller) || (!seerIsKiller && target.Is(CustomRoleTypes.Impostor))) && !target.Is(CustomRoles.SwitchSheriff))
-                    {
-                        ghostRoles[seer] = RoleTypes.ImpostorGhost;
-                    }
-                    else
                     {
                         ghostRoles[seer] = RoleTypes.CrewmateGhost;
                     }
@@ -1730,6 +1790,18 @@ namespace TownOfHost
             {
                 // 死者の最終位置にペットが残るバグ対応
                 __instance.RpcSetPet("");
+
+                if (__instance != PlayerControl.LocalPlayer)
+                    if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                        _ = new LateTask(() =>
+                        {
+                            if (!GameStates.Meeting)
+                                foreach (var Player in Main.AllPlayerControls)
+                                {
+                                    if (Player == PlayerControl.LocalPlayer) continue;
+                                    __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
+                                }
+                        }, 1.4f, "Fix sabotage");
             }
         }
     }

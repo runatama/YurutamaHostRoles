@@ -41,10 +41,15 @@ public sealed class Mare : RoleBase, IImpostor
 
     private static OptionItem OptionKillCooldownInLightsOut;
     private static OptionItem OptionSpeedInLightsOut;
+    private static OptionItem OptionCanSeeNameColor;
+    private static OptionItem OptionAllCanKill;
+    private static OptionItem OptionKillCooldown;
     enum OptionName
     {
         MareAddSpeedInLightsOut,
         MareKillCooldownInLightsOut,
+        MareCanSeeNameColor,
+        MareAllCanKill
     }
     private float KillCooldownInLightsOut;
     private float SpeedInLightsOut;
@@ -53,12 +58,16 @@ public sealed class Mare : RoleBase, IImpostor
 
     public static void SetupCustomOption()
     {
-        OptionSpeedInLightsOut = FloatOptionItem.Create(RoleInfo, 10, OptionName.MareAddSpeedInLightsOut, new(0.0f, 5.0f, 0.2f), 0.4f, false);
+        OptionSpeedInLightsOut = FloatOptionItem.Create(RoleInfo, 10, OptionName.MareAddSpeedInLightsOut, new(0.0f, 5.0f, 0.2f), 0.0f, false);
         OptionKillCooldownInLightsOut = FloatOptionItem.Create(RoleInfo, 11, OptionName.MareKillCooldownInLightsOut, new(0f, 180f, 2.5f), 15f, false)
             .SetValueFormat(OptionFormat.Seconds);
+        OptionCanSeeNameColor = BooleanOptionItem.Create(RoleInfo, 12, OptionName.MareCanSeeNameColor, false, false);
+        OptionAllCanKill = BooleanOptionItem.Create(RoleInfo, 13, OptionName.MareAllCanKill, false, false);
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 40f, false, OptionAllCanKill)
+            .SetValueFormat(OptionFormat.Seconds);
     }
-    public bool CanUseKillButton() => IsActivateKill;
-    public float CalculateKillCooldown() => IsActivateKill ? KillCooldownInLightsOut : DefaultKillCooldown;
+    public bool CanUseKillButton() => IsActivateKill || OptionAllCanKill.GetBool();
+    public float CalculateKillCooldown() => IsActivateKill ? KillCooldownInLightsOut : OptionKillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt)
     {
         if (IsActivateKill && !IsAccelerated)
@@ -78,7 +87,8 @@ public sealed class Mare : RoleBase, IImpostor
         if (AmongUsClient.Instance.AmHost)
         {
             SendRPC();
-            Player.MarkDirtySettings();
+            Player.SyncSettings();
+            _ = new LateTask(() => Player.SetKillCooldown(activate ? KillCooldownInLightsOut : OptionKillCooldown.GetFloat()), 0.2f, "MareKillCool");
             Utils.NotifyRoles();
         }
     }
@@ -114,11 +124,10 @@ public sealed class Mare : RoleBase, IImpostor
                 {
                     ActivateKill(true);
                 }
-            }, 4.0f, "Mare Activate Kill");
+            }, !OptionCanSeeNameColor.GetBool() ? 0.5f : 4.0f, "Mare Activate Kill");
         }
         return true;
     }
     public static bool KnowTargetRoleColor(PlayerControl target, bool isMeeting)
-        => !isMeeting && IsActivateKill && target.Is(CustomRoles.Mare);
-
+        => OptionCanSeeNameColor.GetBool() && !isMeeting && IsActivateKill && target.Is(CustomRoles.Mare);
 }

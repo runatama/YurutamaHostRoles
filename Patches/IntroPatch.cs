@@ -7,6 +7,8 @@ using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
+using TownOfHost.Roles.AddOns.Common;
+using Rewired;
 //using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
@@ -311,6 +313,16 @@ namespace TownOfHost
                             break;
                     }
                 }
+                //役職選定後に処理する奴。
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
+                    //RoleAddons
+                    if (RoleAddAddons.AllData.TryGetValue(pc.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
+                    {
+                        if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
+                    }
+                }
 
                 // そのままだとホストのみDesyncImpostorの暗室内での視界がクルー仕様になってしまう
                 var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
@@ -345,16 +357,16 @@ namespace TownOfHost
                 }, 0.15f, "Color and Black");
 
                 _ = new LateTask(() =>
-            {
-                foreach (var s in PlayerState.AllPlayerStates)
                 {
-                    if (s.Value == null) continue;
-                    s.Value.IsBlackOut = false;
-                    if (Utils.GetPlayerById(s.Key) == null) continue;
-                    Utils.GetPlayerById(s.Key).SyncSettings();
-                    Utils.NotifyRoles();
-                }
-            }, 0.5f, "");
+                    foreach (var s in PlayerState.AllPlayerStates)
+                    {
+                        if (s.Value == null) continue;
+                        s.Value.IsBlackOut = false;
+                        if (Utils.GetPlayerById(s.Key) == null) continue;
+                        Utils.GetPlayerById(s.Key).SyncSettings();
+                        Utils.NotifyRoles();
+                    }
+                }, 0.5f, "");
 
                 foreach (var pc in Main.AllPlayerControls)
                 {
@@ -367,6 +379,19 @@ namespace TownOfHost
                 }
                 if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                 if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
+
+                if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                    _ = new LateTask(() =>
+                    {
+                        foreach (var s in PlayerState.AllPlayerStates)
+                        {
+                            if (s.Value == null) continue;
+                            s.Value.IsBlackOut = false;
+                            if (Utils.GetPlayerById(s.Key) == null) continue;
+                            Utils.GetPlayerById(s.Key).SyncSettings();
+                        }
+                        GameStates.FastAllSporn = true;
+                    }, 12f, "SpawnCheck");
             }
             Logger.Info("OnDestroy", "IntroCutscene");
         }

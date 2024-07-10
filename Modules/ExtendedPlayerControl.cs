@@ -47,6 +47,8 @@ namespace TownOfHost
                     {
                         foreach (var pc in Main.AllPlayerControls)
                         {
+                            if (pc != player) pc.RpcSetRoleDesync(RoleTypes.Crewmate, player.GetClientId());
+
                             if (pc == PlayerControl.LocalPlayer)
                             {
                                 player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, true));
@@ -57,14 +59,17 @@ namespace TownOfHost
                                 }
                             }
                             else
-                            {
                                 player.RpcSetRoleDesync(pc == player ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
-                                if (pc != player) pc.RpcSetRoleDesync(RoleTypes.Crewmate, player.GetClientId());
-                            }
                         }
                     }
                     else
-                        player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
+                        player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+
+                    if (role.GetRoleInfo()?.BaseRoleType?.Invoke() == RoleTypes.Shapeshifter)
+                    {
+                        Main.CheckShapeshift.TryAdd(player.PlayerId, false);
+                        _ = new LateTask(() => (player.GetRoleClass() as IUseTheShButton)?.Shape(player), 0.4f, "UseShButtonCheck");
+                    }
                 }
 
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, Hazel.SendOption.Reliable, -1);

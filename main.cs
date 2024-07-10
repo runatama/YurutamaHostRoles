@@ -63,11 +63,11 @@ namespace TownOfHost
         //デバッグ有効期限
         public static int DebugvalidityYear = 2024;//年
         public static int DebugvalidityMonth = 7;//月
-        public static int DebugvalidityDay = 10;//日
+        public static int DebugvalidityDay = 17;//日
         //デバッグ版リリース日
         public static int ReleaseYear = 2024;
         public static int ReleaseMonth = 7;
-        public static int ReleaseDay = 3;
+        public static int ReleaseDay = 10;
         public static bool DebugCheck()
         {
             if (!NotKigenDebug && DebugVersion)
@@ -79,7 +79,7 @@ namespace TownOfHost
                 if (!(Re <= now && now <= Rem))
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                    Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n `FriendCode:{client.FriendCode}`\nPuId:`{client.GetHashedPuid()}`");
+                    Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.GetHashedPuid()}");
                     return false;
                 }
             }
@@ -176,6 +176,7 @@ namespace TownOfHost
         public static byte LastSab;
         public static SystemTypes sabo;
         public static bool saabo;
+        public static float sabotagetime;
         public static (float, float) Time;
         public static Dictionary<byte, int> Guard;
         public static int GameCount = 0;

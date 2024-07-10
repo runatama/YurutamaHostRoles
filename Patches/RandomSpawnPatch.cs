@@ -79,6 +79,7 @@ namespace TownOfHost
         [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
         public class CustomNetworkTransformHandleRpcPatch
         {
+            public static List<byte> Player = new();
             public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
             {
                 if (!AmongUsClient.Instance.AmHost)
@@ -93,6 +94,14 @@ namespace TownOfHost
                 {
                     var player = __instance.myPlayer;
                     var state = PlayerState.GetByPlayerId(player.PlayerId);
+
+                    if (!Player.Contains(player.PlayerId) && !state.HasSpawned && MeetingStates.FirstMeeting)
+                    {
+                        player.RpcSnapToForced(new Vector2(-100f, -100f));
+                        Player.Add(player.PlayerId);
+                        return false;
+                    }
+
                     // プレイヤーがまだ湧いていない
                     if (!state.HasSpawned)
                     {
@@ -107,6 +116,7 @@ namespace TownOfHost
                         // SnapTo先が湧き位置だったら湧き処理に進む
                         if (IsAirshipVanillaSpawnPosition(position))
                         {
+                            /*
                             if (!state.TeleportedWithAntiBlackout && !MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool())
                             {
                                 state.SpawnPoint = position;
@@ -114,7 +124,7 @@ namespace TownOfHost
                                 player.RpcProtectedMurderPlayer();
                                 state.TeleportedWithAntiBlackout = true;
                                 return false;
-                            }
+                            }*/
                             AirshipSpawn(player);
                             return false;
                         }
@@ -172,22 +182,14 @@ namespace TownOfHost
                     return false;
                 }
                 // ランダムスポーンが有効ならバニラの湧きをキャンセル
-                if (IsRandomSpawn() || (!MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool()))
+                if (IsRandomSpawn())
                 {
                     // バニラ処理のRpcSnapToForcedをAirshipSpawnに置き換えたもの
                     __instance.gotButton = true;
                     PlayerControl.LocalPlayer.SetKinematic(true);
                     PlayerControl.LocalPlayer.NetTransform.SetPaused(true);
                     var state = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId);
-                    if (!state.TeleportedWithAntiBlackout && !MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool())
-                    {
-                        state.SpawnPoint = spawnPoint.Location;
-                        PlayerControl.LocalPlayer.RpcSnapToForced(new(999f, 999f));
-                        PlayerControl.LocalPlayer.RpcProtectedMurderPlayer();
-                        state.TeleportedWithAntiBlackout = true;
-                    }
-                    else
-                        AirshipSpawn(PlayerControl.LocalPlayer);
+                    AirshipSpawn(PlayerControl.LocalPlayer);
                     DestroyableSingleton<HudManager>.Instance.PlayerCam.SnapToTarget();
                     __instance.StopAllCoroutines();
                     __instance.StartCoroutine(__instance.CoSpawnAt(PlayerControl.LocalPlayer, spawnPoint));

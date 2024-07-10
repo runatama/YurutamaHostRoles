@@ -36,6 +36,12 @@ public static class HqHudSystemTypeUpdateSystemPatch
         {
             return false;
         }
+        if (Options.CommsDonttouch.GetBool())
+            if (Options.CommsDonttouchTime.GetFloat() > Main.sabotagetime)
+            {
+                return false;
+            }
+
         if (player.Is(CustomRoles.Clumsy))
         {
             return false;

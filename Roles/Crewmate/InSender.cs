@@ -37,7 +37,7 @@ public sealed class InSender : RoleBase
     private static void SetupOptionItem()
     {
         Kakusei = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskKakusei, true, false);
-        Task = FloatOptionItem.Create(RoleInfo, 11, OptionName.Kakuseitask, new(0f, 10f, 1f), 5f, false, Kakusei);
+        Task = FloatOptionItem.Create(RoleInfo, 11, OptionName.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {

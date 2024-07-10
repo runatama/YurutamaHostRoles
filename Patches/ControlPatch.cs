@@ -3,6 +3,8 @@ using HarmonyLib;
 using UnityEngine;
 
 using TownOfHost.Modules;
+using AmongUs.GameOptions;
+using System.Collections.Generic;
 
 namespace TownOfHost
 {
@@ -93,6 +95,20 @@ namespace TownOfHost
             //ミーティングを強制終了
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)
             {
+                foreach (var Player in Main.AllPlayerControls)
+                {
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer) continue;
+                        var taishou = PlayerControl.LocalPlayer;
+                        if (!PlayerControl.LocalPlayer.IsAlive())
+                        {
+                            var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
+                            taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                        }
+                        Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                    }
+                }
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
                 Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Vote]　" + Translator.GetString("voteskip") + "※Host";
                 GameStates.Meeting = false;
@@ -152,7 +168,7 @@ namespace TownOfHost
             //自分自身の死体をレポート
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.RightShift) && GameStates.IsInGame && ((!GameStates.Meeting && !GameStates.Intro) || DebugModeManager.IsDebugMode))
             {
-                PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
+                ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false);
             }
             if (GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false) && GameStates.IsLobby)
             {

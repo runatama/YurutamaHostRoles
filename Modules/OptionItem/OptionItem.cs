@@ -14,9 +14,6 @@ namespace TownOfHost
         public static IReadOnlyDictionary<int, OptionItem> FastOptions => _fastOptions;
         private static Dictionary<int, OptionItem> _fastOptions = new(1024);
         public static int CurrentPreset { get; set; }
-#if DEBUG
-        public static bool IdDuplicated { get; private set; } = false;
-#endif
         #endregion
 
         // 必須情報 (コンストラクタで必ず設定させる必要がある値)
@@ -114,9 +111,6 @@ namespace TownOfHost
             }
             else
             {
-#if DEBUG
-                IdDuplicated = true;
-#endif
                 Logger.Error($"ID:{id}が重複しています name:{name},{_fastOptions[id].Name}", "OptionItem");
             }
         }
@@ -165,7 +159,8 @@ namespace TownOfHost
         }
         //なんか設定画面での設定が上手く行ってないようなので。
         //問題あるなら何とかしてね。オレハアキラメル
-        public virtual bool GetBool() => CurrentValue != 0/* && (Parent == null || Parent.GetBool())*/;
+        public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
+        public virtual bool OptionMeGetBool() => CurrentValue != 0;
         public virtual int GetInt() => CurrentValue;
         public virtual float GetFloat() => CurrentValue;
         public virtual string GetString()

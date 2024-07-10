@@ -168,8 +168,10 @@ namespace TownOfHost
             GameStates.AlreadyDied = false;
             GameStates.Intro = true;
             GameStates.task = false;
+            GameStates.FastAllSporn = false;
             HudManagerPatch.ch = false;
             GameStates.AfterIntro = false;
+            RandomSpawn.CustomNetworkTransformHandleRpcPatch.Player.Clear();
             MeetingVoteManager.Voteresult = "";
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
@@ -243,13 +245,13 @@ namespace TownOfHost
                         if (Options.EnableGM.GetBool() && pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                         {
                             PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
-                            PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate);
+                            PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                             PlayerControl.LocalPlayer.Data.IsDead = true;
                         }
                         else
                         {
                             pc.RpcSetCustomRole(CustomRoles.TaskPlayerB);
-                            pc.RpcSetRole(Options.TaskBattleCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate);
+                            pc.RpcSetRole(Options.TaskBattleCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                         }
                     }
                 }
@@ -273,7 +275,7 @@ namespace TownOfHost
                     {
                         AllPlayers.RemoveAll(x => x == PlayerControl.LocalPlayer);
                         PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
-                        PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate);
+                        PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                         PlayerControl.LocalPlayer.Data.IsDead = true;
                     }
                     Dictionary<(byte, byte), RoleTypes> rolesMap = new();
@@ -558,12 +560,10 @@ namespace TownOfHost
                 //Addons
                 Main.Guard.Add(pc.PlayerId, 0);
                 if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.Guard;
-                if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
                 //RoleAddons
                 if (RoleAddAddons.AllData.TryGetValue(pc.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
                 {
                     if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
-                    if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                 }
             }
             foreach (var s in PlayerState.AllPlayerStates)

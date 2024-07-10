@@ -199,12 +199,12 @@ namespace TownOfHost
                     if (ToGhostImpostor)
                     {
                         Logger.Info($"{pc.GetNameWithRole()}: ImpostorGhostに変更", "ResetRoleAndEndGame");
-                        pc.RpcSetRole(RoleTypes.ImpostorGhost);
+                        pc.RpcSetRole(RoleTypes.ImpostorGhost, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                     }
                     else
                     {
                         Logger.Info($"{pc.GetNameWithRole()}: CrewmateGhostに変更", "ResetRoleAndEndGame");
-                        pc.RpcSetRole(RoleTypes.CrewmateGhost);
+                        pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                     }
                 }
             }

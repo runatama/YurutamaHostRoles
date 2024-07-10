@@ -181,6 +181,7 @@ public sealed class JackalDoll : RoleBase, IKiller
                 if (!role.ContainsKey(player)) role.Add(player, CustomRoles.Jackal);
 
                 player.RpcSetCustomRole(role[player], false);
+                PlayerState.GetByPlayerId(player.PlayerId).SetCountType(CountTypes.Jackal);
                 shoukaku = true;
             }
             shoukaku = false;

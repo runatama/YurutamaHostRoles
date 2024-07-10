@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
@@ -31,6 +33,24 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
         () => HasTask.False
     )
     {
+        CustomRoleManager.OnMurderPlayerOthers.Add(TageKillCh);
+    }
+    static OptionItem OptionKillCoolDown;
+    static OptionItem OptionShikai;
+    private static float KillCooldown;
+    public byte Target;
+    byte Guees;
+    bool Makkura;
+    bool Winchance;
+    bool Win;
+    Vector3 TagePo;
+    public static HashSet<MassMedia> MassMedias = new();
+    enum Option
+    {
+        MassMediaShikai
+    }
+    public override void Add()
+    {
         KillCooldown = OptionKillCoolDown.GetFloat();
         Target = byte.MaxValue;
         Makkura = false;
@@ -38,21 +58,10 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
         Winchance = false;
         Win = false;
         Guees = byte.MaxValue;
-        CustomRoleManager.OnMurderPlayerOthers.Add(TageKillCh);
+
+        MassMedias.Add(this);
     }
-    static OptionItem OptionKillCoolDown;
-    static OptionItem OptionShikai;
-    private static float KillCooldown;
-    byte Target;
-    byte Guees;
-    bool Makkura;
-    bool Winchance;
-    bool Win;
-    Vector3 TagePo;
-    enum Option
-    {
-        MassMediaShikai
-    }
+    public override void OnDestroy() => MassMedias.Clear();
     private static void SetupOptionItem()
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 20f, false)

@@ -16,6 +16,7 @@ using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using System;
+using AmongUs.GameOptions;
 
 namespace TownOfHost;
 
@@ -201,6 +202,22 @@ public static class MeetingHudPatch
             GameStates.AlreadyDied |= !Utils.IsAllAlive;
             Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
             MeetingStates.MeetingCalled = true;
+
+            if (!AntiBlackout.OverrideExiledPlayer)
+            {
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    foreach (var Player in Main.AllPlayerControls)
+                    {
+                        if (!Player.IsAlive() && Player.GetCustomRole().IsImpostor())
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                if (pc == PlayerControl.LocalPlayer) continue;
+                                Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
+                            }
+                    }
+                }
+            }
         }
         public static void Postfix(MeetingHud __instance)
         {
@@ -467,11 +484,6 @@ public static class MeetingHudPatch
         public static void Postfix()
         {
             MeetingStates.FirstMeeting = false;
-            foreach (var kvp in PlayerState.AllPlayerStates)
-            {
-                kvp.Value.IsBlackOut = false;
-                Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
-            }
             Logger.Info("------------会議終了------------", "Phase");
             if (AmongUsClient.Instance.AmHost)
             {

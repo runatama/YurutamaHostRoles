@@ -357,10 +357,16 @@ namespace TownOfHost
 
         // 停電の特殊設定
         public static OptionItem LightsOutSpecialSettings;
+        public static OptionItem LightOutDonttouch;
+        public static OptionItem LightOutDonttouchTime;
         public static OptionItem DisableAirshipViewingDeckLightsPanel;
         public static OptionItem DisableAirshipGapRoomLightsPanel;
         public static OptionItem DisableAirshipCargoLightsPanel;
         public static OptionItem BlockDisturbancesToSwitches;
+        public static OptionItem CommsSpecialSettings;
+        public static OptionItem CommsCamouflage;
+        public static OptionItem CommsDonttouch;
+        public static OptionItem CommsDonttouchTime;
         // 他サボ
         public static OptionItem Chcabowin;
         // マップ改造
@@ -392,7 +398,6 @@ namespace TownOfHost
         public static OptionItem GhostCanSeeAllTasks;
         public static OptionItem GhostCanSeeKillflash;
         public static OptionItem GhostCanSeeNumberOfButtonsOnOthers;
-        public static OptionItem CommsCamouflage;
         public static OptionItem RoleImpostor;
         public static OptionItem ALoversRole;
         public static OptionItem BLoversRole;
@@ -412,7 +417,6 @@ namespace TownOfHost
         public static OptionItem ColorNameMode;
         public static OptionItem ChangeNameToRoleInfo;
         public static OptionItem RoleAssigningAlgorithm;
-        public static OptionItem AssignSameRoleAfterForcedEnding;
         public static OptionItem sotodererukomando;
         public static OptionItem AntiBlackOutSpawnVer;
 
@@ -834,14 +838,24 @@ namespace TownOfHost
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
 
-            CommsCamouflage = BooleanOptionItem.Create(100812, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(Sabotage)
+            CommsSpecialSettings = BooleanOptionItem.Create(100812, "CommsSpecialSettings", false, TabGroup.MainSettings, false).SetParent(Sabotage)
                 .SetGameMode(CustomGameMode.Standard);
+            CommsCamouflage = BooleanOptionItem.Create(100813, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
+                .SetGameMode(CustomGameMode.Standard);
+            CommsDonttouch = BooleanOptionItem.Create(100814, "CommsDonttouch", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
+                .SetGameMode(CustomGameMode.Standard);
+            CommsDonttouchTime = FloatOptionItem.Create(100815, "CommsDonttouchTime", new(0f, 180f, 0.5f), 3.0f, TabGroup.MainSettings, false).SetParent(CommsDonttouch)
+            .SetGameMode(CustomGameMode.Standard).SetValueFormat(OptionFormat.Seconds);
             //CommRepo = BooleanOptionItem.Create(227, "CommRepo", false, TabGroup.MainSettings, false).SetParent(Sabotage)
             //    .SetGameMode(CustomGameMode.Standard);
 
             // 停電の特殊設定
             LightsOutSpecialSettings = BooleanOptionItem.Create(101500, "LightsOutSpecialSettings", false, TabGroup.MainSettings, false).SetParent(Sabotage)
                 .SetGameMode(CustomGameMode.Standard);
+            LightOutDonttouch = BooleanOptionItem.Create(1015015, "LightOutDonttouch", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
+                .SetGameMode(CustomGameMode.Standard).SetValueFormat(OptionFormat.Seconds);
+            LightOutDonttouchTime = FloatOptionItem.Create(101510, "LightOutDonttouchTime", new(0f, 180f, 0.5f), 3.0f, TabGroup.MainSettings, false).SetParent(LightOutDonttouch)
+            .SetGameMode(CustomGameMode.Standard).SetValueFormat(OptionFormat.Seconds);
             DisableAirshipViewingDeckLightsPanel = BooleanOptionItem.Create(101511, "DisableAirshipViewingDeckLightsPanel", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
             DisableAirshipGapRoomLightsPanel = BooleanOptionItem.Create(101512, "DisableAirshipGapRoomLightsPanel", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
@@ -1029,18 +1043,10 @@ namespace TownOfHost
                 .RegisterUpdateValueEvent(
                     (object obj, OptionItem.UpdateValueEventArgs args) => IRandom.SetInstanceById(args.CurrentValue)
                 );
-#if DEBUG
-            AssignSameRoleAfterForcedEnding = BooleanOptionItem.Create(1_000_086, "AssignSameRoleAfterForcedEnding", false, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.Standard);
-#endif
+
             sotodererukomando = BooleanOptionItem.Create(1_000_007, "sotodererukomando", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#00c1ff");
-#if DEBUG
-            AntiBlackOutSpawnVer = BooleanOptionItem.Create(1_000_008, "AntiBlackOutSpawnVer", false, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColorcode("#ec0808");
-#endif
             ApplyDenyNameList = BooleanOptionItem.Create(1_000_100, "ApplyDenyNameList", true, TabGroup.MainSettings, true)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.All);

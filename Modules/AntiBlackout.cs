@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Hazel;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
-using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {
@@ -14,25 +14,10 @@ namespace TownOfHost
         ///<summary>
         ///追放処理を上書きするかどうか
         ///</summary>
-        public static bool OverrideExiledPlayer => (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
+        public static bool OverrideExiledPlayer => (Main.AllPlayerControls.Count() < 4) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
         public static bool IsCached { get; private set; } = false;
         private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
         private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
-
-        private static bool GetA()
-        {
-            var ab = false;
-            foreach (var pc in Main.AllPlayerControls)
-            {
-                var r = pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor;
-                if (r ?? false) ab = true;
-            }
-            foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
-                if (info.IsEnable && info.CountType is not CountTypes.Crew and not CountTypes.Impostor)
-                    ab = true;
-            return ab;
-        }
-
         public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
         {
             logger.Info($"SetIsDead is called from {callerMethodName}");

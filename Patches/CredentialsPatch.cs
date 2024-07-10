@@ -96,12 +96,6 @@ namespace TownOfHost
                 }
 
                 VersionChecker.Check();
-#if DEBUG
-                if (OptionItem.IdDuplicated)
-                {
-                    ErrorText.Instance.AddError(ErrorCode.OptionIDDuplicate);
-                }
-#endif
 
                 if (SpecialEventText == null && TohkLogo != null)
                 {

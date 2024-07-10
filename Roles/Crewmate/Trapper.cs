@@ -25,8 +25,13 @@ public sealed class Trapper : RoleBase
     )
     {
         BlockMoveTime = OptionBlockMoveTime.GetFloat();
+        ta = Task.GetInt();
+        kakusei = !Kakusei.GetBool();
     }
-
+    static OptionItem Kakusei;
+    static OptionItem Task;
+    bool kakusei;
+    int ta;
     private static OptionItem OptionBlockMoveTime;
     enum OptionName
     {
@@ -39,6 +44,8 @@ public sealed class Trapper : RoleBase
     {
         OptionBlockMoveTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.TrapperBlockMoveTime, new(1f, 180f, 1f), 5f, false)
             .SetValueFormat(OptionFormat.Seconds);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.TaskKakusei, true, false);
+        Task = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
@@ -56,5 +63,11 @@ public sealed class Trapper : RoleBase
             killer.MarkDirtySettings();
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
         }, BlockMoveTime, "Trapper BlockMove");
+    }
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override bool OnCompleteTask()
+    {
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
+        return true;
     }
 }

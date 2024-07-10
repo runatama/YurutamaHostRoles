@@ -79,6 +79,7 @@ namespace TownOfHost.Modules.ChatManager
             {
                 Logger.Info($"{msg}，は記録しない", "ChatManager");
                 message = msg;
+                cancel = false;
                 SendPreviousMessagesToAll();
             }
             else if (operate == 6)

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
-using TownOfHost.Modules;
 using static TownOfHost.Translator;
 using Object = UnityEngine.Object;
 using TownOfHost.Roles.Core;
-using System.Reflection.Metadata;
 
 namespace TownOfHost
 {

@@ -37,7 +37,6 @@ public sealed class Sniper : RoleBase, IImpostor
         Canshape = OpCanShape.GetBool();
         Cool = OpMadac.GetFloat();
         Jizoku = OpMadaj.GetFloat();
-        HyoujiTime = 0f;
 
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
@@ -116,6 +115,7 @@ public sealed class Sniper : RoleBase, IImpostor
         IsAim = false;
         AimTime = 0f;
         MeetingReset = false;
+        HyoujiTime = 0f;
 
         Snipers.Add(this);
     }

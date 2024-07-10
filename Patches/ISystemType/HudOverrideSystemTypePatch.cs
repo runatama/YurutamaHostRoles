@@ -39,6 +39,12 @@ public static class HudOverrideSystemTypeUpdateSystemPatch
         {
             return false;
         }
+        if (Options.CommsDonttouch.GetBool())
+            if (Options.CommsDonttouchTime.GetFloat() > Main.sabotagetime)
+            {
+                return false;
+            }
+
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveClumsy.GetBool()) return false;
 
         if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHudOverrideSystem(__instance, amount))

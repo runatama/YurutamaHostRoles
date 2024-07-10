@@ -15,14 +15,16 @@ public interface IUseTheShButton
 
     public bool CheckShapeshift(PlayerControl Player, PlayerControl target)
     {
-        if (target.PlayerId == Player.PlayerId && UseOCButton && AmongUsClient.Instance.AmHost)
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (target.PlayerId == Player.PlayerId && UseOCButton)
         {
             if (GameStates.IsInTask && !Utils.IsActive(SystemTypes.MushroomMixupSabotage))
                 OnClick();
             Player.RpcRejectShapeshift();
             return false;
         }
-        return true;
+        return !UseOCButton;
     }
     public void ResetSkin(PlayerControl Player)
     {

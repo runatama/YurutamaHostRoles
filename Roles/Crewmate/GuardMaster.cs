@@ -25,11 +25,17 @@ public sealed class GuardMaster : RoleBase
         CanSeeCheck = OptoonCheck.GetBool();
         AddGuardCount = OptionAddGuardCount.GetInt();
         Guard = 0;
+        ta = Task.GetInt();
+        kakusei = !Kakusei.GetBool();
     }
     private static OptionItem OptionAddGuardCount;
     private static OptionItem OptoonCheck;
     private static int AddGuardCount;
     private static bool CanSeeCheck;
+    static OptionItem Kakusei;
+    static OptionItem Task;
+    bool kakusei;
+    int ta;
     int Guard = 0;
     enum OptionName
     {
@@ -41,6 +47,8 @@ public sealed class GuardMaster : RoleBase
         OptoonCheck = BooleanOptionItem.Create(RoleInfo, 10, OptionName.MadGuardianCanSeeWhoTriedToKill, true, false);
         OptionAddGuardCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.AddGuardCount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskKakusei, true, false);
+        Task = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
         Options.OverrideTasksData.Create(RoleInfo, 20);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
@@ -67,9 +75,11 @@ public sealed class GuardMaster : RoleBase
     }
     public override bool OnCompleteTask()
     {
+        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
         if (IsTaskFinished && Player.IsAlive())
             Guard += AddGuardCount;
         return true;
     }
     public override string GetProgressText(bool comms = false) => CanSeeCheck ? Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})") : "";
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
 }

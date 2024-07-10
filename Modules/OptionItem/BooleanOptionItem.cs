@@ -53,7 +53,7 @@ namespace TownOfHost
         // Getter
         public override string GetString()
         {
-            return Translator.GetString(GetBool() ? TEXT_true : TEXT_false);
+            return Translator.GetString(OptionMeGetBool() ? TEXT_true : TEXT_false);
         }
 
         // Setter

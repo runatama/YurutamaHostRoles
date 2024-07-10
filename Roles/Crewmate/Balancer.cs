@@ -289,9 +289,9 @@ public sealed class Balancer : RoleBase
             Id = Player.PlayerId;
             //対象の名前を天秤の色に
             foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
-                pc.RpcSetName("<color=red>Ω" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "<color=red>Ω");
+                pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u><color=red>Ω");
             Balancer(meetingtime);
-            PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
+            _ = new LateTask(() => PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data), 2f, "Balancer");
             //アナウンス(合体させるからコメントアウト)
             //Utils.SendMessage($"{Main.AllPlayerNames[Target1]}と{Main.AllPlayerNames[Target2]}が天秤に掛けられました！\n\nどちらかに投票せよ！");
 
