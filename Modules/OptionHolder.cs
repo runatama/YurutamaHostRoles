@@ -840,7 +840,7 @@ namespace TownOfHost
 
             CommsSpecialSettings = BooleanOptionItem.Create(100812, "CommsSpecialSettings", false, TabGroup.MainSettings, false).SetParent(Sabotage)
                 .SetGameMode(CustomGameMode.Standard);
-            CommsCamouflage = BooleanOptionItem.Create(100813, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
+            CommsCamouflage = BooleanOptionItem.Create(100816, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
             CommsDonttouch = BooleanOptionItem.Create(100814, "CommsDonttouch", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
