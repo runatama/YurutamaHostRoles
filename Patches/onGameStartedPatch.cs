@@ -163,6 +163,7 @@ namespace TownOfHost
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
             ChatManager.ResetChat();
             Roles.Madmate.MadAvenger.Skill = false;
+            MeetingHudPatch.CastVotePatch.InfoMode.Clear();
             MeetingStates.MeetingCalled = false;
             MeetingStates.FirstMeeting = true;
             GameStates.AlreadyDied = false;

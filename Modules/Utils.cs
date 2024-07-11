@@ -2290,7 +2290,7 @@ namespace TownOfHost
                 //if (AsistingAngel.ch())
                 //    AsistingAngel.Limit++;
                 DelTask();
-                //GhostRoleAssingData.AssignAddOnsFromList();
+                GhostRoleAssingData.AssignAddOnsFromList();
                 Main.day++;
                 Main.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
             }

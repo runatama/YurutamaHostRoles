@@ -16,7 +16,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             typeof(MadAvenger),
             player => new MadAvenger(player),
             CustomRoles.MadAvenger,
-            () => RoleTypes.Tracker,
+            () => RoleTypes.Engineer,
             CustomRoleTypes.Madmate,
             10500,
             SetupOptionItem,
