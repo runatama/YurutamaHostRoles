@@ -88,7 +88,7 @@ public sealed class Mare : RoleBase, IImpostor
         {
             SendRPC();
             Player.SyncSettings();
-            _ = new LateTask(() => Player.SetKillCooldown(activate ? KillCooldownInLightsOut : OptionKillCooldown.GetFloat()), 0.2f, "MareKillCool");
+            _ = new LateTask(() => Player.SetKillCooldown(), 0.2f, "MareKillCool");
             Utils.NotifyRoles();
         }
     }
@@ -124,7 +124,7 @@ public sealed class Mare : RoleBase, IImpostor
                 {
                     ActivateKill(true);
                 }
-            }, !OptionCanSeeNameColor.GetBool() ? 0.5f : 4.0f, "Mare Activate Kill");
+            }, OptionCanSeeNameColor.GetBool() ? 0.5f : 4.0f, "Mare Activate Kill");
         }
         return true;
     }

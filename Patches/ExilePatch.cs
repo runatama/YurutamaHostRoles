@@ -126,19 +126,28 @@ namespace TownOfHost
                             pc.ResetKillCooldown();
                         }
                         Utils.AfterMeetingTasks();
-                        Utils.SyncAllSettings();
                         FallFromLadder.Reset();
                         Utils.CountAlivePlayers(true);
 
                         _ = new LateTask(() =>
-                        {
-                            Utils.NotifyRoles();
-                            foreach (var kvp in PlayerState.AllPlayerStates)
                             {
-                                kvp.Value.IsBlackOut = false;
-                                Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
-                            }
-                        }, 0.2f, "AfterMeetingNotifyRoles");
+                                Utils.NotifyRoles();
+                                foreach (var kvp in PlayerState.AllPlayerStates)
+                                {
+                                    if (kvp.Value == null) continue;
+                                    kvp.Value.IsBlackOut = false;
+                                    Utils.MarkEveryoneDirtySettings();
+                                }
+                                Utils.SyncAllSettings();
+                                foreach (var pc in Main.AllPlayerControls)
+                                {
+                                    if (pc)
+                                    {
+                                        pc.SetKillCooldown();
+                                    }
+                                }
+                            }, 0.2f, "AfterMeetingNotifyRoles");
+
                     }, 0.2f, "");
                 }, 0.7f, "");
             }

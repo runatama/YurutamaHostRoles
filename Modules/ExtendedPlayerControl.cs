@@ -691,13 +691,6 @@ namespace TownOfHost
                         break;
                 };
 
-            /*NextUpdete
-            if (role is CustomRoles.Amnesiac)
-            {
-                if (roleClass is Amnesiac amnesiac && !amnesiac.思い出した)
-                    text = CustomRoles.Sheriff.ToString();
-            }*/
-
             var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
 
             if (player.IsGorstRole())

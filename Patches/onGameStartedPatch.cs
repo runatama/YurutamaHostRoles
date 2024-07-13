@@ -142,6 +142,7 @@ namespace TownOfHost
             Guesser.Init();
             Autopsy.Init();
             Workhorse.Init();
+            GhostNoiseSender.Init();
             DemonicTracker.Init();
             DemonicCrusher.Init();
             PlayerSkinPatch.RemoveAll();

@@ -27,6 +27,45 @@ namespace TownOfHost
                     Logger.Info("キル能力解禁", "HideAndSeek");
                 }
             }
+            /*#if DEBUG
+                        if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !ExileControllerWrapUpPatch.AllSpawned && Options.AntiBlackOutSpawnVer.GetBool())
+                        {
+                            if (ExileControllerWrapUpPatch.SpawnTimer > 0)
+                            {
+                                ExileControllerWrapUpPatch.SpawnTimer -= Time.fixedDeltaTime;
+                                if (ExileControllerWrapUpPatch.SpawnTimer <= 0)
+                                    Main.AllPlayerControls.Do(pc => pc.KillFlash());
+                            }
+                            bool Alltp = true;
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                if (!PlayerState.GetByPlayerId(pc.PlayerId).TeleportedWithAntiBlackout)
+                                    Alltp = false;
+                            }
+                            if (!ExileControllerWrapUpPatch.AllSpawned && Alltp)
+                            {
+                                ExileControllerWrapUpPatch.AfterMeetingTasks();
+                                var rand = new System.Random();
+                                Main.AllPlayerControls.Do(pc =>
+                                {
+                                    var SpawnPoint = PlayerState.GetByPlayerId(pc.PlayerId).SpawnPoint;
+                                    List<Vector2> VanillaSpawnPositions = new()
+                                    {
+                                        new (-7, 85),  // 宿舎前通路
+                                        new (-7, -10),  // エンジン
+                                        new (-70, -115),  // キッチン
+                                        new (335, -15),  // 貨物
+                                        new (200, 105),  // アーカイブ
+                                        new (155, 0),  // メインホール
+                                    };
+                                    pc.SetKillCooldown();
+                                    pc.RpcResetAbilityCooldown();
+                                    pc.RpcSnapToForced(SpawnPoint == new Vector2(999f, 999f) ? VanillaSpawnPositions[rand.Next(0, VanillaSpawnPositions.Count)] / 10 : SpawnPoint);
+                                });
+                            }
+                            if (Alltp) ExileControllerWrapUpPatch.AllSpawned = true;
+                        }
+            #endif*/
         }
     }
     [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]

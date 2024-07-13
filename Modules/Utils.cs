@@ -188,7 +188,7 @@ namespace TownOfHost
             player.MarkDirtySettings();
             _ = new LateTask(() =>
             {
-                if (!kiai) state.IsBlackOut = false; //ブラックアウト解除
+                state.IsBlackOut = false; //ブラックアウト解除
                 player.MarkDirtySettings();
             }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
         }
@@ -1664,6 +1664,7 @@ namespace TownOfHost
             if (role == CustomRoles.Amanojaku) s += k + AddonInfo(role, "");
             //幽霊役職
 
+            if (role == CustomRoles.GhostNoiseSender) s += k + AddonInfo(role, "");
             if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role, "");
             if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role, "");
 
@@ -1749,42 +1750,45 @@ namespace TownOfHost
             }
             else if (GameStates.IsLobby)
             {
-                if (AmongUsClient.Instance.IsGamePublic)
-                    name = $"<color={Main.ModColor}>TownOfHost-K v{Main.PluginVersion}</color>\r\n" + name;
-                switch (Options.GetSuffixMode())
+                if (!GameStates.IsCountDown)
                 {
-                    case SuffixModes.None:
-                        break;
-                    case SuffixModes.TOH:
-                        name += $"\r\n<color={Main.ModColor}>TOH-K v{Main.PluginVersion}</color>";
-                        break;
-                    case SuffixModes.Streaming:
-                        name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color>";
-                        break;
-                    case SuffixModes.Recording:
-                        name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color>";
-                        break;
-                    case SuffixModes.RoomHost:
-                        name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color>";
-                        break;
-                    case SuffixModes.OriginalName:
-                        name += $"\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color>";
-                        break;
-                    case SuffixModes.Timer:
-                        if (GameStates.IsLocalGame) break;
-                        if (GameStates.IsCountDown) break;
-                        float timerValue = GameStartManagerPatch.GetTimer();
-                        if (timerValue < GameStartManagerPatch.Timer2 - 2 || GameStartManagerPatch.Timer2 < 25)
-                            GameStartManagerPatch.Timer2 = timerValue;
-                        timerValue = GameStartManagerPatch.Timer2;
-                        int minutes = (int)timerValue / 60;
-                        int seconds = (int)timerValue % 60;
-                        string Color = "<color=#00ffff>";
-                        if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
-                        if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
-                        if (minutes <= 0) Color = "<color=red>";//1分切ったら。
-                        name += $" <size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size>";
-                        break;
+                    if (AmongUsClient.Instance.IsGamePublic)
+                        name = $"<color={Main.ModColor}>TownOfHost-K v{Main.PluginVersion}</color>\r\n" + name;
+                    switch (Options.GetSuffixMode())
+                    {
+                        case SuffixModes.None:
+                            break;
+                        case SuffixModes.TOH:
+                            name += $"\r\n<color={Main.ModColor}>TOH-K v{Main.PluginVersion}</color>";
+                            break;
+                        case SuffixModes.Streaming:
+                            name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color>";
+                            break;
+                        case SuffixModes.Recording:
+                            name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color>";
+                            break;
+                        case SuffixModes.RoomHost:
+                            name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color>";
+                            break;
+                        case SuffixModes.OriginalName:
+                            name += $"\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color>";
+                            break;
+                        case SuffixModes.Timer:
+                            if (GameStates.IsLocalGame) break;
+                            if (GameStates.IsCountDown) break;
+                            float timerValue = GameStartManagerPatch.GetTimer();
+                            if (timerValue < GameStartManagerPatch.Timer2 - 2 || GameStartManagerPatch.Timer2 < 25)
+                                GameStartManagerPatch.Timer2 = timerValue;
+                            timerValue = GameStartManagerPatch.Timer2;
+                            int minutes = (int)timerValue / 60;
+                            int seconds = (int)timerValue % 60;
+                            string Color = "<color=#00ffff>";
+                            if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
+                            if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
+                            if (minutes <= 0) Color = "<color=red>";//1分切ったら。
+                            name += $" <size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size>";
+                            break;
+                    }
                 }
             }
             if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default) PlayerControl.LocalPlayer.RpcSetName(name);

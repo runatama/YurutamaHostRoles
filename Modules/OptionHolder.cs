@@ -97,6 +97,10 @@ namespace TownOfHost
         public static OptionItem MadmateVentMaxTime;
         public static OptionItem MadmateCanMovedByVent;
 
+        //試験的機能
+        public static OptionItem ExperimentalMode;
+        public static OptionItem ExMeetingblackout;
+
         //幽霊役職
         public static OptionItem GRRoleOp;
         public static OptionItem GRCanSeeOtherRoles;
@@ -526,6 +530,12 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard);
             RoleImpostor = BooleanOptionItem.Create(200006, "VRoleImpostor", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
                 .SetGameMode(CustomGameMode.Standard);
+
+            // 試験的機能
+            ExperimentalMode = BooleanOptionItem.Create(300000, "ExperimentalMode", false, TabGroup.MainSettings, false).SetColor(Palette.CrewmateSettingChangeText)
+                .SetGameMode(CustomGameMode.Standard);
+            ExMeetingblackout = BooleanOptionItem.Create(300001, "ExMeetingblackout", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
+                .SetGameMode(CustomGameMode.Standard);
             // Impostor
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
             {
@@ -626,6 +636,7 @@ namespace TownOfHost
 
             DemonicTracker.SetupCustomOption();
             DemonicCrusher.SetupCustomOption();
+            GhostNoiseSender.SetupCustomOption();
             //幽霊役職の設定
             GRRoleOp = BooleanOptionItem.Create(102001, "GRRoleOptions", false, TabGroup.GhostRoles, false)
                 .SetHeader(true)

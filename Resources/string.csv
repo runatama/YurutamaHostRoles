@@ -50,6 +50,7 @@
 "Mole","Mole","モグラ","鼹鼠","鼴鼠","Крот","Verruga","Прогресс"
 "ProgressKiller","ProgressKiller","プログレスキラー","进度杀手","進度殺手","Прогресс Убийца","Progresso Killer",""
 "EvilAddoer","EvilAddoer","イビルアドナー","","","","",""
+"ConnectSaver","ConnectSaver","コネクトセーバー"
 "Reloader","Reloader","リローダー"
 "#ImpostorName"
 
@@ -65,6 +66,7 @@
 "MadAvenger","MadAvenger","マッドアベンジャー","背叛的复仇者","背叛的復仇者","Безумный Мститель","Vingador Louco",""
 "MadWorker","MadWorker","マッドワーカー","","","","",""
 "MadTracker","MadTracker","マッドトラッカー","","","",""
+"MadChanger","MadChanger","マッドチェンジャー"
 "#MadmateName"
 
 "# 特殊クルー役職"
@@ -99,6 +101,7 @@
 "InSender","InSender","インセンダー","","","","",""
 "Staff","Staff","スタッフ","","","","",""
 "SwitchSheriff","SwitchSheriff","スイッチシェリフ"
+"NiceLogger","NiceLogger","ナイスロガー"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -132,6 +135,7 @@
 "Sidekick","Sidekick","サイドキック"
 "DoppelGanger","DoppelGanger","ドッペルゲンガー"
 "MassMedia","MassMedia","マスメディア"
+"Banker","Banker","バンカー"
 "#NeutralName"
 
 "#コンビネーション役職"
@@ -168,8 +172,11 @@
 "Workhorse","Workhorse","ワークホース","加班狂","加班狂","Работник","Burro de Carga",""
 
 "# GhostRole"
+"Ghostbuttoner","Ghostbuttoner","ゴーストボタナー"
+"GhostNoiseSender","GhostNoiseSender","ゴーストノイズセンダー"
 "DemonicTracker","DemonicTracker","デーモントラッカー"
 "DemonicCrusher","DemonicCrusher","デーモンクラッシャー"
+"AsistingAngel","AsistingAngel","アシスティングエンジェル"
 
 "# バフ属性"
 "watching","watching","ウォッチング","窥视者","觀察者","Наблюдатель","Observador","Observador"
@@ -250,6 +257,7 @@
 "ProgressKillerInfo","Let's eliminate them before they shine","働き者を見つけ、キルしよう","","","","",""
 "DriverInfo","Ruin the crew with Blade","ブレイドと共にクルーを破滅せよ","","","","",""
 "EvilAddoerInfo","","様々な能力を活用し、皆殺しにしよう"
+"ConnectSaverInfo","","君たちは繋がっている"
 "ReloaderInfo","Let's reload and shoot!!","即座にリロードして発射しよう"
 "#ImpostorInfo"
 
@@ -267,6 +275,7 @@
 "BraidInfo","Let's assist the Imposter, especially the driver","インポスター、特にドライバー様の援助をしよう","","","","",""
 "MadWorkerInfo","","タスクを済ませ、インポスターを勝利へ導こう","","","","",""
 "MadTrackerInfo","","能力を駆使し、インポスターの援助をしよう"
+"MadChangerInfo","","僕達...入れ替わってる...!?"
 "#MadmateInfo"
 
 "# 特殊クルー役職"
@@ -301,6 +310,7 @@
 "InSenderInfo","","せめてもの抵抗さ...!"
 "SwitchSheriffInfo","","インポスターを撃ち抜け。但しタスクも疎かにするな"
 "StaffInfo","let's do your tasks","タスクをこなそう"
+"NiceLoggerInfo","","センサーを上手く活用しよう"
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -337,6 +347,7 @@
 "JackaldollInfo","You are now on Team Jackals","ジャッカルの援助をしよう"
 "DoppelGangerInfo","","ちゃんと君を生きてやるから"
 "MassMediaInfo","","面白いネタ無いかなぁ..."
+"BankerInfo","","状況を見てうまく立ち回れ"
 "#NeutralInfo"
 
 "# HideAndSeek"
@@ -350,8 +361,11 @@
 "GMInfo","You are the Game Master","ゲームマスターだ","你是管理员，在旁边看戏吧","當吃瓜群眾在一旁看戲吧","Вы Мастер Игры","Você é o Mestre de Jogo (MJ)","Você é o Mestre do Jogo (GM)"
 
 "# GhostRoll"
+"GhostbuttonerInfo","","おっと。あぶないあぶない"
+"GhostNoiseSenderInfo","","ﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞ...ﾋﾟﾋﾟﾋﾟ!!"
 "DemonicTrackerInfo","","君の居場所はお見通し"
 "DemonicCrusherInfo","","どっかーん！"
+"AsistingAngelInfo","","君を勝たせてあげる..."
 
 "# 属性"
 "LastImpostorInfo","You are the last of us","残ったのはあなただけ","你是狼村最后的希望…","你是狼村最後的希望...","Ты последний предатель","Você é o último Impostor","Você é o último Impostor"
@@ -394,7 +408,8 @@
 "FireWorksInfoLong","Whenever you shapeshift, you can place a firework.\n After placing all fireworks, you can set them all off at once when you shapeshift once you become the last impostor.\nOnce you start placing fireworks, you cannot kill until the fireworks go off.","シェイプボタンを押すことで花火を最大5か所に設置可能。\nすべて設置した後、インポスター最後の生き残りになった時に再度シェイプボタンを押すことで一斉起爆できる。\n設定がOnになっていない限り,花火が設置されている間はキルできない。","(内鬼阵营):\n烟花商人可以安放烟花炸弹，造成范围性杀伤。\n烟花商人在变形状态下可以安放至多三个烟花炸弹。\n当存活的内鬼阵营玩家仅剩烟花商人且烟花炸弹安置完毕时，烟花商人可以在变形状态下引爆炸弹。\n烟花商人不可以进行常规击杀，除非安放并引爆所有烟花炸弹。\n烟花炸弹可以同样炸死烟花商人自己。\n如果烟花炸弹炸死所有存活玩家，内鬼阵营将获胜。","(偽裝者陣營):\n煙火工匠可以放置煙火來造成範圍性傷害，煙火工匠可以以變形來放置煙火，最多可以放置三個煙火，但是在煙火工匠放置完所有煙火前無法殺人\n如果他的隊友都已經死亡的話，煙火工匠便可以引爆煙火。\n如果煙火工匠也在爆炸中被炸死，偽裝者陣營同樣獲勝。","(Предатель):\nФейерверк может поставить несколько фейерверков с помощью Морфлинга. \nПосле установки всех фейерверков он может поджечь их все сразу с помощью использования Морфлинга, когда он является последним Предателем. \nТолько после этого он сможет убивать."," (Impostores):\nAo mudar de corpo, você coloca um fogo de artifício.\nDepois de colocar todos, você pode acender tudo de uma vez ao trocar de corpo sendo o último Impostor.\nQuando começar a colocar fogos de artifício, você não poderá matar até eles explodirem."," (Impostores):\nAo mudar de corpo, você coloca um fogo de artifício.\nDepois de colocar todos, você pode acender tudo de uma vez ao trocar de corpo sendo o último Impostor.\nQuando começar a colocar fogos de artifício, você não poderá matar até eles explodirem."
 "SerialKillerInfoLong","You have a shorter kill cooldown than other impostors', but you will die if you don't kill before the end of your shapeshift cooldown.","キルクールが他のインポスターに比べて短い反面、変身のクールタイムが明ける前にキルしないと自爆する。","(内鬼阵营):\n嗜血杀手的冷却因为他的杀戮欲望而更快。\n嗜血杀手若不能在一定时间内进行击杀，\n就会因承受不了自己的杀戮欲望而自杀。","(偽裝者陣營):\n嗜血殺手的殺人冷卻是所有偽裝者中最短的一個。\n但是如果嗜血殺手沒有在自殺倒數歸零前再殺人，嗜血殺手將會自殺。","(Предатель):\nУ Серийного Убийцы еще более короткий откат убийства. \nНо если он не совершит убийство в установленный срок, то он мгновенно убьет сам себя.","(Impostores):\nO seu tempo de recarga (abate) é menor, porém, se você não matar no prazo morrerá no fim do seu tempo de mutação.","(Impostores):\nO seu tempo de morte é menor, porém, se você não matar no prazo morrerá no fim do seu tempo de mutação."
 "ShapeMasterInfoLong","ShapeMaster has no Shapeshift cooldown.\nOn the other hand, their default Shapeshift duration is shorter (default: 10s).","シェイプシフトに特化したインポスター。\n変身持続時間が通常のシェイプシフターよりも短い半面、変身解除後のクールダウンがなく無限に変身することができる。\n変身継続時間は設定で変更が可能。","(内鬼阵营):\n千面鬼没有变形冷却与次数限制。\n在默认设置下，千面鬼变形的持续时间更短(10秒)。","(偽裝者陣營):\n百變怪相較於普通變形者，百變怪沒有變形冷卻，但是相較於普通變形者他的變形時間會更短。","(Предатель):\nШпион не имеет отката восстановления Морфа. \nС другой стороны, длительность Морфа по умолчанию стоит куда меньше. \nПродолжительность трансформации можно изменить в настройках.","(Impostores):\nVocê não tem tempo de recarga (mutação).\nPor outro lado, o tempo padrão de mutação é menor (padrão: 10s).","(Impostores):\nVocê não tem tempo para trocar de corpo.\nPor outro lado, o tempo padrão de metamorfose é menor (padrão: 10s)."
-"MareInfoLong","","停電に強いインポスター。\n停電中、移動速度が一定数速くなり、キルクールも減少するが、設定によって名前も赤くなってしまう。""VampireInfoLong","You can make delayed kills by biting others.\n(Bitten players will die either after the delay is over or the moment a meeting is called before then.)\nIf you bite a [Bait](#Bait), there is no delay, and you are forced to self-report.","プレイヤーを噛む事で遅延キルが可能。\n(時間が経過or会議が始まると死亡する。)\nベイトの場合即死亡し、強制的に通報が入る。","(内鬼阵营):\n在吸血鬼的吸血的对象不会立刻死亡，而是延迟一段时间发生。\n若在这段时间内进入会议阶段，该目标将立即死亡。\n当被击杀目标为诱饵时，吸血鬼的击杀被视为普通击杀。","(偽裝者陣營):\n當吸血鬼嘗試殺人時，嘗試被殺的目標並不會立刻死亡，而是過一段時間之後突然暴斃，\n如果在這段時間內進入會議，被吸血的玩家將會立刻死亡。\n請注意: 如果吸血鬼的目標為誘餌，吸血鬼仍舊會報告誘餌的屍體。","(Предатель):\nВампир может кусать игроков, а не убивать. \nУкушенный игрок умирает спустя какое-то время, или же умирает сразу как только произойдёт срочное собрание. \nНо если он укусит [Приманку](#Bait) он совершит обычное убийство и он вынужден сразу зарепортить труп.","(Impostores):\nVocê pode matar ao morder outros.\nJogadores mordidos vão morrer depois de um tempo, ou caso uma reunião seja chamada antes.\nSe você morder uma [Isca], não terá delay e você será obrigado a reportar o corpo imediatamente.","(Impostores):\nVocê pode matar ao morder outros.\nJogadores mordidos vão morrer depois de um tempo, ou caso uma reunião seja chamada antes.\nSe você morder um [Isca], não terá delay e você será obrigado a reportar o corpo imediatamente."
+"MareInfoLong","","停電に強いインポスター。\n停電中、移動速度が一定数速くなり、キルクールも減少するが、設定によって名前も赤くなってしまう。"
+"VampireInfoLong","You can make delayed kills by biting others.\n(Bitten players will die either after the delay is over or the moment a meeting is called before then.)\nIf you bite a [Bait](#Bait), there is no delay, and you are forced to self-report.","プレイヤーを噛む事で遅延キルが可能。\n(時間が経過or会議が始まると死亡する。)\nベイトの場合即死亡し、強制的に通報が入る。","(内鬼阵营):\n在吸血鬼的吸血的对象不会立刻死亡，而是延迟一段时间发生。\n若在这段时间内进入会议阶段，该目标将立即死亡。\n当被击杀目标为诱饵时，吸血鬼的击杀被视为普通击杀。","(偽裝者陣營):\n當吸血鬼嘗試殺人時，嘗試被殺的目標並不會立刻死亡，而是過一段時間之後突然暴斃，\n如果在這段時間內進入會議，被吸血的玩家將會立刻死亡。\n請注意: 如果吸血鬼的目標為誘餌，吸血鬼仍舊會報告誘餌的屍體。","(Предатель):\nВампир может кусать игроков, а не убивать. \nУкушенный игрок умирает спустя какое-то время, или же умирает сразу как только произойдёт срочное собрание. \nНо если он укусит [Приманку](#Bait) он совершит обычное убийство и он вынужден сразу зарепортить труп.","(Impostores):\nVocê pode matar ao morder outros.\nJogadores mordidos vão morrer depois de um tempo, ou caso uma reunião seja chamada antes.\nSe você morder uma [Isca], não terá delay e você será obrigado a reportar o corpo imediatamente.","(Impostores):\nVocê pode matar ao morder outros.\nJogadores mordidos vão morrer depois de um tempo, ou caso uma reunião seja chamada antes.\nSe você morder um [Isca], não terá delay e você será obrigado a reportar o corpo imediatamente."
 "WarlockInfoLong","The Warlocks can curse another players before Shapeshift.\nWhen they Shapeshift after cursing, the player next to the cursed is killed no matter how far away they are.\nWhile Shpashifting, you can perform normal kills.\nAlso, only one player can be cursed per turn.","キルをすると一番近くの人に呪いがかかる。\n次から変身ボタンを押すと、呪われた人が一番近い人をキルする。\n変身した場合、普通のキルになる。\nまた、１ターンに１人しか呪うことはできない。","(内鬼阵营):\n术士在不变形状态下击杀时，目标会被下咒。\n当术士变形时，最靠近被下咒玩家的船员将会被击杀。","(偽裝者陣營):\n術士可以通過殺人鍵下咒一個目標，如果目標身上出現盾牌破碎的效果代表下咒成功。\n如果術士變形，那麼被下咒的玩家將會立刻殺死一名離他最近的玩家，\n如果術士未在進入會議前咒殺，則詛咒失效。","(Предатель):\nКолдун может проклинать игроков. \nКогда он Морфится после проклинания какого либо игрока, то проклятый игрок убивает любого игрока который находится по близости, независимо от того насколько далеко он находится. \nТак же во время Морфа он совершает обычные убийства.","(Impostores):\nVocê pode amaldiçoar outros jogadores ao mutar.\nQuando você se transformar novamente depois de amaldiçoar alguém, a pessoa mais próxima do jogador amaldiçoado será morta, não importa o quão longe esteja.\nEnquanto alguém etiver amaldiçoado você pode matar normalmente.\nAlém disso, apenas uma pessoa pode ser amaldiçoada por rodada.","(Impostores):\nVocê pode amaldiçoar outros jogadores ao mutar.\nQuando você se transformar novamente depois de amaldiçoar alguém, a pessoa mais próxima do jogador amaldiçoado será morta, não importa o quão longe esteja.\nEnquanto alguém etiver amaldiçoado você pode matar normalmente.\nAlém disso, apenas uma pessoa pode ser amaldiçoada por rodada."
 "WitchInfoLong","Your kill alternates between ""Kill"" and ""Spell"" by actions.\nWhen you kill with your ""Spell"", you bewitch the player.\nPlayers who have been bewitched have a † mark displayed next to them and must vote out the Witch within that meeting, or they will die after the meeting ends.","キルするorベントに入るorシェイプシフトすると「Kill」と「Spell」が切り変わる。\nSpellの表示でキルすると呪うことが出来る。\nワンクリックボタン設定の時、キルボタンが光っている状態でシェイプボタンを押すと、一番近くにいるプレイヤー(インポスターを除く)を呪うことが出来る。\n呪いをかけられた人は会議で「†」が付き魔女を追放しなければ会議後に死亡する。","(内鬼阵营):\n女巫会在击杀模式与诅咒模式间来回切换，在诅咒模式下可以对目标进行诅咒。\n会议时，被诅咒的目标会带有对全员可见的诅咒标记「†」。如果女巫未在会议时被投票放逐，被诅咒的目标将会在会议结束后死亡。","(偽裝者陣營):\n女巫擁有兩種殺人方式: 詛咒與殺人。會議時，全部玩家都可看到被詛咒的玩家的名字旁有個「†」符號。如果會議結束時女巫沒有被逐出或被殺死，則被詛咒的玩家死亡。\n根據房主設定，女巫的攻擊模式分為通風管切換以及殺人切換。","(Предатель):\nВедьма может совершить убийство или заклинание по очереди. \nИгроки, которые были проклятые Ведьма на голосовании помечаются красным крестом справа от никнейма, \nИ если Ведьма не изгнан, все проклятые им игроки умирают сразу же после голосования.","(Impostores):\nVocê pode alternar entre ""Matar"" e ""Feitiço"".\nQuando você usa seu ""Feitiço"", você enfeitiça o jogador.\nQuem for enfeitiçado tem uma marca de † ao lado do nome.\nÉ necessário exilar a bruxa antes da reunião acabar, se não o enfeitiçado morrerá ao fim da reunião.",""
 "MafiaInfoLong","At the start of the game, you are unable to kill even though you will see the kill button.\nAfter your fellow impostors are dead, you will be able to kill.","初期状態ではキルが封じられている。\n仲間の生存人数が一定人数以下になると、自身もキルが可能になる。","(内鬼阵营):\n黑手党在游戏中有其他内鬼存活时不可以进行击杀。","(偽裝者陣營):\n當黑手黨在場且有其他偽裝者存活時不可以殺人，但是當隊友都死亡時他就可以開始殺人。","(Предатель):\nИзначально Мафиози не может убивать. \nОн сможет убивать после того, как все Предатели кроме него будут убиты или изгнаны.","(Impostores):\nNo começo do jogo, você não pode matar.\nDepois que seus companheiros Impostores forem mortos, você será capaz de matar.","(Impostores):\nNo começo do jogo, você não pode matar.\nDepois que seus companheiros Impostores forem mortos, você será capaz de matar."
@@ -421,6 +436,7 @@
 "DecrescendoInfoLong","","設定回数キルするとキルクール増加等の弱化を受けてしまう。また、追加でキルする度にさらに弱化していく。\n弱化が始まるキル数が多いほど、弱化の効果が強くなる。","","","","",""
 "DriverInfoLong","","ドライバーとブレイドのコンビネーション役職。\nブレイドはクルーだがインポスターの味方をする。インポスターと互いに認識できない。\nブレイドが既定のタスク数を完了させると、ドライバーに様々な能力が付与される。","","","","",""
 "EvilAddoerInfoLong","","イビルアドナー専用で属性が付与される。\n同じ属性が重複している場合、重複した属性はイビルアドナーの設定が優先される。\nただし、ラストインポスターで付与された属性はラストインポスターの設定が優先される。"
+"ConnectSaverInfoLong","","会議で自投票するとコネクトモードに変更できる。\nコネクトモード中に自身以外の2名に投票するとその2名をコネクトすることが出来る。\n次のタスクターン中にコネクト相手のどちらかをキルすると\nコネクトされた人を両方キルすることが出来る。"
 "ReloaderInfoLong","","ワンクリックボタンを使用することでキルクールダウンが設定値にリロードされる。"
 "#ImpostorInfoLong"
 
@@ -437,6 +453,7 @@
 "MadAvengerInfoLong","You are a crewmate, but you act as the impostors' ally.\n","クルーだがインポスターの味方をする。\nインポスターと互いに認識できない。\n1.タスクを全て完了している\n2.生存人数が設定数以上\n3.インポスターが全滅している\n以上の条件を全て満たしている時、ベントに入ることで革命会議を開くことが出来る。\nただし、タスク完了後に全ての条件を満たしていない状態でベントに入ると自殺してしまう。\n革命会議では会議を開いたマッドアベンジャーのみが投票でき、投票で能力を発動する役職も能力を使用できない。\nマッドアベンジャーが生存しているキル可能ニュートラルのプレイヤー全員に投票することで、インポスターが逆転勝利できる。\nただし、キル可能ニュートラルではないプレイヤーに投票すると即自爆し、会議が終了する。","","","","",""
 "MadWorkerInfoLong","","クルーだがインポスターの味方をする。\nインポスターと互いに認識できない。\n生存中にタスクを全て完了させると、その時点でインポスター勝利できる。","","","","",""
 "MadTrackerInfoLong","","クルーだがインポスターの味方をする。\nインポスターと互いに認識できない。\nベントが使えない代わりにトラック能力を持つ。\nタスクはない。"
+"MadChangerInfoLong","","クルーだがインポスターの味方をする。\nキルボタンで対象を決めてから\nシェイプシフトを行うことで対象者二人の位置を入れ替えることが出来る。\n対象者が同一人物,キルでの対象者,キルでの対象者が死亡済みの場合は自身が対象となる。\n対象者がテレポートできない状態であれば能力は発動されない。"
 "#MadmateInfoLong"
 
 "# 特殊クルー役職"
@@ -471,6 +488,7 @@
 "InSenderInfoLong","","キルされた時に、自身が自身の死体をレポートする。"
 "StaffInfoLong","","スタッフが生存中にタスクを終えていない状態で試合が終了した場合、スタッフはクルーメイト陣営として勝利することができない。\nスタッフのタスクはクルーメイトのタスクには含まれない。\nベントを使用する事ができる。(設定あり)"
 "SwitchSheriffInfoLong","","ベントに入ることでタスクモードとシェリフモードを切り替えることが出来る。\nタスクモード中にはシェリフのキル能力が使用できない。\nシェリフモードではタスクが行えない。"
+"NiceLoggerInfoLong","","シェイプシフトボタンを使用することで一番近くにあるドアにセンサーを設置することが出来る。\nセンサーを設置したドアの付近にいるプレイヤーを検知し、会議時に通知を受け取ることが可能。\n会議後、センサーは再設置する必要がある。\nセンサーがプレイヤーを検知すると、次の検知までに一定時間クールタイムが発生する"
 "#CrewmateInfoLong"
 
 "# ニュートラル役職"
@@ -494,6 +512,7 @@
 "JackaldollInfoLong","","ジャッカル陣営の味方をする。\nジャッカル、ジャッカルマフィアと互いに認識できる。\nご主人が全滅した場合設定に応じて役職が変わったりなどする。\nタスクはない。"
 "DoppelGangerInfoLong","","シェイプ対象以外キルが出来ない。\nまた、シェイプシフトを解除することもできない。\nシェイプシフト中にカウントが0.1/s溜まり、シェイプ対象をキルすると、通報までカウントが1/s貯まる。\n追加勝利に必要なカウントを超えゲーム終了まで生存していると追加勝利、\n勝利に必要なカウントに達するとその時点で自身が勝利する。\nベントやサボタージュは使用不可能"
 "MassMediaInfoLong","","キルボタンを使ってその人を追跡することが出来る。\nマスメディアは追跡相手の位置が分かるが、追跡相手が近いと視界が真っ暗になる。\n追跡相手がキルされ、自身が通報した場合、\n誰が追跡相手をキルしたのかを投票で推測することが出来る。\n推測を行った場合は会議が即座に終了する。スキップの場合は推測が行われない。\n推測があっていた場合、マスメディアの勝利、間違っていればマスメディアが死亡する。\nまた、情報機器を使用することが出来ない。追跡相手等は会議でリセットされる。\nマスメディアが対象の死体を通報する時にのみ、属性(役職付与属性含む)の効果は適応されない"
+"BankerInfoLong","","タスク、キルを行うことでポイントが貯まる。\nモード変更、ターン開始時にポイントを消費する。\nベントに入ることでキルモード,タスクモードを切り替えることが出来る。\n試合終了時点で一定ポイント所持していると追加勝利。"
 "#NeutralInfoLong"
 
 "# HideAndSeek"
@@ -504,8 +523,11 @@
 "GMInfoLong","(None):\nThe GM (Game Master) is an observer role.\nTheir presence has no effect on the game, and all players know who the GM is. The GM role will be assigned to the host, who will automatically become a ghost at the start of the game.","(なし):\nGM(ゲームマスター)はオブザーバー役職である。\nGMはゲーム自体には何の影響も与えず、すべてのプレイヤーは誰がGMであるかがわかる。必ずホストに割り当てられ、始めから幽霊状態になっている。","（无阵营）：\nGM(管理员)是房主专属的观察者职业。从游戏开始时便以幽灵状态在旁边观战。 \n该职业本身对游戏没有影响，且会议中对所有玩家可见。 ","（不屬於任何陣營）：\nGM(遊戲大師)是遊戲的觀察者, \nGM對遊戲進行過程沒有影響,所有玩家都知道GM是誰,該職業絕對會分配給房主。\nGM(遊戲大師)從開始遊戲時就處於死亡狀態。","(Никто):\nМастер Игры — это роль, которая наблюдает за игрой в роле призрака. \nОн не влияет на игру, и все игроки всегда знают кто Мастер Игры. Всегда назначается только хосту лобби и становится призраком в самом начале игры.","(Nenhum): \nO Mestre de Jogo é uma classe de observação. \nA sua presença não afeta o jogo, e todos os jogadores sabem quem é o MJ. A classe de MJ será dada ao anfitrião, que será um fantasma desde o começo do jogo.",""
 
 "# GhostRole"
+"GhostbuttonerInfoLong","","(幽霊役職):\n死亡したクルー陣営にしか付与されない。\n守護能力を発動すると緊急会議を起こすことが出来る。"
+"GhostNoiseSenderInfoLong","","(幽霊役職):\n死亡したクルー陣営にしか付与されない。\n守護能力を発動すると対象者が死亡した時対象者がノイズメーカーの能力を発揮する。\n死体が残らない死に方をした場合、能力は発揮されない"
 "DemonicTrackerInfoLong","","(幽霊役職):\n死亡したマッドメイトにしか付与されない。\n守護能力の使用相手の居場所がインポスターに通知されるようになる。"
 "DemonicCrusherInfoLong","","(幽霊役職):\n死亡したマッドメイトにしか付与されない。\n守護能力を発動しようとすると\n一定時間生存者全員情報機器が使えなくなる。"
+"AsistingAngelInfoLong","","(幽霊役職):\n死亡したクルー/ニュートラルにしか付与されない。\n初めての守護能力を使用した相手が勝利すると自身も追加勝利する。\n\n二回目以降守護能力を使用すると、\n(守護能力の対象が1回目と同じなら)\n一定時間キルガードを付与する。\n(1回目と違うなら)\n発動した時の位置が1回目の能力の使用者に通知される。\n能力を使用した場合、次のクールダウンが増加する。\n\n幽霊,幽霊役職設定に関わらず他人の役職などが見えない。\n元の勝利条件は無くなり、タスクもなくなる。"
 
 "# 属性"
 "LastImpostorInfoLong","(Add-ons):\nAn Add-on granted to the last Impostor remaining.\nKill cooldown is reduced according to this setting.\nNot granted to Bounty Hunters, Serial Killers, or Vampires.","(属性):\n最後のインポスターに付与される属性。\nキルクールが設定した時間まで短くなる。\n一部インポスター役職には付与されない。","（效果）:\n这个效果在内鬼仅剩一人时赋予该内鬼。\n使其击杀冷却缩短。\n该效果对赏金猎人、嗜血杀手以及吸血鬼不适用。","(附加效果):\n該效果給予在場上的最後一位偽裝者，擁有該效果的偽裝者刀人冷卻時間會變短，該效果不會給予:\n賞金獵人, 連環殺手或吸血鬼 (可以設定冷卻)","(Атрибут):\nАтрибут, присваивается последнему Предателю. \nВремя отката убийства становится меньше, чем обычно. \nНе назначается Охотнику за головами, Серийному убийце или Вампиру.","(Atributos): \nUm Atributo dado ao último Impostor. \nO tempo de recarga (abate) é reduzido segundo a configuração. \nNão é dado para Caçadores de Recompensas, Serial Killers ou Vampiros.",""
@@ -597,6 +619,8 @@
 "ApplyBanList","Apply BanList","BANリストを適用する","启用封禁名单","啟用封禁名單","Применить файл с забаненными игроками (BanList)","Aplicar Lista de Banimentos (BanList)",""
 "EnableDebugMode","Enable Debug Mode","デバッグモードを有効化する","开启调试模式","啟用偵錯模式","Включить режим отладки","Ativar Modo de Depuração",""
 "EnableTOHkDebugMode","Enable Debug Mode","TOH-Kのデバッグモードを有効化する","开启调试模式","啟用偵錯模式","Включить режим отладки","Ativar Modo de Depuração",""
+"ExperimentalMode","","試験的設定"
+"ExMeetingblackout","","会議前に視界を暗転させる"
 
 "## マップ改造"
 "MapModification","Map Modifications","マップ改造","地图修改","","Модификации для карт","Modificações do Mapa",""
@@ -876,6 +900,7 @@
 "EvillgamblercollectkillCooldown","SuccessKillCooldown","成功時のキルクール","","","","",""
 "EvillgamblernotcollectkillCooldown","FailureKillCooldown","失敗時のキルクール","","","","",""
 "NotifierProbability","Rect","フラッシュが発生する確率","","","","",""
+"ConnectSaverPlayerCount","","能力発動に必要な生存人数"
 "LimiterTarnLimit","Limit Tarn","自爆モードになるまでの日数","","","","",""
 "ProgressKillerMadseen","Can see Task completed MadMate","タスクを終えたマッドメイト系役職が分かる","","","","",""
 "ProgressWorkhorseseen","Can see Workhorse","ワークホースのプレイヤーが分かる","","","","",""
@@ -911,6 +936,7 @@
 "MadAvengerReserveTimeCanVent","Can Use Nomal Vent","革命準備が出来るまでベントが使える","","","","",""
 "MadBaitRandomReport","Impostor Kill Random Report","ｲﾝﾎﾟｽﾀｰがキルしたら通報者をランダムにする"
 "MadBaitIgnoreImpostor","IgnoreImpostor","対象からｲﾝﾎﾟｽﾀｰを除外する"
+"MadChangerKillTargetCooldown","","キル選択クールダウン"
 
 "## CrewMate RoleSetting"
 "BaitComms","","通信妨害中は能力を発揮できない"
@@ -956,6 +982,7 @@
 "Ucount","Fortune-telling times","占い可能回数","","","","",""
 "Votemode","Fortune telling method","占い方法","","","","",""
 "TellerCollectRect","Rect","占い成功率","","","","",""
+"NiceLoggerCoolTime","","センサーのクールタイム"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
@@ -993,6 +1020,15 @@
 "DoppelGangerWinCount","","追加勝利に必要なカウント"
 "DoppelGangerWin","","単独勝利に必要なカウント"
 "MassMediaShikai","Vision","追跡相手が近くにいる場合の視界"
+"BankerFarstCoin","","最初に所持しているポイント"
+"BankerTaskAddCoin","","タスクを行うことで手に入るポイント"
+"BankerKillAddCoin","","キルすることで手に入るポイント"
+"BankerChengeCoin","","モード変更で消費するポイント"
+"BankerTranRemoveCoin","","ターン開始時に消費するポイント"
+"BankerWincoin","","勝利に必要なポイント"
+"BankerDieCanWin","","死亡していても勝利できる"
+"BankerDieRemoveCoin","","死亡時に消費するポイント"
+"BankerDieRemoveTarn","","死亡状態でターン開始時に消費するポイント"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール","","","","",""
@@ -1072,7 +1108,13 @@
 "GRCanSeeNumberOfButtonsOnOthers","Ghost Can See Num Emergency Meetings","他人の緊急ボタン残数を見ることが出来る"
 "GRCanSeeKillflash","GhostRole Can See KillFlash","キルフラッシュを見ることが出来る"
 "GhostButtonerCoolDown","CoolDown","クールダウン"
+"GhostButtonerCount","","会議を開ける回数"
+"GhostNoiseSenderTime","","効果時間"
 "DemonicCrusherAbilityTime","AbilityTime","効果時間"
+"AsistingAngelCoolDown","First CoolDown","最初のクールダウン"
+"AsistingAngelAddClowDown","Add CoolDown","追加されていくクールダウン"
+"AsistingAngelGuardtime","Guard time","ガードされる時間"
+"AsistingAngelLimitDay","","アシスト対象の選択期限"
 
 "## ランダムスポーンポイント"
 "Junction","Junction","三叉路","","","","",""
@@ -1117,6 +1159,7 @@
 "Mode.Balancer","Balancer Mode","<color=#cff100>天秤</color>モード","","","","",""
 "Mode.MeetingSheriff","Sheriff Mode","<color=#f8cd46>正義執行</color>モード","","","","",""
 "Mode.Madoonna","Confession Mode","<color=#f09199>告白</color>モード","","","","",""
+"Mode.ConnectSaver","Connect Mode","<color=#ff1919>コネクト</color>モード"
 
 "Vote.Divied","Vote→Divination ability to activate","誰かに投票→占い能力発動","","","","",""
 "Vote.Balancer","Vote(Select two)→Balancer ability to activate","誰かに投票(2人選択)→天秤の能力発動","","","","",""
@@ -1149,6 +1192,7 @@
 "Skill.WhiteHacker","{0} as a target for tracking.\nYou can Abilities the remaining {1} times.","{0}にGPSを仕掛けました。\nGPSは残り{1}機あります。"
 "Skill.Witchf","","【====呪われたクルーがいるぞ!===】"
 "Skill.WitchO","","が呪われているようだ..."
+"Skill.ConnectSaver","","選択を終了しました。"
 
 "OnePlayer","the first person","一人目","","","","",""
 "TowPlayer","second person","二人目","","","","",""
@@ -1167,6 +1211,10 @@
 "InfoMenu2","","メニューの二枚目に切り替わりました"
 "InfoRole","","役職能力発動モードになりました。\nそのまま自投票すると自投票します。"
 "InfoVote","","InfoModeを解除しました"
+
+"NiceLoggerTitle","","ドアログ情報"
+"NiceLoggerAbility","","\n<u>{0}が{1}のセンサーを通過した。</u>"
+"NiceLoggerAbility2","","\n<u>誰も{0}のセンサーを通過しなかったようだ。</u>"
 
 "## GuesserMeg"
 "GuessError1","I think I'm typing something wrong. /bt {id} {name of role} to shoot.","おっと。撃ち方を間違えているようだね。\n /bt ID 役職名\nで撃つんだ。IDは各プレイヤーの左にある黄色い数字だ。","","","","",""
@@ -1196,6 +1244,7 @@
 "LimiterBom","Looks like I'm going to die here...","どうやらここまでのようだ...","","","","",""
 "MadAvengerchallengeMeeting","If your masters were wiped out, you could start a revolutionary meeting.","ご主人が全滅していれば革命会議を起こせるぞ","","","","",""
 "MadAvengerreserve","Be prepared when the time comes.","その時が来るまで準備しろ","","","","",""
+"CS.Target","★Taeget★","★ターゲット★"
 
 "## かくれんぼ設定"
 "HideAndSeekOptions","Hide and Seek Settings","かくれんぼの設定","躲猫猫设置","躲貓貓設定","Настройки Пряток","Configurações do Esconde-Esconde",""

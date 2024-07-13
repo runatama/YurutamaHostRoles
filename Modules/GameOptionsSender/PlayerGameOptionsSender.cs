@@ -82,6 +82,9 @@ namespace TownOfHost.Modules
 
             AURoleOptions.ShapeshifterLeaveSkin = false;//スキンはデフォではOFFにする
 
+            AURoleOptions.NoisemakerImpostorAlert = true;
+            AURoleOptions.NoisemakerAlertDuration = GhostNoiseSender.NoisTime.GetFloat();
+
             AURoleOptions.SetOpt(opt);
             var state = PlayerState.GetByPlayerId(player.PlayerId);
             opt.BlackOut(state.IsBlackOut);
@@ -250,6 +253,8 @@ namespace TownOfHost.Modules
             //幽霊役職用の奴
             if (player.IsGorstRole())
             {
+                if (player.Is(CustomRoles.GhostNoiseSender))
+                    AURoleOptions.GuardianAngelCooldown = GhostNoiseSender.CoolDown.GetFloat() == 0f ? 0.1f : GhostNoiseSender.CoolDown.GetFloat();
                 if (player.Is(CustomRoles.DemonicTracker))
                     AURoleOptions.GuardianAngelCooldown = DemonicTracker.CoolDown.GetFloat() == 0f ? 0.1f : DemonicTracker.CoolDown.GetFloat();
                 if (player.Is(CustomRoles.DemonicCrusher))

@@ -64,7 +64,7 @@ namespace TownOfHost
                 return;
             }
 
-            var pc = Utils.GetPlayerById(__instance.PlayerId);
+            var pc = __instance.Object;
             CustomRoles? RoleNullable = pc?.GetCustomRole();
             if (RoleNullable == null) return;
             CustomRoles role = RoleNullable.Value;

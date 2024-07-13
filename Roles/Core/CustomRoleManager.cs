@@ -71,27 +71,26 @@ public static class CustomRoleManager
                         CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                         return false;
                     }
+            }
+            //属性ガードがある場合はCankillのみ先にfalseで返す。
+            if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
+                if (Main.Guard[attemptTarget.PlayerId] > 0)
+                    info.CanKill = false;
 
-                //属性ガードがある場合はCankillのみ先にfalseで返す。
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                        info.CanKill = false;
+            // キラーのキルチェック処理実行
+            killer.OnCheckMurderAsKiller(info);
 
-                // キラーのキルチェック処理実行
-                killer.OnCheckMurderAsKiller(info);
-
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
+            if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
+            {
+                if (Main.Guard[attemptTarget.PlayerId] > 0)
                 {
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                    {
-                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
-                        Main.Guard[attemptTarget.PlayerId]--;
-                        attemptKiller.SetKillCooldown(target: attemptTarget);
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
-                        Logger.Info($"{attemptTarget.GetNameWithRole()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
-                        Utils.NotifyRoles();
-                        return false;
-                    }
+                    CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
+                    Main.Guard[attemptTarget.PlayerId]--;
+                    attemptKiller.SetKillCooldown(target: attemptTarget);
+                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
+                    Logger.Info($"{attemptTarget.GetNameWithRole()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
+                    Utils.NotifyRoles();
+                    return false;
                 }
             }
         }
@@ -101,13 +100,26 @@ public static class CustomRoleManager
         {
             if (appearanceTarget.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Noisemaker)
             {
-                foreach (var pc in Main.AllPlayerControls)
-                {
-                    if (pc == PlayerControl.LocalPlayer)
-                        appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
-                    else
-                        appearanceTarget.RpcSetRoleDesync(RoleTypes.Noisemaker, pc.GetClientId());
-                }
+                if (AmongUsClient.Instance.AmHost)
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer)
+                            appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
+                        else
+                            appearanceTarget.RpcSetRoleDesync(RoleTypes.Noisemaker, pc.GetClientId());
+                    }
+            }
+            if (GhostNoiseSender.Nois.ContainsValue(appearanceTarget.PlayerId))
+            {
+                if (AmongUsClient.Instance.AmHost)
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer)
+                            appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
+                        else
+                            appearanceTarget.RpcSetRoleDesync(RoleTypes.Noisemaker, pc.GetClientId());
+                        appearanceTarget.SyncSettings();
+                    }
             }
             //MurderPlayer用にinfoを保存
             CheckMurderInfos[appearanceKiller.PlayerId] = info;
@@ -355,6 +367,9 @@ public static class CustomRoleManager
 
                 case CustomRoles.Amanojaku:
                     Amanojaku.Add(pc.PlayerId);
+                    break;
+                case CustomRoles.GhostNoiseSender:
+                    GhostNoiseSender.Add(pc.PlayerId);
                     break;
                 case CustomRoles.DemonicTracker:
                     DemonicTracker.Add(pc.PlayerId);
@@ -677,6 +692,7 @@ public enum CustomRoles
     DemonicCrusher,
     DemonicTracker,
     //CrewMateGhost
+    GhostNoiseSender,
 }
 public enum CustomRoleTypes
 {

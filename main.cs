@@ -339,6 +339,7 @@ namespace TownOfHost
                     // 幽霊役職
                     {CustomRoles.DemonicTracker,"#824880"},
                     {CustomRoles.DemonicCrusher,"#522886"},
+                    {CustomRoles.GhostNoiseSender, "#5aa698"},
 
                     {CustomRoles.NotAssigned, "#ffffff"}
                 };

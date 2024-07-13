@@ -848,6 +848,7 @@ namespace TownOfHost
 
                 //幽霊
                 roleCommands.Add(CustomRoles.DemonicTracker, "DTr");
+                roleCommands.Add(CustomRoles.GhostNoiseSender, "NiS");
                 roleCommands.Add(CustomRoles.DemonicCrusher, "DCr");
 
                 // HAS

@@ -30,6 +30,7 @@ namespace TownOfHost
 
             if (__instance.IsGorstRole())
             {
+                GhostNoiseSender.UseAbility(__instance, target);
                 DemonicTracker.UseAbility(__instance, target);
                 DemonicCrusher.UseAbility(__instance);
                 return true;
@@ -598,9 +599,13 @@ namespace TownOfHost
 
             foreach (var kvp in PlayerState.AllPlayerStates)
             {
-                kvp.Value.IsBlackOut = true;
-                if (Utils.GetPlayerById(kvp.Key) != null)
-                    Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
+                if (Options.ExMeetingblackout.GetBool())
+                {
+                    kvp.Value.IsBlackOut = true;
+                    if (Utils.GetPlayerById(kvp.Key) != null)
+                        Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
+                }
+
                 var pc = Utils.GetPlayerById(kvp.Key);
                 if (pc == null) continue;
                 kvp.Value.LastRoom = pc.GetPlainShipRoom();
@@ -659,6 +664,16 @@ namespace TownOfHost
             MeetingRoomManager.Instance.AssignSelf(__instance, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
             __instance.RpcStartMeeting(target);
+
+            _ = new LateTask(() =>
+                {
+                    foreach (var kvp in PlayerState.AllPlayerStates)
+                    {
+                        kvp.Value.IsBlackOut = false;
+                        Utils.MarkEveryoneDirtySettings();
+                    }
+                    Utils.SyncAllSettings();
+                }, 20f, "AfterMeetingNotifyRoles");
             return false;
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)
@@ -780,11 +795,16 @@ namespace TownOfHost
             GameStates.task = false;
             foreach (var kvp in PlayerState.AllPlayerStates)
             {
+                if (Options.ExMeetingblackout.GetBool())
+                {
+                    kvp.Value.IsBlackOut = true;
+                    if (Utils.GetPlayerById(kvp.Key) != null)
+                        Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
+                }
+
                 var pc = Utils.GetPlayerById(kvp.Key);
                 if (pc == null) continue;
                 kvp.Value.LastRoom = pc.GetPlainShipRoom();
-                kvp.Value.IsBlackOut = true;
-                pc.SyncSettings();
             }
 
             if (target != null)
@@ -834,6 +854,16 @@ namespace TownOfHost
             MeetingRoomManager.Instance.AssignSelf(repo, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
             repo.RpcStartMeeting(target);
+
+            _ = new LateTask(() =>
+                {
+                    foreach (var kvp in PlayerState.AllPlayerStates)
+                    {
+                        kvp.Value.IsBlackOut = false;
+                        Utils.MarkEveryoneDirtySettings();
+                    }
+                    Utils.SyncAllSettings();
+                }, 20f, "AfterMeetingNotifyRoles");
         }
     }
 
@@ -891,6 +921,7 @@ namespace TownOfHost
             {
                 if (AmongUsClient.Instance.AmHost)
                     foreach (var pc in Main.AllPlayerControls)
+                    //非導入者が遥か彼方へ行かないように。
                     {
                         var po = pc.transform.position;
                         if (pc.IsModClient()) continue;
