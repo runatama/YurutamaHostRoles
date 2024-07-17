@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.Text;
 using HarmonyLib;
@@ -8,7 +9,6 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
-using System;
 
 namespace TownOfHost
 {
@@ -96,6 +96,12 @@ namespace TownOfHost
                 }
 
                 VersionChecker.Check();
+#if DEBUG
+                if (OptionItem.IdDuplicated)
+                {
+                    ErrorText.Instance.AddError(ErrorCode.OptionIDDuplicate);
+                }
+#endif
 
                 if (SpecialEventText == null && TohkLogo != null)
                 {
@@ -147,6 +153,7 @@ namespace TownOfHost
                 }
             }
         }
+
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
         class TitleLogoPatch
         {

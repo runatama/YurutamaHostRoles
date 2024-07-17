@@ -6,6 +6,7 @@ using Hazel;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {
@@ -14,10 +15,24 @@ namespace TownOfHost
         ///<summary>
         ///追放処理を上書きするかどうか
         ///</summary>
-        public static bool OverrideExiledPlayer => (Main.AllPlayerControls.Count() < 4) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
+        public static bool OverrideExiledPlayer => Main.AllPlayerControls.Count() < 4 && !ModClientOnly && (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
         public static bool IsCached { get; private set; } = false;
+        public static bool IsSet { get; private set; } = false;
         private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
+        //private static Dictionary<(byte, byte), RoleTypes> RoleTypeCache = new();
         private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
+
+        private static bool GetA()
+        {
+            foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
+                if (info.IsEnable && info.CountType is not CountTypes.Crew and not CountTypes.Impostor)
+                    return true;
+            return false;
+        }
+
+        private static bool ModClientOnly//全員ModClient
+            => Main.AllPlayerControls.Where(pc => pc.IsModClient()).Count() == Main.AllPlayerControls.Count();
+
         public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
         {
             logger.Info($"SetIsDead is called from {callerMethodName}");
@@ -33,10 +48,9 @@ namespace TownOfHost
                 isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
                 info.IsDead = false;
                 info.Disconnected = false;
-                info.SetDirtyBit(0b_1u << info.PlayerId);
             }
             IsCached = true;
-            if (doSend) AmongUsClient.Instance.SendAllStreamedObjects();//SendGameData();
+            if (doSend) SendGameData();
         }
         public static void RestoreIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
         {
@@ -48,12 +62,11 @@ namespace TownOfHost
                 {
                     info.IsDead = val.isDead;
                     info.Disconnected = val.Disconnected;
-                    info.SetDirtyBit(0b_1u << info.PlayerId);
                 }
             }
             isDeadCache.Clear();
             IsCached = false;
-            if (doSend) AmongUsClient.Instance.SendAllStreamedObjects();//SendGameData();
+            if (doSend) SendGameData();
         }
 
         public static void SendGameData([CallerMemberName] string callerMethodName = "")
@@ -85,8 +98,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;
             isDeadCache[player.PlayerId] = (true, true);
             player.IsDead = player.Disconnected = false;
-            //SendGameData();
-            player.SetDirtyBit(0b_1u << player.PlayerId);
+            SendGameData();
         }
 
         ///<summary>
@@ -120,8 +132,11 @@ namespace TownOfHost
         {
             logger.Info("==Reset==");
             if (isDeadCache == null) isDeadCache = new();
+            //if (RoleTypeCache == null) RoleTypeCache = new();
             isDeadCache.Clear();
+            //RoleTypeCache.Clear();
             IsCached = false;
+            IsSet = false;
         }
     }
 }

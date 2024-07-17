@@ -203,6 +203,7 @@ public abstract class RoleBase : IDisposable
     /// <summary>
     /// <para>ベントに入ったときに呼ばれる関数</para>
     /// <para>キャンセル可</para>
+    /// Nouryokuをtrueにすると参加者も再度、ベントに入れます。
     /// </summary>
     /// <param name="physics"></param>
     /// <param name="id"></param>
@@ -299,6 +300,11 @@ public abstract class RoleBase : IDisposable
     /// <param name="systemType">サボタージュの種類</param>
     /// <returns>falseでサボタージュのキャンセル</returns>
     public virtual bool OnSabotage(PlayerControl player, SystemTypes systemType) => true;
+
+    /// <summary>
+    /// サボタージュ後に行われる処理
+    /// </summary>
+    public virtual void AfterSabotage(SystemTypes systemType) { }
 
     // NameSystem
     // 名前は下記の構成で表示される
@@ -449,6 +455,7 @@ public abstract class RoleBase : IDisposable
     /// <returns></returns>
     public virtual bool CanTask() => Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
 
+    /// <summary>
     /// 覚醒等で使えたら!<br/>
     /// 自身を別役職だと思い込む。
     /// </summary>
@@ -472,6 +479,7 @@ public abstract class RoleBase : IDisposable
         TaskKakusei,
         Kakuseitask,
         UKakusei,
-        OptionCount
+        OptionCount,
+        EngineerInVentMaxTime
     }
 }

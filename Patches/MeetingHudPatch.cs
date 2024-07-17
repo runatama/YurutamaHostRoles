@@ -209,11 +209,11 @@ public static class MeetingHudPatch
                 {
                     foreach (var Player in Main.AllPlayerControls)
                     {
-                        if (!Player.IsAlive() && Player.GetCustomRole().IsImpostor())
+                        if (!Player.IsAlive() && (Player.GetCustomRole().IsImpostor() || (Player?.CanUseSabotageButton() ?? false)))
                             foreach (var pc in Main.AllPlayerControls)
                             {
                                 if (pc == PlayerControl.LocalPlayer) continue;
-                                Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
+                                Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
                             }
                     }
                 }

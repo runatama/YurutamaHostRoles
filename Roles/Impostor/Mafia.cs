@@ -70,6 +70,13 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
         target.RpcProtectedMurderPlayer(target);
         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sidekick]　" + string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})");
         target.RpcSetCustomRole(CustomRoles.SKMadmate);
+        foreach (var pl in Main.AllPlayerControls)
+        {
+            if (pl == PlayerControl.LocalPlayer)
+                target.StartCoroutine(target.CoSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
+            else
+                target.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
+        }
         Main.SKMadmateNowCount++;
         Utils.MarkEveryoneDirtySettings();
         Utils.NotifyRoles();

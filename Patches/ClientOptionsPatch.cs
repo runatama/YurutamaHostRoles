@@ -20,6 +20,7 @@ namespace TownOfHost
         private static ClientActionItem CustomName;
         private static ClientActionItem CustomSprite;
         private static ClientActionItem HideSomeFriendCodes;
+        private static ToggleButtonBehaviour soundSettingsButton;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -80,6 +81,25 @@ namespace TownOfHost
             {
                 ModUnloaderScreen.Init(__instance);
             }
+            if (SoundSettingsScreen.Popup == null)
+            {
+                SoundSettingsScreen.Init(__instance);
+            }
+            if (soundSettingsButton.IsDestroyedOrNull())
+            {
+                soundSettingsButton = Object.Instantiate(__instance.DisableMouseMovement, __instance.transform.FindChild("GeneralTab/MiscGroup"));
+                soundSettingsButton.transform.localPosition = new(1.9546f, 1.5297f, __instance.DisableMouseMovement.transform.localPosition.z);//左側:-1.3127f,1.5588f
+                soundSettingsButton.transform.localScale = new(0.5f, 0.5f);
+                soundSettingsButton.name = "SoundStgButton";
+                soundSettingsButton.Text.text = "サウンド設定";
+                soundSettingsButton.Background.color = Palette.DisabledGrey;
+                var soundSettingsPassiveButton = soundSettingsButton.GetComponent<PassiveButton>();
+                soundSettingsPassiveButton.OnClick = new();
+                soundSettingsPassiveButton.OnClick.AddListener((System.Action)(() =>
+                {
+                    SoundSettingsScreen.Show();
+                }));
+            }
 
             if (!AmongUsClient.Instance.AmHost && ForceEnd != null)
                 ForceEnd = null;
@@ -111,6 +131,7 @@ namespace TownOfHost
                 ClientActionItem.CustomBackground.gameObject.SetActive(false);
             }
             ModUnloaderScreen.Hide();
+            SoundSettingsScreen.Hide();
         }
     }
 }

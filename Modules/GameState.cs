@@ -237,7 +237,6 @@ namespace TownOfHost
         public static bool Intro;
         public static bool AfterIntro;
         public static bool task;
-        public static bool FastAllSporn;
     }
     public static class MeetingStates
     {

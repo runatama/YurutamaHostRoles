@@ -93,7 +93,7 @@ namespace TownOfHost
                 {
                     CustomRoles FileCustomRole = (CustomRoles)__instance.Role.Role - 1000;
                     PlayerControl.LocalPlayer.RpcSetCustomRole(FileCustomRole);
-                    PlayerControl.LocalPlayer.RpcSetRole(FileCustomRole.GetRoleTypes(), Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+                    PlayerControl.LocalPlayer.RpcSetRole(FileCustomRole.GetRoleTypes());
                     return false;
                 }
             }

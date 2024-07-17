@@ -14,7 +14,7 @@ public sealed class JackalDoll : RoleBase, IKiller
             typeof(JackalDoll),
             player => new JackalDoll(player),
             CustomRoles.Jackaldoll,
-            () => RoleTypes.Crewmate,
+            () => CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             51200,
             SetupOptionItem,
@@ -38,6 +38,9 @@ public sealed class JackalDoll : RoleBase, IKiller
     static OptionItem JackaldieMode;
     static OptionItem RoleChe;
     public static OptionItem sidekick;
+    static OptionItem CanVent;
+    static OptionItem VentCool;
+    static OptionItem VentIntime;
     enum Option
     {
         JackaldolldieMode, JackaldollRoleChe, SideKickJackaldollMacCount
@@ -55,7 +58,7 @@ public sealed class JackalDoll : RoleBase, IKiller
     /// Va→oyabun
     /// </summary>
     /// <returns></returns>
-    static Dictionary<byte, PlayerControl> Oyabun = new();
+    public static Dictionary<byte, PlayerControl> Oyabun = new();
     /// <summary>
     /// key →my
     /// va→role
@@ -72,6 +75,9 @@ public sealed class JackalDoll : RoleBase, IKiller
         sidekick = IntegerOptionItem.Create(RoleInfo, 9, Option.SideKickJackaldollMacCount, new(0, 15, 1), 1, false);
         JackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<diemode>(), 0, false);
         RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false);
+        CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
+        VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
+        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentMaxTime, new(0f, 180f, 2.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
         RoleAddAddons.Create(RoleInfo, 20);
     }
 
@@ -79,18 +85,13 @@ public sealed class JackalDoll : RoleBase, IKiller
     //全部使えないようにする。
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = 0f;
-        AURoleOptions.ShapeshifterDuration = 0f;
-        AURoleOptions.EngineerCooldown = 0f;
-        AURoleOptions.EngineerInVentMaxTime = 0f;
-        AURoleOptions.ScientistBatteryCharge = 0f;
-        AURoleOptions.ScientistCooldown = 0f;
+        AURoleOptions.EngineerCooldown = VentCool.GetFloat();
+        AURoleOptions.EngineerInVentMaxTime = VentIntime.GetFloat();
     }
     public float CalculateKillCooldown() => 0f;
     public bool CanUseKillButton() => false;
     public bool CanUseSabotageButton() => false;
     public bool CanUseImpostorVentButton() => false;
-    public override bool CanUseAbilityButton() => false;
     public static void Sidekick(PlayerControl pc, PlayerControl oyabun)
     {
         if (Oyabun.ContainsKey(pc.PlayerId))
@@ -108,11 +109,19 @@ public sealed class JackalDoll : RoleBase, IKiller
         }
         if (oyabun.Is(CustomRoles.JackalMafia))
         {
-            if (JackalMafia.OptionDoll.GetString() == "Sidekick")
+            if (JackalMafia.OptionDoll.GetBool())
             {
                 Oyabun.Add(pc.PlayerId, oyabun);
                 role.Add(pc, CustomRoles.JackalMafia);
             }
+        }
+
+        foreach (var pl in Main.AllPlayerControls)
+        {
+            if (pl == PlayerControl.LocalPlayer)
+                pc.StartCoroutine(pc.CoSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
+            else
+                pc.RpcSetRoleDesync(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
         }
 
         //サイドキックがガード等発動しないため。
@@ -180,7 +189,7 @@ public sealed class JackalDoll : RoleBase, IKiller
             {
                 if (!role.ContainsKey(player)) role.Add(player, CustomRoles.Jackal);
 
-                player.RpcSetCustomRole(role[player], false);
+                player.RpcSetCustomRole(role[player], true);
                 PlayerState.GetByPlayerId(player.PlayerId).SetCountType(CountTypes.Jackal);
                 shoukaku = true;
             }

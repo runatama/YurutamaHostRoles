@@ -24,7 +24,7 @@ namespace TownOfHost
         private static SimpleButton gitHubButton;
         private static SimpleButton TwitterXButton;
         private static SimpleButton TOHkBOTButton;
-        //private static SimpleButton VersionChangeButton;
+        private static SimpleButton VersionChangeButton;
         public static GameObject VersionMenu;
         public static AnnouncementPopUp updatea;
 
@@ -423,19 +423,18 @@ namespace TownOfHost
                     var news = new ModNews
                     {
                         Number = 100013,
-                        Title = "夏だ！海だ！睡眠だ！(?)",
-                        SubTitle = "<color=#387859>TownOfHost-K Debug <size=100%>\n For 2</size>",
-                        ShortTitle = "<color=#387859>◇TOH-K Debug\nFor 2</color>",
+                        Title = "あれからそろそろ一ヶ月...",
+                        SubTitle = "<color=#387859>TownOfHost-K Debug <size=100%>\n For 3</size>",
+                        ShortTitle = "<color=#387859>◇TOH-K Debug\nFor 3</color>",
                         Text =
                         "★Debug版限定通知機能について★\n"
                         + "<size=80%>デバッグ版でのみ、違反したのではないかという疑わしき行動を行った場合、\n開発者に一部情報が送信されます\n予めご了承ください。</size>\n"
                         + "★注意事項★\n<size=80%>・期限が切れたデバッグ版をどうにかこうにかして使用する / しようとする事。\n・その他開発者が禁止とした行為。\n・参加者にTOH - Kの正式リリースだ、本家TOHの最新版だ！等、自称、偽る行為\n※万が一禁止事項を行った場合や開発者の忠告に従わない場合は、\n二度とTOH-Kを利用できなく致します"
                         + "\n・バグが発生した場合、必ずバグ報告フォームに報告すること。\n・バグだけではなく少しでも挙動が変だったら必ず報告すること\n・利用前に下記に掲載している不具合等の連絡に必ず目を通すこと。\n・入室時のシステムメッセージで表示されますが、主催者が参加者にTOH - Kのデバッグであることを伝えるようにお願いします。\n・Modの動作に関する事以外聞かない事。\n※導入方法を聞くのは遠慮しなさいってことです。\n・チケット発行した時点で上記に記載されたものに同意し、良からぬ行為をした場合いかなる処罰も受け入れることとします。"
-                        + "\n</size>\nFor1ではそもそも遊べるような奴じゃなくてごめんね！\nFor2は多分ifきっとmaybeできる...はず!!\n無理だったらタスクバトルであそんで...()"
-                        + "\n\n新要素などは配布時にお渡ししたtxtファイルをみて～ね！\nここではしょ～りゃくする～よ！\n( -ω- )Zzz...\n\nMr.Yrfより。"
-                        + "\n\n <size=30%>次はリリースしたいな。"
+                        + "\n\nFor 2からコードが大分変ったんだ！\nこりゃぁテストしねぇと!!\nってことでFor3です。\nFor4ってなんか語感いいよね。\n(''ω)＜ワイトもそう思います"
+                        + "\nこれでちゃんと動けば!!\n(動いたらいいけど...)"
                         ,
-                        Date = "2024-07-11T00:00:00Z"
+                        Date = "2024-07-17T00:00:00Z"
                     };
                     AllModNews.Add(news);
                 }

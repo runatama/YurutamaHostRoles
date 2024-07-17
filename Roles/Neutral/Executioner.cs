@@ -82,7 +82,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         {
             if (playerId == target.PlayerId) continue;
             else if (!CanTargetImpostor && target.Is(CustomRoleTypes.Impostor)) continue;
-            else if (!CanTargetNeutralKiller && target.IsNeutralKiller()) continue;
+            else if (!CanTargetNeutralKiller && (target.IsNeutralKiller()) || target.Is(CustomRoles.GrimReaper)) continue;
             if (target.Is(CustomRoles.GM)) continue;
 
             targetList.Add(target);
@@ -161,7 +161,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     public void ChangeRole()
     {
         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Executioner]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.GetPlayerColor(TargetId, true), Translator.GetString($"{ChangeRolesAfterTargetKilled}").Color(Utils.GetRoleColor(ChangeRolesAfterTargetKilled)));
-        Player.RpcSetCustomRole(ChangeRolesAfterTargetKilled);
+        Player.RpcSetCustomRole(ChangeRolesAfterTargetKilled, true);
         Utils.NotifyRoles();
     }
 

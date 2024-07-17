@@ -79,7 +79,6 @@ namespace TownOfHost
         [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
         public class CustomNetworkTransformHandleRpcPatch
         {
-            public static List<byte> Player = new();
             public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
             {
                 if (!AmongUsClient.Instance.AmHost)
@@ -94,14 +93,6 @@ namespace TownOfHost
                 {
                     var player = __instance.myPlayer;
                     var state = PlayerState.GetByPlayerId(player.PlayerId);
-
-                    if (!Player.Contains(player.PlayerId) && !state.HasSpawned && MeetingStates.FirstMeeting)
-                    {
-                        player.RpcSnapToForced(new Vector2(-100f, -100f));
-                        Player.Add(player.PlayerId);
-                        return false;
-                    }
-
                     // プレイヤーがまだ湧いていない
                     if (!state.HasSpawned)
                     {

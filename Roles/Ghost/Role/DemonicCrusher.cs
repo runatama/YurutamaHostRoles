@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;

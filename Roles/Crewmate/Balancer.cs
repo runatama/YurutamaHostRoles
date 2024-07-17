@@ -291,7 +291,7 @@ public sealed class Balancer : RoleBase
             foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
                 pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u><color=red>Ω");
             Balancer(meetingtime);
-            _ = new LateTask(() => PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data), 2f, "Balancer");
+            PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
             //アナウンス(合体させるからコメントアウト)
             //Utils.SendMessage($"{Main.AllPlayerNames[Target1]}と{Main.AllPlayerNames[Target2]}が天秤に掛けられました！\n\nどちらかに投票せよ！");
 

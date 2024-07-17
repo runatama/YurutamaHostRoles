@@ -102,6 +102,7 @@
 "Staff","Staff","スタッフ","","","","",""
 "SwitchSheriff","SwitchSheriff","スイッチシェリフ"
 "NiceLogger","NiceLogger","ナイスロガー"
+"Android","Android","アンドロイド"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -311,6 +312,7 @@
 "SwitchSheriffInfo","","インポスターを撃ち抜け。但しタスクも疎かにするな"
 "StaffInfo","let's do your tasks","タスクをこなそう"
 "NiceLoggerInfo","","センサーを上手く活用しよう"
+"AndroidInfo","","01001011"
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -489,6 +491,7 @@
 "StaffInfoLong","","スタッフが生存中にタスクを終えていない状態で試合が終了した場合、スタッフはクルーメイト陣営として勝利することができない。\nスタッフのタスクはクルーメイトのタスクには含まれない。\nベントを使用する事ができる。(設定あり)"
 "SwitchSheriffInfoLong","","ベントに入ることでタスクモードとシェリフモードを切り替えることが出来る。\nタスクモード中にはシェリフのキル能力が使用できない。\nシェリフモードではタスクが行えない。"
 "NiceLoggerInfoLong","","シェイプシフトボタンを使用することで一番近くにあるドアにセンサーを設置することが出来る。\nセンサーを設置したドアの付近にいるプレイヤーを検知し、会議時に通知を受け取ることが可能。\n会議後、センサーは再設置する必要がある。\nセンサーがプレイヤーを検知すると、次の検知までに一定時間クールタイムが発生する"
+"AndroidInfoLong","","タスクを行うことでバッテリーをチャージすることが出来る。\nバッテリー残量によって、ベントクールタイム,ベントに籠れる時間が変動する。\nサボタージュの発動中はベントに入ることが出来ない。\n100%以上に充電されることはない。"
 "#CrewmateInfoLong"
 
 "# ニュートラル役職"
@@ -621,6 +624,7 @@
 "EnableTOHkDebugMode","Enable Debug Mode","TOH-Kのデバッグモードを有効化する","开启调试模式","啟用偵錯模式","Включить режим отладки","Ativar Modo de Depuração",""
 "ExperimentalMode","","試験的設定"
 "ExMeetingblackout","","会議前に視界を暗転させる"
+"ExAftermeetingflash","","会議後にフラッシュを入れる"
 
 "## マップ改造"
 "MapModification","Map Modifications","マップ改造","地图修改","","Модификации для карт","Modificações do Mapa",""
@@ -926,6 +930,7 @@
 "MadmateVentCooldown","Vent Cooldown","ベントクールダウン","叛徒系职业跳管道冷却时间","叛徒職業的玩家跳管道冷卻","Откат вентиляции Безумцев","Tempo de Recarga de Dutos dos Loucos",""
 "MadmateVentMaxTime","Max Vent Duration","ベント内での最大時間","叛徒系职业在管道中停留的最大时间","叛徒職業的玩家在管道中可以停留的最大時間","Время использования вентиляции Безумцев","Tempo Máximo de Loucos nos Dutos",""
 "MadmateCanMovedByVent","Can be moved by vent","ベント移動ができる","","","","",""
+"SkMadCanUseVent","sidekickmadmate can use vent","ベントを使える"
 "CanMakeMadmateCount","Sidekick Madmate Max Count","サイドキックマッドメイト","变形者可以招募叛徒的数量","變形者招募叛徒最大人數","Максимум союзников Безумца","Máximo de Tripulantes Loucos Ajudantes",""
 "MadSnitchTasks","Mad Snitch Tasks","マッドスニッチのタスク数","背叛的告密者任务数","背叛告密者任務數量","Задания Безумного Стукача","Tarefas do Dedo-Duro Louco",""
 "MadSnitchCanAlsoBeExposedToImpostor","Known to Impostors","インポスターからも視認できる","对内鬼同样可见","對偽裝者同樣可見","Также не защищен от Предателей","Visível Para Impostor",""
@@ -983,6 +988,10 @@
 "Votemode","Fortune telling method","占い方法","","","","",""
 "TellerCollectRect","Rect","占い成功率","","","","",""
 "NiceLoggerCoolTime","","センサーのクールタイム"
+"AndroidAddTaskBattery","","タスク完了毎の充電量"
+"AndroidRemoveBattery","","バッテリーが減少する"
+"AndroidRemove","","減少量"
+"AndroidRemoveTime","","減少するまでの時間"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""

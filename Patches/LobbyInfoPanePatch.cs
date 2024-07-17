@@ -116,7 +116,7 @@ namespace TownOfHost
                 categoryHeaderMasked1.transform.localPosition = new Vector3(-9.77f, 1.26f, -2f);
                 __instance.settingsInfo.Add(categoryHeaderMasked1.gameObject);
                 List<CustomRoles> roleRulesCategoryList = new();
-                for (int index1 = 0; index1 < 5; ++index1)
+                for (int index1 = 0; index1 < 5; index1++)
                 {
                     CategoryHeaderRoleVariant headerRoleVariant = Object.Instantiate<CategoryHeaderRoleVariant>(__instance.categoryHeaderRoleOrigin);
                     setHeader(headerRoleVariant, GetString($"{(TabGroup)index1 + 1}"));
@@ -128,7 +128,7 @@ namespace TownOfHost
                     for (int index2 = 0; index2 < Options.CustomRoleSpawnChances.Count; ++index2)
                     {
                         CustomRoles role = Options.CustomRoleSpawnChances.Keys.ToList()[index2];
-                        if ((TabGroup)index1 + 1 == role.GetRoleInfo().Tab)
+                        if ((role.GetRoleInfo()?.Tab != null) && (TabGroup)index1 + 1 == role.GetRoleInfo().Tab)
                         {
                             int chancePerGame = Options.GetRoleChance(role);
                             int numPerGame = Options.GetRoleCount(role);
@@ -146,6 +146,7 @@ namespace TownOfHost
                         }
                     }
                 }
+                float sc = 0f;
                 if (roleRulesCategoryList.Count > 0)
                 {
                     CategoryHeaderMasked categoryHeaderMasked2 = Object.Instantiate<CategoryHeaderMasked>(__instance.categoryHeaderOrigin);
@@ -178,9 +179,15 @@ namespace TownOfHost
                         if ((double)num2 > (double)num1)
                             num1 = num2;
                         __instance.settingsInfo.Add(advancedRoleViewPanel.gameObject);
+                        var co = Options.CustomRoleSpawnChances[roleRulesCategoryList[index]].Children.ToArray().Length;
+                        if (co > 4)
+                        {
+                            if (sc < (co - 4) * 0.5f)
+                                sc = (co - 4) * 0.5f;
+                        }
                     }
                 }
-                __instance.scrollBar.SetYBoundsMax(-y);
+                __instance.scrollBar.SetYBoundsMax((-y) + sc);
                 return false;
             }
         }

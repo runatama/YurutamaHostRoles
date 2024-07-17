@@ -8,7 +8,6 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Common;
-using Rewired;
 //using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
@@ -313,6 +312,13 @@ namespace TownOfHost
                             break;
                     }
                 }
+
+                foreach (var kvp in PlayerState.AllPlayerStates)
+                {
+                    kvp.Value.IsBlackOut = false;
+                    if (Utils.GetPlayerById(kvp.Key) != null)
+                        Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
+                }
                 //役職選定後に処理する奴。
                 foreach (var pc in Main.AllPlayerControls)
                 {
@@ -339,7 +345,7 @@ namespace TownOfHost
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
                 foreach (var pc in Main.AllPlayerControls)
                 {
-                    if (pc == PlayerControl.LocalPlayer) continue;
+                    if (pc == PlayerControl.LocalPlayer && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)) continue;
                     pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
                 }
                 _ = new LateTask(() =>
@@ -372,26 +378,13 @@ namespace TownOfHost
                 {
                     if (pc == null) continue;
                     var ri = pc.GetCustomRole().GetRoleInfo();
-                    if (ri?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
+                    if (ri?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter || ri?.BaseRoleType.Invoke() == RoleTypes.Engineer)
                     {
                         pc.RpcResetAbilityCooldown();
                     }
                 }
                 if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                 if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
-
-                if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)
-                    _ = new LateTask(() =>
-                    {
-                        foreach (var s in PlayerState.AllPlayerStates)
-                        {
-                            if (s.Value == null) continue;
-                            s.Value.IsBlackOut = false;
-                            if (Utils.GetPlayerById(s.Key) == null) continue;
-                            Utils.GetPlayerById(s.Key).SyncSettings();
-                        }
-                        GameStates.FastAllSporn = true;
-                    }, 12f, "SpawnCheck");
             }
             Logger.Info("OnDestroy", "IntroCutscene");
         }

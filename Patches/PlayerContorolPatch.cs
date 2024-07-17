@@ -384,6 +384,15 @@ namespace TownOfHost
                     shapeshifter.RpcProtectedMurderPlayer(targetm);
                     targetm.RpcProtectedMurderPlayer(shapeshifter);
                     targetm.RpcProtectedMurderPlayer(targetm);
+
+                    foreach (var pl in Main.AllPlayerControls)
+                    {
+                        if (pl == PlayerControl.LocalPlayer)
+                            targetm.StartCoroutine(targetm.CoSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
+                        else
+                            targetm.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
+                    }
+
                     PlayerState.GetByPlayerId(targetm.PlayerId).SetCountType(CountTypes.Crew);
                     Main.LastLogRole[targetm.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(targetm.GetCustomRole()), Translator.GetString($"{targetm.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(targetm.PlayerId);
                     Utils.MarkEveryoneDirtySettings();
@@ -463,6 +472,10 @@ namespace TownOfHost
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
         {
             if (GameStates.IsMeeting) return false;
+
+            var State = PlayerState.GetByPlayerId(__instance.PlayerId);
+            if (State.NumberOfRemainingButtons <= 0 && target is null) return false;
+
             GameStates.Meeting = true;
             Logger.Info($"{__instance.GetNameWithRole()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
             if (Options.IsStandardHAS && target != null && __instance == target.Object) return true; //[StandardHAS] ボタンでなく、通報者と死体が同じなら許可
@@ -605,7 +618,6 @@ namespace TownOfHost
                     if (Utils.GetPlayerById(kvp.Key) != null)
                         Utils.GetPlayerById(kvp.Key).MarkDirtySettings();
                 }
-
                 var pc = Utils.GetPlayerById(kvp.Key);
                 if (pc == null) continue;
                 kvp.Value.LastRoom = pc.GetPlainShipRoom();
@@ -639,7 +651,7 @@ namespace TownOfHost
             Main.AllPlayerControls
                 .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
 
-            var State = PlayerState.GetByPlayerId(__instance.PlayerId);
+            // var State = PlayerState.GetByPlayerId(__instance.PlayerId);
             if (State.NumberOfRemainingButtons > 0 && target is null)
                 State.NumberOfRemainingButtons--;
 
@@ -693,6 +705,9 @@ namespace TownOfHost
         public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool ch = true)
         {
             if (GameStates.IsMeeting) return;
+
+            var State = PlayerState.GetByPlayerId(repo.PlayerId);
+            if (State.NumberOfRemainingButtons <= 0 && target is null) return;
 
             var c = false;
             if (target != null)
@@ -899,7 +914,6 @@ namespace TownOfHost
             }
 
             if (!GameStates.IsModHost) return;
-
             if (GameStates.IsLobby)
             {
                 if (AmongUsClient.Instance.AmHost)
@@ -917,46 +931,18 @@ namespace TownOfHost
                     }
                 }
             }
-            if (GameStates.InGame && MeetingStates.FirstMeeting && GameStates.FastAllSporn && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
-            {
-                if (AmongUsClient.Instance.AmHost)
-                    foreach (var pc in Main.AllPlayerControls)
-                    //非導入者が遥か彼方へ行かないように。
-                    {
-                        var po = pc.transform.position;
-                        if (pc.IsModClient()) continue;
-                        if (po.x < -80f || po.y < -80f)
-                        {
-                            var chance = IRandom.Instance.Next(6);
-                            Vector2 pos = new(-0.7f, 8.5f);
-                            switch (chance)
-                            {
-                                case 1: pos = new(-0.7f, -1); break;
-                                case 2: pos = new(-7.0f, -11.5f); break;
-                                case 3: pos = new(33.5f, -1.5f); break;
-                                case 4: pos = new(20.0f, 10.5f); break;
-                                case 5: pos = new(15.5f, 0.0f); break;
-                                default: break;
-                            }
-                            _ = new LateTask(() => pc.RpcSnapToForced(pos), 0.5f, "");
-                            RandomSpawn.AirshipSpawn(pc);
-                            if (!RandomSpawn.CustomNetworkTransformHandleRpcPatch.Player.Contains(pc.PlayerId))
-                                RandomSpawn.CustomNetworkTransformHandleRpcPatch.Player.Add(pc.PlayerId);
-                        }
-                    }
-            }
 
             TargetArrow.OnFixedUpdate(player);
             GetArrow.OnFixedUpdate(player);
 
             CustomRoleManager.OnFixedUpdate(player);
-            if (Main.saabo)
+            if (Main.NowSabotage)
             {
                 if (!GameStates.Meeting) Main.sabotagetime += Time.fixedDeltaTime;
-                if (!Utils.IsActive(Main.sabo))
+                if (!Utils.IsActive(Main.SabotageType))
                 {
-                    var systemType = Main.sabo;
-                    var sb = Translator.GetString($"sb.{Main.sabo}");
+                    var systemType = Main.SabotageType;
+                    var sb = Translator.GetString($"sb.{Main.SabotageType}");
 
                     if (systemType == SystemTypes.Electrical)
                         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Electrical]　" + string.Format(Translator.GetString("Log.FixSab"), sb);
@@ -972,9 +958,14 @@ namespace TownOfHost
                         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Comms]　" + string.Format(Translator.GetString("Log.FixSab"), sb);
                     if (systemType == SystemTypes.MushroomMixupSabotage)
                         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MushroomMixup]　" + string.Format(Translator.GetString("Log.FixSab"), sb);
-                    Main.saabo = false;
+                    Main.NowSabotage = false;
                     Main.sabotagetime = 0;
                     Utils.NotifyRoles();
+
+                    foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                    {
+                        role.AfterSabotage(Main.SabotageType);
+                    }
                 }
 
             }
@@ -1152,8 +1143,8 @@ namespace TownOfHost
                     var seerRole = seer.GetRoleClass();
                     var target = __instance;
                     string name = "";//$"<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 1.5) / 2}>暇な人 KYけーわい</voffset>\n<voffset={(((0 - seer.transform.position.y) * 28.5f) - test) / 2}><pos={(0 - seer.transform.position.x) * 28.5f}>■";
-                    //if (seer.transform.position.y < -1)
-                    //    name = $"<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 2.5) / 2}><pos={(0 - seer.transform.position.x) * 28.5f}>■</voffset>\n<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 2.5) / 2}>暇な人 KYけーわい";
+                                     //if (seer.transform.position.y < -1)
+                                     //    name = $"<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 2.5) / 2}><pos={(0 - seer.transform.position.x) * 28.5f}>■</voffset>\n<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 2.5) / 2}>暇な人 KYけーわい";
                     bool nomarker = false;
                     string RealName;
                     Mark.Clear();
@@ -1607,10 +1598,10 @@ namespace TownOfHost
                     __instance.RpcBootFromVent(id);
 
                 if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) ||
-                    ((user.Data.Role.Role != RoleTypes.Engineer || user.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Engineer) && //エンジニアでなく
+                    (!(user.Data.Role.Role == RoleTypes.Engineer || user.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Engineer) && //エンジニアでなく
                 !user.CanUseImpostorVentButton()) || //インポスターベントも使えない
                 Utils.CanVent//ベントが使えない状態
-                 || user.Is(CustomRoles.SKMadmate) || user.Is(CustomRoles.Jackaldoll))
+                )
                 {
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
@@ -1647,6 +1638,7 @@ namespace TownOfHost
                     }, nouryoku && __instance.myPlayer != PlayerControl.LocalPlayer ? 1f : 0.3f, "Fix DesyncImpostor Stuck");
                     return false;
                 }
+
                 //マッドでベント移動できない設定なら矢印を消す
                 if ((!user.GetRoleClass()?.CantVentIdo(__instance, id) ?? false) ||
                     (user.GetCustomRole().IsMadmate() && !Options.MadmateCanMovedByVent.GetBool()))
@@ -1698,6 +1690,7 @@ namespace TownOfHost
             {
                 ret = roleClass.OnCompleteTask();
             }
+            CustomRoleManager.onCompleteTaskOthers(__instance, ret);
             if (pc.Is(CustomRoles.TaskPlayerB) && Options.CurrentGameMode == CustomGameMode.TaskBattle && taskState.IsTaskFinished)
             {
                 if (!Options.TaskBattleTeamMode.GetBool())
@@ -1822,7 +1815,7 @@ namespace TownOfHost
                 // 死者の最終位置にペットが残るバグ対応
                 __instance.RpcSetPet("");
 
-                if (__instance != PlayerControl.LocalPlayer)
+                if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
                     if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
                         _ = new LateTask(() =>
                         {

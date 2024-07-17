@@ -54,6 +54,7 @@ namespace TownOfHost
         //タスクを割り当ててRPCを送る処理が行われる直前にタスクを上書きするPatch
         //バニラのタスク割り当て処理自体には干渉しない
         public static Il2CppSystem.Collections.Generic.List<byte> Soroeru = new();
+        public static Il2CppSystem.Collections.Generic.Dictionary<byte, Il2CppStructArray<byte>> taskIds = new();
         public static bool HostFin;
         public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
         {
@@ -61,6 +62,12 @@ namespace TownOfHost
             if (Main.RealOptionsData == null)
             {
                 Logger.Warn("警告:RealOptionsDataがnullです。", "RpcSetTasksPatch");
+                return;
+            }
+
+            if (!Main.IsroleAssigned)
+            {
+                taskIds[__instance.PlayerId] = taskTypeIds;
                 return;
             }
 

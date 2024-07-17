@@ -15,7 +15,6 @@ public static class SecurityCameraSystemTypeUpdateSystemPatch
             amount = newReader.ReadByte();
             newReader.Recycle();
         }
-
         // カメラ無効時，バニラプレイヤーはカメラを開けるので点滅させない
         if (amount == SecurityCameraSystemType.IncrementOp)
         {

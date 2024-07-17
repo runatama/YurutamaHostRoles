@@ -60,11 +60,12 @@ namespace TownOfHost
 
                 GameSettings.text = OptionShower.GetText();
                 GameSettings.SetOutlineColor(Color.black);
-                GameSettings.SetOutlineThickness(0.1f);
+                GameSettings.SetOutlineThickness(0.13f);
                 GameSettings.fontSizeMin =
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
             }
-            GameSettings.gameObject.SetActive(GameStates.IsLobby && Main.ShowGameSettingsTMP.Value);
+            if (GameSettings)
+                GameSettings.gameObject.SetActive(GameStates.IsLobby && Main.ShowGameSettingsTMP.Value);
 
             //カスタムスポーン位置設定中ならキルボタン等を非表示にする
             if (GameStates.IsFreePlay && Main.EditMode)
@@ -338,7 +339,7 @@ namespace TownOfHost
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
             if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
             // 役職説明表示
-            if (!role.IsVanilla())
+            if (!role.IsVanilla() || player.IsGorstRole())
             {
                 var RoleWithInfo = $"{player.GetTrueRoleName()}:\r\n";
                 RoleWithInfo += player.GetRoleInfo();

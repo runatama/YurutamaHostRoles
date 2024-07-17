@@ -24,7 +24,6 @@ namespace TownOfHost
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();
             RPC.RpcVersionCheck();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
-
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
             ErrorText.Instance.Clear();
@@ -136,7 +135,8 @@ namespace TownOfHost
                 {
                     if (GameStates.IsInGame)
                     {
-                        SelectRolesPatch.disc.Add(data.Character.PlayerId);
+                        if (!SelectRolesPatch.Disconnected.Contains(data.Character.PlayerId))
+                            SelectRolesPatch.Disconnected.Add(data.Character.PlayerId);
 
                         if (data.Character.Is(CustomRoles.ALovers) && !data.Character.Data.IsDead)
                             foreach (var lovers in Main.ALoversPlayers.ToArray())
@@ -205,6 +205,15 @@ namespace TownOfHost
                         PlayerGameOptionsSender.RemoveSender(data.Character);
                         Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
                         Utils.NotifyRoles(isForMeeting: true, NoCache: true);
+
+                        //切断したらクルーゴースト置き換えに
+                        if (!AntiBlackout.OverrideExiledPlayer)
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                if (pc == PlayerControl.LocalPlayer) continue;
+                                if (pc == null) continue;
+                                data.Character.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
+                            }
                     }
                     Main.playerVersion.Remove(data.Character.PlayerId);
                     Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");

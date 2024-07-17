@@ -514,6 +514,7 @@ namespace TownOfHost
                 if (GetPlayerById(playerId).GetRoleClass() != null && GetPlayerById(playerId).GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
                 {
                     (color, text) = GetRoleNameData(GetPlayerById(playerId).GetRoleClass().Jikaku(), Subrole, state.GhostRole, showSubRoleMarks);
+                    (color, text) = GetRoleNameData(GetPlayerById(playerId).GetRoleClass().Jikaku(), Subrole, state.GhostRole, showSubRoleMarks);
                 }
             }
             return (color, text);
@@ -2290,9 +2291,6 @@ namespace TownOfHost
                     roleClass.AfterMeetingTasks();
                     roleClass.Colorchnge();
                 }
-                //NextUpdete
-                //if (AsistingAngel.ch())
-                //    AsistingAngel.Limit++;
                 DelTask();
                 GhostRoleAssingData.AssignAddOnsFromList();
                 Main.day++;

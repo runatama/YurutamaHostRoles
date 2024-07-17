@@ -117,6 +117,7 @@ namespace TownOfHost
         public static bool IsGorstRole(this PlayerControl pc)
         {
             return pc.Is(CustomRoles.GuardianAngel) ||
+                    pc.Is(CustomRoles.GhostNoiseSender) ||
                     pc.Is(CustomRoles.DemonicTracker) ||
                     pc.Is(CustomRoles.DemonicCrusher)
                     ;
@@ -124,6 +125,7 @@ namespace TownOfHost
         public static bool IsGorstRole(this CustomRoles role)
         {
             return role is CustomRoles.GuardianAngel
+                        or CustomRoles.GhostNoiseSender
                         or CustomRoles.DemonicTracker
                         or CustomRoles.DemonicCrusher
                         ;

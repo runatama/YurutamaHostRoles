@@ -241,7 +241,8 @@ public class MeetingVoteManager
             meetingHud.RpcVotingComplete(states.ToArray(), null, true);
             ExileControllerWrapUpPatch.AntiBlackout_LastExiled = result.Exiled;
         }
-        meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
+        else
+            meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
         //}
         if (result.Exiled != null)
         {

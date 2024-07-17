@@ -79,6 +79,7 @@ namespace TownOfHost
         public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 20;
         public static OptionItem DefaultShapeshiftCooldown;
         public static OptionItem CanMakeMadmateCount;
+        public static OptionItem SkMadCanUseVent;
         public static OptionItem MadMateOption;
         public static OptionItem MadmateCanSeeKillFlash;
         public static OptionItem MadmateCanSeeDeathReason;
@@ -100,6 +101,7 @@ namespace TownOfHost
         //試験的機能
         public static OptionItem ExperimentalMode;
         public static OptionItem ExMeetingblackout;
+        public static OptionItem ExAftermeetingflash;
 
         //幽霊役職
         public static OptionItem GRRoleOp;
@@ -536,6 +538,9 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard);
             ExMeetingblackout = BooleanOptionItem.Create(300001, "ExMeetingblackout", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
                 .SetGameMode(CustomGameMode.Standard);
+            ExAftermeetingflash = BooleanOptionItem.Create(300002, "ExAftermeetingflash", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
+                            .SetGameMode(CustomGameMode.Standard);
+
             // Impostor
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
             {
@@ -559,6 +564,8 @@ namespace TownOfHost
                 .SetValueFormat(OptionFormat.Players)
                 .SetHeader(true)
                 .SetColor(Palette.ImpostorRed);
+            SkMadCanUseVent = BooleanOptionItem.Create(1010019, "SkMadCanUseVent", false, TabGroup.MadmateRoles, false)
+                .SetParent(CanMakeMadmateCount);
             MadMateOption = BooleanOptionItem.Create(1010013, "MadmateOption", false, TabGroup.MadmateRoles, false)
                 .SetHeader(true)
                 .SetColorcode("#ffa3a3");
@@ -633,7 +640,6 @@ namespace TownOfHost
             Clumsy.SetupCustomOption();
             Slacker.SetupCustomOption();
             //ゆーれーやくしょく
-
             DemonicTracker.SetupCustomOption();
             DemonicCrusher.SetupCustomOption();
             GhostNoiseSender.SetupCustomOption();

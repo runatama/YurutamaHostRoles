@@ -63,10 +63,15 @@ namespace TownOfHost
 
             bool DecidedWinner = false;
             if (!AmongUsClient.Instance.AmHost) return; //ホスト以外はこれ以降の処理を実行しません
+            //AntiBlackout.RestoreIsDead(doSend: false);
+            //AntiBlackout.RestoreSetRole();
             if (exiled != null)
             {
                 var role = exiled.GetCustomRole();
                 var info = role.GetRoleInfo();
+                //霊界用暗転バグ対処
+                if (!AntiBlackout.OverrideExiledPlayer && info?.IsDesyncImpostor == true)
+                    exiled.Object?.ResetPlayerCam(3f);
 
                 exiled.IsDead = true;
                 PlayerState.GetByPlayerId(exiled.PlayerId).DeathReason = CustomDeathReason.Vote;
@@ -89,65 +94,49 @@ namespace TownOfHost
                 {
                     AntiBlackout.RestoreIsDead(doSend: false);
                     Utils.NotifyRoles();
-                }, 0.4f, "Res");
+                }, 0.4f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
-                    foreach (var Player in Main.AllPlayerControls)
+                    foreach (var Player in Main.AllPlayerControls)//役職判定を戻す。
                     {
-                        {
-                            if (Player != PlayerControl.LocalPlayer)
-                                foreach (var pc in Main.AllPlayerControls)
-                                {
-                                    var role = pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
-
-                                    if (!pc.IsAlive())
-                                        if (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as Roles.Core.Interfaces.IKiller)?.CanUseSabotageButton() ?? false))
-                                        {
-                                            role = RoleTypes.ImpostorGhost;
-                                        }
-                                        else role = RoleTypes.CrewmateGhost;
-
-                                    if (Player != pc && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false))
-                                        role = !pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
-
-                                    if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
-
-                                    var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
-                                    pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
-                                }
-                            if (!Player.IsAlive()) Player.RpcExileV2();
-                        }
+                        if (Player != PlayerControl.LocalPlayer)
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                var role = pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
+                                if (!pc.IsAlive())
+                                    if (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as Roles.Core.Interfaces.IKiller)?.CanUseSabotageButton() ?? false))
+                                    {
+                                        role = RoleTypes.ImpostorGhost;
+                                    }
+                                    else role = RoleTypes.CrewmateGhost;
+                                if (Player != pc && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false))
+                                    role = !pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
+                                if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
+                                var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
+                                pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
+                            }
+                        if (!Player.IsAlive()) Player.RpcExileV2();
                     }
-
                     _ = new LateTask(() =>
                     {
                         foreach (var pc in Main.AllPlayerControls)
                         {
                             pc.ResetKillCooldown();
+                            if (Options.ExAftermeetingflash.GetBool()) pc.KillFlash(kiai: true);
                         }
                         Utils.AfterMeetingTasks();
                         FallFromLadder.Reset();
                         Utils.CountAlivePlayers(true);
-
                         _ = new LateTask(() =>
                             {
                                 Utils.NotifyRoles();
                                 foreach (var kvp in PlayerState.AllPlayerStates)
                                 {
-                                    if (kvp.Value == null) continue;
                                     kvp.Value.IsBlackOut = false;
                                     Utils.MarkEveryoneDirtySettings();
                                 }
                                 Utils.SyncAllSettings();
-                                foreach (var pc in Main.AllPlayerControls)
-                                {
-                                    if (pc)
-                                    {
-                                        pc.SetKillCooldown();
-                                    }
-                                }
                             }, 0.2f, "AfterMeetingNotifyRoles");
-
                     }, 0.2f, "");
                 }, 0.7f, "");
             }
@@ -163,6 +152,10 @@ namespace TownOfHost
                 AllSpawned = true;
             }*/
 
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                pc.ResetKillCooldown();
+            }
             if (RandomSpawn.IsRandomSpawn())
             {
                 RandomSpawn.SpawnMap map;
@@ -187,6 +180,11 @@ namespace TownOfHost
                 }
             }
             GameStates.task = true;
+            FallFromLadder.Reset();
+            Utils.CountAlivePlayers(true);
+            Utils.AfterMeetingTasks();
+            Utils.SyncAllSettings();
+            Utils.NotifyRoles();
         }
 
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)

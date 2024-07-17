@@ -20,14 +20,14 @@ namespace TownOfHost
 {
     static class ExtendedPlayerControl
     {
-        public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = false)
+        public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = false, bool log = false)
         {
             if (player.GetCustomRole() == role) return;
 
             if (role < CustomRoles.NotAssigned)
             {
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
-                Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>" + Utils.GetSubRolesText(player.PlayerId);
+                if (log) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>" + Utils.GetSubRolesText(player.PlayerId);
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
@@ -43,32 +43,20 @@ namespace TownOfHost
                         roleClass.Dispose();
                         CustomRoleManager.CreateInstance(role, player);
                     }
-                    if (role.GetRoleInfo()?.IsDesyncImpostor ?? false)
+                    if (setRole)
                     {
-                        foreach (var pc in Main.AllPlayerControls)
+                        if (role.GetRoleInfo().IsDesyncImpostor)
                         {
-                            if (pc != player) pc.RpcSetRoleDesync(RoleTypes.Crewmate, player.GetClientId());
-
-                            if (pc == PlayerControl.LocalPlayer)
+                            foreach (var pc in Main.AllPlayerControls)
                             {
-                                player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, true));
-                                if (player == PlayerControl.LocalPlayer && role.GetRoleTypes() == RoleTypes.Shapeshifter)
-                                {
-                                    player.StartCoroutine(player.CoSetRole(RoleTypes.Shapeshifter, true));
-                                    player.RpcSetRoleDesync(pc == player ? RoleTypes.Shapeshifter : RoleTypes.Crewmate, pc.GetClientId());
-                                }
+                                if (pc == PlayerControl.LocalPlayer)
+                                    player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
+                                else
+                                    player.RpcSetRoleDesync(pc == player ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
                             }
-                            else
-                                player.RpcSetRoleDesync(pc == player ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
                         }
-                    }
-                    else
-                        player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
-
-                    if (role.GetRoleInfo()?.BaseRoleType?.Invoke() == RoleTypes.Shapeshifter)
-                    {
-                        Main.CheckShapeshift.TryAdd(player.PlayerId, false);
-                        _ = new LateTask(() => (player.GetRoleClass() as IUseTheShButton)?.Shape(player), 0.4f, "UseShButtonCheck");
+                        else
+                            player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
                     }
                 }
 
@@ -197,7 +185,7 @@ namespace TownOfHost
         }
         public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
         {
-            //player: 名前の変更対象
+            //player: ロールの変更対象
 
             if (player == null) return;
             if (AmongUsClient.Instance.ClientId == clientId)
@@ -692,7 +680,6 @@ namespace TownOfHost
                 };
 
             var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
-
             if (player.IsGorstRole())
             {
                 var state = PlayerState.GetByPlayerId(player.PlayerId);

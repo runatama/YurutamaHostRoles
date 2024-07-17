@@ -12,7 +12,7 @@ using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Crewmate;
-using TownOfHost.Roles.Ghost;
+using TownOfHost.Roles;
 
 namespace TownOfHost
 {
@@ -200,12 +200,12 @@ namespace TownOfHost
                     if (ToGhostImpostor)
                     {
                         Logger.Info($"{pc.GetNameWithRole()}: ImpostorGhostに変更", "ResetRoleAndEndGame");
-                        pc.RpcSetRole(RoleTypes.ImpostorGhost, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+                        pc.RpcSetRole(RoleTypes.ImpostorGhost, false);
                     }
                     else
                     {
                         Logger.Info($"{pc.GetNameWithRole()}: CrewmateGhostに変更", "ResetRoleAndEndGame");
-                        pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+                        pc.RpcSetRole(RoleTypes.CrewmateGhost, false);
                     }
                     // 蘇生までの遅延の間にオートミュートをかけられないように元に戻しておく
                     pc.Data.IsDead = isDead;
@@ -267,6 +267,14 @@ namespace TownOfHost
 
                 int Imp = Utils.AlivePlayersCount(CountTypes.Impostor);
                 int Jackal = Utils.AlivePlayersCount(CountTypes.Jackal);
+
+                //ジャッカルカウントが0でカウントが増える前に終わってしまわないように
+                if (Jackal == 0 && (CustomRoles.Jackal.IsPresent() || CustomRoles.JackalMafia.IsPresent()))
+                    foreach (var player in Main.AllAlivePlayerControls)
+                        if (player && Jackal == 0)
+                            if (player.Is(CustomRoles.Jackaldoll) && JackalDoll.Oyabun.ContainsKey(player.PlayerId))
+                                Jackal++;
+
                 int Remotekiller = Utils.AlivePlayersCount(CountTypes.Remotekiller);
                 int GrimReaper = Utils.AlivePlayersCount(CountTypes.GrimReaper);
                 int Crew = Utils.AlivePlayersCount(CountTypes.Crew);
@@ -532,12 +540,12 @@ namespace TownOfHost
                             break;
                     }
                     reason = GameOverReason.ImpostorBySabotage;
-                    Main.saabo = false;
+                    Main.NowSabotage = false;
                     LifeSupp.Countdown = 10000f;
                     return true;
                 }
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-                Main.saabo = false;
+                Main.NowSabotage = false;
                 reason = GameOverReason.ImpostorBySabotage;
                 LifeSupp.Countdown = 10000f;
                 return true;
@@ -579,13 +587,13 @@ namespace TownOfHost
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
                             break;
                     }
-                    Main.saabo = false;
+                    Main.NowSabotage = false;
                     reason = GameOverReason.ImpostorBySabotage;
                     critical.ClearSabotage();
                     return true;
                 }
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-                Main.saabo = false;
+                Main.NowSabotage = false;
                 reason = GameOverReason.ImpostorBySabotage;
                 critical.ClearSabotage();
                 return true;

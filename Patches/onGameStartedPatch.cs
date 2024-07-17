@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles;
@@ -23,7 +24,6 @@ namespace TownOfHost
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGame))]
     class ChangeRoleSettings
     {
-        public static bool Itukanantokasuru;
         public static void Postfix(AmongUsClient __instance)
         {
             //注:この時点では役職は設定されていません。
@@ -64,6 +64,10 @@ namespace TownOfHost
             Main.PlayerColors = new();
             //名前の記録
             Main.AllPlayerNames = new();
+
+            SelectRolesPatch.roleAssigned = false;
+            SelectRolesPatch.senders2 = new();
+            RpcSetTasksPatch.taskIds.Clear();
 
             Camouflage.Init();
             var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
@@ -116,6 +120,7 @@ namespace TownOfHost
                 }
             }
 
+            SelectRolesPatch.Disconnected.Clear();
             ExileControllerWrapUpPatch.AllSpawned = true;
             RpcSetTasksPatch.HostFin = false;
             CustomRoleManager.Initialize();
@@ -170,10 +175,10 @@ namespace TownOfHost
             GameStates.AlreadyDied = false;
             GameStates.Intro = true;
             GameStates.task = false;
-            GameStates.FastAllSporn = false;
             HudManagerPatch.ch = false;
             GameStates.AfterIntro = false;
-            RandomSpawn.CustomNetworkTransformHandleRpcPatch.Player.Clear();
+            HudManagerPatch.ch = false;
+            GameStates.AfterIntro = false;
             MeetingVoteManager.Voteresult = "";
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
@@ -181,10 +186,9 @@ namespace TownOfHost
             Main.day = 1;
             Main.FixTaskNoPlayer.Clear();
             Utils.TaskCh = true;
-            Main.saabo = false;
+            Main.NowSabotage = false;
             JackalDoll.side = 0;
             Main.GameCount++;
-            Itukanantokasuru = Options.CurrentGameMode == CustomGameMode.Standard && Main.SetRoleOverride;//いつかなんとかはするけど・・・
             Main.Time = (Main.NormalOptions.DiscussionTime, Main.NormalOptions.VotingTime);
             var c = string.Format(GetString("log.Start"), Main.GameCount);
             Main.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
@@ -195,6 +199,9 @@ namespace TownOfHost
     [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
     class SelectRolesPatch
     {
+        public static List<byte> Disconnected = new();
+        public static bool roleAssigned = false;
+        public static Dictionary<byte, CustomRpcSender> senders2 = new();
         public static void Prefix()
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -293,10 +300,8 @@ namespace TownOfHost
             }
             //以下、バニラ側の役職割り当てが入る
         }
-        public static List<byte> disc = new();
         public static void Postfix()
         {
-            disc.Clear();
             if (!AmongUsClient.Instance.AmHost) return;
             RpcSetRoleReplacer.Release(); //保存していたSetRoleRpcを一気に書く
             RpcSetRoleReplacer.senders.Do(kvp => kvp.Value.SendMessage());
@@ -369,46 +374,6 @@ namespace TownOfHost
                         break;
                 }
                 state.SetMainRole(role);
-            }
-
-            if (Options.CurrentGameMode == CustomGameMode.Standard && Main.SetRoleOverride)
-            {
-                _ = new LateTask(() =>
-                {
-                    foreach (var pc in Main.AllPlayerControls)
-                    {
-                        var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
-                        if (playerInfo.Disconnected) disc.Add(pc.PlayerId);
-                        playerInfo.Disconnected = true;
-                        playerInfo.SetDirtyBit(0b_1u << pc.PlayerId);
-                    }
-                    _ = new LateTask(() => AmongUsClient.Instance.SendAllStreamedObjects(), 0.2f, "");
-                }, 2.2f, "");
-
-                _ = new LateTask(() =>
-                {
-                    var save = PlayerControl.LocalPlayer.Data.RoleType;
-                    foreach (var pc in Main.AllPlayerControls)
-                    {
-                        if (pc == PlayerControl.LocalPlayer) continue;
-                        PlayerControl.LocalPlayer.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : save, pc.GetClientId());
-                        pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor && pc.GetCustomRole().IsCrewmate() ? RoleTypes.Crewmate : pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
-                    }
-                    PlayerControl.LocalPlayer.StartCoroutine(PlayerControl.LocalPlayer.CoSetRole(save, true));
-                }, 2.6f, "");
-
-                _ = new LateTask(() =>
-                {
-                    foreach (var pc in Main.AllPlayerControls)
-                    {
-                        if (disc.Contains(pc.PlayerId)) continue;
-                        var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
-                        playerInfo.Disconnected = false;
-                        playerInfo.SetDirtyBit(0b_1u << pc.PlayerId);
-                    }
-                    _ = new LateTask(() => AmongUsClient.Instance.SendAllStreamedObjects(), 0.2f, "");
-                }, 2.8f, "");
-
             }
 
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
@@ -566,16 +531,63 @@ namespace TownOfHost
                 if (RoleAddAddons.AllData.TryGetValue(pc.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
                 {
                     if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
+                    if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                 }
             }
-            foreach (var s in PlayerState.AllPlayerStates)
-            {
-                if (s.Value == null) continue;
-                s.Value.IsBlackOut = true;
-            }
+            if (Options.CurrentGameMode is CustomGameMode.Standard && Main.SetRoleOverride)
+                AmongUsClient.Instance.StartCoroutine(CoReSetRole(AmongUsClient.Instance).WrapToIl2Cpp());
+
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
             SetColorPatch.IsAntiGlitchDisabled = false;
+        }
+        private static System.Collections.IEnumerator CoReSetRole(AmongUsClient self)
+        {
+            yield return new UnityEngine.WaitForSeconds(0.2f);//MakeDesyncSenderが送られるまで待つ
+            foreach (var info in GameData.Instance.AllPlayers)
+            {
+                if (info.Disconnected)
+                    Disconnected.Add(info.PlayerId);
+                info.Disconnected = true;
+                info.SetDirtyBit(0b_1u << info.PlayerId);
+            }
+            AmongUsClient.Instance.SendAllStreamedObjects();
+            Logger.Info("Disconnected", "RSetRole");
+            yield return new UnityEngine.WaitForSeconds(0.01f);
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                var hostRole = PlayerControl.LocalPlayer.GetCustomRole();
+                PlayerControl.LocalPlayer.RpcSetRoleDesync(
+                    pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
+            }
+            yield return new UnityEngine.WaitForSeconds(0.2f);
+            foreach (var info in GameData.Instance.AllPlayers)
+            {
+                if (Disconnected.Contains(info.PlayerId))
+                    continue;
+                info.Disconnected = false;
+                info.SetDirtyBit(0b_1u << info.PlayerId);
+            }
+            AmongUsClient.Instance.SendAllStreamedObjects();
+            Logger.Info("UnDisconnected", "RSetRole");
+            yield return new UnityEngine.WaitForSeconds(0.01f);
+            PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));
+            PlayerControl.LocalPlayer.StopAllCoroutines();
+            DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            DestroyableSingleton<HudManager>.Instance.HideGameLoader();
+
+            yield return new UnityEngine.WaitForSeconds(0.2f);
+
+            if (!Main.IsroleAssigned)
+            {
+                roleAssigned = true;
+                Main.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
+            }
+
+            yield return new UnityEngine.WaitForSeconds(1.5f);
+            senders2.Do(kvp => kvp.Value.SendMessage());
+            senders2 = null;
         }
         private static void AssignDesyncRole(CustomRoles role, List<PlayerControl> AllPlayers, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
         {
@@ -591,7 +603,7 @@ namespace TownOfHost
                 AllPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
 
-                var selfRole = player.PlayerId == hostId ? hostBaseRole : BaseRole;
+                var selfRole = player.PlayerId == hostId ? hostBaseRole : (role.IsCrewmate() ? RoleTypes.Crewmate : BaseRole);
                 var othersRole = player.PlayerId == hostId ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
                 //Desync役職視点
@@ -631,7 +643,16 @@ namespace TownOfHost
                 {
                     if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out var role))
                     {
-                        sender.RpcSetRole(seer, role, target.GetClientId());
+                        //本人はイントロ表示後に再度SetRoleする
+                        if (seer == PlayerControl.LocalPlayer || seer != target)
+                            sender.RpcSetRole(seer, role, target.GetClientId());
+                        else
+                        {
+                            var sender2 = new CustomRpcSender($"", SendOption.Reliable, false).StartMessage(seer.GetClientId());
+                            sender2.RpcSetRole(seer, role, seer.GetClientId());
+                            sender2.EndMessage();
+                            senders2[seer.PlayerId] = sender2;
+                        }
                     }
                 }
             }
@@ -881,11 +902,19 @@ namespace TownOfHost
             }
             public static void Release()
             {
+
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
+                    if (playerInfo.Disconnected) Disconnected.Add(pc.PlayerId);
+                }
+
                 foreach (var sender in senders)
                 {
                     if (OverriddenSenderList.Contains(sender.Value)) continue;
                     if (sender.Value.CurrentState != CustomRpcSender.State.InRootMessage)
                         throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
+
                     foreach (var pair in StoragedData)
                     {
                         pair.Item1.StartCoroutine(pair.Item1.CoSetRole(pair.Item2, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard));

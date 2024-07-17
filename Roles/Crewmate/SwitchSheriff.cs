@@ -43,7 +43,6 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         Taskmode = true;
         nowcool = CurrentKillCooldown;
         last = 0;
-        f = 0;
     }
 
     public static OptionItem KillCooldown;
@@ -127,11 +126,9 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     }
     public override void Add()
     {
-        var playerId = Player.PlayerId;
-        CurrentKillCooldown = KillCooldown.GetFloat();
-
         ShotLimit = ShotLimitOpt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 残り{ShotLimit}発", "SwitchSheriff");
+        CurrentKillCooldown = KillCooldown.GetFloat();
+        Logger.Info($"{Utils.GetPlayerById(Player.PlayerId)?.GetNameWithRole()} : 残り{ShotLimit}発", "SwitchSheriff");
     }
     private void SendRPC()
     {
@@ -154,7 +151,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         && ShotLimit > 0;
     public bool CanUseSabotageButton() => false;
 
-    public override bool CanUseAbilityButton() => Player != PlayerControl.LocalPlayer;
+    public override bool CanUseAbilityButton() => !Is(Player);
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(false);
@@ -170,15 +167,6 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 info.DoKill = false;
                 return;
             }
-            if (AmongUsClient.Instance.AmHost)
-                foreach (var pc in Main.AllPlayerControls)
-                {
-                    if (pc == PlayerControl.LocalPlayer)
-                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
-                    else
-                        Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
-                }
-            Taskmode = true;
 
             (var killer, var target) = info.AttemptTuple;
 
@@ -202,33 +190,23 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                     return;
                 }
             }
-            killer.RpcResetAbilityCooldown(kousin: true);
-            nowcool = KillCooldown.GetFloat();
-            Main.AllPlayerKillCooldown[killer.PlayerId] = nowcool;
-            Player.SyncSettings();
-            Player.SetKillCooldown();
+            nowcool = CurrentKillCooldown;
+            ModeSwitching(true);
+            //Player.SetKillCooldown(nowcool);
+            killer.RpcResetAbilityCooldown(/*kousin: true*/);
         }
         return;
     }
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
+    {
+        if (Player.IsAlive())
+            ModeSwitching(true);
+        Player.RpcResetAbilityCooldown(kousin: true);
+    }
     public override void AfterMeetingTasks()
     {
-        _ = new LateTask(() =>
-        {
-            if (AmongUsClient.Instance.AmHost)
-                if (Player.IsAlive())
-                {
-                    foreach (var pc in Main.AllPlayerControls)
-                    {
-                        if (Player == PlayerControl.LocalPlayer) continue;
-                        if (pc == PlayerControl.LocalPlayer)
-                            Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
-                        else
-                            Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
-                    }
-                    Taskmode = true;
-                }
-            nowcool = KillCooldown.GetFloat();
-        }, 1.2f, "");
+        if (!Player.IsAlive()) return;
+        _ = new LateTask(() => nowcool = CurrentKillCooldown, 0.2f, "Reset-SwitchSheriff");
     }
     public override string GetProgressText(bool comms = false)
     {
@@ -277,21 +255,8 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         if (!Ch()) return false;
         if (Taskmode && Utils.IsActive(SystemTypes.Comms)) return false;//Hostはタスクモード(エンジ)での切り替えできるからさせないようにする
 
-        if (AmongUsClient.Instance.AmHost)
-        {
-            foreach (var pc in Main.AllPlayerControls)
-            {
-                if (pc == PlayerControl.LocalPlayer)
-                    Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
-                else
-                    Player.RpcSetRoleDesync(pc == Player && Taskmode ? RoleTypes.Impostor : RoleTypes.Engineer, pc.GetClientId());
-            }
-            Taskmode = !Taskmode;
-        }
-
-        Main.AllPlayerKillCooldown[Player.PlayerId] = last <= 1 ? 0.01f : 255;
-        Player.SyncSettings();
-        _ = new LateTask(() => Player.SetKillCooldown(), 0.2f, "");
+        ModeSwitching();
+        //_ = new LateTask(() => Player.SetKillCooldown(kill), 0.2f, "");
         nouryoku = true;
         return false;
     }
@@ -300,23 +265,48 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         if (!Player.IsAlive()) return true;
         return Taskmode;
     }
-    float last;
-    float f;
+    int last;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (GameStates.Meeting || GameStates.Intro) return;
-        if (!player.IsAlive() || nowcool == 0) return;
 
-        if (f > 1f)
+        if (!player.IsAlive()) return;
+
+        if (nowcool > 0)
+            nowcool -= Time.fixedDeltaTime;
+        else nowcool = 0;
+        var now = (int)nowcool;
+        if (now != last)
         {
-            nowcool -= 1;
-            if (nowcool == 0)
-                player.SetKillCooldown(0.5f);
-            last = nowcool;
-            Utils.NotifyRoles();
-            f = 0;
+            if (now <= 0) player.SetKillCooldown(0.5f);//相互性が取れないので～
+            last = now;
+            if (player != PlayerControl.LocalPlayer)
+                Utils.NotifyRoles(SpecifySeer: player);
         }
-        f += Time.fixedDeltaTime;
+    }
+    private bool ModeSwitching(bool? taskMode = null)
+    {
+        //モードを変更
+        Taskmode = taskMode ?? !Taskmode;
+
+        //ロール変更
+        if (!Is(PlayerControl.LocalPlayer))
+        {
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                var role = pc.GetCustomRole();
+                if (role.IsImpostor())
+                    pc.RpcSetRoleDesync(Taskmode ? role.GetRoleTypes() : RoleTypes.Scientist, Player.GetClientId());
+                if (Is(pc))
+                    pc.RpcSetRoleDesync(Taskmode ? role.GetRoleTypes() : RoleTypes.Impostor, Player.GetClientId());
+            }
+        }
+        //シェリフモードのみ実行
+        if (!Taskmode)
+        {
+            Player.SetKillCooldown(last + 0.5f);//ラグで貯まる一瞬前にぼーんできないように
+        }
+        return Taskmode;
     }
 }

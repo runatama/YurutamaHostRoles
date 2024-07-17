@@ -261,6 +261,7 @@ public static class CustomRoleManager
         CheckMurderInfos.Clear();
         OnMurderPlayerOthers.Clear();
         OnFixedUpdateOthers.Clear();
+        OnCompleteTaskOthers.Clear();
     }
     public static void CreateInstance()
     {
@@ -396,6 +397,7 @@ public static class CustomRoleManager
     public static HashSet<Func<PlayerControl, PlayerControl, bool, string>> SuffixOthers = new();
     //Vent
     public static HashSet<Func<PlayerPhysics, int, bool>> OnEnterVentOthers = new();
+    public static HashSet<Action<PlayerControl, bool>> OnCompleteTaskOthers = new();
     /// <summary>
     /// seer,seenが役職であるかに関わらず発動するMark
     /// 登録されたすべてを結合する。
@@ -463,6 +465,14 @@ public static class CustomRoleManager
         //return check;
     }
     /// <summary>
+    /// OnCompleateTask時に呼ばれる
+    /// </summary>
+    public static void onCompleteTaskOthers(PlayerControl player, bool ret)
+    {
+        foreach (var cmptsk in OnCompleteTaskOthers)
+            cmptsk(player, ret);
+    }
+    /// <summary>
     /// オブジェクトの破棄
     /// </summary>
     public static void Dispose()
@@ -475,6 +485,7 @@ public static class CustomRoleManager
         CheckMurderInfos.Clear();
         OnMurderPlayerOthers.Clear();
         OnFixedUpdateOthers.Clear();
+        OnCompleteTaskOthers.Clear();
 
         AllActiveRoles.Values.ToArray().Do(roleClass => roleClass.Dispose());
     }
@@ -617,6 +628,7 @@ public enum CustomRoles
     InSender,
     Staff,
     SwitchSheriff,
+    Android,
     //Neutral
     Arsonist,
     Egoist,
