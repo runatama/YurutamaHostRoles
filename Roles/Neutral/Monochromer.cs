@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Neutral;
@@ -93,7 +94,7 @@ public sealed class Monochromer : RoleBase
             Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
         }
     }
-    public static bool CheckWin()
+    public static bool CheckWin(GameOverReason reason)
     {
         foreach (var pc in Main.AllAlivePlayerControls)
         {
@@ -101,15 +102,21 @@ public sealed class Monochromer : RoleBase
             {
                 if (pc.IsAlive())
                 {
-                    Win();
-                    return true;
+                    Win(pc, reason);
+                    return reason != GameOverReason.HumansByTask;
                 }
             }
         }
         return false;
     }
-    private static void Win()
+    private static void Win(PlayerControl pc, GameOverReason reason)
     {
+        if (reason == GameOverReason.HumansByTask)
+        {
+            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Monochromer);
+            return;
+        }
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Monochromer);
         CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Monochromer);
     }

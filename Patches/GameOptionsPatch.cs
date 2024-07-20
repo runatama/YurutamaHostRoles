@@ -1,11 +1,9 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
 
-using TownOfHost.Roles.Core;
-using static TownOfHost.Translator;
-
 namespace TownOfHost
 {
+    /* つかわないから消す
     [HarmonyPatch(typeof(RoleOptionSetting), nameof(RoleOptionSetting.UpdateValuesAndText))]
     class ChanceChangePatch
     {
@@ -17,7 +15,7 @@ namespace TownOfHost
                 __instance.titleText.text = GetString("Phantom");
             }
         }
-    }
+    }*/
 
     [HarmonyPatch(typeof(GameOptionsManager), nameof(GameOptionsManager.SwitchGameMode))]
     class SwitchGameModePatch

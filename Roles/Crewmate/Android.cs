@@ -1,8 +1,10 @@
 using AmongUs.GameOptions;
+
 using TownOfHost.Roles.Core;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Android : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -123,8 +125,19 @@ public sealed class Android : RoleBase
             time = 0;
             if (Battery < 0) Battery = 0;
 
-            if (Battery <= 0) Player.RpcResetAbilityCooldown(kousin: true);
+            if (Battery <= 0)//追い出す
+            {
+                Player.RpcResetAbilityCooldown(kousin: true);
+                Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
+                _ = new LateTask(() =>
+                {
+                    Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 16);
 
+                    if (Main.NormalOptions.MapId is 1 or 5)
+                        Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 17);
+                }, 0.2f, "");
+
+            }
             if (Now() != bat)
             {
                 Utils.NotifyRoles();

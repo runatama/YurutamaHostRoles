@@ -11,7 +11,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
             typeof(Mafia),
             player => new Mafia(player),
             CustomRoles.Mafia,
-            () => CanAddMad.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+            () => CanAddMad.GetBool() && Options.CanMakeMadmateCount.GetInt() != 0 ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             1600,
             SetupCustomOption,

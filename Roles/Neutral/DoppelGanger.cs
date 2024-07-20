@@ -1,5 +1,5 @@
 using AmongUs.GameOptions;
-using Hazel;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;

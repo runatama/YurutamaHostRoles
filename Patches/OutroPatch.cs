@@ -34,6 +34,7 @@ namespace TownOfHost
                 SummaryText[id] = Utils.SummaryTexts(id, false);
             if (!AmongUsClient.Instance.AmHost) return;
 
+            /*
             var sb = new StringBuilder(GetString("KillLog"));
             sb.Append("<size=70%>");
 
@@ -47,7 +48,8 @@ namespace TownOfHost
                 if (killerId != byte.MaxValue && killerId != targetId)
                     sb.Append($"\n\t\t⇐ {Utils.GetPlayerColor(Utils.GetPlayerById(killerId), true)}(<b>{Utils.GetTrueRoleName(killerId, false)}</b>{Utils.GetSubRolesText(killerId)})");
             }
-            //KillLog = sb.ToString();
+            KillLog = sb.ToString();*/
+
             var meg = GetString($"{(CustomRoles)CustomWinnerHolder.WinnerTeam}") + GetString("Team") + GetString("Win");
             if (CustomWinnerHolder.WinnerTeam == CustomWinner.Draw) meg = GetString("ForceEnd");
             if (CustomWinnerHolder.WinnerTeam == CustomWinner.None) meg = GetString("EveryoneDied");

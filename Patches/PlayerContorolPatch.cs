@@ -16,7 +16,6 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Neutral;
-//using InnerNet;
 
 namespace TownOfHost
 {
@@ -1090,7 +1089,9 @@ namespace TownOfHost
                 //キルターゲットの上書き処理
                 if (GameStates.IsInTask && !GameStates.Intro && !(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (__instance.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false) && !__instance.Data.IsDead)
                 {
-                    HudManager.Instance.KillButton.SetTarget(__instance.killtarget());
+                    var target = __instance.killtarget();
+                    if (!__instance.CanUseKillButton()) target = null;
+                    HudManager.Instance.KillButton.SetTarget(target);
                 }
             }
             if (__instance.AmOwner && (GameStates.InGame || GameStates.Intro))
@@ -1597,11 +1598,7 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                     __instance.RpcBootFromVent(id);
 
-                if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) ||
-                    (!(user.Data.Role.Role == RoleTypes.Engineer || user.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Engineer) && //エンジニアでなく
-                !user.CanUseImpostorVentButton()) || //インポスターベントも使えない
-                Utils.CanVent//ベントが使えない状態
-                )
+                if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || CanUse(__instance, id))
                 {
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
@@ -1663,6 +1660,25 @@ namespace TownOfHost
                 CustomRoleManager.OnEnterVent(__instance, id);
             }
             return true;
+        }
+        static bool CanUse(PlayerPhysics pp, int id)
+        {
+            //役職処理はここで行ってしまうと色々とめんどくさくなるので上で。
+            var user = pp.myPlayer;
+
+            if (!(user.Data.Role.Role == RoleTypes.Engineer || user.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Engineer))//エンジニアでなく
+            {
+                if (!user.CanUseImpostorVentButton()) //インポスターベントも使えない
+                {
+                    Logger.Info($"{pp.name}はエンジニアでもインポスターベントも使えないため弾きます。", "OnenterVent");
+                    return false;
+                }
+            }
+            if (Utils.CanVent)
+            {
+                Logger.Info($"{pp.name}がベントに入ろうとしましたがベントが無効化されているので弾きます。", "OnenterVent");
+            }
+            return false;
         }
     }
 
@@ -1814,6 +1830,12 @@ namespace TownOfHost
             {
                 // 死者の最終位置にペットが残るバグ対応
                 __instance.RpcSetPet("");
+
+                if (__instance.Is(CustomRoles.Amnesia))//アムネシア削除
+                {
+                    Amnesia.Kesu(__instance.PlayerId);
+                    PlayerState.GetByPlayerId(__instance.PlayerId).RemoveSubRole(CustomRoles.Amnesia);
+                }
 
                 if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
                     if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))

@@ -116,17 +116,21 @@ namespace TownOfHost
                                 pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
                             }
                         if (!Player.IsAlive()) Player.RpcExileV2();
+
+                        Player.ResetKillCooldown();
+                        Player.SyncSettings();
+                        _ = new LateTask(() =>
+                            {
+                                Player.SetKillCooldown(kyousei: true, delay: true);
+                                Player.RpcResetAbilityCooldown(kousin: true);
+                            }, 0.2f, "");
                     }
                     _ = new LateTask(() =>
                     {
                         foreach (var pc in Main.AllPlayerControls)
                         {
-                            pc.ResetKillCooldown();
                             if (Options.ExAftermeetingflash.GetBool()) pc.KillFlash(kiai: true);
                         }
-                        Utils.AfterMeetingTasks();
-                        FallFromLadder.Reset();
-                        Utils.CountAlivePlayers(true);
                         _ = new LateTask(() =>
                             {
                                 Utils.NotifyRoles();

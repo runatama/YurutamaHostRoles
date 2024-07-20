@@ -198,12 +198,12 @@ namespace TownOfHost
             writer.Write(Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null)
+        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool kyousei = false, bool delay = false)
         {
             if (player == null) return;
             if (target == null) target = player;
             CustomRoles role = player.GetCustomRole();
-            if (!player.CanUseKillButton()) return;
+            if (!player.CanUseKillButton() && !kyousei) return;
             if (time >= 0f)
             {
                 Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
@@ -213,9 +213,30 @@ namespace TownOfHost
                 Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
             }
             player.SyncSettings();
-            player.RpcProtectedMurderPlayer(target);
-            if (player != target) player.RpcProtectedMurderPlayer();
-            player.ResetKillCooldown();
+
+            if (!delay)
+            {
+                player.RpcProtectedMurderPlayer(target);
+                if (player != target) player.RpcProtectedMurderPlayer();
+                _ = new LateTask(() =>
+                    {
+                        player.ResetKillCooldown();
+                        player.SyncSettings();
+                    }, 1f, "");
+            }
+            else
+            {
+                _ = new LateTask(() =>
+                {
+                    player.RpcProtectedMurderPlayer(target);
+                    if (player != target) player.RpcProtectedMurderPlayer();
+                    _ = new LateTask(() =>
+                    {
+                        player.ResetKillCooldown();
+                        player.SyncSettings();
+                    }, 1f, "");
+                }, 0.2f, "Setkillcooldown delay");
+            }
         }
         public static void RpcSpecificMurderPlayer(this PlayerControl killer, PlayerControl target = null)
         {

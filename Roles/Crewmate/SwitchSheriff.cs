@@ -11,9 +11,7 @@ using static TownOfHost.Translator;
 using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
-//Memo
-//ちゃんと動くかの挙動を確認。
-//通信中どうするか
+
 public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
 {
     public static readonly SimpleRoleInfo RoleInfo =

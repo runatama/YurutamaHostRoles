@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
+
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 
@@ -8,7 +8,6 @@ namespace TownOfHost.Roles.Ghost
     public static class GhostNoiseSender
     {
         private static readonly int Id = 60500;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.GhostNoiseSender);
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static OptionItem Time;

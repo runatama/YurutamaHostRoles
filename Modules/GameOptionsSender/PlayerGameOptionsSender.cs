@@ -82,10 +82,11 @@ namespace TownOfHost.Modules
 
             AURoleOptions.ShapeshifterLeaveSkin = false;//スキンはデフォではOFFにする
 
+            AURoleOptions.SetOpt(opt);
+
             AURoleOptions.NoisemakerImpostorAlert = true;
             AURoleOptions.NoisemakerAlertDuration = GhostNoiseSender.NoisTime.GetFloat();
 
-            AURoleOptions.SetOpt(opt);
             var state = PlayerState.GetByPlayerId(player.PlayerId);
             opt.BlackOut(state.IsBlackOut);
 
@@ -265,6 +266,7 @@ namespace TownOfHost.Modules
 
         public override bool AmValid()
         {
+            //キルクとか反映されないから～
             return base.AmValid() && player != null && (!player.Data.Disconnected || !SelectRolesPatch.Disconnected.Contains(player.PlayerId)) && Main.RealOptionsData != null;
         }
     }

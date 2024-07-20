@@ -92,8 +92,6 @@ namespace TownOfHost
 
                     while (parent != null && enabled)
                     {
-                        //Memo.なんか濁った感じのあんまり綺麗じゃない色だからどうにかしたい。
-                        //それか文字縁取りかな...見辛い。
                         enabled = parent.GetBool();
                         parent = parent.Parent;
                         opt.color = new Color32(90, 100, 120, 255);

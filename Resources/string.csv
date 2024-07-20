@@ -50,7 +50,6 @@
 "Mole","Mole","モグラ","鼹鼠","鼴鼠","Крот","Verruga","Прогресс"
 "ProgressKiller","ProgressKiller","プログレスキラー","进度杀手","進度殺手","Прогресс Убийца","Progresso Killer",""
 "EvilAddoer","EvilAddoer","イビルアドナー","","","","",""
-"ConnectSaver","ConnectSaver","コネクトセーバー"
 "Reloader","Reloader","リローダー"
 "#ImpostorName"
 
@@ -66,7 +65,6 @@
 "MadAvenger","MadAvenger","マッドアベンジャー","背叛的复仇者","背叛的復仇者","Безумный Мститель","Vingador Louco",""
 "MadWorker","MadWorker","マッドワーカー","","","","",""
 "MadTracker","MadTracker","マッドトラッカー","","","",""
-"MadChanger","MadChanger","マッドチェンジャー"
 "#MadmateName"
 
 "# 特殊クルー役職"
@@ -101,7 +99,6 @@
 "InSender","InSender","インセンダー","","","","",""
 "Staff","Staff","スタッフ","","","","",""
 "SwitchSheriff","SwitchSheriff","スイッチシェリフ"
-"NiceLogger","NiceLogger","ナイスロガー"
 "Android","Android","アンドロイド"
 "#CrewmateName"
 
@@ -136,7 +133,6 @@
 "Sidekick","Sidekick","サイドキック"
 "DoppelGanger","DoppelGanger","ドッペルゲンガー"
 "MassMedia","MassMedia","マスメディア"
-"Banker","Banker","バンカー"
 "#NeutralName"
 
 "#コンビネーション役職"
@@ -173,11 +169,9 @@
 "Workhorse","Workhorse","ワークホース","加班狂","加班狂","Работник","Burro de Carga",""
 
 "# GhostRole"
-"Ghostbuttoner","Ghostbuttoner","ゴーストボタナー"
 "GhostNoiseSender","GhostNoiseSender","ゴーストノイズセンダー"
 "DemonicTracker","DemonicTracker","デーモントラッカー"
 "DemonicCrusher","DemonicCrusher","デーモンクラッシャー"
-"AsistingAngel","AsistingAngel","アシスティングエンジェル"
 
 "# バフ属性"
 "watching","watching","ウォッチング","窥视者","觀察者","Наблюдатель","Observador","Observador"
@@ -258,7 +252,6 @@
 "ProgressKillerInfo","Let's eliminate them before they shine","働き者を見つけ、キルしよう","","","","",""
 "DriverInfo","Ruin the crew with Blade","ブレイドと共にクルーを破滅せよ","","","","",""
 "EvilAddoerInfo","","様々な能力を活用し、皆殺しにしよう"
-"ConnectSaverInfo","","君たちは繋がっている"
 "ReloaderInfo","Let's reload and shoot!!","即座にリロードして発射しよう"
 "#ImpostorInfo"
 
@@ -276,7 +269,6 @@
 "BraidInfo","Let's assist the Imposter, especially the driver","インポスター、特にドライバー様の援助をしよう","","","","",""
 "MadWorkerInfo","","タスクを済ませ、インポスターを勝利へ導こう","","","","",""
 "MadTrackerInfo","","能力を駆使し、インポスターの援助をしよう"
-"MadChangerInfo","","僕達...入れ替わってる...!?"
 "#MadmateInfo"
 
 "# 特殊クルー役職"
@@ -311,7 +303,6 @@
 "InSenderInfo","","せめてもの抵抗さ...!"
 "SwitchSheriffInfo","","インポスターを撃ち抜け。但しタスクも疎かにするな"
 "StaffInfo","let's do your tasks","タスクをこなそう"
-"NiceLoggerInfo","","センサーを上手く活用しよう"
 "AndroidInfo","","01001011"
 "#CrewmateInfo"
 
@@ -348,8 +339,7 @@
 "MonochromerInfo","","君の世界には色があるのに..."
 "JackaldollInfo","You are now on Team Jackals","ジャッカルの援助をしよう"
 "DoppelGangerInfo","","ちゃんと君を生きてやるから"
-"MassMediaInfo","","面白いネタ無いかなぁ..."
-"BankerInfo","","状況を見てうまく立ち回れ"
+"MassMediaInfo","","面白いネタ無いかなぁ..
 "#NeutralInfo"
 
 "# HideAndSeek"
@@ -363,11 +353,9 @@
 "GMInfo","You are the Game Master","ゲームマスターだ","你是管理员，在旁边看戏吧","當吃瓜群眾在一旁看戲吧","Вы Мастер Игры","Você é o Mestre de Jogo (MJ)","Você é o Mestre do Jogo (GM)"
 
 "# GhostRoll"
-"GhostbuttonerInfo","","おっと。あぶないあぶない"
 "GhostNoiseSenderInfo","","ﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞ...ﾋﾟﾋﾟﾋﾟ!!"
 "DemonicTrackerInfo","","君の居場所はお見通し"
 "DemonicCrusherInfo","","どっかーん！"
-"AsistingAngelInfo","","君を勝たせてあげる..."
 
 "# 属性"
 "LastImpostorInfo","You are the last of us","残ったのはあなただけ","你是狼村最后的希望…","你是狼村最後的希望...","Ты последний предатель","Você é o último Impostor","Você é o último Impostor"
@@ -438,7 +426,6 @@
 "DecrescendoInfoLong","","設定回数キルするとキルクール増加等の弱化を受けてしまう。また、追加でキルする度にさらに弱化していく。\n弱化が始まるキル数が多いほど、弱化の効果が強くなる。","","","","",""
 "DriverInfoLong","","ドライバーとブレイドのコンビネーション役職。\nブレイドはクルーだがインポスターの味方をする。インポスターと互いに認識できない。\nブレイドが既定のタスク数を完了させると、ドライバーに様々な能力が付与される。","","","","",""
 "EvilAddoerInfoLong","","イビルアドナー専用で属性が付与される。\n同じ属性が重複している場合、重複した属性はイビルアドナーの設定が優先される。\nただし、ラストインポスターで付与された属性はラストインポスターの設定が優先される。"
-"ConnectSaverInfoLong","","会議で自投票するとコネクトモードに変更できる。\nコネクトモード中に自身以外の2名に投票するとその2名をコネクトすることが出来る。\n次のタスクターン中にコネクト相手のどちらかをキルすると\nコネクトされた人を両方キルすることが出来る。"
 "ReloaderInfoLong","","ワンクリックボタンを使用することでキルクールダウンが設定値にリロードされる。"
 "#ImpostorInfoLong"
 
@@ -455,7 +442,6 @@
 "MadAvengerInfoLong","You are a crewmate, but you act as the impostors' ally.\n","クルーだがインポスターの味方をする。\nインポスターと互いに認識できない。\n1.タスクを全て完了している\n2.生存人数が設定数以上\n3.インポスターが全滅している\n以上の条件を全て満たしている時、ベントに入ることで革命会議を開くことが出来る。\nただし、タスク完了後に全ての条件を満たしていない状態でベントに入ると自殺してしまう。\n革命会議では会議を開いたマッドアベンジャーのみが投票でき、投票で能力を発動する役職も能力を使用できない。\nマッドアベンジャーが生存しているキル可能ニュートラルのプレイヤー全員に投票することで、インポスターが逆転勝利できる。\nただし、キル可能ニュートラルではないプレイヤーに投票すると即自爆し、会議が終了する。","","","","",""
 "MadWorkerInfoLong","","クルーだがインポスターの味方をする。\nインポスターと互いに認識できない。\n生存中にタスクを全て完了させると、その時点でインポスター勝利できる。","","","","",""
 "MadTrackerInfoLong","","クルーだがインポスターの味方をする。\nインポスターと互いに認識できない。\nベントが使えない代わりにトラック能力を持つ。\nタスクはない。"
-"MadChangerInfoLong","","クルーだがインポスターの味方をする。\nキルボタンで対象を決めてから\nシェイプシフトを行うことで対象者二人の位置を入れ替えることが出来る。\n対象者が同一人物,キルでの対象者,キルでの対象者が死亡済みの場合は自身が対象となる。\n対象者がテレポートできない状態であれば能力は発動されない。"
 "#MadmateInfoLong"
 
 "# 特殊クルー役職"
@@ -490,7 +476,6 @@
 "InSenderInfoLong","","キルされた時に、自身が自身の死体をレポートする。"
 "StaffInfoLong","","スタッフが生存中にタスクを終えていない状態で試合が終了した場合、スタッフはクルーメイト陣営として勝利することができない。\nスタッフのタスクはクルーメイトのタスクには含まれない。\nベントを使用する事ができる。(設定あり)"
 "SwitchSheriffInfoLong","","ベントに入ることでタスクモードとシェリフモードを切り替えることが出来る。\nタスクモード中にはシェリフのキル能力が使用できない。\nシェリフモードではタスクが行えない。"
-"NiceLoggerInfoLong","","シェイプシフトボタンを使用することで一番近くにあるドアにセンサーを設置することが出来る。\nセンサーを設置したドアの付近にいるプレイヤーを検知し、会議時に通知を受け取ることが可能。\n会議後、センサーは再設置する必要がある。\nセンサーがプレイヤーを検知すると、次の検知までに一定時間クールタイムが発生する"
 "AndroidInfoLong","","タスクを行うことでバッテリーをチャージすることが出来る。\nバッテリー残量によって、ベントクールタイム,ベントに籠れる時間が変動する。\nサボタージュの発動中はベントに入ることが出来ない。\n100%以上に充電されることはない。"
 "#CrewmateInfoLong"
 
@@ -511,11 +496,10 @@
 "GrimReaperInfoLong","","【勝利条件】以下のどちらかを満たせば死神の単独勝利\n①生存者がインポスター1人,死神1人,クルーカウントの役職が0人\n②死神生存かつクルー陣営が勝利条件達成(タスク勝利を除く)\n\n死神はキルボタンを押すことで、1ターンに1人まで呪うことができる。\n呪われた人は会議開始と同時に死亡する。ただし、死神がそのターンに死亡すれば会議開始以降も生存できる。\n死神は死体通報ができず、生存人数にカウントされない。","","","","",""
 "MadonnaInfoLong","","会議で自投票すると告白モードに変更できる。\n告白モードの状態で自身以外の誰かに投票すると、投票先のプレイヤーに告白することができる。\n相手がすでにラバーズでなければ告白が成功。その相手とマドンナラバーズになれる。\n相手がラバーズなら告白は失敗。ラバーズになれない。\n告白失敗時は役職が変化する。\nマドンナにラバーズは配役されない。","","","","",""
 "WorkaholicInfoLong","","クルーよりもタスクが多い。\n生存中にタスクを全て完了することで単独勝利できる。\n死亡後にタスクを全て完了しても勝利できない。","","","","",""
-"MonochromerInfoLong","","最後まで生存しているかつ、クルー陣営が勝利すると乗っ取り勝利できる。\nタスクターン中、他のプレイヤー(ウルトラスターを除く)が全員グレーになり、識別できなくなる。\nグレーではなく白,黒で表示するように設定で変更が可能。\n白,黒表示では元々のスキンの色で分けられており、以下の通りである。\n\n<color=#ee54bb>ピンク</color>,<color=#f07d0d>オレンジ</color>,<color=#f6f657>イエロー</color>,<color=#d7e1f1>ホワイト</color>,<color=#38ffdd>シアン</color>,<color=#50f039>ライム</color>,<color=#ecc0d3>ローズ</color>,<color=#f0e7a8>バナナ</color>,<color=#d76464>コーラル</color>→白\n<color=#c61111>レッド</color>,<color=#132ed2>ブルー</color>,<color=#11802d>グリーン</color>,<color=#3f474e>ブラック</color>,<color=#6b2fbc>パープル</color>,<color=#71491e>ブラウン</color>,<color=#5f1d2e>マルーン</color>,<color=#758593>グレー</color>,<color=#918877>タン</color>→黒"
+"MonochromerInfoLong","","最後まで生存しているかつ、クルー陣営が勝利すると勝利できる。\nタスク勝利だと自身も追加、それ以外だと乗っ取り勝利する。\nタスクターン中、他のプレイヤー(ウルトラスターを除く)が全員グレーになり、識別できなくなる。\nグレーではなく白,黒で表示するように設定で変更が可能。\n白,黒表示では元々のスキンの色で分けられており、以下の通りである。\n\n<color=#ee54bb>ピンク</color>,<color=#f07d0d>オレンジ</color>,<color=#f6f657>イエロー</color>,<color=#d7e1f1>ホワイト</color>,<color=#38ffdd>シアン</color>,<color=#50f039>ライム</color>,<color=#ecc0d3>ローズ</color>,<color=#f0e7a8>バナナ</color>,<color=#d76464>コーラル</color>→白\n<color=#c61111>レッド</color>,<color=#132ed2>ブルー</color>,<color=#11802d>グリーン</color>,<color=#3f474e>ブラック</color>,<color=#6b2fbc>パープル</color>,<color=#71491e>ブラウン</color>,<color=#5f1d2e>マルーン</color>,<color=#758593>グレー</color>,<color=#918877>タン</color>→黒"
 "JackaldollInfoLong","","ジャッカル陣営の味方をする。\nジャッカル、ジャッカルマフィアと互いに認識できる。\nご主人が全滅した場合設定に応じて役職が変わったりなどする。\nタスクはない。"
 "DoppelGangerInfoLong","","シェイプ対象以外キルが出来ない。\nまた、シェイプシフトを解除することもできない。\nシェイプシフト中にカウントが0.1/s溜まり、シェイプ対象をキルすると、通報までカウントが1/s貯まる。\n追加勝利に必要なカウントを超えゲーム終了まで生存していると追加勝利、\n勝利に必要なカウントに達するとその時点で自身が勝利する。\nベントやサボタージュは使用不可能"
 "MassMediaInfoLong","","キルボタンを使ってその人を追跡することが出来る。\nマスメディアは追跡相手の位置が分かるが、追跡相手が近いと視界が真っ暗になる。\n追跡相手がキルされ、自身が通報した場合、\n誰が追跡相手をキルしたのかを投票で推測することが出来る。\n推測を行った場合は会議が即座に終了する。スキップの場合は推測が行われない。\n推測があっていた場合、マスメディアの勝利、間違っていればマスメディアが死亡する。\nまた、情報機器を使用することが出来ない。追跡相手等は会議でリセットされる。\nマスメディアが対象の死体を通報する時にのみ、属性(役職付与属性含む)の効果は適応されない"
-"BankerInfoLong","","タスク、キルを行うことでポイントが貯まる。\nモード変更、ターン開始時にポイントを消費する。\nベントに入ることでキルモード,タスクモードを切り替えることが出来る。\n試合終了時点で一定ポイント所持していると追加勝利。"
 "#NeutralInfoLong"
 
 "# HideAndSeek"
@@ -526,11 +510,9 @@
 "GMInfoLong","(None):\nThe GM (Game Master) is an observer role.\nTheir presence has no effect on the game, and all players know who the GM is. The GM role will be assigned to the host, who will automatically become a ghost at the start of the game.","(なし):\nGM(ゲームマスター)はオブザーバー役職である。\nGMはゲーム自体には何の影響も与えず、すべてのプレイヤーは誰がGMであるかがわかる。必ずホストに割り当てられ、始めから幽霊状態になっている。","（无阵营）：\nGM(管理员)是房主专属的观察者职业。从游戏开始时便以幽灵状态在旁边观战。 \n该职业本身对游戏没有影响，且会议中对所有玩家可见。 ","（不屬於任何陣營）：\nGM(遊戲大師)是遊戲的觀察者, \nGM對遊戲進行過程沒有影響,所有玩家都知道GM是誰,該職業絕對會分配給房主。\nGM(遊戲大師)從開始遊戲時就處於死亡狀態。","(Никто):\nМастер Игры — это роль, которая наблюдает за игрой в роле призрака. \nОн не влияет на игру, и все игроки всегда знают кто Мастер Игры. Всегда назначается только хосту лобби и становится призраком в самом начале игры.","(Nenhum): \nO Mestre de Jogo é uma classe de observação. \nA sua presença não afeta o jogo, e todos os jogadores sabem quem é o MJ. A classe de MJ será dada ao anfitrião, que será um fantasma desde o começo do jogo.",""
 
 "# GhostRole"
-"GhostbuttonerInfoLong","","(幽霊役職):\n死亡したクルー陣営にしか付与されない。\n守護能力を発動すると緊急会議を起こすことが出来る。"
 "GhostNoiseSenderInfoLong","","(幽霊役職):\n死亡したクルー陣営にしか付与されない。\n守護能力を発動すると対象者が死亡した時対象者がノイズメーカーの能力を発揮する。\n死体が残らない死に方をした場合、能力は発揮されない"
 "DemonicTrackerInfoLong","","(幽霊役職):\n死亡したマッドメイトにしか付与されない。\n守護能力の使用相手の居場所がインポスターに通知されるようになる。"
 "DemonicCrusherInfoLong","","(幽霊役職):\n死亡したマッドメイトにしか付与されない。\n守護能力を発動しようとすると\n一定時間生存者全員情報機器が使えなくなる。"
-"AsistingAngelInfoLong","","(幽霊役職):\n死亡したクルー/ニュートラルにしか付与されない。\n初めての守護能力を使用した相手が勝利すると自身も追加勝利する。\n\n二回目以降守護能力を使用すると、\n(守護能力の対象が1回目と同じなら)\n一定時間キルガードを付与する。\n(1回目と違うなら)\n発動した時の位置が1回目の能力の使用者に通知される。\n能力を使用した場合、次のクールダウンが増加する。\n\n幽霊,幽霊役職設定に関わらず他人の役職などが見えない。\n元の勝利条件は無くなり、タスクもなくなる。"
 
 "# 属性"
 "LastImpostorInfoLong","(Add-ons):\nAn Add-on granted to the last Impostor remaining.\nKill cooldown is reduced according to this setting.\nNot granted to Bounty Hunters, Serial Killers, or Vampires.","(属性):\n最後のインポスターに付与される属性。\nキルクールが設定した時間まで短くなる。\n一部インポスター役職には付与されない。","（效果）:\n这个效果在内鬼仅剩一人时赋予该内鬼。\n使其击杀冷却缩短。\n该效果对赏金猎人、嗜血杀手以及吸血鬼不适用。","(附加效果):\n該效果給予在場上的最後一位偽裝者，擁有該效果的偽裝者刀人冷卻時間會變短，該效果不會給予:\n賞金獵人, 連環殺手或吸血鬼 (可以設定冷卻)","(Атрибут):\nАтрибут, присваивается последнему Предателю. \nВремя отката убийства становится меньше, чем обычно. \nНе назначается Охотнику за головами, Серийному убийце или Вампиру.","(Atributos): \nUm Atributo dado ao último Impostor. \nO tempo de recarga (abate) é reduzido segundo a configuração. \nNão é dado para Caçadores de Recompensas, Serial Killers ou Vampiros.",""
@@ -941,7 +923,6 @@
 "MadAvengerReserveTimeCanVent","Can Use Nomal Vent","革命準備が出来るまでベントが使える","","","","",""
 "MadBaitRandomReport","Impostor Kill Random Report","ｲﾝﾎﾟｽﾀｰがキルしたら通報者をランダムにする"
 "MadBaitIgnoreImpostor","IgnoreImpostor","対象からｲﾝﾎﾟｽﾀｰを除外する"
-"MadChangerKillTargetCooldown","","キル選択クールダウン"
 
 "## CrewMate RoleSetting"
 "BaitComms","","通信妨害中は能力を発揮できない"
@@ -987,7 +968,6 @@
 "Ucount","Fortune-telling times","占い可能回数","","","","",""
 "Votemode","Fortune telling method","占い方法","","","","",""
 "TellerCollectRect","Rect","占い成功率","","","","",""
-"NiceLoggerCoolTime","","センサーのクールタイム"
 "AndroidAddTaskBattery","","タスク完了毎の充電量"
 "AndroidRemoveBattery","","バッテリーが減少する"
 "AndroidRemove","","減少量"
@@ -1029,15 +1009,6 @@
 "DoppelGangerWinCount","","追加勝利に必要なカウント"
 "DoppelGangerWin","","単独勝利に必要なカウント"
 "MassMediaShikai","Vision","追跡相手が近くにいる場合の視界"
-"BankerFarstCoin","","最初に所持しているポイント"
-"BankerTaskAddCoin","","タスクを行うことで手に入るポイント"
-"BankerKillAddCoin","","キルすることで手に入るポイント"
-"BankerChengeCoin","","モード変更で消費するポイント"
-"BankerTranRemoveCoin","","ターン開始時に消費するポイント"
-"BankerWincoin","","勝利に必要なポイント"
-"BankerDieCanWin","","死亡していても勝利できる"
-"BankerDieRemoveCoin","","死亡時に消費するポイント"
-"BankerDieRemoveTarn","","死亡状態でターン開始時に消費するポイント"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール","","","","",""
@@ -1117,13 +1088,8 @@
 "GRCanSeeNumberOfButtonsOnOthers","Ghost Can See Num Emergency Meetings","他人の緊急ボタン残数を見ることが出来る"
 "GRCanSeeKillflash","GhostRole Can See KillFlash","キルフラッシュを見ることが出来る"
 "GhostButtonerCoolDown","CoolDown","クールダウン"
-"GhostButtonerCount","","会議を開ける回数"
 "GhostNoiseSenderTime","","効果時間"
 "DemonicCrusherAbilityTime","AbilityTime","効果時間"
-"AsistingAngelCoolDown","First CoolDown","最初のクールダウン"
-"AsistingAngelAddClowDown","Add CoolDown","追加されていくクールダウン"
-"AsistingAngelGuardtime","Guard time","ガードされる時間"
-"AsistingAngelLimitDay","","アシスト対象の選択期限"
 
 "## ランダムスポーンポイント"
 "Junction","Junction","三叉路","","","","",""

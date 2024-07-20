@@ -63,11 +63,11 @@ namespace TownOfHost
         //デバッグ有効期限
         public static int DebugvalidityYear = 2024;//年
         public static int DebugvalidityMonth = 7;//月
-        public static int DebugvalidityDay = 21;//日
+        public static int DebugvalidityDay = 25;//日
         //デバッグ版リリース日
         public static int ReleaseYear = 2024;
         public static int ReleaseMonth = 7;
-        public static int ReleaseDay = 18;
+        public static int ReleaseDay = 21;
         public static bool DebugCheck()
         {
             if (!NotKigenDebug && DebugVersion)

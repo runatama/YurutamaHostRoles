@@ -1607,9 +1607,9 @@ namespace TownOfHost
             if (player.Is(CustomRoles.MaLovers)) s.Append(k + AddonInfo(CustomRoles.MaLovers, "♥", From.Love_Couple_Mod) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
             //ラスト系
-            if (player.Is(CustomRoles.LastImpostor)) s.Append(k + AddonInfo(CustomRoles.LastImpostor, "", From.TownOfHost) + "\n");
-            if (player.Is(CustomRoles.LastNeutral)) s.Append(k + AddonInfo(CustomRoles.LastNeutral, "") + "\n");
-            if (player.Is(CustomRoles.Workhorse)) s.Append(k + AddonInfo(CustomRoles.Workhorse, "", From.TownOfHost) + "\n");
+            if (player.Is(CustomRoles.LastImpostor)) s.Append(k + AddonInfo(CustomRoles.LastImpostor, from: From.TownOfHost) + "\n");
+            if (player.Is(CustomRoles.LastNeutral)) s.Append(k + AddonInfo(CustomRoles.LastNeutral) + "\n");
+            if (player.Is(CustomRoles.Workhorse)) s.Append(k + AddonInfo(CustomRoles.Workhorse, from: From.TownOfHost) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
 
             if (s.ToString().RemoveHtmlTags() != "" && s.Length != 0)
@@ -1637,7 +1637,7 @@ namespace TownOfHost
             if (role == CustomRoles.Moon) s += k + AddonInfo(role, "э");
 
             //デバフ
-            if (role == CustomRoles.Amnesia) s += k + AddonInfo(role, "");
+            if (role == CustomRoles.Amnesia) s += k + AddonInfo(role);
             if (role == CustomRoles.SlowStarter) s += k + AddonInfo(role, "Ｓs");
             if (role == CustomRoles.Notvoter) s += k + AddonInfo(role, "Ｖ");
             if (role == CustomRoles.Elector) s += k + AddonInfo(role, "Ｅ");
@@ -1659,19 +1659,18 @@ namespace TownOfHost
             if (role == CustomRoles.MaLovers) s += k + AddonInfo(role, "♥");
 
             //ラスト
-            if (role == CustomRoles.LastImpostor) s += k + AddonInfo(role, "", From.TownOfHost);
-            if (role == CustomRoles.LastNeutral) s += k + AddonInfo(role, "");
-            if (role == CustomRoles.Workhorse) s += k + AddonInfo(role, "", From.TownOfHost);
-            if (role == CustomRoles.Amanojaku) s += k + AddonInfo(role, "");
+            if (role == CustomRoles.LastImpostor) s += k + AddonInfo(role, from: From.TownOfHost);
+            if (role == CustomRoles.LastNeutral) s += k + AddonInfo(role);
+            if (role == CustomRoles.Workhorse) s += k + AddonInfo(role, from: From.TownOfHost);
+            if (role == CustomRoles.Amanojaku) s += k + AddonInfo(role);
             //幽霊役職
 
-            if (role == CustomRoles.GhostNoiseSender) s += k + AddonInfo(role, "");
-            if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role, "");
-            if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role, "");
-
+            if (role == CustomRoles.GhostNoiseSender) s += k + AddonInfo(role);
+            if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role);
+            if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role);
             return s;
         }
-        public static string AddonInfo(CustomRoles role, string Mark, From from = From.None)
+        public static string AddonInfo(CustomRoles role, string Mark = "", From from = From.None)
         {
             var m = "\n<size=90%><line-height=1.8pic>";
             var f = $"\n{GetFrom(from)}\n";

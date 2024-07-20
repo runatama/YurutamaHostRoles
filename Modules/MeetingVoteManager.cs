@@ -242,15 +242,16 @@ public class MeetingVoteManager
             ExileControllerWrapUpPatch.AntiBlackout_LastExiled = result.Exiled;
         }
         else
+        {
             meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
-        //}
+            //AntiBlackout.SetRole(result.Exiled?.Object);
+        }
         if (result.Exiled != null)
         {
             MeetingHudPatch.CheckForDeathOnExile(CustomDeathReason.Vote, result.Exiled.PlayerId);
         }
         Destroy();
     }
-
     /// <summary>
     /// <see cref="AllVotes"/>から投票をカウントします
     /// </summary>

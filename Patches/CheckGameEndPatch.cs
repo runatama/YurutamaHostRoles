@@ -45,7 +45,7 @@ namespace TownOfHost
                 switch (CustomWinnerHolder.WinnerTeam)
                 {
                     case CustomWinner.Crewmate:
-                        if (Monochromer.CheckWin()) break;
+                        if (Monochromer.CheckWin(reason)) break;
 
                         Main.AllPlayerControls
                             .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsRiaju()

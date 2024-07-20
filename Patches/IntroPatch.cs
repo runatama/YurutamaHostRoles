@@ -17,6 +17,18 @@ namespace TownOfHost
     {
         public static void Postfix(IntroCutscene __instance)
         {
+            if (AmongUsClient.Instance.AmHost)//タイミングが悪いと初手クール0になっちゃうヨ
+            {
+                _ = new LateTask(() =>
+                {
+                    if (GameStates.InGame)
+                        foreach (var pc in Main.AllPlayerControls)
+                        {
+                            if (pc == PlayerControl.LocalPlayer && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)) continue;
+                            pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
+                        }
+                }, 0.5f, "Set Rolet");
+            }
             if (!GameStates.IsModHost) return;
             _ = new LateTask(() =>
             {
@@ -343,11 +355,7 @@ namespace TownOfHost
                 //desyneインポかつ置き換えがimp以外ならそれにする。
                 if (roleInfo?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
-                foreach (var pc in Main.AllPlayerControls)
-                {
-                    if (pc == PlayerControl.LocalPlayer && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)) continue;
-                    pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
-                }
+
                 _ = new LateTask(() =>
                 {
                     foreach (var role in CustomRoleManager.AllActiveRoles.Values)
