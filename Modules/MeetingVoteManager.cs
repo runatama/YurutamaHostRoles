@@ -77,14 +77,16 @@ public class MeetingVoteManager
         bool doVote = true;
         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
         {
-            var (roleVoteFor, roleNumVotes, roleDoVote) = role.ModifyVote(voter, voteFor, isIntentional);
+            var (roleVoteFor, roleNumVotes, roleDoVote) = ((byte?)voteFor, (int?)numVotes, isIntentional);
+            var player = Utils.GetPlayerById(voter);
+            if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                (roleVoteFor, roleNumVotes, roleDoVote) = role.ModifyVote(voter, voteFor, isIntentional);
 
             if (roleVoteFor.HasValue)
             {
                 logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
                 voteFor = roleVoteFor.Value;
             }
-            var player = Utils.GetPlayerById(voter);
             var pc = Utils.GetPlayerById(voteFor);
             if (!pc.IsAlive() && voteFor != Skip && voteFor != NoVote)
             {

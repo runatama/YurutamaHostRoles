@@ -47,10 +47,11 @@ public static class HudOverrideSystemTypeUpdateSystemPatch
 
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveClumsy.GetBool()) return false;
 
-        if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHudOverrideSystem(__instance, amount))
-        {
-            return false;
-        }
+        if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+            if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHudOverrideSystem(__instance, amount))
+            {
+                return false;
+            }
         return true;
     }
     public static void Postfix()

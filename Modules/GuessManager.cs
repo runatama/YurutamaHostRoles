@@ -204,7 +204,7 @@ public static class GuessManager
                             Utils.SendMessage(Utils.GetPlayerColor(dp, true) + GetString("Meetingkill"), pl.PlayerId, GetString("MSKillTitle"));
                         }
                     }, 0.1f, "Guess Msg");
-                }, 0.2f, "Guesser Kill");
+                }, Main.LagTime, "Guesser Kill");
 
                 if (pc == dp)
                 {

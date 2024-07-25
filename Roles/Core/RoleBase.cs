@@ -263,6 +263,7 @@ public abstract class RoleBase : IDisposable
     { }
     /// <summary>
     /// ゲーム開始のイントロ後に呼ばれる関数。
+    /// ※アムネシア制御効かないので個別で処理
     /// </summary>
     public virtual void StartGameTasks()
     { }
@@ -274,6 +275,7 @@ public abstract class RoleBase : IDisposable
     { }
     /// <summary>
     /// モノクラー等に使う。シェイプ後,イントロ後,タスクターン始めに呼ばれる。
+    /// ※アムネシア制御効かないので個別で処理
     /// </summary>
     public virtual void Colorchnge()
     { }
@@ -288,6 +290,7 @@ public abstract class RoleBase : IDisposable
     /// <summary>
     /// サボタージュを起すことが出来るか判定する。
     /// ドア閉めには関与できない
+    /// ※アムネシア制御効かないので個別で処理
     /// </summary>
     /// <param name="systemType">サボタージュの種類</param>
     /// <returns>falseでサボタージュをキャンセル</returns>
@@ -295,6 +298,7 @@ public abstract class RoleBase : IDisposable
 
     /// <summary>
     /// 誰かがサボタージュを発生させたときに呼ばれる
+    /// ※アムネシア制御効かないので個別で処理
     /// </summary>
     /// <param name="player">アクションを起こしたプレイヤー</param>
     /// <param name="systemType">サボタージュの種類</param>

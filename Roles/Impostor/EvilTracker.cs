@@ -198,6 +198,8 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     }
     public override void AfterMeetingTasks()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+
         if (CurrentTargetMode == TargetMode.EveryMeeting)
         {
             ReEnableTargeting();

@@ -152,6 +152,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public override string MeetingMeg()
         {
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return "";
             if (SpelledPlayer.Count == 0) return "";
 
             var r = GetString("Skill.Witchf").Color(Palette.ImpostorRed) + "\n";
@@ -218,6 +219,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public override void AfterMeetingTasks()
         {
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
             if (Player.IsAlive() || MyState.DeathReason != CustomDeathReason.Vote)
             {//吊られなかった時呪いキル発動
                 var spelledIdList = new List<byte>();

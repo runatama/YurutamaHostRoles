@@ -2,6 +2,7 @@ using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Neutral;
 
@@ -102,6 +103,10 @@ namespace TownOfHost
                         if (Player != PlayerControl.LocalPlayer)
                             foreach (var pc in Main.AllPlayerControls)
                             {
+                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
+                                {
+                                    pc.RpcSetRoleDesync(RoleTypes.Crewmate, Player.PlayerId);
+                                }
                                 var role = pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
                                 if (!pc.IsAlive())
                                     if (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as Roles.Core.Interfaces.IKiller)?.CanUseSabotageButton() ?? false))
@@ -112,10 +117,27 @@ namespace TownOfHost
                                 if (Player != pc && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false))
                                     role = !pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
                                 if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
+
                                 var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
+
+                                if (pc.Is(CustomRoles.Amnesia))
+                                {
+                                    if (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && !pc.Is(CustomRoleTypes.Impostor))
+                                        role = RoleTypes.Crewmate;
+
+                                    if (Amnesia.DontCanUseAbility.GetBool())
+                                    {
+                                        if (pc.Is(CustomRoleTypes.Impostor))
+                                            role = RoleTypes.Impostor;
+                                        else role = RoleTypes.Crewmate;
+                                    }
+                                }
+
                                 pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
                             }
                         if (!Player.IsAlive()) Player.RpcExileV2();
+
+                        if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) Player.RpcExileV2();
 
                         Player.ResetKillCooldown();
                         Player.SyncSettings();
@@ -123,7 +145,7 @@ namespace TownOfHost
                             {
                                 Player.SetKillCooldown(kyousei: true, delay: true);
                                 Player.RpcResetAbilityCooldown(kousin: true);
-                            }, 0.2f, "");
+                            }, Main.LagTime, "");
                     }
                     _ = new LateTask(() =>
                     {
@@ -140,8 +162,8 @@ namespace TownOfHost
                                     Utils.MarkEveryoneDirtySettings();
                                 }
                                 Utils.SyncAllSettings();
-                            }, 0.2f, "AfterMeetingNotifyRoles");
-                    }, 0.2f, "");
+                            }, Main.LagTime, "AfterMeetingNotifyRoles");
+                    }, Main.LagTime, "");
                 }, 0.7f, "");
             }
 

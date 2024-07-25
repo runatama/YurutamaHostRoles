@@ -105,7 +105,9 @@ namespace TownOfHost
             }
             if (GameStates.IsInGame && maxLevel != 3)
                 text += $"\n{GetString("TerminateCommand")}: Shift+L+Enter";
-            Text.text = text;
+            Text.text = $"<b>{text}</b>";
+            Text.SetOutlineColor(Palette.Black);
+            Text.SetOutlineThickness(0.14f);
         }
         public void Clear()
         {
@@ -158,6 +160,8 @@ namespace TownOfHost
         // 010 参加/退出関連
         OnPlayerLeftPostfixFailedInGame = 010_000_2,  // 010-000-2 OnPlayerLeftPatch.Postfixがゲーム中に失敗
         OnPlayerLeftPostfixFailedInLobby = 010_001_2,  // 010-001-2 OnPlayerLeftPatch.Postfixがロビーで失敗
+        // 011 Ping
+        CommunicationisUnstable = 011_000_1, // 011-000-1 通信が不安定(750ms以上を検知したら)
         // ==========
         // 000 Test
         NoError = 0000000, // 000-000-0 No Error

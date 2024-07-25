@@ -181,6 +181,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
     public override string GetAbilityButtonText() => GetString("BountyHunterChangeButtonText");
     public override void AfterMeetingTasks()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Player.IsAlive())
         {
             Player.RpcResetAbilityCooldown();

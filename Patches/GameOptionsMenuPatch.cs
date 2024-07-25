@@ -576,6 +576,18 @@ namespace TownOfHost
                                     ob.Cast<NumberOption>().ValidRange.min = 0;
                                 }
                                 break;
+                            case StringNames.GameTaskBarMode:
+                                {
+                                    ob.enabled = false;
+                                    ob.transform.position = new Vector3(999f, 999f);
+                                    ob.Cast<NumberOption>().ValidRange = new FloatRange(2, 2);
+                                }
+                                break;
+                            case StringNames.GameConfirmImpostor:
+                                {
+                                    ob.transform.position = new Vector3(999f, 999f);
+                                }
+                                break;
                             default:
                                 break;
                         }

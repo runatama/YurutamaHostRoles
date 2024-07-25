@@ -114,6 +114,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
     }
     public override void OnStartMeeting()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Player.IsAlive())
         {
             if (Braid.DriverseeKillFlash)

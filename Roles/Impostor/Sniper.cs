@@ -309,7 +309,7 @@ public sealed class Sniper : RoleBase, IImpostor
                 GetArrow.Add(pc.PlayerId, SnipeBasePosition);
                 HyoujiTime = OpHyoujitime.GetFloat();
             }
-        }, 0.2f, "");
+        }, Main.LagTime, "");
 
     }
     public override void OnFixedUpdate(PlayerControl player)

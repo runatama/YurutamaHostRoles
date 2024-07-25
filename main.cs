@@ -63,11 +63,11 @@ namespace TownOfHost
         //デバッグ有効期限
         public static int DebugvalidityYear = 2024;//年
         public static int DebugvalidityMonth = 7;//月
-        public static int DebugvalidityDay = 25;//日
+        public static int DebugvalidityDay = 30;//日
         //デバッグ版リリース日
         public static int ReleaseYear = 2024;
         public static int ReleaseMonth = 7;
-        public static int ReleaseDay = 21;
+        public static int ReleaseDay = 25;
         public static bool DebugCheck()
         {
             if (!NotKigenDebug && DebugVersion)
@@ -79,7 +79,8 @@ namespace TownOfHost
                 if (!(Re <= now && now <= Rem))
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                    Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.GetHashedPuid()}");
+                    if (client != null)
+                        Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.GetHashedPuid()}");
                     return false;
                 }
             }
@@ -172,6 +173,7 @@ namespace TownOfHost
         public static Dictionary<byte, string> LastLog = new();
         public static Dictionary<byte, string> LastLogRole = new();
         public static Dictionary<byte, string> LastLogPro = new();
+        public static Dictionary<byte, int> KillCount = new();
         public static string Alltask;
         public static Dictionary<int, List<Vector2>> CustomSpawnPosition = new();
         public static byte LastSab;
@@ -182,6 +184,8 @@ namespace TownOfHost
         public static Dictionary<byte, int> Guard;
         public static int GameCount = 0;
         public static bool SetRoleOverride = true;
+        /// <summary>ラグを考慮した奴。アジア、カスタム、ローカルは200ms(0.2s),他は400ms(0.4s)</summary>
+        public static float LagTime = 0.2f;
         //public static bool TaskBattleOptionv = false;
 
         /// <summary>
@@ -339,9 +343,9 @@ namespace TownOfHost
                     {CustomRoles.MaLovers, "#f09199"},
 
                     // 幽霊役職
+                    {CustomRoles.GhostNoiseSender, "#5aa698"},
                     {CustomRoles.DemonicTracker,"#824880"},
                     {CustomRoles.DemonicCrusher,"#522886"},
-                    {CustomRoles.GhostNoiseSender, "#5aa698"},
 
                     {CustomRoles.NotAssigned, "#ffffff"}
                 };

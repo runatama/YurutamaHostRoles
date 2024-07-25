@@ -66,7 +66,7 @@ namespace TownOfHost
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 player.SyncSettings();
-                player.SetKillCooldown();
+                player.SetKillCooldown(delay: true);
                 player.RpcResetAbilityCooldown();
             }
         }
@@ -235,7 +235,7 @@ namespace TownOfHost
                         player.ResetKillCooldown();
                         player.SyncSettings();
                     }, 1f, "");
-                }, 0.2f, "Setkillcooldown delay");
+                }, Main.LagTime, "Setkillcooldown delay");
             }
         }
         public static void RpcSpecificMurderPlayer(this PlayerControl killer, PlayerControl target = null)
@@ -291,7 +291,7 @@ namespace TownOfHost
                     writer.Write(0);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                 }
-            }, kousin ? 0.2f : 0f, "");//更新があるなら2f後
+            }, kousin ? Main.LagTime : 0f, "");//更新があるなら2f後
             /*
                 プレイヤーがバリアを張ったとき、そのプレイヤーの役職に関わらずアビリティーのクールダウンがリセットされます。
                 ログの追加により無にバリアを張ることができなくなったため、代わりに自身に0秒バリアを張るように変更しました。
@@ -476,17 +476,22 @@ namespace TownOfHost
         {
             if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
 
+            if (pc.Is(CustomRoles.Amnesia) && !pc.Is(CustomRoleTypes.Impostor)) return false;
+
             var roleCanUse = (pc.GetRoleClass() as IKiller)?.CanUseKillButton();
 
             if (pc.Is(CustomRoles.SlowStarter) && !pc.Is(CustomRoles.Mafia))
             {
                 roleCanUse = SlowStarter.CanUseKill();
             }
+
             return roleCanUse ?? pc.Is(CustomRoleTypes.Impostor);
         }
         public static bool CanUseImpostorVentButton(this PlayerControl pc)
         {
             if (!pc.IsAlive()) return false;
+
+            if (pc.Is(CustomRoles.Amnesia) && !pc.Is(CustomRoleTypes.Impostor)) return false;
 
             var roleCanUse = (pc.GetRoleClass() as IKiller)?.CanUseImpostorVentButton();
 
@@ -494,6 +499,8 @@ namespace TownOfHost
         }
         public static bool CanUseSabotageButton(this PlayerControl pc)
         {
+            if (pc.Is(CustomRoles.Amnesia) && !pc.Is(CustomRoleTypes.Impostor)) return false;
+
             var roleCanUse = (pc.GetRoleClass() as IKiller)?.CanUseSabotageButton();
 
             return roleCanUse ?? false;
@@ -507,13 +514,17 @@ namespace TownOfHost
                 LastNeutral.SetKillCooldown();
             if (player.Is(CustomRoles.Serial))
                 Main.AllPlayerKillCooldown[player.PlayerId] = Serial.KillCooldown.GetFloat();
+
+            if (player.Is(CustomRoles.Amnesia) && Amnesia.defaultKillCool.GetBool()) Main.AllPlayerKillCooldown[player.PlayerId] = Options.DefaultKillCooldown;
         }
         public static bool CanMakeMadmate(this PlayerControl player)
         {
+            if (player.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) return false;
+
             if (
-                Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount ||
-                player == null ||
-                (player.Data.Role.Role != RoleTypes.Shapeshifter) || player.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter)
+            Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount ||
+            player == null ||
+            (player.Data.Role.Role != RoleTypes.Shapeshifter) || player.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter)
             {
                 return false;
             }
@@ -663,7 +674,8 @@ namespace TownOfHost
             // 役職による仕分け
             if (seer.GetRoleClass() is IDeathReasonSeeable deathReasonSeeable)
             {
-                return deathReasonSeeable.CheckSeeDeathReason(seen);
+                if (!seer.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                    return deathReasonSeeable.CheckSeeDeathReason(seen);
             }
             // IDeathReasonSeeable未対応役職はこちら
             return

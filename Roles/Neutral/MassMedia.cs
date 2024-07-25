@@ -135,6 +135,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     }
     public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo tg)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Is(repo) && Player.Is(CustomRoles.MassMedia))//自分が通報したならチャンスだよ!!
         {
             if (tg != null)//死体通報なら～
@@ -193,6 +194,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     }
     public override void AfterMeetingTasks()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Win)
         {
             foreach (var crew in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))

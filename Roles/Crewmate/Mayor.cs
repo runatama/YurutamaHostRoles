@@ -80,6 +80,7 @@ public sealed class Mayor : RoleBase
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Is(reporter) && target == null) //ボタン
             LeftButtonCount--;
     }
@@ -111,6 +112,7 @@ public sealed class Mayor : RoleBase
     }
     public override void AfterMeetingTasks()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (HasPortableButton)
             Player.RpcResetAbilityCooldown();
     }

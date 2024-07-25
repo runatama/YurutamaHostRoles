@@ -123,6 +123,7 @@ public sealed class Madonna : RoleBase
     }
     public override void AfterMeetingTasks()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Player.Is(CustomRoles.MaLovers))
         {
             Wakarero = true;//リア充ならバクハフラグを立てる

@@ -21,6 +21,7 @@ namespace TownOfHost
             while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
             if (Main.NormalOptions.NumImpostors == 0 && GameStates.IsOnlineGame) Main.NormalOptions.NumImpostors = 1;
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
+            CheckPingPatch.Check = false;
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();
             RPC.RpcVersionCheck();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -30,7 +31,7 @@ namespace TownOfHost
             foreach (var pc in Main.AllPlayerControls)
             {
                 if (pc == null) continue;
-                Logger.Info($"FriendCore:{pc.FriendCode},Puid:{pc.GetClient().GetHashedPuid()}", "Session");
+                Logger.Info($"FriendCore:{pc.FriendCode},Puid:{pc.GetClient()?.GetHashedPuid()}", "Session");
             }
             if (AmongUsClient.Instance.AmHost) //以下、ホストのみ実行
             {
@@ -48,6 +49,8 @@ namespace TownOfHost
                 Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
                 Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
                 Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
+                Main.NormalOptions.Cast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
                 _ = new LateTask(() => Main.DebugCheck(), 0.5f, "");
             }
         }
@@ -241,6 +244,7 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
+                _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check");
                 OptionItem.SyncAllOptions();
                 _ = new LateTask(() =>
                 {
@@ -278,6 +282,20 @@ namespace TownOfHost
                     _ = new LateTask(() => Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。バグが発生した場合はDiscordで報告すること!{kigen}", client.Character.PlayerId, "<color=red>【=====これはデバッグ版です=====】</color>"), 3.1f, "DebugMeg");
                 }
             }
+        }
+    }
+    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Update))]
+    class CheckPingPatch
+    {
+        public static bool Check;
+        public static void Postfix(InnerNetClient __instance)
+        {
+            if (Check)
+                if (__instance.Ping >= 750)
+                {
+                    Logger.Warn($"接続が不安定", "Ping");
+                    ErrorText.Instance.AddError(ErrorCode.CommunicationisUnstable);
+                }
         }
     }
 }

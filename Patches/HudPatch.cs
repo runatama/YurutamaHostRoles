@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
 using TownOfHost.Roles;
+using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost
 {
@@ -93,12 +94,18 @@ namespace TownOfHost
                     {
                         if (roleClass != null)
                         {
-                            var killLabel = (roleClass as IKiller)?.OverrideKillButtonText(out string text) == true ? text : GetString(StringNames.KillLabel);
-                            __instance.KillButton.OverrideText(killLabel);
+                            if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                            {
+                                var killLabel = (roleClass as IKiller)?.OverrideKillButtonText(out string text) == true ? text : GetString(StringNames.KillLabel);
+                                __instance.KillButton.OverrideText(killLabel);
+                            }
                             if (roleClass.HasAbility)
                             {
-                                __instance.AbilityButton.OverrideText(roleClass.GetAbilityButtonText());
-                                __instance.AbilityButton.ToggleVisible(roleClass.CanUseAbilityButton() && GameStates.IsInTask);
+                                if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                                {
+                                    __instance.AbilityButton.OverrideText(roleClass.GetAbilityButtonText());
+                                    __instance.AbilityButton.ToggleVisible(roleClass.CanUseAbilityButton() && GameStates.IsInTask);
+                                }
                             }
                         }
                     }
@@ -231,7 +238,7 @@ namespace TownOfHost
                 if (!GameStates.IsModHost) return;
                 var player = PlayerControl.LocalPlayer;
                 if (player == null) return;
-                if (CustomRoles.Amnesia.IsPresent() && Main.day <= Roles.AddOns.Common.Amnesia.Modoru.GetFloat()) return;
+                if (CustomRoles.Amnesia.IsPresent()) return;
                 foreach (var pc in Main.AllPlayerControls)
                 {
                     if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;

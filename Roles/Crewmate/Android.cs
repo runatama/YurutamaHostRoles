@@ -80,6 +80,8 @@ public sealed class Android : RoleBase
     //サボタージュ来たら通信障害起きるんでベントから強制排出
     public override bool OnSabotage(PlayerControl __, SystemTypes systemType)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return true;
+
         if (systemType != SystemTypes.Comms)
 
             Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
@@ -89,7 +91,7 @@ public sealed class Android : RoleBase
 
             if (Main.NormalOptions.MapId is 1 or 5)
                 Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 17);
-        }, 0.2f, "");
+        }, Main.LagTime, "");
         return true;
     }
     public override void AfterSabotage(SystemTypes systemType) => Player.RpcResetAbilityCooldown(kousin: true);
@@ -135,7 +137,7 @@ public sealed class Android : RoleBase
 
                     if (Main.NormalOptions.MapId is 1 or 5)
                         Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 17);
-                }, 0.2f, "");
+                }, Main.LagTime, "");
 
             }
             if (Now() != bat)

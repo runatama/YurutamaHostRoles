@@ -98,6 +98,7 @@ namespace TownOfHost.Roles.Neutral
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
             foreach (var targetId in GrimPlayers.Keys)
             {
                 var target = Utils.GetPlayerById(targetId);
@@ -111,6 +112,7 @@ namespace TownOfHost.Roles.Neutral
         }
         public override void AfterMeetingTasks()//あのままじゃホストだけキルクール回復するバグあったから
         {
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.defaultKillCool.GetBool()) return;
             Logger.Info("死神のキルクールを戻す", "GrimReaper");
             Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
             Player.SyncSettings();

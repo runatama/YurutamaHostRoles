@@ -320,7 +320,7 @@ public sealed class Balancer : RoleBase
         nickname = null;
 
         //名前にロールとかのを適用
-        _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: false, ForceLoop: true, NoCache: true), 0.2f);
+        _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: false, ForceLoop: true, NoCache: true), Main.LagTime);
 
         //リセット
         Id = 255;

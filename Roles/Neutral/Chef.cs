@@ -115,6 +115,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     }
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
         var c = GetCtargetCount();
         if (c.Item1 != c.Item2) return;

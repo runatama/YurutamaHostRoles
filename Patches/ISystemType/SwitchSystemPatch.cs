@@ -76,10 +76,11 @@ public static class SwitchSystemUpdateSystemPatch
         }
 
         // ロールの処理
-        if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateSwitchSystem(__instance, amount))
-        {
-            return false;
-        }
+        if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+            if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateSwitchSystem(__instance, amount))
+            {
+                return false;
+            }
         return true;
     }
 }

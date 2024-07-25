@@ -181,7 +181,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
                 PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
 
-                _ = new LateTask(() => killer.RpcMurderPlayer(killer), 0.2f, "SwSheMiss");
+                _ = new LateTask(() => killer.RpcMurderPlayer(killer), Main.LagTime, "SwSheMiss");
                 if (!MisfireKillsTarget.GetBool())
                 {
                     info.DoKill = false;
@@ -197,6 +197,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (Player.IsAlive())
             ModeSwitching(true);
         Player.RpcResetAbilityCooldown(kousin: true);
@@ -204,7 +205,8 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public override void AfterMeetingTasks()
     {
         if (!Player.IsAlive()) return;
-        _ = new LateTask(() => nowcool = CurrentKillCooldown, 0.2f, "Reset-SwitchSheriff");
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        _ = new LateTask(() => nowcool = CurrentKillCooldown, Main.LagTime, "Reset-SwitchSheriff");
     }
     public override string GetProgressText(bool comms = false)
     {

@@ -87,7 +87,7 @@ public sealed class Mare : RoleBase, IImpostor
         {
             SendRPC();
             Player.SyncSettings();
-            _ = new LateTask(() => Player.SetKillCooldown(), 0.2f, "MareKillCool");
+            _ = new LateTask(() => Player.SetKillCooldown(), Main.LagTime, "MareKillCool");
             Utils.NotifyRoles();
         }
     }
@@ -114,6 +114,8 @@ public sealed class Mare : RoleBase, IImpostor
     }
     public override bool OnSabotage(PlayerControl player, SystemTypes systemType)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return true;
+
         if (systemType == SystemTypes.Electrical)
         {
             _ = new LateTask(() =>

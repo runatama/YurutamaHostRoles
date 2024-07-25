@@ -119,8 +119,8 @@ namespace TownOfHost.Roles.Neutral
             if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist))
             {
                 Fall = true;
-                _ = new LateTask(() => Player.MarkDirtySettings(), 0.2f, "SidekickFall");
-                _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f, "SidekickFall");
+                _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "SidekickFall");
+                _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "SidekickFall");
                 return;
             }
             SK = false;

@@ -42,7 +42,7 @@ public static class MeetingHudPatch
         ///-1→次ページへ
 
         /// <summary>
-        /// 2→役職処理  0→通常処理 1→Infomode 3→Infomode(2)
+        /// 2→役職処理  0→通常処理 1→Infomode 3→Infomode(2) 4→役職能力発動中
         /// </summary>
         public static Dictionary<byte, int> InfoMode = new();
         public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] byte suspectPlayerId /* 投票された人 */ )
@@ -99,16 +99,9 @@ public static class MeetingHudPatch
                         Utils.SendMessage(s, srcPlayerId);
                         return false;
                     }
-                    if (InfoMode[srcPlayerId] == 1)//InfoMode解除(役職能力)
-                    {
-                        __instance.RpcClearVote(voter.GetClientId());
-                        InfoMode[srcPlayerId] = 2;
-                        Utils.SendMessage(GetString("InfoRole"), srcPlayerId);
-                        return false;
-                    }
                 }
 
-                if (InfoMode[srcPlayerId] == 1)
+                if (InfoMode[srcPlayerId] == 1 && srcPlayerId != suspectPlayerId)
                 {
                     __instance.RpcClearVote(voter.GetClientId());
                     var ch = false;
@@ -169,11 +162,15 @@ public static class MeetingHudPatch
             }
 
             foreach (var pc in Main.AllPlayerControls)
-                if (pc.GetRoleClass()?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
+            {
+                var roleClass = pc.GetRoleClass();
+                if (pc.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) roleClass = null;
+
+                if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
                     Logger.Info($"{voter.GetNameWithRole()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
-                    InfoMode[srcPlayerId] = 2;
+                    InfoMode[srcPlayerId] = srcPlayerId == suspectPlayerId ? 4 : 0;
                     return false;
                 }
                 else
@@ -181,11 +178,11 @@ public static class MeetingHudPatch
                 {
                     Utils.SendMessage("君はイレクターなんだよ。\nスキップできない属性でね。\n誰かに投票してね。", voter.PlayerId);
                     __instance.RpcClearVote(voter.GetClientId());
-                    InfoMode[srcPlayerId] = 2;
+                    InfoMode[srcPlayerId] = 0;
                     Logger.Info($"{voter.GetNameWithRole()} イレクター発動 => {srcPlayerId}", nameof(CastVotePatch));
                     return false;
                 }
-
+            }
             MeetingVoteManager.Instance?.SetVote(srcPlayerId, suspectPlayerId);
             return true;
         }
@@ -249,7 +246,8 @@ public static class MeetingHudPatch
                 var suffixBuilder = new StringBuilder(32);
                 if (myRole != null)
                 {
-                    suffixBuilder.Append(myRole.GetSuffix(PlayerControl.LocalPlayer, pc, isForMeeting: true));
+                    if (!PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                        suffixBuilder.Append(myRole.GetSuffix(PlayerControl.LocalPlayer, pc, isForMeeting: true));
                 }
                 suffixBuilder.Append(CustomRoleManager.GetSuffixOthers(PlayerControl.LocalPlayer, pc, isForMeeting: true));
                 if (suffixBuilder.Length > 0)
@@ -352,7 +350,8 @@ public static class MeetingHudPatch
                 if (seer.KnowDeathReason(target))
                     sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})");
 
-                sb.Append(seerRole?.GetMark(seer, target, true));
+                if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                    sb.Append(seerRole?.GetMark(seer, target, true));
                 sb.Append(CustomRoleManager.GetMarkOthers(seer, target, true));
 
                 //相手のサブロール処理
@@ -558,71 +557,73 @@ public static class MeetingHudPatch
 
         if (deathReason != CustomDeathReason.Vote) return null;
 
-        if (exiledplayer.GetRoleClass() is INekomata nekomata)
-        {
-            // 道連れしない状態ならnull
-            if (!nekomata.DoRevenge(deathReason))
-            {
-                return null;
-            }
-            TargetList = Main.AllAlivePlayerControls.Where(candidate => candidate != exiledplayer && !Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId) && nekomata.IsCandidate(candidate)).ToList();
-        }
-        else
-        {
-            var isMadmate =
-                exiledplayer.Is(CustomRoleTypes.Madmate) ||
-                // マッド属性化時に削除
-                (exiledplayer.GetRoleClass() is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
-            foreach (var candidate in Main.AllAlivePlayerControls)
-            {
-                if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
-                switch (exiledplayer.GetCustomRole())
-                {
-                    // ここにINekomata未適用の道連れ役職を追加
-                    default:
-                        if (RoleAddAddons.AllData.TryGetValue(exiledplayer.GetCustomRole(), out var data) && data.GiveAddons.GetBool())
-                        {
-                            if (deathReason == CustomDeathReason.Vote && data.GiveRevenger.GetBool())
 
+        if (!exiledplayer.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+            if (exiledplayer.GetRoleClass() is INekomata nekomata)
+            {
+                // 道連れしない状態ならnull
+                if (!nekomata.DoRevenge(deathReason))
+                {
+                    return null;
+                }
+                TargetList = Main.AllAlivePlayerControls.Where(candidate => candidate != exiledplayer && !Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId) && nekomata.IsCandidate(candidate)).ToList();
+            }
+            else
+            {
+                var isMadmate =
+                    exiledplayer.Is(CustomRoleTypes.Madmate) ||
+                    // マッド属性化時に削除
+                    (exiledplayer.GetRoleClass() is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
+                foreach (var candidate in Main.AllAlivePlayerControls)
+                {
+                    if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
+                    switch (exiledplayer.GetCustomRole())
+                    {
+                        // ここにINekomata未適用の道連れ役職を追加
+                        default:
+                            if (RoleAddAddons.AllData.TryGetValue(exiledplayer.GetCustomRole(), out var data) && data.GiveAddons.GetBool())
                             {
-                                if ((candidate.Is(CustomRoleTypes.Impostor) && data.Imp.GetBool()) ||
-                                    (candidate.Is(CustomRoleTypes.Neutral) && data.Neu.GetBool()) ||
-                                    (candidate.Is(CustomRoleTypes.Crewmate) && data.Crew.GetBool()) ||
-                                    (candidate.Is(CustomRoleTypes.Madmate) && data.Mad.GetBool()))
-                                    TargetList.Add(candidate);
-                            }
-                        }
-                        else
-                            if (isMadmate && deathReason == CustomDeathReason.Vote && Options.MadmateRevengeCrewmate.GetBool())
-                        {
-                            if ((candidate.Is(CustomRoleTypes.Impostor) && Options.MadNekomataCanImp.GetBool()) ||
-                            (candidate.Is(CustomRoleTypes.Neutral) && Options.MadNekomataCanNeu.GetBool()) ||
-                            (candidate.Is(CustomRoleTypes.Crewmate) && Options.MadNekomataCanCrew.GetBool()) ||
-                            (candidate.Is(CustomRoleTypes.Madmate) && Options.MadNekomataCanMad.GetBool()))
-                                TargetList.Add(candidate);
-                        }
-                        else
-                            foreach (var subRole in exiledplayer.GetCustomSubRoles())
-                            {
-                                switch (subRole)
+                                if (deathReason == CustomDeathReason.Vote && data.GiveRevenger.GetBool())
+
                                 {
-                                    case CustomRoles.Revenger:
-                                        if (exiledplayer.Is(CustomRoles.Revenger) && deathReason == CustomDeathReason.Vote)
-                                        {
-                                            if (
-                                            (candidate.Is(CustomRoleTypes.Impostor) && Revenger.Imp.GetBool()) ||
-                                            (candidate.Is(CustomRoleTypes.Neutral) && Revenger.Neu.GetBool()) ||
-                                            (candidate.Is(CustomRoleTypes.Crewmate) && Revenger.Crew.GetBool()) ||
-                                            (candidate.Is(CustomRoleTypes.Madmate) && Revenger.Mad.GetBool()))
-                                                TargetList.Add(candidate);
-                                        }
-                                        break;
+                                    if ((candidate.Is(CustomRoleTypes.Impostor) && data.Imp.GetBool()) ||
+                                        (candidate.Is(CustomRoleTypes.Neutral) && data.Neu.GetBool()) ||
+                                        (candidate.Is(CustomRoleTypes.Crewmate) && data.Crew.GetBool()) ||
+                                        (candidate.Is(CustomRoleTypes.Madmate) && data.Mad.GetBool()))
+                                        TargetList.Add(candidate);
                                 }
                             }
-                        break;
+                            else
+                                if (isMadmate && deathReason == CustomDeathReason.Vote && Options.MadmateRevengeCrewmate.GetBool())
+                            {
+                                if ((candidate.Is(CustomRoleTypes.Impostor) && Options.MadNekomataCanImp.GetBool()) ||
+                                (candidate.Is(CustomRoleTypes.Neutral) && Options.MadNekomataCanNeu.GetBool()) ||
+                                (candidate.Is(CustomRoleTypes.Crewmate) && Options.MadNekomataCanCrew.GetBool()) ||
+                                (candidate.Is(CustomRoleTypes.Madmate) && Options.MadNekomataCanMad.GetBool()))
+                                    TargetList.Add(candidate);
+                            }
+                            else
+                                foreach (var subRole in exiledplayer.GetCustomSubRoles())
+                                {
+                                    switch (subRole)
+                                    {
+                                        case CustomRoles.Revenger:
+                                            if (exiledplayer.Is(CustomRoles.Revenger) && deathReason == CustomDeathReason.Vote)
+                                            {
+                                                if (
+                                                (candidate.Is(CustomRoleTypes.Impostor) && Revenger.Imp.GetBool()) ||
+                                                (candidate.Is(CustomRoleTypes.Neutral) && Revenger.Neu.GetBool()) ||
+                                                (candidate.Is(CustomRoleTypes.Crewmate) && Revenger.Crew.GetBool()) ||
+                                                (candidate.Is(CustomRoleTypes.Madmate) && Revenger.Mad.GetBool()))
+                                                    TargetList.Add(candidate);
+                                            }
+                                            break;
+                                    }
+                                }
+                            break;
+                    }
                 }
             }
-        }
         if (TargetList == null || TargetList.Count == 0) return null;
         var rand = IRandom.Instance;
         var target = TargetList[rand.Next(TargetList.Count)];

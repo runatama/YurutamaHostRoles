@@ -10,6 +10,7 @@ using TownOfHost.Attributes;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Ghost;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Core;
 
@@ -59,6 +60,8 @@ public static class CustomRoleManager
 
         var killerRole = attemptKiller.GetRoleClass();
         var targetRole = attemptTarget.GetRoleClass();
+        if (attemptKiller.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) killerRole = null;
+        if (attemptTarget.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) targetRole = null;
 
         // キラーがキル能力持ちなら
         if (killerRole is IKiller killer)
@@ -78,7 +81,7 @@ public static class CustomRoleManager
                     info.CanKill = false;
 
             // キラーのキルチェック処理実行
-            killer.OnCheckMurderAsKiller(info);
+            if (!attemptKiller.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool()) killer.OnCheckMurderAsKiller(info);
 
             if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
             {
@@ -86,7 +89,7 @@ public static class CustomRoleManager
                 {
                     CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
                     Main.Guard[attemptTarget.PlayerId]--;
-                    attemptKiller.SetKillCooldown(target: attemptTarget);
+                    attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
                     Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
                     Logger.Info($"{attemptTarget.GetNameWithRole()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
                     Utils.NotifyRoles();
@@ -152,17 +155,23 @@ public static class CustomRoleManager
             info = new MurderInfo(appearanceKiller, appearanceTarget, appearanceKiller, appearanceTarget);
         }
 
+        Main.KillCount[appearanceKiller.PlayerId]++;
+
         (var attemptKiller, var attemptTarget) = info.AttemptTuple;
 
         Logger.Info($"Real Killer={attemptKiller.GetNameWithRole()}", "MurderPlayer");
 
         //キラーの処理
-        (attemptKiller.GetRoleClass() as IKiller)?.OnMurderPlayerAsKiller(info);
+
+        if (!attemptKiller.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+            (attemptKiller.GetRoleClass() as IKiller)?.OnMurderPlayerAsKiller(info);
 
         //ターゲットの処理
         var targetRole = attemptTarget.GetRoleClass();
-        if (targetRole != null)
-            targetRole.OnMurderPlayerAsTarget(info);
+
+        if (!attemptTarget.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+            if (targetRole != null)
+                targetRole.OnMurderPlayerAsTarget(info);
 
         //その他視点の処理があれば実行
         foreach (var onMurderPlayer in OnMurderPlayerOthers.ToArray())
@@ -197,6 +206,8 @@ public static class CustomRoleManager
         targetState.SetDead();
         attemptTarget.SetRealKiller(attemptKiller, true);
 
+        GhostRoleAssingData.AssignAddOnsFromList(true);
+
         Utils.CountAlivePlayers(true);
 
         Utils.TargetDies(info);
@@ -209,6 +220,35 @@ public static class CustomRoleManager
             Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Kill]　{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}";
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{Utils.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
+
+        if (Main.KillCount.ContainsKey(appearanceKiller.PlayerId))
+            if (appearanceKiller.Is(CustomRoles.Amnesia) && Amnesia.TriggerKill.GetBool())
+            {
+                if (Amnesia.KillCount.GetInt() <= Main.KillCount[appearanceKiller.PlayerId])
+                {
+                    Amnesia.Kesu(appearanceKiller.PlayerId);
+
+                    if (appearanceKiller.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                        appearanceKiller.RpcSetRoleDesync(appearanceKiller.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), appearanceKiller.GetClientId());
+                    else
+                    if (appearanceKiller.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    {
+                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
+                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
+                        else if (appearanceKiller.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
+                        {
+                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Shapeshifter);
+                        }
+                    }
+                    appearanceKiller.ResetKillCooldown();
+                    _ = new LateTask(() =>
+                    {
+                        appearanceKiller.RpcResetAbilityCooldown(kousin: true);
+                        appearanceKiller.SetKillCooldown(delay: true);
+                        Utils.NotifyRoles();
+                    }, 0.2f, "SetKillCOolDown");
+                }
+            }
     }
     /// <summary>
     /// その他視点からのMurderPlayer処理
@@ -220,7 +260,8 @@ public static class CustomRoleManager
     {
         if (GameStates.IsInTask && !GameStates.Meeting)
         {
-            player.GetRoleClass()?.OnFixedUpdate(player);
+            if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                player.GetRoleClass()?.OnFixedUpdate(player);
             //その他視点処理があれば実行
             foreach (var onFixedUpdate in OnFixedUpdateOthers)
             {
@@ -293,91 +334,37 @@ public static class CustomRoleManager
         {
             switch (subRole)
             {
-                case CustomRoles.watching:
-                    watching.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Speeding:
-                    Speeding.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Moon:
-                    Moon.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Guesser:
-                    Guesser.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Lighting:
-                    Lighting.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Tiebreaker:
-                    Tiebreaker.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Management:
-                    Management.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Connecting:
-                    Connecting.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Serial:
-                    Serial.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.PlusVote:
-                    PlusVote.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Opener:
-                    Opener.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Revenger:
-                    Revenger.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.seeing:
-                    seeing.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Guarding:
-                    Guarding.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Autopsy:
-                    Autopsy.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.SlowStarter:
-                    SlowStarter.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Notvoter:
-                    Notvoter.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Transparent:
-                    Transparent.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.NonReport:
-                    NonReport.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Water:
-                    Water.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Clumsy:
-                    Clumsy.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Slacker:
-                    Slacker.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Elector:
-                    Elector.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.Amnesia:
-                    Amnesia.Add(pc.PlayerId);
-                    break;
+                case CustomRoles.watching: watching.Add(pc.PlayerId); break;
+                case CustomRoles.Speeding: Speeding.Add(pc.PlayerId); break;
+                case CustomRoles.Moon: Moon.Add(pc.PlayerId); break;
+                case CustomRoles.Guesser: Guesser.Add(pc.PlayerId); break;
+                case CustomRoles.Lighting: Lighting.Add(pc.PlayerId); break;
+                case CustomRoles.Tiebreaker: Tiebreaker.Add(pc.PlayerId); break;
+                case CustomRoles.Management: Management.Add(pc.PlayerId); break;
+                case CustomRoles.Connecting: Connecting.Add(pc.PlayerId); break;
+                case CustomRoles.Serial: Serial.Add(pc.PlayerId); break;
+                case CustomRoles.PlusVote: PlusVote.Add(pc.PlayerId); break;
+                case CustomRoles.Opener: Opener.Add(pc.PlayerId); break;
+                case CustomRoles.Revenger: Revenger.Add(pc.PlayerId); break;
+                case CustomRoles.seeing: seeing.Add(pc.PlayerId); break;
+                case CustomRoles.Guarding: Guarding.Add(pc.PlayerId); break;
+                case CustomRoles.Autopsy: Autopsy.Add(pc.PlayerId); break;
 
-                case CustomRoles.Amanojaku:
-                    Amanojaku.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.GhostNoiseSender:
-                    GhostNoiseSender.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.DemonicTracker:
-                    DemonicTracker.Add(pc.PlayerId);
-                    break;
-                case CustomRoles.DemonicCrusher:
-                    DemonicCrusher.Add(pc.PlayerId);
-                    break;
+                case CustomRoles.SlowStarter: SlowStarter.Add(pc.PlayerId); break;
+                case CustomRoles.Notvoter: Notvoter.Add(pc.PlayerId); break;
+                case CustomRoles.Transparent: Transparent.Add(pc.PlayerId); break;
+                case CustomRoles.NonReport: NonReport.Add(pc.PlayerId); break;
+                case CustomRoles.Water: Water.Add(pc.PlayerId); break;
+                case CustomRoles.Clumsy: Clumsy.Add(pc.PlayerId); break;
+                case CustomRoles.Slacker: Slacker.Add(pc.PlayerId); break;
+                case CustomRoles.Elector: Elector.Add(pc.PlayerId); break;
+                case CustomRoles.Amnesia: Amnesia.Add(pc.PlayerId); break;
+
+                case CustomRoles.Amanojaku: Amanojaku.Add(pc.PlayerId); break;
+
+                case CustomRoles.GhostNoiseSender: GhostNoiseSender.Add(pc.PlayerId); break;
+                case CustomRoles.DemonicTracker: DemonicTracker.Add(pc.PlayerId); break;
+                case CustomRoles.DemonicCrusher: DemonicCrusher.Add(pc.PlayerId); break;
             }
         }
     }

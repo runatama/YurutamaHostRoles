@@ -16,7 +16,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.SlowStarter, new(1, 3, 1));
-            AddOnsAssignDataOnlyImp.Create(Id + 10, CustomRoles.SlowStarter, true);
+            AddOnsAssignData.Create(Id + 10, CustomRoles.SlowStarter, false, false, true, false);
             CanKill = FloatOptionItem.Create(Id + 50, "MafiaCankill", new(1, 3, 1), 2, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.SlowStarter]);
         }
         public static void Init()

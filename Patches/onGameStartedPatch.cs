@@ -36,6 +36,7 @@ namespace TownOfHost
             Main.LastLog = new Dictionary<byte, string>();
             Main.LastLogRole = new Dictionary<byte, string>();
             Main.LastLogPro = new Dictionary<byte, string>();
+            Main.KillCount = new Dictionary<byte, int>();
             Main.Guard = new Dictionary<byte, int>();
             GhostRoleAssingData.GhostAssingCount = new Dictionary<CustomRoles, int>();
 
@@ -99,6 +100,7 @@ namespace TownOfHost
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = new();
                 ReportDeadBodyPatch.Musisuruoniku[pc.PlayerId] = true;
+                Main.KillCount.Add(pc.PlayerId, 0);
                 pc.cosmetics.nameText.text = pc.name;
 
                 var outfit = pc.Data.DefaultOutfit;
@@ -194,6 +196,15 @@ namespace TownOfHost
             Main.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= Main.AllAlivePlayerControls.Count())) Utils.CanVent = true;
             else Utils.CanVent = false;
+
+            if (GameStates.IsOnlineGame)
+            {
+                var sn = ServerManager.Instance.CurrentRegion.TranslateName;
+                if (sn is StringNames.ServerNA or StringNames.ServerEU or StringNames.ServerSA)
+                    Main.LagTime = 0.43f;
+                else Main.LagTime = 0.23f;
+            }
+            else Main.LagTime = 0.23f;
         }
     }
     [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
@@ -445,10 +456,8 @@ namespace TownOfHost
                 }
                 AssignLoversRoles();
                 AddOnsAssignDataOnlyKiller.AssignAddOnsFromList();
-                AddOnsAssignDataNotImp.AssignAddOnsFromList();
                 AddOnsAssignDataTeamImp.AssignAddOnsFromList();
                 AddOnsAssignData.AssignAddOnsFromList();
-                AddOnsAssignDataOnlyImp.AssignAddOnsFromList();
 
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
@@ -544,7 +553,7 @@ namespace TownOfHost
         }
         private static System.Collections.IEnumerator CoReSetRole(AmongUsClient self)
         {
-            yield return new UnityEngine.WaitForSeconds(0.2f);//MakeDesyncSenderが送られるまで待つ
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime);//MakeDesyncSenderが送られるまで待つ
             foreach (var info in GameData.Instance.AllPlayers)
             {
                 if (info.Disconnected)
@@ -554,15 +563,22 @@ namespace TownOfHost
             }
             AmongUsClient.Instance.SendAllStreamedObjects();
             Logger.Info("Disconnected", "RSetRole");
-            yield return new UnityEngine.WaitForSeconds(0.01f);
+            yield return new UnityEngine.WaitForSeconds(0.04f);
             foreach (var pc in Main.AllPlayerControls)
             {
                 if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                 var hostRole = PlayerControl.LocalPlayer.GetCustomRole();
-                PlayerControl.LocalPlayer.RpcSetRoleDesync(
+                if (Options.EnableGM.GetBool())
+                {
+                    PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
+                }
+                else
+                {
+                    PlayerControl.LocalPlayer.RpcSetRoleDesync(
                     pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
+                }
             }
-            yield return new UnityEngine.WaitForSeconds(0.2f);
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime + 0.2f);
             foreach (var info in GameData.Instance.AllPlayers)
             {
                 if (Disconnected.Contains(info.PlayerId))

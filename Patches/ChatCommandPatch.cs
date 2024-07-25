@@ -382,22 +382,22 @@ namespace TownOfHost
                                 role = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                             if (role == CustomRoles.Braid) role = CustomRoles.Driver;
                             if (PlayerControl.LocalPlayer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && PlayerControl.LocalPlayer.GetRoleClass() != null) role = PlayerControl.LocalPlayer.GetRoleClass().Jikaku();
-                            if (PlayerControl.LocalPlayer.IsGorstRole()) role = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).GhostRole;
 
                             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)//バーニラならこっちで
                             {
-                                HudManager.Instance.Chat.AddChat(
-                                    PlayerControl.LocalPlayer,
+                                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer,
                                     $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
                             }
                             else
-                                HudManager.Instance.Chat.AddChat(
-
-                                    PlayerControl.LocalPlayer,
-                                    role.GetRoleInfo()?.Description?.FullFormatHelp ??
-                                    // roleInfoがない役職
-                                    $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
+                                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer,
+                                role.GetRoleInfo()?.Description?.FullFormatHelp ?? $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
                             GetAddonsHelp(PlayerControl.LocalPlayer);
+
+                            if (PlayerControl.LocalPlayer.IsGorstRole())
+                            {
+                                var gr = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).GhostRole;
+                                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, GetAddonsHelp(gr));
+                            }
 
                             subArgs = args.Length < 2 ? "" : args[1];
                             switch (subArgs)
@@ -412,7 +412,6 @@ namespace TownOfHost
                                         if (role == CustomRoles.Braid) role = CustomRoles.Driver;
                                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                                         if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
-                                        if (player.IsGorstRole()) role = PlayerState.GetByPlayerId(player.PlayerId).GhostRole;
 
                                         var RoleTextData = GetRoleColorCode(role);
                                         string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
@@ -434,6 +433,9 @@ namespace TownOfHost
                                             SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleInfo(true)}", player.PlayerId, RoleInfoTitle);
                                         }
                                         GetAddonsHelp(player);
+
+                                        if (player.IsGorstRole())
+                                            SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId);
                                     }
                                     break;
                                 default:
@@ -847,9 +849,9 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Amanojaku, "Ama");
 
                 //幽霊
-                roleCommands.Add(CustomRoles.DemonicTracker, "DTr");
                 roleCommands.Add(CustomRoles.GhostNoiseSender, "NiS");
                 roleCommands.Add(CustomRoles.DemonicCrusher, "DCr");
+                roleCommands.Add(CustomRoles.DemonicTracker, "DTr");
 
                 // HAS
                 roleCommands.Add((CustomRoles)(-6), $"== {GetString("HideAndSeek")} ==");  // 区切り用
@@ -1049,7 +1051,6 @@ namespace TownOfHost
                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                         if (role == CustomRoles.Braid) role = CustomRoles.Driver;
                         if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
-                        if (player.IsGorstRole()) role = PlayerState.GetByPlayerId(player.PlayerId).GhostRole;
 
                         var RoleTextData = GetRoleColorCode(role);
                         string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
@@ -1071,6 +1072,9 @@ namespace TownOfHost
                             SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleInfo(true)}", player.PlayerId, RoleInfoTitle);
                         }
                         GetAddonsHelp(player);
+
+                        if (player.IsGorstRole())
+                            SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId);
                     }
                     break;
 

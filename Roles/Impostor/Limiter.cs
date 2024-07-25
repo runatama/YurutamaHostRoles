@@ -86,8 +86,10 @@ namespace TownOfHost.Roles.Impostor
             return Limit;
         }
 
-        public override void AfterMeetingTasks()
+        public override void AfterMeetingTasks()//一旦はアムネシア中なら回避してるけどリミッターは削除してあげてもいいかも
         {
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+
             if (Main.day >= LimiterTarnLimit && Player.IsAlive())
             {
                 Limit = true;
@@ -105,6 +107,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
             if (Limit && Player.IsAlive())
             {
                 PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Bombed;

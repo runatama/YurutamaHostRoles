@@ -16,6 +16,7 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Neutral;
+using System;
 
 namespace TownOfHost
 {
@@ -402,18 +403,19 @@ namespace TownOfHost
             }
             // 役職の処理
             var role = shapeshifter.GetRoleClass();
-            if (role?.CheckShapeshift(target, ref shouldAnimate) == false)
-            {
-                if (role.CanDesyncShapeshift)
+            if (!shapeshifter.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                if (role?.CheckShapeshift(target, ref shouldAnimate) == false)
                 {
-                    shapeshifter.RpcSpecificRejectShapeshift(target, shouldAnimate);
+                    if (role.CanDesyncShapeshift)
+                    {
+                        shapeshifter.RpcSpecificRejectShapeshift(target, shouldAnimate);
+                    }
+                    else
+                    {
+                        shapeshifter.RpcRejectShapeshift();
+                    }
+                    return false;
                 }
-                else
-                {
-                    shapeshifter.RpcRejectShapeshift();
-                }
-                return false;
-            }
 
             shapeshifter.RpcShapeshift(target, shouldAnimate);
             return false;
@@ -1161,7 +1163,8 @@ namespace TownOfHost
                     RealName = RealName.ApplyNameColorData(seer, target, false);
 
                     //seer役職が対象のMark
-                    Mark.Append(seerRole?.GetMark(seer, target, false));
+                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                        Mark.Append(seerRole?.GetMark(seer, target, false));
                     //seerに関わらず発動するMark
                     Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
@@ -1205,16 +1208,18 @@ namespace TownOfHost
                         Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                     }
                     //プログレスキラー
-                    if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
+                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
                     {
-                        Mark.Append($"<color=blue>♦</color>");
+                        if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
+                        {
+                            Mark.Append($"<color=blue>♦</color>");
+                        }
+                        //エーリアン
+                        if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modeProgresskiller && Alien.ProgressWorkhorseseen)
+                        {
+                            Mark.Append($"<color=blue>♦</color>");
+                        }
                     }
-                    //エーリアン
-                    if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modeProgresskiller && Alien.ProgressWorkhorseseen)
-                    {
-                        Mark.Append($"<color=blue>♦</color>");
-                    }
-
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                     {
                         if (PlayerControl.LocalPlayer.PlayerId == __instance.PlayerId)
@@ -1280,7 +1285,8 @@ namespace TownOfHost
                         Suffix.Append("<color=#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
                     }
                     //seer役職が対象のSuffix
-                    Suffix.Append(seerRole?.GetSuffix(seer, target));
+                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                        Suffix.Append(seerRole?.GetSuffix(seer, target));
 
                     //seerに関わらず発動するSuffix
                     Suffix.Append(CustomRoleManager.GetSuffixOthers(seer, target));
@@ -1598,7 +1604,10 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                     __instance.RpcBootFromVent(id);
 
-                if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || CanUse(__instance, id))
+                var roleClass = user.GetRoleClass();
+                if (user.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) roleClass = null;
+
+                if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || !CanUse(__instance, id))
                 {
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
@@ -1677,8 +1686,9 @@ namespace TownOfHost
             if (Utils.CanVent)
             {
                 Logger.Info($"{pp.name}がベントに入ろうとしましたがベントが無効化されているので弾きます。", "OnenterVent");
+                return false;
             }
-            return false;
+            return true;
         }
     }
 
@@ -1704,9 +1714,28 @@ namespace TownOfHost
             var ret = true;
             if (roleClass != null)
             {
-                ret = roleClass.OnCompleteTask();
+                if (!pc.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                    ret = roleClass.OnCompleteTask();
             }
             CustomRoleManager.onCompleteTaskOthers(__instance, ret);
+            if (pc.Is(CustomRoles.Amnesia))
+                if (Amnesia.TriggerTask.GetBool() && taskState.CompletedTasksCount >= Amnesia.Task.GetInt())
+                {
+                    Amnesia.Kesu(pc.PlayerId);
+
+                    if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                        pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
+                    else
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
+                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
+
+                    _ = new LateTask(() =>
+                    {
+                        pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId], kyousei: true, delay: true);
+                        pc.RpcResetAbilityCooldown(kousin: true);
+                    }, 0.2f, "ResetAbility");
+                }
             if (pc.Is(CustomRoles.TaskPlayerB) && Options.CurrentGameMode == CustomGameMode.TaskBattle && taskState.IsTaskFinished)
             {
                 if (!Options.TaskBattleTeamMode.GetBool())
@@ -1834,7 +1863,6 @@ namespace TownOfHost
                 if (__instance.Is(CustomRoles.Amnesia))//アムネシア削除
                 {
                     Amnesia.Kesu(__instance.PlayerId);
-                    PlayerState.GetByPlayerId(__instance.PlayerId).RemoveSubRole(CustomRoles.Amnesia);
                 }
 
                 if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
@@ -1848,6 +1876,9 @@ namespace TownOfHost
                                     __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
                                 }
                         }, 1.4f, "Fix sabotage");
+
+                if (!GameStates.Meeting)
+                    _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage");
             }
         }
     }

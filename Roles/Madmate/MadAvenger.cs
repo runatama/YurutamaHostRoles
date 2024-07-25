@@ -125,8 +125,9 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override void OnReportDeadBody(PlayerControl ___, NetworkedPlayerInfo __)
     {
-        Utils.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
         if (!Skill) return;
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        Utils.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
         _ = new LateTask(() => Main.AllPlayerControls.Do(x => x.KillFlash(kiai: true)), 1.0f, "Kakumeikaigi");
         _ = new LateTask(() => Main.AllPlayerControls.Do(x => x.KillFlash(kiai: true)), 2.5f, "Kakumeikaigi");
         _ = new LateTask(() => Main.AllPlayerControls.Do(x => x.KillFlash(kiai: true)), 4.0f, "Kakumeikaigi");

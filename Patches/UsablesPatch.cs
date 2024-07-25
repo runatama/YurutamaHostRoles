@@ -15,7 +15,7 @@ namespace TownOfHost
             if (!GameStates.InGame)
                 return __instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
             else
-                return __instance.AllowImpostor || (Utils.HasTasks(PlayerControl.LocalPlayer.Data, false) && (PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true));
+                return __instance.AllowImpostor || (Utils.HasTasks(PlayerControl.LocalPlayer.Data, false) && ((PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true) || (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))));
         }
     }
     [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]

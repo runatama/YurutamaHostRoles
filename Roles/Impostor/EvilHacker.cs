@@ -88,6 +88,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
 
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         Name.Clear();
         if (!Player.IsAlive())
         {

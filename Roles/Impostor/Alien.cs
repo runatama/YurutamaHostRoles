@@ -264,6 +264,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     }
     public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (!Player.IsAlive())//死んでたらこれより後の処理しない。
         {
             return;
@@ -334,6 +335,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public override void AfterMeetingTasks()
     {
         if (!AmongUsClient.Instance.AmHost) return;
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
         if (!Player.IsAlive())//死んでたら処理しない。
         {
             return;
@@ -851,6 +853,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     //タイムシーフ
     public int CalculateMeetingTimeDelta()
     {
+        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return 0;
         var sec = -(TimeThiefDecreaseMeetingTime * Count);
         return sec;
     }

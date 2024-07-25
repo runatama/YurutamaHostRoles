@@ -48,7 +48,7 @@ namespace TownOfHost.Roles.Ghost
         ///<summary>
         ///GhostRoleAssingDataが存在する幽霊役職を一括で割り当て
         ///</summary>
-        public static void AssignAddOnsFromList()
+        public static void AssignAddOnsFromList(bool d = false)
         {
             foreach (var kvp in AllData)
             {
@@ -61,13 +61,31 @@ namespace TownOfHost.Roles.Ghost
                     if (GhostAssingCount[data.Role] >= data.Role.GetRealCount()) continue;
                     GhostAssingCount[data.Role]++;
 
-                    pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
                     PlayerState.GetByPlayerId(pc.PlayerId).SetGhostRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
                     Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [{role}]　" + string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))); ;
                     Main.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))}</size>";
 
-                    _ = new LateTask(() => pc.RpcResetAbilityCooldown(kousin: true), 0.5f, "GhostRoleResetAbilty");
+                    if (!d)
+                    {
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.GuardianAngel);
+                        else pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
+                    }
+                    else
+                    {
+                        _ = new LateTask(() =>
+                            {
+                                if (!GameStates.Meeting)
+                                {
+                                    if (pc == PlayerControl.LocalPlayer)
+                                        RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.GuardianAngel);
+                                    else pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
+
+                                    _ = new LateTask(() => pc.RpcResetAbilityCooldown(kousin: true), 0.5f, "GhostRoleResetAbilty");
+                                }
+                            }, 1.4f, "Fix sabotage");
+                    }
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Lighting, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
-            AddOnsAssignDataNotImp.Create(Id + 10, CustomRoles.Lighting, true, true, true);
+            AddOnsAssignData.Create(Id + 10, CustomRoles.Lighting, true, true, false, true);
         }
         public static void Init()
         {

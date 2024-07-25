@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Moon);
-            AddOnsAssignDataNotImp.Create(Id + 10, CustomRoles.Moon, true, true, true);
+            AddOnsAssignData.Create(Id + 10, CustomRoles.Moon, true, true, false, true);
         }
         public static void Init()
         {

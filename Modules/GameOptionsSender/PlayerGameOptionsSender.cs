@@ -128,7 +128,8 @@ namespace TownOfHost.Modules
             }
 
             var roleClass = player.GetRoleClass();
-            roleClass?.ApplyGameOptions(opt);
+            if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+                roleClass?.ApplyGameOptions(opt);
             foreach (var subRole in player.GetCustomSubRoles())
             {
                 switch (subRole)
@@ -254,14 +255,18 @@ namespace TownOfHost.Modules
             //幽霊役職用の奴
             if (player.IsGorstRole())
             {
-                if (player.Is(CustomRoles.GhostNoiseSender))
-                    AURoleOptions.GuardianAngelCooldown = GhostNoiseSender.CoolDown.GetFloat() == 0f ? 0.1f : GhostNoiseSender.CoolDown.GetFloat();
-                if (player.Is(CustomRoles.DemonicTracker))
-                    AURoleOptions.GuardianAngelCooldown = DemonicTracker.CoolDown.GetFloat() == 0f ? 0.1f : DemonicTracker.CoolDown.GetFloat();
-                if (player.Is(CustomRoles.DemonicCrusher))
-                    AURoleOptions.GuardianAngelCooldown = DemonicCrusher.CoolDown.GetFloat() == 0f ? 0.1f : DemonicCrusher.CoolDown.GetFloat();
+                var gr = PlayerState.GetByPlayerId(player.PlayerId).GhostRole;
+
+                switch (gr)
+                {
+                    case CustomRoles.GhostNoiseSender: AURoleOptions.GuardianAngelCooldown = CoolDown(GhostNoiseSender.CoolDown.GetFloat()); break;
+                    case CustomRoles.DemonicTracker: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicTracker.CoolDown.GetFloat()); break;
+                    case CustomRoles.DemonicCrusher: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicCrusher.CoolDown.GetFloat()); break;
+                }
             }
             return opt;
+
+            float CoolDown(float cool) => cool == 0f ? 0.1f : cool;
         }
 
         public override bool AmValid()

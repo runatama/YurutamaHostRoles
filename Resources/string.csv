@@ -339,7 +339,9 @@
 "MonochromerInfo","","君の世界には色があるのに..."
 "JackaldollInfo","You are now on Team Jackals","ジャッカルの援助をしよう"
 "DoppelGangerInfo","","ちゃんと君を生きてやるから"
-"MassMediaInfo","","面白いネタ無いかなぁ..
+"MassMediaInfo","","面白いネタ無いかなぁ..."
+"BankerInfo","","状況を見てうまく立ち回れ"
+"BakeCatInfo","","にゃんにゃん(=^・・^=)"
 "#NeutralInfo"
 
 "# HideAndSeek"
@@ -545,7 +547,7 @@
 "SlackerInfoLong","","(属性):\nリアクター,O2を直せない。","","","","",""
 "ClumsyInfoLong","","(属性):\n通信妨害を直せない。","","","","",""
 "TransparentInfoLong","","(属性):\n自身の死体を誰も通報出来なくなる。","","","","",""
-"AmnesiaInfoLong","","(属性):\n自身がアムネシアだと自覚できない。\nまた、自身の役職が設定日数目の会議が終了するまで分からない。\n陣営,置き換え役職は知ることができる。(マッドメイトはニュートラル判定)\n役職の能力は自覚前から使用できる。"
+"AmnesiaInfoLong","","(属性):\n自身がアムネシアだと自覚できない。\nまた、自身の役職が設定日数目の会議が終了するまで分からない。\n陣営のみ知ることができる。(マッドメイトはニュートラル判定)\nタスクで覚醒がONかつ自身がインポスターではない時、一定数タスクを終わらせると自身の役職を思い出す。\n設定がONの場合、役職能力が発揮されない。"
 "InfoPoorInfoLong","","(属性):\n情報機器が使用できない。\nファングルの望遠鏡への効果はない。"
 
 "# ニュートラル属性"
@@ -923,6 +925,7 @@
 "MadAvengerReserveTimeCanVent","Can Use Nomal Vent","革命準備が出来るまでベントが使える","","","","",""
 "MadBaitRandomReport","Impostor Kill Random Report","ｲﾝﾎﾟｽﾀｰがキルしたら通報者をランダムにする"
 "MadBaitIgnoreImpostor","IgnoreImpostor","対象からｲﾝﾎﾟｽﾀｰを除外する"
+"MadChangerKillTargetCooldown","","キル選択クールダウン"
 
 "## CrewMate RoleSetting"
 "BaitComms","","通信妨害中は能力を発揮できない"
@@ -1053,6 +1056,13 @@
 "NotReport","Cant Use Report","死体通報","","","","",""
 "ConvenerAll","Cant Conver","緊急会議ボタン・死体通報","","","","",""
 "Am.modru","Number of days to restore memory","記憶を取り戻すまでの日数"
+"Am.TriggerDay","","日数経過で記憶を取り戻す"
+"Am.TriggerTask","","一定数タスク完了で記憶を取り戻す"
+"Am.Task","","記憶を取り戻すタスク数"
+"Am.DontCanUseAbility","","能力が使えない"
+"Am.defaultKillCool","","自覚するまでキルクールをデフォルトにする"
+"Am.TriggerKill","","一定数キルをすることで記憶を取り戻す"
+"Am.KillCount","","記憶を取り戻すキル回数"
 "Amanojakut","Amanojaku Assign day","アサインされる日","","","","",""
 "AmanojakuSeizon","Alive to win","生存していないと勝利できない","","","","",""
 "CanseeMeeting","OnlyseeMeeting","タスク進捗を会議中のみ確認できる","","","","",""
@@ -1181,10 +1191,9 @@
 "InfoF","","InfoModeになりました！\n以下のプレイヤーに投票することで情報を確認できます!"
 "InfoNo1"," : See My Role"," : 自身の役職,属性を確認"
 "InfoNo2"," : See Now Setting"," : 現在有効な設定を表示"
-"InfoNo3"," : See Now Roles"," : 役職一覧を表示"
+"InfoNo3"," : See Now Roles"," : 役職一覧を表示\n\n自身に投票で自投票/役職能力発動。\nスキップでInfomode解除"
 "InfoNext"," : Next"," : 次へ"
 "InfoMenu2","","メニューの二枚目に切り替わりました"
-"InfoRole","","役職能力発動モードになりました。\nそのまま自投票すると自投票します。"
 "InfoVote","","InfoModeを解除しました"
 
 "NiceLoggerTitle","","ドアログ情報"
@@ -1372,6 +1381,8 @@
 "#### 010 Session"
 "ERR-010-000-2","An error occurred while processing disconnection. Please abort the game.","プレイヤーの切断処理中にエラーが発生しました。廃村してください。","","","",""
 "ERR-010-001-2","An error occurred while processing disconnection. Please recreate the lobby.","プレイヤーの切断処理中にエラーが発生しました。ロビーを作り直してください。","","","",""
+"#### 011 Communication"
+"ERR-011-000-1","","接続が不安定です。正常な処理が行われない可能性があります。\n参加者から不具合報告があった場合、ロビーを作り直すことをお勧めします。"
 
 "## その他"
 

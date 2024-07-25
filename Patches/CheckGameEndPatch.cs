@@ -12,6 +12,7 @@ using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles;
 
 namespace TownOfHost
@@ -137,16 +138,17 @@ namespace TownOfHost
                     //追加勝利陣営
                     foreach (var pc in Main.AllPlayerControls)
                     {
-                        if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
-                        {
-                            var winnerRole = pc.GetCustomRole();
-                            if (additionalWinner.CheckWin(ref winnerRole))
+                        if (!pc.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                             {
-                                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                                CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
-                                continue;
+                                var winnerRole = pc.GetCustomRole();
+                                if (additionalWinner.CheckWin(ref winnerRole))
+                                {
+                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                                    CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
+                                    continue;
+                                }
                             }
-                        }
                         if (!pc.Is(CustomRoles.Terrorist) && pc.Is(CustomRoles.LastNeutral) && pc.IsAlive() && LastNeutral.GiveOpportunist.GetBool()
                         )
                         {
