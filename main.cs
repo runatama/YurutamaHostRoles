@@ -62,12 +62,12 @@ namespace TownOfHost
         public static bool DebugVersion = true;
         //デバッグ有効期限
         public static int DebugvalidityYear = 2024;//年
-        public static int DebugvalidityMonth = 7;//月
-        public static int DebugvalidityDay = 30;//日
+        public static int DebugvalidityMonth = 8;//月
+        public static int DebugvalidityDay = 3;//日
         //デバッグ版リリース日
         public static int ReleaseYear = 2024;
         public static int ReleaseMonth = 7;
-        public static int ReleaseDay = 25;
+        public static int ReleaseDay = 30;
         public static bool DebugCheck()
         {
             if (!NotKigenDebug && DebugVersion)
@@ -120,6 +120,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> CustomSprite { get; private set; }
         public static ConfigEntry<bool> HideSomeFriendCodes { get; private set; }
         public static ConfigEntry<float> MapTheme { get; private set; }
+        public static ConfigEntry<bool> ViewPingDetails { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
         public static ConfigEntry<string> Preset1 { get; private set; }
@@ -238,6 +239,7 @@ namespace TownOfHost
             CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
             HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
             MapTheme = Config.Bind("Client Options", "MapTheme", AmongUs.Data.Settings.AudioSettingsData.DEFAULT_MUSIC_VOLUME);
+            ViewPingDetails = Config.Bind("Client Options", "View Ping Details", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
             ExplosionKeyInput = Config.Bind("Authentication", "Explosion Key", "");
 
@@ -403,7 +405,7 @@ namespace TownOfHost
             return (AllowCS && IsCs()) || (!IsCs() && !ModUpdater.hasUpdate && !ModUpdater.isBroken && AllowPublicRoom && IsPublicAvailableOnThisVersion);
         }
         public static bool IsroleAssigned
-            => !(SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard) || SelectRolesPatch.roleAssigned;
+            => !(SetRoleOverride/* && Options.CurrentGameMode == CustomGameMode.Standard*/) || SelectRolesPatch.roleAssigned;
     }
     public enum CustomDeathReason
     {

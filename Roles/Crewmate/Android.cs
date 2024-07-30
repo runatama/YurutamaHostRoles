@@ -28,6 +28,7 @@ public sealed class Android : RoleBase
     {
         time = 0;
         Battery = 0;
+        NowVent = 999;
         bat = zero;
     }
     static OptionItem TaskAddBattery;
@@ -39,6 +40,7 @@ public sealed class Android : RoleBase
     string bat;
     float Battery;
     float time;
+    int NowVent;
     enum OptionName
     {
         AndroidRemoveBattery, AndroidRemove, AndroidRemoveTime, AndroidAddTaskBattery
@@ -82,16 +84,8 @@ public sealed class Android : RoleBase
     {
         if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return true;
 
-        if (systemType != SystemTypes.Comms)
-
-            Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
-        _ = new LateTask(() =>
-        {
-            Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 16);
-
-            if (Main.NormalOptions.MapId is 1 or 5)
-                Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 17);
-        }, Main.LagTime, "");
+        if (Player.inVent && NowVent != 999)
+            Player.MyPhysics.RpcExitVent(NowVent);
         return true;
     }
     public override void AfterSabotage(SystemTypes systemType) => Player.RpcResetAbilityCooldown(kousin: true);
@@ -129,16 +123,8 @@ public sealed class Android : RoleBase
 
             if (Battery <= 0)//追い出す
             {
-                Player.RpcResetAbilityCooldown(kousin: true);
-                Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
-                _ = new LateTask(() =>
-                {
-                    Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 16);
-
-                    if (Main.NormalOptions.MapId is 1 or 5)
-                        Player.RpcDesyncUpdateSystem(SystemTypes.Comms, 17);
-                }, Main.LagTime, "");
-
+                if (Player.inVent && NowVent != 999)
+                    Player.MyPhysics.RpcExitVent(NowVent);
             }
             if (Now() != bat)
             {

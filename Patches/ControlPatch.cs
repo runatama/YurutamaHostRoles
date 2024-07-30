@@ -170,7 +170,7 @@ namespace TownOfHost
             {
                 ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false);
             }
-            if (GameStates.IsLobby)
+            if (GameStates.IsLobby && !GameStates.InGame)
                 if (GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false))
                 {
                     GameSettingMenuStartPatch.ModSettingsTab?.CloseMenu();
@@ -303,6 +303,8 @@ namespace TownOfHost
     {
         public static void Postfix(Rewired.Player player)
         {
+            if (GameStates.IsLobby) return;
+
             if (player.GetButtonDown(8) && // 8:キルボタンのactionId
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseKillButton())

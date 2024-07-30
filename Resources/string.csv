@@ -890,6 +890,7 @@
 "NotifierProbability","Rect","フラッシュが発生する確率","","","","",""
 "ConnectSaverPlayerCount","","能力発動に必要な生存人数"
 "LimiterTarnLimit","Limit Tarn","自爆モードになるまでの日数","","","","",""
+"LimiterLastTarnKillCool","","自爆クール"
 "ProgressKillerMadseen","Can see Task completed MadMate","タスクを終えたマッドメイト系役職が分かる","","","","",""
 "ProgressWorkhorseseen","Can see Workhorse","ワークホースのプレイヤーが分かる","","","","",""
 "DecrescendoKillerCount","Number of kills where weakening begins","弱化が始まるキル数","","","","",""
@@ -1285,6 +1286,7 @@
 "HideResetToDefault","Hide ResetToDefault","推奨設定を隠す","","","","",""
 "CustomSprite","Change Button Appearance","ボタンの見た目を変更する","","","","",""
 "HideSomeFriendCodes","Hide Some Friend Codes","一部画面のフレンドコードを隠す","","","","",""
+"ViewPingDetails","ViewPingDetails","ViewPingDetails","","","","",""
 
 "## ヘルプテキスト"
 

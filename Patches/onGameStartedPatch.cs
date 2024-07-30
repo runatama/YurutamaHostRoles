@@ -68,6 +68,7 @@ namespace TownOfHost
 
             SelectRolesPatch.roleAssigned = false;
             SelectRolesPatch.senders2 = new();
+            HudManagerCoShowIntroPatch.Cancel = true;
             RpcSetTasksPatch.taskIds.Clear();
 
             Camouflage.Init();
@@ -265,13 +266,13 @@ namespace TownOfHost
                         if (Options.EnableGM.GetBool() && pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                         {
                             PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
-                            PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+                            PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, false);
                             PlayerControl.LocalPlayer.Data.IsDead = true;
                         }
                         else
                         {
                             pc.RpcSetCustomRole(CustomRoles.TaskPlayerB);
-                            pc.RpcSetRole(Options.TaskBattleCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+                            pc.RpcSetRole(Options.TaskBattleCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, false);
                         }
                     }
                 }
@@ -568,17 +569,13 @@ namespace TownOfHost
             {
                 if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                 var hostRole = PlayerControl.LocalPlayer.GetCustomRole();
-                if (Options.EnableGM.GetBool())
-                {
+                if (Options.EnableGM.GetBool())//こうしないとGMが動かない
                     PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
-                }
                 else
-                {
                     PlayerControl.LocalPlayer.RpcSetRoleDesync(
-                    pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
-                }
+                        pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
             }
-            yield return new UnityEngine.WaitForSeconds(Main.LagTime + 0.2f);
+            yield return new UnityEngine.WaitForSeconds(0.02f);
             foreach (var info in GameData.Instance.AllPlayers)
             {
                 if (Disconnected.Contains(info.PlayerId))
@@ -586,11 +583,13 @@ namespace TownOfHost
                 info.Disconnected = false;
                 info.SetDirtyBit(0b_1u << info.PlayerId);
             }
+            yield return new UnityEngine.WaitForSeconds(0.04f);
             AmongUsClient.Instance.SendAllStreamedObjects();
             Logger.Info("UnDisconnected", "RSetRole");
             yield return new UnityEngine.WaitForSeconds(0.01f);
             PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));
             PlayerControl.LocalPlayer.StopAllCoroutines();
+            HudManagerCoShowIntroPatch.Cancel = false;
             DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
             DestroyableSingleton<HudManager>.Instance.HideGameLoader();
 
@@ -602,8 +601,9 @@ namespace TownOfHost
                 Main.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
             }
 
-            yield return new UnityEngine.WaitForSeconds(1.5f);
-            senders2.Do(kvp => kvp.Value.SendMessage());
+            yield return new UnityEngine.WaitForSeconds(1.5f);//イントロが表示された後に本来の役職に変更
+            if (senders2 != null)
+                senders2.Do(kvp => kvp.Value.SendMessage());
             senders2 = null;
         }
         private static void AssignDesyncRole(CustomRoles role, List<PlayerControl> AllPlayers, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
@@ -665,6 +665,7 @@ namespace TownOfHost
                             sender.RpcSetRole(seer, role, target.GetClientId());
                         else
                         {
+                            //teamはまだMergeしない(てかできない)
                             var sender2 = new CustomRpcSender($"", SendOption.Reliable, false).StartMessage(seer.GetClientId());
                             sender2.RpcSetRole(seer, role, seer.GetClientId());
                             sender2.EndMessage();

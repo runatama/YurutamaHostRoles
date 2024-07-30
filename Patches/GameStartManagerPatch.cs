@@ -67,6 +67,16 @@ namespace TownOfHost
                         GameStartManager.Instance.ResetStartState();
                 }));
 
+                /*
+                escボタン押したりしたらクリック反応しなくなっちゃうので封印します
+                if (GameStates.IsOnlineGame)
+                {
+                    __instance.GameRoomNameCode.gameObject.AddComponent<BoxCollider2D>().size = new(2, 1);
+                    var codePassive = __instance.GameRoomNameCode.gameObject.AddComponent<PassiveButton>();
+                    codePassive.OnClick = new();
+                    codePassive.OnClick.AddListener((Action)(() => LobbyInfoPane.Instance.CopyGameCode()));
+                }*/
+
                 LobbyInfoPanePatch.Postfix();
 
                 if (!AmongUsClient.Instance.AmHost) return;

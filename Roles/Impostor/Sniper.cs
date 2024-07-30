@@ -331,11 +331,13 @@ public sealed class Sniper : RoleBase, IImpostor
 
         if (!IsAim) return;
 
-        if (!GameStates.IsInTask)
+        if (GameStates.Meeting)
         {
             //エイム終了
             IsAim = false;
             AimTime = 0f;
+            foreach (var pc in Main.AllPlayerControls)
+                GetArrow.Remove(pc.PlayerId, SnipeBasePosition);
             return;
         }
 

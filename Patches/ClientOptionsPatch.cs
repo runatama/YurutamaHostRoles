@@ -21,6 +21,7 @@ namespace TownOfHost
         private static ClientActionItem CustomSprite;
         private static ClientActionItem HideSomeFriendCodes;
         private static ToggleButtonBehaviour soundSettingsButton;
+        private static ClientActionItem ViewPingDetails;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -77,6 +78,12 @@ namespace TownOfHost
             {
                 HideSomeFriendCodes = ClientOptionItem.Create("HideSomeFriendCodes", Main.HideSomeFriendCodes, __instance);
             }
+#if DEBUG
+            if (ViewPingDetails == null || ViewPingDetails.ToggleButton == null)
+            {
+                ViewPingDetails = ClientOptionItem.Create("ViewPingDetails", Main.ViewPingDetails, __instance);
+            }
+#endif
             if (ModUnloaderScreen.Popup == null)
             {
                 ModUnloaderScreen.Init(__instance);

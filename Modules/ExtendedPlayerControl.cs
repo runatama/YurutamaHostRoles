@@ -126,7 +126,7 @@ namespace TownOfHost
                 return new() { CustomRoles.NotAssigned };
             }
             else
-                return PlayerState.GetByPlayerId(player.PlayerId).SubRoles;
+                return PlayerState.GetByPlayerId(player.PlayerId)?.SubRoles ?? new() { CustomRoles.NotAssigned };
         }
         public static CountTypes GetCountTypes(this PlayerControl player)
         {

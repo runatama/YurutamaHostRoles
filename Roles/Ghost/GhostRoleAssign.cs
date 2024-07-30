@@ -71,6 +71,8 @@ namespace TownOfHost.Roles.Ghost
                         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.GuardianAngel);
                         else pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
+
+                        _ = new LateTask(() => pc.RpcResetAbilityCooldown(kousin: true), 0.5f, "GhostRoleResetAbilty");
                     }
                     else
                     {

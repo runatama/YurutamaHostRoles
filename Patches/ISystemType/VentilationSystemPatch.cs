@@ -25,11 +25,12 @@ class VentilationSystemUpdateSystemPatch
             roleClass.OnVentilationSystemUpdate(player, op, ventId);
         }
 
-        //タスクを持っていないならベント掃除をなかったことにする 多分次リリースに入れる？
-        //return Utils.HasTasks(player.Data);
-
         if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
             return false; //タスバトだとベント掃除で追い出されないように～
+
+        //タスクを持っていないならベント掃除をなかったことにする
+        if (Options.CurrentGameMode == CustomGameMode.Standard)
+            return Utils.HasTasks(player.Data);
 
         return true;
     }

@@ -62,6 +62,14 @@ namespace TownOfHost
                 }
 
                 credentialsText.text = sb.ToString();
+#if DEBUG
+                if (Main.ViewPingDetails.Value)
+                {
+                    __instance.text.text += $"({AmongUsClient.Instance.Ping / 1000f}秒/{(GameStates.IsOnlineGame ? (Main.IsCs() ? ServerManager.Instance.CurrentRegion.Name : GetString(ServerManager.Instance.CurrentRegion.TranslateName)) : "ローカル")})";
+                    __instance.text.alignment = TextAlignmentOptions.Top;
+                }
+                else __instance.text.alignment = TextAlignmentOptions.TopLeft;
+#endif
             }
         }
         [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]

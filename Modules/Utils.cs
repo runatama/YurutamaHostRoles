@@ -760,7 +760,9 @@ namespace TownOfHost
                             hasTasks &= !ForRecompute;
                             break;
                         case CustomRoles.Amnesia:
-                            hasTasks = !ForRecompute && !States.MainRole.IsImpostor();
+                            {
+                                hasTasks = role.IsCrewmate() ? hasTasks : (!ForRecompute && !States.MainRole.IsImpostor());
+                            }
                             break;
                     }
 

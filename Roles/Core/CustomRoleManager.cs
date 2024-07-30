@@ -690,7 +690,6 @@ public enum CustomRoles
 
     DemonicCrusher,
     DemonicTracker,
-    //CrewMateGhost
     GhostNoiseSender,
 }
 public enum CustomRoleTypes
