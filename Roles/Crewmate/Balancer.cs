@@ -142,6 +142,7 @@ public sealed class Balancer : RoleBase
 
         void Vote()
         {
+            MeetingHudPatch.CastVotePatch.InfoMode[Player.PlayerId] = 4;
             //1一目が決まってないなら一人目を決める
             if (Target1 == 255)
                 Target1 = votedForId;

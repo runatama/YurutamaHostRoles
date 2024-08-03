@@ -33,7 +33,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
         }
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
-        if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+        if (Amnesia.CheckAbility(player))
             if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateReactorSystem(__instance, amount))
             {
                 return false;

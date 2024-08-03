@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-
+using HarmonyLib;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
-public sealed class JackalDoll : RoleBase, IKiller
+public sealed class JackalDoll : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -88,10 +87,6 @@ public sealed class JackalDoll : RoleBase, IKiller
         AURoleOptions.EngineerCooldown = VentCool.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = VentIntime.GetFloat();
     }
-    public float CalculateKillCooldown() => 0f;
-    public bool CanUseKillButton() => false;
-    public bool CanUseSabotageButton() => false;
-    public bool CanUseImpostorVentButton() => false;
     public static void Sidekick(PlayerControl pc, PlayerControl oyabun)
     {
         if (Oyabun.ContainsKey(pc.PlayerId))
@@ -99,30 +94,62 @@ public sealed class JackalDoll : RoleBase, IKiller
             Oyabun.Remove(pc.PlayerId);
         }
 
+        var state = PlayerState.GetByPlayerId(pc.PlayerId);
+
         if (oyabun.Is(CustomRoles.Jackal))
         {
             if (Jackal.OptionDoll.GetBool())
             {
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Jackal.OptionKillCooldown.GetFloat();
                 Oyabun.Add(pc.PlayerId, oyabun);
                 role.Add(pc, CustomRoles.Jackal);
+            }
+            if (Jackal.SKcanImp.GetBool())
+            {
+                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                {
+                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
+                    NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
+                }
+            }
+            if (Jackal.SKimpwocanimp.GetBool())
+            {
+                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                {
+                    var iste = PlayerState.GetByPlayerId(imp.Key);
+                    if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
+                    NameColorManager.Add(imp.Key, pc.PlayerId, "ffffff");
+                }
             }
         }
         if (oyabun.Is(CustomRoles.JackalMafia))
         {
             if (JackalMafia.OptionDoll.GetBool())
             {
+                Main.AllPlayerKillCooldown[pc.PlayerId] = JackalMafia.OptionKillCooldown.GetFloat();
                 Oyabun.Add(pc.PlayerId, oyabun);
                 role.Add(pc, CustomRoles.JackalMafia);
             }
+            if (JackalMafia.SKcanImp.GetBool())
+            {
+                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                {
+                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
+                    NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
+                }
+            }
+            if (JackalMafia.SKimpwocanimp.GetBool())
+            {
+                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                {
+                    var iste = PlayerState.GetByPlayerId(imp.Key);
+                    if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
+                    NameColorManager.Add(imp.Key, pc.PlayerId, "ffffff");
+                }
+            }
         }
 
-        foreach (var pl in Main.AllPlayerControls)
-        {
-            if (pl == PlayerControl.LocalPlayer)
-                pc.StartCoroutine(pc.CoSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
-            else
-                pc.RpcSetRoleDesync(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
-        }
+        pc.RpcSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, true);
 
         //サイドキックがガード等発動しないため。
         if (RoleAddAddons.AllData.TryGetValue(CustomRoles.Jackaldoll, out var d) && d.GiveAddons.GetBool())
@@ -130,6 +157,8 @@ public sealed class JackalDoll : RoleBase, IKiller
             if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
             if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
         }
+        //どっちにしろ更新を
+        Utils.NotifyRoles();
     }
     public override void AfterMeetingTasks()
     {

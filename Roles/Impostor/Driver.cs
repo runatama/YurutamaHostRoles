@@ -53,7 +53,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         DriverseeKillFlash,
         Driverseedeathreason,
         DriverGado,
-        DriverVote, TaskTrigger,
+        DriverVote,
         Driverseen, DriverTaskTrigger,
         BraidCanVent
     }
@@ -67,13 +67,13 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         OptionBraidKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.BraidKillCooldown, new(0f, 180f, 2.5f), 15f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionDriverseeKillFlash = BooleanOptionItem.Create(RoleInfo, 11, OptionName.DriverseeKillFlash, false, false);
-        OptionKtaskTrigger = FloatOptionItem.Create(RoleInfo, 12, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionDriverseeKillFlash);
+        OptionKtaskTrigger = FloatOptionItem.Create(RoleInfo, 12, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionDriverseeKillFlash);
         OptionDriverseedeathreason = BooleanOptionItem.Create(RoleInfo, 13, OptionName.Driverseedeathreason, false, false);
-        OptionDtaskTrigger = FloatOptionItem.Create(RoleInfo, 14, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionDriverseedeathreason);
+        OptionDtaskTrigger = FloatOptionItem.Create(RoleInfo, 14, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionDriverseedeathreason);
         OptionVote = BooleanOptionItem.Create(RoleInfo, 15, OptionName.DriverVote, false, false);
-        OptionVtaskTrigger = FloatOptionItem.Create(RoleInfo, 16, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionVote);
+        OptionVtaskTrigger = FloatOptionItem.Create(RoleInfo, 16, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionVote);
         OptionGado = BooleanOptionItem.Create(RoleInfo, 17, OptionName.DriverGado, false, false);
-        OptionGtaskTrigger = FloatOptionItem.Create(RoleInfo, 18, OptionName.TaskTrigger, new(1, 297, 1), 5, false, OptionGado);
+        OptionGtaskTrigger = FloatOptionItem.Create(RoleInfo, 18, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGado);
         OptionBseeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.Driverseen, false, false);
         OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.DriverTaskTrigger, false, false);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BraidCanVent, true, false);
@@ -114,7 +114,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
     }
     public override void OnStartMeeting()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Player.IsAlive())
         {
             if (Braid.DriverseeKillFlash)

@@ -138,7 +138,7 @@ namespace TownOfHost
                     //追加勝利陣営
                     foreach (var pc in Main.AllPlayerControls)
                     {
-                        if (!pc.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                        if (Amnesia.CheckAbility(pc))
                             if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                             {
                                 var winnerRole = pc.GetCustomRole();
@@ -164,6 +164,23 @@ namespace TownOfHost
                             continue;
                         }
                         else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+
+                        if (pc.Is(CustomRoles.AsistingAngel))
+                        {
+                            if (AsistingAngel.Asist != null)
+                            {
+                                if (CustomWinnerHolder.WinnerIds.Contains(AsistingAngel.Asist.PlayerId))
+                                {
+                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                                    CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.AsistingAngel);
+                                    continue;
+                                }
+                                else
+                                    CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                            }
+                            else
+                                CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                        }
                     }
                 }
                 ShipStatus.Instance.enabled = false;

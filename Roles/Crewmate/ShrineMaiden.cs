@@ -103,7 +103,7 @@ public sealed class ShrineMaiden : RoleBase
     }
     public override void AfterMeetingTasks()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         Repo = false;//いらない気がするけど一応保険
         Oniku = 111;
     }

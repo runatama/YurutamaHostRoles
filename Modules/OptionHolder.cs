@@ -195,6 +195,7 @@ namespace TownOfHost
 
         // ランダムスポーン
         public static OptionItem EnableRandomSpawn;
+        public static OptionItem CanSeeNextRandomSpawn;
         //Skeld
         public static OptionItem RandomSpawnSkeld;
         public static OptionItem RandomSpawnSkeldCafeteria;
@@ -642,7 +643,11 @@ namespace TownOfHost
             //ゆーれーやくしょく
             DemonicTracker.SetupCustomOption();
             DemonicCrusher.SetupCustomOption();
+            DemonicVenter.SetupCustomOption();
+            AsistingAngel.SetupCustomOption();
+            Ghostbuttoner.SetupCustomOption();
             GhostNoiseSender.SetupCustomOption();
+            GhostReseter.SetupCustomOption();
             //幽霊役職の設定
             GRRoleOp = BooleanOptionItem.Create(102001, "GRRoleOptions", false, TabGroup.GhostRoles, false)
                 .SetHeader(true)
@@ -909,6 +914,8 @@ namespace TownOfHost
             EnableRandomSpawn = BooleanOptionItem.Create(101300, "RandomSpawn", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
                 .SetColorcode("#ff99cc")
+                .SetGameMode(CustomGameMode.All);
+            CanSeeNextRandomSpawn = BooleanOptionItem.Create(101301, "CanSeeNextRandomSpawn", false, TabGroup.MainSettings, false).SetParent(EnableRandomSpawn)
                 .SetGameMode(CustomGameMode.All);
             RandomSpawn.SetupCustomOption();
 

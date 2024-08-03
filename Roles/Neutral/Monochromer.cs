@@ -65,7 +65,7 @@ public sealed class Monochromer : RoleBase
     }
     public override void Colorchnge()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
         foreach (var pc in Main.AllPlayerControls)
         {

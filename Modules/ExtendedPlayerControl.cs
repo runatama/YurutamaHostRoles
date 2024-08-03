@@ -45,14 +45,20 @@ namespace TownOfHost
                     }
                     if (setRole)
                     {
-                        if (role.GetRoleInfo().IsDesyncImpostor)
+                        if (role.GetRoleInfo()?.IsDesyncImpostor ?? false)
                         {
                             foreach (var pc in Main.AllPlayerControls)
                             {
                                 if (pc == PlayerControl.LocalPlayer)
+                                {
                                     player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
+                                    if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
+                                }
                                 else
+                                {
                                     player.RpcSetRoleDesync(pc == player ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
+                                    if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
+                                }
                             }
                         }
                         else
@@ -519,7 +525,7 @@ namespace TownOfHost
         }
         public static bool CanMakeMadmate(this PlayerControl player)
         {
-            if (player.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) return false;
+            if (Amnesia.CheckAbilityreturn(player)) return false;
 
             if (
             Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount ||
@@ -660,7 +666,7 @@ namespace TownOfHost
                 return false;
             }
             // seerが死亡済で，霊界から死因が見える設定がON
-            if (!seer.IsAlive() && Options.GhostCanSeeDeathReason.GetBool() && (!seer.IsGorstRole() || Options.GRCanSeeDeathReason.GetBool()))
+            if (!seer.IsAlive() && Options.GhostCanSeeDeathReason.GetBool() && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeDeathReason.GetBool()))
             {
                 return true;
             }
@@ -674,7 +680,7 @@ namespace TownOfHost
             // 役職による仕分け
             if (seer.GetRoleClass() is IDeathReasonSeeable deathReasonSeeable)
             {
-                if (!seer.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                if (Amnesia.CheckAbility(seer))
                     return deathReasonSeeable.CheckSeeDeathReason(seen);
             }
             // IDeathReasonSeeable未対応役職はこちら
@@ -711,6 +717,13 @@ namespace TownOfHost
                         Prefix = player.GetPlayerTaskState().IsTaskFinished ? "" : "Before";
                         break;
                 };
+
+            /*NextUpdete
+            if (role is CustomRoles.Amnesiac)
+            {
+                if (roleClass is Amnesiac amnesiac && !amnesiac.思い出した)
+                    text = CustomRoles.Sheriff.ToString();
+            }*/
 
             var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
             if (player.IsGorstRole())

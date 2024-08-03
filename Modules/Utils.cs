@@ -25,7 +25,8 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Ghost;
 using static TownOfHost.Translator;
 using HarmonyLib;
-using Sentry.Unity.NativeUtils;
+using static TownOfHost.RandomSpawn;
+using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost
 {
@@ -148,12 +149,12 @@ namespace TownOfHost
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
             if (seer.Is(CustomRoles.GM)) return true;
-            if (seer.Data.IsDead && Options.GhostCanSeeKillflash.GetBool() && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
+            if (seer.Data.IsDead && Options.GhostCanSeeKillflash.GetBool() && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
             if (seer.GetRoleClass() is IKillFlashSeeable killFlashSeeable)
             {
-                if (!seer.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                if (Amnesia.CheckAbility(seer))
                     return killFlashSeeable.CheckKillFlash(info);
             }
 
@@ -194,6 +195,19 @@ namespace TownOfHost
                 player.MarkDirtySettings();
             }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
         }
+        public static void AllPlayerKillFlash()
+        {
+            var systemtypes = GetCriticalSabotageSystemType();
+            ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
+
+            _ = new LateTask(() =>
+            {
+                ShipStatus.Instance.RpcUpdateSystem(systemtypes, 16);
+
+                if (Main.NormalOptions.MapId == 4) //Airship用            
+                    ShipStatus.Instance.RpcUpdateSystem(systemtypes, 17);
+            }, Options.KillFlashDuration.GetFloat(), "Fix Reactor");
+        }
         public static void BlackOut(this IGameOptions opt, bool IsBlackOut)
         {
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
@@ -230,7 +244,7 @@ namespace TownOfHost
             //デフォルト値
             bool enabled = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
                         || (Options.ALoversRole.GetBool() && seer.Is(CustomRoles.ALovers) && seen.Is(CustomRoles.ALovers))
                         || (Options.BLoversRole.GetBool() && seer.Is(CustomRoles.BLovers) && seen.Is(CustomRoles.BLovers))
                         || (Options.CLoversRole.GetBool() && seer.Is(CustomRoles.CLovers) && seen.Is(CustomRoles.CLovers))
@@ -246,7 +260,7 @@ namespace TownOfHost
             //属性が見れるか
             bool addon = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
                         || (Options.InsiderMode.GetBool() && seer.GetCustomRole().IsImpostor());
 
             var (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId, addon);
@@ -254,13 +268,13 @@ namespace TownOfHost
             var ch = addon;
 
             //seen側による変更
-            if (seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(seen))
                 seen.GetRoleClass()?.OverrideDisplayRoleNameAsSeen(seer, ref enabled, ref roleColor, ref roleText, ref addon);
             if (text == roleText && !ch)//アドオンの上書きチェック
                 (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId, addon);
 
             //seer側による変更
-            if (seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(seer))
                 seer.GetRoleClass()?.OverrideDisplayRoleNameAsSeer(seen, ref enabled, ref roleColor, ref roleText, ref addon);
             if (text == roleText && !ch)//アドオンの上書きチェック
                 (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId, addon);
@@ -502,7 +516,7 @@ namespace TownOfHost
                 }
             var (color, text) = GetRoleNameData(state.MainRole, Subrole, state.GhostRole, showSubRoleMarks);
 
-            if (!GetPlayerById(playerId).Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(GetPlayerById(playerId)))
                 CustomRoleManager.GetByPlayerId(playerId)?.OverrideTrueRoleName(ref color, ref text);
 
             if (GetPlayerById(playerId) != null)
@@ -761,11 +775,23 @@ namespace TownOfHost
                             break;
                         case CustomRoles.Amnesia:
                             {
-                                hasTasks = role.IsCrewmate() ? hasTasks : (!ForRecompute && !States.MainRole.IsImpostor());
+                                var ch = false;
+                                switch (role.GetRoleInfo()?.BaseRoleType.Invoke())
+                                {
+                                    case RoleTypes.Crewmate:
+                                    case RoleTypes.Engineer:
+                                    case RoleTypes.Scientist:
+                                    case RoleTypes.Noisemaker:
+                                    case RoleTypes.Tracker:
+                                        ch = true;
+                                        break;
+                                }
+                                hasTasks = role.IsCrewmate() && ch ? hasTasks : (!ForRecompute && !States.MainRole.IsImpostor());
                             }
                             break;
                     }
 
+                if (States.GhostRole is CustomRoles.AsistingAngel) hasTasks = false;
             }
             return hasTasks;
         }
@@ -791,13 +817,13 @@ namespace TownOfHost
             seen ??= seer;
             var comms = IsActive(SystemTypes.Comms);
             bool enabled = seer == seen
-                        || (Main.VisibleTasksCount && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherTasks.GetBool()) && Options.GhostCanSeeOtherTasks.GetBool());
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherTasks.GetBool()) && Options.GhostCanSeeOtherTasks.GetBool());
             string text = GetProgressText(seen.PlayerId, comms, Mane);
 
-            if (Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool())) text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";
+            if (Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() && !seer.IsAlive() && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool())) text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";
 
             //seer側による変更
-            if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(seer))
                 seer.GetRoleClass()?.OverrideProgressTextAsSeer(seen, ref enabled, ref text);
 
             return enabled ? text : "";
@@ -899,7 +925,7 @@ namespace TownOfHost
             string Completed = comms ? "?" : $"{state.taskState.CompletedTasksCount}";
             if (Mane && !pc.Is(CustomRoles.Amnesia) && !(pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned) && pc.GetRoleClass() != null)
             {
-                if (!pc.IsAlive() && Options.GhostCanSeeAllTasks.GetBool() && (!pc.IsGorstRole() || Options.GRCanSeeAllTasks.GetBool()))//死んでて霊界がタスク進捗を見れるがON
+                if (!pc.IsAlive() && Options.GhostCanSeeAllTasks.GetBool() && !pc.Is(CustomRoles.AsistingAngel) && (!pc.IsGorstRole() || Options.GRCanSeeAllTasks.GetBool()))//死んでて霊界がタスク進捗を見れるがON
                 {
                     if (state == null || state.taskState == null || !state.taskState.hasTasks) return AllTaskstext(false, false, false, comms, true);
                     else return ColorString(TextColor, $"({Completed}/{state.taskState.AllTasksCount})") + AllTaskstext(false, false, false, comms, true);
@@ -1002,7 +1028,8 @@ namespace TownOfHost
                 }
                 foreach (var role in Options.CustomRoleCounts)
                 {
-                    if (!role.Key.IsEnable()) continue;
+                    if (role.Key is not CustomRoles.Jackaldoll || JackalDoll.sidekick.GetFloat() is 0)
+                        if (!role.Key.IsEnable()) continue;
                     if (role.Key is CustomRoles.HASFox or CustomRoles.HASTroll) continue;
 
                     sb.Append($"\n<size=70%>【{GetCombinationCName(role.Key)}×{role.Key.GetCount()}】</size>\n");
@@ -1678,9 +1705,13 @@ namespace TownOfHost
             if (role == CustomRoles.Amanojaku) s += k + AddonInfo(role);
             //幽霊役職
 
+            if (role == CustomRoles.Ghostbuttoner) s += k + AddonInfo(role);
             if (role == CustomRoles.GhostNoiseSender) s += k + AddonInfo(role);
+            if (role == CustomRoles.GhostReseter) s += k + AddonInfo(role);
             if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role);
             if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role);
+            if (role == CustomRoles.DemonicVenter) s += k + AddonInfo(role);
+            if (role == CustomRoles.AsistingAngel) s += k + AddonInfo(role);
             return s;
         }
         public static string AddonInfo(CustomRoles role, string Mark = "", From from = From.None)
@@ -1973,7 +2004,7 @@ namespace TownOfHost
                         SelfSuffix.Append(gi);
                     }
                     //seer役職が対象のSuffix
-                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                    if (Amnesia.CheckAbility(seer))
                         SelfSuffix.Append(seerRole?.GetSuffix(seer, isForMeeting: isForMeeting));
                     //seerに関わらず発動するSuffix
                     SelfSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, isForMeeting: isForMeeting));
@@ -1996,6 +2027,12 @@ namespace TownOfHost
                     var g = string.Format("<line-height={0}%>", isForMeeting ? "90" : "85");
                     SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString() + "</line-height>");
                     if (!isForMeeting) SelfName = "<line-height=85%>" + SelfName + "\r\n";
+
+                    if (isForMeeting && Options.CanSeeNextRandomSpawn.GetBool())
+                    {
+                        if (SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
+                            SelfName += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
+                    }
 
                     if (isForMeeting)
                     {
@@ -2024,14 +2061,7 @@ namespace TownOfHost
                     || PlayerState.GetByPlayerId(seer.PlayerId).TargetColorData.Count > 0 //seer視点用の名前色データが一つ以上ある
                     || seer.Is(CustomRoles.Arsonist)
                     || seer.Is(CustomRoles.Chef)
-                    || seer.Is(CustomRoles.ALovers)
-                    || seer.Is(CustomRoles.BLovers)
-                    || seer.Is(CustomRoles.CLovers)
-                    || seer.Is(CustomRoles.DLovers)
-                    || seer.Is(CustomRoles.ELovers)
-                    || seer.Is(CustomRoles.FLovers)
-                    || seer.Is(CustomRoles.GLovers)
-                    || seer.Is(CustomRoles.MaLovers)
+                    || seer.IsRiaju()
                     || seer.Is(CustomRoles.Connecting)//NextUpdete
                                                       //|| (seer.GetCustomRole().IsCrewmate() && CustomRoles.King.IsPresent())
                     || seer.Is(CustomRoles.Monochromer)
@@ -2074,7 +2104,7 @@ namespace TownOfHost
                             var TemporaryName = target.GetRoleClass()?.GetTemporaryName(ref name, ref nomarker, seer, target) ?? false;
 
                             //seer役職が対象のMark
-                            if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                            if (Amnesia.CheckAbility(seer))
                                 TargetMark.Append(seerRole?.GetMark(seer, target, isForMeeting));
                             //seerに関わらず発動するMark
                             TargetMark.Append(CustomRoleManager.GetMarkOthers(seer, target, isForMeeting));
@@ -2114,16 +2144,23 @@ namespace TownOfHost
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                             }
                             //プログレスキラー
-                            if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                            if (Amnesia.CheckAbility(seer))
                             {
                                 if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
                                 {
                                     TargetMark.Append($"<color=blue>♦</color>");
                                 }
                                 //エーリアン
-                                if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modeProgresskiller && Alien.ProgressWorkhorseseen)
+                                if (seer.Is(CustomRoles.Alien))
                                 {
-                                    TargetMark.Append($"<color=blue>♦</color>");
+                                    foreach (var al in Alien.Aliens)
+                                    {
+                                        if (al.Player == seer)
+                                            if (target.Is(CustomRoles.Workhorse) && al.modeProgresskiller && Alien.ProgressWorkhorseseen)
+                                            {
+                                                TargetMark.Append($"<color=blue>♦</color>");
+                                            }
+                                    }
                                 }
                             }
 
@@ -2152,7 +2189,7 @@ namespace TownOfHost
                             TargetSuffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target, isForMeeting: isForMeeting));
 
                             //seer役職が対象のSuffix
-                            if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                            if (Amnesia.CheckAbility(seer))
                                 TargetSuffix.Append(seerRole?.GetSuffix(seer, target, isForMeeting: isForMeeting));
                             //seerに関わらず発動するSuffix
                             TargetSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, target, isForMeeting: isForMeeting));
@@ -2206,7 +2243,7 @@ namespace TownOfHost
                                 TargetPlayerName = $"<size=0%>{TargetPlayerName}</size>";
 
 
-                            if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                            if (Amnesia.CheckAbility(seer))
                                 if (seer.Is(CustomRoles.Monochromer) && !isForMeeting && seer.IsAlive())
                                 {
                                     TargetPlayerName = $"<size=0%>{TargetPlayerName}</size>";
@@ -2307,6 +2344,8 @@ namespace TownOfHost
                     roleClass.AfterMeetingTasks();
                     roleClass.Colorchnge();
                 }
+                if (AsistingAngel.ch())
+                    AsistingAngel.Limit++;
                 DelTask();
                 Main.day++;
                 Main.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";

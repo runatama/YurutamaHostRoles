@@ -140,25 +140,6 @@ namespace TownOfHost
                     SpecialEventText.text = $"何とは言いませんが、特別な日ですね。\n<size=15%>\n\n末永く爆発しろ</size>";
                     SpecialEventText.color = Utils.GetRoleColor(CustomRoles.ALovers);
                 }
-                if (!Main.NotKigenDebug && Main.DebugVersion)
-                {
-                    var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
-                    int Re = Main.ReleaseYear * 10000 + Main.ReleaseMonth * 100 + Main.ReleaseDay;
-                    int Rem = Main.DebugvalidityYear * 10000 + Main.DebugvalidityMonth * 100 + Main.DebugvalidityDay;
-
-                    if (!(Re <= now && now <= Rem))
-                    {
-                        if (GameStates.IsModHost && !GameStates.IsNotJoined)
-                        {
-                            Hazel.MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ModUnload, Hazel.SendOption.Reliable);
-                            AmongUsClient.Instance.FinishRpcImmediately(writer);
-                        }
-                        SpecialEventText.text = "<size=65%><b>期限切れの為このDebugバージョンを使用することが出来ません！</size><size=50%>\nこれに関してのお問い合わせは遠慮しな...してください。";
-                        SpecialEventText.color = Color.magenta;
-                        SpecialEventText.SetOutlineColor(Color.white);
-                        SpecialEventText.SetOutlineThickness(0.1f);
-                    }
-                }
             }
         }
 

@@ -114,7 +114,7 @@ public sealed class Mare : RoleBase, IImpostor
     }
     public override bool OnSabotage(PlayerControl player, SystemTypes systemType)
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return true;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return true;
 
         if (systemType == SystemTypes.Electrical)
         {

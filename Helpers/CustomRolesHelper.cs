@@ -118,9 +118,13 @@ namespace TownOfHost
         public static bool IsGorstRole(this CustomRoles role)
         {
             return role is CustomRoles.GuardianAngel
+                        or CustomRoles.Ghostbuttoner
                         or CustomRoles.GhostNoiseSender
+                        or CustomRoles.GhostReseter
                         or CustomRoles.DemonicTracker
+                        or CustomRoles.DemonicVenter
                         or CustomRoles.DemonicCrusher
+                        or CustomRoles.AsistingAngel
                         ;
         }
         public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)

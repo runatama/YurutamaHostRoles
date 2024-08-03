@@ -70,7 +70,7 @@ public static class DoorsSystemTypeUpdateSystemPatch
             DoorsProgressing = false;
             return true;
         }
-        if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+        if (Roles.AddOns.Common.Amnesia.CheckAbility(player))
             if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateDoorsSystem(__instance, amount))
             {
                 return false;

@@ -181,7 +181,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
     public override string GetAbilityButtonText() => GetString("BountyHunterChangeButtonText");
     public override void AfterMeetingTasks()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Player.IsAlive())
         {
             Player.RpcResetAbilityCooldown();
@@ -217,6 +217,13 @@ public sealed class BountyHunter : RoleBase, IImpostor
     public void OnSchrodingerCatKill(SchrodingerCat schrodingerCat)
     {
         if (GetTarget() == schrodingerCat.Player)
+        {
+            ResetTarget();  // ターゲットの選びなおし
+        }
+    }
+    public void OnBakeCatKill(BakeCat bake)
+    {
+        if (GetTarget() == bake.Player)
         {
             ResetTarget();  // ターゲットの選びなおし
         }

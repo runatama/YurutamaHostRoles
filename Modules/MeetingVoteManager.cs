@@ -79,7 +79,7 @@ public class MeetingVoteManager
         {
             var (roleVoteFor, roleNumVotes, roleDoVote) = ((byte?)voteFor, (int?)numVotes, isIntentional);
             var player = Utils.GetPlayerById(voter);
-            if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(player))
                 (roleVoteFor, roleNumVotes, roleDoVote) = role.ModifyVote(voter, voteFor, isIntentional);
 
             if (roleVoteFor.HasValue)

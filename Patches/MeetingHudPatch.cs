@@ -164,13 +164,13 @@ public static class MeetingHudPatch
             foreach (var pc in Main.AllPlayerControls)
             {
                 var roleClass = pc.GetRoleClass();
-                if (pc.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) roleClass = null;
+                if (Amnesia.CheckAbilityreturn(pc)) roleClass = null;
 
                 if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
                     Logger.Info($"{voter.GetNameWithRole()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
-                    InfoMode[srcPlayerId] = srcPlayerId == suspectPlayerId ? 4 : 0;
+                    InfoMode[srcPlayerId] = srcPlayerId == suspectPlayerId || InfoMode[srcPlayerId] is 4 ? 4 : 0;
                     return false;
                 }
                 else
@@ -246,7 +246,7 @@ public static class MeetingHudPatch
                 var suffixBuilder = new StringBuilder(32);
                 if (myRole != null)
                 {
-                    if (!PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                    if (Amnesia.CheckAbility(PlayerControl.LocalPlayer))
                         suffixBuilder.Append(myRole.GetSuffix(PlayerControl.LocalPlayer, pc, isForMeeting: true));
                 }
                 suffixBuilder.Append(CustomRoleManager.GetSuffixOthers(PlayerControl.LocalPlayer, pc, isForMeeting: true));
@@ -350,7 +350,7 @@ public static class MeetingHudPatch
                 if (seer.KnowDeathReason(target))
                     sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})");
 
-                if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                if (Amnesia.CheckAbility(seer))
                     sb.Append(seerRole?.GetMark(seer, target, true));
                 sb.Append(CustomRoleManager.GetMarkOthers(seer, target, true));
 
@@ -432,6 +432,12 @@ public static class MeetingHudPatch
                         fsb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                     if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                         fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
+                }
+
+                if (Options.CanSeeNextRandomSpawn.GetBool() && seer == target)
+                {
+                    if (RandomSpawn.SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
+                        pva.NameText.text += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
                 }
 
                 var Info = "";
@@ -557,8 +563,7 @@ public static class MeetingHudPatch
 
         if (deathReason != CustomDeathReason.Vote) return null;
 
-
-        if (!exiledplayer.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+        if (Amnesia.CheckAbility(exiledplayer))
             if (exiledplayer.GetRoleClass() is INekomata nekomata)
             {
                 // 道連れしない状態ならnull

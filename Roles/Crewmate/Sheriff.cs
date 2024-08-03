@@ -157,7 +157,12 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             }
             ShotLimit--;
             SendRPC();
-            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTairo))
+            var AlienTairo = false;
+            foreach (var al in Alien.Aliens)
+            {
+                AlienTairo = al.CheckSheriffKill(target);
+            }
+            if (!CanBeKilledBy(target) || AlienTairo)
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
                 PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;

@@ -128,7 +128,7 @@ namespace TownOfHost.Modules
             }
 
             var roleClass = player.GetRoleClass();
-            if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+            if (Roles.AddOns.Common.Amnesia.CheckAbility(player))
                 roleClass?.ApplyGameOptions(opt);
             foreach (var subRole in player.GetCustomSubRoles())
             {
@@ -200,7 +200,7 @@ namespace TownOfHost.Modules
             }
 
             state.taskState.hasTasks = Utils.HasTasks(player.Data, false);
-            if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
+            if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
             if (Options.AdditionalEmergencyCooldown.GetBool() &&
                 Options.AdditionalEmergencyCooldownThreshold.GetInt() <= Utils.AllAlivePlayersCount)
@@ -259,9 +259,13 @@ namespace TownOfHost.Modules
 
                 switch (gr)
                 {
+                    case CustomRoles.Ghostbuttoner: AURoleOptions.GuardianAngelCooldown = CoolDown(Ghostbuttoner.CoolDown.GetFloat()); break;
                     case CustomRoles.GhostNoiseSender: AURoleOptions.GuardianAngelCooldown = CoolDown(GhostNoiseSender.CoolDown.GetFloat()); break;
+                    case CustomRoles.GhostReseter: AURoleOptions.GuardianAngelCooldown = CoolDown(GhostReseter.CoolDown.GetFloat()); break;
                     case CustomRoles.DemonicTracker: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicTracker.CoolDown.GetFloat()); break;
                     case CustomRoles.DemonicCrusher: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicCrusher.CoolDown.GetFloat()); break;
+                    case CustomRoles.DemonicVenter: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicVenter.CoolDown.GetFloat()); break;
+                    case CustomRoles.AsistingAngel: AURoleOptions.GuardianAngelCooldown = CoolDown(AsistingAngel.CoolDown.GetFloat()); break;
                 }
             }
             return opt;

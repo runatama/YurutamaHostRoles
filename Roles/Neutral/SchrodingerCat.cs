@@ -100,7 +100,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         //自殺ならスルー
         if (info.IsSuicide) return true;
 
-        if (killer.Is(CustomRoles.GrimReaper))
+        if (killer.Is(CustomRoles.GrimReaper) || killer.Is(CustomRoles.BakeCat))
         {
             return true;
         }

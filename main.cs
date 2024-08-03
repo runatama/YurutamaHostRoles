@@ -55,41 +55,11 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.7.11";
+        public const string PluginVersion = "5.1.7.12";
         public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-        public static bool DebugVersion = true;
-        //デバッグ有効期限
-        public static int DebugvalidityYear = 2024;//年
-        public static int DebugvalidityMonth = 8;//月
-        public static int DebugvalidityDay = 3;//日
-        //デバッグ版リリース日
-        public static int ReleaseYear = 2024;
-        public static int ReleaseMonth = 7;
-        public static int ReleaseDay = 30;
-        public static bool DebugCheck()
-        {
-            if (!NotKigenDebug && DebugVersion)
-            {
-                var client = PlayerControl.LocalPlayer.GetClient();
-                var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
-                int Re = ReleaseYear * 10000 + ReleaseMonth * 100 + ReleaseDay;
-                int Rem = DebugvalidityYear * 10000 + DebugvalidityMonth * 100 + DebugvalidityDay;
-                if (!(Re <= now && now <= Rem))
-                {
-                    AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                    if (client != null)
-                        Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.GetHashedPuid()}");
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        //開発版なのかのch。↑が000ならtrue。
-        public static bool NotKigenDebug => (DebugvalidityYear == 0 && DebugvalidityMonth == 0 && DebugvalidityDay == 0)
-                                            || (ReleaseYear == 0 && ReleaseMonth == 0 && ReleaseDay == 0);
+        public static bool DebugVersion = false;
         // サポートされている最低のAmongUsバージョン
         public static readonly string LowestSupportedVersion = "2024.6.18";
         // このバージョンのみで公開ルームを無効にする場合
@@ -161,6 +131,7 @@ namespace TownOfHost
         public static List<PlayerControl> MaMaLoversPlayers = new();
         public static bool isMaLoversDead = true;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
+        public static Dictionary<byte, CustomRoleTypes> AllPlayerFirstTypes = new();
         public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
         public static List<List<byte>> TaskBattleTeams = new();
@@ -345,9 +316,13 @@ namespace TownOfHost
                     {CustomRoles.MaLovers, "#f09199"},
 
                     // 幽霊役職
+                    {CustomRoles.Ghostbuttoner,"#d0af4c"},
                     {CustomRoles.GhostNoiseSender, "#5aa698"},
+                    {CustomRoles.GhostReseter , "#a87a71"},
                     {CustomRoles.DemonicTracker,"#824880"},
                     {CustomRoles.DemonicCrusher,"#522886"},
+                    {CustomRoles.DemonicVenter ,"#635963"},
+                    {CustomRoles.AsistingAngel,"#8da0b6"},
 
                     {CustomRoles.NotAssigned, "#ffffff"}
                 };

@@ -140,7 +140,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     }
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!AmongUsClient.Instance.AmHost) return;
         if (Player?.IsAlive() != true) return;
         if (exiled.PlayerId != TargetId) return;

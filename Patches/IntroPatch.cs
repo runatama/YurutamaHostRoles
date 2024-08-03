@@ -160,18 +160,6 @@ namespace TownOfHost
             {
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = introSound;
             }
-            if (pc.Is(CustomRoles.Amnesia))
-            {
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = RoleBase.GetIntrosound(role.GetRoleInfo().BaseRoleType.Invoke());
-            }
-            if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null)
-            {
-                role = pc.GetRoleClass().Jikaku();
-                if (role.GetRoleInfo()?.IntroSound is AudioClip intro)
-                {
-                    PlayerControl.LocalPlayer.Data.Role.IntroSound = intro;
-                }
-            }
 
             switch (role.GetCustomRoleTypes())
             {
@@ -245,6 +233,20 @@ namespace TownOfHost
                 __instance.TeamTitle.color = Color.magenta;
                 StartFadeIntro(__instance, Color.magenta, Color.magenta);
             }*/
+
+            if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null)
+            {
+                role = pc.GetRoleClass().Jikaku();
+                if (role.GetRoleInfo()?.IntroSound is AudioClip intro)
+                {
+                    PlayerControl.LocalPlayer.Data.Role.IntroSound = intro;
+                }
+            }
+            if (pc.Is(CustomRoles.Amnesia))
+            {
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = Amnesia.DontCanUseAbility.GetBool() ?
+                (role.IsImpostor() ? RoleBase.GetIntrosound(RoleTypes.Impostor) : RoleBase.GetIntrosound(RoleTypes.Crewmate)) : RoleBase.GetIntrosound(role.GetRoleInfo().BaseRoleType.Invoke());
+            }
         }
         private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end, int t = 1000)
         {

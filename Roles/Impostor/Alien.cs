@@ -54,6 +54,22 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         RateMole = OptionModeMole.GetInt();
         RateNekokabocha = OptionModeNekokabocha.GetInt();
 
+        TimeThiefDecreaseMeetingTime = OptionTimeThiefDecreaseMeetingTime.GetInt();
+        NotifierCance = OptionNotifierProbability.GetInt();
+        VampireKillDelay = OptionVampireKillDelay.GetFloat();
+        AlienHitoku = OptionAlienHitoku.GetBool();
+        Limiterblastrange = Optionblastrange.GetFloat();
+        TimeThiefReturnStolenTimeUponDeath = OptionTimeThiefReturnStolenTimeUponDeath.GetBool();
+        StealthDarkenDuration = OptionStealthDarkenDuration.GetInt();
+        TairoDeathReason = OptionTairoDeathReason.GetBool();
+        AdditionalVote = OptionAdditionalVote.GetInt();
+        ProgressKillerMadseen = OptionProgressKillerMadseen.GetBool();
+        ProgressWorkhorseseen = OptionProgressWorkhorseseen.GetBool();
+        impostorsGetRevenged = optionImpostorsGetRevenged.GetBool();
+        madmatesGetRevenged = optionMadmatesGetRevenged.GetBool();
+        NeutralsGetRevenged = optionNeutralsGetRevenged.GetBool();
+        revengeOnExile = optionRevengeOnExile.GetBool();
+
         modeNone = true;
         modeVampire = false;
         modeEvilHacker = false;
@@ -69,61 +85,73 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         modeProgresskiller = false;
         modeMole = false;
         modeNekokabocha = false;
+        Count = 0;
+        Remotekillertarget = 111;
 
         CustomRoleManager.OnFixedUpdateOthers.Add(OnFixedUpdateOthers);
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
-        TimeThiefDecreaseMeetingTime = OptionTimeThiefDecreaseMeetingTime.GetInt();
-        NotifierCance = OptionNotifierProbability.GetInt();
-        VampireKillDelay = OptionVampireKillDelay.GetFloat();
-        AlienHitoku = OptionAlienHitoku.GetBool();
-        Limiterblastrange = Optionblastrange.GetFloat();
-        Remotekillertarget = 111;
-        TimeThiefReturnStolenTimeUponDeath = OptionTimeThiefReturnStolenTimeUponDeath.GetBool();
-        StealthDarkenDuration = OptionStealthDarkenDuration.GetInt();
-        Count = 0;
-        TairoDeathReason = OptionTairoDeathReason.GetBool();
-        AdditionalVote = OptionAdditionalVote.GetInt();
-        ProgressKillerMadseen = OptionProgressKillerMadseen.GetBool();
-        ProgressWorkhorseseen = OptionProgressWorkhorseseen.GetBool();
-        impostorsGetRevenged = optionImpostorsGetRevenged.GetBool();
-        madmatesGetRevenged = optionMadmatesGetRevenged.GetBool();
-        NeutralsGetRevenged = optionNeutralsGetRevenged.GetBool();
-        revengeOnExile = optionRevengeOnExile.GetBool();
     }
+    public override void Add()
+    {
+        modeNone = true;
+        modeVampire = false;
+        modeEvilHacker = false;
+        modeLimiter = false;
+        modeNomal = false;
+        modePuppeteer = false;
+        modeStealth = false;
+        modeRemotekiller = false;
+        modeNotifier = false;
+        modeTimeThief = false;
+        modeTairo = false;
+        modeMayor = false;
+        modeProgresskiller = false;
+        modeMole = false;
+        modeNekokabocha = false;
+        Count = 0;
+        Remotekillertarget = 111;
 
+        Aliens.Add(this);
+    }
+    public override void OnDestroy()
+    {
+        Aliens.Clear();
+        Puppets.Clear();
+    }
+    public static HashSet<Alien> Aliens = new();
     //ヴァンパイア
     static OptionItem OptionModeVampire;
     static OptionItem OptionVampireKillDelay;
     static float VampireKillDelay;
     static int RateVampire;
-    static bool modeVampire;
+    bool modeVampire;
     //イビルハッカー
     static OptionItem OptionModeEvilHacker;
     static int RateEvilHacker;
-    static bool modeEvilHacker;
+    bool modeEvilHacker;
     //リミッター
     static OptionItem OptionModeLimiter;
     static OptionItem Optionblastrange;
     static int RateLimiter;
     static float Limiterblastrange;
-    static bool modeLimiter;
+    bool modeLimiter;
     //ノーマル
     static OptionItem OptionModeNomal;
     static int RateNomal;
-    static bool modeNomal;
+    bool modeNomal;
     //パペッティア
     static OptionItem OptionModePuppeteer;
     static int RatePuppeteer;
-    static bool modePuppeteer;
+    bool modePuppeteer;
     //リモートキラー
     static OptionItem OptionModeRemotekiller;
     static int RateRemotekiller;
-    static bool modeRemotekiller;
+    bool modeRemotekiller;
     static byte Remotekillertarget;
     //ステルス
     static OptionItem OptionModeStealth;
     static int RateStealth;
-    static bool modeStealth;
+    bool modeStealth;
     static OptionItem OptionStealthDarkenDuration;
     float StealthDarkenDuration;
     float darkenTimer;
@@ -133,13 +161,13 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     static OptionItem OptionModeNotifier;
     static OptionItem OptionNotifierProbability;
     static int RateNotifier;
-    static bool modeNotifier;
+    bool modeNotifier;
     static int NotifierCance;
     //タイムシーフ
     static OptionItem OptionModeTimeThief;
     static OptionItem OptionTimeThiefDecreaseMeetingTime;
     static int RateTimeThief;
-    static bool modeTimeThief;
+    bool modeTimeThief;
     static int TimeThiefDecreaseMeetingTime;
     static OptionItem OptionTimeThiefReturnStolenTimeUponDeath;
     static bool TimeThiefReturnStolenTimeUponDeath;
@@ -149,24 +177,24 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     static OptionItem OptionModeTairo;
     static OptionItem OptionTairoDeathReason;
     static int RateTairo;
-    public static bool modeTairo;
+    public bool modeTairo;
     public static bool TairoDeathReason;
     //メイヤー
     static OptionItem OptionModeMayor;
     static OptionItem OptionAdditionalVote;
     static int RateMayor;
-    static bool modeMayor;
+    bool modeMayor;
     static int AdditionalVote;
     //モグラ
     static OptionItem OptionModeMole;
     static int RateMole;
-    static bool modeMole;
+    bool modeMole;
     //プログレスキラー
     static OptionItem OptionModeProgresskiller;
     static OptionItem OptionProgressKillerMadseen;
     static OptionItem OptionProgressWorkhorseseen;
     static int RateProgresskiller;
-    public static bool modeProgresskiller;
+    public bool modeProgresskiller;
     static bool ProgressKillerMadseen;
     public static bool ProgressWorkhorseseen;
     //ネコカボチャ
@@ -176,7 +204,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     static BooleanOptionItem optionNeutralsGetRevenged;
     static BooleanOptionItem optionRevengeOnExile;
     static int RateNekokabocha;
-    static bool modeNekokabocha;
+    bool modeNekokabocha;
     static bool impostorsGetRevenged;
     static bool madmatesGetRevenged;
     static bool NeutralsGetRevenged;
@@ -186,7 +214,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     //秘匿設定
     static OptionItem OptionAlienHitoku;
     static bool AlienHitoku;
-    static bool modeNone;
+    bool modeNone;
     enum OptionName
     {
         AlienHitoku,
@@ -241,30 +269,37 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public override string GetProgressText(bool comms = false)
     {
         if (!Player.IsAlive()) return "";
-        //初手ターンは確定でNone.
-        if (modeNone) return "<size=75%><color=#ff1919>mode:None</color></size>";
         if (AlienHitoku || GameStates.Meeting)
         {
-            if (modeVampire) return "<size=75%><color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
-            if (modeEvilHacker) return "<size=75%><color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
-            if (modeLimiter) return "<size=75%><color=#ff1919>mode:" + GetString("Limiter") + "</color></size>";
-            if (modePuppeteer) return "<size=75%><color=#ff1919>mode:" + GetString("Puppeteer") + "</color></size>";
-            if (modeStealth) return "<size=75%><color=#ff1919>mode:" + GetString("Stealth") + "</color></size>";
-            if (modeRemotekiller) return "<size=75%><color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
-            if (modeNotifier) return "<size=75%><color=#ff1919>mode:" + GetString("Notifier") + "</color></size>";
-            if (modeTimeThief) return "<size=75%><color=#ff1919>mode:" + GetString("TimeThief") + "</color></size>";
-            if (modeTairo) return "<size=75%><color=#ff1919>mode:" + GetString("Tairou") + "</color></size>";
-            if (modeMayor) return "<size=75%><color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
-            if (modeMole) return "<size=75%><color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
-            if (modeProgresskiller) return "<size=75%><color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
-            if (modeNekokabocha) return "<size=75%><color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
-            if (modeNomal) return "<size=75%><color=#ff1919>mode:Normal</color></size>";
+            return Mode();
         }
+        return "";
+    }
+    public string Mode()
+    {
+        if (!Player.IsAlive()) return "";
+
+        if (modeNone) return "<size=75%><color=#ff1919>mode:None</color></size>";
+        if (modeVampire) return "<size=75%><color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
+        if (modeEvilHacker) return "<size=75%><color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
+        if (modeLimiter) return "<size=75%><color=#ff1919>mode:" + GetString("Limiter") + "</color></size>";
+        if (modePuppeteer) return "<size=75%><color=#ff1919>mode:" + GetString("Puppeteer") + "</color></size>";
+        if (modeStealth) return "<size=75%><color=#ff1919>mode:" + GetString("Stealth") + "</color></size>";
+        if (modeRemotekiller) return "<size=75%><color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
+        if (modeNotifier) return "<size=75%><color=#ff1919>mode:" + GetString("Notifier") + "</color></size>";
+        if (modeTimeThief) return "<size=75%><color=#ff1919>mode:" + GetString("TimeThief") + "</color></size>";
+        if (modeTairo) return "<size=75%><color=#ff1919>mode:" + GetString("Tairou") + "</color></size>";
+        if (modeMayor) return "<size=75%><color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
+        if (modeMole) return "<size=75%><color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
+        if (modeProgresskiller) return "<size=75%><color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
+        if (modeNekokabocha) return "<size=75%><color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
+        if (modeNomal) return "<size=75%><color=#ff1919>mode:Normal</color></size>";
+
         return "<size=75%><color=#ff1919>mode:？</color></size>";
     }
     public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive())//死んでたらこれより後の処理しない。
         {
             return;
@@ -335,7 +370,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public override void AfterMeetingTasks()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive())//死んでたら処理しない。
         {
             return;
@@ -630,11 +665,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     }
     //これより↓パペッティア
     static Dictionary<byte, Alien> Puppets = new(15);
-    public override void OnDestroy()
-    {
-        Puppets.Clear();
-    }
-
     enum RPC_type
     {
         SyncPuppet,
@@ -752,18 +782,25 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     }
     public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
-        if (modeProgresskiller)
+        //seenが省略の場合seer
+        seen ??= seer;
+        foreach (var al in Aliens)
         {
-            //seenが省略の場合seer
-            seen ??= seer;
-
-            if (seer.Is(CustomRoles.Alien) && !seen.Is(CustomRoleTypes.Madmate) && seer != seen)
+            if (al.modeProgresskiller && al.Player == seen)
             {
-                if (seen.GetPlayerTaskState().IsTaskFinished)
-                    return Utils.ColorString(RoleInfo.RoleColor, "〇");
+                if (seer.Is(CustomRoles.Alien) && !seen.Is(CustomRoleTypes.Madmate) && seer != seen)
+                {
+                    if (seen.GetPlayerTaskState().IsTaskFinished)
+                        return Utils.ColorString(RoleInfo.RoleColor, "〇");
+                }
+                return "";
             }
-            return "";
+            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHitoku && !GameStates.Meeting && !MeetingStates.FirstMeeting)
+            {
+                return $"<size=50%>{al.Mode()}</size>";
+            }
         }
+
         return "";
     }
     //これより↓ステルス
@@ -853,7 +890,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     //タイムシーフ
     public int CalculateMeetingTimeDelta()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return 0;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return 0;
         var sec = -(TimeThiefDecreaseMeetingTime * Count);
         return sec;
     }
@@ -903,5 +940,10 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
             CustomRoleTypes.Neutral => NeutralsGetRevenged,
             _ => true,
         };
+    }
+    public bool CheckSheriffKill(PlayerControl target)
+    {
+        if (target == Player) return modeTairo;
+        return false;
     }
 }

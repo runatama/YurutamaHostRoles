@@ -82,7 +82,7 @@ public sealed class Android : RoleBase
     //サボタージュ来たら通信障害起きるんでベントから強制排出
     public override bool OnSabotage(PlayerControl __, SystemTypes systemType)
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return true;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return true;
 
         if (Player.inVent && NowVent != 999)
             Player.MyPhysics.RpcExitVent(NowVent);

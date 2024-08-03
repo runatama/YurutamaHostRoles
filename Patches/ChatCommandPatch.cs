@@ -532,12 +532,7 @@ namespace TownOfHost
                     case "/kf":
                         canceled = true;
                         if (GameStates.InGame)
-                        {
-                            foreach (var pc in Main.AllPlayerControls)
-                            {
-                                pc.KillFlash(kiai: true);
-                            }
-                        }
+                            AllPlayerKillFlash();
                         break;
                     case "/MeeginInfo":
                     case "/mi":
@@ -849,9 +844,13 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Amanojaku, "Ama");
 
                 //幽霊
+                roleCommands.Add(CustomRoles.Ghostbuttoner, "Bbu");
                 roleCommands.Add(CustomRoles.GhostNoiseSender, "NiS");
+                roleCommands.Add(CustomRoles.GhostReseter, "Res");
                 roleCommands.Add(CustomRoles.DemonicCrusher, "DCr");
                 roleCommands.Add(CustomRoles.DemonicTracker, "DTr");
+                roleCommands.Add(CustomRoles.DemonicVenter, "Dve");
+                roleCommands.Add(CustomRoles.AsistingAngel, "AsA");
 
                 // HAS
                 roleCommands.Add((CustomRoles)(-6), $"== {GetString("HideAndSeek")} ==");  // 区切り用

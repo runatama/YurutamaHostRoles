@@ -158,7 +158,7 @@ namespace TownOfHost
             //キルフラッシュ
             if (GetKeysDown(KeyCode.K, KeyCode.L, KeyCode.LeftControl) && GameStates.InGame)
             {
-                Main.AllPlayerControls.Do(pc => pc.KillFlash(kiai: true));
+                Utils.AllPlayerKillFlash();
             }
             //TOH-Kオプションをデフォルトに設定
             if (GetKeysDown(KeyCode.Delete, KeyCode.LeftControl))

@@ -33,7 +33,7 @@ public sealed class Bakery : RoleBase
     int bunki;
     public override string MeetingMeg()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return "";
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
         if (Player.IsAlive())
         {
             string BakeryTitle = $"<size=90%><color=#e65151>{GetString("Message.BakeryTitle")}</size></color>";

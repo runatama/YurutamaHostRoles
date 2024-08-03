@@ -32,6 +32,7 @@ namespace TownOfHost
             PlayerState.Clear();
 
             Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
+            Main.AllPlayerFirstTypes = new Dictionary<byte, CustomRoleTypes>();
             Main.AllPlayerSpeed = new Dictionary<byte, float>();
             Main.LastLog = new Dictionary<byte, string>();
             Main.LastLogRole = new Dictionary<byte, string>();
@@ -150,9 +151,13 @@ namespace TownOfHost
             Guesser.Init();
             Autopsy.Init();
             Workhorse.Init();
+            Ghostbuttoner.Init();
             GhostNoiseSender.Init();
+            GhostReseter.Init();
             DemonicTracker.Init();
             DemonicCrusher.Init();
+            DemonicVenter.Init();
+            AsistingAngel.Init();
             PlayerSkinPatch.RemoveAll();
             NonReport.Init();
             Notvoter.Init();
@@ -171,6 +176,8 @@ namespace TownOfHost
             SelfVoteManager.Init();
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
             ChatManager.ResetChat();
+            RandomSpawn.SpawnMap.NextSporn.Clear();
+            RandomSpawn.SpawnMap.NextSpornName.Clear();
             Roles.Madmate.MadAvenger.Skill = false;
             MeetingHudPatch.CastVotePatch.InfoMode.Clear();
             MeetingStates.MeetingCalled = false;
@@ -530,6 +537,7 @@ namespace TownOfHost
                 if (pc.Is(CustomRoleTypes.Neutral)) color = Utils.GetRoleColor(pc.GetCustomRole());
                 Main.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
                 Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), GetString($"{pc.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(pc.PlayerId);
+                Main.AllPlayerFirstTypes.Add(pc.PlayerId, pc.GetCustomRole().GetCustomRoleTypes());
                 //FixTask
                 var roleClass = CustomRoleManager.GetByPlayerId(pc.PlayerId);
                 if (roleClass != null)

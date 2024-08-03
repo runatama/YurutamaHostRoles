@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Hazel;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
@@ -47,7 +48,7 @@ public static class HudOverrideSystemTypeUpdateSystemPatch
 
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveClumsy.GetBool()) return false;
 
-        if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+        if (Amnesia.CheckAbility(player))
             if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHudOverrideSystem(__instance, amount))
             {
                 return false;

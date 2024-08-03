@@ -51,7 +51,6 @@ namespace TownOfHost
                 Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
                 Main.NormalOptions.Cast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
                 Main.NormalOptions.Cast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
-                _ = new LateTask(() => Main.DebugCheck(), 0.5f, "");
             }
         }
     }
@@ -273,13 +272,6 @@ namespace TownOfHost
                             Utils.ShowKillLog(client.Character.PlayerId);
                         }
                     }, 3f, "DisplayKillLog");
-                }
-                if (Main.DebugVersion)
-                {
-                    var kigen = "";
-                    if (!Main.NotKigenDebug)
-                        kigen = $"\n\n・このデバッグ版の有効期限⇒{Main.DebugvalidityYear}年{Main.DebugvalidityMonth}月{Main.DebugvalidityDay}日";
-                    _ = new LateTask(() => Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。バグが発生した場合はDiscordで報告すること!{kigen}", client.Character.PlayerId, "<color=red>【=====これはデバッグ版です=====】</color>"), 3.1f, "DebugMeg");
                 }
             }
         }

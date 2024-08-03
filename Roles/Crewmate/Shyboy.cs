@@ -126,7 +126,7 @@ public sealed class Shyboy : RoleBase
     }
     public override void AfterMeetingTasks()
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         tuuti = true;
         Logger.Info("シャイクールを直す", "Shyboy");
         Shydeath = 0;//会議明け修正

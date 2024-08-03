@@ -31,7 +31,7 @@ public static class LifeSuppSystemUpdateSystemPatch
         }
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
-        if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+        if (Roles.AddOns.Common.Amnesia.CheckAbility(player))
             if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateLifeSuppSystem(__instance, amount))
             {
                 return false;

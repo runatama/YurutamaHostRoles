@@ -60,8 +60,6 @@ public static class CustomRoleManager
 
         var killerRole = attemptKiller.GetRoleClass();
         var targetRole = attemptTarget.GetRoleClass();
-        if (attemptKiller.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) killerRole = null;
-        if (attemptTarget.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) targetRole = null;
 
         // キラーがキル能力持ちなら
         if (killerRole is IKiller killer)
@@ -69,11 +67,27 @@ public static class CustomRoleManager
             if (killer.IsKiller)//一応今は属性ガード有線にしてますが
             {
                 if (targetRole != null)
-                    if (!targetRole.OnCheckMurderAsTarget(info))
+                    if (Amnesia.CheckAbility(attemptTarget))
+                        if (!targetRole.OnCheckMurderAsTarget(info))
+                        {
+                            CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
+                            return false;
+                        }
+                if (AsistingAngel.Guard)
+                {
+                    if (attemptTarget == AsistingAngel.Asist)
                     {
                         CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
+                        attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
+
+                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [AsistingAngel]　" + Utils.GetPlayerColor(Main.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
+                        + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
+
+                        Utils.NotifyRoles();
+
                         return false;
                     }
+                }
             }
             //属性ガードがある場合はCankillのみ先にfalseで返す。
             if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
@@ -81,7 +95,7 @@ public static class CustomRoleManager
                     info.CanKill = false;
 
             // キラーのキルチェック処理実行
-            if (!attemptKiller.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool()) killer.OnCheckMurderAsKiller(info);
+            if (Amnesia.CheckAbility(attemptKiller)) killer.OnCheckMurderAsKiller(info);
 
             if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
             {
@@ -124,6 +138,9 @@ public static class CustomRoleManager
                         appearanceTarget.SyncSettings();
                     }
             }
+
+            Psychic.CanAbility(appearanceTarget);
+
             //MurderPlayer用にinfoを保存
             CheckMurderInfos[appearanceKiller.PlayerId] = info;
             appearanceKiller.RpcMurderPlayer(appearanceTarget);
@@ -163,13 +180,13 @@ public static class CustomRoleManager
 
         //キラーの処理
 
-        if (!attemptKiller.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+        if (Amnesia.CheckAbility(attemptKiller))
             (attemptKiller.GetRoleClass() as IKiller)?.OnMurderPlayerAsKiller(info);
 
         //ターゲットの処理
         var targetRole = attemptTarget.GetRoleClass();
 
-        if (!attemptTarget.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+        if (Amnesia.CheckAbility(attemptKiller))
             if (targetRole != null)
                 targetRole.OnMurderPlayerAsTarget(info);
 
@@ -260,7 +277,7 @@ public static class CustomRoleManager
     {
         if (GameStates.IsInTask && !GameStates.Meeting)
         {
-            if (!player.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(player))
                 player.GetRoleClass()?.OnFixedUpdate(player);
             //その他視点処理があれば実行
             foreach (var onFixedUpdate in OnFixedUpdateOthers)
@@ -362,9 +379,13 @@ public static class CustomRoleManager
 
                 case CustomRoles.Amanojaku: Amanojaku.Add(pc.PlayerId); break;
 
+                case CustomRoles.Ghostbuttoner: Ghostbuttoner.Add(pc.PlayerId); break;
                 case CustomRoles.GhostNoiseSender: GhostNoiseSender.Add(pc.PlayerId); break;
+                case CustomRoles.GhostReseter: GhostReseter.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicTracker: DemonicTracker.Add(pc.PlayerId); break;
+                case CustomRoles.DemonicVenter: DemonicVenter.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicCrusher: DemonicCrusher.Add(pc.PlayerId); break;
+                case CustomRoles.AsistingAngel: AsistingAngel.Add(pc.PlayerId); break;
             }
         }
     }
@@ -576,6 +597,7 @@ public enum CustomRoles
     MadReduced,
     MadWorker,
     MadTracker,
+    MadChanger,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,
@@ -614,7 +636,10 @@ public enum CustomRoles
     NiceAddoer,
     InSender,
     Staff,
+    Efficient,
+    Psychic,
     SwitchSheriff,
+    NiceLogger,
     Android,
     //Neutral
     Arsonist,
@@ -638,6 +663,8 @@ public enum CustomRoles
     Monochromer,
     DoppelGanger,
     MassMedia,
+    Banker,
+    BakeCat,
     TaskPlayerB,
     //HideAndSeek
     HASFox,
@@ -647,6 +674,12 @@ public enum CustomRoles
     //Combination
     Driver,
     Braid,
+
+    //DebugVersion Only Roles
+    //DEBUG only Crewmate
+    //DEBUG only Impostor
+    //DEBUG only Nuetral.
+    //DEBUG only Combination
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,
@@ -690,7 +723,13 @@ public enum CustomRoles
 
     DemonicCrusher,
     DemonicTracker,
+    DemonicVenter,
+    //CrewMateGhost
+    Ghostbuttoner,
     GhostNoiseSender,
+    GhostReseter,
+    //NeutralGhost
+    AsistingAngel,
 }
 public enum CustomRoleTypes
 {

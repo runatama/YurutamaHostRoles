@@ -118,7 +118,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {
-            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+            if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
             foreach (var targetId in BittenPlayers.Keys)
             {
                 var target = Utils.GetPlayerById(targetId);

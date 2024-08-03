@@ -16,7 +16,6 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Neutral;
-using System;
 
 namespace TownOfHost
 {
@@ -30,9 +29,13 @@ namespace TownOfHost
 
             if (__instance.IsGorstRole())
             {
+                Ghostbuttoner.UseAbility(__instance);
                 GhostNoiseSender.UseAbility(__instance, target);
+                GhostReseter.UseAbility(__instance, target);
                 DemonicTracker.UseAbility(__instance, target);
                 DemonicCrusher.UseAbility(__instance);
+                DemonicVenter.UseAbility(__instance, target);
+                AsistingAngel.UseAbility(__instance, target);
                 return true;
             }
 
@@ -403,7 +406,7 @@ namespace TownOfHost
             }
             // 役職の処理
             var role = shapeshifter.GetRoleClass();
-            if (!shapeshifter.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+            if (Amnesia.CheckAbility(shapeshifter))
                 if (role?.CheckShapeshift(target, ref shouldAnimate) == false)
                 {
                     if (role.CanDesyncShapeshift)
@@ -489,122 +492,7 @@ namespace TownOfHost
                 return false;
             }
 
-            var c = false;
-            if (target != null)
-                if (__instance.Is(CustomRoles.MassMedia))
-                {
-                    foreach (var p in MassMedia.MassMedias)
-                    {
-                        if (p.Player == __instance)
-                        {
-                            if (p.Target == target.PlayerId)
-                                c = true;
-                        }
-                    }
-                }
-
-            /*if (Utils.IsActive(SystemTypes.Comms) && Options.CommRepo.GetBool())
-            {
-                GameStates.Meeting = false;
-                WaitReport[__instance.PlayerId].Add(target);
-                Logger.Info("コミュサボ中はレポート出来なくするため、レポートをキャンセルします。", "ReportDeadBody");
-                return false;
-            }*/
-            if (RoleAddAddons.AllData.TryGetValue(__instance.GetCustomRole(), out var da) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
-            {
-                if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-                if (target == null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotButton)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-                if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-            }
-            else
-            if (__instance.Is(CustomRoles.NonReport))
-            {
-                if (NonReport.Mode == NonReport.Convener.ConvenerAll && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-                if (target == null && NonReport.Mode == NonReport.Convener.NotButton)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-                if (target != null && NonReport.Mode == NonReport.Convener.NotReport && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-            }
-
-            if (target != null)
-            {
-                var tage = Utils.GetPlayerById(target.PlayerId);
-                if (tage.Is(CustomRoles.Transparent) && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-                else if (RoleAddAddons.AllData.TryGetValue(__instance.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-                else
-                if (!Musisuruoniku[tage.PlayerId] && !c)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
-                    return false;
-                }
-            }
-            if (!AmongUsClient.Instance.AmHost) return true;
-
-            //通報者が死んでいる場合、本処理で会議がキャンセルされるのでここで止める
-            if (__instance.Data.IsDead) { GameStates.Meeting = false; return false; }
-
-            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-            {
-                if (role.CancelReportDeadBody(__instance, target))
-                {
-                    GameStates.Meeting = false; return false;
-                }
-            }
-
-            if (Options.SyncButtonMode.GetBool() && target == null)
-            {
-                Logger.Info("最大:" + Options.SyncedButtonCount.GetInt() + ", 現在:" + Options.UsedButtonCount, "ReportDeadBody");
-                if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
-                {
-                    GameStates.Meeting = false;
-                    Logger.Info("使用可能ボタン回数が最大数を超えているため、ボタンはキャンセルされました。", "ReportDeadBody");
-                    return false;
-                }
-                else Options.UsedButtonCount++;
-                if (Options.SyncedButtonCount.GetFloat() == Options.UsedButtonCount)
-                {
-                    Logger.Info("使用可能ボタン回数が最大数に達しました。", "ReportDeadBody");
-                }
-            }
+            if (!CheckMeeting(__instance, target)) return false;
 
             //=============================================
             //以下、ボタンが押されることが確定したものとする。
@@ -710,101 +598,8 @@ namespace TownOfHost
             var State = PlayerState.GetByPlayerId(repo.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null) return;
 
-            var c = false;
-            if (target != null)
-                if (repo.Is(CustomRoles.MassMedia))
-                {
-                    foreach (var p in MassMedia.MassMedias)
-                    {
-                        if (p.Player == repo)
-                        {
-                            if (p.Target == target.PlayerId)
-                                c = true;
-                        }
-                    }
-                }
-
             if (ch)
-            {
-                if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var da) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
-                {
-                    if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
-                    {
-                        Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                    if (target == null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotButton)
-                    {
-                        Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                    if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport && !c)
-                    {
-                        Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                }
-                else
-                if (repo.Is(CustomRoles.NonReport))
-                {
-                    if (NonReport.Mode == NonReport.Convener.ConvenerAll && !c)
-                    {
-                        Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                    if (target == null && NonReport.Mode == NonReport.Convener.NotButton)
-                    {
-                        Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                    if (target != null && NonReport.Mode == NonReport.Convener.NotReport && !c)
-                    {
-                        Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                }
-
-                if (target != null)
-                {
-                    var tage = Utils.GetPlayerById(target.PlayerId);
-                    if (tage.Is(CustomRoles.Transparent) && !c)
-                    {
-                        Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                    else if (RoleAddAddons.AllData.TryGetValue(repo.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
-                    {
-                        Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                    else
-                    if (!Musisuruoniku[tage.PlayerId] && !c)
-                    {
-                        Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
-                        return;
-                    }
-                }
-                if (!AmongUsClient.Instance.AmHost) return;
-                foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-                {
-                    if (role.CancelReportDeadBody(repo, target)) return;
-                }
-
-                if (Options.SyncButtonMode.GetBool() && target == null)
-                {
-                    Logger.Info("最大:" + Options.SyncedButtonCount.GetInt() + ", 現在:" + Options.UsedButtonCount, "ReportDeadBody");
-                    if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
-                    {
-                        Logger.Info("使用可能ボタン回数が最大数を超えているため、ボタンはキャンセルされました。", "ReportDeadBody");
-                        return;
-                    }
-                    else Options.UsedButtonCount++;
-                    if (Options.SyncedButtonCount.GetFloat() == Options.UsedButtonCount)
-                    {
-                        Logger.Info("使用可能ボタン回数が最大数に達しました。", "ReportDeadBody");
-                    }
-                }
-            }
+                if (!CheckMeeting(repo, target)) return;
 
             if (!AmongUsClient.Instance.AmHost) return;
             GameStates.Meeting = true;
@@ -880,6 +675,126 @@ namespace TownOfHost
                     }
                     Utils.SyncAllSettings();
                 }, 20f, "AfterMeetingNotifyRoles");
+        }
+        public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target)
+        {
+            var c = false;
+            if (target != null)
+                if (repoter.Is(CustomRoles.MassMedia))
+                {
+                    foreach (var p in MassMedia.MassMedias)
+                    {
+                        if (p.Player == repoter)
+                        {
+                            if (p.Target == target.PlayerId)
+                                c = true;
+                        }
+                    }
+                }
+
+            /*if (Utils.IsActive(SystemTypes.Comms) && Options.CommRepo.GetBool())
+            {
+                GameStates.Meeting = false;
+                WaitReport[__instance.PlayerId].Add(target);
+                Logger.Info("コミュサボ中はレポート出来なくするため、レポートをキャンセルします。", "ReportDeadBody");
+                return false;
+            }*/
+            if (RoleAddAddons.AllData.TryGetValue(repoter.GetCustomRole(), out var da) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
+            {
+                if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                if (target == null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotButton)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+            }
+            else
+            if (repoter.Is(CustomRoles.NonReport))
+            {
+                if (NonReport.Mode == NonReport.Convener.ConvenerAll && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"NotCoonvenerの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                if (target == null && NonReport.Mode == NonReport.Convener.NotButton)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"NotCoonvenerの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                if (target != null && NonReport.Mode == NonReport.Convener.NotReport && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"NotCoonvenerの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+            }
+
+            if (target != null)
+            {
+                var tage = Utils.GetPlayerById(target.PlayerId);
+                if (tage.Is(CustomRoles.Transparent) && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                else if (RoleAddAddons.AllData.TryGetValue(repoter.GetCustomRole(), out var d) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+                else
+                if (!Musisuruoniku[tage.PlayerId] && !c)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
+                    return false;
+                }
+            }
+            if (!AmongUsClient.Instance.AmHost) return true;
+
+            //通報者が死んでいる場合、本処理で会議がキャンセルされるのでここで止める
+            if (repoter.Data.IsDead) { GameStates.Meeting = false; return false; }
+
+            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+            {
+                if (role.CancelReportDeadBody(repoter, target))
+                {
+                    GameStates.Meeting = false; return false;
+                }
+            }
+
+            if (Options.SyncButtonMode.GetBool() && target == null)
+            {
+                Logger.Info("最大:" + Options.SyncedButtonCount.GetInt() + ", 現在:" + Options.UsedButtonCount, "ReportDeadBody");
+                if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
+                {
+                    GameStates.Meeting = false;
+                    Logger.Info("使用可能ボタン回数が最大数を超えているため、ボタンはキャンセルされました。", "ReportDeadBody");
+                    return false;
+                }
+                else Options.UsedButtonCount++;
+                if (Options.SyncedButtonCount.GetFloat() == Options.UsedButtonCount)
+                {
+                    Logger.Info("使用可能ボタン回数が最大数に達しました。", "ReportDeadBody");
+                }
+            }
+            return true;
         }
     }
 
@@ -1163,7 +1078,7 @@ namespace TownOfHost
                     RealName = RealName.ApplyNameColorData(seer, target, false);
 
                     //seer役職が対象のMark
-                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                    if (Amnesia.CheckAbility(player))
                         Mark.Append(seerRole?.GetMark(seer, target, false));
                     //seerに関わらず発動するMark
                     Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
@@ -1208,16 +1123,23 @@ namespace TownOfHost
                         Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                     }
                     //プログレスキラー
-                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                    if (Amnesia.CheckAbility(player))
                     {
                         if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
                         {
                             Mark.Append($"<color=blue>♦</color>");
                         }
                         //エーリアン
-                        if (seer.Is(CustomRoles.Alien) && target.Is(CustomRoles.Workhorse) && Alien.modeProgresskiller && Alien.ProgressWorkhorseseen)
+                        if (seer.Is(CustomRoles.Alien))
                         {
-                            Mark.Append($"<color=blue>♦</color>");
+                            foreach (var al in Alien.Aliens)
+                            {
+                                if (al.Player == seer)
+                                    if (target.Is(CustomRoles.Workhorse) && al.modeProgresskiller && Alien.ProgressWorkhorseseen)
+                                    {
+                                        Mark.Append($"<color=blue>♦</color>");
+                                    }
+                            }
                         }
                     }
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
@@ -1285,7 +1207,7 @@ namespace TownOfHost
                         Suffix.Append("<color=#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
                     }
                     //seer役職が対象のSuffix
-                    if (!seer.Is(CustomRoles.Amnesia) || Amnesia.DontCanUseAbility.GetBool())
+                    if (Amnesia.CheckAbility(player))
                         Suffix.Append(seerRole?.GetSuffix(seer, target));
 
                     //seerに関わらず発動するSuffix
@@ -1604,8 +1526,11 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                     __instance.RpcBootFromVent(id);
 
+
+                if (user.Is(CustomRoles.DemonicVenter)) return true;
+
                 var roleClass = user.GetRoleClass();
-                if (user.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool()) roleClass = null;
+                if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
 
                 if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || !CanUse(__instance, id))
                 {
@@ -1714,7 +1639,7 @@ namespace TownOfHost
             var ret = true;
             if (roleClass != null)
             {
-                if (!pc.Is(CustomRoles.Amnesia) || !Amnesia.DontCanUseAbility.GetBool())
+                if (Amnesia.CheckAbility(pc))
                     ret = roleClass.OnCompleteTask();
             }
             CustomRoleManager.onCompleteTaskOthers(__instance, ret);
@@ -1723,6 +1648,8 @@ namespace TownOfHost
                 {
                     Amnesia.Kesu(pc.PlayerId);
 
+                    taskState.hasTasks = Utils.HasTasks(pc.Data, false);
+
                     if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
                         pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
                     else
@@ -1730,6 +1657,7 @@ namespace TownOfHost
                         if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
                             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
 
+                    pc.SyncSettings();
                     _ = new LateTask(() =>
                     {
                         pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId], kyousei: true, delay: true);

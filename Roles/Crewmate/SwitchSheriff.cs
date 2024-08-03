@@ -48,6 +48,10 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public static OptionItem ShotLimitOpt;
     private static OptionItem CanKillAllAlive;
     public static OptionItem CanKillNeutrals;
+    /// <summary>
+    /// 0そのまま1シェリフ2タスク
+    /// </summary>
+    public static OptionItem CommsMode;
     public bool Taskmode;
     float nowcool;
     enum OptionName
@@ -57,6 +61,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         SheriffCanKillAllAlive,
         SheriffCanKillNeutrals,
         SheriffCanKill,
+        SwitchSheriffCommsmode,
     }
     public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = new();
     public static Dictionary<SchrodingerCat.TeamType, OptionItem> SchrodingerCatKillTargetOptions = new();
@@ -65,6 +70,10 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public static readonly string[] KillOption =
     {
         "SheriffCanKillAll", "SheriffCanKillSeparately"
+    };
+    public static readonly string[] Mode =
+    {
+        "Sonomama","SheriffMode", "TaskMode"
     };
 
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Crew;
@@ -78,6 +87,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         MisfireKillsTarget = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SheriffMisfireKillsTarget, false, false);
         ShotLimitOpt = IntegerOptionItem.Create(RoleInfo, 12, OptionName.SheriffShotLimit, new(1, 15, 1), 15, false)
             .SetValueFormat(OptionFormat.Times);
+        CommsMode = StringOptionItem.Create(RoleInfo, 21, OptionName.SwitchSheriffCommsmode, Mode, 0, false);
         CanKillAllAlive = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SheriffCanKillAllAlive, true, false);
         SetUpKillTargetOption(CustomRoles.Madmate, 13);
         CanKillNeutrals = StringOptionItem.Create(RoleInfo, 14, OptionName.SheriffCanKillNeutrals, KillOption, 0, false);
@@ -176,7 +186,12 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             }
             ShotLimit--;
             SendRPC();
-            if (!CanBeKilledBy(target) || (target.Is(CustomRoles.Alien) && Alien.modeTairo))
+            var AlienTairo = false;
+            foreach (var al in Alien.Aliens)
+            {
+                AlienTairo = al.CheckSheriffKill(target);
+            }
+            if (!CanBeKilledBy(target) || AlienTairo)
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
                 PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
@@ -197,7 +212,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Player.IsAlive())
             ModeSwitching(true);
         Player.RpcResetAbilityCooldown(kousin: true);
@@ -205,7 +220,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public override void AfterMeetingTasks()
     {
         if (!Player.IsAlive()) return;
-        if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.DontCanUseAbility.GetBool()) return;
+        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         _ = new LateTask(() => nowcool = CurrentKillCooldown, Main.LagTime, "Reset-SwitchSheriff");
     }
     public override string GetProgressText(bool comms = false)
@@ -284,6 +299,18 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             if (player != PlayerControl.LocalPlayer)
                 Utils.NotifyRoles(SpecifySeer: player);
         }
+    }
+    public override bool OnSabotage(PlayerControl _, SystemTypes sabotage)
+    {
+        if (!Ch()) return true;
+        if (CommsMode.GetValue() == 0) return true;
+        if (AddOns.Common.Amnesia.CheckAbility(Player))
+            if (sabotage == SystemTypes.Comms)
+            {
+                var task = CommsMode.GetValue() == 2;
+                ModeSwitching(task);
+            }
+        return true;
     }
     private bool ModeSwitching(bool? taskMode = null)
     {

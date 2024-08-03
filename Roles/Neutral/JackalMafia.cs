@@ -45,7 +45,7 @@ namespace TownOfHost.Roles.Neutral
             Fall = false;
         }
 
-        private static OptionItem OptionKillCooldown;
+        public static OptionItem OptionKillCooldown;
         private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
@@ -53,6 +53,11 @@ namespace TownOfHost.Roles.Neutral
         private static OptionItem OptionJackalCanAlsoBeExposedToJMafia;
         private static OptionItem OptionJJackalMafiaCanAlsoBeExposedToJackal;
         private static OptionItem OptionJJackalCanKillMafia;
+        static OptionItem CanImpSK;
+        //サイドキックが元仲間の色を見える
+        public static OptionItem SKcanImp;
+        //元仲間impがサイドキック相手の名前の色を見える
+        public static OptionItem SKimpwocanimp;
         static OptionItem CanmakeSK;
         public static OptionItem OptionDoll;
         private static float KillCooldown;
@@ -69,9 +74,13 @@ namespace TownOfHost.Roles.Neutral
         {
             JackalCanAlsoBeExposedToJMafia,
             JackalMafiaCanAlsoBeExposedToJackal,
-            JackalCanKillMafia
+            JackalCanKillMafia,
+            JackaldollCanimp,
+            JackalbeforeImpCanSeeImp,
+            Jackaldollimpgaimpnimieru,
+            dool,
+            JackaldollShoukaku
         }
-        enum opt { dool, JackaldollShoukaku }
         private static void SetupOptionItem()
         {
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
@@ -83,10 +92,13 @@ namespace TownOfHost.Roles.Neutral
             OptionJJackalMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 16, JackalOption.JackalMafiaCanAlsoBeExposedToJackal, false, false);
             OptionJackalCanAlsoBeExposedToJMafia = BooleanOptionItem.Create(RoleInfo, 17, JackalOption.JackalCanAlsoBeExposedToJMafia, true, false);
             CanmakeSK = BooleanOptionItem.Create(RoleInfo, 18, GeneralOption.CanCreateSideKick, true, false);
-            OptionCooldown = FloatOptionItem.Create(RoleInfo, 19, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false, CanmakeSK)
+            CanImpSK = BooleanOptionItem.Create(RoleInfo, 19, JackalOption.JackaldollCanimp, false, false, CanmakeSK);
+            SKcanImp = BooleanOptionItem.Create(RoleInfo, 20, JackalOption.JackalbeforeImpCanSeeImp, false, false, CanImpSK);
+            SKimpwocanimp = BooleanOptionItem.Create(RoleInfo, 22, JackalOption.Jackaldollimpgaimpnimieru, false, false, CanImpSK);
+            OptionCooldown = FloatOptionItem.Create(RoleInfo, 23, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false, CanmakeSK)
             .SetValueFormat(OptionFormat.Seconds);
-            OptionDoll = BooleanOptionItem.Create(RoleInfo, 20, opt.JackaldollShoukaku, false, false, CanmakeSK);
-            RoleAddAddons.Create(RoleInfo, 21);
+            OptionDoll = BooleanOptionItem.Create(RoleInfo, 24, JackalOption.JackaldollShoukaku, false, false, CanmakeSK);
+            RoleAddAddons.Create(RoleInfo, 25);
         }   //↑あってるかは知らない、
         public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Jackal;
         public float CalculateKillCooldown() => KillCooldown;
@@ -116,7 +128,7 @@ namespace TownOfHost.Roles.Neutral
                 return;
             }
             var target = Player.GetKillTarget();
-            if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist))
+            if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
             {
                 Fall = true;
                 _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "SidekickFall");

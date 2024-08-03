@@ -48,7 +48,7 @@ public static class HqHudSystemTypeUpdateSystemPatch
         }
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveClumsy.GetBool()) return false;
 
-        if (!player.Is(CustomRoles.Amnesia) || !Roles.AddOns.Common.Amnesia.DontCanUseAbility.GetBool())
+        if (Roles.AddOns.Common.Amnesia.CheckAbility(player))
             if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHqHudSystem(__instance, amount))
             {
                 return false;

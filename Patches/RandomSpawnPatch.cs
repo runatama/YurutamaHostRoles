@@ -6,6 +6,7 @@ using Hazel;
 using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Impostor;
+using Rewired;
 
 namespace TownOfHost
 {
@@ -359,24 +360,39 @@ namespace TownOfHost
 
         public abstract class SpawnMap
         {
+            public static Dictionary<byte, string> NextSpornName = new();
+            public static Dictionary<byte, Vector2> NextSporn = new();
             public abstract Dictionary<OptionItem, Vector2> Positions { get; }
             public virtual void RandomTeleport(PlayerControl player)
             {
+                var r = "";
                 Teleport(player, true);
+                var pos = GetLocation(ref r, false);
+                if (!NextSporn.ContainsKey(player.PlayerId))
+                    NextSporn.Add(player.PlayerId, pos);
+                else NextSporn[player.PlayerId] = pos;
+
+                if (!NextSpornName.ContainsKey(player.PlayerId))
+                    NextSpornName.Add(player.PlayerId, r);
+                else NextSpornName[player.PlayerId] = r;
             }
             public virtual void FirstTeleport(PlayerControl player)
             {
                 Teleport(player, false);
             }
-
             private void Teleport(PlayerControl player, bool isRadndom)
             {
-                var location = GetLocation(!isRadndom);
+                var r = "";
+                var location = GetLocation(ref r, !isRadndom);
+                if (NextSporn.ContainsKey(player.PlayerId))
+                {
+                    location = NextSporn[player.PlayerId];
+                }
                 Logger.Info($"{player.Data.PlayerName}:{location}", "RandomSpawn");
                 player.RpcSnapToForced(location);
             }
 
-            public Vector2 GetLocation(Boolean first = false)
+            public Vector2 GetLocation(ref string room, bool first = false)
             {
                 List<Vector2> EnableLocations = new();
                 foreach (var p in Positions.Where(o => o.Key.GetBool()))
@@ -388,6 +404,19 @@ namespace TownOfHost
                 var locations = EnableLocations.Count > 0 ? EnableLocations : !IsRandomSpawn(true) ? Positions.Values.ToList() : Main.CustomSpawnPosition[Main.NormalOptions.MapId];
                 if (first) return locations[0];
                 var location = locations.OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
+                {
+                    room = "";
+
+                    if (Positions.ContainsValue(location))
+                    {
+                        var pos = Positions.Where(x => x.Value == location).FirstOrDefault();
+                        room = Translator.GetString(pos.Key.Name, pos.Key.ReplacementDictionary);
+                    }
+                    else
+                    {
+                        room = Translator.GetString("EDCustomSpawn");
+                    }
+                }
                 return location;
             }
 

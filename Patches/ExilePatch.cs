@@ -149,10 +149,6 @@ namespace TownOfHost
                     }
                     _ = new LateTask(() =>
                     {
-                        foreach (var pc in Main.AllPlayerControls)
-                        {
-                            if (Options.ExAftermeetingflash.GetBool()) pc.KillFlash(kiai: true);
-                        }
                         _ = new LateTask(() =>
                             {
                                 Utils.NotifyRoles();
@@ -162,6 +158,7 @@ namespace TownOfHost
                                     Utils.MarkEveryoneDirtySettings();
                                 }
                                 Utils.SyncAllSettings();
+                                if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                             }, Main.LagTime, "AfterMeetingNotifyRoles");
                     }, Main.LagTime, "");
                 }, 0.7f, "");
