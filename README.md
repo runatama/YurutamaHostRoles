@@ -208,18 +208,41 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 <details>
 <summary>クルー陣営</summary>
 
+- [アンドロイド]
 - [ベイト](#baitベイト)
+- [パン屋](#bakeryパン屋)
+- [天秤](#balancer天秤)
+- [カムバッカー](#comebackerカムバッカー)
 - [ディクテーター](https://github.com/tukasa0001/TownOfHost#dictatorディクテーター)
 - [ドクター](https://github.com/tukasa0001/TownOfHost#doctorドクター)
+- [エフィシェンシー]
+- [占い師](#fortuneteller占い師)
+- [ガードマスター](#guardmasterガードマスター)
+- [インセンダー](#insenderインセンダー)
 - [ライター](https://github.com/tukasa0001/TownOfHost#lighterライター)
 - [メイヤー](#mayorメイヤー)
+- [ミーティングシェリフ](#meetingsheriffミーティングシェリフ)
+- [ナイスアドナー](#niceaddonerナイスアドナー)
+- [ナイスロガー]
+- [ぽんこつ占い師](#ponkotutellerぽんこつ占い師)
+- [サイキック]
 - [サボタージュマスター](https://github.com/tukasa0001/TownOfHost#sabotagemasterサボタージュマスター)
 - [シーア](#seerシーア)
 - [シェリフ](#sheriffシェリフ)
+- [巫女](#shrinemaiden巫女)
+- [シャイボーイ](#shyboyシャイボーイ)
 - [スニッチ](https://github.com/tukasa0001/TownOfHost#snitchスニッチ)
 - [スピードブースター](https://github.com/tukasa0001/TownOfHost#speedboosterスピードブースター)
-- [トラッパー](#trapperトラッパー)
+- [スタッフ](#staffスタッフ)
+- [スイッチシェリフ]
+- [タスクスター](#taskstarタスクスター)
 - [タイムマネージャー](https://github.com/tukasa0001/TownOfHost#timemanagerタイムマネージャー)
+- [トイレファン](#toiletfanトイレファン)
+- [トラッパー](#trapperトラッパー)
+- [ウルトラスター](#ultrastarウルトラスター)
+- [ベントマスター](#ventmasterベントマスター)
+- [ホワイトハッカー](#whitehackerホワイトハッカー)
+- [狼少年](#wolfboy狼少年)
 
 </details>
 
