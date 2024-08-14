@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Hazel;
+using AmongUs.GameOptions;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
@@ -18,7 +19,7 @@ namespace TownOfHost
         public static bool OverrideExiledPlayer => Main.AllPlayerControls.Count() < 4 && !ModClientOnly && (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
-        private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
+        public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
         //private static Dictionary<(byte, byte), RoleTypes> RoleTypeCache = new();
         private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
 
@@ -100,6 +101,78 @@ namespace TownOfHost
             player.IsDead = player.Disconnected = false;
             SendGameData();
         }
+
+        /*public static void SetRole(PlayerControl Exiled, [CallerMemberName] string callerMethodName = "")
+        {
+            logger.Info($"SetRole is called from {callerMethodName}");
+            if (!IsSetRoleRequired(out int Imp, out int Crew, out int aliveImp, out int aliveCrew, Exiled?.GetCustomRole().IsImpostor())) return;
+
+            if (IsSet)
+            {
+                logger.Info("再度SetRoleを実行する前に、RestoreSetRoleを実行してください。");
+                return;
+            }
+
+            var sender = CustomRpcSender.Create("[AntiBlackout] SetRole").StartMessage();
+
+            if (Exiled)
+            {
+                if (aliveImp < 1 || Exiled.GetCustomRole().GetRoleInfo().IsDesyncImpostor)
+                {
+                    if (Exiled.GetCustomRole().IsImpostor())
+                    {
+                        var roleSwapped = false;
+                        foreach (var pc in Main.AllPlayerControls)
+                        {
+                            if (pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor) continue;
+                            sender.RpcSetRole(Exiled, RoleTypes.Crewmate, pc.GetClientId());
+                            if (!roleSwapped && pc != Exiled)
+                            { roleSwapped = true; sender.RpcSetRole(pc, RoleTypes.Impostor, Exiled.GetClientId()); }
+                        }
+                    }
+                    else
+                    {
+                        sender.RpcSetRole(Exiled, RoleTypes.Crewmate, Exiled.GetClientId());
+                        sender.RpcSetRole(Main.AllPlayerControls.Where(pc => !Exiled).First(), RoleTypes.Impostor, Exiled.GetClientId());
+                    }
+                }
+            }
+            if ((aliveImp >= aliveCrew || Imp >= Crew) && Imp > 1)
+            {
+                var imp = Main.AllPlayerControls.Where(pc => pc.GetCustomRole().IsImpostor()).Take(Imp - 1);
+                foreach (var pc in imp)
+                    sender.RpcSetRole(pc, RoleTypes.Crewmate);
+            }
+
+            IsSet = true;
+            sender.EndMessage();
+            sender.SendMessage();
+        }
+
+        public static void RestoreSetRole([CallerMemberName] string callerMethodName = "")
+        {
+            logger.Info($"RestoreSetRole is called from {callerMethodName}");
+            if (!IsSet) return;
+
+            var sender = CustomRpcSender.Create("[AntiBlackout] RestoreSetRole").StartMessage();
+
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                if (pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor)
+                {
+                    foreach (var seer in Main.AllAlivePlayerControls)
+                        sender.RpcSetRole(pc, seer == PlayerControl.LocalPlayer ? RoleTypes.Crewmate : pc == seer ? pc.GetCustomRole().GetRoleTypes() : RoleTypes.Scientist, seer.GetClientId());
+                }
+                else if (pc.GetCustomRole().IsImpostor())
+                {
+                    foreach (var seer in Main.AllAlivePlayerControls)
+                        sender.RpcSetRole(pc, seer.GetCustomRole().GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : pc.GetCustomRole().GetRoleTypes(), seer.GetClientId());
+                }
+                else sender.RpcSetRole(pc, pc.GetCustomRole().GetRoleTypes());
+            }
+            sender.EndMessage();
+            sender.SendMessage();
+        }*/
 
         ///<summary>
         ///一時的にIsDeadを本来のものに戻した状態でコードを実行します

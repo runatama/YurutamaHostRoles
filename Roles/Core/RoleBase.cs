@@ -321,7 +321,7 @@ public abstract class RoleBase : IDisposable
     // Suffix:ターゲット矢印などの追加情報。
 
     /// <summary>
-    /// seenによる表示上のRoleNameの書き換え
+    /// seenによる表示上のRoleNameの書き換え。つまりみてみて～!!ってこと。
     /// </summary>
     /// <param name="seer">見る側</param>
     /// <param name="enabled">RoleNameを表示するかどうか</param>
@@ -330,7 +330,7 @@ public abstract class RoleBase : IDisposable
     public virtual void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     { }
     /// <summary>
-    /// seerによる表示上のRoleNameの書き換え
+    /// seerによる表示上のRoleNameの書き換え。つまり見ちゃうぞ!!ってこと。
     /// </summary>
     /// <param name="seen">見られる側</param>
     /// <param name="enabled">RoleNameを表示するかどうか</param>

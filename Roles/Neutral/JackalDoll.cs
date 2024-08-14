@@ -157,6 +157,14 @@ public sealed class JackalDoll : RoleBase
             if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
             if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
         }
+        foreach (var pl in Main.AllPlayerControls)
+        {
+            if (pl.Is(CountTypes.Jackal))
+            {
+                NameColorManager.Add(pl.PlayerId, pc.PlayerId, Utils.GetRoleColorCode(CustomRoles.Jackaldoll));
+                NameColorManager.Add(pc.PlayerId, pl.PlayerId, Utils.GetRoleColorCode(CustomRoles.Jackaldoll));
+            }
+        }
         //どっちにしろ更新を
         Utils.NotifyRoles();
     }
@@ -229,7 +237,19 @@ public sealed class JackalDoll : RoleBase
     {
         if (Oyabun.ContainsKey(Player.PlayerId))
         {
-            roleText = Translator.GetString("Sidekick") + Translator.GetString("Jackaldoll");
+            roleText = $"☆" + Translator.GetString("Jackaldoll");
         }
+    }
+    public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+    {
+        addon = false;
+        if (seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia))
+            enabled = true;
+    }
+    public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+    {
+        addon = false;
+        if (seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia))
+            enabled = true;
     }
 }

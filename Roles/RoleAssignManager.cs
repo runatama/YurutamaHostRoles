@@ -122,6 +122,34 @@ namespace TownOfHost.Roles
             }
 
             AssignRoleList.Sort();
+
+            if (Options.SuddenAllRoleonaji.GetBool())
+            {
+                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
+                var addons = AssignRoleList.Where(r => r.IsAddOn() || r.IsRiaju())?.ToArray();
+                var rand = IRandom.Instance;
+                var role = CustomRoles.Impostor;
+
+                if (roles.Count() != 0) role = roles[rand.Next(0, roles.Count())];
+
+                AssignRoleList.Clear();
+
+                for (var i = 0; i <= Main.AllPlayerControls.Count() + 1; i++)
+                    AssignRoleList.Add(role);
+
+                if (addons.Count() != 0)
+                    foreach (var addon in addons)
+                        if (!AssignRoleList.Contains(addon)) AssignRoleList.Add(addon);
+            }
+            else
+            if (Options.SuddenDeathMode.GetBool())
+            {
+                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
+
+                if (AssignRoleList.Count < Main.AllPlayerControls.Count())
+                    for (var i = roles.Count(); i <= Main.AllPlayerControls.Count(); i++)
+                        AssignRoleList.Add(CustomRoles.Impostor);
+            }
             Logger.Info($"{string.Join(", ", AssignCount)}", "AssignCount");
             Logger.Info($"{string.Join(", ", AssignRoleList)}", "AssignRoleList");
         }

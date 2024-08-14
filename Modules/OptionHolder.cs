@@ -126,6 +126,14 @@ namespace TownOfHost
         public static OptionItem ONspecialMode;
         public static OptionItem InsiderMode;
         public static OptionItem Taskcheck;
+        public static OptionItem SuddenDeathMode;
+        public static OptionItem SuddenAllRoleonaji;
+        public static OptionItem SuddenCannotSeeName;
+        public static OptionItem SuddenDeathTimeLimit;
+        public static OptionItem SuddenDeathReactortime;
+        public static OptionItem SuddenItijohoSend;
+        public static OptionItem SuddenItijohoSendstart;
+        public static OptionItem SuddenItijohoSenddis;
         //public static OptionItem CommRepo;
 
         // タスク無効化
@@ -526,14 +534,29 @@ namespace TownOfHost
             Taskcheck = BooleanOptionItem.Create(200002, "Taskcheck", false, TabGroup.MainSettings, false).SetParent(InsiderMode);
             ColorNameMode = BooleanOptionItem.Create(200003, "ColorNameMode", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
                 .SetGameMode(CustomGameMode.All);
-            StandardHAS = BooleanOptionItem.Create(200004, "StandardHAS", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
+            RoleImpostor = BooleanOptionItem.Create(200006, "VRoleImpostor", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
                 .SetGameMode(CustomGameMode.Standard);
+            StandardHAS = BooleanOptionItem.Create(200004, "StandardHAS", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
+            .SetGameMode(CustomGameMode.Standard);
             StandardHASWaitingTime = FloatOptionItem.Create(200005, "StandardHASWaitingTime", new(0f, 180f, 2.5f), 10f, TabGroup.MainSettings, false).SetParent(StandardHAS)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
-            RoleImpostor = BooleanOptionItem.Create(200006, "VRoleImpostor", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
-                .SetGameMode(CustomGameMode.Standard);
-
+            SuddenDeathMode = BooleanOptionItem.Create(200007, "SuddenDeathMode", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenAllRoleonaji = BooleanOptionItem.Create(200008, "SuddenAllRoleonaji", false, TabGroup.MainSettings, false).SetParent(SuddenDeathMode)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenCannotSeeName = BooleanOptionItem.Create(200009, "SuddenCannotSeeName", false, TabGroup.MainSettings, false).SetParent(SuddenDeathMode)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenDeathTimeLimit = FloatOptionItem.Create(200010, "SuddenDeathTimeLimit", new(0, 300, 2.5f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenDeathReactortime = FloatOptionItem.Create(200011, "SuddenDeathReactortime", new(1, 30, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenItijohoSend = BooleanOptionItem.Create(200012, "SuddenItijohoSend", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenItijohoSendstart = FloatOptionItem.Create(200013, "SuddenItijohoSendstart", new(0, 300, 0.5f), 90f, TabGroup.MainSettings, false).SetParent(SuddenItijohoSend).SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
+            SuddenItijohoSenddis = FloatOptionItem.Create(200014, "SuddenItijohoSenddis", new(0, 180, 0.5f), 5f, TabGroup.MainSettings, false).SetParent(SuddenItijohoSend).SetValueFormat(OptionFormat.Seconds)
+            .SetGameMode(CustomGameMode.Standard);
             // 試験的機能
             ExperimentalMode = BooleanOptionItem.Create(300000, "ExperimentalMode", false, TabGroup.MainSettings, false).SetColor(Palette.CrewmateSettingChangeText)
                 .SetGameMode(CustomGameMode.Standard);
@@ -695,11 +718,9 @@ namespace TownOfHost
             // HideAndSeek
             SetupRoleOptions(100000, TabGroup.MainSettings, CustomRoles.HASFox, customGameMode: CustomGameMode.HideAndSeek);
             SetupRoleOptions(100100, TabGroup.MainSettings, CustomRoles.HASTroll, customGameMode: CustomGameMode.HideAndSeek);
-            AllowCloseDoors = BooleanOptionItem.Create(101000, "AllowCloseDoors", false, TabGroup.MainSettings, false)
-                .SetHeader(true)
-                .SetGameMode(CustomGameMode.HideAndSeek);
             KillDelay = FloatOptionItem.Create(101001, "HideAndSeekWaitingTime", new(0f, 180f, 5f), 10f, TabGroup.MainSettings, false)
                 .SetValueFormat(OptionFormat.Seconds)
+                .SetHeader(true)
                 .SetGameMode(CustomGameMode.HideAndSeek);
             //IgnoreCosmetics = CustomOption.Create(101002, Color.white, "IgnoreCosmetics", false)
             //    .SetGameMode(CustomGameMode.HideAndSeek);
@@ -886,7 +907,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard);
             BlockDisturbancesToSwitches = BooleanOptionItem.Create(101514, "BlockDisturbancesToSwitches", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
-
+            AllowCloseDoors = BooleanOptionItem.Create(101670, "AllowCloseDoors", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All).SetParent(Sabotage);
             // ランダムマップ
             RandomMapsMode = BooleanOptionItem.Create(100400, "RandomMapsMode", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
@@ -1093,7 +1115,7 @@ namespace TownOfHost
         public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: Utils.GetFrom(info), combination: info.Combination);
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
         {
-            if ((role is CustomRoles.Crewmate or CustomRoles.Impostor or CustomRoles.Phantom or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
+            if ((role is CustomRoles.Crewmate or CustomRoles.Impostor or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
             if (role.IsVanilla())
             {
                 switch (role)
@@ -1181,7 +1203,7 @@ namespace TownOfHost
             public CustomRoles Role { get; private set; }
             public int IdStart { get; private set; }
             public OptionItem doOverride;
-            public OptionItem assignCommonTasks;
+            public OptionItem numCommonTasks;
             public OptionItem numLongTasks;
             public OptionItem numShortTasks;
 
@@ -1201,9 +1223,9 @@ namespace TownOfHost
                 doOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab, false).SetParent(CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
                 doOverride.ReplacementDictionary = replacementDic;
-                assignCommonTasks = BooleanOptionItem.Create(idStart++, "assignCommonTasks", true, tab, false).SetParent(doOverride)
-                    .SetValueFormat(OptionFormat.None);
-                assignCommonTasks.ReplacementDictionary = replacementDic;
+                numCommonTasks = IntegerOptionItem.Create(idStart++, "roleCommonTasksNum", new(0, 99, 1), 3, tab, false).SetParent(doOverride)
+                    .SetValueFormat(OptionFormat.Pieces);
+                numCommonTasks.ReplacementDictionary = replacementDic;
                 numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), 3, tab, false).SetParent(doOverride)
                     .SetValueFormat(OptionFormat.Pieces);
                 numLongTasks.ReplacementDictionary = replacementDic;

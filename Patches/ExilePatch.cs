@@ -20,11 +20,11 @@ namespace TownOfHost
             {
                 try
                 {
-                    WrapUpPostfix(__instance.exiled);
+                    WrapUpPostfix(__instance.initData.networkedPlayer);
                 }
                 finally
                 {
-                    WrapUpFinalizer(__instance.exiled);
+                    WrapUpFinalizer(__instance.initData.networkedPlayer);
                 }
             }
         }
@@ -36,11 +36,11 @@ namespace TownOfHost
             {
                 try
                 {
-                    WrapUpPostfix(__instance.exiled);
+                    WrapUpPostfix(__instance.initData.networkedPlayer);
                 }
                 finally
                 {
-                    WrapUpFinalizer(__instance.exiled);
+                    WrapUpFinalizer(__instance.initData.networkedPlayer);
                 }
             }
         }
@@ -119,6 +119,7 @@ namespace TownOfHost
                                 if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
 
                                 var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
+                                if (Options.SuddenDeathMode.GetBool()) IDesycImpostor = true;
 
                                 if (pc.Is(CustomRoles.Amnesia))
                                 {
@@ -135,7 +136,6 @@ namespace TownOfHost
 
                                 pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
                             }
-                        if (!Player.IsAlive()) Player.RpcExileV2();
 
                         if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) Player.RpcExileV2();
 
@@ -143,6 +143,7 @@ namespace TownOfHost
                         Player.SyncSettings();
                         _ = new LateTask(() =>
                             {
+                                if (!Player.IsAlive()) Player.RpcExileV2();
                                 Player.SetKillCooldown(kyousei: true, delay: true);
                                 Player.RpcResetAbilityCooldown(kousin: true);
                             }, Main.LagTime, "");

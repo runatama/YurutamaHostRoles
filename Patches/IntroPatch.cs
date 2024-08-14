@@ -358,7 +358,7 @@ namespace TownOfHost
                                         }
                                     }
                                 }
-                                if (pc == PlayerControl.LocalPlayer && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)) continue;
+                                if (pc == PlayerControl.LocalPlayer && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false) && !Options.SuddenAllRoleonaji.GetBool()) continue;
                                 pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
                             }
 
@@ -440,6 +440,13 @@ namespace TownOfHost
                 //役職選定後に処理する奴。
                 foreach (var pc in Main.AllPlayerControls)
                 {
+                    if (Options.SuddenDeathMode.GetBool())
+                    {
+                        NameColorManager.RemoveAll(pc.PlayerId);
+
+                        foreach (var pl in Main.AllPlayerControls)
+                            if (pl != pc) NameColorManager.Add(pc.PlayerId, pl.PlayerId, Main.PlayerColors[pl.PlayerId].ColorCode());
+                    }
                     if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
                     //RoleAddons
                     if (RoleAddAddons.AllData.TryGetValue(pc.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
@@ -459,7 +466,7 @@ namespace TownOfHost
                 GameStates.task = true;
 
                 //desyneインポかつ置き換えがimp以外ならそれにする。
-                if (roleInfo?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
+                if ((roleInfo?.IsDesyncImpostor ?? false || Options.SuddenDeathMode.GetBool()) && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
 
                 _ = new LateTask(() =>
@@ -491,6 +498,13 @@ namespace TownOfHost
 
                 if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                 if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
+
+                _ = new LateTask(() =>
+                {
+                    Main.IntroHyoji = false; ;
+                    if (GameStates.InGame && !GameStates.Meeting)
+                        _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "Introkesu");
+                }, 15f, "Intro");
             }
             Logger.Info("OnDestroy", "IntroCutscene");
         }

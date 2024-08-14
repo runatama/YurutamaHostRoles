@@ -274,7 +274,8 @@ public sealed class Sniper : RoleBase, IImpostor
             );
 
             //あたった通知
-            Player.SetKillCooldown();
+            if (CanUseKillButton()) Player.SetKillCooldown();
+            else Player.RpcProtectedMurderPlayer(target);
 
             //スナイプが起きたことを聞こえそうな対象に通知したい
             targets.Remove(snipedTarget);

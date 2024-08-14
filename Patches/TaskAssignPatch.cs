@@ -77,23 +77,26 @@ namespace TownOfHost
             CustomRoles role = RoleNullable.Value;
 
             //デフォルトのタスク数
-            bool hasCommonTasks = true;
+            bool hasCommonTasks = true;//trueになるのは
+            int NumCommonTasks = Main.NormalOptions.NumCommonTasks;
             int NumLongTasks = Main.NormalOptions.NumLongTasks;
             int NumShortTasks = Main.NormalOptions.NumShortTasks;
 
             if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
             {
-                hasCommonTasks = data.assignCommonTasks.GetBool(); // コモンタスク(通常タスク)を割り当てるかどうか
-                                                                   // 割り当てる場合でも再割り当てはされず、他のクルーと同じコモンタスクが割り当てられる。
-                NumLongTasks = data.numLongTasks.GetInt(); // 割り当てるロングタスクの数
-                NumShortTasks = data.numShortTasks.GetInt(); // 割り当てるショートタスクの数
-                                                             // ロングとショートは常時再割り当てが行われる。
+                hasCommonTasks = data.numCommonTasks.GetInt() == Main.NormalOptions.NumCommonTasks;
+                NumCommonTasks = data.numCommonTasks.GetInt();
+                // コモンタスク(通常タスク)を割り当てるかどうか
+                // 割り当てる場合でも再割り当てはされず、他のクルーと同じコモンタスクが割り当てられる。
+                NumLongTasks = data.numLongTasks.GetInt();      // 割り当てるロングタスクの数
+                NumShortTasks = data.numShortTasks.GetInt();    // 割り当てるショートタスクの数
+                                                                // ロングとショートは常時再割り当てが行われる。
             }
             if (pc.Is(CustomRoles.Workhorse))
                 (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
             if (taskTypeIds.Count == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
-            if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0)
+            if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0 && NumCommonTasks == 0)
             {
                 NumShortTasks = 1; //タスク0対策
                 Main.FixTaskNoPlayer.Add(pc);
@@ -123,7 +126,7 @@ namespace TownOfHost
             int start2 = 0;
             int start3 = 0;
 
-            if (Options.CommnTaskResetAssing.GetBool() && hasCommonTasks)
+            if ((Options.CommnTaskResetAssing.GetBool() && hasCommonTasks) || (!hasCommonTasks && NumCommonTasks != start1))
             {
                 //コモンの再割り当て
                 Il2CppSystem.Collections.Generic.List<NormalPlayerTask> CommnTasks = new();
@@ -132,7 +135,7 @@ namespace TownOfHost
                 Shuffle<NormalPlayerTask>(CommnTasks);
                 ShipStatus.Instance.AddTasksFromList(
                     ref start1,
-                    start1,
+                    NumCommonTasks,
                     TasksList,
                     usedTaskTypes,
                     CommnTasks

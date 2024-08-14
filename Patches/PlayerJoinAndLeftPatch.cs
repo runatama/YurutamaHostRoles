@@ -27,6 +27,8 @@ namespace TownOfHost
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
+            Main.FeColl = 0;
+            GameStates.canmusic = true;
             ErrorText.Instance.Clear();
             foreach (var pc in Main.AllPlayerControls)
             {
@@ -42,15 +44,15 @@ namespace TownOfHost
                 if (AURoleOptions.ShapeshifterCooldown == 0f)
                     AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
-                Main.NormalOptions.Cast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
             }
         }
     }
@@ -207,15 +209,6 @@ namespace TownOfHost
                         PlayerGameOptionsSender.RemoveSender(data.Character);
                         Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
                         Utils.NotifyRoles(isForMeeting: true, NoCache: true);
-
-                        //切断したらクルーゴースト置き換えに
-                        if (!AntiBlackout.OverrideExiledPlayer)
-                            foreach (var pc in Main.AllPlayerControls)
-                            {
-                                if (pc == PlayerControl.LocalPlayer) continue;
-                                if (pc == null) continue;
-                                data.Character.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
-                            }
                     }
                     Main.playerVersion.Remove(data.Character.PlayerId);
                     Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");

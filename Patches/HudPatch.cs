@@ -134,11 +134,6 @@ namespace TownOfHost
                     {
                         LowerInfoText.enabled = true;
                         LowerInfoText.text = GetTaskBattleTimer();
-                        if (TaskBattlep != (Vector2)PlayerControl.LocalPlayer.transform.position)
-                            if (TaskBattlep == new Vector2(-25f, 40f))
-                                TaskBattlep = PlayerControl.LocalPlayer.transform.position;
-                            else
-                                TaskBattleTimer += Time.deltaTime;
                     }
                     if (!GameStates.IsInTask)
                         TaskBattleTimer = 0f;

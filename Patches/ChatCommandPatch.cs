@@ -15,6 +15,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 using static TownOfHost.Utils;
 using System.Text.Json;
+using AmongUs.GameOptions;
 
 namespace TownOfHost
 {
@@ -330,6 +331,7 @@ namespace TownOfHost
                                         SendMessage(GetString("HideAndSeekInfo"), playerh);
                                         break;
 
+                                    case "タスクバトル":
                                     case "taskbattle":
                                     case "tbm":
                                         SendMessage(GetString("TaskBattleInfo"), playerh);
@@ -345,18 +347,24 @@ namespace TownOfHost
                                         SendMessage(GetString("SyncButtonModeInfo"), playerh);
                                         break;
 
+                                    case "インサイダーモード":
                                     case "insiderMode":
                                     case "im":
                                         SendMessage(GetString("InsiderModeInfo"));
                                         break;
 
+                                    case "ランダムマップモード":
                                     case "randommapsmode":
                                     case "rmm":
                                         SendMessage(GetString("RandomMapsModeInfo"), playerh);
                                         break;
-
+                                    case "サドンデスモード":
+                                    case "SuddenDeath":
+                                    case "Sd":
+                                        SendMessage(GetString("SuddenDeathInfo"), playerh);
+                                        break;
                                     default:
-                                        SendMessage($"{GetString("Command.h_args")}:\n hideandseek(has), nogameend(nge), syncbuttonmode(sbm), randommapsmode(rmm), taskbattle(tbm), InsiderMode(im)", playerh);
+                                        SendMessage($"{GetString("Command.h_args")}:\n hideandseek(has), nogameend(nge), syncbuttonmode(sbm), randommapsmode(rmm), taskbattle(tbm), InsiderMode(im),SuddenDeath(sd)", playerh);
                                         break;
                                 }
                                 break;
@@ -468,6 +476,44 @@ namespace TownOfHost
                             SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
                         break;
 
+                    case "/settask":
+                    case "/stt":
+                        canceled = true;
+                        var chc = "";
+                        if (!GameStates.IsLobby) break;
+                        if (args.Length > 1 && int.TryParse(args[1], out var cot))
+                            if (ch(cot))
+                            {
+                                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumCommonTasks, cot);
+                                chc += $"通常タスクを{cot}にしました!\n";
+                            }
+                        if (args.Length > 2 && int.TryParse(args[2], out var lot))
+                            if (ch(lot))
+                            {
+                                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumLongTasks, lot);
+                                chc += $"ロングタスクを{lot}にしました!\n";
+                            }
+                        if (args.Length > 3 && int.TryParse(args[3], out var sht))
+                            if (ch(sht))
+                            {
+                                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumShortTasks, sht);
+                                chc += $"ショートタスクを{sht}にしました!\n";
+                            }
+                        if (chc == "")
+                        {
+                            chc = "/settask(/stt) Common Long Short";
+                            SendMessage(chc, PlayerControl.LocalPlayer.PlayerId);
+                            break;
+                        }
+                        SendMessage($"<size=70%>{chc}</size>");
+
+                        static bool ch(int n)
+                        {
+                            if (n > 99) return false;
+                            if (0 > n) return false;
+                            return true;
+                        }
+                        break;
                     case "/exile":
                         canceled = true;
                         if (args.Length < 2 || !int.TryParse(args[1], out int id)) break;
@@ -515,7 +561,7 @@ namespace TownOfHost
                             SendMessage(GetString("ForceEndText"));
                         GameManager.Instance.enabled = false;
                         CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
-                        GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                        GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
                         break;
 
                     case "/w":
@@ -552,6 +598,33 @@ namespace TownOfHost
                     case "/at":
                         canceled = true;
                         //Roles.Neutral.NoName.OnCommand(PlayerControl.LocalPlayer.PlayerId, int.TryParse(args.Length < 2 ? "" : args[1], out var coin) ? coin : null);
+                        break;
+
+                    case "/cr":
+                        if (DebugModeManager.EnableTOHkDebugMode.GetBool())
+                        {
+                            canceled = true;
+                            subArgs = args.Length < 2 ? "" : args[1];
+                            if (GetRoleByInputName(subArgs, out var role, true))
+                            {
+                                if (GameStates.InGame) PlayerControl.LocalPlayer.RpcSetCustomRole(role, true);
+                                else
+                                {
+                                    Main.HostRole = role;
+                                    var r = ColorString(GetRoleColor(role), GetString($"{role}"));
+                                    SendMessage($"ホストの役職を{r}にするよっ!!", PlayerControl.LocalPlayer.PlayerId);
+                                }
+                            }
+                            else
+                            {
+                                if (Main.HostRole == CustomRoles.NotAssigned) SendMessage("役職変更に失敗したよ(´・ω・｀)", PlayerControl.LocalPlayer.PlayerId);
+                                else
+                                {
+                                    Main.HostRole = CustomRoles.NotAssigned;
+                                    SendMessage("役職固定をリセットしたよっ!", PlayerControl.LocalPlayer.PlayerId);
+                                }
+                            }
+                        }
                         break;
 
                     case "/debug":

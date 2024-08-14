@@ -115,13 +115,15 @@ namespace TownOfHost
         private static void ForceEndProcess()
         {
             //左シフトが押されているなら強制廃村
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift) || (Main.FeColl != 0) && !GameStates.IsLobby)
             {
                 GameManager.Instance.enabled = false;
-                CustomWinnerHolder.WinnerTeam = CustomWinner.None;
-                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
+                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
                 return;
             }
+            if (!GameStates.IsLobby) Main.FeColl++;
+            Logger.Info($"廃村コール{Main.FeColl}回目", "fe");
             if (!GameStates.IsInGame) return;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
             GameManager.Instance.LogicFlow.CheckEndCriteria();

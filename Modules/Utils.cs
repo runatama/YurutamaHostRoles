@@ -252,8 +252,6 @@ namespace TownOfHost
                         || (Options.ELoversRole.GetBool() && seer.Is(CustomRoles.ELovers) && seen.Is(CustomRoles.ELovers))
                         || (Options.FLoversRole.GetBool() && seer.Is(CustomRoles.FLovers) && seen.Is(CustomRoles.FLovers))
                         || (Options.GLoversRole.GetBool() && seer.Is(CustomRoles.GLovers) && seen.Is(CustomRoles.GLovers))
-                        || (seer.Is(CustomRoles.Jackaldoll) && (seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia)))
-                        || (seen.Is(CustomRoles.Jackaldoll) && (seer.Is(CustomRoles.Jackal) || seer.Is(CustomRoles.JackalMafia)))
                         || (Options.InsiderMode.GetBool() && seer.GetCustomRole().IsImpostor())
                         || (Options.RoleImpostor.GetBool() && seer.GetCustomRole().IsImpostor() && seen.GetCustomRole().IsImpostor());
 
@@ -808,7 +806,7 @@ namespace TownOfHost
                         pc.RpcCompleteTask(task.Id);
                 }
             }
-            Main.FixTaskNoPlayer.Clear();
+            //Main.FixTaskNoPlayer.Clear();
             _ = new LateTask(() => NotifyRoles(), 0.25f, "DelTask");
             TaskCh = true;
         }
@@ -826,7 +824,12 @@ namespace TownOfHost
             if (Amnesia.CheckAbility(seer))
                 seer.GetRoleClass()?.OverrideProgressTextAsSeer(seen, ref enabled, ref text);
 
-            return enabled ? text : "";
+            var r = enabled ? text : "";
+            if (Options.SuddenDeathMode.GetBool() && seer.IsAlive() && seer == seen)
+            {
+                r += SuddenDeathMode.SuddenDeathProgersstext(seer);
+            }
+            return r;
         }
         private static string GetProgressText(byte playerId, bool comms = false, bool Mane = true)
         {
@@ -973,6 +976,7 @@ namespace TownOfHost
                 if (Options.SabotageTimeControl.GetBool()) { SendMessage(GetString("SabotageTimeControlInfo"), PlayerId); }
                 if (Options.RandomMapsMode.GetBool()) { SendMessage(GetString("RandomMapsModeInfo"), PlayerId); }
                 if (Options.InsiderMode.GetBool()) { SendMessage(GetString("InsiderModeInfo"), PlayerId); }
+                if (Options.SuddenDeathMode.GetBool()) { SendMessage(GetString("SuddenDeathInfo"), PlayerId); }
                 if (Options.IsStandardHAS) { SendMessage(GetString("StandardHASInfo"), PlayerId); }
                 if (Options.EnableGM.GetBool()) { SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId); }
                 foreach (var role in CustomRolesHelper.AllStandardRoles)
@@ -1006,7 +1010,30 @@ namespace TownOfHost
                 SendMessage(GetString("Message.HideGameSettings"), PlayerId);
                 return;
             }
-            var sb = new StringBuilder().AppendFormat("<line-height={0}>", "45%");
+            var sb = new StringBuilder();
+
+            switch (Options.CurrentGameMode)
+            {
+                case CustomGameMode.TaskBattle:
+                    sb.Append($"<size=30%>{GetString("TaskBattleInfo")}</size>\n");
+                    break;
+                case CustomGameMode.HideAndSeek:
+                    sb.Append($"<size=30%>{GetString("HideAndSeekInfo")}</size>\n");
+                    break;
+                case CustomGameMode.Standard:
+                    if (Options.SuddenDeathMode.GetBool())
+                    {
+                        sb.Append($"<size=30%>{GetString("SuddenDeathInfo")}</size>\n");
+                    }
+                    if (Options.StandardHAS.GetBool())
+                    {
+                        sb.Append($"<size=30%>{GetString("StandardHASInfo")}</size>\n");
+                    }
+                    break;
+            }
+
+            sb.AppendFormat("<line-height={0}>", "45%");
+
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
             {
                 sb.Append(GetString("Roles")).Append(':');
@@ -1783,11 +1810,12 @@ namespace TownOfHost
             Main.LastMeg = Send;
             Main.MessagesToSend.Add((Send, sendTo, title));
         }
-        public static void ApplySuffix()
+        public static void ApplySuffix(PlayerControl pc)
         {
             if (!AmongUsClient.Instance.AmHost) return;
             string name = DataManager.player.Customization.Name;
             if (Main.nickName != "") name = Main.nickName;
+            string n = name;
             if (AmongUsClient.Instance.IsGameStarted)
             {
                 if (Options.ColorNameMode.GetBool() && Main.nickName == "") name = Palette.GetColorName(Camouflage.PlayerSkins[PlayerControl.LocalPlayer.PlayerId].ColorId);
@@ -1796,26 +1824,24 @@ namespace TownOfHost
             {
                 if (!GameStates.IsCountDown)
                 {
-                    if (AmongUsClient.Instance.IsGamePublic)
-                        name = $"<color={Main.ModColor}>TownOfHost-K v{Main.PluginVersion}</color>\r\n" + name;
                     switch (Options.GetSuffixMode())
                     {
                         case SuffixModes.None:
                             break;
                         case SuffixModes.TOH:
-                            name += $"\r\n<color={Main.ModColor}>TOH-K v{Main.PluginVersion}</color>";
+                            name += $"</size>\r\n<color={Main.ModColor}>TOH-K v{Main.PluginVersion}</color><size=150%>";
                             break;
                         case SuffixModes.Streaming:
-                            name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color>";
+                            name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color><size=150%>";
                             break;
                         case SuffixModes.Recording:
-                            name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color>";
+                            name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color><size=150%>";
                             break;
                         case SuffixModes.RoomHost:
-                            name += $"\r\n<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color>";
+                            name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color><size=150%>";
                             break;
                         case SuffixModes.OriginalName:
-                            name += $"\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color>";
+                            name += $"</size>\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color><size=150%>";
                             break;
                         case SuffixModes.Timer:
                             if (GameStates.IsLocalGame) break;
@@ -1830,12 +1856,39 @@ namespace TownOfHost
                             if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
                             if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
                             if (minutes <= 0) Color = "<color=red>";//1分切ったら。
-                            name += $" <size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size>";
+                            name += $"</size><size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size><size=150%>";
                             break;
                     }
+                    if (GameStates.IsLobby && !GameStates.IsCountDown) name = $"<b>{name}</b>";
+
+                    var info = "<size=120%>";
+                    var at = "";
+                    if (Options.NoGameEnd.GetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
+                    if (Options.IsStandardHAS) info += $"\r\n" + ColorString(Color.yellow, GetString("StandardHAS")); else at += "\r\n";
+                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) info += $"\r\n" + ColorString(Color.red, GetString("HideAndSeek")); else at += "\r\n";
+                    if (Options.CurrentGameMode == CustomGameMode.TaskBattle) info += $"\r\n" + ColorString(Color.cyan, GetString("TaskBattle")); else at += "\r\n";
+                    if (Options.SuddenDeathMode.GetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
+                    if (Options.EnableGM.GetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
+                    if (DebugModeManager.IsDebugMode)
+                        info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
+                    else at += "\r\n";
+
+                    info += "</size>";
+                    n = "<size=150%><line-height=-1500%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1400%>\r\n<color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginVersion}</size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
                 }
             }
+
+            Main.lobbyname = name;
+
+            if (GameStates.IsLobby)
+            {
+                if (!pc.IsModClient()) PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc, true);
+                else if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default && pc != PlayerControl.LocalPlayer)
+                    PlayerControl.LocalPlayer.RpcSetNamePrivate(name, false, pc);
+            }
+            else
             if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default) PlayerControl.LocalPlayer.RpcSetName(name);
+
         }
         private static Dictionary<byte, PlayerControl> cachedPlayers = new(15);
         public static PlayerControl GetPlayerById(int playerId) => GetPlayerById((byte)playerId);
@@ -2012,11 +2065,16 @@ namespace TownOfHost
                     //RealNameを取得 なければ現在の名前をRealNamesに書き込む
                     string SeerRealName = (seerRole is IUseTheShButton) ? Main.AllPlayerNames[seer.PlayerId] : seer.GetRealName(isForMeeting);
 
-                    if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool())
-                        SeerRealName = seer.GetRoleInfo();
-
                     if (TemporaryName ?? false)
                         SeerRealName = name;
+
+                    if (Options.SuddenCannotSeeName.GetBool())
+                    {
+                        SeerRealName = "";
+                    }
+
+                    if (!isForMeeting && MeetingStates.FirstMeeting && (Options.ChangeNameToRoleInfo.GetBool() || Options.SuddenDeathMode.GetBool()) && Main.IntroHyoji)
+                        SeerRealName = seer.GetRoleInfo();
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
                     var (enabled, text) = GetRoleNameAndProgressTextData(seer);
@@ -2205,6 +2263,12 @@ namespace TownOfHost
                             //ターゲットのプレイヤー名の色を書き換えます。
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, isForMeeting);
 
+                            if (Options.SuddenCannotSeeName.GetBool())
+                            {
+                                TargetPlayerName = "";
+                                name = "";
+                            }
+
                             if (seer.Is(CustomRoles.Guesser))
                             {
                                 if (seer.IsAlive() && target.IsAlive() && isForMeeting)
@@ -2260,7 +2324,7 @@ namespace TownOfHost
                             }
                             //全てのテキストを合成します。
                             var g = string.Format("<line-height={0}%>", isForMeeting ? "90" : "85");
-                            string TargetName = $"{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + g + TargetSuffix)}</line-height>";
+                            string TargetName = $"{g}{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}</line-height>";
                             if (!isForMeeting && !seer.IsAlive())
                                 TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
 

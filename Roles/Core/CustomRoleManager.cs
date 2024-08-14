@@ -674,12 +674,6 @@ public enum CustomRoles
     //Combination
     Driver,
     Braid,
-
-    //DebugVersion Only Roles
-    //DEBUG only Crewmate
-    //DEBUG only Impostor
-    //DEBUG only Nuetral.
-    //DEBUG only Combination
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,

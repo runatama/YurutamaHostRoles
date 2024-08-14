@@ -107,7 +107,9 @@ namespace TownOfHost
     {
         public static bool Prefix(ShipStatus __instance)
         {
-            return !(Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) || (Options.AllowCloseDoors.GetBool() && !(!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting));
+            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
+
+            return !Options.AllowCloseDoors.GetBool();
         }
     }
     [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]

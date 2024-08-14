@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 using static TownOfHost.Translator;
+using HarmonyLib;
 
 namespace TownOfHost.Roles.AddOns.Common
 {
@@ -82,6 +83,12 @@ namespace TownOfHost.Roles.AddOns.Common
                 var (role, data) = kvp;
                 if (!role.IsPresent()) continue;
                 var assignTargetList = AssignTargetList(data);
+
+                if (SuddenAllRoleonaji.GetBool() && assignTargetList.Count != 0)
+                {
+                    assignTargetList.Clear();
+                    Main.AllPlayerControls.Do(p => assignTargetList.Add(p));
+                }
 
                 foreach (var pc in assignTargetList)
                 {

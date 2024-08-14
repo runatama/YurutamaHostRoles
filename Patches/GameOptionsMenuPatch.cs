@@ -300,7 +300,6 @@ namespace TownOfHost
             var GamePresetButtons = GamePresetButton.GetComponent<PassiveButton>();
             GamePresetButtons.gameObject.SetActive(false);
 
-
             var ModStgButton = GameObject.Instantiate(RoleSettingsButton, RoleSettingsButton.transform.parent);
 
             RoleSettingsButton.gameObject.SetActive(false);
@@ -349,8 +348,8 @@ namespace TownOfHost
                     stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.LabelBackground.png");
                     stringOption.transform.FindChild("LabelBackground").localScale = new Vector3(1.3f, 1f, 1f);
                     stringOption.transform.FindChild("LabelBackground").SetLocalX(-2.2695f);
-                    stringOption.transform.FindChild("PlusButton (1)").localPosition += new Vector3(option.HideValue ? 100f : 1.1434f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
-                    stringOption.transform.FindChild("MinusButton (1)").localPosition += new Vector3(option.HideValue ? 100f : 0.3463f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
+                    stringOption.transform.FindChild("PlusButton").localPosition += new Vector3(option.HideValue ? 100f : 1.1434f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
+                    stringOption.transform.FindChild("MinusButton").localPosition += new Vector3(option.HideValue ? 100f : 0.3463f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
                     stringOption.transform.FindChild("Value_TMP (1)").localPosition += new Vector3(0.7322f, 0f, 0f);
                     stringOption.transform.FindChild("ValueBox").localScale += new Vector3(0.2f, 0f, 0f);
                     stringOption.transform.FindChild("ValueBox").localPosition += new Vector3(0.7322f, 0f, 0f);
@@ -641,14 +640,20 @@ namespace TownOfHost
             //var length = GameSettingMenuStartPatch.ModSettingsTab.roleChances.ToArray().Length;
             _ = new LateTask(() =>
             {
+                Logger.Info("!", "!");
                 var dd = GameSettingMenuStartPatch.ModSettingsTab.AllButton.transform.parent.GetComponentsInChildren<RoleSettingsTabButton>();
+                Logger.Info("2!", "!");
                 foreach (Component aaa in dd)
                 {
                     Object.Destroy(aaa.gameObject);
                 }
-                foreach (var option in GameSettingMenuStartPatch.ModSettingsTab.roleChances.ToArray())
-                    Object.Destroy(option.gameObject);
+                Logger.Info("3!", "!");
+                if (GameSettingMenuStartPatch.ModSettingsTab.roleChances != null)
+                    foreach (var option in GameSettingMenuStartPatch.ModSettingsTab.roleChances?.ToArray())
+                        Object.Destroy(option?.gameObject);
+                Logger.Info("4!", "!");
                 GameSettingMenuStartPatch.ModSettingsTab.roleChances = new();
+                Logger.Info("5!", "!");
                 Object.Destroy(GameSettingMenuStartPatch.ModSettingsTab?.AllButton?.gameObject);
             }, 0.02f);
             /*_ = new LateTask(() =>

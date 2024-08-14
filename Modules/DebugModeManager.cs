@@ -17,6 +17,7 @@ namespace TownOfHost
 
         public static OptionItem EnableDebugMode;
         public static OptionItem EnableTOHkDebugMode;
+        public static OptionItem AllCanChatCammand;
 
         public static void Auth(HashAuth auth, string input)
         {
@@ -42,7 +43,9 @@ namespace TownOfHost
             EnableTOHkDebugMode = BooleanOptionItem.Create(3, "EnableTOHkDebugMode", false, TabGroup.MainSettings, true)
                 .SetColor(Color.green)
                 .SetHidden(!AmDebugger);
-
+            AllCanChatCammand = BooleanOptionItem.Create(4, "AllCanChatCammand", false, TabGroup.MainSettings, true)
+                .SetColor(Color.green)
+                .SetHidden(!AmDebugger);
         }
     }
 }

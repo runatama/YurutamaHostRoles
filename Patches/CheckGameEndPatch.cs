@@ -43,34 +43,35 @@ namespace TownOfHost
                 //カモフラージュ強制解除
                 Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true));
 
-                switch (CustomWinnerHolder.WinnerTeam)
-                {
-                    case CustomWinner.Crewmate:
-                        if (Monochromer.CheckWin(reason)) break;
+                if (Options.CurrentGameMode != CustomGameMode.Standard || !Options.SuddenDeathMode.GetBool())
+                    switch (CustomWinnerHolder.WinnerTeam)
+                    {
+                        case CustomWinner.Crewmate:
+                            if (Monochromer.CheckWin(reason)) break;
 
-                        Main.AllPlayerControls
-                            .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsRiaju()
-                            && !pc.Is(CustomRoles.Amanojaku) && !pc.Is(CustomRoles.Jackaldoll) && !pc.Is(CustomRoles.SKMadmate)
-                            && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff)))
-                            .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
-                        foreach (var pc in Main.AllPlayerControls)
-                        {
-                            if (pc.Is(CustomRoles.SKMadmate)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-                            if (pc.Is(CustomRoles.Jackaldoll)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-                        }
-                        break;
-                    case CustomWinner.Impostor:
-                        if (Egoist.CheckWin()) break;
+                            Main.AllPlayerControls
+                                .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsRiaju()
+                                && !pc.Is(CustomRoles.Amanojaku) && !pc.Is(CustomRoles.Jackaldoll) && !pc.Is(CustomRoles.SKMadmate)
+                                && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff)))
+                                .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                if (pc.Is(CustomRoles.SKMadmate)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                if (pc.Is(CustomRoles.Jackaldoll)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                            }
+                            break;
+                        case CustomWinner.Impostor:
+                            if (Egoist.CheckWin()) break;
 
-                        Main.AllPlayerControls
-                            .Where(pc => (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate) || pc.Is(CustomRoles.SKMadmate)) && (!pc.GetCustomRole().IsRiaju() || !pc.Is(CustomRoles.Jackaldoll)))
-                            .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
-                        foreach (var pc in Main.AllPlayerControls)
-                        {
-                            if (pc.Is(CustomRoles.Jackaldoll)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-                        }
-                        break;
-                }
+                            Main.AllPlayerControls
+                                .Where(pc => (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate) || pc.Is(CustomRoles.SKMadmate)) && (!pc.GetCustomRole().IsRiaju() || !pc.Is(CustomRoles.Jackaldoll)))
+                                .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
+                            foreach (var pc in Main.AllPlayerControls)
+                            {
+                                if (pc.Is(CustomRoles.Jackaldoll)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                            }
+                            break;
+                    }
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None)
                 {
                     if (Main.ALoversPlayers.Count > 0 && Main.ALoversPlayers.ToArray().All(p => p.IsAlive()) && !reason.Equals(GameOverReason.HumansByTask))
@@ -264,6 +265,88 @@ namespace TownOfHost
         public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
         public static void SetPredicateToHideAndSeek() => predicate = new HideAndSeekGameEndPredicate();
         public static void SetPredicateToTaskBattle() => predicate = new TaskBattleGameEndPredicate();
+
+        public static void SetPredicateToSadness() => predicate = new SadnessGameEndPredicate();
+        class SadnessGameEndPredicate : GameEndPredicate
+        {
+            public override bool CheckForEndGame(out GameOverReason reason)
+            {
+                reason = GameOverReason.ImpostorByKill;
+                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
+                if (checkplayer(out reason)) return true;
+                if (CheckGameEndBySabotage(out reason)) return true;
+
+                return false;
+            }
+            public static bool checkplayer(out GameOverReason reason)
+            {
+                reason = GameOverReason.ImpostorByKill;
+
+                if (Main.AllAlivePlayerControls.Count() == 1)
+                {
+                    var winner = Main.AllAlivePlayerControls.FirstOrDefault();
+
+                    CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner.GetCustomRole());
+                    CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
+                    return true;
+                }
+                if (Main.AllAlivePlayerControls.Count() <= 0)
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                    return true;
+                }
+                if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.ALovers))) //ラバーズ勝利
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.ALovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.BLovers)))
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.BLovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.CLovers)))
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CLovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.DLovers)))
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.DLovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.ELovers)))
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.ELovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.FLovers)))
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.FLovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.GLovers)))
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GLovers);
+                    return true;
+                }
+                else if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.MaLovers))) //マドンナ勝利
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.MaLovers);
+                    return true;
+                }
+                return false;
+            }
+        }
 
         // ===== ゲーム終了条件 =====
         // 通常ゲーム用
@@ -579,6 +662,15 @@ namespace TownOfHost
                 (critical = sys.TryCast<ICriticalSabotage>()) != null && // キャスト可能確認
                 critical.Countdown < 0f) // タイムアップ確認
             {
+                if (Options.SuddenDeathMode.GetBool())
+                {
+                    Main.AllAlivePlayerControls.Do(p => p.RpcMurderPlayerV2(p));
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                    Main.NowSabotage = false;
+                    reason = GameOverReason.ImpostorBySabotage;
+                    critical.ClearSabotage();
+                    return true;
+                }
                 // リアクターサボタージュ
                 if (Options.Chcabowin.GetBool())
                 {

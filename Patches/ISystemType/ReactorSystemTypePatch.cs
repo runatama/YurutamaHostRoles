@@ -31,6 +31,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
         {
             return false;
         }
+        if (Options.SuddenDeathMode.GetBool()) return false;
         if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
         if (Amnesia.CheckAbility(player))
@@ -45,6 +46,11 @@ public static class ReactorSystemTypeUpdateSystemPatch
         // サボタージュ発動時
         if (__state == ReactorSystemType.StartCountdown)
         {
+            if (Options.SuddenDeathMode.GetBool())
+            {
+                __instance.Countdown = Options.SuddenDeathReactortime.GetFloat();
+                return;
+            }
             if (!Options.SabotageTimeControl.GetBool())
             {
                 return;

@@ -41,6 +41,7 @@ public sealed class Psychic : RoleBase
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= Task.GetFloat()) kakusei = true;
         return true;
     }
+    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override void Add()
     {
         kakusei = !Kakusei.GetBool();

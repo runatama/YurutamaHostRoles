@@ -16,6 +16,7 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Neutral;
+using AmongUs.Data;
 
 namespace TownOfHost
 {
@@ -692,6 +693,7 @@ namespace TownOfHost
                     }
                 }
 
+            if (Options.SuddenDeathMode.GetBool()) return false;
             /*if (Utils.IsActive(SystemTypes.Comms) && Options.CommRepo.GetBool())
             {
                 GameStates.Meeting = false;
@@ -830,6 +832,18 @@ namespace TownOfHost
             }
 
             if (!GameStates.IsModHost) return;
+
+            if (Main.RTAMode && GameStates.IsInTask)
+            {
+                HudManagerPatch.LowerInfoText.enabled = true;
+                HudManagerPatch.LowerInfoText.text = HudManagerPatch.GetTaskBattleTimer();
+                if (HudManagerPatch.TaskBattlep != (Vector2)PlayerControl.LocalPlayer.transform.position)
+                    if (HudManagerPatch.TaskBattlep == new Vector2(-25f, 40f))
+                        HudManagerPatch.TaskBattlep = PlayerControl.LocalPlayer.transform.position;
+                    else
+                        HudManagerPatch.TaskBattleTimer += Time.deltaTime;
+            }
+
             if (GameStates.IsLobby)
             {
                 if (AmongUsClient.Instance.AmHost)
@@ -902,7 +916,7 @@ namespace TownOfHost
                 {
                     FallFromLadder.FixedUpdate(player);
                 }
-                if (GameStates.task && PlayerControl.LocalPlayer.IsAlive())
+                if (!GameStates.Meeting && GameStates.IsInTask && PlayerControl.LocalPlayer.IsAlive())
                 {
                     if (!(Main.MessagesToSend.Count < 1))
                     {
@@ -940,7 +954,11 @@ namespace TownOfHost
                         }
                     }
                 }
-                /*if (GameStates.IsInTask && player.IsAlive())
+                if (Options.SuddenDeathMode.GetBool())
+                {
+                    if (Options.SuddenDeathTimeLimit.GetFloat() != 0 && player == PlayerControl.LocalPlayer) SuddenDeathMode.SuddenDeathReactor();
+                    if (Options.SuddenItijohoSend.GetBool() && player == PlayerControl.LocalPlayer) SuddenDeathMode.ItijohoSend();
+                }/*if (GameStates.IsInTask && player.IsAlive())
                 {
                     Dictionary<int, float> Distance = new();
                     Vector2 position = player.transform.position;
@@ -990,10 +1008,7 @@ namespace TownOfHost
                 if (GameStates.IsInGame && player.AmOwner)
                     DisableDevice.FixedUpdate();
 
-                if (__instance.AmOwner)
-                {
-                    Utils.ApplySuffix();
-                }
+                Utils.ApplySuffix(__instance);
             }
             //LocalPlayer専用
             if (__instance.AmOwner)
@@ -1221,6 +1236,11 @@ namespace TownOfHost
                     if (seer.Is(CustomRoles.Monochromer) && seer.IsAlive())
                         RealName = $"<size=0>{RealName}</size> ";
 
+                    if (Options.SuddenCannotSeeName.GetBool())
+                    {
+                        RealName = "";
+                    }
+
                     string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
                     //Mark・Suffixの適用
                     if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
@@ -1242,6 +1262,7 @@ namespace TownOfHost
                 }
                 else
                 {
+                    if (PlayerControl.LocalPlayer == __instance) PlayerControl.LocalPlayer.cosmetics.nameText.text = Main.lobbyname == "" ? DataManager.player.Customization.Name : Main.lobbyname;
                     //役職テキストの座標を初期値に戻す
                     RoleText.transform.SetLocalY(0.2f);
                 }
@@ -1526,13 +1547,12 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                     __instance.RpcBootFromVent(id);
 
-
                 if (user.Is(CustomRoles.DemonicVenter)) return true;
 
                 var roleClass = user.GetRoleClass();
                 if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
 
-                if ((!user.GetRoleClass()?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || !CanUse(__instance, id))
+                if ((!roleClass?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || !CanUse(__instance, id))
                 {
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
@@ -1566,7 +1586,7 @@ namespace TownOfHost
                         writer2.Write(id);
                         AmongUsClient.Instance.FinishRpcImmediately(writer2);
                         __instance.myPlayer.RpcSnapToForced(__instance.transform.position);
-                    }, nouryoku && __instance.myPlayer != PlayerControl.LocalPlayer ? 1f : 0.3f, "Fix DesyncImpostor Stuck");
+                    }, nouryoku && __instance.myPlayer != PlayerControl.LocalPlayer ? 1f : 0.5f, "Fix DesyncImpostor Stuck");
                     return false;
                 }
 
@@ -1793,17 +1813,18 @@ namespace TownOfHost
                     Amnesia.Kesu(__instance.PlayerId);
                 }
 
-                if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
-                    if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
-                        _ = new LateTask(() =>
-                        {
-                            if (!GameStates.Meeting)
-                                foreach (var Player in Main.AllPlayerControls)
-                                {
-                                    if (Player == PlayerControl.LocalPlayer) continue;
-                                    __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
-                                }
-                        }, 1.4f, "Fix sabotage");
+                if (!Options.SuddenDeathMode.GetBool())
+                    if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
+                        if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                            _ = new LateTask(() =>
+                            {
+                                if (!GameStates.Meeting)
+                                    foreach (var Player in Main.AllPlayerControls)
+                                    {
+                                        if (Player == PlayerControl.LocalPlayer) continue;
+                                        __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
+                                    }
+                            }, 1.4f, "Fix sabotage");
 
                 if (!GameStates.Meeting)
                     _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage");

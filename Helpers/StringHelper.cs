@@ -23,7 +23,7 @@ public static class StringHelper
     /// </summary>
     /// <param name="color">カラー</param>
     /// <returns></returns>
-    public static string ColorCode(this Color color)
+    public static string ColorCode(this Color32 color)
     {
         return "#" + ColorUtility.ToHtmlStringRGBA(color);
     }

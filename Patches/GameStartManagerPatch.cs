@@ -156,9 +156,6 @@ namespace TownOfHost
                     }
 
                     __instance.GameStartText.text += "\n<size=2.5><color=red>(クリックしてキャンセル)</size>";
-                    //  __instance.HostInfoPanel.playerName.text = "<size=2><b>" + GameData.Instance.GetHost().PlayerName + "</b></size>";
-                    //  __instance.HostInfoPanel.playerName.SetOutlineColor(Color.black);
-                    //  __instance.HostInfoPanel.playerName.SetOutlineThickness(0.1f);
                 }
                 else
                 {

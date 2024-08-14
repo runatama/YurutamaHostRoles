@@ -124,7 +124,7 @@ public static class SoundSettingsScreen
                 break;
             case Buttons.MapTheme:
                 Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().DestroyTranslator();
-                Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().text = "テーマ";
+                Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().text = "<size=60%>ロビー\nBGM</size>";
                 MapTheme = Slideer;
                 passiveButton.OnClick.AddListener((Action)(() =>
                 {

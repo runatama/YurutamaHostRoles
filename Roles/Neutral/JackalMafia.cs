@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral
 {
@@ -40,7 +41,6 @@ namespace TownOfHost.Roles.Neutral
             JackalCanKillMafia = OptionJJackalCanKillMafia.GetBool();
             JackalCanAlsoBeExposedToJMafia = OptionJackalCanAlsoBeExposedToJMafia.GetBool();
             JackalMafiaCanAlsoBeExposedToJackal = OptionJJackalMafiaCanAlsoBeExposedToJackal.GetBool();
-            CustomRoleManager.MarkOthers.Add(GetMarkOthers);
             SK = CanmakeSK.GetBool();
             Fall = false;
         }
@@ -166,22 +166,22 @@ namespace TownOfHost.Roles.Neutral
             if (killer.Is(CustomRoles.Jackal) && !JackalCanKillMafia)
             {
                 info.CanKill = false;
+                killer.SetKillCooldown();
                 return false;
             }
             return true;
         }
-        public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
+        public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
         {
-            //seenが省略の場合seer
-            seen ??= seer;
-            if (seer.PlayerId == Player.PlayerId && seen.Is(CustomRoles.Jackal) && JackalMafiaCanAlsoBeExposedToJackal) return Utils.ColorString(RoleInfo.RoleColor, "★");
-            else return "";
+            addon = false;
+            if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia)) && JackalMafiaCanAlsoBeExposedToJackal)
+                enabled = true;
         }
-        public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+        public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
         {
-            seen ??= seer;
-            if (seer.Is(CustomRoles.Jackal) && seen.Is(CustomRoles.JackalMafia) && JackalCanAlsoBeExposedToJMafia) return Utils.ColorString(RoleInfo.RoleColor, "★");
-            else return "";
+            addon = false;
+            if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia)) && JackalCanAlsoBeExposedToJMafia)
+                enabled = true;
         }
     }
 }

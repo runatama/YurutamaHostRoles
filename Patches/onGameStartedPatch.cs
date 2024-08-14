@@ -176,6 +176,7 @@ namespace TownOfHost
             SelfVoteManager.Init();
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
             ChatManager.ResetChat();
+            SuddenDeathMode.Reset();
             RandomSpawn.SpawnMap.NextSporn.Clear();
             RandomSpawn.SpawnMap.NextSpornName.Clear();
             Roles.Madmate.MadAvenger.Skill = false;
@@ -189,15 +190,19 @@ namespace TownOfHost
             GameStates.AfterIntro = false;
             HudManagerPatch.ch = false;
             GameStates.AfterIntro = false;
+            GameStates.canmusic = false;
             MeetingVoteManager.Voteresult = "";
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
             Utils.MeetingMoji = "";
             Main.day = 1;
             Main.FixTaskNoPlayer.Clear();
+            Main.IntroHyoji = true;
             Utils.TaskCh = true;
             Main.NowSabotage = false;
             JackalDoll.side = 0;
+
+            Main.FeColl = 0;
             Main.GameCount++;
             Main.Time = (Main.NormalOptions.DiscussionTime, Main.NormalOptions.VotingTime);
             var c = string.Format(GetString("log.Start"), Main.GameCount);
@@ -306,10 +311,20 @@ namespace TownOfHost
                         PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                         PlayerControl.LocalPlayer.Data.IsDead = true;
                     }
+                    if (DebugModeManager.EnableTOHkDebugMode.GetBool())
+                    {
+                        if (Main.HostRole != CustomRoles.NotAssigned)
+                        {
+                            AllPlayers.RemoveAll(x => x == PlayerControl.LocalPlayer);
+                            PlayerControl.LocalPlayer.RpcSetCustomRole(Main.HostRole, true);
+                            PlayerControl.LocalPlayer.RpcSetRole(Main.HostRole.GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
+                            PlayerControl.LocalPlayer.Data.IsDead = true;
+                        }
+                    }
                     Dictionary<(byte, byte), RoleTypes> rolesMap = new();
                     foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
                     {
-                        if (info.IsDesyncImpostor || role.IsMadmate())
+                        if (info.IsDesyncImpostor || role.IsMadmate() || Options.SuddenDeathMode.GetBool())
                         {
                             AssignDesyncRole(role, AllPlayers, senders, rolesMap, BaseRole: info.BaseRoleType.Invoke());
                         }
@@ -448,6 +463,7 @@ namespace TownOfHost
                     if (role.IsVanilla()) continue;
                     if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor == true) continue;
                     if (role.IsMadmate()) continue;
+                    if (Options.SuddenDeathMode.GetBool()) continue;
                     var baseRoleTypes = role.GetRoleTypes() switch
                     {
                         RoleTypes.Impostor => Impostors,
@@ -499,7 +515,8 @@ namespace TownOfHost
                     var roleOpt = Main.NormalOptions.roleOptions;
                     roleOpt.SetRoleRate(roleTypes, 0, 0);
                 }
-                GameEndChecker.SetPredicateToNormal();
+                if (!Options.SuddenDeathMode.GetBool()) GameEndChecker.SetPredicateToNormal();
+                else GameEndChecker.SetPredicateToSadness();
             }
             GameOptionsSender.AllSenders.Clear();
             foreach (var pc in Main.AllPlayerControls)
@@ -581,9 +598,9 @@ namespace TownOfHost
                     PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
                 else
                     PlayerControl.LocalPlayer.RpcSetRoleDesync(
-                        pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
+                        Options.SuddenDeathMode.GetBool() || pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
             }
-            yield return new UnityEngine.WaitForSeconds(0.02f);
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
             foreach (var info in GameData.Instance.AllPlayers)
             {
                 if (Disconnected.Contains(info.PlayerId))
@@ -903,6 +920,7 @@ namespace TownOfHost
             foreach (var role in CustomRolesHelper.AllRoles)
             {
                 if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor == true) continue;
+                if (Options.SuddenDeathMode.GetBool()) continue;
                 if (role.IsMadmate()) continue;
                 if (role == CustomRoles.Egoist && Main.NormalOptions.GetInt(Int32OptionNames.NumImpostors) <= 1) continue;
                 if (role.GetRoleTypes() == roleTypes)

@@ -114,11 +114,12 @@ public sealed class MeetingSheriff : RoleBase
         SendRPC();
 
         var AlienTairo = false;
-        foreach (var al in Alien.Aliens)
-        {
-            AlienTairo = al.CheckSheriffKill(target);
-        }
-        if (CanBeKilledBy(target.GetCustomRole()) || !AlienTairo)
+        if (target.Is(CustomRoles.Alien))
+            foreach (var al in Alien.Aliens)
+            {
+                AlienTairo = al.CheckSheriffKill(target);
+            }
+        if (CanBeKilledBy(target.GetCustomRole()) && !AlienTairo)
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
             target.RpcExileV2();

@@ -87,10 +87,22 @@ namespace TownOfHost
             //--以下ホスト専用コマンド--//
             if (!AmongUsClient.Instance.AmHost) return;
             //廃村
-            if (GetKeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
+            if (GetKeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift))
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
-                GameManager.Instance.LogicFlow.CheckEndCriteria();
+                if (Main.FeColl != 0 && !GameStates.IsLobby)
+                {
+                    GameManager.Instance.enabled = false;
+                    CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
+                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
+                    return;
+                }
+                if (GameStates.IsInGame)
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
+                    GameManager.Instance.LogicFlow.CheckEndCriteria();
+                }
+                if (!GameStates.IsLobby) Main.FeColl++;
+                Logger.Info($"廃村コール{Main.FeColl}回目", "fe");
             }
             //ミーティングを強制終了
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)

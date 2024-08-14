@@ -55,13 +55,13 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.7.12";
+        public const string PluginVersion = "5.1.7.13";
         public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
         // サポートされている最低のAmongUsバージョン
-        public static readonly string LowestSupportedVersion = "2024.6.18";
+        public static readonly string LowestSupportedVersion = "2024.8.13";
         // このバージョンのみで公開ルームを無効にする場合
         public static readonly bool IsPublicAvailableOnThisVersion = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
@@ -159,6 +159,9 @@ namespace TownOfHost
         /// <summary>ラグを考慮した奴。アジア、カスタム、ローカルは200ms(0.2s),他は400ms(0.4s)</summary>
         public static float LagTime = 0.2f;
         //public static bool TaskBattleOptionv = false;
+        public static int FeColl;
+        public static bool IntroHyoji;
+        public static CustomRoles HostRole = CustomRoles.NotAssigned;
 
         /// <summary>
         /// 基本的に速度の代入は禁止.スピードは増減で対応してください.
@@ -172,6 +175,7 @@ namespace TownOfHost
         public static Dictionary<byte, byte> ShapeshiftTarget = new();
         public static bool VisibleTasksCount;
         public static string nickName = "";
+        public static string lobbyname = "";
         public static bool introDestroyed = false;
         public static float DefaultCrewmateVision;
         public static float DefaultImpostorVision;

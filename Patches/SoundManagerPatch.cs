@@ -9,7 +9,7 @@ namespace TownOfHost
         {
             if (name == "MapTheme")
             {
-                maxVolume = Main.MapTheme.Value;
+                maxVolume = GameStates.canmusic ? Main.MapTheme.Value : 0;
             }
         }
     }

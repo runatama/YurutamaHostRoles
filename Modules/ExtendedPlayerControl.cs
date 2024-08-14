@@ -60,6 +60,12 @@ namespace TownOfHost
                                     if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
                                 }
                             }
+                            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            {
+                                var roleInfo = role.GetRoleInfo();
+                                if (roleInfo?.IsDesyncImpostor ?? false && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
+                                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate);
+                            }
                         }
                         else
                             player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
@@ -178,9 +184,12 @@ namespace TownOfHost
                 //Logger.info($"Cancel:{player.name}:{name} for {seer.name}", "RpcSetNamePrivate");
                 return;
             }
-            Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-            HudManagerPatch.LastSetNameDesyncCount++;
-            Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
+            if (!GameStates.IsLobby)
+            {
+                Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                HudManagerPatch.LastSetNameDesyncCount++;
+                Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
+            }
 
             var clientId = seer.GetClientId();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, Hazel.SendOption.Reliable, clientId);
@@ -505,6 +514,7 @@ namespace TownOfHost
         }
         public static bool CanUseSabotageButton(this PlayerControl pc)
         {
+            if (Options.SuddenDeathMode.GetBool()) return false;
             if (pc.Is(CustomRoles.Amnesia) && !pc.Is(CustomRoleTypes.Impostor)) return false;
 
             var roleCanUse = (pc.GetRoleClass() as IKiller)?.CanUseSabotageButton();
@@ -734,6 +744,12 @@ namespace TownOfHost
                     return Utils.ColorString(Utils.GetRoleColor(state.GhostRole), GetString($"{state.GhostRole}Info"));
                 }
             }
+            if (Options.SuddenDeathMode.GetBool())
+            {
+                var r = "<size=60%>" + GetString($"{Prefix}{text}{Info}") + "\n</size>";
+                r += "<size=80%>" + GetString("SuddenDeathModeInfo") + "</size>";
+                return r;
+            }
             return GetString($"{Prefix}{text}{Info}");
         }
         public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool NotOverRide = false)
@@ -869,6 +885,11 @@ namespace TownOfHost
             if (PlayerState.GetByPlayerId(target.PlayerId) is not PlayerState state)
             {
                 return true;
+            }
+            if (AntiBlackout.IsCached)
+            {
+                if (AntiBlackout.isDeadCache.TryGetValue(target.PlayerId, out var isDead))
+                    return !isDead.Disconnected && !isDead.isDead;
             }
             return !state.IsDead;
         }

@@ -41,10 +41,12 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
 
     static OptionItem OptionKillCooldown;
     static OptionItem OptionCanCreateSideKick;
+    static OptionItem OptionNameColor;
 
     private static float KillCooldown;
     public static bool CanCreateSideKick;
     private static PlayerControl egoist;
+    enum Op { EgoistNameColor }
 
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Egoist;
 
@@ -53,13 +55,15 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
-        RoleAddAddons.Create(RoleInfo, 12);
+        OptionNameColor = BooleanOptionItem.Create(RoleInfo, 12, Op.EgoistNameColor, false, false);
+        RoleAddAddons.Create(RoleInfo, 13);
     }
     public override void Add()
     {
         foreach (var impostor in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)))
         {
-            NameColorManager.Add(impostor.PlayerId, Player.PlayerId);
+            if (OptionNameColor.GetBool()) NameColorManager.Add(impostor.PlayerId, Player.PlayerId);
+            else NameColorManager.Add(impostor.PlayerId, Player.PlayerId, "#ff1919");
         }
         egoist = Player;
     }
