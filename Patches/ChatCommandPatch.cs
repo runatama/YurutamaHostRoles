@@ -750,6 +750,12 @@ namespace TownOfHost
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(cancelVal);
             }
+            if (GameStates.IsLobby && !canceled)
+            {
+                SendMessage(text, title: PlayerControl.LocalPlayer.name);
+                __instance.freeChatField.textArea.Clear();
+                return false;
+            }
             return !canceled;
         }
 
