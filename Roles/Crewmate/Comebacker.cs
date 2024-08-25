@@ -47,7 +47,7 @@ public sealed class Comebacker : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1f;
     }
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if (Tp != new Vector2(999f, 999f))
         {

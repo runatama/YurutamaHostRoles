@@ -20,14 +20,16 @@ namespace TownOfHost
 {
     static class ExtendedPlayerControl
     {
-        public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = false, bool log = false)
+        public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = false, bool? log = false)
         {
             if (player.GetCustomRole() == role) return;
 
             if (role < CustomRoles.NotAssigned)
             {
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
-                if (log) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>" + Utils.GetSubRolesText(player.PlayerId);
+
+                if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>" + Utils.GetSubRolesText(player.PlayerId);
+                else if (log == null) Main.LastLogRole[player.PlayerId] = $"<size=40%>{Main.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>";
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
@@ -99,12 +101,13 @@ namespace TownOfHost
         }
         public static InnerNet.ClientData GetClient(this PlayerControl player)
         {
-            var client = AmongUsClient.Instance.allClients.ToArray().Where(cd => cd.Character.PlayerId == player.PlayerId).FirstOrDefault();
+            if (!player) return null;
+            var client = AmongUsClient.Instance?.allClients?.ToArray()?.Where(cd => cd?.Character?.PlayerId == player?.PlayerId)?.FirstOrDefault() ?? null;
             return client;
         }
         public static int GetClientId(this PlayerControl player)
         {
-            var client = player.GetClient();
+            var client = player?.GetClient();
             return client == null ? -1 : client.Id;
         }
         public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
@@ -219,6 +222,7 @@ namespace TownOfHost
             if (target == null) target = player;
             CustomRoles role = player.GetCustomRole();
             if (!player.CanUseKillButton() && !kyousei) return;
+            if (player == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
             if (time >= 0f)
             {
                 Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
@@ -288,15 +292,15 @@ namespace TownOfHost
                 return;
             }
             if (kousin) target.SyncSettings();
-            HudManagerPatch.BottonHud();
-            if (log) Logger.Info($"アビリティクールダウンのリセット:{target.name}({target.PlayerId})", "RpcResetAbilityCooldown");
+            if (target == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
+            if (log) Logger.Info($"アビリティクールダウンのリセット:{target?.name ?? "ﾇﾙﾎﾟｯ"}({target?.PlayerId ?? 334})", "RpcResetAbilityCooldown");
 
             _ = new LateTask(() =>
             {
                 if (PlayerControl.LocalPlayer == target)
                 {
                     //targetがホストだった場合
-                    PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+                    PlayerControl.LocalPlayer?.Data?.Role?.SetCooldown();
                 }
                 else
                 {
@@ -306,7 +310,7 @@ namespace TownOfHost
                     writer.Write(0);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                 }
-            }, kousin ? Main.LagTime : 0f, "");//更新があるなら2f後
+            }, kousin ? Main.LagTime : 0f, "abilityrset");//更新があるなら2f後
             /*
                 プレイヤーがバリアを張ったとき、そのプレイヤーの役職に関わらずアビリティーのクールダウンがリセットされます。
                 ログの追加により無にバリアを張ることができなくなったため、代わりに自身に0秒バリアを張るように変更しました。
@@ -523,6 +527,7 @@ namespace TownOfHost
         }
         public static void ResetKillCooldown(this PlayerControl player)
         {
+            if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId)) Main.AllPlayerKillCooldown.Add(player.PlayerId, Options.DefaultKillCooldown);
             Main.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
             if (player.PlayerId == LastImpostor.currentId && ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true))
                 LastImpostor.SetKillCooldown();

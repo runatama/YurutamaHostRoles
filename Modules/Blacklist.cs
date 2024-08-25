@@ -201,6 +201,11 @@ internal class OnPlayerJoinedPatch
         if (__instance.AmHost)
         {
             __instance.StartCoroutine(Blacklist.Check(data).WrapToIl2Cpp());
+
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc != null) __instance.StartCoroutine(Blacklist.Check(pc.GetClient(), pc.GetClientId()).WrapToIl2Cpp());
+            }
         }
     }
 }

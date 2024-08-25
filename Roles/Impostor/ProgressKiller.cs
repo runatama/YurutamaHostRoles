@@ -40,6 +40,7 @@ public sealed class ProgressKiller : RoleBase, IImpostor
         OptionProgressKillerMadseen = BooleanOptionItem.Create(RoleInfo, 10, OptionName.ProgressKillerMadseen, true, false);
         OptionProgressWorkhorseseen = BooleanOptionItem.Create(RoleInfo, 11, OptionName.ProgressWorkhorseseen, true, false);
     }
+    public override bool NotifyRolesCheckOtherName => true;
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {
         seen ??= seer;

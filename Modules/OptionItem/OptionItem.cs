@@ -181,8 +181,8 @@ namespace TownOfHost
 
         public string ApplyFormat(string value)
         {
-            if (ValueFormat == OptionFormat.None) return value;
             if (value == "0" && Infinity) return "∞";
+            if (ValueFormat == OptionFormat.None) return value;
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 
@@ -281,7 +281,7 @@ namespace TownOfHost
             }
         }
 
-        public const int NumPresets = 5;
+        public const int NumPresets = 7;
         public const int PresetId = 0;
     }
 

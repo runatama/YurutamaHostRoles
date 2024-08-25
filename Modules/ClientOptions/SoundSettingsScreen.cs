@@ -1,10 +1,7 @@
 using System;
-using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using InnerNet;
 using Object = UnityEngine.Object;
-using Hazel;
 using AmongUs.Data;
 
 namespace TownOfHost.Modules.ClientOptions;

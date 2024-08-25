@@ -11,6 +11,11 @@ namespace TownOfHost
             get => Opt.GetFloat(FloatOptionNames.KillCooldown);
             set => Opt.SetFloat(FloatOptionNames.KillCooldown, value);
         }
+        public static int KillDistance
+        {
+            get => Opt.GetInt(Int32OptionNames.KillDistance);
+            set => Opt.SetInt(Int32OptionNames.KillDistance, value);
+        }
         public static float PlayerSpeedMod
         {
             get => Opt.GetFloat(FloatOptionNames.PlayerSpeedMod);

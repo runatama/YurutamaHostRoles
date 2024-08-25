@@ -132,9 +132,8 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             Coin -= TarnRemoveCoin.GetInt();
         else Coin -= DieRemoveTarn.GetInt();
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
-        nouryoku = true;
         if (Coin >= ChengeCoin.GetInt())
         {
             if (TaskMode && Utils.IsActive(SystemTypes.Comms)) return false;//Hostはタスクモード(エンジ)での切り替えできるからさせないようにする

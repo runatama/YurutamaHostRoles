@@ -48,11 +48,13 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     static OptionItem OptionFireWorksRadius;
     static OptionItem OptionCankillAlltime;
     static OptionItem OptionCooldown;
+    static OptionItem OptionPaaaaaaaanCooldown;
     enum OptionName
     {
         FireWorksMaxCount,
         FireWorksRadius,
-        FireWorksCanKillAlways
+        FireWorksCanKillAlways,
+        FireWorksPaaaaaanCoolDown
     }
 
     int FireWorksCount;
@@ -72,6 +74,8 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
         OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWorksCanKillAlways, false, false);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
+        OptionPaaaaaaaanCooldown = FloatOptionItem.Create(RoleInfo, 15, OptionName.FireWorksPaaaaaanCoolDown, new(0f, 180f, 2.5f), 15f, false)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Add()
@@ -90,7 +94,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.ShapeshifterDuration = 1f;
-        AURoleOptions.ShapeshifterCooldown = Cool;
+        AURoleOptions.ShapeshifterCooldown = (State is FireWorksState.ReadyFire or FireWorksState.WaitTime) ? OptionPaaaaaaaanCooldown.GetFloat() : Cool;
     }
     public bool UseOCButton => true;
     public void OnClick()
@@ -107,6 +111,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
                     State = Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
                 else
                     State = FireWorksState.SettingFireWorks;
+                Player.RpcResetAbilityCooldown(kousin: true);
                 break;
             case FireWorksState.ReadyFire:
                 Logger.Info("花火を爆破", "FireWorks");
@@ -187,5 +192,10 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
             return GetString("FireWorksBomberExplosionButtonText");
         else
             return GetString("FireWorksInstallAtionButtonText");
+    }
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "FireWorks_Ability";
+        return true;
     }
 }

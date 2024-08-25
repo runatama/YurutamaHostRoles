@@ -46,7 +46,8 @@ namespace TownOfHost
         private static readonly string[] presets =
         {
             Main.Preset1.Value, Main.Preset2.Value, Main.Preset3.Value,
-            Main.Preset4.Value, Main.Preset5.Value
+            Main.Preset4.Value, Main.Preset5.Value,Main.Preset6.Value,
+            Main.Preset7.Value
         };
 
         // ゲームモード
@@ -191,6 +192,17 @@ namespace TownOfHost
         public static OptionItem DisableDevicesIgnoreNeutrals;
         public static OptionItem DisableDevicesIgnoreCrewmates;
         public static OptionItem DisableDevicesIgnoreAfterAnyoneDied;
+
+        public static OptionItem TimeLimitDevices;
+        public static OptionItem TimeLimitAdmin;
+        public static OptionItem TimeLimitCamAndLog;
+        public static OptionItem TimeLimitVital;
+
+        public static OptionItem TarnTimeLimitDevice;
+        public static OptionItem TarnTimeLimitAdmin;
+        public static OptionItem TarnTimeLimitCamAndLog;
+        public static OptionItem TarnTimeLimitVital;
+
 
         // ランダムマップ
         public static OptionItem RandomMapsMode;
@@ -581,7 +593,6 @@ namespace TownOfHost
             {
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
-
             });
             // Madmate Common Options
             CanMakeMadmateCount = IntegerOptionItem.Create(101012, "CanMakeMadmateCount", new(0, 15, 1), 0, TabGroup.MadmateRoles, false)
@@ -805,6 +816,29 @@ namespace TownOfHost
             DisableDevicesIgnoreAfterAnyoneDied = BooleanOptionItem.Create(101295, "IgnoreAfterAnyoneDied", false, TabGroup.MainSettings, false).SetParent(DisableDevicesIgnoreConditions)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#666699");
+
+            TimeLimitDevices = BooleanOptionItem.Create(109000, "TimeLimitDevices", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#948e50")
+                .SetParent(MapModification);
+            TimeLimitAdmin = FloatOptionItem.Create(109001, "TimeLimitAdmin", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                .SetGameMode(CustomGameMode.All).SetColorcode("#00ff99").SetValueFormat(OptionFormat.Seconds).SetParent(TimeLimitDevices);
+            TimeLimitCamAndLog = FloatOptionItem.Create(109002, "TimeLimitCamAndLog", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                            .SetGameMode(CustomGameMode.All).SetColorcode("#cccccc").SetValueFormat(OptionFormat.Seconds).SetParent(TimeLimitDevices);
+            TimeLimitVital = FloatOptionItem.Create(109003, "TimeLimitVital", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                            .SetGameMode(CustomGameMode.All).SetColorcode("#33ccff").SetValueFormat(OptionFormat.Seconds).SetParent(TimeLimitDevices);
+
+            TarnTimeLimitDevice = BooleanOptionItem.Create(109100, "TarnTimeLimitDevice", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#b06927")
+                .SetParent(MapModification);
+            TarnTimeLimitAdmin = FloatOptionItem.Create(109101, "TimeLimitAdmin", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+            .SetGameMode(CustomGameMode.All).SetColorcode("#00ff99").SetValueFormat(OptionFormat.Seconds).SetParent(TarnTimeLimitDevice);
+            TarnTimeLimitCamAndLog = FloatOptionItem.Create(109102, "TimeLimitCamAndLog", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                            .SetGameMode(CustomGameMode.All).SetColorcode("#cccccc").SetValueFormat(OptionFormat.Seconds).SetParent(TarnTimeLimitDevice);
+            TarnTimeLimitVital = FloatOptionItem.Create(109103, "TimeLimitVital", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                            .SetGameMode(CustomGameMode.All).SetColorcode("#33ccff").SetValueFormat(OptionFormat.Seconds).SetParent(TarnTimeLimitDevice);
+
             // タスク無効化
             DisableTasks = BooleanOptionItem.Create(100300, "DisableTasks", false, TabGroup.MainSettings, false).SetParent(MapModification)
                 .SetGameMode(CustomGameMode.All)

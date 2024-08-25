@@ -179,6 +179,11 @@ public sealed class BountyHunter : RoleBase, IImpostor
         return target;
     }
     public override string GetAbilityButtonText() => GetString("BountyHunterChangeButtonText");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "BountyHunter_Ability";
+        return true;
+    }
     public override void AfterMeetingTasks()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;

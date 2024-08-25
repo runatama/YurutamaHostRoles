@@ -127,7 +127,9 @@ namespace TownOfHost
             SelectRolesPatch.Disconnected.Clear();
             ExileControllerWrapUpPatch.AllSpawned = true;
             RpcSetTasksPatch.HostFin = false;
+            Main.DontGameSet = Options.NoGameEnd.GetBool();
             CustomRoleManager.Initialize();
+            DisableDevice.Reset();
             FallFromLadder.Reset();
             LastImpostor.Init();
             LastNeutral.Init();
@@ -569,6 +571,7 @@ namespace TownOfHost
                     if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
                     if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                 }
+                if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId)) Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);
             }
             if (Options.CurrentGameMode is CustomGameMode.Standard && Main.SetRoleOverride)
                 AmongUsClient.Instance.StartCoroutine(CoReSetRole(AmongUsClient.Instance).WrapToIl2Cpp());

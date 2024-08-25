@@ -534,8 +534,10 @@ namespace TownOfHost
             {
                 var rand = IRandom.Instance;
                 int rect = IRandom.Instance.Next(1, 101);
-                if (rect < 50)
+                if (rect < 40)
                     meg = GetString("ModSettingInfo0");
+                else if (rect < 50)
+                    meg = GetString("ModSettingInfo10");
                 else if (rect < 60)
                     meg = GetString("ModSettingInfo1");
                 else if (rect < 70)

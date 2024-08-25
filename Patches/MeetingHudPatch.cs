@@ -441,7 +441,6 @@ public static class MeetingHudPatch
                 }
 
                 var Info = "";
-                //会議画面ではインポスター自身の名前にSnitchマークはつけません。
                 var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
                 var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
 

@@ -31,6 +31,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     )
     {
         ChefTarget = new(GameData.Instance.PlayerCount);
+        addwincheck = false;
     }
 
     public bool CanKill { get; private set; } = false;
@@ -39,6 +40,8 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     {
         Options.OverrideKilldistance.Create(RoleInfo, 10);
     }
+    bool addwincheck;
+    public override bool NotifyRolesCheckOtherName => true;
     public bool CanUseSabotageButton() => false;
     public bool CanUseImpostorVentButton() => false;
     public bool CanUseKillButton() => true;
@@ -110,6 +113,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     }
     public bool CheckWin(ref CustomRoles winnerRole)
     {
+        if (addwincheck) return false;
         var c = GetCtargetCount();
         return Player.IsAlive() && c.Item1 == c.Item2;
     }
@@ -123,6 +127,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Chef);
         CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
         DecidedWinner = true;
+        addwincheck = true;
     }
     public bool OverrideKillButton(out string text)
     {

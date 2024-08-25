@@ -56,7 +56,7 @@ public sealed class Shyboy : RoleBase
         AURoleOptions.EngineerCooldown = (float)Coold;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku) => false;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -131,6 +131,13 @@ public sealed class Shyboy : RoleBase
         Logger.Info("シャイクールを直す", "Shyboy");
         Shydeath = 0;//会議明け修正
         AfterMeeting = 0;
+    }
+
+    public override string GetAbilityButtonText() => Translator.GetString("ShyBoyText");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "ShyBoy_Ability";
+        return true;
     }
     //いつか可視化を顔文字でしたい!!!
 }

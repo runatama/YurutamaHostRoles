@@ -82,7 +82,7 @@ namespace TownOfHost.Roles.Neutral
             text = GetString("rkTargetButtonText");
             return true;
         }
-        public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+        public override bool OnEnterVent(PlayerPhysics physics, int ventId)
         {
             var user = physics.myPlayer;
             if (Rtarget != 111 && Player.PlayerId == user.PlayerId)
@@ -107,7 +107,6 @@ namespace TownOfHost.Roles.Neutral
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.TaskComplete);
                 Logger.Info($"Remotekillerのターゲット{target.name}のキルに成功", "Remotekiller.kill");
                 Rtarget = 111;
-                nouryoku = true;
                 return !RKillAnimation.GetBool();
             }
             return true;

@@ -204,6 +204,10 @@ namespace TownOfHost
                             state.DeathReason = CustomDeathReason.Disconnected;
                             Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Die]　{data.PlayerName} {GetString("DeathReason.Disconnected")}";
                         }
+                        foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                        {
+                            role?.OnLeftPlayer(data.Character);
+                        }
                         state.SetDead();
                         AntiBlackout.OnDisconnect(data.Character.Data);
                         PlayerGameOptionsSender.RemoveSender(data.Character);
@@ -236,7 +240,8 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
-                _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check");
+                if (client?.Character?.PlayerId == 0)
+                    _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check");
                 OptionItem.SyncAllOptions();
                 _ = new LateTask(() =>
                 {

@@ -171,6 +171,11 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
     }
 
     public override string GetAbilityButtonText() => GetString("MagicButtonText");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Magician_Ability";
+        return true;
+    }
 
     public override string GetProgressText(bool comms = false)
     {

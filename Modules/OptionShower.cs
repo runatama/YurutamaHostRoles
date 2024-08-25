@@ -38,6 +38,8 @@ namespace TownOfHost
                 //Standardの時のみ実行
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
+                    if (Utils.GetRoleTypesCount() != "")
+                        sb.Append(Utils.GetRoleTypesCount() + "\n");
                     //有効な役職一覧
                     sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
                     sb.Append(GetString("ActiveRolesList")).Append("\n<size=90%>");

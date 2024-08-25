@@ -280,7 +280,7 @@ namespace TownOfHost.Roles.Impostor
             text = default;
             return false;
         }
-        public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+        public override bool OnEnterVent(PlayerPhysics physics, int ventId)
         {
             if (NowSwitchTrigger is SwitchTrigger.TriggerVent)
             {

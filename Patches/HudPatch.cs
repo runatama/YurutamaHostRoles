@@ -7,6 +7,8 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
 using TownOfHost.Roles;
 using TownOfHost.Roles.AddOns.Common;
+using System.Text;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost
 {
@@ -250,7 +252,11 @@ namespace TownOfHost
                 {
                     if (roleClass != null)
                     {
-                        if ((roleClass as IKiller)?.OverrideKillButton(out string name) == true && Main.CustomSprite.Value)
+                        if (player.IsAlive() && __instance.AbilityButton.graphic.sprite != null)
+                            if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
+                                player.Data.Role.Ability.Image = CustomButton.Get(abname);
+
+                        if (player.CanUseKillButton() && (roleClass as IKiller)?.OverrideKillButton(out string name) == true && Main.CustomSprite.Value)
                             __instance.KillButton.graphic.sprite = CustomButton.Get(name);
 
                         if ((roleClass as IKiller)?.OverrideImpVentButton(out string name2) == true && Main.CustomSprite.Value)
@@ -260,6 +266,127 @@ namespace TownOfHost
             }
         }
     }
+    [HarmonyPatch(typeof(ShapeshifterPanel), nameof(ShapeshifterPanel.SetPlayer))]
+    class ShapeShifterNamePatch
+    {
+        private static StringBuilder Mark = new(20);
+        private static StringBuilder Suffix = new(120);
+        public static void Postfix(ShapeshifterPanel __instance, [HarmonyArgument(0)] int index, [HarmonyArgument(1)] NetworkedPlayerInfo pl)
+        {
+            {
+                var seer = PlayerControl.LocalPlayer;
+                var seerRole = seer.GetRoleClass();
+                var target = Utils.GetPlayerById(pl.PlayerId);
+
+                //変数定義
+                string name = "";
+                bool nomarker = false;
+                string RealName;
+                Mark.Clear();
+                Suffix.Clear();
+
+                //名前を一時的に上書きするかのチェック
+                var TemporaryName = target.GetRoleClass()?.GetTemporaryName(ref name, ref nomarker, seer, target) ?? false;
+
+                //名前変更
+                RealName = TemporaryName ? name : target.GetRealName();
+
+                //NameColorManager準拠の処理
+                RealName = RealName.ApplyNameColorData(seer, target, false);
+
+                //seer役職が対象のMark
+                if (Amnesia.CheckAbility(seer))
+                    Mark.Append(seerRole?.GetMark(seer, target, false));
+                //seerに関わらず発動するMark
+                Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
+
+                //ハートマークを付ける(会議中MOD視点)
+                if (seer.Is(CustomRoles.ALovers) && PlayerControl.LocalPlayer.Is(CustomRoles.ALovers))
+                {
+                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ALovers)}>♥</color>");
+                }
+                else if (seer.Is(CustomRoles.ALovers) && PlayerControl.LocalPlayer.Data.IsDead)
+                {
+                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ALovers)}>♥</color>");
+                }
+                if (seer.Is(CustomRoles.BLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.BLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.BLovers)}>♥</color>");
+                else if (seer.Is(CustomRoles.BLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.BLovers)}>♥</color>");
+                if (seer.Is(CustomRoles.CLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.CLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.CLovers)}>♥</color>");
+                else if (seer.Is(CustomRoles.CLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.CLovers)}>♥</color>");
+                if (seer.Is(CustomRoles.DLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.DLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.DLovers)}>♥</color>");
+                else if (seer.Is(CustomRoles.DLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.DLovers)}>♥</color>");
+                if (seer.Is(CustomRoles.ELovers) && PlayerControl.LocalPlayer.Is(CustomRoles.ELovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ELovers)}>♥</color>");
+                else if (seer.Is(CustomRoles.ELovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ELovers)}>♥</color>");
+                if (seer.Is(CustomRoles.FLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.FLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.FLovers)}>♥</color>");
+                else if (seer.Is(CustomRoles.FLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.FLovers)}>♥</color>");
+                if (seer.Is(CustomRoles.GLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.GLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GLovers)}>♥</color>");
+                else if (seer.Is(CustomRoles.GLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GLovers)}>♥</color>");
+
+                if (seer.Is(CustomRoles.MaLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.MaLovers))
+                {
+                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.MaLovers)}>♥</color>");
+                }
+                else if (seer.Is(CustomRoles.MaLovers) && PlayerControl.LocalPlayer.Data.IsDead)
+                {
+                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.MaLovers)}>♥</color>");
+                }
+                if (seer.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting)
+                && !seer.Is(CustomRoles.WolfBoy) && !PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
+                {
+                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                }
+                else if (seer.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Data.IsDead)
+                {
+                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                }
+                //プログレスキラー
+                if (Amnesia.CheckAbility(seer))
+                {
+                    if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
+                    {
+                        Mark.Append($"<color=blue>♦</color>");
+                    }
+                    //エーリアン
+                    if (seer.Is(CustomRoles.Alien))
+                    {
+                        foreach (var al in Alien.Aliens)
+                        {
+                            if (al.Player == seer)
+                                if (target.Is(CustomRoles.Workhorse) && al.modeProgresskiller && Alien.ProgressWorkhorseseen)
+                                {
+                                    Mark.Append($"<color=blue>♦</color>");
+                                }
+                        }
+                    }
+                }
+
+                //seerに関わらず発動するLowerText
+                Suffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target));
+                //seer役職が対象のSuffix
+                if (Amnesia.CheckAbility(seer))
+                    Suffix.Append(seerRole?.GetSuffix(seer, target));
+
+                //seerに関わらず発動するSuffix
+                Suffix.Append(CustomRoleManager.GetSuffixOthers(seer, target));
+
+                if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
+                    RealName = $"<size=0>{RealName}</size> ";
+
+                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
+                //Mark・Suffixの適用
+                if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
+                    __instance.NameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
+                else
+                    __instance.NameText.text = $"<color=#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
+
+                if (Suffix.ToString() != "" && (!TemporaryName || (TemporaryName && !nomarker)))
+                {
+                    __instance.NameText.text += "\r\n" + Suffix.ToString();
+                }
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
     class ToggleHighlightPatch
     {

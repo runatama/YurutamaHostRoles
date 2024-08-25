@@ -3,6 +3,7 @@ using Hazel;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -35,7 +36,6 @@ public sealed class Mare : RoleBase, IImpostor
 
         IsActivateKill = false;
         IsAccelerated = false;
-
     }
 
     private static OptionItem OptionKillCooldownInLightsOut;
@@ -43,12 +43,14 @@ public sealed class Mare : RoleBase, IImpostor
     private static OptionItem OptionCanSeeNameColor;
     private static OptionItem OptionAllCanKill;
     private static OptionItem OptionKillCooldown;
+    private static OptionItem OptionDarkKilldis;
     enum OptionName
     {
         MareAddSpeedInLightsOut,
         MareKillCooldownInLightsOut,
         MareCanSeeNameColor,
-        MareAllCanKill
+        MareAllCanKill,
+        MareDarkKilldistance
     }
     private float KillCooldownInLightsOut;
     private float SpeedInLightsOut;
@@ -64,6 +66,7 @@ public sealed class Mare : RoleBase, IImpostor
         OptionAllCanKill = BooleanOptionItem.Create(RoleInfo, 13, OptionName.MareAllCanKill, false, false);
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 40f, false, OptionAllCanKill)
             .SetValueFormat(OptionFormat.Seconds);
+        OptionDarkKilldis = StringOptionItem.Create(RoleInfo, 15, OptionName.MareDarkKilldistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
     }
     public bool CanUseKillButton() => IsActivateKill || OptionAllCanKill.GetBool();
     public float CalculateKillCooldown() => IsActivateKill ? KillCooldownInLightsOut : OptionKillCooldown.GetFloat();
@@ -79,6 +82,14 @@ public sealed class Mare : RoleBase, IImpostor
             IsAccelerated = false;
             Main.AllPlayerSpeed[Player.PlayerId] -= SpeedInLightsOut;//Mareの速度を減算
         }
+        if (IsActivateKill)
+        {
+            AURoleOptions.KillDistance = OptionDarkKilldis.GetInt();
+        }
+        else if (!IsActivateKill)
+        {
+            AURoleOptions.KillDistance = Main.NormalOptions.KillDistance;
+        }
     }
     private void ActivateKill(bool activate)
     {
@@ -87,7 +98,7 @@ public sealed class Mare : RoleBase, IImpostor
         {
             SendRPC();
             Player.SyncSettings();
-            _ = new LateTask(() => Player.SetKillCooldown(), Main.LagTime, "MareKillCool");
+            _ = new LateTask(() => Player.SetKillCooldown(delay: true), Main.LagTime, "MareKillCool");
             Utils.NotifyRoles();
         }
     }

@@ -29,7 +29,7 @@ namespace TownOfHost
             if (predicate == null) return false;
 
             //ゲーム終了しないモードで廃村以外の場合は中断
-            if (Options.NoGameEnd.GetBool() && CustomWinnerHolder.WinnerTeam != CustomWinner.Draw) return false;
+            if (Options.NoGameEnd.GetBool() && Main.DontGameSet && CustomWinnerHolder.WinnerTeam != CustomWinner.Draw) return false;
 
             //廃村用に初期値を設定
             var reason = GameOverReason.ImpostorByKill;

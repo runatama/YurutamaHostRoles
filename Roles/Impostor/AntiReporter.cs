@@ -160,4 +160,9 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         AURoleOptions.ShapeshifterLeaveSkin = false;
         AURoleOptions.ShapeshifterDuration = 1;
     }
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "AntiReporter_Ability";
+        return true;
+    }
 }

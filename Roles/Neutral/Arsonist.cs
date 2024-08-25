@@ -81,6 +81,7 @@ public sealed class Arsonist : RoleBase, IKiller
         foreach (var ar in Main.AllPlayerControls)
             IsDoused.Add(ar.PlayerId, false);
     }
+    public override bool NotifyRolesCheckOtherName => true;
     public bool CanUseKillButton() => !IsDouseDone(Player);
     public bool CanUseImpostorVentButton() => IsDouseDone(Player) && !Player.inVent;
     public float CalculateKillCooldown() => DouseCooldown;
@@ -189,7 +190,7 @@ public sealed class Arsonist : RoleBase, IKiller
             }
         }
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if (GameStates.IsInGame && IsDouseDone(Player))
         {
@@ -211,7 +212,6 @@ public sealed class Arsonist : RoleBase, IKiller
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
             return true;
         }
-        nouryoku = true;
         return false;
     }
     public bool OverrideKillButtonText(out string text)

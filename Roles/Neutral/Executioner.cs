@@ -70,6 +70,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         OptionCanTargetNeutralKiller = BooleanOptionItem.Create(RoleInfo, 12, OptionName.ExecutionerCanTargetNeutralKiller, false, false);
         OptionChangeRolesAfterTargetKilled = StringOptionItem.Create(RoleInfo, 11, OptionName.ExecutionerChangeRolesAfterTargetKilled, cRolesString, 1, false);
     }
+    public override bool NotifyRolesCheckOtherName => true;
     public override void Add()
     {
         //ターゲット割り当て

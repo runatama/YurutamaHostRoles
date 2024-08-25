@@ -72,4 +72,14 @@ public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
         Utils.NotifyRoles();
     }
     public override string GetProgressText(bool comms = false) => Utils.ColorString(Count > 0 ? RoleInfo.RoleColor : Palette.DisabledGrey, $"({Count})");
+
+    public override string GetAbilityButtonText()
+    {
+        return Translator.GetString("ReloaderAbilitytext");
+    }
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Reloader_Ability";
+        return true;
+    }
 }

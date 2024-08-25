@@ -850,7 +850,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         Utils.NotifyRoles(SpecifySeer: Player);
     }
     //リモートキラー
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if (modeRemotekiller)
         {
@@ -866,7 +866,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 }, 1f);
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);
                 Remotekillertarget = 111;
-                nouryoku = true;
                 return false;
             }
         }
@@ -918,6 +917,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 return;
             }
             // 殺してきた人を殺し返す
+            if (!GameStates.Meeting && PlayerState.GetByPlayerId(Player.PlayerId).DeathReason is CustomDeathReason.Revenge) return;
             logger.Info("ネコカボチャの仕返し");
             var killer = info.AttemptKiller;
             if (!IsCandidate(killer))

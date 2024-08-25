@@ -44,6 +44,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public static OptionItem ShotLimitOpt;
     private static OptionItem CanKillAllAlive;
     public static OptionItem CanKillNeutrals;
+    public static OptionItem CanKillLovers;
     enum OptionName
     {
         SheriffMisfireKillsTarget,
@@ -51,6 +52,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         SheriffCanKillAllAlive,
         SheriffCanKillNeutrals,
         SheriffCanKill,
+        SheriffCanKillLovers
     }
     public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = new();
     public static Dictionary<SchrodingerCat.TeamType, OptionItem> SchrodingerCatKillTargetOptions = new();
@@ -75,6 +77,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         SetUpKillTargetOption(CustomRoles.Madmate, 13);
         CanKillNeutrals = StringOptionItem.Create(RoleInfo, 14, OptionName.SheriffCanKillNeutrals, KillOption, 0, false);
         SetUpNeutralOptions(30);
+        CanKillLovers = BooleanOptionItem.Create(RoleInfo, 16, OptionName.SheriffCanKillLovers, true, false);
     }
     public static void SetUpNeutralOptions(int idOffset)
     {
@@ -190,6 +193,10 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 Logger.Warn($"シェリフ({player.GetRealName()})にキルされたシュレディンガーの猫のロールが変化していません", nameof(Sheriff));
                 return false;
             }
+            else
+            {
+                if (player.IsRiaju() && CanKillLovers.GetBool()) return true;
+            }
             return schrodingerCat.Team switch
             {
                 SchrodingerCat.TeamType.Mad => KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool(),
@@ -197,6 +204,9 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 _ => CanKillNeutrals.GetValue() == 0 || (SchrodingerCatKillTargetOptions.TryGetValue(schrodingerCat.Team, out var option) && option.GetBool()),
             };
         }
+
+        if (player.IsRiaju() && CanKillLovers.GetBool()) return true;
+
         if (cRole == CustomRoles.Jackaldoll) return CanKillNeutrals.GetValue() == 0 || (!KillTargetOptions.TryGetValue(CustomRoles.Jackal, out var option) && option.GetBool()) || (!KillTargetOptions.TryGetValue(CustomRoles.JackalMafia, out var op) && op.GetBool());
         if (cRole == CustomRoles.SKMadmate) return KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool();
 

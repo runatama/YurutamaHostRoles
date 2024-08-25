@@ -43,6 +43,7 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
             .SetValueFormat(OptionFormat.Seconds);
         OptionComm = BooleanOptionItem.Create(RoleInfo, 11, OptionName.CanseeComms, false, false);
     }
+    public override bool NotifyRolesCheckOtherName => true;
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.ScientistCooldown = 0.1f;

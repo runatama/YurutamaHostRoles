@@ -205,15 +205,16 @@ public class MeetingVoteManager
                     {
                         foreach (var Player in Main.AllPlayerControls)
                         {
-
+                            var taishou = Player;
                             foreach (var pc in Main.AllPlayerControls)
                             {
-                                var taishou = pc;
+                                taishou = pc;
                                 var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
                                 taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                                 if (pc == PlayerControl.LocalPlayer) continue;
                                 Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                             }
+                            Logger.Info($"{Player.name} => {taishou} , Ch = false!", "NotAntenEx");
                         }
                         ch = false;
                     }
@@ -221,10 +222,10 @@ public class MeetingVoteManager
                 if (ch)
                     foreach (var Player in Main.AllPlayerControls)
                     {
+                        var taishou = PlayerControl.LocalPlayer;
                         foreach (var pc in Main.AllPlayerControls)
                         {
                             if (pc == PlayerControl.LocalPlayer) continue;
-                            var taishou = PlayerControl.LocalPlayer;
                             var t = byte.MaxValue;
                             if (!PlayerControl.LocalPlayer.IsAlive())
                             {
@@ -232,8 +233,9 @@ public class MeetingVoteManager
                                 var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x.PlayerId != t && x != PlayerControl.LocalPlayer));
                                 taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                             }
-                            Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                            Player?.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                         }
+                        Logger.Info($"{Player.name} => {taishou} , Ch = true!", "NotAntenEx");
                     }
             }
         }

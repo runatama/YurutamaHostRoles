@@ -55,7 +55,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.7.13";
+        public const string PluginVersion = "5.1.7.14";
         public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -98,6 +98,8 @@ namespace TownOfHost
         public static ConfigEntry<string> Preset3 { get; private set; }
         public static ConfigEntry<string> Preset4 { get; private set; }
         public static ConfigEntry<string> Preset5 { get; private set; }
+        public static ConfigEntry<string> Preset6 { get; private set; }
+        public static ConfigEntry<string> Preset7 { get; private set; }
         //Other Configs
         public static ConfigEntry<string> BetaBuildURL { get; private set; }
         public static ConfigEntry<float> LastKillCooldown { get; private set; }
@@ -161,6 +163,7 @@ namespace TownOfHost
         //public static bool TaskBattleOptionv = false;
         public static int FeColl;
         public static bool IntroHyoji;
+        public static bool DontGameSet;
         public static CustomRoles HostRole = CustomRoles.NotAssigned;
 
         /// <summary>
@@ -244,6 +247,8 @@ namespace TownOfHost
             Preset3 = Config.Bind("Preset Name Options", "Preset3", "Preset_3");
             Preset4 = Config.Bind("Preset Name Options", "Preset4", "Preset_4");
             Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
+            Preset6 = Config.Bind("Preset Name Options", "Preset6", "Preset_6");
+            Preset7 = Config.Bind("Preset Name Options", "Preset7", "Preset_7");
             BetaBuildURL = Config.Bind("Other", "BetaBuildURL", "");
             MessageWait = Config.Bind("Other", "MessageWait", 1f);
             LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
@@ -268,6 +273,7 @@ namespace TownOfHost
                     //特殊クルー役職
                     //ニュートラル役職
                     {CustomRoles.Jackaldoll,"#00b4eb"},
+                    {CustomRoles.Emptiness ,"#221d26"},
                     //HideAndSeek
                     {CustomRoles.HASFox, "#e478ff"},
                     {CustomRoles.HASTroll, "#00ff00"},

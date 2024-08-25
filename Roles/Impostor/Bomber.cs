@@ -172,6 +172,11 @@ namespace TownOfHost.Roles.Impostor
             if (!BomberExplosionMode) return false;
             return true;
         }
+        public override bool OverrideAbilityButton(out string text)
+        {
+            text = "Bomber_Ability";
+            return true;
+        }
         public override void ApplyGameOptions(IGameOptions opt)
         {
             AURoleOptions.ShapeshifterCooldown = Cooldown;

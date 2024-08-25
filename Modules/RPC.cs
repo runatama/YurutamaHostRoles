@@ -377,7 +377,7 @@ namespace TownOfHost
             string target = targetClientId.ToString();
             try
             {
-                target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId).PlayerName;
+                target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId)?.PlayerName;
                 from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
             }
             catch { }

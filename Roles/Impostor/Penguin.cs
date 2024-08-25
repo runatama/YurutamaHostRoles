@@ -141,6 +141,11 @@ class Penguin : RoleBase, IImpostor
     {
         return GetString("PenguinTimerText");
     }
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Penguin_Ability";
+        return true;
+    }
     public override bool CanUseAbilityButton()
     {
         return AbductVictim != null;

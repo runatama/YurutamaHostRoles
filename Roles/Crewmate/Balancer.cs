@@ -180,6 +180,22 @@ public sealed class Balancer : RoleBase
                 used = true;
                 target1 = Target1;
                 target2 = Target2;
+
+                foreach (var Player in Main.AllPlayerControls)
+                {
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer) continue;
+                        var taishou = PlayerControl.LocalPlayer;
+                        if (!PlayerControl.LocalPlayer.IsAlive())
+                        {
+                            var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
+                            taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                        }
+                        Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                    }
+                }
+
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
             }
@@ -292,7 +308,7 @@ public sealed class Balancer : RoleBase
             foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
                 pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u><color=red>Ω");
             Balancer(meetingtime);
-            PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data);
+            _ = new LateTask(() => PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data), 2f, "BalanerMeeting");
             //アナウンス(合体させるからコメントアウト)
             //Utils.SendMessage($"{Main.AllPlayerNames[Target1]}と{Main.AllPlayerNames[Target2]}が天秤に掛けられました！\n\nどちらかに投票せよ！");
 
@@ -301,7 +317,7 @@ public sealed class Balancer : RoleBase
                 //名前を戻す
                 Utils.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
                 Utils.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
-            }, 0.5f);
+            }, 2.8f);
 
             return;
         }

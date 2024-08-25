@@ -46,6 +46,7 @@ public sealed class Monochromer : RoleBase
         OpCanseeKiller = BooleanOptionItem.Create(RoleInfo, 7, Option.MonochromerCanseeKiller, true, false);
         OpCanseeRoleColor = BooleanOptionItem.Create(RoleInfo, 8, Option.MonochromerMarkColor, false, false, OpCanseeKiller);
     }
+    public override bool NotifyRolesCheckOtherName => true;
     public override void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {

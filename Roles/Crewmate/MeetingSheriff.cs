@@ -42,6 +42,7 @@ public sealed class MeetingSheriff : RoleBase
     private static OptionItem OptionSheriffShotLimit;
     private static OptionItem OptionMeetingSheriffCanKillMadMate;
     private static OptionItem OptionMeetingSheriffCanKillNeutrals;
+    private static OptionItem OptionMeetingSheriffCanKillLovers;
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
     public float Max;
@@ -58,7 +59,8 @@ public sealed class MeetingSheriff : RoleBase
         cantaskcount,//効果を発揮タスク数
         MeetingSheriffCanKillMadMate,
         MeetingSheriffCanKillNeutrals,
-        meetingmc
+        meetingmc,
+        SheriffCanKillLovers
     }
     private static void SetupOptionItem()
     {
@@ -67,6 +69,7 @@ public sealed class MeetingSheriff : RoleBase
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 11, Option.cantaskcount, new(0, 99, 1), 5, false);
         OptionMeetingSheriffCanKillMadMate = BooleanOptionItem.Create(RoleInfo, 12, Option.MeetingSheriffCanKillMadMate, true, false);
         OptionMeetingSheriffCanKillNeutrals = BooleanOptionItem.Create(RoleInfo, 13, Option.MeetingSheriffCanKillNeutrals, true, false);
+        OptionMeetingSheriffCanKillLovers = BooleanOptionItem.Create(RoleInfo, 15, Option.SheriffCanKillLovers, true, false);
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
     }
@@ -119,7 +122,7 @@ public sealed class MeetingSheriff : RoleBase
             {
                 AlienTairo = al.CheckSheriffKill(target);
             }
-        if (CanBeKilledBy(target.GetCustomRole()) && !AlienTairo)
+        if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsRiaju() && OptionMeetingSheriffCanKillLovers.GetBool()))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
             target.RpcExileV2();

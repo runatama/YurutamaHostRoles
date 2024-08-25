@@ -321,12 +321,13 @@ namespace TownOfHost.Roles
                         AssignRoleList.AddRange(subRole.GetAssignUnitRolesArray());
             }
         }
-        private static List<CustomRoles> GetCandidateRoleList(int availableRate)
+        public static List<CustomRoles> GetCandidateRoleList(int availableRate, bool shutoku = false)
         {
             var candidateRoleList = new List<CustomRoles>();
             foreach (var role in AllMainRoles)
             {
-                if (!role.IsAssignable()) continue;
+                if (!shutoku)
+                    if (!role.IsAssignable()) continue;
 
                 var chance = role.GetChance();
                 var count = role.GetAssignCount();

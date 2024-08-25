@@ -9,6 +9,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -19,7 +20,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             typeof(EvilHacker),
             player => new EvilHacker(player),
             CustomRoles.EvilHacker,
-            () => RoleTypes.Impostor,
+            () => OptionShapeshiftAdmin.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             3100,
             SetupOptionItems,
@@ -40,6 +41,9 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         CustomRoleManager.OnMurderPlayerOthers.Add(HandleMurderRoomNotify);
         instances.Add(this);
         Name.Clear();
+        time = 0;
+        pos = new Vector2(999f, 999f);
+        go = false;
     }
     public override void OnDestroy()
     {
@@ -50,17 +54,22 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     private static OptionItem OptionCanSeeImpostorMark;
     private static OptionItem OptionCanSeeKillFlash;
     private static OptionItem OptionCanSeeMurderRoom;
+    private static OptionItem OptionShapeshiftAdmin;
     private enum OptionName
     {
         EvilHackerCanSeeDeadMark,
         EvilHackerCanSeeImpostorMark,
         EvilHackerCanSeeKillFlash,
         EvilHackerCanSeeMurderRoom,
+        EvilHackerShapeshiftAdmin
     }
     private static bool canSeeDeadMark;
     private static bool canSeeImpostorMark;
     private static bool canSeeKillFlash;
     private static bool canSeeMurderRoom;
+    float time;
+    bool go;
+    Vector2 pos;
     static Dictionary<byte, string> Name = new();
 
     private static HashSet<EvilHacker> instances = new(1);
@@ -73,6 +82,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         OptionCanSeeImpostorMark = BooleanOptionItem.Create(RoleInfo, 11, OptionName.EvilHackerCanSeeImpostorMark, true, false);
         OptionCanSeeKillFlash = BooleanOptionItem.Create(RoleInfo, 12, OptionName.EvilHackerCanSeeKillFlash, true, false);
         OptionCanSeeMurderRoom = BooleanOptionItem.Create(RoleInfo, 13, OptionName.EvilHackerCanSeeMurderRoom, true, false, OptionCanSeeKillFlash);
+        OptionShapeshiftAdmin = BooleanOptionItem.Create(RoleInfo, 14, OptionName.EvilHackerShapeshiftAdmin, true, false);
     }
     /// <summary>相方がキルした部屋を通知する設定がオンなら各プレイヤーに通知を行う</summary>
     private static void HandleMurderRoomNotify(MurderInfo info)
@@ -183,8 +193,72 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             Utils.NotifyRoles(SpecifySeer: Player);
         }
     }
+    public override bool NotifyRolesCheckOtherName => true;
     public override void OnFixedUpdate(PlayerControl player)
     {
+        if (GameStates.Intro) return;
+        if (AmongUsClient.Instance.AmHost)
+        {
+            if (OptionShapeshiftAdmin.GetBool())
+            {
+                if (player.GetTruePosition() == pos)
+                {
+                    if (time >= 0.5f)
+                    {
+                        go = true;
+                        var ch = Name;
+                        Name.Clear();
+                        var admins = AdminProvider.CalculateAdmin();
+                        var builder = new StringBuilder(512);
+
+                        var m = new StringBuilder(512);
+                        var g = 0;
+                        // 送信するメッセージを生成
+                        foreach (var admin in admins)
+                        {
+                            var entry = admin.Value;
+                            if (entry.TotalPlayers <= 0)
+                            {
+                                continue;
+                            }
+                            // インポスターがいるなら星マークを付ける
+                            if (canSeeImpostorMark && entry.NumImpostors > 0)
+                            {
+                                builder.Append(ImpostorMark);
+                            }
+                            // 部屋名と合計プレイヤー数を表記
+                            builder.Append(DestroyableSingleton<TranslationController>.Instance.GetString(entry.Room));
+                            builder.Append(": ");
+                            builder.Append(entry.TotalPlayers);
+                            // 死体があったら死体の数を書く
+                            if (canSeeDeadMark && entry.NumDeadBodies > 0)
+                            {
+                                builder.Append('(').Append(Translator.GetString("Deadbody"));
+                                builder.Append('×').Append(entry.NumDeadBodies).Append(')');
+                            }
+                            m.Append(builder);
+                            m.Append('\n');
+                            var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                            var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+                            Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
+
+                            builder.Clear();
+                            g++;
+                            time = 0;
+                            Utils.NotifyRoles();
+                        }
+                    }
+                    time += Time.fixedDeltaTime;
+                }
+                else
+                {
+                    time = 0;
+                    if (go) Utils.NotifyRoles();
+                    go = false;
+                    pos = player.GetTruePosition();
+                }
+            }
+        }
         // 古い通知の削除処理 Mod入りは自分でやる
         if (!AmongUsClient.Instance.AmHost && Player != PlayerControl.LocalPlayer)
         {
@@ -213,23 +287,34 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (isForMeeting)
+        var text = "";
+
+        if (go || isForMeeting)
         {
             if (!Name.ContainsKey(seen.PlayerId)) return "";
             if (Name[seen.PlayerId] is "" or null) return "";
 
-            return "<color=#8cffff><size=1.5>" + Name[seen.PlayerId] + "</color></size>";
+            text = "<color=#8cffff><size=1.5>" + Name[seen.PlayerId] + "</color></size>";
         }
         if (!canSeeMurderRoom || seer != Player || seen != Player || activeNotifies.Count <= 0)
         {
-            return base.GetSuffix(seer, seen, isForMeeting);
+            return text += base.GetSuffix(seer, seen, isForMeeting);
         }
         var roomNames = activeNotifies.Select(notify => DestroyableSingleton<TranslationController>.Instance.GetString(notify.Room));
-        return Utils.ColorString(Color.green, $"{Translator.GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
+        return text += Utils.ColorString(Color.green, $"{Translator.GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
     }
     public bool CheckKillFlash(MurderInfo info) =>
         canSeeKillFlash && !info.IsSuicide && !info.IsAccident && info.AttemptKiller.Is(CustomRoleTypes.Impostor);
 
+    public override void ApplyGameOptions(IGameOptions opt)
+    {
+        AURoleOptions.ShapeshifterCooldown = 1f;
+    }
+    public override bool CheckShapeshift(PlayerControl target, ref bool shouldAnimate)
+    {
+        shouldAnimate = false;
+        return false;
+    }
     private static readonly string ImpostorMark = "★".Color(Palette.ImpostorRed);
     /// <summary>相方がキルしたときに名前の下に通知を表示する長さ</summary>
     private static readonly TimeSpan NotifyDuration = TimeSpan.FromSeconds(10);

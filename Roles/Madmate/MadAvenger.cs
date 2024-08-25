@@ -83,11 +83,10 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         }
         return true;
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if ((!IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count) || !can)
         {
-            nouryoku = true;
             return OptionVent.GetBool();
         }
         if (Main.AliveImpostorCount != 0)

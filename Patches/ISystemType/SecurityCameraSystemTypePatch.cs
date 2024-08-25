@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Hazel;
+using TownOfHost.Roles.Core;
 //using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost.Patches.ISystemType;
@@ -20,12 +21,29 @@ public static class SecurityCameraSystemTypeUpdateSystemPatch
         {
             var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
             {
-                MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
-                MapNames.Polus => Options.DisablePolusCamera.GetBool(),
-                MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
+                MapNames.Skeld => Options.DisableSkeldCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player),
+                MapNames.Polus => Options.DisablePolusCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player),
+                MapNames.Airship => Options.DisableAirshipCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player),
                 _ => false,
             };
+            if (!camerasDisabled)
+                DisableDevice.UseCount++;
             return !camerasDisabled;
+        }
+        if (amount == SecurityCameraSystemType.DecrementOp)
+        {
+
+            if (DisableDevice.UseCount <= 0) return true;
+
+            var camerasDisabled = (MapNames)Main.NormalOptions.MapId switch
+            {
+                MapNames.Skeld => Options.DisableSkeldCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player),
+                MapNames.Polus => Options.DisablePolusCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player),
+                MapNames.Airship => Options.DisableAirshipCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player),
+                _ => false,
+            };
+            if (!camerasDisabled) DisableDevice.UseCount--;
+
         }
         return true;
     }

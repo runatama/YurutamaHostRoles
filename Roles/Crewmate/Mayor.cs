@@ -84,7 +84,7 @@ public sealed class Mayor : RoleBase
         if (Is(reporter) && target == null) //ボタン
             LeftButtonCount--;
     }
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if (LeftButtonCount > 0)
         {
@@ -115,5 +115,14 @@ public sealed class Mayor : RoleBase
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (HasPortableButton)
             Player.RpcResetAbilityCooldown();
+    }
+    public override string GetAbilityButtonText()
+    {
+        return Translator.GetString("Mayor_Abilitytext");
+    }
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Mayor_Ability";
+        return true;
     }
 }

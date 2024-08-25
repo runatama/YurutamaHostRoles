@@ -89,12 +89,8 @@ public sealed class Android : RoleBase
         return true;
     }
     public override void AfterSabotage(SystemTypes systemType) => Player.RpcResetAbilityCooldown(kousin: true);
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool Nouryoku)
-    {
-        Nouryoku = Main.NowSabotage;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !Main.NowSabotage;//サボタージュ中なら入れないよっ!
 
-        return !Main.NowSabotage;//サボタージュ中なら入れないよっ!
-    }
     public override void OnFixedUpdate(PlayerControl player)
     {
         //ホストじゃないなら

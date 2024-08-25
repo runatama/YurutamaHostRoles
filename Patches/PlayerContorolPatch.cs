@@ -82,7 +82,7 @@ namespace TownOfHost
         }
 
         // 不正キル防止チェック
-        public static bool CheckForInvalidMurdering(MurderInfo info)
+        public static bool CheckForInvalidMurdering(MurderInfo info, bool kantu = false)
         {
             (var killer, var target) = info.AttemptTuple;
 
@@ -118,14 +118,17 @@ namespace TownOfHost
                 return false;
             }
 
-            // 連打キルでないか
-            float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / 1000f * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000
-            //TimeSinceLastKillに値が保存されていない || 保存されている時間がminTime以上 => キルを許可
-            //↓許可されない場合
-            if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out var time) && time < minTime)
+            if (!kantu)
             {
-                Logger.Info("前回のキルからの時間が早すぎるため、キルをブロックしました。", "CheckMurder");
-                return false;
+                // 連打キルでないか
+                float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / 1000f * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000
+                //TimeSinceLastKillに値が保存されていない || 保存されている時間がminTime以上 => キルを許可
+                //↓許可されない場合
+                if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out var time) && time < minTime)
+                {
+                    Logger.Info("前回のキルからの時間が早すぎるため、キルをブロックしました。", "CheckMurder");
+                    return false;
+                }
             }
             TimeSinceLastKill[killer.PlayerId] = 0f;
 
@@ -500,6 +503,7 @@ namespace TownOfHost
             //=============================================
             GameStates.task = false;
 
+            DisableDevice.StartMeeting();
             foreach (var kvp in PlayerState.AllPlayerStates)
             {
                 if (Options.ExMeetingblackout.GetBool())
@@ -605,6 +609,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
             GameStates.Meeting = true;
             GameStates.task = false;
+            DisableDevice.StartMeeting();
             foreach (var kvp in PlayerState.AllPlayerStates)
             {
                 if (Options.ExMeetingblackout.GetBool())
@@ -1007,6 +1012,24 @@ namespace TownOfHost
 
                 if (GameStates.IsInGame && player.AmOwner)
                     DisableDevice.FixedUpdate();
+
+                if (player.AmOwner && player == PlayerControl.LocalPlayer)
+                {
+                    var c = true;
+                    if (Options.TimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat()) c = false;
+
+                    if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat()) c = false;
+
+                    if (DisableDevice.UseCount != 0 && !c)
+                    {
+                        DisableDevice.UseCount = 0;
+                    }
+                    if (DisableDevice.UseCount != 0 && c)
+                    {
+                        if (Options.TimeLimitDevices.GetBool()) DisableDevice.GameLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
+                        if (Options.TarnTimeLimitDevice.GetBool()) DisableDevice.TarnLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
+                    }
+                }
 
                 Utils.ApplySuffix(__instance);
             }
@@ -1537,7 +1560,6 @@ namespace TownOfHost
             {
                 var user = __instance.myPlayer;
 
-                var nouryoku = false;
                 if (MadBool)
                 {
                     MadBool = false;
@@ -1550,9 +1572,10 @@ namespace TownOfHost
                 if (user.Is(CustomRoles.DemonicVenter)) return true;
 
                 var roleClass = user.GetRoleClass();
+                var pos = __instance.transform.position;
                 if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
 
-                if ((!roleClass?.OnEnterVent(__instance, id, ref nouryoku) ?? false) || !CanUse(__instance, id))
+                if ((!roleClass?.OnEnterVent(__instance, id) ?? false) || !CanUse(__instance, id))
                 {
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
@@ -1570,7 +1593,7 @@ namespace TownOfHost
                         sender.AutoStartRpc(__instance.NetId, (byte)RpcCalls.BootFromVent, pc.GetClientId())
                             .Write(ventid)
                             .EndRpc();
-                        __instance.myPlayer.RpcSnapToForced(__instance.transform.position);
+                        __instance.myPlayer.RpcSnapToForced(pos);
                     }
                     sender.EndMessage();
                     sender.SendMessage(); //多分負荷あれだし、テープで無理やり戻した感じだから参考にしない方がいい、
@@ -1585,8 +1608,8 @@ namespace TownOfHost
                         MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
                         writer2.Write(id);
                         AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                        __instance.myPlayer.RpcSnapToForced(__instance.transform.position);
-                    }, nouryoku && __instance.myPlayer != PlayerControl.LocalPlayer ? 1f : 0.5f, "Fix DesyncImpostor Stuck");
+                        __instance.myPlayer.RpcSnapToForced(pos);
+                    }, __instance.myPlayer != PlayerControl.LocalPlayer ? 0.8f : 0.3f, "Fix DesyncImpostor Stuck");
                     return false;
                 }
 
@@ -1861,35 +1884,6 @@ namespace TownOfHost
                 return false;
             }
             return true;
-        }
-    }
-    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoPet))]
-    class CoPetPatch
-    {
-        public static void Prefix(PlayerPhysics __instance)
-        {
-            var cancel = __instance.myPlayer.GetRoleClass()?.OnPet() ?? false;
-
-            if (cancel)
-            {
-                _ = new LateTask(() =>
-                {
-                    __instance.RpcCancelPet();
-                }, 0.04f, "PetCancel");
-            }
-        }
-    }
-    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
-    class RpcPetPatch
-    {
-        public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callId,
-            [HarmonyArgument(1)] MessageReader reader)
-        {
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (__instance == null) return;
-            if (callId != (byte)RpcCalls.Pet) return;
-            var cancel = __instance.myPlayer.GetRoleClass()?.OnPet() ?? false;
-            if (cancel) _ = new LateTask(__instance.RpcCancelPet, 0f);
         }
     }
     [HarmonyPatch(typeof(PlayerControl))]

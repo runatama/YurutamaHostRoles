@@ -114,7 +114,7 @@ namespace TownOfHost
                 CustomRoles.UltraStar or
                 CustomRoles.TaskStar;
         }
-        public static bool IsGorstRole(this PlayerControl pc) => PlayerState.GetByPlayerId(pc.PlayerId).GhostRole.IsGorstRole();
+        public static bool IsGorstRole(this PlayerControl pc) => PlayerState.GetByPlayerId(pc.PlayerId)?.GhostRole.IsGorstRole() ?? false;
         public static bool IsGorstRole(this CustomRoles role)
         {
             return role is CustomRoles.GuardianAngel

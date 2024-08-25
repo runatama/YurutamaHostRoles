@@ -40,6 +40,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
         KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0, 180, 2.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
         PuppetCool = FloatOptionItem.Create(RoleInfo, 11, Op.PuppeteerPuppetCool, new(0, 100, 0.5f), 5f, false).SetValueFormat(OptionFormat.Seconds);
     }
+    public override bool NotifyRolesCheckOtherName => true;
     /// <summary>
     /// Key: ターゲットのPlayerId, Value: パペッティア
     /// </summary>

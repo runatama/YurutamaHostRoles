@@ -471,6 +471,7 @@ namespace TownOfHost
 
                 _ = new LateTask(() =>
                 {
+                    HudManagerPatch.BottonHud();
                     foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                     {
                         role.StartGameTasks();

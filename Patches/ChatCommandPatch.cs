@@ -626,6 +626,14 @@ namespace TownOfHost
                             }
                         }
                         break;
+                    case "/dgm":
+                        if (DebugModeManager.EnableTOHkDebugMode.GetBool())
+                        {
+                            canceled = true;
+                            Main.DontGameSet = !Main.DontGameSet;
+                            SendMessage($"ゲームを終了しない設定を{Main.DontGameSet}にしたよっ!!");
+                        }
+                        break;
 
                     case "/debug":
                         canceled = true;

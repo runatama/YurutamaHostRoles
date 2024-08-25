@@ -87,7 +87,7 @@ namespace TownOfHost.Roles.Neutral
         public bool CanUseImpostorVentButton() => CanVent;
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.ShapeshifterCooldown = Fall ? 1f : Cooldown;
+            AURoleOptions.ShapeshifterCooldown = Fall ? 0f : Cooldown;
             AURoleOptions.ShapeshifterDuration = 1f;
             opt.SetVision(HasImpostorVision);
         }
@@ -108,12 +108,16 @@ namespace TownOfHost.Roles.Neutral
                 SK = false;
                 return;
             }
+            var ch = Fall;
             var target = Player.GetKillTarget();
             if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
             {
                 Fall = true;
-                _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "");
-                _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "");
+                if (!ch)
+                {
+                    _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "");
+                    _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "");
+                }
                 return;
             }
             SK = false;
@@ -129,6 +133,12 @@ namespace TownOfHost.Roles.Neutral
             Utils.DelTask();
             JackalDoll.side++;
             Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(target.PlayerId);
+        }
+        public override string GetAbilityButtonText() => Translator.GetString("Sidekick");
+        public override bool OverrideAbilityButton(out string text)
+        {
+            text = "SideKick";
+            return true;
         }
     }
 }

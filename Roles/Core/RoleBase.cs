@@ -203,12 +203,11 @@ public abstract class RoleBase : IDisposable
     /// <summary>
     /// <para>ベントに入ったときに呼ばれる関数</para>
     /// <para>キャンセル可</para>
-    /// Nouryokuをtrueにすると参加者も再度、ベントに入れます。
     /// </summary>
     /// <param name="physics"></param>
     /// <param name="id"></param>
     /// <returns>falseを返すとベントから追い出され、他人からアニメーションも見られません</returns>
-    public virtual bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool Nouryoku) => true;
+    public virtual bool OnEnterVent(PlayerPhysics physics, int ventId) => true;
     /// <summary>
     /// ベント移動を封じるかの関数。<br/>
     /// OnEnterVentの方が速く呼ばれる。</br>
@@ -320,6 +319,7 @@ public abstract class RoleBase : IDisposable
     // Lower:役職用追加文字情報。Modの場合画面下に表示される。
     // Suffix:ターゲット矢印などの追加情報。
 
+    public virtual bool NotifyRolesCheckOtherName => false;
     /// <summary>
     /// seenによる表示上のRoleNameの書き換え。つまりみてみて～!!ってこと。
     /// </summary>
@@ -408,7 +408,16 @@ public abstract class RoleBase : IDisposable
         };
         return str.HasValue ? GetString(str.Value) : "Invalid";
     }
-
+    /// <summary>
+    /// インポスターベントボタンの画像を変更します。
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    public virtual bool OverrideAbilityButton(out string text)
+    {
+        text = default;
+        return false;
+    }
     /// <summary>
     /// 会議をキャンセルするために使う<br/>
     /// <see cref="OnReportDeadBody"/>より先に呼ばれる、キャンセルした場合は呼ばれない<br/>
@@ -442,6 +451,7 @@ public abstract class RoleBase : IDisposable
     /// <param name = "NoMarker" > マーカーや追加情報を表示しない </ param >
     /// <returns>名前を変更するかどうか</returns>
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
+    public virtual void OnLeftPlayer(PlayerControl player) { }
 
     /// <summary>
     /// ペットを撫でようとしたとき呼び出される。<br/>

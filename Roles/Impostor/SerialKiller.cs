@@ -100,6 +100,11 @@ namespace TownOfHost.Roles.Impostor
         }
         public override bool CanUseAbilityButton() => HasKilled();
         public override string GetAbilityButtonText() => GetString("SerialKillerSuicideButtonText");
+        public override bool OverrideAbilityButton(out string text)
+        {
+            text = "Serialkiller_Ability";
+            return true;
+        }
         public override void AfterMeetingTasks()
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;

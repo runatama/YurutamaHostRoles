@@ -197,6 +197,8 @@ namespace TownOfHost
         }
         public static void AllPlayerKillFlash()
         {
+            if (Options.SuddenDeathMode.GetBool()) return;
+
             var systemtypes = GetCriticalSabotageSystemType();
             ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
 
@@ -1047,6 +1049,10 @@ namespace TownOfHost
             {
                 sb.AppendFormat("<size={0}>", ActiveSettingsSize);
                 sb.Append("<size=100%>").Append(GetString("Settings")).Append('\n').Append("</size>");
+
+                if (GetRoleTypesCount() != "")
+                    sb.Append(GetRoleTypesCount(false));
+
                 sb.AppendFormat("\n【{0}: {1}】\n", RoleAssignManager.OptionAssignMode.GetName(true), RoleAssignManager.OptionAssignMode.GetString());
                 if (RoleAssignManager.OptionAssignMode.GetBool())
                 {
@@ -1055,7 +1061,7 @@ namespace TownOfHost
                 }
                 foreach (var role in Options.CustomRoleCounts)
                 {
-                    if (role.Key is not CustomRoles.Jackaldoll || JackalDoll.sidekick.GetFloat() is 0)
+                    if (role.Key is not CustomRoles.Jackaldoll || JackalDoll.sidekick.GetFloat() is 0 || CustomRoles.Jackaldoll.GetChance() == 0)
                         if (!role.Key.IsEnable()) continue;
                     if (role.Key is CustomRoles.HASFox or CustomRoles.HASTroll) continue;
 
@@ -1950,7 +1956,8 @@ namespace TownOfHost
 
                 if (seer.IsModClient()) continue;
                 string fontSize = isForMeeting ? "1.5" : Main.RoleTextSize.ToString();
-                if (isForMeeting && (seer.GetClient()?.PlatformData.Platform is Platforms.Playstation or Platforms.Switch)) fontSize = "70%";
+                if (isForMeeting && seer.GetClient() != null)
+                    if (seer.GetClient()?.PlatformData?.Platform is Platforms.Playstation or Platforms.Switch) fontSize = "70%";
                 logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":START");
 
                 var seerRole = seer.GetRoleClass();
@@ -2113,28 +2120,23 @@ namespace TownOfHost
                     Logger.Info(SelfName, "Name");
                     seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
                 }
+                var rolech = seer.GetRoleClass()?.NotifyRolesCheckOtherName ?? false;
+
                 //seerが死んでいる場合など、必要なときのみ第二ループを実行する
                 if (seer.Data.IsDead //seerが死んでいる
                     || seer.GetCustomRole().IsImpostor() //seerがインポスター
-                    || PlayerState.GetByPlayerId(seer.PlayerId).TargetColorData.Count > 0 //seer視点用の名前色データが一つ以上ある
-                    || seer.Is(CustomRoles.Arsonist)
-                    || seer.Is(CustomRoles.Chef)
-                    || seer.IsRiaju()
-                    || seer.Is(CustomRoles.Connecting)//NextUpdete
-                                                      //|| (seer.GetCustomRole().IsCrewmate() && CustomRoles.King.IsPresent())
-                    || seer.Is(CustomRoles.Monochromer)
-                    || Witch.IsSpelled()
-                    || seer.Is(CustomRoles.Executioner)
-                    || seer.Is(CustomRoles.Doctor) //seerがドクター
-                    || seer.Is(CustomRoles.Puppeteer)
-                    || seer.Is(CustomRoles.ProgressKiller)
-                    //|| seer.Is(CustomRoles.Curser)NextUpdete
-                    || CustomRoles.TaskStar.IsEnable()
                     || seer.IsNeutralKiller() //seerがキル出来るニュートラル
+                    || PlayerState.GetByPlayerId(seer.PlayerId).TargetColorData.Count > 0 //seer視点用の名前色データが一つ以上ある
+                    || Witch.IsSpelled()
+                    || CustomRoles.Jumper.IsEnable()
+                    || CustomRoles.TaskStar.IsEnable()
+                    || seer.IsRiaju()
                     || seer.Is(CustomRoles.Management)
+                    || seer.Is(CustomRoles.Connecting)
                     || IsActive(SystemTypes.Electrical)
                     || IsActive(SystemTypes.Comms)
                     || isMushroomMixupActive
+                    || rolech
                     || Options.CurrentGameMode == CustomGameMode.TaskBattle
                     || (seer.GetRoleClass() is IUseTheShButton) //ﾜﾝｸﾘｯｸシェイプボタン持ち
                     || NoCache
@@ -2440,7 +2442,6 @@ namespace TownOfHost
         {
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= Main.AllAlivePlayerControls.Count())) Utils.CanVent = true;
             else CanVent = false;
-            HudManagerPatch.BottonHud();
             int AliveImpostorCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
             int AliveNeutalCount = Main.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Neutral));
             if (Main.AliveImpostorCount != AliveImpostorCount)
@@ -2458,6 +2459,7 @@ namespace TownOfHost
 
             if (sendLog)
             {
+                HudManagerPatch.BottonHud();
                 var sb = new StringBuilder(100);
                 foreach (var countTypes in EnumHelper.GetAllValues<CountTypes>())
                 {
@@ -2543,6 +2545,51 @@ namespace TownOfHost
                 builder.Append("</pos>");
             }
             return builder.ToString();
+        }
+        public static string GetRoleTypesCount(bool shouryaku = true)
+        {
+            if (Options.CurrentGameMode != CustomGameMode.Standard) return "";
+            var text = "";
+            var (i, m, c, n, a, l, g) = (0, 0, 0, 0, 0, 0, 0);
+            foreach (var r in RoleAssignManager.GetCandidateRoleList(10, true).OrderBy(x => Guid.NewGuid()))
+            {
+                if (r.IsImpostor()) i++;
+                if (r.IsMadmate()) m++;
+                if (r.IsCrewmate()) c++;
+                if (r.IsNeutral()) n++;
+            }
+            List<CustomRoles> loverch = new();
+            foreach (var subRole in CustomRolesHelper.AllAddOns)
+            {
+                var chance = subRole.GetChance();
+                var count = subRole.GetCount();
+                if (chance == 0) continue;
+                if (subRole.IsAddOn()) a += count;
+                if (subRole.IsRiaju() && !loverch.Contains(subRole)) l++;
+                if (subRole.IsGorstRole()) g += count;
+                if (!loverch.Contains(subRole)) loverch.Add(subRole);
+            }
+            if (shouryaku)
+            {
+                if (i != 0) text += $"<color=#ff1919>I:{i}  </color>";
+                if (m != 0) text += $"<color=#ff7f50>M:{m}  </color>";
+                if (c != 0) text += $"<color=#8cffff>C:{c}  </color>";
+                if (n != 0) text += $"<color=#cccccc>N:{n}  </color>";
+                if (a != 0) text += $"<color=#028760>A:{a}  </color>";
+                if (l != 0) text += $"<color=#ff6be4>L:{l}  </color>";
+                if (g != 0) text += $"<color=#8989d9>G:{g}  </color>";
+            }
+            else
+            {
+                if (i != 0) text += $"<color=#ff1919>Imp:{i}   </color>";
+                if (m != 0) text += $"<color=#ff7f50>Mad:{m}   </color>";
+                if (c != 0) text += $"<color=#8cffff>Crew:{c}   </color>";
+                if (n != 0) text += $"<color=#cccccc>Neu:{n}   </color>";
+                if (a != 0) text += $"<color=#028760>Add:{a}   </color>";
+                if (l != 0) text += $"<color=#ff6be4>Love:{l}   </color>";
+                if (g != 0) text += $"<color=#8989d9>Gost:{g}   </color>";
+            }
+            return text;
         }
         public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", "");
         public static string RemoveColorTags(this string str) => Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");

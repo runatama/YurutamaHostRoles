@@ -48,6 +48,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public static OptionItem ShotLimitOpt;
     private static OptionItem CanKillAllAlive;
     public static OptionItem CanKillNeutrals;
+    public static OptionItem CanKillLovers;
     /// <summary>
     /// 0そのまま1シェリフ2タスク
     /// </summary>
@@ -62,6 +63,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         SheriffCanKillNeutrals,
         SheriffCanKill,
         SwitchSheriffCommsmode,
+        SheriffCanKillLovers
     }
     public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = new();
     public static Dictionary<SchrodingerCat.TeamType, OptionItem> SchrodingerCatKillTargetOptions = new();
@@ -92,6 +94,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         SetUpKillTargetOption(CustomRoles.Madmate, 13);
         CanKillNeutrals = StringOptionItem.Create(RoleInfo, 14, OptionName.SheriffCanKillNeutrals, KillOption, 0, false);
         SetUpNeutralOptions(30);
+        CanKillLovers = BooleanOptionItem.Create(RoleInfo, 22, OptionName.SheriffCanKillLovers, true, false);
     }
     public static void SetUpNeutralOptions(int idOffset)
     {
@@ -240,6 +243,10 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 Logger.Warn($"シェリフ({player.GetRealName()})にキルされたシュレディンガーの猫のロールが変化していません", nameof(Sheriff));
                 return false;
             }
+            else
+            {
+                if (player.IsRiaju() && CanKillLovers.GetBool()) return true;
+            }
             return schrodingerCat.Team switch
             {
                 SchrodingerCat.TeamType.Mad => KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool(),
@@ -247,6 +254,9 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                 _ => CanKillNeutrals.GetValue() == 0 || (SchrodingerCatKillTargetOptions.TryGetValue(schrodingerCat.Team, out var option) && option.GetBool()),
             };
         }
+
+        if (player.IsRiaju() && CanKillLovers.GetBool()) return true;
+
         if (cRole == CustomRoles.Jackaldoll) return CanKillNeutrals.GetValue() == 0 || (!KillTargetOptions.TryGetValue(CustomRoles.Jackal, out var option) && option.GetBool()) || (!KillTargetOptions.TryGetValue(CustomRoles.JackalMafia, out var op) && op.GetBool());
         if (cRole == CustomRoles.SKMadmate) return KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool();
 
@@ -264,15 +274,19 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         text = "Sheriff_Kill";
         return true;
     }
+    public bool OverrideImpVentButton(out string text)
+    {
+        text = "SwitchSheriff_Vent";
+        return true;
+    }
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId, ref bool nouryoku)
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
         if (!Ch()) return false;
         if (Taskmode && Utils.IsActive(SystemTypes.Comms)) return false;//Hostはタスクモード(エンジ)での切り替えできるからさせないようにする
 
         ModeSwitching();
         //_ = new LateTask(() => Player.SetKillCooldown(kill), 0.2f, "");
-        nouryoku = true;
         return false;
     }
     public override bool CanTask()
