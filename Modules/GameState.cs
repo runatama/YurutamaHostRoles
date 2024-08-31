@@ -165,7 +165,7 @@ namespace TownOfHost
 
         public void Init(PlayerControl player)
         {
-            Logger.Info($"{player.GetNameWithRole()}: InitTask", "TaskState.Init");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
             if (player == null || player.Data == null || player.Data.Tasks == null) return;
             if (!Utils.HasTasks(player.Data, false))
             {
@@ -174,11 +174,11 @@ namespace TownOfHost
             }
             hasTasks = true;
             AllTasksCount = player.Data.Tasks.Count;
-            Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
         }
         public void Update(PlayerControl player)
         {
-            Logger.Info($"{player.GetNameWithRole()}: UpdateTask", "TaskState.Update");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: UpdateTask", "TaskState.Update");
             GameData.Instance.RecomputeTaskCounts();
             //PlayerControl.CompleteTask Prefixから呼ばれるのでGameDataとは1ずれている
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks + 1}/{GameData.Instance.TotalTasks}", "TaskState.Update");
@@ -195,7 +195,7 @@ namespace TownOfHost
 
             //調整後のタスク量までしか表示しない
             CompletedTasksCount = Math.Min(AllTasksCount, CompletedTasksCount);
-            Logger.Info($"{player.GetNameWithRole()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
         }
         public bool HasCompletedEnoughCountOfTasks(int count) => IsTaskFinished || CompletedTasksCount >= count;
     }
@@ -232,6 +232,7 @@ namespace TownOfHost
         public static bool IsFreePlay => AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay;
         public static bool IsInTask => InGame && !MeetingHud.Instance;
         public static bool Meeting;
+        public static bool Tuihou;
         public static bool IsMeeting => InGame && MeetingHud.Instance;
         public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
         public static bool Intro;

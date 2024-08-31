@@ -28,7 +28,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
         newReader.Recycle();
 
         var nextSabotage = (SystemTypes)amount;
-        logger.Info($"PlayerName: {player.GetNameWithRole()}, SabotageType: {nextSabotage}");
+        logger.Info($"PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, SabotageType: {nextSabotage}");
 
         //HASモードではサボタージュ不可
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;

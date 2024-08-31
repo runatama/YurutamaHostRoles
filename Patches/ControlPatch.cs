@@ -126,6 +126,7 @@ namespace TownOfHost
                 GameStates.Meeting = false;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
+                GameStates.Tuihou = true;
             }
             //ミーティングを終了
             if (GetKeysDown(KeyCode.Return, KeyCode.N, KeyCode.LeftShift) && GameStates.IsMeeting)
@@ -186,8 +187,8 @@ namespace TownOfHost
                 if (GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false))
                 {
                     GameSettingMenuStartPatch.ModSettingsTab?.CloseMenu();
-                    GameSettingMenu.Instance.GameSettingsTab?.CloseMenu();
-                    GameSettingMenu.Instance.RoleSettingsTab?.CloseMenu();
+                    GameSettingMenu.Instance?.GameSettingsTab?.CloseMenu();
+                    GameSettingMenu.Instance?.RoleSettingsTab?.CloseMenu();
                 }
             //--以下デバッグモード用コマンド--//
             if (!DebugModeManager.IsDebugMode) return;

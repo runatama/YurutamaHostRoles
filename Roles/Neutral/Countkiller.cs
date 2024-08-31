@@ -73,7 +73,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
         KillCooldown = OptionKillCooldown.GetFloat();
 
         VictoryCount = OptionVictoryCount.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 後{VictoryCount - KillCount}発", "CountKiller");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 後{VictoryCount - KillCount}発", "CountKiller");
     }
     private void SendRPC()
     {

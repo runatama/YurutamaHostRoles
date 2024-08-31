@@ -452,7 +452,21 @@ public abstract class RoleBase : IDisposable
     /// <returns>名前を変更するかどうか</returns>
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
     public virtual void OnLeftPlayer(PlayerControl player) { }
-
+    /// <summary>
+    /// アドオンが付与されるときにチェックされる奴。
+    /// falseを返すことで対象外になる。
+    /// </summary>
+    /// <param name="addon"></param>
+    /// <returns></returns>
+    public virtual bool AddOnAssingCheck(CustomRoles addon) => true;
+    /// <summary>
+    /// 自身がゲッサーされそうになった時に呼ばれるやーつ
+    /// falseを返すと返り討ち。
+    /// nullなら流す
+    /// </summary>
+    /// <param name="killer"></param>
+    /// <returns></returns>
+    public virtual bool? CheckGuess(PlayerControl killer) => true;
     /// <summary>
     /// ペットを撫でようとしたとき呼び出される。<br/>
     /// falseを返すとキャンセルされる<br/>

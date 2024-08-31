@@ -54,17 +54,17 @@ namespace TownOfHost
                     break;
                 case RpcCalls.SetRole: //SetNameRPC
                     RoleTypes role = (RoleTypes)subReader.ReadUInt16();
-                    Logger.Info("役職:" + __instance.GetRealName() + " => " + role, "SetRole");
+                    Logger.Info("役職:" + __instance.GetRealName().RemoveHtmlTags() + " => " + role, "SetRole");
                     break;
                 case RpcCalls.SendChat:
                     var text = subReader.ReadString();
-                    Logger.Info($"{__instance.GetNameWithRole()}:{text}", "ReceiveChat");
+                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
                     ChatCommands.OnReceiveChat(__instance, text, out var canceled);
                     if (canceled) return false;
                     break;
                 case RpcCalls.StartMeeting:
                     PlayerControl p = Utils.GetPlayerById(subReader.ReadByte());
-                    Logger.Info($"{__instance.GetNameWithRole()} => {p?.GetNameWithRole() ?? "null"}", "StartMeeting");
+                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole().RemoveHtmlTags() ?? "null"}", "StartMeeting");
                     break;
             }
             if (__instance.PlayerId != 0

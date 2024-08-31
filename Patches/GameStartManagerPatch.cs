@@ -109,12 +109,14 @@ namespace TownOfHost
                 if (DataManager.Settings.Gameplay.StreamerMode
                 && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
                 {
-                    __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
+                    var co = StringHelper.CodeColor($"{Main.ModColor}");
+                    __instance.GameRoomNameCode.color = new(co.r, co.g, co.b, 0);
                     HideName.enabled = true;
                 }
                 else
                 {
-                    __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
+                    var co = StringHelper.CodeColor($"{Main.ModColor}");
+                    __instance.GameRoomNameCode.color = new(co.r, co.g, co.b, 255);
                     HideName.enabled = false;
                 }
 

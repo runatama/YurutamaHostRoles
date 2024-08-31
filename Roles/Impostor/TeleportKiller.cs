@@ -189,6 +189,13 @@ public sealed class TeleportKiller : RoleBase, IImpostor
 
     public void TeleportKill(PlayerControl Player, PlayerControl target)
     {
+        if (target.Is(CustomRoles.King))
+        {
+            PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Bombed;
+            Player.RpcMurderPlayer(Player, true);
+            Logger.Info($"この我を殺そうなど無謀な。ガッハッハ Killer:{Player.name} Target:{target.name}", "TeleportKiller");
+            return;
+        }
         //キラーのTP
         var p = Player.transform.position;
         var check = TPCheck(target);

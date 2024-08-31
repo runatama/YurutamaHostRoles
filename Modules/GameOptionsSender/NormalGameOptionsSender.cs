@@ -13,11 +13,11 @@ namespace TownOfHost.Modules
                 if (GameManager.Instance.LogicComponents == null) return false;
                 if (_logicOptions == null || (!GameManager.Instance.LogicComponents?.Contains(_logicOptions) ?? false))
                 {
-                    foreach (var glc in GameManager.Instance.LogicComponents)
+                    foreach (var glc in GameManager.Instance?.LogicComponents)
                         if (glc.TryCast<LogicOptions>(out var lo))
                             _logicOptions = lo;
                 }
-                return _logicOptions != null && _logicOptions.IsDirty;
+                return _logicOptions != null && (_logicOptions?.IsDirty ?? false);
             }
             protected set
             {

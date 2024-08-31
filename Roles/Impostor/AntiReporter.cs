@@ -81,7 +81,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
-        info.CanKill = true;
+        info.DoKill = true;
         if (megaphone == false || mg.ContainsKey(target.PlayerId)) return;
         mg.Add(target.PlayerId, 0f);
         Use--;
@@ -90,7 +90,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         megaphone = false;
         SendRPC();
         Utils.NotifyRoles();
-        info.CanKill = false;
+        info.DoKill = false;
     }
     public override void OnShapeshift(PlayerControl target)
     {

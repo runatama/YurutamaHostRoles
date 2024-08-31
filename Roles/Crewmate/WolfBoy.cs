@@ -72,7 +72,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
         CurrentKillCooldown = KillCooldown.GetFloat();
 
         ShotLimit = ShotLimitOpt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 残り{ShotLimit}発", "WolfBoy");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "WolfBoy");
     }
     private void SendRPC()
     {
@@ -100,7 +100,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
         {
             (var killer, var target) = info.AttemptTuple;
 
-            Logger.Info($"{killer.GetNameWithRole()} : 残り{ShotLimit}発", "WolfBoy");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "WolfBoy");
             if (ShotLimit <= 0)
             {
                 info.DoKill = false;

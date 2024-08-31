@@ -65,11 +65,12 @@ namespace TownOfHost
                 return;
             }
 
-            if (!Main.IsroleAssigned)
-            {
-                taskIds[__instance.PlayerId] = taskTypeIds;
-                return;
-            }
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
+                if (!Main.IsroleAssigned)
+                {
+                    taskIds[__instance.PlayerId] = taskTypeIds;
+                    return;
+                }
 
             var pc = __instance.Object;
             CustomRoles? RoleNullable = pc?.GetCustomRole();
@@ -96,6 +97,14 @@ namespace TownOfHost
                 (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
             if (taskTypeIds.Count == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
+            if (NumCommonTasks + NumLongTasks + NumShortTasks >= 255)
+            {
+                hasCommonTasks = false;
+                NumCommonTasks = 85;
+                NumLongTasks = 84;
+                NumShortTasks = 85;
+                Logger.Error($"{pc?.name ?? "ｼｭﾄｸﾑﾘﾀﾞｯﾀ!"}のタスクが255を超えています", "TaskAssignPatch");
+            }
             if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0 && NumCommonTasks == 0)
             {
                 NumShortTasks = 1; //タスク0対策
@@ -103,7 +112,7 @@ namespace TownOfHost
             }
             //変更点がない場合
             if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskSoroeru.GetBool()) &&
-                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return;
+                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return;
 
             //割り当て可能なタスクのIDが入ったリスト
             //本来のRpcSetTasksの第二引数のクローン

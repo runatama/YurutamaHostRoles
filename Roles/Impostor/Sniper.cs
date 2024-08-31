@@ -121,7 +121,7 @@ public sealed class Sniper : RoleBase, IImpostor
     }
     private void SendRPC()
     {
-        Logger.Info($"{Player.GetNameWithRole()}:SendRPC", "Sniper");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}:SendRPC", "Sniper");
         using var sender = CreateSender();
 
         var snList = ShotNotify;
@@ -141,7 +141,7 @@ public sealed class Sniper : RoleBase, IImpostor
             ShotNotify.Add(reader.ReadByte());
             count--;
         }
-        Logger.Info($"{Player.GetNameWithRole()}:ReceiveRPC", "Sniper");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}:ReceiveRPC", "Sniper");
     }
     public bool CanUseKillButton()
     {
@@ -184,6 +184,8 @@ public sealed class Sniper : RoleBase, IImpostor
         {
             //自分には当たらない
             if (target.PlayerId == Player.PlayerId) continue;
+            //君臨者には当たらん！
+            if (target.Is(CustomRoles.King)) continue;
             //FriendlyFireがOFFならImpostorを除外
             if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor()) continue;
             //死んでいない対象の方角ベクトル作成

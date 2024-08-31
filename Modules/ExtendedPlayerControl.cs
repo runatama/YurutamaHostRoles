@@ -20,6 +20,13 @@ namespace TownOfHost
 {
     static class ExtendedPlayerControl
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="player">対象者</param>
+        /// <param name="role">変更する役職</param>
+        /// <param name="setRole">基本trueにしよう()</param>
+        /// <param name="log">true→役職上書き null→役職変更表示 false→なんもしない</param>
         public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = false, bool? log = false)
         {
             if (player.GetCustomRole() == role) return;
@@ -80,7 +87,7 @@ namespace TownOfHost
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 player.SyncSettings();
-                player.SetKillCooldown(delay: true);
+                player.SetKillCooldown(delay: true, kyousei: true);
                 player.RpcResetAbilityCooldown();
             }
         }
@@ -191,7 +198,8 @@ namespace TownOfHost
             {
                 Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
                 HudManagerPatch.LastSetNameDesyncCount++;
-                Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
+                //最近うるさくて見辛くなってるから...
+                //Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
             }
 
             var clientId = seer.GetClientId();

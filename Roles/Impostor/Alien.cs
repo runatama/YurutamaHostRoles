@@ -499,6 +499,11 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         {
             if (!info.CanKill) return; //キル出来ない相手には無効
             var (killer, target) = info.AttemptTuple;
+            if (target.Is(CustomRoles.King))
+            {
+                info.DoKill = false;
+                return;
+            }
             if (target.Is(CustomRoles.Bait)) return;
             if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
@@ -559,6 +564,11 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         {
             if (!info.CanKill) return; //キル出来ない相手には無効
             var (killer, target) = info.AttemptTuple;
+            if (target.Is(CustomRoles.King))
+            {
+                info.DoKill = false;
+                return;
+            }
             if (target.Is(CustomRoles.Bait)) return;
             if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;

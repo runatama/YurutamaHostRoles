@@ -91,6 +91,41 @@ namespace TownOfHost
                 CustomRoles.InfoPoor
                 ;
         }
+        public static bool IsBuffAddon(this CustomRoles roles)
+        {
+            return roles is
+                CustomRoles.Moon or
+                CustomRoles.Guesser or
+                CustomRoles.Speeding or
+                CustomRoles.Guarding or
+                CustomRoles.watching or
+                CustomRoles.Lighting or
+                CustomRoles.Management or
+                CustomRoles.Connecting or
+                CustomRoles.Serial or
+                CustomRoles.PlusVote or
+                CustomRoles.Opener or
+                CustomRoles.seeing or
+                CustomRoles.Revenger or
+                CustomRoles.Autopsy or
+                CustomRoles.Tiebreaker
+                ;
+        }
+        public static bool IsDebuffAddon(this CustomRoles roles)
+        {
+            return roles is
+                CustomRoles.NonReport or
+                CustomRoles.Notvoter or
+                CustomRoles.Elector or
+                CustomRoles.Water or
+                CustomRoles.Slacker or
+                CustomRoles.Transparent or
+                CustomRoles.Amnesia or
+                CustomRoles.Clumsy or
+                CustomRoles.SlowStarter or
+                CustomRoles.InfoPoor
+                ;
+        }
         public static bool IsRiaju(this CustomRoles roles)
         {
             return roles is

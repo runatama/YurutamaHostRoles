@@ -209,6 +209,7 @@ namespace TownOfHost
             Utils.AfterMeetingTasks();
             Utils.SyncAllSettings();
             Utils.NotifyRoles();
+            _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
 
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
@@ -235,7 +236,7 @@ namespace TownOfHost
                         var roleClass = CustomRoleManager.GetByPlayerId(x.Key);
                         var requireResetCam = player?.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true;
                         var state = PlayerState.GetByPlayerId(x.Key);
-                        Logger.Info($"{player.GetNameWithRole()}を{x.Value}で死亡させました", "AfterMeetingDeath");
+                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を{x.Value}で死亡させました", "AfterMeetingDeath");
                         state.DeathReason = x.Value;
                         state.SetDead();
                         player?.RpcExileV2();

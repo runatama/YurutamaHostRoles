@@ -305,7 +305,11 @@ namespace TownOfHost
             RoleSettingsButton.gameObject.SetActive(false);
 
             ModSettingsButton = ModStgButton.GetComponent<PassiveButton>();
-            ModSettingsButton.buttonText.text = "MODの設定";
+            ModSettingsButton.buttonText.text = "TownOfHost-Kの設定";
+            var activeSprite = ModSettingsButton.activeSprites.GetComponent<SpriteRenderer>();
+            var selectedSprite = ModSettingsButton.selectedSprites.GetComponent<SpriteRenderer>();
+            activeSprite.color = StringHelper.CodeColor(Main.ModColor);
+            selectedSprite.color = StringHelper.CodeColor(Main.ModColor).ShadeColor(-0.2f);
             ModSettingsButton.buttonText.DestroyTranslator();//翻訳破壊☆
 
             var roleTab = GameObject.Find("ROLES TAB");

@@ -136,7 +136,7 @@ namespace TownOfHost.Roles.Neutral
             }
             else
             {
-                logger.Warn($"未知のキル役職からのキル: {killer.GetNameWithRole()}");
+                logger.Warn($"未知のキル役職からのキル: {killer.GetNameWithRole().RemoveHtmlTags()}");
             }
 
             RevealNameColors(killer);

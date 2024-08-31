@@ -1,5 +1,5 @@
 using AmongUs.GameOptions;
-
+using HarmonyLib;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
@@ -33,6 +33,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         ability = false;
         aname = false;
         speed = Main.AllPlayerSpeed[Player.PlayerId];
+        PlayerColor = player.Data.DefaultOutfit.ColorId;
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem Jampcount;
@@ -40,6 +41,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
     static OptionItem Jampcooltime;
     Vector2 position;
     Vector2 nowposition;
+    int PlayerColor;
     float x;
     float y;
     float addx;
@@ -69,6 +71,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
     public override bool CanDesyncShapeshift => true;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !ability;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -79,6 +82,8 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         if (timer > 1.5f)
         {
             if (count == 1) aname = true;
+            int chance = IRandom.Instance.Next(0, 18);
+            Main.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
             Utils.NotifyRoles();
             player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
             player.RpcProtectedMurderPlayer();
@@ -88,6 +93,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 {
                     foreach (var target in Main.AllAlivePlayerControls)
                     {
+                        if (target.Is(CustomRoles.King)) continue;
                         if (target != player)
                         {
                             float Distance = Vector2.Distance(player.transform.position, target.transform.position);
@@ -106,6 +112,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 }
                 if (!ability)
                 {
+                    Player.RpcSetColor((byte)PlayerColor);
                     aname = false;
                     _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "jampnamemoosu");
                 }
@@ -138,6 +145,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         Main.AllPlayerSpeed[Player.PlayerId] = speed;
         _ = new LateTask(() => Player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampokyouseiowari");
     }
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public bool CanUseKillButton() => !ability;
     public void OnClick()
     {

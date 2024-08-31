@@ -125,6 +125,8 @@ public static class GuessManager
                 if (!GuesserGuessed.ContainsKey(pc.PlayerId)) GuesserGuessed.Add(pc.PlayerId, 0);
                 if (!TGuess.ContainsKey(pc.PlayerId)) TGuess.Add(pc.PlayerId, 0);
 
+                if (target.GetRoleClass()?.CheckGuess(pc) == null) return true;
+
                 //陣営事に区別する
                 if (pc.Is(CustomRoleTypes.Impostor)) if (GuessCountImp(pc)) return true;
                 if (pc.Is(CustomRoleTypes.Neutral)) if (GuessCountNeu(pc)) return true;
@@ -164,12 +166,17 @@ public static class GuessManager
                 if (pc.Is(CustomRoleTypes.Neutral))
                     if (NeuHantei(pc, target)) guesserSuicide = true;
 
+                if (target.GetRoleClass()?.CheckGuess(pc) == false)
+                {
+                    guesserSuicide = true;
+                }
+
                 //自殺が決まってないなら処理
                 if (CheckTargetRoles(target, role) && !guesserSuicide)
                 {
                     guesserSuicide = true;
                 }
-                Logger.Info($"{pc.GetNameWithRole()} が {target.GetNameWithRole()} をゲス", "Guesser");
+                Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} が {target.GetNameWithRole().RemoveHtmlTags()} をゲス", "Guesser");
 
                 var dp = guesserSuicide ? pc : target;
                 var tempDeathReason = CustomDeathReason.Guess;
@@ -177,7 +184,7 @@ public static class GuessManager
                 var dareda = target;
                 target = dp;
 
-                Logger.Info($"ゲッサー：{target.GetNameWithRole()} ", "Guesser");
+                Logger.Info($"ゲッサー：{target.GetNameWithRole().RemoveHtmlTags()} ", "Guesser");
 
                 string Name = dp.GetRealName();
 

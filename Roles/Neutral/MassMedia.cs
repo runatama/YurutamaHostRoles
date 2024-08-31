@@ -111,11 +111,11 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
         {
             if (Target != byte.MaxValue)
             {
-                info.CanKill = false;
+                info.DoKill = false;
                 return;
             }
             Target = target.PlayerId;
-            info.CanKill = false;
+            info.DoKill = false;
             Main.AllPlayerKillCooldown[killer.PlayerId] = 999;
             killer.SyncSettings();
             killer.RpcProtectedMurderPlayer();

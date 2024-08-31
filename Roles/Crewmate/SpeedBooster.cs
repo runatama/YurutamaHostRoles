@@ -65,7 +65,7 @@ public sealed class SpeedBooster : RoleBase
             if (targetPlayers.Count >= 1)
             {
                 var target = targetPlayers[rand.Next(0, targetPlayers.Count)];
-                Logger.Info("スピードブースト先:" + target.GetNameWithRole(), "SpeedBooster");
+                Logger.Info("スピードブースト先:" + target.GetNameWithRole().RemoveHtmlTags(), "SpeedBooster");
                 BoostTarget = target.PlayerId;
                 Main.AllPlayerSpeed[BoostTarget] *= UpSpeed;
                 target.MarkDirtySettings();

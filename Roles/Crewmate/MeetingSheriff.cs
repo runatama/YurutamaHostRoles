@@ -131,7 +131,7 @@ public sealed class MeetingSheriff : RoleBase
             Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MeetingSheriff]　{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]";
             Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>)";
 
-            Logger.Info($"{Player.GetNameWithRole()}がシェリフ成功({target.GetNameWithRole()}) 残り{Max - count}", "MeetingSheriff");
+            Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
             Utils.SendMessage(Utils.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             hudManager.ShowKillAnimation(target.Data, target.Data);
             foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
@@ -163,7 +163,7 @@ public sealed class MeetingSheriff : RoleBase
         Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MeetingSheriff]　{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]";
         Main.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>)";
 
-        Logger.Info($"{Player.GetNameWithRole()}がシェリフ失敗({target.GetNameWithRole()}) 残り{Max - count}", "MeetingSheriff");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
         Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
         foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
         hudManager.ShowKillAnimation(Player.Data, Player.Data);

@@ -11,6 +11,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Core;
 
@@ -42,13 +43,13 @@ public static class CustomRoleManager
     /// <param name="appearanceKiller">見た目上でキルを行うプレイヤー 可変</param>
     /// <param name="appearanceTarget">見た目上でキルされるプレイヤー 可変</param>
     /// <returns></returns>
-    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool kantu = false)
+    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool kantu = false, bool? RoleAbility = false)
     {
-        Logger.Info($"Attempt  :{attemptKiller.GetNameWithRole()} => {attemptTarget.GetNameWithRole()}", "CheckMurder");
+        Logger.Info($"Attempt  :{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
         if (appearanceKiller != attemptKiller || appearanceTarget != attemptTarget)
-            Logger.Info($"Apperance:{appearanceKiller.GetNameWithRole()} => {appearanceTarget.GetNameWithRole()}", "CheckMurder");
+            Logger.Info($"Apperance:{appearanceKiller.GetNameWithRole().RemoveHtmlTags()} => {appearanceTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
-        var info = new MurderInfo(attemptKiller, attemptTarget, appearanceKiller, appearanceTarget);
+        var info = new MurderInfo(attemptKiller, attemptTarget, appearanceKiller, appearanceTarget, RoleAbility);
 
         appearanceKiller.ResetKillCooldown();
 
@@ -67,6 +68,12 @@ public static class CustomRoleManager
             {
                 if (killer.IsKiller)//一応今は属性ガード有線にしてますが
                 {
+                    if (attemptKiller.Is(CustomRoles.EarnestWolf))//最優先
+                    {
+                        if (Amnesia.CheckAbility(attemptKiller)) killer.OnCheckMurderAsKiller(info);
+                        if (!info.DoKill || !info.CanKill) return false;
+                    }
+
                     if (targetRole != null)
                         if (Amnesia.CheckAbility(attemptTarget))
                             if (!targetRole.OnCheckMurderAsTarget(info))
@@ -90,13 +97,15 @@ public static class CustomRoleManager
                         }
                     }
                 }
-                //属性ガードがある場合はCankillのみ先にfalseで返す。
+                //属性ガードがある場合はDokillのみ先にfalseで返す。
                 if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
                     if (Main.Guard[attemptTarget.PlayerId] > 0)
-                        info.CanKill = false;
+                        info.DoKill = false;
 
                 // キラーのキルチェック処理実行
-                if (Amnesia.CheckAbility(attemptKiller)) killer.OnCheckMurderAsKiller(info);
+                if (!attemptKiller.Is(CustomRoles.EarnestWolf))
+                    if (Amnesia.CheckAbility(attemptKiller))
+                        killer.OnCheckMurderAsKiller(info);
 
                 if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
                 {
@@ -106,7 +115,7 @@ public static class CustomRoleManager
                         Main.Guard[attemptTarget.PlayerId]--;
                         attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
                         Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
-                        Logger.Info($"{attemptTarget.GetNameWithRole()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
+                        Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
                         Utils.NotifyRoles();
                         return false;
                     }
@@ -116,16 +125,19 @@ public static class CustomRoleManager
         //キル可能だった場合のみMurderPlayerに進む
         if (info.CanKill && info.DoKill)//ノイメ対応
         {
-            if (appearanceTarget.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Noisemaker)
+            if (info.RoleAbility is false)
             {
-                if (AmongUsClient.Instance.AmHost)
-                    foreach (var pc in Main.AllPlayerControls)
-                    {
-                        if (pc == PlayerControl.LocalPlayer)
-                            appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
-                        else
-                            appearanceTarget.RpcSetRoleDesync(RoleTypes.Noisemaker, pc.GetClientId());
-                    }
+                if (appearanceTarget.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Noisemaker)
+                {
+                    if (AmongUsClient.Instance.AmHost)
+                        foreach (var pc in Main.AllPlayerControls)
+                        {
+                            if (pc == PlayerControl.LocalPlayer)
+                                appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
+                            else
+                                appearanceTarget.RpcSetRoleDesync(RoleTypes.Noisemaker, pc.GetClientId());
+                        }
+                }
             }
             if (GhostNoiseSender.Nois.ContainsValue(appearanceTarget.PlayerId))
             {
@@ -140,7 +152,8 @@ public static class CustomRoleManager
                     }
             }
 
-            Psychic.CanAbility(appearanceTarget);
+            if (info.RoleAbility is false)
+                Psychic.CanAbility(appearanceTarget);
 
             //MurderPlayer用にinfoを保存
             CheckMurderInfos[appearanceKiller.PlayerId] = info;
@@ -149,8 +162,8 @@ public static class CustomRoleManager
         }
         else
         {
-            if (!info.CanKill) Logger.Info($"{appearanceTarget.GetNameWithRole()}をキル出来ない。", "CheckMurder");
-            if (!info.DoKill) Logger.Info($"{appearanceKiller.GetNameWithRole()}はキルしない。", "CheckMurder");
+            if (!info.CanKill) Logger.Info($"{appearanceTarget.GetNameWithRole().RemoveHtmlTags()}をキル出来ない。", "CheckMurder");
+            if (!info.DoKill) Logger.Info($"{appearanceKiller.GetNameWithRole().RemoveHtmlTags()}はキルしない。", "CheckMurder");
             return false;
         }
     }
@@ -177,19 +190,26 @@ public static class CustomRoleManager
 
         (var attemptKiller, var attemptTarget) = info.AttemptTuple;
 
-        Logger.Info($"Real Killer={attemptKiller.GetNameWithRole()}", "MurderPlayer");
+        var roleability = info.RoleAbility;
+
+        Logger.Info($"Real Killer={attemptKiller.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
         //キラーの処理
-
-        if (Amnesia.CheckAbility(attemptKiller))
-            (attemptKiller.GetRoleClass() as IKiller)?.OnMurderPlayerAsKiller(info);
+        if (roleability is false or null)
+        {
+            if (Amnesia.CheckAbility(attemptKiller))
+                (attemptKiller.GetRoleClass() as IKiller)?.OnMurderPlayerAsKiller(info);
+        }
 
         //ターゲットの処理
         var targetRole = attemptTarget.GetRoleClass();
 
-        if (Amnesia.CheckAbility(attemptKiller))
-            if (targetRole != null)
-                targetRole.OnMurderPlayerAsTarget(info);
+        if (roleability is false)
+        {
+            if (Amnesia.CheckAbility(attemptKiller))
+                if (targetRole != null)
+                    targetRole.OnMurderPlayerAsTarget(info);
+        }
 
         //その他視点の処理があれば実行
         foreach (var onMurderPlayer in OnMurderPlayerOthers.ToArray())
@@ -519,6 +539,13 @@ public class MurderInfo
     /// </summary>
     public bool DoKill = true;
     /// <summary>
+    /// キル後、役職処理を行うか
+    /// falseで通常処理
+    /// trueでキラー,ターゲット共に行わない
+    /// nullでターゲットのみ行わない
+    /// </summary>
+    public bool? RoleAbility = false;
+    /// <summary>
     ///転落死など事故の場合(キラー不在)
     /// </summary>
     public bool IsAccident = false;
@@ -534,12 +561,13 @@ public class MurderInfo
     /// 遠距離キル代わりの疑似自殺
     /// </summary>
     public bool IsFakeSuicide => AppearanceKiller.PlayerId == AppearanceTarget.PlayerId;
-    public MurderInfo(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearancetarget)
+    public MurderInfo(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearancetarget, bool? roleability = false)
     {
         AttemptKiller = attemptKiller;
         AttemptTarget = attemptTarget;
         AppearanceKiller = appearanceKiller;
         AppearanceTarget = appearancetarget;
+        RoleAbility = roleability;
     }
 }
 
@@ -585,6 +613,7 @@ public enum CustomRoles
     EvilAddoer,
     Reloader,
     Jumper,
+    EarnestWolf,
     //Madmate
     MadGuardian,
     Madmate,
@@ -642,6 +671,7 @@ public enum CustomRoles
     SwitchSheriff,
     NiceLogger,
     Android,
+    King,
     //Neutral
     Arsonist,
     Egoist,

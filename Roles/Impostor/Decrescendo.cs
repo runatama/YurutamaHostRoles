@@ -90,7 +90,7 @@ public sealed class Decrescendo : RoleBase, IImpostor
         KillCooldown = OptionKillCooldown.GetFloat();
 
         Killcount = KillerCountopt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 後{KillerCount}発", "Decrescendo");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 後{KillerCount}発", "Decrescendo");
     }
     private void SendRPC()
     {
@@ -110,7 +110,7 @@ public sealed class Decrescendo : RoleBase, IImpostor
         {
             (var killer, var target) = info.AttemptTuple;
             KillerCount++;
-            Logger.Info($"{killer.GetNameWithRole()} : 残り{Killcount - KillerCount}発", "Decrescendo");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 残り{Killcount - KillerCount}発", "Decrescendo");
             SendRPC();
             if (KillerCount >= Killcount)
             {

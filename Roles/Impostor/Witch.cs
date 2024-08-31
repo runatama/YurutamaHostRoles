@@ -169,6 +169,8 @@ namespace TownOfHost.Roles.Impostor
         }
         public void SetSpelled(PlayerControl target)
         {
+            if (target.Is(CustomRoles.King)) return;
+
             if (!IsSpelled(target.PlayerId))
             {
                 SpelledPlayer.Add(target.PlayerId);

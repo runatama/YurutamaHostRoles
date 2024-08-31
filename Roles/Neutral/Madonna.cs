@@ -144,13 +144,12 @@ public sealed class Madonna : RoleBase
         if (limit <= Main.day && Limitd && Player.IsAlive())
         {
             PlayerState state = PlayerState.GetByPlayerId(Player.PlayerId);
-            PlayerState.GetByPlayerId(Player.PlayerId);
             Player.RpcExileV2();
             state.SetDead();
             state.DeathReason = CustomDeathReason.Suicide;
             ReportDeadBodyPatch.Musisuruoniku[Player.PlayerId] = false;
             Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Madonna]　" + string.Format(GetString("log.AM"), Utils.GetPlayerColor(Utils.GetPlayerById(Player.PlayerId)), Utils.GetTrueRoleName(Player.PlayerId, false));
-            Logger.Info($"{Player.GetNameWithRole()}は指定ターン経過したため自殺。", "Madonna");
+            Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}は指定ターン経過したため自殺。", "Madonna");
         }
     }
 }

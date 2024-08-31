@@ -218,7 +218,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
                 if ((oldRate < 50 && newRate >= 50) || newRate >= 100)
                 {
                     changed = true;
-                    Logger.Info($"InfectRate[{target.GetNameWithRole()}]:{newRate}%", "OnCheckMurderAsKiller");
+                    Logger.Info($"InfectRate[{target.GetNameWithRole().RemoveHtmlTags()}]:{newRate}%", "OnCheckMurderAsKiller");
                     PlagueDoctors[0].SendRPC(target.PlayerId, newRate);
                 }
             }
@@ -291,7 +291,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
     }
     public void DirectInfect(PlayerControl player)
     {
-        Logger.Info($"InfectRate[{player.GetNameWithRole()}]:100%", "OnCheckMurderAsKiller");
+        Logger.Info($"InfectRate[{player.GetNameWithRole().RemoveHtmlTags()}]:100%", "OnCheckMurderAsKiller");
         InfectInfos[player.PlayerId] = 100;
         SendRPC(player.PlayerId, 100);
         Utils.NotifyRoles();

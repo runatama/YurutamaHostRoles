@@ -91,7 +91,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         var SelectedTarget = targetList[rand.Next(targetList.Count)];
         TargetId = SelectedTarget.PlayerId;
         SendRPC();
-        Logger.Info($"{Player.GetNameWithRole()}:{SelectedTarget.GetNameWithRole()}", "Executioner");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
     }
     public override void OnDestroy()
     {

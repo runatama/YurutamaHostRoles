@@ -110,6 +110,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         bool check = false;
         foreach (var p in Main.AllAlivePlayerControls)
         {
+            if (p.Is(CustomRoles.King)) continue;
             dis = Vector2.Distance(Player.transform.position, p.transform.position);
             //↑プレイヤーとの距離 ↓自分以外、で近くにいて 既にターゲットにされていないか
             if (p.PlayerId != Player.PlayerId && dis < Radius && !KillList.Contains(p.PlayerId))

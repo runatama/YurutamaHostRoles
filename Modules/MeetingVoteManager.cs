@@ -48,7 +48,7 @@ public class MeetingVoteManager
     /// <param name="exiled">追放先</param>
     public void ClearAndExile(byte voter, byte exiled)
     {
-        logger.Info($"{Utils.GetPlayerById(voter).GetNameWithRole()} によって {GetVoteName(exiled)} が追放されます");
+        logger.Info($"{Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} によって {GetVoteName(exiled)} が追放されます");
         ClearVotes();
         var vote = new VoteData(voter);
         vote.DoVote(exiled, 1);
@@ -84,13 +84,13 @@ public class MeetingVoteManager
 
             if (roleVoteFor.HasValue)
             {
-                logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
                 voteFor = roleVoteFor.Value;
             }
             var pc = Utils.GetPlayerById(voteFor);
             if (!pc.IsAlive() && voteFor != Skip && voteFor != NoVote)
             {
-                logger.Info($"{role.Player.GetNameWithRole()} 相手が死んでいるので投票は取り消されます");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} 相手が死んでいるので投票は取り消されます");
                 doVote = false;
             }
 
@@ -104,7 +104,7 @@ public class MeetingVoteManager
                 }
                 else if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + PlusVote.AdditionalVote.GetInt();
                 else numVotes = roleNumVotes.Value;
-                logger.Info($"{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {numVotes} に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes} に変更します");
             }
             else if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
             {
@@ -113,25 +113,25 @@ public class MeetingVoteManager
             }
             else if (player.Is(CustomRoles.PlusVote))//プラスポート
             {
-                logger.Info($"プラスポート:{role.Player.GetNameWithRole()} が {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を {numVotes}+{PlusVote.AdditionalVote.GetInt()}  に変更します");
+                logger.Info($"プラスポート:{role.Player.GetNameWithRole().RemoveHtmlTags()} が {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes}+{PlusVote.AdditionalVote.GetInt()}  に変更します");
                 numVotes = PlusVote.AdditionalVote.GetInt();
             }
 
             if (player.Is(CustomRoles.Notvoter))
             {
-                logger.Info($"{role.Player.GetNameWithRole()} の {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を 0 に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
                 numVotes = 0;
             }
             else
             if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveNotvoter.GetBool())
             {
-                logger.Info($"{role.Player.GetNameWithRole()} の {Utils.GetPlayerById(voter).GetNameWithRole()} の投票数を 0 に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
                 numVotes = 0;
             }
 
             if (player.Is(CustomRoles.Elector) && voteFor == Skip)
             {
-                logger.Info($"{role.Player.GetNameWithRole()} スキップ投票は取り消されます");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} スキップ投票は取り消されます");
                 doVote = false;
             }
             else
@@ -139,7 +139,7 @@ public class MeetingVoteManager
             {
                 if (da.GiveElector.GetBool() && voteFor == Skip)
                 {
-                    logger.Info($"{role.Player.GetNameWithRole()} スキップ投票は取り消されます");
+                    logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} スキップ投票は取り消されます");
                     doVote = false;
                 }
             }
@@ -167,8 +167,9 @@ public class MeetingVoteManager
     /// <param name="applyVoteMode">スキップと同数投票の設定を適用するかどうか</param>
     public void EndMeeting(bool applyVoteMode = true, bool ClearAndExile = false)
     {
+        GameStates.Tuihou = true;
         var result = CountVotes(applyVoteMode, ClearAndExile);
-        var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole();
+        var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole().RemoveHtmlTags();
         logger.Info($"追放者: {logName} で会議を終了します");
 
         var r = result.Exiled == null ? (result.IsTie ? Translator.GetString("votetie") : Translator.GetString("voteskip")) : Utils.GetPlayerColor(Utils.GetPlayerById(result.Exiled.Object.PlayerId)) + Translator.GetString("fortuihou");
@@ -183,7 +184,7 @@ public class MeetingVoteManager
             var voteData = AllVotes.TryGetValue(voteArea.TargetPlayerId, out var value) ? value : null;
             if (voteData == null)
             {
-                logger.Warn($"{Utils.GetPlayerById(voteArea.TargetPlayerId).GetNameWithRole()} の投票データがありません");
+                logger.Warn($"{Utils.GetPlayerById(voteArea.TargetPlayerId).GetNameWithRole().RemoveHtmlTags()} の投票データがありません");
                 continue;
             }
             for (var i = 0; i < voteData.NumVotes; i++)
@@ -214,7 +215,7 @@ public class MeetingVoteManager
                                 if (pc == PlayerControl.LocalPlayer) continue;
                                 Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                             }
-                            Logger.Info($"{Player.name} => {taishou} , Ch = false!", "NotAntenEx");
+                            Logger.Info($"{Player.name} => {taishou.name} , Ch = false!", "NotAntenEx");
                         }
                         ch = false;
                     }
@@ -235,7 +236,7 @@ public class MeetingVoteManager
                             }
                             Player?.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                         }
-                        Logger.Info($"{Player.name} => {taishou} , Ch = true!", "NotAntenEx");
+                        Logger.Info($"{Player.name} => {taishou.name} , Ch = true!", "NotAntenEx");
                     }
             }
         }
@@ -321,7 +322,7 @@ public class MeetingVoteManager
             var vote = voteData.Value;
             if (!vote.HasVoted)
             {
-                var voterName = Utils.GetPlayerById(vote.Voter).GetNameWithRole();
+                var voterName = Utils.GetPlayerById(vote.Voter).GetNameWithRole().RemoveHtmlTags();
                 switch (noVoteMode)
                 {
                     case VoteMode.Suicide:
@@ -340,7 +341,7 @@ public class MeetingVoteManager
             }
             else if (!ignoreSkipMode && vote.IsSkip)
             {
-                var voterName = Utils.GetPlayerById(vote.Voter).GetNameWithRole();
+                var voterName = Utils.GetPlayerById(vote.Voter).GetNameWithRole().RemoveHtmlTags();
                 switch (skipMode)
                 {
                     case VoteMode.Suicide:
@@ -370,7 +371,7 @@ public class MeetingVoteManager
                 name = Utils.GetPlayerColor(player);
             else
             {
-                name = player?.GetNameWithRole();
+                name = player?.GetNameWithRole().RemoveHtmlTags();
             }
         }
         else if (num == Skip) name = "Skip";
@@ -405,7 +406,7 @@ public class MeetingVoteManager
 
         public void DoVote(byte voteTo, int numVotes)
         {
-            logger.Info($"投票: {Utils.GetPlayerById(Voter).GetNameWithRole()} => {GetVoteName(voteTo)} x {numVotes}");
+            logger.Info($"投票: {Utils.GetPlayerById(Voter).GetNameWithRole().RemoveHtmlTags()} => {GetVoteName(voteTo)} x {numVotes}");
             VotedFor = voteTo;
             NumVotes = numVotes;
         }

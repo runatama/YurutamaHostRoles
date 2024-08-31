@@ -169,7 +169,7 @@ public static class MeetingHudPatch
                 if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
-                    Logger.Info($"{voter.GetNameWithRole()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
+                    Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
                     InfoMode[srcPlayerId] = srcPlayerId == suspectPlayerId || InfoMode[srcPlayerId] is 4 ? 4 : 0;
                     return false;
                 }
@@ -179,7 +179,7 @@ public static class MeetingHudPatch
                     Utils.SendMessage("君はイレクターなんだよ。\nスキップできない属性でね。\n誰かに投票してね。", voter.PlayerId);
                     __instance.RpcClearVote(voter.GetClientId());
                     InfoMode[srcPlayerId] = 0;
-                    Logger.Info($"{voter.GetNameWithRole()} イレクター発動 => {srcPlayerId}", nameof(CastVotePatch));
+                    Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} イレクター発動 => {srcPlayerId}", nameof(CastVotePatch));
                     return false;
                 }
             }
@@ -469,8 +469,8 @@ public static class MeetingHudPatch
                     state.DeathReason = CustomDeathReason.Execution;
                     state.SetDead();
                     Utils.SendMessage(string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
-                    Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Executed]　" + string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true));
-                    Logger.Info($"{player.GetNameWithRole()}を処刑しました", "Execution");
+                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Executed]　" + string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true));
+                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
                 });
             }

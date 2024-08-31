@@ -86,7 +86,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
 
         Target = Utils.GetPlayerById(targetId);
         if (ShowTargetArrow) TargetArrow.Add(Player.PlayerId, targetId);
-        Logger.Info($"{Player.GetNameWithRole()}のターゲットを{Target.GetNameWithRole()}に変更", "BountyHunter");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{Target.GetNameWithRole().RemoveHtmlTags()}に変更", "BountyHunter");
     }
     //public static void SetKillCooldown(byte id, float amount) => Main.AllPlayerKillCooldown[id] = amount;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = TargetChangeTime;
@@ -132,7 +132,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
                 if (PlayerState.GetByPlayerId(targetId).IsDead)
                 {
                     ResetTarget();
-                    Logger.Info($"{Player.GetNameWithRole()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
+                    Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
                     Utils.NotifyRoles(SpecifySeer: Player);
                 }
             }
@@ -153,7 +153,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
 
         ChangeTimer = 0f;
 
-        Logger.Info($"{Player.GetNameWithRole()}:ターゲットリセット", "BountyHunter");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}:ターゲットリセット", "BountyHunter");
         Player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
 
         var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CountTypes.Impostor)));
@@ -172,7 +172,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         var targetId = target.PlayerId;
         Target = target;
         if (ShowTargetArrow) TargetArrow.Add(playerId, targetId);
-        Logger.Info($"{Player.GetNameWithRole()}のターゲットを{Target.GetNameWithRole()}に変更", "BountyHunter");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{Target.GetNameWithRole().RemoveHtmlTags()}に変更", "BountyHunter");
 
         //RPCによる同期
         SendRPC(targetId);

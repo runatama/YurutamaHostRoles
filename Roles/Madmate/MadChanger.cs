@@ -52,7 +52,7 @@ public sealed class MadChanger : RoleBase, IKiller
             KillTarget = target;
             Player.SetKillCooldown();
             Player.RpcResetAbilityCooldown();
-            info.CanKill = false;
+            info.DoKill = false;
         }
     }
 

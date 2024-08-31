@@ -124,7 +124,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         CurrentKillCooldown = KillCooldown.GetFloat();
 
         ShotLimit = ShotLimitOpt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole()} : 残り{ShotLimit}発", "Sheriff");
+        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "Sheriff");
     }
     private void SendRPC()
     {
@@ -152,7 +152,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         {
             (var killer, var target) = info.AttemptTuple;
 
-            Logger.Info($"{killer.GetNameWithRole()} : 残り{ShotLimit}発", "Sheriff");
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "Sheriff");
             if (ShotLimit <= 0)
             {
                 info.DoKill = false;

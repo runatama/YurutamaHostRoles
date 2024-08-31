@@ -1926,12 +1926,12 @@ namespace TownOfHost
 
             if (Main.introDestroyed)
                 foreach (var pp in Main.AllPlayerControls)
-                    Main.LastLogPro[pp.PlayerId] = GetProgressText(pp, Mane: false);
+                    if (Main.LastLogPro.ContainsKey(pp.PlayerId)) Main.LastLogPro[pp.PlayerId] = GetProgressText(pp, Mane: false);
 
             var caller = new StackFrame(1, false);
-            var callerMethod = caller.GetMethod();
-            string callerMethodName = callerMethod.Name;
-            string callerClassName = callerMethod.DeclaringType.FullName;
+            var callerMethod = caller?.GetMethod();
+            string callerMethodName = callerMethod?.Name ?? "ぬーるっ!!";
+            string callerClassName = callerMethod?.DeclaringType?.FullName ?? "null!!";
             var logger = Logger.Handler("NotifyRoles");
             logger.Info("NotifyRolesが" + callerClassName + "." + callerMethodName + "から呼び出されました");
             HudManagerPatch.NowCallNotifyRolesCount++;
@@ -1958,7 +1958,7 @@ namespace TownOfHost
                 string fontSize = isForMeeting ? "1.5" : Main.RoleTextSize.ToString();
                 if (isForMeeting && seer.GetClient() != null)
                     if (seer.GetClient()?.PlatformData?.Platform is Platforms.Playstation or Platforms.Switch) fontSize = "70%";
-                logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":START");
+                logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":START");
 
                 var seerRole = seer.GetRoleClass();
                 // 会議じゃなくて，キノコカオス中で，seerが生きていてdesyncインポスターの場合に自身の名前を消す
@@ -1977,7 +1977,7 @@ namespace TownOfHost
 
                     //seer役職が対象のMark
                     if (!seer.Is(CustomRoles.Amnesia) && !(seerRole?.Jikaku() != CustomRoles.NotAssigned) && seer.GetRoleClass() != null)
-                        SelfMark.Append(seerRole?.GetMark(seer, isForMeeting: isForMeeting));
+                        SelfMark.Append(seerRole?.GetMark(seer, isForMeeting: isForMeeting) ?? "");
 
                     //seerに関わらず発動するMark
                     SelfMark.Append(CustomRoleManager.GetMarkOthers(seer, isForMeeting: isForMeeting));
@@ -2044,7 +2044,7 @@ namespace TownOfHost
                     SelfSuffix.Clear();
 
                     //seer役職が対象のLowerText
-                    if (!seer.Is(CustomRoles.Amnesia) && !(seerRole?.Jikaku() != CustomRoles.NotAssigned) && seer.GetRoleClass() != null) SelfSuffix.Append(seerRole?.GetLowerText(seer, isForMeeting: isForMeeting));
+                    if (!seer.Is(CustomRoles.Amnesia) && !(seerRole?.Jikaku() != CustomRoles.NotAssigned) && seer.GetRoleClass() != null) SelfSuffix.Append(seerRole?.GetLowerText(seer, isForMeeting: isForMeeting) ?? "");
                     //seerに関わらず発動するLowerText
                     SelfSuffix.Append(CustomRoleManager.GetLowerTextOthers(seer, isForMeeting: isForMeeting));
                     //追放者
@@ -2065,7 +2065,7 @@ namespace TownOfHost
                     }
                     //seer役職が対象のSuffix
                     if (Amnesia.CheckAbility(seer))
-                        SelfSuffix.Append(seerRole?.GetSuffix(seer, isForMeeting: isForMeeting));
+                        SelfSuffix.Append(seerRole?.GetSuffix(seer, isForMeeting: isForMeeting) ?? "");
                     //seerに関わらず発動するSuffix
                     SelfSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, isForMeeting: isForMeeting));
 
@@ -2081,7 +2081,7 @@ namespace TownOfHost
                     }
 
                     if (!isForMeeting && MeetingStates.FirstMeeting && (Options.ChangeNameToRoleInfo.GetBool() || Options.SuddenDeathMode.GetBool()) && Main.IntroHyoji)
-                        SeerRealName = seer.GetRoleInfo();
+                        SeerRealName = seer?.GetRoleInfo() ?? "";
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
                     var (enabled, text) = GetRoleNameAndProgressTextData(seer);
@@ -2117,7 +2117,7 @@ namespace TownOfHost
                             }
                     }
                     //適用
-                    Logger.Info(SelfName, "Name");
+                    //Logger.Info(SelfName, "Name");
                     seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
                 }
                 var rolech = seer.GetRoleClass()?.NotifyRolesCheckOtherName ?? false;
@@ -2147,7 +2147,8 @@ namespace TownOfHost
                     {
                         //targetがseer自身の場合は何もしない
                         if (target == seer) continue;
-                        logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole() + ":START");
+                        if (target == null) continue;
+                        logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START");
 
                         // 会議じゃなくて，キノコカオス中で，targetが生きていてseerがdesyncインポスターの場合にtargetの名前を消す
                         if (!isForMeeting && isMushroomMixupActive && target.IsAlive() && !seer.Is(CustomRoleTypes.Impostor) && seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true)
@@ -2165,7 +2166,7 @@ namespace TownOfHost
 
                             //seer役職が対象のMark
                             if (Amnesia.CheckAbility(seer))
-                                TargetMark.Append(seerRole?.GetMark(seer, target, isForMeeting));
+                                TargetMark.Append(seerRole?.GetMark(seer, target, isForMeeting) ?? "");
                             //seerに関わらず発動するMark
                             TargetMark.Append(CustomRoleManager.GetMarkOthers(seer, target, isForMeeting));
 
@@ -2250,7 +2251,7 @@ namespace TownOfHost
 
                             //seer役職が対象のSuffix
                             if (Amnesia.CheckAbility(seer))
-                                TargetSuffix.Append(seerRole?.GetSuffix(seer, target, isForMeeting: isForMeeting));
+                                TargetSuffix.Append(seerRole?.GetSuffix(seer, target, isForMeeting: isForMeeting) ?? "");
                             //seerに関わらず発動するSuffix
                             TargetSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, target, isForMeeting: isForMeeting));
                             // 空でなければ先頭に改行を挿入
@@ -2362,10 +2363,10 @@ namespace TownOfHost
                             //適用
                             target.RpcSetNamePrivate(TargetName, true, seer, force: NoCache);
                         }
-                        logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole() + ":END");
+                        logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":END");
                     }
                 }
-                logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole() + ":END");
+                logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":END");
             }
         }
         public static string MeetingMoji;

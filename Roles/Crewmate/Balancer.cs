@@ -198,6 +198,7 @@ public sealed class Balancer : RoleBase
 
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
+                GameStates.Tuihou = true;
             }
         }
     }

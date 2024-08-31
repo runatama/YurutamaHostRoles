@@ -169,7 +169,7 @@ namespace TownOfHost.Roles.Neutral
             (var killer, var target) = info.AttemptTuple;
             if (killer.Is(CustomRoles.Jackal) && !JackalCanKillMafia)
             {
-                info.CanKill = false;
+                info.DoKill = false;
                 killer.SetKillCooldown();
                 return false;
             }

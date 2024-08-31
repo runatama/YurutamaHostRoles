@@ -87,6 +87,12 @@ namespace TownOfHost.Roles.Neutral
 
                 if (info.IsFakeSuicide) return;
 
+                if (target.Is(CustomRoles.King))
+                {
+                    info.DoKill = false;
+                    return;
+                }
+
                 if (!GrimPlayers.ContainsKey(target.PlayerId))
                 {
                     killer.SetKillCooldown();

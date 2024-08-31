@@ -19,7 +19,8 @@ namespace TownOfHost
         public static void Postfix(AmongUsClient __instance)
         {
             while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
-            if (Main.NormalOptions.NumImpostors == 0 && GameStates.IsOnlineGame) Main.NormalOptions.NumImpostors = 1;
+            if (Main.NormalOptions.NumImpostors == 0 && GameStates.IsOnlineGame)
+                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumImpostors, 1);
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
             CheckPingPatch.Check = false;
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();

@@ -91,6 +91,21 @@ namespace TownOfHost.Roles.Crewmate
                 }
                 Taskmode = true;
             }
+            _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "NiceLogger");
+        }
+        public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        {
+            seen ??= seer;
+
+            if (seen != seer) return "";
+            if (isForMeeting) return "";
+
+            if (Taskmode) return "";
+            if (!Player.IsAlive()) return "";
+
+            var s = "";
+            if (!isForHud) s = "<size=50%>";
+            return s + Translator.GetString("NiceLoggerLower") + (s == "" ? "" : "</size>");
         }
         public override void OnStartMeeting()
         {

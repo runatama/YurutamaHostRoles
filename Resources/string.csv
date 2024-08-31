@@ -52,6 +52,7 @@
 "EvilAddoer","EvilAddoer","イビルアドナー","","","","",""
 "Reloader","Reloader","リローダー"
 "Jumper","Jumper","ジャンパー"
+"EarnestWolf","EarnestWolf","一途な狼"
 "#ImpostorName"
 
 "# マッドメイト系役職"
@@ -105,6 +106,7 @@
 "Android","Android","アンドロイド"
 "Psychic","Psychic","サイキック"
 "Efficient","Efficient","エフィシェンシー"
+"King","King","君臨者"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -266,6 +268,7 @@
 "EvilAddoerInfo","","様々な能力を活用し、皆殺しにしよう"
 "ReloaderInfo","Let's reload and shoot!!","即座にリロードして発射しよう"
 "JumperInfo","","びょ～～～～～んｽﾁｬｯ"
+"EarnestWolfInfo","","僕が頑張ったら...!"
 "#ImpostorInfo"
 
 "# マッドメイト系役職"
@@ -321,6 +324,7 @@
 "AndroidInfo","","01001011"
 "PsychicInfo","","君の思いは受け取った"
 "EfficientInfo","","いっけな～い!!タスク～タスク～"
+"KingInfo","","皆の者、我を称え、ひれ伏すが良い"
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -452,6 +456,7 @@
 "EvilAddoerInfoLong","","イビルアドナー専用で属性が付与される。\n同じ属性が重複している場合、重複した属性はイビルアドナーの設定が優先される。\nただし、ラストインポスターで付与された属性はラストインポスターの設定が優先される。"
 "ReloaderInfoLong","","ワンクリックボタンを使用することでキルクールダウンが設定値にリロードされる。"
 "JumperInfoLong","","ワンクリックボタンを使用することでジャンプ位置を設定する。\nジャンプ位置を指定後、ワンクリックを使用することで何度かジャンプを経由してその位置までジャンプすることができる。\nジャンプ位置、経由地点には赤い丸で通知がされ、大体その範囲にいたプレイヤーを巻き込んでしまう。"
+"EarnestWolfInfoLong","","ワンクリックボタンを使用することで通常キルとオーバーキルを切り替えることができる。\nオーバーキルモード中はキルディスタンスが長い。\nオーバーキルモード中にキルをすると、キルターゲットの能力、ガードを貫通するが、キルクールが倍率で増加する。"
 "#ImpostorInfoLong"
 
 
@@ -506,6 +511,7 @@
 "AndroidInfoLong","","タスクを行うことでバッテリーをチャージすることが出来る。\nバッテリー残量によって、ベントクールタイム,ベントに籠れる時間が変動する。\nサボタージュの発動中はベントに入ることが出来ない。\n100%以上に充電されることはない。"
 "PsychicInfoLong","","プレイヤーが死亡するごとに、サイキックはノイズメーカーのノイズを受け取ることが出来る。"
 "EfficientInfoLong","","他のクルー役職よりタスクが多いが、タスクを完了させると、一定確立でもう一つタスクが完了する。\n能力発動時に守護天使のバリアが見える。\n能力発動発動後、3秒間のクールタイムが発生する。"
+"KingInfoLong","","基本死亡しないが、死亡した時、クルー陣営に大きな損害をもたらす。\n通常キル、多くの特殊キルでも死亡しない。\nただし、会議で一定数票が集まってしまうと自身が追放されてしまう。\nクルー陣営には自身が君臨者であることが分かっているが人外には分からない。\n君臨者には天邪鬼,アムネシアは付与されない。"
 "#CrewmateInfoLong"
 
 "# ニュートラル役職"
@@ -531,7 +537,7 @@
 "MassMediaInfoLong","","キルボタンを使ってその人を追跡することが出来る。\nマスメディアは追跡相手の位置が分かるが、追跡相手が近いと視界が真っ暗になる。\n追跡相手がキルされ、自身が通報した場合、\n誰が追跡相手をキルしたのかを投票で推測することが出来る。\n推測を行った場合は会議が即座に終了する。スキップの場合は推測が行われない。\n推測があっていた場合、マスメディアの勝利、間違っていればマスメディアが死亡する。\nまた、情報機器を使用することが出来ない。追跡相手等は会議でリセットされる。\nマスメディアが対象の死体を通報する時にのみ、属性(役職付与属性含む)の効果は適応されない"
 "BankerInfoLong","","タスク、キルを行うことでポイントが貯まる。\nモード変更、ターン開始時にポイントを消費する。\nベントに入ることでキルモード,タスクモードを切り替えることが出来る。\n試合終了時点で一定ポイント所持していると追加勝利。"
 "BakeCatInfoLong","","始めは自身がクルーだと全員が思い込む。\nキルされると、キルを防いでキルしてきた陣営に所属する。\n所属後、キルが可能になる。\nタスクはない。\n無所属のまま試合が終わるとクルーと一緒に勝利する。"
-
+"PhantomThiefInfoLong","",""
 "EmptinessInfoLong","","君は空箱のように何もない。\n役職も。陣営も。勿論味方も。\n役職も陣営もないので勝利条件もない。\nだからと言って出来ることもない。"
 "#NeutralInfoLong"
 
@@ -960,6 +966,10 @@
 "JamperJampcount","","経由する回数"
 "JamperOneCoolTime","","ジャンプ位置を決めるクールダウン"
 "JamperCCoolTime","","ジャンプ地点にジャンプする時のクールダウン"
+"EarnestWolfOverKillCount","","オーバーキル可能回数"
+"EarnestWolfOverBairitu","","オーバーキル時のキルクール増加率"
+"EarnestWolfNomalKllDistance","","通常時のキルディスタンス"
+"EarnestWolfOverKillDistance","","オーバーキルモードのキルディスタンス"
 "blastrange","BomberExplosion Range","爆発範囲","","","","",""
 
 "## MadMate Role Setting"
@@ -990,6 +1000,8 @@
 
 "## CrewMate RoleSetting"
 "BaitComms","","通信妨害中は能力を発揮できない"
+"BaitChien","","通報までの遅延"
+"Baitsaidaichien","","ランダムでの追加遅延"
 "LighterMaxVision","Max Vision","最大視界","完成任务后的视野","做完任務的視野","Дальность обзора","Aumento de Visão",""
 "LighterTaskCompletedDisableLightOut","Ignore Fix Lights Effect","タスク完了時に停電を無効にする","完成任务的执灯人不受熄灯影响","完成任務的小燈人視野不受關燈影響","Имеет дальность Обзора Предателя","Ignorar Efeitos do Apagão",""
 "LighterTriggerType","Ability Activation Condition","能力発動条件","","","Условие активации способности","Condição de Ativação da Habilidade",""
@@ -1041,6 +1053,12 @@
 "AndroidRemoveTime","","減少するまでの時間"
 "EfficientCollectRect","","能力が発動する確率"
 "SwitchSheriffCommsmode","","通信妨害発生時のモード"
+"KingExileVoteCount","","追放される票数"
+"KingExileCrewDies","","死亡時、後追いする人数"
+"KingDeathReason","","後追いした者の死因"
+"KingAddon","","死亡時、バフ属性が剥奪される人数"
+"KingRole","","死亡時、役職がクルーになる人数"
+"KingCanGuesser","","ゲッサーで撃ち抜けれる"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
@@ -1318,8 +1336,9 @@
 "MadAvengerchallengeMeeting","If your masters were wiped out, you could start a revolutionary meeting.","ご主人が全滅していれば革命会議を起こせるぞ","","","","",""
 "MadAvengerreserve","Be prepared when the time comes.","その時が来るまで準備しろ","","","","",""
 "CS.Target","★Taeget★","★ターゲット★"
-"Jumper_setti","","\nジャンプ位置を設定しよう"
-"Jumper_Jamp","","\n準備は整った"
+"Jumper_setti","","ジャンプ位置を設定しよう"
+"Jumper_Jamp","","準備は整った"
+"NiceLoggerLower","","センサーを設置しよう"
 
 "## かくれんぼ設定"
 "HideAndSeekOptions","Hide and Seek Settings","かくれんぼの設定","躲猫猫设置","躲貓貓設定","Настройки Пряток","Configurações do Esconde-Esconde",""

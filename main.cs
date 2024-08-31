@@ -55,7 +55,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.7.14";
+        public const string PluginVersion = "5.1.7.15";
         public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -213,7 +213,7 @@ namespace TownOfHost
             UseZoom = Config.Bind("Client Options", "UseZoom", false);
             SyncYomiage = Config.Bind("Client Options", "SyncYomiage", true);
             CustomName = Config.Bind("Client Options", "CustomName", true);
-            ShowGameSettingsTMP = Config.Bind("Client Options", "Show GameSettings", false);
+            ShowGameSettingsTMP = Config.Bind("Client Options", "Show GameSettings", true);
             CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
             HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
             MapTheme = Config.Bind("Client Options", "MapTheme", AmongUs.Data.Settings.AudioSettingsData.DEFAULT_MUSIC_VOLUME);

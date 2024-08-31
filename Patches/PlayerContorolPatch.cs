@@ -26,7 +26,7 @@ namespace TownOfHost
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
         {
             if (!AmongUsClient.Instance.AmHost) return false;
-            Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole() + "=>" + target.GetNameWithRole(), "CheckProtect");
+            Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
 
             if (__instance.IsGorstRole())
             {
@@ -87,11 +87,12 @@ namespace TownOfHost
             (var killer, var target) = info.AttemptTuple;
 
             // Killerが既に死んでいないかどうか
-            if (!killer.IsAlive())
-            {
-                Logger.Info($"{killer.GetNameWithRole()}は死亡しているためキャンセルされました。", "CheckMurder");
-                return false;
-            }
+            if (!kantu)
+                if (!killer.IsAlive())
+                {
+                    Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}は死亡しているためキャンセルされました。", "CheckMurder");
+                    return false;
+                }
             // targetがキル可能な状態か
             if (
                 // PlayerDataがnullじゃないか確認
@@ -141,7 +142,7 @@ namespace TownOfHost
             // キルが可能なプレイヤーか(遠隔は除く)
             if (!info.IsFakeSuicide && !killer.CanUseKillButton())
             {
-                Logger.Info(killer.GetNameWithRole() + "はKillできないので、キルはキャンセルされました。", "CheckMurder");
+                Logger.Info(killer.GetNameWithRole().RemoveHtmlTags() + "はKillできないので、キルはキャンセルされました。", "CheckMurder");
                 return false;
             }
             return true;
@@ -153,9 +154,9 @@ namespace TownOfHost
         private static readonly LogHandler logger = Logger.Handler(nameof(PlayerControl.MurderPlayer));
         public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags, ref bool __state /* 成功したキルかどうか */ )
         {
-            Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}{(target.protectedByGuardianThisRound ? "(Protected)" : "")}", "MurderPlayer");
+            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.protectedByGuardianThisRound ? "(Protected)" : "")}", "MurderPlayer");
 
-            logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}({resultFlags})");
+            logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}({resultFlags})");
             var isProtectedByClient = resultFlags.HasFlag(MurderResultFlags.DecisionByHost) && target.IsProtected();
             var isProtectedByHost = resultFlags.HasFlag(MurderResultFlags.FailedProtected);
             var isFailed = resultFlags.HasFlag(MurderResultFlags.FailedError);
@@ -236,14 +237,14 @@ namespace TownOfHost
     {
         public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
         {
-            Logger.Info($"{__instance?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
+            Logger.Info($"{__instance?.GetNameWithRole().RemoveHtmlTags()} => {target?.GetNameWithRole().RemoveHtmlTags()}", "Shapeshift");
 
             var shapeshifter = __instance;
             var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
             if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
             {
-                Logger.Info($"{__instance?.GetNameWithRole()}:Cancel Shapeshift.Prefix", "Shapeshift");
+                Logger.Info($"{__instance?.GetNameWithRole().RemoveHtmlTags()}:Cancel Shapeshift.Prefix", "Shapeshift");
                 return;
             }
 
@@ -429,7 +430,7 @@ namespace TownOfHost
         }
         private static bool CheckInvalidShapeshifting(PlayerControl instance, PlayerControl target, bool animate)
         {
-            logger.Info($"Checking shapeshift {instance.GetNameWithRole()} -> {(target == null || target.Data == null ? "(null)" : target.GetNameWithRole())}");
+            logger.Info($"Checking shapeshift {instance.GetNameWithRole().RemoveHtmlTags()} -> {(target == null || target.Data == null ? "(null)" : target.GetNameWithRole().RemoveHtmlTags())}");
 
             if (!target || target.Data == null)
             {
@@ -485,14 +486,14 @@ namespace TownOfHost
             if (State.NumberOfRemainingButtons <= 0 && target is null) return false;
 
             GameStates.Meeting = true;
-            Logger.Info($"{__instance.GetNameWithRole()} => {target?.Object?.GetNameWithRole() ?? "null"}", "ReportDeadBody");
+            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ReportDeadBody");
             if (Options.IsStandardHAS && target != null && __instance == target.Object) return true; //[StandardHAS] ボタンでなく、通報者と死体が同じなら許可
             if (Options.CurrentGameMode is CustomGameMode.HideAndSeek or CustomGameMode.TaskBattle || Options.IsStandardHAS) return false;
             if (!CanReport[__instance.PlayerId])
             {
                 GameStates.Meeting = false;
                 WaitReport[__instance.PlayerId].Add(target);
-                Logger.Warn($"{__instance.GetNameWithRole()}:通報禁止中のため可能になるまで待機します", "ReportDeadBody");
+                Logger.Warn($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報禁止中のため可能になるまで待機します", "ReportDeadBody");
                 return false;
             }
 
@@ -910,7 +911,7 @@ namespace TownOfHost
                 {
                     var info = ReportDeadBodyPatch.WaitReport[__instance.PlayerId][0];
                     ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Clear();
-                    Logger.Info($"{__instance.GetNameWithRole()}:通報可能になったため通報処理を行います", "ReportDeadbody");
+                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
                     __instance.ReportDeadBody(info);
                 }
 
@@ -1674,7 +1675,7 @@ namespace TownOfHost
         {
             var pc = __instance;
 
-            Logger.Info($"TaskComplete:{pc.GetNameWithRole()}", "CompleteTask");
+            Logger.Info($"TaskComplete:{pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
             var taskState = pc.GetPlayerTaskState();
             taskState.Update(pc);
 
@@ -1767,7 +1768,7 @@ namespace TownOfHost
     {
         public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
         {
-            Logger.Info($"{__instance.GetNameWithRole()} => {target.GetNameWithRole()}", "ProtectPlayer");
+            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "ProtectPlayer");
         }
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RemoveProtection))]
@@ -1775,7 +1776,7 @@ namespace TownOfHost
     {
         public static void Postfix(PlayerControl __instance)
         {
-            Logger.Info($"{__instance.GetNameWithRole()}", "RemoveProtection");
+            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}", "RemoveProtection");
         }
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
@@ -1784,7 +1785,7 @@ namespace TownOfHost
         public static bool Prefix(PlayerControl __instance, ref RoleTypes roleType)
         {
             var target = __instance;
-            var targetName = __instance.GetNameWithRole();
+            var targetName = __instance.GetNameWithRole().RemoveHtmlTags();
             Logger.Info($"{targetName} =>{roleType}", "PlayerControl.RpcSetRole");
             if (!ShipStatus.Instance.enabled) return true;
             if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
@@ -1812,7 +1813,7 @@ namespace TownOfHost
                 {
                     foreach ((var seer, var role) in ghostRoles)
                     {
-                        Logger.Info($"Desync {targetName} =>{role} for{seer.GetNameWithRole()}", "PlayerControl.RpcSetRole");
+                        Logger.Info($"Desync {targetName} =>{role} for{seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
                         target.RpcSetRoleDesync(role, seer.GetClientId());
                     }
                     return false;
@@ -1836,21 +1837,24 @@ namespace TownOfHost
                     Amnesia.Kesu(__instance.PlayerId);
                 }
 
-                if (!Options.SuddenDeathMode.GetBool())
-                    if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
-                        if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
-                            _ = new LateTask(() =>
-                            {
-                                if (!GameStates.Meeting)
-                                    foreach (var Player in Main.AllPlayerControls)
-                                    {
-                                        if (Player == PlayerControl.LocalPlayer) continue;
-                                        __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
-                                    }
-                            }, 1.4f, "Fix sabotage");
+                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
+                {
+                    if (!Options.SuddenDeathMode.GetBool())
+                        if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする
+                            if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                                _ = new LateTask(() =>
+                                {
+                                    if (!GameStates.Meeting)
+                                        foreach (var Player in Main.AllPlayerControls)
+                                        {
+                                            if (Player == PlayerControl.LocalPlayer) continue;
+                                            __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
+                                        }
+                                }, 1.4f, "Fix sabotage");
 
-                if (!GameStates.Meeting)
-                    _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage");
+                    if (!GameStates.Meeting)
+                        _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage");
+                }
             }
         }
     }

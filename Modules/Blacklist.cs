@@ -190,6 +190,14 @@ internal class OnGameJoinedPatch
     public static void Postfix(AmongUsClient __instance)
     {
         __instance.StartCoroutine(Blacklist.Check(ClientId: __instance.ClientId).WrapToIl2Cpp());
+        _ = new LateTask(() =>
+        {
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc != null) __instance.StartCoroutine(Blacklist.Check(pc.GetClient(), pc.GetClientId()).WrapToIl2Cpp());
+            }
+            __instance.StartCoroutine(Blacklist.Check(ClientId: __instance.ClientId).WrapToIl2Cpp());
+        }, 1f, "");
     }
 }
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]

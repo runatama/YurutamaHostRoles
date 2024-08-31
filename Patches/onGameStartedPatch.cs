@@ -29,6 +29,15 @@ namespace TownOfHost
             //注:この時点では役職は設定されていません。
             Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
 
+            var op = Main.NormalOptions;
+            if (op.NumCommonTasks + op.NumLongTasks + op.NumShortTasks >= 255)
+            {
+                Main.NormalOptions.SetInt(Int32OptionNames.NumCommonTasks, 85);
+                Main.NormalOptions.SetInt(Int32OptionNames.NumLongTasks, 84);
+                Main.NormalOptions.SetInt(Int32OptionNames.NumShortTasks, 84);
+                Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
+            }
+
             PlayerState.Clear();
 
             Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
@@ -191,7 +200,8 @@ namespace TownOfHost
             HudManagerPatch.ch = false;
             GameStates.AfterIntro = false;
             HudManagerPatch.ch = false;
-            GameStates.AfterIntro = false;
+            GameStates.Meeting = false;
+            GameStates.Tuihou = false;
             GameStates.canmusic = false;
             MeetingVoteManager.Voteresult = "";
             MeetingHudPatch.Oniku = "";
@@ -206,7 +216,8 @@ namespace TownOfHost
 
             Main.FeColl = 0;
             Main.GameCount++;
-            Main.Time = (Main.NormalOptions.DiscussionTime, Main.NormalOptions.VotingTime);
+            Logger.Info($"================{Main.GameCount}試合目================", "OnGamStarted");
+            Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
             var c = string.Format(GetString("log.Start"), Main.GameCount);
             Main.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= Main.AllAlivePlayerControls.Count())) Utils.CanVent = true;
@@ -220,6 +231,7 @@ namespace TownOfHost
                 else Main.LagTime = 0.23f;
             }
             else Main.LagTime = 0.23f;
+            Logger.Info($"LagTime : {Main.LagTime} PlayerCount : {Main.AllPlayerControls.Count()}", "OnGamStarted Fin");
         }
     }
     [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
@@ -592,7 +604,7 @@ namespace TownOfHost
             }
             AmongUsClient.Instance.SendAllStreamedObjects();
             Logger.Info("Disconnected", "RSetRole");
-            yield return new UnityEngine.WaitForSeconds(0.04f);
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
             foreach (var pc in Main.AllPlayerControls)
             {
                 if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
@@ -611,10 +623,10 @@ namespace TownOfHost
                 info.Disconnected = false;
                 info.SetDirtyBit(0b_1u << info.PlayerId);
             }
-            yield return new UnityEngine.WaitForSeconds(0.04f);
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
             AmongUsClient.Instance.SendAllStreamedObjects();
             Logger.Info("UnDisconnected", "RSetRole");
-            yield return new UnityEngine.WaitForSeconds(0.01f);
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
             PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));
             PlayerControl.LocalPlayer.StopAllCoroutines();
             HudManagerCoShowIntroPatch.Cancel = false;
@@ -745,6 +757,7 @@ namespace TownOfHost
                     if (player.Is(CustomRoles.GM)) continue;
                     if (player.Is(CustomRoles.Madonna)) continue;
                     if (player.Is(CustomRoles.Limiter)) continue;
+                    if (player.Is(CustomRoles.King)) continue;
                     allPlayers.Add(player);
                 }
                 var loversRole = CustomRoles.ALovers;
@@ -771,6 +784,7 @@ namespace TownOfHost
                     {
                         if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
                         if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
+                        if (player.Is(CustomRoles.King)) continue;
                         allPlayers.Add(player);
                     }
                     var loversRole = CustomRoles.BLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -796,6 +810,7 @@ namespace TownOfHost
                         if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
                         if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
                         if (player.Is(CustomRoles.BLovers)) continue;
+                        if (player.Is(CustomRoles.King)) continue;
                         allPlayers.Add(player);
                     }
                     var loversRole = CustomRoles.CLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -821,6 +836,7 @@ namespace TownOfHost
                         if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
                         if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
                         if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
+                        if (player.Is(CustomRoles.King)) continue;
                         allPlayers.Add(player);
                     }
                     var loversRole = CustomRoles.DLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -847,6 +863,7 @@ namespace TownOfHost
                         if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
                         if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
                         if (player.Is(CustomRoles.DLovers)) continue;
+                        if (player.Is(CustomRoles.King)) continue;
                         allPlayers.Add(player);
                     }
                     var loversRole = CustomRoles.ELovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -873,6 +890,7 @@ namespace TownOfHost
                         if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
                         if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
                         if (player.Is(CustomRoles.DLovers)) continue; if (player.Is(CustomRoles.ELovers)) continue;
+                        if (player.Is(CustomRoles.King)) continue;
                         allPlayers.Add(player);
                     }
                     var loversRole = CustomRoles.FLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -900,6 +918,7 @@ namespace TownOfHost
                         if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
                         if (player.Is(CustomRoles.DLovers)) continue; if (player.Is(CustomRoles.ELovers)) continue;
                         if (player.Is(CustomRoles.FLovers)) continue;
+                        if (player.Is(CustomRoles.King)) continue;
                         allPlayers.Add(player);
                     }
                     var loversRole = CustomRoles.GLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);

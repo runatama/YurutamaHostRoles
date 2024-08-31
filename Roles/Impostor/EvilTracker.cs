@@ -191,7 +191,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         if (!CanTarget() || target.Is(CustomRoleTypes.Impostor)) return false;
 
         SetTarget(target.PlayerId);
-        Logger.Info($"{Player.GetNameWithRole()}のターゲットを{target.GetNameWithRole()}に設定", "EvilTrackerTarget");
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に設定", "EvilTrackerTarget");
         Player.MarkDirtySettings();
         Utils.NotifyRoles();
         return false;

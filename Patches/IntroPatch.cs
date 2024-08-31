@@ -140,7 +140,7 @@ namespace TownOfHost
     {
         public static void Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral))
+            if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.Is(CustomRoles.BakeCat) && PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
             {
                 //ぼっち役職
                 var soloTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
@@ -241,6 +241,16 @@ namespace TownOfHost
                 {
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = intro;
                 }
+                if (role == CustomRoles.Crewmate)
+                {
+                    __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
+                    __instance.ImpostorText.gameObject.SetActive(true);
+                    var numImpostors = Main.NormalOptions.NumImpostors;
+                    var text = numImpostors == 1
+                        ? GetString(StringNames.NumImpostorsS)
+                        : string.Format(GetString(StringNames.NumImpostorsP), numImpostors);
+                    __instance.ImpostorText.text = text.Replace("[FF1919FF]", "<color=#FF1919FF>").Replace("[]", "</color>");
+                }
             }
             if (pc.Is(CustomRoles.Amnesia))
             {
@@ -273,7 +283,7 @@ namespace TownOfHost
     {
         public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Sheriff) || PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Sheriff) || PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy) || PlayerControl.LocalPlayer.Is(CustomRoles.BakeCat) || (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false) && PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
             {
                 //シェリフの場合はキャンセルしてBeginCrewmateに繋ぐ
                 yourTeam = new Il2CppSystem.Collections.Generic.List<PlayerControl>();
@@ -313,8 +323,7 @@ namespace TownOfHost
             }
             if (AmongUsClient.Instance.AmHost)
             {
-                if (AmongUsClient.Instance.AmHost)
-                {
+                if (Options.CurrentGameMode == CustomGameMode.Standard)
                     _ = new LateTask(() =>
                     {
                         if (GameStates.InGame)
@@ -362,28 +371,28 @@ namespace TownOfHost
                                 pc.RpcSetRoleDesync(pc.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), pc.GetClientId());
                             }
 
-                        _ = new LateTask(() =>
-                        {
-                            foreach (var pc in Main.AllPlayerControls)
-                            {
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
-                                (pc.GetRoleClass() as Roles.Core.Interfaces.IUseTheShButton)?.Shape(pc);
-                            }
+                        if (Options.CurrentGameMode == CustomGameMode.Standard)
                             _ = new LateTask(() =>
                             {
                                 foreach (var pc in Main.AllPlayerControls)
                                 {
                                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
-                                    if (pc == null) continue;
-                                    var ri = pc.GetCustomRole().GetRoleInfo();
-                                    if (ri?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter || ri?.BaseRoleType.Invoke() == RoleTypes.Engineer)
-                                        pc.RpcResetAbilityCooldown();
-                                    Utils.NotifyRoles();
+                                    (pc.GetRoleClass() as Roles.Core.Interfaces.IUseTheShButton)?.Shape(pc);
                                 }
-                            }, 0.2f, "ResetCool");
-                        }, 0.2f, "Use On click Shepe");
+                                _ = new LateTask(() =>
+                                {
+                                    foreach (var pc in Main.AllPlayerControls)
+                                    {
+                                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
+                                        if (pc == null) continue;
+                                        var ri = pc.GetCustomRole().GetRoleInfo();
+                                        if (ri?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter || ri?.BaseRoleType.Invoke() == RoleTypes.Engineer)
+                                            pc.RpcResetAbilityCooldown();
+                                        Utils.NotifyRoles();
+                                    }
+                                }, 0.2f, "ResetCool");
+                            }, 0.2f, "Use On click Shepe");
                     }, 0.5f, "Set Rolet");
-                }
 
                 if (mapId != 4)
                 {

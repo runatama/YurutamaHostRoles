@@ -219,12 +219,12 @@ namespace TownOfHost
                     if (!isDead) ReviveRequiredPlayerIds.Add(pc.PlayerId);
                     if (ToGhostImpostor)
                     {
-                        Logger.Info($"{pc.GetNameWithRole()}: ImpostorGhostに変更", "ResetRoleAndEndGame");
+                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: ImpostorGhostに変更", "ResetRoleAndEndGame");
                         pc.RpcSetRole(RoleTypes.ImpostorGhost, false);
                     }
                     else
                     {
-                        Logger.Info($"{pc.GetNameWithRole()}: CrewmateGhostに変更", "ResetRoleAndEndGame");
+                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: CrewmateGhostに変更", "ResetRoleAndEndGame");
                         pc.RpcSetRole(RoleTypes.CrewmateGhost, false);
                     }
                     // 蘇生までの遅延の間にオートミュートをかけられないように元に戻しておく
