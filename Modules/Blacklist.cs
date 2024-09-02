@@ -108,6 +108,15 @@ public static class Blacklist
                                         .FirstOrDefault(client => client.Id == ClientId);
             } while (clientData == null);
         }
+        if (!downloaded)
+        {
+            Logger.Error("データがダウンロードされていませんっ!!", "BCheck");
+            if (PlayerControl.LocalPlayer.GetClientId() == clientData.Id)
+            {
+                AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
+                AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=180%>データがダウンロードされていません</size>\n\nネットワーク環境を見直してください。\n再起動をしてデータをダウンロードしてください。";
+            }
+        }
         if ((clientData.FriendCode == "" || !clientData.FriendCode.Contains('#')) && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
         {
             if (PlayerControl.LocalPlayer.GetClientId() == clientData.Id)

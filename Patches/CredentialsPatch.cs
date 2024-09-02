@@ -79,6 +79,8 @@ namespace TownOfHost
             static TextMeshPro SpecialEventText;
             static void Postfix(VersionShower __instance)
             {
+                if (!__instance) return;
+
                 TMPTemplate.SetBase(__instance.text);
                 var Debugver = "";
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
@@ -123,8 +125,9 @@ namespace TownOfHost
                     SpecialEventText.name = "SpecialEventText";
                     SpecialEventText.fontSizeMin = 3f;
                     SpecialEventText.transform.localPosition = new Vector3(0f, 0.8f, 0f);
-                    SpecialEventText.gameObject.SetActive(true);
+                    SpecialEventText?.gameObject?.SetActive(true);
                 }
+                if (!SpecialEventText) return;
                 SpecialEventText.enabled = TitleLogoPatch.amongUsLogo != null;
                 if (Main.IsInitialRelease)
                 {

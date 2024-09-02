@@ -1220,10 +1220,45 @@ namespace TownOfHost
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) roles = CustomRolesHelper.AllHASRoles;
             if (roles != null)
             {
+                var roleType = CustomRoleTypes.Impostor;
+                var farst = true;
+                var (imp, mad, crew, neu, addon, lover, gorst) = GetRoleTypesCountInt();
                 foreach (CustomRoles role in roles)
-                {//Roles
+                {
+                    //Roles
                     if (role.IsEnable())
                     {
+                        if (farst && role.IsImpostor())
+                        {
+                            var maxtext = $"({imp})";
+                            var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
+                            if (che)
+                            {
+                                maxtext += $"　[Max : {max} |Min : {min}]";
+                            }
+                            sb.Append(ColorString(Palette.ImpostorRed, "\n\n<u>☆Impostors☆" + maxtext + "</u>\n"));
+                        }
+                        farst = false;
+                        if (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor)
+                        {
+                            var s = "";
+                            var c = 0;
+                            var cor = Color.white;
+                            switch (role.GetCustomRoleTypes())
+                            {
+                                case CustomRoleTypes.Crewmate: s = "☆CrewMates☆"; c = crew; cor = Palette.Blue; break;
+                                case CustomRoleTypes.Madmate: s = "☆MadMates☆"; c = mad; cor = StringHelper.CodeColor("#ff7f50"); break;
+                                case CustomRoleTypes.Neutral: s = "☆Neutrals☆"; c = neu; cor = Palette.DisabledGrey; break;
+                            }
+                            var maxtext = $"({c})";
+                            var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
+                            if (che)
+                            {
+                                maxtext += $"　[Max : {max} |Min : {min}]";
+                            }
+                            sb.Append(ColorString(cor, $"\n\n<u>{s + maxtext}</u>\n"));
+                            roleType = role.GetCustomRoleTypes();
+                        }
                         var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                         var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
                         var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "◉") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "◉") : (role.IsMadmate() ? "<color=#ff7f50>◉</color>" : ColorString(Palette.DisabledGrey, "◉")));
@@ -1232,14 +1267,18 @@ namespace TownOfHost
                     }
                 }
             }
-            if (addons != null)
+            if (addons != null && addons?.Count() != 0)
             {
                 sb.Append("\n<size=100%>\n").Append(GetString("Addons")).Append("</size>");
                 foreach (CustomRoles Addon in addons)
                 {
+                    var m = AdditionalWinnerMark;
+                    if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.ALovers), "♥");
+                    if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
+                    if (Addon.IsGorstRole()) m = "<color=#8989d9>■</color>";
                     var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                     var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                    if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n★{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
+                    if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n" + m + "{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
                     if (Addon.IsEnable()) P(sb);
                 }
             }
@@ -2591,6 +2630,35 @@ namespace TownOfHost
                 if (g != 0) text += $"<color=#8989d9>Gost:{g}   </color>";
             }
             return text;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="shouryaku"></param>
+        /// <returns>(imp , mad , crew , neutral , addon , lovers , ghost)</returns>
+        public static (int, int, int, int, int, int, int) GetRoleTypesCountInt()
+        {
+            if (Options.CurrentGameMode != CustomGameMode.Standard) return (0, 0, 0, 0, 0, 0, 0);
+            var (i, m, c, n, a, l, g) = (0, 0, 0, 0, 0, 0, 0);
+            foreach (var r in RoleAssignManager.GetCandidateRoleList(10, true).OrderBy(x => Guid.NewGuid()))
+            {
+                if (r.IsImpostor()) i++;
+                if (r.IsMadmate()) m++;
+                if (r.IsCrewmate()) c++;
+                if (r.IsNeutral()) n++;
+            }
+            List<CustomRoles> loverch = new();
+            foreach (var subRole in CustomRolesHelper.AllAddOns)
+            {
+                var chance = subRole.GetChance();
+                var count = subRole.GetCount();
+                if (chance == 0) continue;
+                if (subRole.IsAddOn()) a += count;
+                if (subRole.IsRiaju() && !loverch.Contains(subRole)) l++;
+                if (subRole.IsGorstRole()) g += count;
+                if (!loverch.Contains(subRole)) loverch.Add(subRole);
+            }
+            return (i, m, c, n, a, l, g);
         }
         public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", "");
         public static string RemoveColorTags(this string str) => Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");

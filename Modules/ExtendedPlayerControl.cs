@@ -231,6 +231,10 @@ namespace TownOfHost
             CustomRoles role = player.GetCustomRole();
             if (!player.CanUseKillButton() && !kyousei) return;
             if (player == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
+            if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId))
+            {
+                player.ResetKillCooldown();
+            }
             if (time >= 0f)
             {
                 Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;

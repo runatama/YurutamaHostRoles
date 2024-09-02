@@ -70,6 +70,15 @@ namespace TownOfHost.Roles
             RandomAssignOptions.Create(30, OptionAssignMode, CustomRoleTypes.Crewmate);
             RandomAssignOptions.Create(40, OptionAssignMode, CustomRoleTypes.Neutral);
         }
+        public static (bool, int, int) CheckRoleTypeCount(CustomRoleTypes role)
+        {
+            if (AssignMode == AssignAlgorithm.Fixed) return (false, 0, 0);
+            if (RandomAssignOptionsCollection.TryGetValue(role, out var option))
+            {
+                return (true, option.Max, option.Min);
+            }
+            return (true, -1, -1);
+        }
         public static bool CheckRoleCount()
         {
             if (AssignMode == AssignAlgorithm.Fixed) return true;

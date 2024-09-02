@@ -1837,7 +1837,7 @@ namespace TownOfHost
                     Amnesia.Kesu(__instance.PlayerId);
                 }
 
-                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
+                if (CustomWinnerHolder.WinnerTeam == CustomWinner.Default)
                 {
                     if (!Options.SuddenDeathMode.GetBool())
                         if (__instance != PlayerControl.LocalPlayer)//サボ可能役職のみインポスターゴーストにする

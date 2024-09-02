@@ -559,6 +559,29 @@ namespace TownOfHost
                     };
                     AllModNews.Add(news);
                 }
+                {
+                    var news = new ModNews
+                    {
+                        Number = 100017,
+                        Title = "何を言っている。9月だぞ。",
+                        SubTitle = "<color=#00c1ff>Town Of Host-K v5.1.8.16</color>",
+                        ShortTitle = "<color=#00c1ff>◆TOH-K v5.1.8.16</color>",
+                        Text = "<size=80%>"
+                        + "よ～ら～ん～の～ぽんこつ～！m(__)m\n"
+                        + "見直しって必要だね。\n"
+                        + "\n<size=125%>【バグ修正】</size>\n"
+                        + "・ホスト視点ニュートラルが正常なイントロにならない問題の修正\n"
+                        + "・サボ可能役職で死亡した時、サボタージュが出来ない問題。\n"
+                        + "\n<size=125%>【変更点】</size>\n"
+                        + "・/n rの表示を変更\n\n"
+                        + "気付かなくてごめんね!!\n"
+                        + "<size=30%>最近一人なもんで・・・</size>\n"
+                        + "ぽんこつより。"
+                        ,
+                        Date = "2024-09-02T00:00:00Z"
+                    };
+                    AllModNews.Add(news);
+                }
                 AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
             }
         }
