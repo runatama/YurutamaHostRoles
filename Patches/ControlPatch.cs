@@ -122,7 +122,7 @@ namespace TownOfHost
                     }
                 }
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
-                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Vote]　" + Translator.GetString("voteskip") + "※Host";
+                Utils.AddGameLog("Vote", Translator.GetString("voteskip") + "※Host");
                 GameStates.Meeting = false;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();

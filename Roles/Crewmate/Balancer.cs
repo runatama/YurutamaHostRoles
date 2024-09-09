@@ -293,7 +293,8 @@ public sealed class Balancer : RoleBase
             }
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
             Voteresult = GetString("Balancer.Executad");
-            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Vote]　" + GetString("Balancer.Executad");
+            Utils.AddGameLog($"Vote", GetString("Balancer.Executad"));
+
         }
         return true;
     }

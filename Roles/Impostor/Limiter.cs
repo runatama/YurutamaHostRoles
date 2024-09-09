@@ -30,23 +30,27 @@ namespace TownOfHost.Roles.Impostor
             LimiterTarnLimit = OptionLimiterTarnLimit.GetFloat();
             blastrange = Optionblastrange.GetFloat();
             KillCooldown = OptionKillCooldown.GetFloat();
+            LimitTimer = OptionLimitTimer.GetFloat() != 0;
+            Timer = 0;
         }
 
         static OptionItem OptionLimiterTarnLimit;
         static OptionItem OptionLastTarnKillcool;
         static OptionItem Optionblastrange;
         static OptionItem OptionKillCooldown;
+        static OptionItem OptionLimitTimer;
         enum OptionName
         {
             LimiterTarnLimit,
             LimiterLastTarnKillCool,
             blastrange,
         }
-
+        static bool LimitTimer;
         float LimiterTarnLimit;
         float blastrange;
         float KillCooldown;
         bool Limit;
+        float Timer;
 
         public bool CanBeLastImpostor { get; } = false;
 
@@ -56,15 +60,40 @@ namespace TownOfHost.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             OptionLastTarnKillcool = FloatOptionItem.Create(RoleInfo, 10, OptionName.LimiterLastTarnKillCool, new(0f, 180f, 2.5f), 25f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionLimiterTarnLimit = FloatOptionItem.Create(RoleInfo, 11, OptionName.LimiterTarnLimit, new(1f, 5f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
+            OptionLimiterTarnLimit = FloatOptionItem.Create(RoleInfo, 11, OptionName.LimiterTarnLimit, new(1f, 15f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
+            OptionLimitTimer = FloatOptionItem.Create(RoleInfo, 13, OptionName.LimiterLastTarnKillCool, new(0f, 300f, 5f), 180f, false, infinity: true)
+                .SetValueFormat(OptionFormat.Seconds);
             Optionblastrange = FloatOptionItem.Create(RoleInfo, 12, OptionName.blastrange, new(0.5f, 20f, 0.5f), 5f, false);
         }
         public float CalculateKillCooldown() => KillCooldown;
+        public override void OnFixedUpdate(PlayerControl player)
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+
+            if (GameStates.Intro || GameStates.Meeting) return;
+            if (Limit) return;
+            if (!player.IsAlive()) return;
+            if (!LimitTimer) return;
+            if (AddOns.Common.Amnesia.CheckAbilityreturn(player)) return;
+
+            Timer += Time.fixedDeltaTime;
+
+            if (Timer > OptionLimitTimer.GetFloat())
+            {
+                Limit = true;
+
+                _ = new LateTask(() =>
+                {
+                    player.SetKillCooldown(OptionLastTarnKillcool.GetFloat(), delay: true);
+                    Utils.NotifyRoles(SpecifySeer: Player);
+                }, 0.3f, "Limiter Time Limit");
+            }
+        }
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
             var Targets = new List<PlayerControl>(Main.AllAlivePlayerControls);//.Where(pc => !Player)
-            foreach (var tage in Targets)
-                if (Limit)
+            if (Limit)
+                foreach (var tage in Targets)
                 {
                     info.DoKill = false;
                     var distance = Vector3.Distance(Player.transform.position, tage.transform.position);
@@ -96,14 +125,17 @@ namespace TownOfHost.Roles.Impostor
                 _ = new LateTask(() => Player.SetKillCooldown(OptionLastTarnKillcool.GetFloat()), 5f, "Limiter Limit Kill cool");
             }
         }
-        public override string GetProgressText(bool comms = false)
+        public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
+            seen ??= seer;
+            if (seen != seer) return "";
+            if (isForMeeting) return "";
             if (Limit && Player.IsAlive())
             {
-                return Utils.ColorString(Color.red, "\n" + GetString("LimiterBom"));
+                return Utils.ColorString(Color.red, GetString("LimiterBom"));
             }
             else
-                return Utils.ColorString(Color.red, "");
+                return "";
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
         {

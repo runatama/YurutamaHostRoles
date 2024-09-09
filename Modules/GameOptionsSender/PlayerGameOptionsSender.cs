@@ -252,6 +252,10 @@ namespace TownOfHost.Modules
                 if ((player.GetRoleClass() is ILNKiller || LastNeutral.ChKilldis.GetBool()) && OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastNeutral, out var killd))
                     opt.SetInt(Int32OptionNames.KillDistance, killd.Killdistance.GetInt());
 
+            if (state != null)
+            {
+                opt.SetInt(Int32OptionNames.NumEmergencyMeetings, (int)state.NumberOfRemainingButtons);
+            }
             //幽霊役職用の奴
             if (player.IsGorstRole())
             {

@@ -5,7 +5,6 @@ using static TownOfHost.Translator;
 using System.Linq;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Madmate;
-using System;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Madonna : RoleBase
@@ -106,7 +105,7 @@ public sealed class Madonna : RoleBase
             Player.RpcSetCustomRole(CustomRoles.MaLovers);
             Main.MaMaLoversPlayers.Add(Player);
             Main.MaMaLoversPlayers.Add(target);
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Madonna]　" + string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true));
+            Utils.AddGameLog($"Madonna", string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
 
             target.RpcProtectedMurderPlayer();
         }
@@ -117,7 +116,8 @@ public sealed class Madonna : RoleBase
             Logger.Info($"Player: {Player.name},Target: {target.name}　相手がラバーズなので断わられた{LoverChenge}に役職変更。", "Madonna");
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaMynotcollect"), Utils.GetPlayerColor(target, true), GetString($"{LoverChenge}")) + GetString("VoteSkillFin"), Player.PlayerId);
             Utils.SendMessage(string.Format(GetString("Skill.Madoonnanotcollect"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Madonna]　" + string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true));
+
+            Utils.AddGameLog($"Madonna", string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
             target.RpcProtectedMurderPlayer();
         }
     }
@@ -148,7 +148,7 @@ public sealed class Madonna : RoleBase
             state.SetDead();
             state.DeathReason = CustomDeathReason.Suicide;
             ReportDeadBodyPatch.Musisuruoniku[Player.PlayerId] = false;
-            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Madonna]　" + string.Format(GetString("log.AM"), Utils.GetPlayerColor(Utils.GetPlayerById(Player.PlayerId)), Utils.GetTrueRoleName(Player.PlayerId, false));
+            Utils.AddGameLog($"Madonna", string.Format(GetString("log.AM"), Utils.GetPlayerColor(Utils.GetPlayerById(Player.PlayerId)), Utils.GetTrueRoleName(Player.PlayerId, false)));
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}は指定ターン経過したため自殺。", "Madonna");
         }
     }

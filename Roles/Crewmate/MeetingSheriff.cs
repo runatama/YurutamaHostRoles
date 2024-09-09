@@ -128,7 +128,8 @@ public sealed class MeetingSheriff : RoleBase
             target.RpcExileV2();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MeetingSheriff]　{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]";
+
+            Utils.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]");
             Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>)";
 
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
@@ -160,7 +161,8 @@ public sealed class MeetingSheriff : RoleBase
         Player.RpcExileV2();
         state.DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
         state.SetDead();
-        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MeetingSheriff]　{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]";
+
+        Utils.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
         Main.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>)";
 
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");

@@ -104,5 +104,27 @@ namespace TownOfHost.Modules
         public abstract IGameOptions BuildGameOptions();
 
         public virtual bool AmValid() => true;
+
+        public static void RpcSendOptions()//SNR様参考
+        {
+            GameManager gm = GameManager.Instance;
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            writer.StartMessage(5);
+            writer.Write(AmongUsClient.Instance.GameId);
+            {
+                writer.StartMessage(1); //0x01 Data
+                {
+                    writer.WritePacked(gm.NetId);
+                    writer.StartMessage(4);
+                    writer.WriteBytesAndSize(gm.LogicOptions.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                    writer.EndMessage();
+                }
+                writer.EndMessage();
+            }
+            writer.EndMessage();
+
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
+        }
     }
 }

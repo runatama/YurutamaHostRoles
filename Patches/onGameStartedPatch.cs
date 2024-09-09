@@ -197,9 +197,8 @@ namespace TownOfHost
             GameStates.AlreadyDied = false;
             GameStates.Intro = true;
             GameStates.task = false;
-            HudManagerPatch.ch = false;
+            HudManagerPatch.ch = null;
             GameStates.AfterIntro = false;
-            HudManagerPatch.ch = false;
             GameStates.Meeting = false;
             GameStates.Tuihou = false;
             GameStates.canmusic = false;

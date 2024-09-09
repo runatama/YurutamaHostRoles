@@ -7,6 +7,7 @@ namespace TownOfHost.Patches.ISystemType;
 [HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.UpdateSystem))]
 class VentilationSystemUpdateSystemPatch
 {
+    public static ushort last_opId = 0;
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         ushort opId;
@@ -19,6 +20,7 @@ class VentilationSystemUpdateSystemPatch
             ventId = newReader.ReadByte();
             newReader.Recycle();
         }
+        last_opId = opId;
 
         foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
         {

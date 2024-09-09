@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 using static TownOfHost.Translator;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class BountyHunter : RoleBase, IImpostor
@@ -91,7 +92,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
     //public static void SetKillCooldown(byte id, float amount) => Main.AllPlayerKillCooldown[id] = amount;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = TargetChangeTime;
 
-    public void OnCheckMurderAsKiller(MurderInfo info)
+    public void OnCheckMurderDontKill(MurderInfo info)
     {
         if (!info.IsSuicide)
         {
@@ -202,7 +203,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         if (!Is(seer) || !Is(seen)) return "";
 
         var target = GetTarget();
-        return target != null ? $"{(isForHud ? GetString("BountyCurrentTarget") : "Target")}:{Main.AllPlayerNames[target.PlayerId]}" : "";
+        return target != null ? $"{(isForHud ? GetString("BountyCurrentTarget") : "Target")}:{Utils.GetPlayerColor(target.PlayerId)}" : "";
     }
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
@@ -231,6 +232,13 @@ public sealed class BountyHunter : RoleBase, IImpostor
         if (GetTarget() == bake.Player)
         {
             ResetTarget();  // ターゲットの選びなおし
+        }
+    }
+    public void OnKingKill(King king)
+    {
+        if (GetTarget() == king.Player)
+        {
+            ResetTarget();
         }
     }
 }

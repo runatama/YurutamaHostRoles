@@ -116,7 +116,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
     /// <summary>
     /// キルしてきた人に応じて陣営の状態を変える
     /// </summary>
-    private void ChangeTeamOnKill(PlayerControl killer)
+    public void ChangeTeamOnKill(PlayerControl killer)
     {
         killer.RpcProtectedMurderPlayer(Player);
         if (killer.GetRoleClass() is ISchrodingerCatOwner catOwner)
@@ -165,7 +165,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
             NameColorManager.Add(Player.PlayerId, killer.PlayerId);
         }
-        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [SchrodingerCat]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
+        Utils.AddGameLog($"SchrodingerCat", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
     }
     public override void OverrideTrueRoleName(ref Color roleColor, ref string roleText)
     {

@@ -12,6 +12,7 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Impostor;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Core;
 
@@ -71,16 +72,22 @@ public static class CustomRoleManager
                     if (attemptKiller.Is(CustomRoles.EarnestWolf))//最優先
                     {
                         if (Amnesia.CheckAbility(attemptKiller)) killer.OnCheckMurderAsKiller(info);
-                        if (!info.DoKill || !info.CanKill) return false;
+                        if (!info.DoKill || !info.CanKill)
+                        {
+                            killer.OnCheckMurderDontKill(info);
+                            return false;
+                        }
                     }
 
                     if (targetRole != null)
                         if (Amnesia.CheckAbility(attemptTarget))
                             if (!targetRole.OnCheckMurderAsTarget(info))
                             {
+                                killer.OnCheckMurderDontKill(info);
                                 CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                                 return false;
                             }
+
                     if (AsistingAngel.Guard)
                     {
                         if (attemptTarget == AsistingAngel.Asist)
@@ -88,11 +95,13 @@ public static class CustomRoleManager
                             CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                             attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
 
-                            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [AsistingAngel]　" + Utils.GetPlayerColor(Main.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
-                            + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
+
+                            Utils.AddGameLog($"AsistingAngel", Utils.GetPlayerColor(Main.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
+                            + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
 
                             Utils.NotifyRoles();
 
+                            killer.OnCheckMurderDontKill(info);
                             return false;
                         }
                     }
@@ -100,23 +109,25 @@ public static class CustomRoleManager
                 //属性ガードがある場合はDokillのみ先にfalseで返す。
                 if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
                     if (Main.Guard[attemptTarget.PlayerId] > 0)
-                        info.DoKill = false;
+                        info.IsGuard = true;
 
                 // キラーのキルチェック処理実行
                 if (!attemptKiller.Is(CustomRoles.EarnestWolf))
                     if (Amnesia.CheckAbility(attemptKiller))
                         killer.OnCheckMurderAsKiller(info);
 
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.DoKill && info.CanKill)
+                if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
                 {
                     if (Main.Guard[attemptTarget.PlayerId] > 0)
                     {
                         CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
                         Main.Guard[attemptTarget.PlayerId]--;
                         attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guard]　" + Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)");
+
+                        Utils.AddGameLog($"Guard", Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
                         Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
                         Utils.NotifyRoles();
+                        killer.OnCheckMurderDontKill(info);
                         return false;
                     }
                 }
@@ -236,11 +247,31 @@ public static class CustomRoleManager
         }
         //あっ!死ぬ前にどこにいたかだけ教えてね!
         var room = "";
-        if (Utils.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom() != null)
+        var KillRoom = Utils.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom();
+        if (KillRoom != null)
         {
-            room = Translator.GetString($"{Utils.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom().RoomId}");
+            room = Translator.GetString($"{KillRoom.RoomId}");
+
+            if (KillRoom.RoomId == SystemTypes.Hallway)
+            {
+                var Rooms = ShipStatus.Instance.AllRooms;
+                Dictionary<PlainShipRoom, float> Distance = new();
+
+                if (Rooms != null)
+                    foreach (var r in Rooms)
+                    {
+                        if (r.RoomId == SystemTypes.Hallway) continue;
+                        Distance.Add(r, Vector2.Distance(attemptTarget.transform.position, r.transform.position));
+                    }
+
+                var rooo = Distance.OrderByDescending(x => x.Value).Last().Key;
+                room = Translator.GetString($"{rooo.RoomId}") + room;
+
+            }
             room = $"〔{room}〕";
         }
+        else room = "〔???〕";
+
         targetState.SetDead();
         attemptTarget.SetRealKiller(attemptKiller, true);
 
@@ -255,7 +286,8 @@ public static class CustomRoleManager
         //サブロールは表示めんどいしながいから省略★
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
-            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Kill]　{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}";
+
+            Utils.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{Utils.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
 
@@ -538,6 +570,10 @@ public class MurderInfo
     /// Killerが実際にキルするか
     /// </summary>
     public bool DoKill = true;
+    /// <summary>
+    /// ガーディングが発生しているか
+    /// </summary>
+    public bool IsGuard = false;
     /// <summary>
     /// キル後、役職処理を行うか
     /// falseで通常処理

@@ -75,7 +75,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         killer.SetKillCooldown(1);
         ChefTarget.Add(target.PlayerId);
         SendRPC(target.PlayerId);
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(SpecifySeer: Player);
         Logger.Info($"Player: {Player.name},Target: {target.name}", "Chef");
         info.DoKill = false;
     }

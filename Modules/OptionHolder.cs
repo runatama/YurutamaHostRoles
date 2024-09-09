@@ -1149,7 +1149,7 @@ namespace TownOfHost
         public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: Utils.GetFrom(info), combination: info.Combination);
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
         {
-            if ((role is CustomRoles.Crewmate or CustomRoles.Impostor or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
+            if ((role is CustomRoles.Crewmate or CustomRoles.Phantom or CustomRoles.Impostor or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
             if (role.IsVanilla())
             {
                 switch (role)

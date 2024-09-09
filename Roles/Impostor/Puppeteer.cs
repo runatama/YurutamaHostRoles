@@ -126,7 +126,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
             Dictionary<PlayerControl, float> targetDistance = new();
             foreach (var pc in Main.AllAlivePlayerControls.ToArray())
             {
-                if (pc.PlayerId != puppet.PlayerId && !pc.Is(CountTypes.Impostor))
+                if (pc.PlayerId != puppet.PlayerId && !pc.Is(CountTypes.Impostor) && !pc.Is(CustomRoles.King))
                 {
                     var dis = Vector2.Distance(puppetPos, pc.transform.position);
                     targetDistance.Add(pc, dis);

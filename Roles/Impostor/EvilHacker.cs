@@ -245,7 +245,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                             builder.Clear();
                             g++;
                             time = 0;
-                            Utils.NotifyRoles();
+                            Utils.NotifyRoles(SpecifySeer: Player);
                         }
                     }
                     time += Time.fixedDeltaTime;
@@ -253,7 +253,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                 else
                 {
                     time = 0;
-                    if (go) Utils.NotifyRoles();
+                    if (go) Utils.NotifyRoles(SpecifySeer: Player);
                     go = false;
                     pos = player.GetTruePosition();
                 }

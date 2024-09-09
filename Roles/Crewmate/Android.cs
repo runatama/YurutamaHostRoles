@@ -124,7 +124,7 @@ public sealed class Android : RoleBase
             }
             if (Now() != bat)
             {
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(SpecifySeer: Player);
                 bat = Now();
                 Player.MarkDirtySettings();
             }

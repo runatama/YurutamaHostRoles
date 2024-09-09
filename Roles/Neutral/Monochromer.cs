@@ -85,7 +85,7 @@ public sealed class Monochromer : RoleBase
             else
                 pc.RpcChColor(Player, 15, true);
         }
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(SpecifySeer: Player);
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
     {

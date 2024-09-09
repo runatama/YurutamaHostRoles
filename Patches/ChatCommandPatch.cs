@@ -16,6 +16,7 @@ using static TownOfHost.Translator;
 using static TownOfHost.Utils;
 using System.Text.Json;
 using AmongUs.GameOptions;
+using TownOfHost.Modules;
 
 namespace TownOfHost
 {
@@ -505,6 +506,7 @@ namespace TownOfHost
                             SendMessage(chc, PlayerControl.LocalPlayer.PlayerId);
                             break;
                         }
+                        GameOptionsSender.RpcSendOptions();
                         SendMessage($"<size=70%>{chc}</size>");
 
                         static bool ch(int n)
@@ -513,6 +515,16 @@ namespace TownOfHost
                             if (0 > n) return false;
                             return true;
                         }
+                        break;
+                    case "/kc":
+                        canceled = true;
+                        if (!GameStates.IsLobby) break;
+                        if (args.Length > 1 && float.TryParse(args[1], out var fl))
+                        {
+                            if (fl <= 0) fl = 0.00000000000000001f;
+                            Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetFloat(FloatOptionNames.KillCooldown, fl);
+                        }
+                        GameOptionsSender.RpcSendOptions();
                         break;
                     case "/exile":
                         canceled = true;
@@ -605,9 +617,18 @@ namespace TownOfHost
                         {
                             canceled = true;
                             subArgs = args.Length < 2 ? "" : args[1];
+                            var pc = PlayerControl.LocalPlayer;
+                            if (args.Length > 2 && int.TryParse(args[2], out var taisho))
+                            {
+                                pc = GetPlayerById(taisho);
+                                if (pc == null) pc = PlayerControl.LocalPlayer;
+                            }
                             if (GetRoleByInputName(subArgs, out var role, true))
                             {
-                                if (GameStates.InGame) PlayerControl.LocalPlayer.RpcSetCustomRole(role, true);
+                                if (GameStates.InGame)
+                                {
+                                    pc.RpcSetCustomRole(role, true);
+                                }
                                 else
                                 {
                                     Main.HostRole = role;
@@ -758,9 +779,9 @@ namespace TownOfHost
                 __instance.freeChatField.textArea.Clear();
                 __instance.freeChatField.textArea.SetText(cancelVal);
             }
-            if (GameStates.IsLobby && !canceled)
+            if (AmongUsClient.Instance.AmHost && GameStates.IsLobby && !canceled)
             {
-                SendMessage(text, title: PlayerControl.LocalPlayer.name);
+                SendMessage(text, title: Main.nickName == "" ? PlayerControl.LocalPlayer.name : Main.nickName);
                 __instance.freeChatField.textArea.Clear();
                 return false;
             }
@@ -870,7 +891,7 @@ namespace TownOfHost
                 // Impostor役職
                 roleCommands.Add((CustomRoles)(-1), $"【=== {GetString("Impostor")} ===】");  // 区切り用
                 roleCommands.Add(CustomRoles.Shapeshifter, "She");
-                roleCommands.Add(CustomRoles.Phantom, "Pha");//アプデ対応用 仮
+                //roleCommands.Add(CustomRoles.Phantom, "Pha");//アプデ対応用 仮
                 ConcatCommands(CustomRoleTypes.Impostor);
 
                 // Madmate役職
@@ -930,6 +951,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.MaLovers, "Ml");
                 roleCommands.Add(CustomRoles.Amanojaku, "Ama");
 
+                roleCommands.Add((CustomRoles)(-7), $"== {GetString("GhostRole")} ==");  // 区切り用
                 //幽霊
                 roleCommands.Add(CustomRoles.Ghostbuttoner, "Bbu");
                 roleCommands.Add(CustomRoles.GhostNoiseSender, "NiS");
@@ -949,6 +971,94 @@ namespace TownOfHost
 
             var msg = "";
             var rolemsg = $"{GetString("Command.h_args")}";
+            switch (role)
+            {
+                case "i":
+                case "I":
+                case "imp":
+                case "インポスター":
+                case "impostor":
+                case "impostors":
+                case "インポス":
+                    rolemsg = $"{GetString("h_r_impostor").Color(Palette.ImpostorRed)}</u><size=50%>";
+                    foreach (var im in roleCommands.Where(r => r.Key.IsImpostor()))
+                    {
+                        rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
+                    }
+                    if (player == byte.MaxValue) player = 0;
+                    SendMessage(rolemsg, player);
+                    return;
+                case "c":
+                case "C":
+                case "crew":
+                case "crewmate":
+                case "クルー":
+                case "クルーメイト":
+                    rolemsg = $"{GetString("h_r_crew").Color(Color.blue)}</u><size=50%>";
+                    foreach (var im in roleCommands.Where(r => r.Key.IsCrewmate()))
+                    {
+                        rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
+                    }
+                    if (player == byte.MaxValue) player = 0;
+                    SendMessage(rolemsg, player);
+                    return;
+                case "n":
+                case "N":
+                case "Neu":
+                case "Neutral":
+                case "第三":
+                case "第三陣営":
+                case "ニュートラル":
+                    rolemsg = $"{GetString("h_r_Neutral").Color(Palette.DisabledGrey)}</u>";
+                    foreach (var im in roleCommands.Where(r => r.Key.IsNeutral()))
+                    {
+                        rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
+                    }
+                    if (player == byte.MaxValue) player = 0;
+                    SendMessage(rolemsg, player);
+                    return;
+                case "m":
+                case "Mad":
+                case "マッド":
+                case "狂人":
+                case "M":
+                    rolemsg = $"{GetString("h_r_MadMate").Color(ModColors.MadMateOrenge)}</u><size=50%>";
+                    foreach (var im in roleCommands.Where(r => r.Key.IsMadmate()))
+                    {
+                        rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
+                    }
+                    if (player == byte.MaxValue) player = 0;
+                    SendMessage(rolemsg, player);
+                    return;
+                case "a":
+                case "A":
+                case "Addon":
+                case "アドオン":
+                case "属性":
+                case "モディフィア":
+                case "重複役職":
+                    rolemsg = $"{GetString("h_r_Addon").Color(ModColors.AddonsColor)}</u><size=50%>";
+                    foreach (var im in roleCommands.Where(r => r.Key.IsAddOn() || r.Key is CustomRoles.Amanojaku))
+                    {
+                        rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
+                    }
+                    if (player == byte.MaxValue) player = 0;
+                    SendMessage(rolemsg, player);
+                    return;
+                case "g":
+                case "G":
+                case "Ghost":
+                case "幽霊":
+                case "幽霊役職":
+                    rolemsg = $"{GetString("h_r_GhostRole").Color(ModColors.GhostRoleColor)}</u><size=50%>";
+                    foreach (var im in roleCommands.Where(r => r.Key.IsGorstRole()))
+                    {
+                        rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
+                    }
+                    if (player == byte.MaxValue) player = 0;
+                    SendMessage(rolemsg, player);
+                    return;
+            }
             foreach (var r in roleCommands)
             {
                 var roleName = r.Key.ToString();

@@ -40,3 +40,13 @@ public static class ColorHelper
     /// <summary>白背景テキスト色の最大V = 明度</summary>
     private const float ReadableVal = 0.5f;
 }
+public class ModColors
+{
+    //こんびf7c114
+    public static Color32 ModColor = StringHelper.CodeColor(Main.ModColor);
+    public static Color32 ImpostorRed = Palette.ImpostorRed;
+    public static Color32 CrewMateBlue = Palette.CrewmateBlue;
+    public static Color32 MadMateOrenge = StringHelper.CodeColor("#ff7f50");
+    public static Color32 AddonsColor = StringHelper.CodeColor("#028760");
+    public static Color32 GhostRoleColor = StringHelper.CodeColor("#8989d9");
+}

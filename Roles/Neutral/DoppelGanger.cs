@@ -166,7 +166,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         if (Count != (int)Seconds)
         {
             Count = (int)Seconds;
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(SpecifySeer: Player);
         }
     }
 

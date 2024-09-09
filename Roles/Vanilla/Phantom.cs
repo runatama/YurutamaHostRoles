@@ -1,3 +1,4 @@
+/*
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
@@ -12,7 +13,7 @@ public sealed class Phantom : RoleBase, IImpostor
             typeof(Phantom),
             player => new Phantom(player),
             RoleTypes.Phantom,
-            null
+            SetUpCustomOption
         );
     public Phantom(PlayerControl player)
     : base(
@@ -35,3 +36,4 @@ public sealed class Phantom : RoleBase, IImpostor
         AURoleOptions.PhantomDuration = PhantomDuration.GetFloat();
     }
 }
+*/

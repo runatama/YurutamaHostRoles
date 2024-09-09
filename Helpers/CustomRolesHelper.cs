@@ -40,7 +40,7 @@ namespace TownOfHost
                 return roleInfo.CustomRoleType == CustomRoleTypes.Neutral || role == CustomRoles.Jackaldoll;
             return role is CustomRoles.HASTroll or CustomRoles.HASFox;
         }
-        public static bool IsCrewmate(this CustomRoles role) => role.GetRoleInfo()?.CustomRoleType == CustomRoleTypes.Crewmate || (!role.IsImpostorTeam() && !role.IsNeutral());
+        public static bool IsCrewmate(this CustomRoles role) => role.GetRoleInfo()?.CustomRoleType == CustomRoleTypes.Crewmate || (role is not CustomRoles.Amanojaku and not CustomRoles.GM && !role.IsImpostorTeam() && role > 0 && !role.IsAddOn() && !role.IsGorstRole() && !role.IsRiaju() && !role.IsNeutral());
         public static bool IsVanilla(this CustomRoles role)
         {
             return

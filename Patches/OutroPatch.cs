@@ -196,9 +196,7 @@ namespace TownOfHost
                 case CustomWinner.ELovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.ELovers); break;
                 case CustomWinner.FLovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.FLovers); break;
                 case CustomWinner.GLovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.GLovers); break;
-                case CustomWinner.MaLovers:
-                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MaLovers);
-                    break;
+                case CustomWinner.MaLovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.MaLovers); break;
                 case CustomWinner.TaskPlayerB:
                     if (Main.winnerList.Count is 0) break;
                     if (Main.winnerList.Count == 1)
@@ -244,12 +242,26 @@ namespace TownOfHost
                     WinnerText.color = Color.gray;
                     break;
             }
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
+                if (Options.SuddenDeathMode.GetBool())
+                {
+                    var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                    var color = Color.white;
+                    if (Main.PlayerColors.TryGetValue(winner, out var co)) color = co;
+                    __instance.WinText.text = "Game Over";
+                    __instance.WinText.color = color;
+                    __instance.BackgroundBar.material.color = color;
+                    var name = "";
+                    if (Main.AllPlayerNames.ContainsKey(winner)) name = Utils.ColorString(Main.PlayerColors[winner], Main.AllPlayerNames[winner]);
+                    WinnerText.text = "<size=60%>" + name + Utils.ColorString(Utils.GetRoleColor(winnerRole), $"({Utils.GetRoleName(winnerRole)})") + $"{GetString("Win")}</size>";
+                    CustomWinnerColor = StringHelper.ColorCode(color);
+                }
 
             foreach (var role in CustomWinnerHolder.AdditionalWinnerRoles)
             {
                 AdditionalWinnerText.Append('＆').Append(Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role)));
             }
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None)
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None && !Options.SuddenDeathMode.GetBool())
             {
                 WinnerText.text = $"<color={CustomWinnerColor}>{CustomWinnerText}{AdditionalWinnerText}{GetString("Win")}</color>";
             }

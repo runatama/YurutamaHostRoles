@@ -48,7 +48,7 @@ namespace TownOfHost.Roles.AddOns.Common
             var langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
             if (Main.ForceJapanese.Value) langId = SupportedLangs.Japanese;
             var a = langId == SupportedLangs.English ? "Loss of memory" : "Amnesia";
-            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [{a}]　" + string.Format(Translator.GetString("Am.log"), Utils.GetPlayerColor(playerId));
+            Utils.AddGameLog($"{a}", string.Format(Translator.GetString("Am.log"), Utils.GetPlayerColor(playerId)));
         }
         public static bool CheckAbilityreturn(PlayerControl player) => player.Is(CustomRoles.Amnesia) && DontCanUseAbility.GetBool();
         public static bool CheckAbility(PlayerControl player) => !player.Is(CustomRoles.Amnesia) || !DontCanUseAbility.GetBool() || (CustomRoles.Amnesia.GetRealCount() == 0);

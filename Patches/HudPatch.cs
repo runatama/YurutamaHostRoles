@@ -9,6 +9,7 @@ using TownOfHost.Roles;
 using TownOfHost.Roles.AddOns.Common;
 using System.Text;
 using TownOfHost.Roles.Impostor;
+using AmongUs.GameOptions;
 
 namespace TownOfHost
 {
@@ -56,6 +57,7 @@ namespace TownOfHost
                 if (!GameSettings)
                 {
                     GameSettings = Templates.TMPTemplate.Create("GameSettings");
+                    if (DestroyableSingleton<HudManager>.Instance?.TaskPanel?.taskText?.font != null) GameSettings.font = DestroyableSingleton<HudManager>.Instance?.TaskPanel?.taskText?.font;
                     GameSettings.alignment = TMPro.TextAlignmentOptions.TopLeft;
                     GameSettings.transform.SetParent(__instance.roomTracker.transform.parent);
                     GameSettings.transform.localPosition = new(-3.325f, 2.78f);
@@ -115,7 +117,7 @@ namespace TownOfHost
                     //バウンティハンターのターゲットテキスト
                     if (LowerInfoText == null)
                     {
-                        LowerInfoText = UnityEngine.Object.Instantiate(__instance.KillButton.buttonLabelText);
+                        LowerInfoText = UnityEngine.Object.Instantiate(__instance.TaskPanel.taskText);
                         LowerInfoText.transform.parent = __instance.transform;
                         LowerInfoText.transform.localPosition = new Vector3(0, -2f, 0);
                         LowerInfoText.alignment = TMPro.TextAlignmentOptions.Center;
@@ -126,7 +128,7 @@ namespace TownOfHost
                         LowerInfoText.fontSizeMax = 2.0f;
                     }
 
-                    LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
+                    LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.Meeting, isForHud: true) ?? "";
                     if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
                     if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) LowerInfoText.text = "";
 
@@ -226,7 +228,12 @@ namespace TownOfHost
         }
         //カスタムぼたーん。
         //参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.5.1
-        public static bool ch;
+        public static bool? ch;
+        public static Sprite KillButton = null;
+        public static Sprite ShepeButton = null;
+        public static Sprite EngButton = null;
+        public static Sprite HyoiButton = null;
+        public static Sprite ImpVentButton = null;
         public static void BottonHud()
         {
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -235,24 +242,44 @@ namespace TownOfHost
                 if (!GameStates.IsModHost) return;
                 var player = PlayerControl.LocalPlayer;
                 if (player == null) return;
-                if (CustomRoles.Amnesia.IsPresent()) return;
-                foreach (var pc in Main.AllPlayerControls)
+
+                var roleClass = player.GetRoleClass();
+                var __instance = DestroyableSingleton<HudManager>.Instance;
+                //定義
+                if (KillButton == null && __instance.KillButton.graphic.sprite) KillButton = __instance.KillButton.graphic.sprite;
+                if (ImpVentButton == null && __instance.ImpostorVentButton.graphic.sprite) ImpVentButton = __instance.ImpostorVentButton.graphic.sprite;
+                if (roleClass?.HasAbility ?? false || !player.IsAlive())
                 {
-                    if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;
+                    if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer) EngButton = player.Data.Role.Ability.Image;
+                    if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter) ShepeButton = player.Data.Role.Ability.Image;
+                    if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) HyoiButton = player.Data.Role.Ability.Image;
                 }
-                if (ch) return;
                 if (player == !GameStates.IsModHost) return;
                 if (!AmongUsClient.Instance.IsGameStarted) return;
-                if (player.GetCustomRole().IsVanilla()) return;
+                //リセット
+                if (__instance.KillButton.graphic.sprite && KillButton) __instance.KillButton.graphic.sprite = KillButton;
+                if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
+                if (roleClass?.HasAbility ?? false || !player.IsAlive())
+                {
+                    if (EngButton && player.Data.Role.Role is RoleTypes.Engineer) player.Data.Role.Ability.Image = EngButton;
+                    if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter) player.Data.Role.Ability.Image = ShepeButton;
+                    if (HyoiButton && !player.IsAlive() && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) player.Data.Role.Ability.Image = HyoiButton;
+                }
 
-                var __instance = DestroyableSingleton<HudManager>.Instance;
-                var roleClass = player.GetRoleClass();
+                if (CustomRoles.Amnesia.IsPresent()) return;
+                if (ch == null)
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;
+                    }
+                if (ch == true) return;
+                if (player.GetCustomRole().IsVanilla()) return;
                 if (roleClass == null) return;
                 if (Main.CustomSprite.Value)
                 {
                     if (roleClass != null)
                     {
-                        if (player.IsAlive() && __instance.AbilityButton.graphic.sprite != null)
+                        if (player.IsAlive() && roleClass.HasAbility)
                             if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
                                 player.Data.Role.Ability.Image = CustomButton.Get(abname);
 

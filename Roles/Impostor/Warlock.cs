@@ -97,7 +97,7 @@ public sealed class Warlock : RoleBase, IImpostor
                 float distance;
                 foreach (PlayerControl candidatePC in Main.AllAlivePlayerControls)
                 {
-                    if (candidatePC != CursedPlayer)
+                    if (candidatePC != CursedPlayer && !candidatePC.Is(CustomRoles.King))
                     {
                         distance = Vector2.Distance(cpPos, candidatePC.transform.position);
                         candidateList.Add(candidatePC, distance);

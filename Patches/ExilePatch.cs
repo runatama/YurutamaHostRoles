@@ -94,7 +94,6 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     AntiBlackout.RestoreIsDead(doSend: false);
-                    Utils.NotifyRoles();
                 }, 0.4f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
@@ -145,7 +144,6 @@ namespace TownOfHost
                             {
                                 if (!Player.IsAlive()) Player.RpcExileV2();
                                 Player.SetKillCooldown(kyousei: true, delay: true);
-                                Player.RpcResetAbilityCooldown(kousin: true);
                             }, Main.LagTime, "");
                     }
                     _ = new LateTask(() =>
@@ -156,9 +154,9 @@ namespace TownOfHost
                                 foreach (var kvp in PlayerState.AllPlayerStates)
                                 {
                                     kvp.Value.IsBlackOut = false;
-                                    Utils.MarkEveryoneDirtySettings();
                                 }
                                 Utils.SyncAllSettings();
+                                ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                                 if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                             }, Main.LagTime, "AfterMeetingNotifyRoles");
                     }, Main.LagTime, "");
@@ -255,7 +253,7 @@ namespace TownOfHost
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             Logger.Info("タスクフェイズ開始", "Phase");
-            foreach (var pc in Main.AllPlayerControls) pc.RpcResetAbilityCooldown();
+            ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
         }
     }
 

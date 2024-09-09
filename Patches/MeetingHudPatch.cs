@@ -469,7 +469,7 @@ public static class MeetingHudPatch
                     state.DeathReason = CustomDeathReason.Execution;
                     state.SetDead();
                     Utils.SendMessage(string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
-                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Executed]　" + string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true));
+                    Utils.AddGameLog("Executed", string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
                     Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
                 });
@@ -513,7 +513,7 @@ public static class MeetingHudPatch
                 if (deathReason == CustomDeathReason.Revenge && Options.VRcanseemitidure.GetBool())
                     MeetingVoteManager.Voteresult += "\n<size=60%>" + Utils.GetPlayerColor(Utils.GetPlayerById(playerId)) + GetString("votemi");
                 if (deathReason == CustomDeathReason.Revenge)
-                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Revenge]　" + Utils.GetPlayerColor(Utils.GetPlayerById(playerId)) + GetString("votemi");
+                    Utils.AddGameLog("Revenge", Utils.GetPlayerColor(Utils.GetPlayerById(playerId)) + GetString("votemi"));
             }
 
         //投票の道連れ処理は他でしてるのでここではしない。

@@ -98,7 +98,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
         OverKillMode = !OverKillMode;
         _ = new LateTask(() =>
         {
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(SpecifySeer: Player);
             Player.SyncSettings();
         }, 0.2f, "EarnestWolf OnClick");
     }

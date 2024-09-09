@@ -109,7 +109,7 @@ namespace TownOfHost.Roles.Neutral
         /// <summary>
         /// キルしてきた人に応じて陣営の状態を変える
         /// </summary>
-        private void ChangeTeamOnKill(PlayerControl killer)
+        public void ChangeTeamOnKill(PlayerControl killer)
         {
             killer.RpcProtectedMurderPlayer(Player);
             Killer = killer;
@@ -165,7 +165,7 @@ namespace TownOfHost.Roles.Neutral
             NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
             NameColorManager.Add(Player.PlayerId, killer.PlayerId);
 
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [BakeNeko]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
+            Utils.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             Main.LastLogRole[Player.PlayerId] = Main.LastLogRole[Player.PlayerId].RemoveColorTags().Color(DisplayRoleColor);
         }
         public override CustomRoles Jikaku() => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;

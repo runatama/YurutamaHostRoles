@@ -73,6 +73,7 @@ namespace TownOfHost
             if (CustomSprite == null || CustomSprite.ToggleButton == null)
             {
                 CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance);
+                if (GameStates.InGame) HudManagerPatch.BottonHud();
             }
             if (HideSomeFriendCodes == null || HideSomeFriendCodes.ToggleButton == null)
             {

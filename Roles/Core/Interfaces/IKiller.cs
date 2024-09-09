@@ -48,6 +48,14 @@ public interface IKiller
     /// </summary>
     /// <param name="info">キル関係者情報</param>
     public void OnCheckMurderAsKiller(MurderInfo info) { }
+
+    /// <summary>
+    /// 防がれようと処理される奴。
+    /// ここではinfoの値を弄らないでね。 
+    /// </summary>
+    /// <param name="info"></param>
+    public void OnCheckMurderDontKill(MurderInfo info) { }
+
     /// <summary>
     /// キラーとしてのMurderPlayer処理
     /// </summary>

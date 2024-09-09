@@ -203,7 +203,7 @@ namespace TownOfHost
                         if (state.DeathReason == CustomDeathReason.etc) //死因が設定されていなかったら
                         {
                             state.DeathReason = CustomDeathReason.Disconnected;
-                            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Die]　{data.PlayerName} {GetString("DeathReason.Disconnected")}";
+                            Utils.AddGameLog("Disconnected", data.PlayerName + GetString("DeathReason.Disconnected"));
                         }
                         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                         {
@@ -249,29 +249,24 @@ namespace TownOfHost
                     if (client.Character == null) return;
                     if (AmongUsClient.Instance.IsGamePublic) Utils.SendMessage(string.Format(GetString("Message.AnnounceTOH-K"), Main.PluginVersion), client.Character.PlayerId);
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
-                }, 3f, "Welcome Message");
-                if (Options.AutoDisplayLastResult.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
-                {
-                    _ = new LateTask(() =>
+
+                    if (Options.AutoDisplayLastResult.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
                     {
                         if (!AmongUsClient.Instance.IsGameStarted && client.Character != null && !Main.AssignSameRoles)
                         {
                             Main.isChatCommand = true;
                             Utils.ShowLastResult(client.Character.PlayerId);
                         }
-                    }, 3f, "DisplayLastRoles");
-                }
-                if (Options.AutoDisplayKillLog.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
-                {
-                    _ = new LateTask(() =>
+                    }
+                    if (Options.AutoDisplayKillLog.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
                     {
                         if (!GameStates.IsInGame && client.Character != null)
                         {
                             Main.isChatCommand = true;
                             Utils.ShowKillLog(client.Character.PlayerId);
                         }
-                    }, 3f, "DisplayKillLog");
-                }
+                    }
+                }, 3.0f, "Welcome Meg");
             }
         }
     }

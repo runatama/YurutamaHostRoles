@@ -8,6 +8,7 @@ using static TownOfHost.Translator;
 using Object = UnityEngine.Object;
 using TownOfHost.Roles.Core;
 using System.Reflection.Metadata;
+using AmongUs.GameOptions;
 
 namespace TownOfHost
 {
@@ -182,6 +183,55 @@ namespace TownOfHost
             return false;
         }
     }
+    [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.Increase))]
+    public class NumberOptionIncreasePatch
+    {
+        public static bool Prefix(NumberOption __instance)
+        {
+            if (__instance.floatOptionName is FloatOptionNames.ImpostorLightMod or FloatOptionNames.CrewLightMod)
+            {
+                if (__instance.Value < 2f)
+                {
+                    var che = true;
+                    switch (__instance.Value)
+                    {
+                        case 0.25f: __instance.Value = 0.38f; break;
+                        case 0.38f: __instance.Value = 0.5f; break;
+                        case 0.5f: __instance.Value = 0.63f; break;
+                        case 0.63f: __instance.Value = 0.75f; break;
+                        case 0.75f: __instance.Value = 0.88f; break;
+                        case 0.88f: __instance.Value = 1f; break;
+                        case 1.00f: __instance.Value = 1.13f; break;
+                        case 1.13f: __instance.Value = 1.25f; break;
+                        case 1.25f: __instance.Value = 1.38f; break;
+                        case 1.38f: __instance.Value = 1.5f; break;
+                        case 1.5f: __instance.Value = 1.63f; break;
+                        case 1.63f: __instance.Value = 1.75f; break;
+                        case 1.75f: __instance.Value = 1.88f; break;
+                        case 1.88f: __instance.Value = 2f; break;
+                        default: che = false; break;
+                    }
+                    if (!che) return true;
+                    __instance.UpdateValue();
+                    GameOptionsSender.RpcSendOptions();
+                    return false;
+                }
+            }
+            else
+            {
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    var v = __instance.Increment * 5 + __instance.Value;
+                    if (__instance.ValidRange.max <= v) v = __instance.ValidRange.max;
+                    __instance.Value = v;
+                    __instance.UpdateValue();
+                    GameOptionsSender.RpcSendOptions();
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 
     [HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
     public class StringOptionIncreasePatch
@@ -194,6 +244,56 @@ namespace TownOfHost
             if (option.Name == "KickModClient") Main.LastKickModClient.Value = true;
             option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
+        }
+    }
+    [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.Decrease))]
+    public class NumberOptionDecreasePatch
+    {
+        public static bool Prefix(NumberOption __instance)
+        {
+            if (__instance.floatOptionName is FloatOptionNames.ImpostorLightMod or FloatOptionNames.CrewLightMod)
+            {
+                if (__instance.Value <= 2f)
+                {
+                    var che = true;
+                    switch (__instance.Value)
+                    {
+                        case 0.25f: __instance.Value = 0.25f; break;
+                        case 0.38f: __instance.Value = 0.25f; break;
+                        case 0.5f: __instance.Value = 0.38f; break;
+                        case 0.63f: __instance.Value = 0.5f; break;
+                        case 0.75f: __instance.Value = 0.63f; break;
+                        case 0.88f: __instance.Value = 0.75f; break;
+                        case 1f: __instance.Value = 0.88f; break;
+                        case 1.13f: __instance.Value = 1f; break;
+                        case 1.25f: __instance.Value = 1.13f; break;
+                        case 1.38f: __instance.Value = 1.25f; break;
+                        case 1.5f: __instance.Value = 1.38f; break;
+                        case 1.63f: __instance.Value = 1.5f; break;
+                        case 1.75f: __instance.Value = 1.63f; break;
+                        case 1.88f: __instance.Value = 1.75f; break;
+                        case 2.00f: __instance.Value = 1.88f; break;
+                        default: che = false; break;
+                    }
+                    if (!che) return true;
+                    __instance.UpdateValue();
+                    GameOptionsSender.RpcSendOptions();
+                    return false;
+                }
+            }
+            else
+            {
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    var v = __instance.Increment * -5 + __instance.Value;
+                    if (__instance.ValidRange.min >= v) v = __instance.ValidRange.min;
+                    __instance.Value = v;
+                    __instance.UpdateValue();
+                    GameOptionsSender.RpcSendOptions();
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -350,7 +450,7 @@ namespace TownOfHost
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
                     stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.LabelBackground.png");
-                    stringOption.transform.FindChild("LabelBackground").localScale = new Vector3(1.3f, 1f, 1f);
+                    stringOption.transform.FindChild("LabelBackground").localScale = new Vector3(1.3f, 1.14f, 1f);
                     stringOption.transform.FindChild("LabelBackground").SetLocalX(-2.2695f);
                     stringOption.transform.FindChild("PlusButton").localPosition += new Vector3(option.HideValue ? 100f : 1.1434f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
                     stringOption.transform.FindChild("MinusButton").localPosition += new Vector3(option.HideValue ? 100f : 0.3463f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
@@ -591,6 +691,7 @@ namespace TownOfHost
                                 break;
                         }
                     }
+                    GameOptionsSender.RpcSendOptions();
                 }, 0.02f);
             }
             if (tabNum == 2)

@@ -69,7 +69,7 @@ namespace TownOfHost
             }
             if (__instance.PlayerId != 0
                 && Enum.IsDefined(typeof(CustomRPC), (int)callId)
-                && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck || callId == (byte)CustomRPC.DevExplosion)) //ホストではなく、CustomRPCで、VersionCheckではない
+                && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck || callId == (byte)CustomRPC.DevExplosion || callId == (byte)CustomRPC.ModUnload)) //ホストではなく、CustomRPCで、VersionCheckではない
             {
                 Logger.Warn($"{__instance?.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) ホスト以外から送信されたためキャンセルしました。", "CustomRPC");
                 if (AmongUsClient.Instance.AmHost)

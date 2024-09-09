@@ -414,7 +414,31 @@ namespace TownOfHost
                     }
                     else
                     {
-                        room = Translator.GetString("EDCustomSpawn");
+                        var Rooms = ShipStatus.Instance.AllRooms;
+                        Dictionary<PlainShipRoom, float> Distance = new();
+
+                        var pos = location;
+                        if (Rooms != null)
+                            foreach (var r in Rooms)
+                                Distance.Add(r, Vector2.Distance(pos, r.transform.position));
+
+                        var roo = Distance.OrderByDescending(x => x.Value).Last().Key;
+
+                        if (roo)
+                        {
+                            var add = "";
+                            if (roo.RoomId == SystemTypes.Hallway)
+                            {
+                                Distance.Remove(roo);
+                                var rooo = Distance.OrderByDescending(x => x.Value).Last().Key;
+                                add = Translator.GetString($"{rooo.RoomId}");
+                            }
+                            room = $"☆" + add + Translator.GetString($"{roo.RoomId}");
+                        }
+                        else
+                        {
+                            room = Translator.GetString("EDCustomSpawn");
+                        }
                     }
                 }
                 return location;

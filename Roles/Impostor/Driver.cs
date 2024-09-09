@@ -101,12 +101,11 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
                 if (!NameColorManager.TryGetData(killer, target, out var value) || value != RoleInfo.RoleColorCode)
                 {
                     NameColorManager.Add(killer.PlayerId, target.PlayerId);
-                    Utils.NotifyRoles();
                 }
             killer.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(target);
             info.CanKill = false;
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Driver]　" + Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)");
+            Utils.AddGameLog($"Driver", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Guard}回", "Driver");
             Utils.NotifyRoles();
         }

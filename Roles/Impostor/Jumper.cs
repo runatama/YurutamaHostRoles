@@ -84,7 +84,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
             if (count == 1) aname = true;
             int chance = IRandom.Instance.Next(0, 18);
             Main.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(ForceLoop: true);
             player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
             player.RpcProtectedMurderPlayer();
             _ = new LateTask(() =>
@@ -114,7 +114,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 {
                     Player.RpcSetColor((byte)PlayerColor);
                     aname = false;
-                    _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "jampnamemoosu");
+                    _ = new LateTask(() => Utils.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
                 }
             }, 1.3f, "abo-n");
             if (count == Jampcount.GetInt())
@@ -126,7 +126,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 nowposition = new Vector2(999f, 999f);
                 Main.AllPlayerSpeed[Player.PlayerId] = speed;
                 _ = new LateTask(() => player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampowari");
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(ForceLoop: true);
                 player.SetKillCooldown();
             }
             count++;
@@ -154,7 +154,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         {
             position = Player.transform.position;
             Player.RpcResetAbilityCooldown(kousin: true);
-            _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "Jamperset");
+            _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), 0.2f, "Jamperset");
             return;
         }
         timer = 0;
@@ -169,7 +169,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         _ = new LateTask(() =>
         {
             Player.SyncSettings();
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(ForceLoop: true);
         }, 0.4f, "Jamper0Speed");
 
     }

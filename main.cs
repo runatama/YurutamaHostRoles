@@ -55,7 +55,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.8.16";
+        public const string PluginVersion = "5.1.8.17";
         public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。

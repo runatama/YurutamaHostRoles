@@ -63,7 +63,8 @@ namespace TownOfHost.Roles.Ghost
 
                     PlayerState.GetByPlayerId(pc.PlayerId).SetGhostRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
-                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [{role}]　" + string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))); ;
+
+                    Utils.AddGameLog($"{role}", string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))));
                     Main.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))}</size>";
 
                     if (!d)

@@ -116,6 +116,12 @@ public static class GuessManager
             }
             if (MadAvenger.Skill)//マッドアベンジャー中は処理しないぜ★
             {
+                Utils.SendMessage(GetString("GuessErrorMadAvenger"), pc.PlayerId, $"<color=#ff1919>{GetString("GuessErrorMadAvengerTitle")}</color>");
+                return true;
+            }
+            if (GameStates.Tuihou)
+            {
+                Utils.SendMessage(GetString("GuessErrorTuiho"), pc.PlayerId, $"<color=#ab80c2>{GetString("GuessErrorTuihoTitle")}</color>");
                 return true;
             }
             var target = Utils.GetPlayerById(targetId);
@@ -215,11 +221,11 @@ public static class GuessManager
 
                 if (pc == dp)
                 {
-                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guess]　" + string.Format(GetString("guessfall"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role)));
+                    Utils.AddGameLog("Guess", string.Format(GetString("guessfall"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role))));
                 }
                 else
                 {
-                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Guess]　" + string.Format(GetString("guesssuccess"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dp, true) + $"(<b>{Utils.GetTrueRoleName(dp.PlayerId, false)}</b>)");
+                    Utils.AddGameLog("Guess", string.Format(GetString("guesssuccess"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dp, true) + $"(<b>{Utils.GetTrueRoleName(dp.PlayerId, false)}</b>)"));
                 }
 
                 _ = new LateTask(() =>

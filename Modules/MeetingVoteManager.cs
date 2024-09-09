@@ -176,7 +176,7 @@ public class MeetingVoteManager
         if (Voteresult == "")
         {
             Voteresult = r;
-            Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Vote]　" + r;
+            Utils.AddGameLog("Vote", r);
         }
         var states = new List<MeetingHud.VoterState>();
         foreach (var voteArea in meetingHud.playerStates)
@@ -231,7 +231,7 @@ public class MeetingVoteManager
                             if (!PlayerControl.LocalPlayer.IsAlive())
                             {
                                 if (result.Exiled != null) t = result.Exiled.PlayerId;
-                                var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x.PlayerId != t && x != PlayerControl.LocalPlayer));
+                                var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x.PlayerId != t && x != PlayerControl.LocalPlayer && x.PlayerId != 0));
                                 taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                             }
                             Player?.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
@@ -503,7 +503,7 @@ public class MeetingVoteManager
                         }
                         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
                         Voteresult = string.Join(',', mostVotedPlayers.Select(id => GetVoteName(id, true))) + Translator.GetString("fortuihou");
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Vote]　" + Voteresult;
+                        Utils.AddGameLog("Vote", Voteresult);
 
                         Exiled = null;
                         logger.Info("全員追放します");
@@ -515,8 +515,7 @@ public class MeetingVoteManager
                         logger.Info($"ランダム追放: {GetVoteName(exileId)}");
                         var player = Utils.GetPlayerById(exileId);
                         Voteresult = Utils.GetPlayerColor(player) + Translator.GetString("fortuihou");
-                        Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Vote]　" + Utils.GetPlayerColor(player) + Translator.GetString("fortuihou");
-
+                        Utils.AddGameLog("Vote", Utils.GetPlayerColor(player) + Translator.GetString("fortuihou"));
                         break;
                 }
             }

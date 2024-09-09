@@ -120,7 +120,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             {
                 Die = true;
                 Coin -= DieRemoveCoin.GetInt();
-                _ = new LateTask(() => Utils.NotifyRoles(), Main.LagTime, "Bankerdie");
+                _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), Main.LagTime, "Bankerdie");
             }
         }
     }
@@ -131,6 +131,24 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         if (Player.IsAlive())
             Coin -= TarnRemoveCoin.GetInt();
         else Coin -= DieRemoveTarn.GetInt();
+
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (pc == PlayerControl.LocalPlayer)
+                    Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
+                else
+                    Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
+            }
+            TaskMode = true;
+        }
+        _ = new LateTask(() =>
+        {
+            Player.SetKillCooldown();
+            Utils.NotifyRoles(SpecifySeer: Player);
+        }, Main.LagTime, "Bankerchenge");
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
@@ -153,7 +171,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             _ = new LateTask(() =>
             {
                 Player.SetKillCooldown();
-                Utils.NotifyRoles();
+                Utils.NotifyRoles(SpecifySeer: Player);
             }, Main.LagTime, "Bankerchenge");
         }
         return false;

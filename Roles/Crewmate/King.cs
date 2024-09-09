@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class King : RoleBase
@@ -16,7 +17,7 @@ public sealed class King : RoleBase
             24000,
             SetupOptionItem,
             "k",
-            "#FFD700"//役職カラーもっといい色ないかな....()
+            "#FFD700"
         );
     public King(PlayerControl player)
     : base(
@@ -80,6 +81,12 @@ public sealed class King : RoleBase
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
         info.CanKill = false;
+        var (killer, target) = info.AppearanceTuple;
+        if (killer.GetRoleClass() is BountyHunter bountyHunter)
+        {
+            bountyHunter.OnKingKill(this);
+        }
+        killer.SetKillCooldown(target: target);
         return false;
     }
     public override void OnFixedUpdate(PlayerControl player)
@@ -105,7 +112,7 @@ public sealed class King : RoleBase
     {
         seer ??= Player;
         if (seer == Player) return;
-        if (seer.Is(CustomRoleTypes.Crewmate))
+        if (seer.Is(CustomRoleTypes.Crewmate) || seer.Is(CustomRoles.BakeCat))
         {
             enabled = true;
             addon = false;

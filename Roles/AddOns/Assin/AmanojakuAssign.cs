@@ -83,7 +83,7 @@ namespace TownOfHost.Roles.AddOns.Common
 
                 foreach (var pc in assignTargetList)
                 {
-                    Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [Amanojaku]　" + string.Format(GetString("Log.Amanojaku"), Utils.GetPlayerColor(pc) + $"({Utils.GetTrueRoleName(pc.PlayerId, false)})");
+                    Utils.AddGameLog($"Amanojaku", string.Format(GetString("Log.Amanojaku"), Utils.GetPlayerColor(pc) + $"({Utils.GetTrueRoleName(pc.PlayerId, false)})"));
                     PlayerState.GetByPlayerId(pc.PlayerId).SetSubRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
                     Amanojaku.Add(pc.PlayerId);

@@ -187,7 +187,7 @@ public sealed class JackalDoll : RoleBase
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
-                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Jackaldool]　" + Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(Utils.GetRoleColor(ChangeRoles[RoleChe.GetValue()])));
+                Utils.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(Utils.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
                 Utils.NotifyRoles();
             }
@@ -209,7 +209,7 @@ public sealed class JackalDoll : RoleBase
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
-                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Jackaldool]　" + Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(Utils.GetRoleColor(ChangeRoles[RoleChe.GetValue()])));
+                Utils.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(Utils.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
                 Utils.NotifyRoles();
             }

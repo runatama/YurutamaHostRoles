@@ -156,7 +156,7 @@ namespace TownOfHost.Roles
                 var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
 
                 if (AssignRoleList.Count < Main.AllPlayerControls.Count())
-                    for (var i = roles.Count(); i <= Main.AllPlayerControls.Count(); i++)
+                    for (var i = roles.Count(); i < Main.AllPlayerControls.Count(); i++)
                         AssignRoleList.Add(CustomRoles.Impostor);
             }
             Logger.Info($"{string.Join(", ", AssignCount)}", "AssignCount");
@@ -181,8 +181,7 @@ namespace TownOfHost.Roles
                 var numImpostorAssign = targetRoles.Count(role => role.IsImpostor());
                 var numOthersAssign = targetRoles.Length - numImpostorAssign;
                 //アサイン枠が足りてない場合
-                if (numImpostorAssign > numImpostorsLeft
-                || numOthersAssign > numOthersLeft) continue;
+                if ((numImpostorAssign > numImpostorsLeft || numOthersAssign > numOthersLeft) && !Options.SuddenDeathMode.GetBool()) continue;
 
                 AssignRoleList.AddRange(targetRoles);
                 numImpostorsLeft -= numImpostorAssign;

@@ -106,7 +106,6 @@ public sealed class UltraStar : RoleBase
                 target.SetRealKiller(player);
                 player.RpcMurderPlayer(target);
                 Utils.MarkEveryoneDirtySettings();
-                Utils.NotifyRoles();
                 KillCoolCheck(player.PlayerId);
             }
         }

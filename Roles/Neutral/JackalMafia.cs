@@ -117,7 +117,7 @@ namespace TownOfHost.Roles.Neutral
         public override void AfterMeetingTasks()
         {
             Fall = false;
-            Player.SyncSettings();
+            Player.MarkDirtySettings();
         }
         public void OnClick()
         {
@@ -129,7 +129,7 @@ namespace TownOfHost.Roles.Neutral
             }
             var ch = Fall;
             var target = Player.GetKillTarget();
-            if (target == null || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
+            if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
             {
                 Fall = true;
                 if (!ch)
@@ -143,12 +143,11 @@ namespace TownOfHost.Roles.Neutral
             Player.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(Player);
             target.RpcProtectedMurderPlayer(target);
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sidekick]　" + string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})");
+            Utils.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})"));
             target.RpcSetCustomRole(CustomRoles.Jackaldoll);
             JackalDoll.Sidekick(target, Player);
             Main.FixTaskNoPlayer.Add(target);
             Utils.MarkEveryoneDirtySettings();
-            Utils.NotifyRoles();
             Utils.DelTask();
             JackalDoll.side++;
             Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(target.PlayerId);

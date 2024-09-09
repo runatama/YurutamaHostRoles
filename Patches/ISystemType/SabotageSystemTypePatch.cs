@@ -52,7 +52,8 @@ public static class SabotageSystemTypeUpdateSystemPatch
                 {
                     Main.SabotageType = (SystemTypes)amount;
                     var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
-                    if (!Main.NowSabotage) Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+                    if (!Main.NowSabotage)
+                        Utils.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb));
                     Main.NowSabotage = true;
                     Main.LastSab = player.PlayerId;
                 }
@@ -77,7 +78,8 @@ public static class SabotageSystemTypeUpdateSystemPatch
             {
                 Main.SabotageType = (SystemTypes)amount;
                 var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
-                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sabotage]　" + string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb);
+
+                Utils.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb));
                 Main.NowSabotage = true;
                 Main.LastSab = player.PlayerId;
             }

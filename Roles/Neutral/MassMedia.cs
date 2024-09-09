@@ -186,7 +186,8 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
                 MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, Player.PlayerId);
                 MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Misfire, Player.PlayerId);
                 Utils.GetPlayerById(votedForId).SetRealKiller(Player);
-                Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [MassMedia]　" + string.Format(Translator.GetString("MassMedia.log"), Utils.GetPlayerColor(Player));
+
+                Utils.AddGameLog($"MassMedia", string.Format(Translator.GetString("MassMedia.log"), Utils.GetPlayerColor(Player)));
                 return true;
             }
         }

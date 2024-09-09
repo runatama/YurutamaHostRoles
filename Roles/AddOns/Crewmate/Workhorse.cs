@@ -71,7 +71,8 @@ namespace TownOfHost.Roles.AddOns.Crewmate
                 pc.SyncSettings();
                 Utils.NotifyRoles();
             }
-            Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Workhorse]　" + string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true));
+
+            Utils.AddGameLog($"Workhorse", string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true)));
 
             return false;
         }

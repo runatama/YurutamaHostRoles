@@ -33,6 +33,12 @@ namespace TownOfHost
 
             if (role < CustomRoles.NotAssigned)
             {
+                var roleClass = player.GetRoleClass();
+                if (roleClass != null)
+                {
+                    roleClass.Dispose();
+                    CustomRoleManager.CreateInstance(role, player);
+                }
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
 
                 if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>" + Utils.GetSubRolesText(player.PlayerId);
@@ -46,12 +52,6 @@ namespace TownOfHost
             {
                 if (role < CustomRoles.NotAssigned)
                 {
-                    var roleClass = player.GetRoleClass();
-                    if (roleClass != null)
-                    {
-                        roleClass.Dispose();
-                        CustomRoleManager.CreateInstance(role, player);
-                    }
                     if (setRole)
                     {
                         if (role.GetRoleInfo()?.IsDesyncImpostor ?? false)
@@ -89,6 +89,8 @@ namespace TownOfHost
                 player.SyncSettings();
                 player.SetKillCooldown(delay: true, kyousei: true);
                 player.RpcResetAbilityCooldown();
+
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) HudManagerPatch.BottonHud();
             }
         }
         public static void RpcSetCustomRole(byte PlayerId, CustomRoles role)
@@ -230,7 +232,9 @@ namespace TownOfHost
             if (target == null) target = player;
             CustomRoles role = player.GetCustomRole();
             if (!player.CanUseKillButton() && !kyousei) return;
+
             if (player == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
+
             if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId))
             {
                 player.ResetKillCooldown();
@@ -297,6 +301,31 @@ namespace TownOfHost
             messageWriter.Write(colorId);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
+        public static void RpcResetAbilityCooldownAllPlayer()
+        {
+            if (!AmongUsClient.Instance.AmHost) return;
+            Utils.SyncAllSettings();
+            _ = new LateTask(() =>
+            {
+                foreach (var target in Main.AllPlayerControls)
+                {
+                    if (PlayerControl.LocalPlayer == target)
+                    {
+                        //targetがホストだった場合
+                        PlayerControl.LocalPlayer?.Data?.Role?.SetCooldown();
+                    }
+                    else
+                    {
+                        //targetがホスト以外だった場合
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
+                        writer.WriteNetObject(target);
+                        writer.Write(0);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    }
+                }
+            }
+            , 0.2f, "AllPlayerResetAbilityCoolDown");
+        }
         public static void RpcResetAbilityCooldown(this PlayerControl target, bool log = true, bool kousin = false)
         {
             if (target == null || !AmongUsClient.Instance.AmHost)
@@ -307,7 +336,24 @@ namespace TownOfHost
             if (target == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
             if (log) Logger.Info($"アビリティクールダウンのリセット:{target?.name ?? "ﾇﾙﾎﾟｯ"}({target?.PlayerId ?? 334})", "RpcResetAbilityCooldown");
 
-            _ = new LateTask(() =>
+            if (kousin)
+                _ = new LateTask(() =>
+                {
+                    if (PlayerControl.LocalPlayer == target)
+                    {
+                        //targetがホストだった場合
+                        PlayerControl.LocalPlayer?.Data?.Role?.SetCooldown();
+                    }
+                    else
+                    {
+                        //targetがホスト以外だった場合
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
+                        writer.WriteNetObject(target);
+                        writer.Write(0);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    }
+                }, Main.LagTime, "abilityrset");
+            else
             {
                 if (PlayerControl.LocalPlayer == target)
                 {
@@ -322,7 +368,8 @@ namespace TownOfHost
                     writer.Write(0);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                 }
-            }, kousin ? Main.LagTime : 0f, "abilityrset");//更新があるなら2f後
+            }
+            //更新があるなら2f後
             /*
                 プレイヤーがバリアを張ったとき、そのプレイヤーの役職に関わらずアビリティーのクールダウンがリセットされます。
                 ログの追加により無にバリアを張ることができなくなったため、代わりに自身に0秒バリアを張るように変更しました。

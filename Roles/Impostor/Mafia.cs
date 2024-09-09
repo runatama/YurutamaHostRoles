@@ -62,13 +62,13 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
     {
         if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount) return;
         var target = Player.GetKillTarget();
-        if (target == null || target.Is(CustomRoleTypes.Impostor)) return;
+        if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoleTypes.Impostor)) return;
 
         SKMad = false;
         Player.RpcProtectedMurderPlayer(target);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
-        Main.gamelog += $"\n{System.DateTime.Now:HH.mm.ss} [Sidekick]　" + string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})");
+        Utils.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})"));
         target.RpcSetCustomRole(CustomRoles.SKMadmate);
         foreach (var pl in Main.AllPlayerControls)
         {

@@ -69,7 +69,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
         Player.SetKillCooldown(RKillCooldown);
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
         Player.SyncSettings();
-        Utils.NotifyRoles();
+        Utils.NotifyRoles(SpecifySeer: Player);
     }
     public override string GetProgressText(bool comms = false) => Utils.ColorString(Count > 0 ? RoleInfo.RoleColor : Palette.DisabledGrey, $"({Count})");
 

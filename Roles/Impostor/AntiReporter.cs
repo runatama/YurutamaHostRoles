@@ -29,20 +29,17 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         player
     )
     {
-        megaphone = false;
         mg.Clear();
         Cooldown = OptionColldown.GetFloat();
         Use = OptionMax.GetInt();
         AntiReporterResetMeeting = OptionAntiReporterResetMeeting.GetBool();
         AntiReporterResetse = OptionAntiReporterResetse.GetFloat();
     }
-    bool megaphone;
     Dictionary<byte, float> mg = new(14);
     static OptionItem OptionColldown;
     static OptionItem OptionMax;
     static OptionItem OptionAntiReporterResetMeeting;
     static OptionItem OptionAntiReporterResetse;
-    static OptionItem OptionOC;
     enum OptionName
     {
         Cooldown,
@@ -64,41 +61,16 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         OptionAntiReporterResetMeeting = BooleanOptionItem.Create(RoleInfo, 12, OptionName.AntiReporterResetMeeting, true, false);
         OptionAntiReporterResetse = FloatOptionItem.Create(RoleInfo, 13, OptionName.AntiReporterResetse, new(0f, 999f, 1f), 20f, false, infinity: true)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionOC = BooleanOptionItem.Create(RoleInfo, 14, OptionName.UOcShButton, false, false);
     }
     private void SendRPC()
     {
         using var sender = CreateSender();
         sender.Writer.Write(Use);
-        sender.Writer.Write(megaphone);
     }
 
     public override void ReceiveRPC(MessageReader reader)
     {
         Use = reader.ReadInt32();
-        megaphone = reader.ReadBoolean();
-    }
-    public void OnCheckMurderAsKiller(MurderInfo info)
-    {
-        var (killer, target) = info.AttemptTuple;
-        info.DoKill = true;
-        if (megaphone == false || mg.ContainsKey(target.PlayerId)) return;
-        mg.Add(target.PlayerId, 0f);
-        Use--;
-        killer.RpcProtectedMurderPlayer(target);
-        Logger.Info($"{target.name}のメガホンを間違えて壊しちゃった!! ﾃﾍ", "AntiReporter");
-        megaphone = false;
-        SendRPC();
-        Utils.NotifyRoles();
-        info.DoKill = false;
-    }
-    public override void OnShapeshift(PlayerControl target)
-    {
-        var shapeshifting = !Is(target);
-        if (Use < 1 || !shapeshifting || UseOCButton) return;
-        Logger.Info(megaphone ? "やっぱ破壊するのやめるね！" : $"破壊準備ok", "AntiReporter");
-        megaphone = !megaphone;
-        Utils.NotifyRoles();
     }
     public void OnClick()
     {
@@ -110,26 +82,16 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         Player.RpcProtectedMurderPlayer(target);
         Logger.Info($"{target.name}のメガホンワンクリックだから間違えて壊しちゃった☆ ﾃﾍｯ", "AntiReporter");
         SendRPC();
-        Utils.NotifyRoles();
-
+        Utils.NotifyRoles(SpecifySeer: Player);
     }
-    public bool UseOCButton => OptionOC.GetBool();
-    public override string GetProgressText(bool comms = false) => megaphone ? "<color=red>◆" : "" + Utils.ColorString(Use > 0 ? Color.red : Color.gray, $"({Use})");
+    public override string GetProgressText(bool comms = false) => Utils.ColorString(Use > 0 ? Color.red : Color.gray, $"({Use})");
     public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         Logger.Info("!!!", "mg");
         return mg.ContainsKey(reporter.PlayerId);
     }
-    public bool OverrideKillButtonText(out string text)
-    {
-        text = AntiReporterResetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText");
-        if (!megaphone) return false;
-        if (OptionOC.GetBool()) return false;
-        return true;
-    }
     public override string GetAbilityButtonText()
     {
-        if (!OptionOC.GetBool()) return "";
         return AntiReporterResetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText"); ;
     }
 

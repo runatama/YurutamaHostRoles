@@ -84,6 +84,29 @@ namespace TownOfHost
             {
                 Logger.seeingame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
             }
+
+            _ = new LateTask(() =>
+            {
+                if (Main.sabotagetime > 0.3f)
+                    if (Main.NowSabotage)
+                    {
+                        if (!Utils.IsActive(Main.SabotageType))
+                        {
+                            var sb = Translator.GetString($"sb.{Main.SabotageType}");
+
+                            if (systemType == SystemTypes.MushroomMixupSabotage)
+                                Utils.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
+                            else Utils.AddGameLog($"{systemType}", string.Format(Translator.GetString("Log.FixSab"), sb));
+                            Main.NowSabotage = false;
+                            Main.sabotagetime = 0;
+
+                            foreach (var role in Roles.Core.CustomRoleManager.AllActiveRoles.Values)
+                            {
+                                role.AfterSabotage(Main.SabotageType);
+                            }
+                        }
+                    }
+            }, 0.2f, "Check Sabotage");
         }
         public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
         {

@@ -209,12 +209,20 @@ namespace TownOfHost
                     break;
 
                 case CustomRoles.TaskPlayerB:
-                    __instance.TeamTitle.text = Utils.GetRoleName(role);
+                    __instance.TeamTitle.text = GetString("TaskBattle");
                     __instance.TeamTitle.color = Utils.GetRoleColor(role);
                     __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
-                    __instance.ImpostorText.gameObject.SetActive(false);
+                    __instance.ImpostorText.gameObject.SetActive(Main.AllPlayerControls.Count() == 1);
+                    if (Main.AllPlayerControls.Count() == 1) __instance.ImpostorText.text = GetString("TaskRTAInfo");
                     break;
-
+            }
+            if (Options.SuddenDeathMode.GetBool())
+            {
+                __instance.TeamTitle.text = GetString("SuddenDeath");
+                __instance.TeamTitle.color = StringHelper.CodeColor("#db5837");
+                __instance.BackgroundBar.material.color = StringHelper.CodeColor("#db5837");
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("SuddenDeathIntro");
             }
 
             /*if (Input.GetKey(KeyCode.RightShift))
@@ -375,11 +383,9 @@ namespace TownOfHost
                                     {
                                         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
                                         if (pc == null) continue;
-                                        var ri = pc.GetCustomRole().GetRoleInfo();
-                                        if (ri?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter || ri?.BaseRoleType.Invoke() == RoleTypes.Engineer)
-                                            pc.RpcResetAbilityCooldown();
-                                        Utils.NotifyRoles();
                                     }
+                                    ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+                                    Utils.NotifyRoles();
                                 }, 0.2f, "ResetCool");
                             }, 0.2f, "Use On click Shepe");
                     }, 0.5f, "Set Rolet");
@@ -491,7 +497,6 @@ namespace TownOfHost
                         s.Value.IsBlackOut = false;
                         if (Utils.GetPlayerById(s.Key) == null) continue;
                         Utils.GetPlayerById(s.Key).SyncSettings();
-                        Utils.NotifyRoles();
                     }
                     Utils.NotifyRoles();
                 }, 1.2f, "");

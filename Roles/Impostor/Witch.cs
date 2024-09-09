@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
+using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Impostor
 {
@@ -185,6 +186,24 @@ namespace TownOfHost.Roles.Impostor
             if (NowSwitchTrigger is SwitchTrigger.WitchOcShButton)
             {
                 var target = Player.GetKillTarget();
+                if (target.GetRoleClass() is SchrodingerCat schrodingerCat)
+                {
+                    if (schrodingerCat.Team == SchrodingerCat.TeamType.None)
+                    {
+                        schrodingerCat.ChangeTeamOnKill(Player);
+                        Player.SetKillCooldown(target: schrodingerCat.Player);
+                        return;
+                    }
+                }
+                if (target.GetRoleClass() is BakeCat bakeneko)
+                {
+                    if (bakeneko.Team == BakeCat.TeamType.None)
+                    {
+                        bakeneko.ChangeTeamOnKill(Player);
+                        Player.SetKillCooldown(target: bakeneko.Player);
+                        return;
+                    }
+                }
                 if (target != null)
                 {
                     SetSpelled(target);
