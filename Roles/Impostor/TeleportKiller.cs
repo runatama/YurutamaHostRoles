@@ -94,9 +94,9 @@ public sealed class TeleportKiller : RoleBase, IImpostor
     static Dictionary<byte, int> CheckVentD = new();
     private static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, OptionName.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, OptionName.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionCoolDown = FloatOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(2.5f, 180f, 2.5f), 30f, false)
+        OptionCoolDown = FloatOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionmMaximum = FloatOptionItem.Create(RoleInfo, 12, OptionName.TeleportKillerMaximum, new(0f, 999, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
@@ -134,7 +134,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
             if (!target.IsAlive() && TeleportKillerDokkaaaan)
             {
                 Logger.Info($"ターゲットが生きてないから自爆☆ Killer:{Player.name} Target:{target.name}", "TeleportKiller");
-                PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                MyState.DeathReason = CustomDeathReason.Bombed;
                 Player.RpcMurderPlayer(Player);
                 return;
             }
@@ -146,7 +146,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
                         && TeleportKillerVentgaaa)
                 {
                     Player.RpcSnapToForced(target.transform.position);
-                    PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                    MyState.DeathReason = CustomDeathReason.Bombed;
                     Player.RpcMurderPlayer(Player, true);
                     Logger.Info($"ターゲットがベントに入ってたせいでTPした時ベントに体があああ(自爆) Killer:{Player.name} Target:{target.name}", "TeleportKiller");
                     return;
@@ -191,7 +191,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
     {
         if (target.Is(CustomRoles.King))
         {
-            PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Bombed;
+            MyState.DeathReason = CustomDeathReason.Bombed;
             Player.RpcMurderPlayer(Player, true);
             Logger.Info($"この我を殺そうなど無謀な。ガッハッハ Killer:{Player.name} Target:{target.name}", "TeleportKiller");
             return;
@@ -260,7 +260,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
             if (t >= 1)
             {
                 isAnimation = false;
-                PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Fall;
+                MyState.DeathReason = CustomDeathReason.Fall;
                 Player.RpcMurderPlayer(Player, true);
                 Logger.Info($"TPした先には足場がぁ!? うあああ落ちるうう(落下死) Killer:{Player.name}", "TeleportKiller");
             }

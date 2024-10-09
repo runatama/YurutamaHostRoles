@@ -10,6 +10,7 @@ using TownOfHost.Roles.AddOns.Common;
 using System.Text;
 using TownOfHost.Roles.Impostor;
 using AmongUs.GameOptions;
+using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost
 {
@@ -27,6 +28,7 @@ namespace TownOfHost
         public static Vector2 TaskBattlep;
         public static TMPro.TextMeshPro LowerInfoText;
         public static TMPro.TextMeshPro GameSettings;
+        private static readonly int Desat = Shader.PropertyToID("_Desat");
         public static void Postfix(HudManager __instance)
         {
             if (!GameStates.IsModHost) return;
@@ -51,8 +53,16 @@ namespace TownOfHost
                     player.Collider.offset = new Vector2(0f, -0.3636f);
                 }
             }
+            if (Main.DebugChatopen.Value && DebugModeManager.EnableDebugMode.GetBool())
+                if (__instance.Chat)
+                {
+                    if (!__instance.Chat?.gameObject?.active ?? false)
+                    {
+                        __instance.Chat?.gameObject?.SetActive(true);
+                    }
+                }
 
-            if (GameStates.IsLobby)
+            if (GameStates.IsLobby && !GameStates.IsFreePlay && !Main.EditMode)
             {
                 if (!GameSettings)
                 {
@@ -75,6 +85,7 @@ namespace TownOfHost
             //カスタムスポーン位置設定中ならキルボタン等を非表示にする
             if (GameStates.IsFreePlay && Main.EditMode)
             {
+                GameObject.Find("Main Camera/ShadowQuad")?.SetActive(false);
                 __instance.ReportButton.Hide();
                 __instance.ImpostorVentButton.Hide();
                 __instance.KillButton.Hide();
@@ -195,13 +206,13 @@ namespace TownOfHost
                 }
             }
 
-            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.enabled = false;
-            if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && DebugModeManager.IsDebugMode)
+            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame || !Main.DebugSendAmout.Value) RepairSender.enabled = false;
+            if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && DebugModeManager.IsDebugMode && Main.DebugSendAmout.Value)
             {
                 RepairSender.enabled = !RepairSender.enabled;
                 RepairSender.Reset();
             }
-            if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+            if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && Main.DebugSendAmout.Value)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
                 if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
@@ -328,41 +339,21 @@ namespace TownOfHost
                 Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
                 //ハートマークを付ける(会議中MOD視点)
-                if (seer.Is(CustomRoles.ALovers) && PlayerControl.LocalPlayer.Is(CustomRoles.ALovers))
+                if (target.GetRiaju() == PlayerControl.LocalPlayer.GetRiaju() && target.GetRiaju() != CustomRoles.NotAssigned)
                 {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ALovers)}>♥</color>");
+                    Mark.Append(Utils.ColorString(Utils.GetRoleColor(target.GetRiaju()), "♥"));
                 }
-                else if (seer.Is(CustomRoles.ALovers) && PlayerControl.LocalPlayer.Data.IsDead)
+                else if (PlayerControl.LocalPlayer.Data.IsDead && target.IsRiaju())
                 {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ALovers)}>♥</color>");
+                    Mark.Append(Utils.ColorString(Utils.GetRoleColor(target.GetRiaju()), "♥"));
                 }
-                if (seer.Is(CustomRoles.BLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.BLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.BLovers)}>♥</color>");
-                else if (seer.Is(CustomRoles.BLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.BLovers)}>♥</color>");
-                if (seer.Is(CustomRoles.CLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.CLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.CLovers)}>♥</color>");
-                else if (seer.Is(CustomRoles.CLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.CLovers)}>♥</color>");
-                if (seer.Is(CustomRoles.DLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.DLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.DLovers)}>♥</color>");
-                else if (seer.Is(CustomRoles.DLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.DLovers)}>♥</color>");
-                if (seer.Is(CustomRoles.ELovers) && PlayerControl.LocalPlayer.Is(CustomRoles.ELovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ELovers)}>♥</color>");
-                else if (seer.Is(CustomRoles.ELovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ELovers)}>♥</color>");
-                if (seer.Is(CustomRoles.FLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.FLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.FLovers)}>♥</color>");
-                else if (seer.Is(CustomRoles.FLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.FLovers)}>♥</color>");
-                if (seer.Is(CustomRoles.GLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.GLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GLovers)}>♥</color>");
-                else if (seer.Is(CustomRoles.GLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GLovers)}>♥</color>");
 
-                if (seer.Is(CustomRoles.MaLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.MaLovers))
-                {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.MaLovers)}>♥</color>");
-                }
-                else if (seer.Is(CustomRoles.MaLovers) && PlayerControl.LocalPlayer.Data.IsDead)
-                {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.MaLovers)}>♥</color>");
-                }
-                if (seer.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting)
-                && !seer.Is(CustomRoles.WolfBoy) && !PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
+                if (target.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting)
+                && !target.Is(CustomRoles.WolfBoy) && !PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
                 {
                     Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
-                else if (seer.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Data.IsDead)
+                else if (target.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Data.IsDead)
                 {
                     Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
@@ -469,9 +460,15 @@ namespace TownOfHost
     [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
     class MapBehaviourShowPatch
     {
-        public static void Prefix(MapBehaviour __instance, ref MapOptions opts)
+        public static bool Prefix(MapBehaviour __instance, ref MapOptions opts)
         {
-            if (GameStates.IsMeeting) return;
+            if (GameStates.IsMeeting) return true;
+
+            if (opts.Mode == MapOptions.Modes.CountOverlay && PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
+            {
+                if (Options.TimeLimitAdmin.GetFloat() != 0 && DisableDevice.GameAdminTimer > Options.TimeLimitAdmin.GetFloat()) return false;
+                if (Options.TarnTimeLimitAdmin.GetFloat() != 0 && DisableDevice.TarnAdminTimer > Options.TarnTimeLimitAdmin.GetFloat()) return false;
+            }
 
             if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
             {
@@ -481,6 +478,7 @@ namespace TownOfHost
                 else
                     opts.Mode = MapOptions.Modes.Normal;
             }
+            return true;
         }
     }
     [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]

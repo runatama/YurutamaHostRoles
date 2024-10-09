@@ -146,6 +146,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             var killerTeam = Main.AllPlayerControls.Where(player => (AmMadmate && (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.WolfBoy))) || player.Is(killerRoleId));
             foreach (var member in killerTeam)
             {
+                if (member.GetCustomRole().IsMadmate()) continue;
                 var c = RoleInfo.RoleColorCode;
                 if (member.Is(CustomRoles.WolfBoy))
                 {

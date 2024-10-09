@@ -7,8 +7,8 @@ using TownOfHost.Modules;
 using static TownOfHost.Translator;
 using Object = UnityEngine.Object;
 using TownOfHost.Roles.Core;
-using System.Reflection.Metadata;
 using AmongUs.GameOptions;
+using Il2CppSystem.Linq;
 
 namespace TownOfHost
 {
@@ -58,26 +58,6 @@ namespace TownOfHost
 
                     enabled = AmongUsClient.Instance.AmHost &&
                         !option.IsHiddenOn(Options.CurrentGameMode);
-                    //起動時以外で表示/非表示を切り替える際に使う
-                    /*if (enabled)
-                    {
-                        switch (option.Name)
-                        {
-                            case "KickModClient":
-                                if (!ModUpdater.nothostbug)
-                                {
-                                    if (Options.KickModClient.GetBool())
-                                        Options.KickModClient.SetValue(0, true);
-                                }
-                                else
-                                {
-                                    if (!Options.KickModClient.GetBool() && Main.LastKickModClient.Value)
-                                        Options.KickModClient.SetValue(1, true);
-                                }
-                                enabled = ModUpdater.nothostbug;
-                                break;
-                        }
-                    }*/
                     if (enabled && find != "")
                     {
                         enabled = option.Name.ToLower().Contains(find.ToLower())
@@ -89,32 +69,41 @@ namespace TownOfHost
 
                     opt.size = new(5.0f, 0.68f);
                     //opt.enabled = false;
-                    if (parent == null) opt.color = new Color32(180, 180, 180, 255);
+                    if (parent == null) opt.color = new Color32(200, 200, 200, 255);
+                    if (option.Tab is TabGroup.MainSettings && (option.NameColor != Color.white || option.NameColorCode != "#ffffff"))
+                    {
+                        var color = option.NameColor == Color.white ? StringHelper.CodeColor(option.NameColorCode) : option.NameColor;
 
+                        opt.color = color.ShadeColor(-6);
+                    }
+                    if (Options.CustomRoleSpawnChances.ContainsValue(option as IntegerOptionItem))
+                    {
+                        opt.color = option.NameColor.ShadeColor(-5);
+                    }
                     while (parent != null && enabled)
                     {
                         enabled = parent.GetBool();
                         parent = parent.Parent;
-                        opt.color = new Color32(90, 100, 120, 255);
+                        opt.color = new Color32(40, 50, 80, 255);
 
                         opt.size = new(4.6f, 0.68f);
                         option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.8566f, 0f);
                         option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.4f, 0.6f);
                         if (option.Parent?.Parent != null)
                         {
-                            opt.color = new Color32(90, 140, 110, 255);
+                            opt.color = new Color32(20, 60, 40, 255);
                             opt.size = new(4.4f, 0.68f);
                             option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.7566f, 0f);
                             option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.35f, 0.6f);
                             if (option.Parent?.Parent?.Parent != null)
                             {
-                                opt.color = new Color32(140, 80, 110, 255);
+                                opt.color = new Color32(60, 20, 40, 255);
                                 opt.size = new(4.2f, 0.68f);
                                 option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f, 0f);
                                 option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.3f, 0.6f);
                                 if (option.Parent?.Parent?.Parent?.Parent != null)
                                 {
-                                    opt.color = new Color32(140, 120, 80, 255);
+                                    opt.color = new Color32(60, 40, 10, 255);
                                     opt.size = new(4.0f, 0.68f);
                                     option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f, 0f);
                                     option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.25f, 0.6f);
@@ -154,7 +143,8 @@ namespace TownOfHost
         {
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
             if (option == null) return true;
-            /*string mark = "";
+            /*
+            string mark = "";
             string addinfo = "";
 
             if (Enum.TryParse(typeof(CustomRoles), option.Name, false, out var id))
@@ -168,8 +158,21 @@ namespace TownOfHost
                 }
             }*/
 
+            var role = CustomRoles.NotAssigned;
+            var size = "<size=105%>";
+            string mark = "";
+            if (Enum.TryParse(typeof(CustomRoles), option.Name, false, out var id))
+            {
+                role = (CustomRoles)id;
+                size = "<size=125%>";
+                if (role.IsAddOn())
+                {
+                    List<CustomRoles> list = new(1) { role };
+                    mark = $" {Utils.GetSubRoleMarks(list, CustomRoles.NotAssigned)}";
+                }
+            }
             __instance.OnValueChanged = new Action<OptionBehaviour>((o) => { });
-            __instance.TitleText.text = "<b>" + option.GetName() /*+ mark */ + option.Fromtext + "</b>"/* + addinfo*/;
+            __instance.TitleText.text = size + "<b>" + option.GetName(isoption: true) + mark + option.Fromtext + "</b></size>"/* + addinfo*/;
             /*if (!(option.NameColor == Color.white && option.NameColorCode == "#ffffff"))
             {
                 ColorUtility.TryParseHtmlString(option.NameColorCode, out var colorcode);
@@ -319,71 +322,6 @@ namespace TownOfHost
             OptionItem.SyncAllOptions();
         }
     }
-    /*
-    [HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations))]
-    public static class SetRecommendationsPatch
-    {
-        public static bool Prefix(NormalGameOptionsV08 __instance, int numPlayers, bool isOnline)
-        {
-            numPlayers = Mathf.Clamp(numPlayers, 4, 15);
-            __instance.PlayerSpeedMod = __instance.MapId == 4 ? 1.25f : 1f; //AirShipなら1.25、それ以外は1
-            __instance.CrewLightMod = 0.5f;
-            __instance.ImpostorLightMod = 1.75f;
-            __instance.KillCooldown = 25f;
-            __instance.NumCommonTasks = 2;
-            __instance.NumLongTasks = 4;
-            __instance.NumShortTasks = 6;
-            __instance.NumEmergencyMeetings = 1;
-            if (!isOnline)
-                __instance.NumImpostors = NormalGameOptionsV08.RecommendedImpostors[numPlayers];
-            __instance.KillDistance = 0;
-            __instance.DiscussionTime = 0;
-            __instance.VotingTime = 150;
-            __instance.IsDefaults = true;
-            __instance.ConfirmImpostor = false;
-            __instance.VisualTasks = false;
-
-            __instance.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
-            __instance.roleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
-            __instance.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
-            __instance.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
-            __instance.roleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
-            __instance.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
-            __instance.roleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.Shapeshifter);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.Phantom);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.Scientist);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.GuardianAngel);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.Engineer);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.Tracker);
-            __instance.roleOptions.SetRoleRecommended(RoleTypes.Noisemaker);
-
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) //HideAndSeek
-            {
-                __instance.PlayerSpeedMod = 1.75f;
-                __instance.CrewLightMod = 5f;
-                __instance.ImpostorLightMod = 0.25f;
-                __instance.NumImpostors = 1;
-                __instance.NumCommonTasks = 0;
-                __instance.NumLongTasks = 0;
-                __instance.NumShortTasks = 10;
-                __instance.KillCooldown = 10f;
-            }
-            if (Options.IsStandardHAS) //StandardHAS
-            {
-                __instance.PlayerSpeedMod = 1.75f;
-                __instance.CrewLightMod = 5f;
-                __instance.ImpostorLightMod = 0.25f;
-                __instance.NumImpostors = 1;
-                __instance.NumCommonTasks = 0;
-                __instance.NumLongTasks = 0;
-                __instance.NumShortTasks = 10;
-                __instance.KillCooldown = 10f;
-            }
-            return false;
-        }
-    }*/
-
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
     class GameSettingMenuStartPatch
     {
@@ -398,10 +336,10 @@ namespace TownOfHost
             var RoleSettingsButton = GameObject.Find("LeftPanel/RoleSettingsButton");
 
             var GamePresetButtons = GamePresetButton.GetComponent<PassiveButton>();
-            GamePresetButtons.gameObject.SetActive(false);
 
             var ModStgButton = GameObject.Instantiate(RoleSettingsButton, RoleSettingsButton.transform.parent);
 
+            GamePresetButtons.gameObject.SetActive(false);
             RoleSettingsButton.gameObject.SetActive(false);
 
             ModSettingsButton = ModStgButton.GetComponent<PassiveButton>();
@@ -522,6 +460,9 @@ namespace TownOfHost
                     tabtitle.Title.text = GetString("TabGroup." + tab);
                     tabtitle.Title.color = Color.white;
 
+                    ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                    ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
+                    ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
                     foreach (var sub in tabsubtitle)
                     {
                         Object.Destroy(sub.gameObject);
@@ -541,9 +482,11 @@ namespace TownOfHost
                 {
                     _ = new LateTask(() =>
                     {
+                        if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
+                        dasu = false;
                         if (hozon2[0] != null)
                             hozon2[0].GetComponent<PassiveButton>().OnClick.Invoke();
-                    }, 0.05f, "");
+                    }, 0.05f, "", true);
                 }
             }));
 
@@ -553,6 +496,17 @@ namespace TownOfHost
             CreateButton("OptionReset", Color.red, new Vector2(8.5f, 0f), new Action(() =>
             {
                 OptionItem.AllOptions.ToArray().Where(x => x.Id > 0).Do(x => x.SetValue(x.DefaultValue));
+                var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
+                switch (pr.CurrentValue)
+                {
+                    case 0: Main.Preset1.Value = GetString("Preset_1"); break;
+                    case 1: Main.Preset2.Value = GetString("Preset_2"); break;
+                    case 2: Main.Preset3.Value = GetString("Preset_3"); break;
+                    case 3: Main.Preset4.Value = GetString("Preset_4"); break;
+                    case 4: Main.Preset5.Value = GetString("Preset_5"); break;
+                    case 5: Main.Preset6.Value = GetString("Preset_6"); break;
+                    case 6: Main.Preset7.Value = GetString("Preset_7"); break;
+                }
             }), Utils.LoadSprite("TownOfHost.Resources.RESET-STG.png", 150f));
             CreateButton("OptionCopy", Color.green, new Vector2(7.3f, -0.035f), new Action(() =>
             {
@@ -601,15 +555,15 @@ namespace TownOfHost
     class GameSettingMenuChangeTabPatch
     {
         public static string meg;
-        public static void Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
+        public static bool Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
             if (!previewOnly)
             {
                 var ModSettingsTab = GameSettingMenuStartPatch.ModSettingsTab;
-                if (!ModSettingsTab) return;
+                if (!ModSettingsTab) return true;
                 ModSettingsTab.gameObject.SetActive(false);
                 GameSettingMenuStartPatch.ModSettingsButton.SelectButton(false);
-                if (tabNum != 3) return;
+                if (tabNum != 3) return true;
                 ModSettingsTab.gameObject.SetActive(true);
 
                 __instance.MenuDescriptionText.text = meg;
@@ -619,19 +573,25 @@ namespace TownOfHost
                 ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
                 GameSettingMenuStartPatch.ModSettingsButton.SelectButton(true);
             }
+            return true;
         }
         static int Last = 0;
         public static int Hima = 0;
         public static void Postfix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
+            Logger.Info($"{tabNum}", "OPH");
             if (previewOnly) return;
 
             var l = Last;
-            if (tabNum == Last && tabNum == 3) Hima++;
-
+            if (tabNum == Last && tabNum == 3)
+            {
+                Hima++;
+                GameSettingMenuStartPatch.dasu = false;
+            }
             if (tabNum != Last)
             {
-                GameSettingMenuStartPatch.dasu = true;
+                if (tabNum == 3) GameSettingMenuStartPatch.dasu = true;
+                else GameSettingMenuStartPatch.dasu = false;
                 Last = tabNum;
             }
             if (100 > Hima)
@@ -673,6 +633,7 @@ namespace TownOfHost
                                 ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 99);
                                 break;
                             case StringNames.GameKillCooldown:
+                                ob.Cast<NumberOption>().Increment = 0.5f;
                                 ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
                                 break;
                             case StringNames.GameNumImpostors:
@@ -686,6 +647,11 @@ namespace TownOfHost
                                 break;
                             case StringNames.GameConfirmImpostor:
                                 ob.transform.position = new Vector3(999f, 999f);
+                                break;
+                            case StringNames.GameVotingTime:
+                            case StringNames.GameEmergencyCooldown:
+                            case StringNames.GameDiscussTime:
+                                ob.Cast<NumberOption>().Increment = 1f;
                                 break;
                             default:
                                 break;
@@ -745,24 +711,24 @@ namespace TownOfHost
 
             if (tabNum != 3 || l == tabNum) return;
             //var length = GameSettingMenuStartPatch.ModSettingsTab.roleChances.ToArray().Length;
-            _ = new LateTask(() =>
+            /*_ = new LateTask(() =>
+            {*/
+            Logger.Info("!", "!");
+            var dd = GameSettingMenuStartPatch.ModSettingsTab.AllButton.transform.parent.GetComponentsInChildren<RoleSettingsTabButton>();
+            Logger.Info("2!", "!");
+            foreach (Component aaa in dd)
             {
-                Logger.Info("!", "!");
-                var dd = GameSettingMenuStartPatch.ModSettingsTab.AllButton.transform.parent.GetComponentsInChildren<RoleSettingsTabButton>();
-                Logger.Info("2!", "!");
-                foreach (Component aaa in dd)
-                {
-                    Object.Destroy(aaa.gameObject);
-                }
-                Logger.Info("3!", "!");
-                if (GameSettingMenuStartPatch.ModSettingsTab.roleChances != null)
-                    foreach (var option in GameSettingMenuStartPatch.ModSettingsTab.roleChances?.ToArray())
-                        Object.Destroy(option?.gameObject);
-                Logger.Info("4!", "!");
-                GameSettingMenuStartPatch.ModSettingsTab.roleChances = new();
-                Logger.Info("5!", "!");
-                Object.Destroy(GameSettingMenuStartPatch.ModSettingsTab?.AllButton?.gameObject);
-            }, 0.02f);
+                Object.Destroy(aaa.gameObject);
+            }
+            Logger.Info("3!", "!");
+            if (GameSettingMenuStartPatch.ModSettingsTab.roleChances != null)
+                foreach (var option in GameSettingMenuStartPatch.ModSettingsTab.roleChances?.ToArray())
+                    Object.Destroy(option?.gameObject);
+            Logger.Info("4!", "!");
+            GameSettingMenuStartPatch.ModSettingsTab.roleChances = new();
+            Logger.Info("5!", "!");
+            Object.Destroy(GameSettingMenuStartPatch.ModSettingsTab?.AllButton?.gameObject);
+            //}, 0.02f, "", true);
             /*_ = new LateTask(() =>
             {
                 if (length != 0) //動かない

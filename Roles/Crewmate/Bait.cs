@@ -61,7 +61,7 @@ public sealed class Bait : RoleBase
             _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f + Chien.GetFloat() + tien, "Bait Self Report");
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
         return true;

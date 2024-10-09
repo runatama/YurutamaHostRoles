@@ -56,7 +56,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
     public static void SetupOptionItem()
     {
-        OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.TaskBattleVentCooldown, new(0f, 180f, 2.5f), 45f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.TaskBattleVentCooldown, new(0f, 180f, 0.5f), 45f, false).SetValueFormat(OptionFormat.Seconds);
         OptionCount = FloatOptionItem.Create(RoleInfo, 14, OptionName.MadAvengerMeetingPlayerCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
         OptionVent = BooleanOptionItem.Create(RoleInfo, 15, OptionName.MadAvengerReserveTimeCanVent, true, false);
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
@@ -67,7 +67,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         AURoleOptions.EngineerInVentMaxTime = !fin ? Options.MadmateVentMaxTime.GetFloat() : 1;
     }
 
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished)
         {
@@ -91,7 +91,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         }
         if (Main.AliveImpostorCount != 0)
         {
-            PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Suicide;
+            MyState.DeathReason = CustomDeathReason.Suicide;
             Player.RpcMurderPlayer(Player);
             Logger.Info("まだ生きてるんだから駄目だよ!!", "MadAvenger");
             return false;
@@ -107,7 +107,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     {
         if (Skill)
         {
-            PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Suicide;
+            MyState.DeathReason = CustomDeathReason.Suicide;
             Player.RpcMurderPlayer(Player);
         }
         Skill = false;
@@ -203,13 +203,11 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                     }
                     else
                     {
-                        PlayerState state;
                         if (AmongUsClient.Instance.AmHost)
                         {
-                            state = PlayerState.GetByPlayerId(Player.PlayerId);
                             Player.RpcExileV2();
-                            state.DeathReason = CustomDeathReason.Misfire;
-                            state.SetDead();
+                            MyState.DeathReason = CustomDeathReason.Misfire;
+                            MyState.SetDead();
                             Utils.SendMessage(Utils.GetPlayerColor(Player) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
                             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, 253);
                             hudManager.ShowKillAnimation(Player.Data, Player.Data);

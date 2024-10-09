@@ -32,6 +32,7 @@ namespace TownOfHost
 
         public static void Reset()
         {
+            CloseVitals.Ability = false;
             AdminPoss.Clear();
             LogPoss.Clear();
             VitalPoss.Clear();
@@ -45,6 +46,7 @@ namespace TownOfHost
         }
         public static void StartMeeting()
         {
+            CloseVitals.Ability = false;
             AdminPoss.Clear();
             LogPoss.Clear();
             VitalPoss.Clear();
@@ -388,13 +390,23 @@ namespace TownOfHost
             }
         }
     }
+    [HarmonyPatch(typeof(Minigame), nameof(Minigame.Close), new Type[] { })]
+    class VitalClosePatch
+    {
+        public static void Postfix(Minigame __instance)
+        {
+            CloseVitals.Ability = false;
+        }
+    }
     [HarmonyPatch(typeof(VitalsMinigame), nameof(VitalsMinigame.Update))]
     class CloseVitals
     {
+        public static bool Ability;
         public static void Postfix(VitalsMinigame __instance)
         {
             if (AmongUsClient.Instance.AmHost)
             {
+                if (Ability && PlayerControl.LocalPlayer.IsAlive()) return;
                 if (PlayerControl.LocalPlayer.IsAlive() && DemonicCrusher.DemUseAbility) __instance.Close();
 
                 if (PlayerControl.LocalPlayer.IsAlive())
@@ -505,6 +517,8 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
+                if (GameStates.IsFreePlay && Main.EditMode) return;
+
                 if (PlayerControl.LocalPlayer.IsAlive() && DemonicCrusher.DemUseAbility)
                 {
                     MapBehaviour.Instance.Close();

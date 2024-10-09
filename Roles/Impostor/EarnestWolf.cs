@@ -48,7 +48,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
 
     static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false).SetValueFormat(OptionFormat.Seconds);
         OptionOverKillCanCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0f, 15f, 1f), 2f, false).SetValueFormat(OptionFormat.Times);
         OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(1f, 10f, 0.1f), 2f, false).SetValueFormat(OptionFormat.Multiplier);
         OptionNomalKillDistance = StringOptionItem.Create(RoleInfo, 13, OptionName.EarnestWolfNomalKllDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
@@ -101,11 +101,6 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
             Utils.NotifyRoles(SpecifySeer: Player);
             Player.SyncSettings();
         }, 0.2f, "EarnestWolf OnClick");
-    }
-    public override bool AddOnAssingCheck(CustomRoles addon)
-    {
-        if (addon is CustomRoles.Serial) return false;
-        return true;
     }
     public float CalculateKillCooldown() => KillCoolDown;
 }

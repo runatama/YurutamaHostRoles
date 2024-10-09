@@ -191,10 +191,19 @@ namespace TownOfHost
             }
             if (GameStates.IsModHost && Main.UseWebHook.Value) Utils.WH_ShowActiveRoles();
             Utils.CountAlivePlayers(true);
-            Main.RTAMode = Options.CurrentGameMode == CustomGameMode.TaskBattle && Main.AllPlayerControls.Count() is 1;
+            Main.RTAMode = Options.CurrentGameMode == CustomGameMode.TaskBattle && Main.AllPlayerControls.Count() == (Options.EnableGM.GetBool() ? 2 : 1);
+            //RTAモードじゃないならLateTaskを作らない
+            if (!Main.RTAMode) return;
             _ = new LateTask(() =>
             {
-                HudManagerPatch.TaskBattlep = PlayerControl.LocalPlayer.transform.position;
+                var playerRTA = Options.EnableGM.GetBool() ? Main.AllAlivePlayerControls.Where(p => p.PlayerId != PlayerControl.LocalPlayer.PlayerId).First() : PlayerControl.LocalPlayer;
+                if (playerRTA == null)
+                {
+                    Logger.Warn("[TR] プレイヤーがnullです", "TaskBattle RTA");
+                    return;
+                }
+                Main.RTAPlayer = playerRTA.PlayerId;
+                HudManagerPatch.TaskBattlep = playerRTA.transform.position;
                 HudManagerPatch.TaskBattleTimer = 0f;
             }, 1f, "TaskBattle TimerReset");
         }

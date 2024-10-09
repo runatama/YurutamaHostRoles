@@ -15,7 +15,6 @@ public static class Guesser
 
     public static OptionItem CanGuessTime;
     public static OptionItem OwnCanGuessTime;
-    public static OptionItem TryHideMsg;
     //crew
     public static OptionItem Crewmateset;
     public static OptionItem CCanGuessVanilla;
@@ -40,14 +39,13 @@ public static class Guesser
     public static OptionItem NCanWhiteCrew;
     public static void SetupCustomOption()
     {
-        SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Guesser, fromtext: "<color=#ffffff>From:<color=#ff0000>The Other Roles</color></size>");
+        SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Guesser, fromtext: "<color=#000000>From:</color><color=#ff0000>The Other Roles</color></size>");
         AddOnsAssignData.Create(Id + 10, CustomRoles.Guesser, true, true, true, true);
         //共通設定
         CanGuessTime = FloatOptionItem.Create(Id + 49, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
                 .SetValueFormat(OptionFormat.Players);
         OwnCanGuessTime = FloatOptionItem.Create(Id + 50, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
                 .SetValueFormat(OptionFormat.Players);
-        TryHideMsg = BooleanOptionItem.Create(Id + 51, "TryHideMsg", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
         //クルーメイト
         Crewmateset = BooleanOptionItem.Create(Id + 52, "Cremateset", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
         CCanGuessVanilla = BooleanOptionItem.Create(Id + 53, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(Crewmateset);

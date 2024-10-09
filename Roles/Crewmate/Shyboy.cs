@@ -60,6 +60,7 @@ public sealed class Shyboy : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
+        if (GameStates.Meeting || GameStates.Tuihou) return;
         Cool += Time.fixedDeltaTime;
         if (Player.IsAlive() && Cool >= 0.25)
         {
@@ -118,7 +119,7 @@ public sealed class Shyboy : RoleBase
             if (Shytime <= Shydeath)
             {
                 Logger.Info("もぉみんなかまうからシャイ君しんぢゃったぁ～!", "Shyboy");
-                PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Suicide;
+                MyState.DeathReason = CustomDeathReason.Suicide;
                 Player.RpcMurderPlayer(Player);//一定時間周囲に人がいたら恥ずかしくて死ぬ。
                 Shydeath = 0;//0sの無限キル防止(おきないだろうけど)
             }
@@ -128,7 +129,6 @@ public sealed class Shyboy : RoleBase
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         tuuti = true;
-        Logger.Info("シャイクールを直す", "Shyboy");
         Shydeath = 0;//会議明け修正
         AfterMeeting = 0;
     }

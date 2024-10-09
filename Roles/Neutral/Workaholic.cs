@@ -51,7 +51,7 @@ public sealed class Workaholic : RoleBase
         AURoleOptions.EngineerCooldown = ventCooldown;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished && !(CannotWinAtDeath && !Player.IsAlive()))
         {

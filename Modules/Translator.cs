@@ -77,10 +77,11 @@ namespace TownOfHost
                 }
             return str;
         }
-
+        public static List<string> NotString = new();
         public static string GetString(string str, SupportedLangs langId)
         {
             var res = $"<INVALID:{str}>";
+            var ch = res;
             if (translateMaps.TryGetValue(str, out var dic) && (!dic.TryGetValue((int)langId, out res) || res == "")) //strに該当する&無効なlangIdかresが空
             {
                 res = $"*{dic[0]}";
@@ -89,7 +90,7 @@ namespace TownOfHost
             {
                 //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...
                 //To anyone who has seen this source code. I would appreciate it if you would keep your mouth shut...
-                if (Main.IsChristmas)
+                if (Event.IsChristmas)
                 {
                     res = str switch
                     {
@@ -103,7 +104,7 @@ namespace TownOfHost
                         _ => res
                     };
                 }
-                if (Main.IsHalloween)
+                if (Event.IsHalloween)
                 {
                     res = str switch
                     {
@@ -115,7 +116,7 @@ namespace TownOfHost
                         _ => res
                     };
                 }
-                if (Main.White)
+                if (Event.White)
                 {
                     res = str switch
                     {
@@ -126,7 +127,7 @@ namespace TownOfHost
                         _ => res
                     };
                 }
-                if (Main.GoldenWeek)
+                if (Event.GoldenWeek)
                 {
                     res = str switch
                     {

@@ -15,7 +15,7 @@ namespace TownOfHost.Roles.Ghost
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.DemonicCrusher);
             GhostRoleAssingData.Create(Id + 1, CustomRoles.DemonicCrusher, CustomRoleTypes.Madmate);
-            CoolDown = FloatOptionItem.Create(Id + 2, "GhostButtonerCoolDown", new(0f, 180f, 2.5f), 25f, TabGroup.GhostRoles, false)
+            CoolDown = FloatOptionItem.Create(Id + 2, "GhostButtonerCoolDown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.DemonicCrusher]);
             AbilityTime = FloatOptionItem.Create(Id + 3, "DemonicCrusherAbilityTime", new(1f, 30f, 1f), 10f, TabGroup.GhostRoles, false)
                     .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.DemonicCrusher]);

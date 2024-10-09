@@ -41,7 +41,7 @@ public sealed class PonkotuTeller : RoleBase
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
         kakusei = !Kakusei.GetBool();
     }
-
+    static OptionItem FTOption;
     private static OptionItem Optioncollect;
     private static OptionItem OptionMaximum;
     private static OptionItem OptionRole;
@@ -53,6 +53,7 @@ public sealed class PonkotuTeller : RoleBase
     public float collect;
     public float Max;
     public bool srole;
+    public bool rolename;
     public VoteMode Votemode;
     int count;
     float cantaskcount;
@@ -66,6 +67,7 @@ public sealed class PonkotuTeller : RoleBase
         Ucount,
         Votemode,
         tRole,
+        PonkotuTellerFTOption,
     }
     public enum VoteMode
     {
@@ -77,19 +79,17 @@ public sealed class PonkotuTeller : RoleBase
     {
         Optioncollect = FloatOptionItem.Create(RoleInfo, 10, Option.TellerCollectRect, new(0f, 100f, 2f), 70f, false)
             .SetValueFormat(OptionFormat.Percent);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false)
+        FTOption = BooleanOptionItem.Create(RoleInfo, 17, Option.PonkotuTellerFTOption, true, false);
+        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false, FTOption)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
-        OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 1, false, FTOption);
+        OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false, FTOption);
+        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false, FTOption);
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.meetingmc, new(0f, 99f, 1f), 0f, false, FTOption, infinity: true)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false);
+        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false, FTOption);
     }
-
-    public override void Add()
-        => AddS(Player);
-
+    public override void Add() => AddS(Player);
     private void SendRPC()
     {
         using var sender = CreateSender();
@@ -142,6 +142,7 @@ public sealed class PonkotuTeller : RoleBase
             var FtR = target.GetRoleClass()?.GetFtResults(Player); //結果を変更するかチェック
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : target.GetCustomRole();
             SendRPC();
+            var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");
             Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + $"..?" + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
         else
@@ -152,12 +153,13 @@ public sealed class PonkotuTeller : RoleBase
             var FtR = target.GetRoleClass()?.GetFtResults(P); //結果を変更するかチェック
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : P.GetCustomRole();
             Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(失敗)", "PonkotuTeller");
+            var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");
             SendRPC();
             Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + $"..?" + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
         return true;

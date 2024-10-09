@@ -36,141 +36,21 @@ public static class MeetingHudPatch
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
     public static class CastVotePatch
     {
-        ///0→/m
-        ///1→/n
-        ///2→/n r
-        ///-1→次ページへ
-
-        /// <summary>
-        /// 2→役職処理  0→通常処理 1→Infomode 3→Infomode(2) 4→役職能力発動中
-        /// </summary>
-        public static Dictionary<byte, int> InfoMode = new();
         public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] byte suspectPlayerId /* 投票された人 */ )
         {
             var voter = Utils.GetPlayerById(srcPlayerId);
             var votefor = Utils.GetPlayerById(suspectPlayerId);
 
-            Dictionary<byte, int> Menu1 = new();
-            Dictionary<byte, int> Menu2 = new();
-
-            if (Options.UseSelfVoteInfo.GetBool())
-            {
-                var i = 0;
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (!pc.IsAlive()) continue;
-                    if (pc.PlayerId == srcPlayerId) continue;
-
-                    Menu1.Add(pc.PlayerId, i + 1 == Main.AllAlivePlayerControls.Count() ? -1 : i);
-                    if (!(i + 1 == Main.AllAlivePlayerControls.Count())) i++;
-                }
-                if (i <= 2)
-                {
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
-                        if (!pc.IsAlive()) continue;
-                        if (pc.PlayerId == srcPlayerId) continue;
-                        Menu2.Add(pc.PlayerId, i);
-                        i++;
-                    }
-                }
-
-                if (srcPlayerId == suspectPlayerId)
-                {
-                    if (InfoMode[srcPlayerId] == 0)//InfoMode発動
-                    {
-                        var s = GetString("InfoF") + "<size=70%>";
-                        __instance.RpcClearVote(voter.GetClientId());
-                        InfoMode[srcPlayerId] = 1;
-                        foreach (var no in Menu1.Keys)
-                        {
-                            if (Menu1.ContainsKey(no))
-                            {
-                                if (Menu1[no] == 0)
-                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNo1");
-                                if (Menu1[no] == 1)
-                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNo2");
-                                if (Menu1[no] == 2)
-                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNo3");
-                                if (Menu1[no] == -1)
-                                    s += "\n" + Utils.GetPlayerById(no).name + GetString("InfoNext");
-                            }
-                        }
-                        Utils.SendMessage(s, srcPlayerId);
-                        return false;
-                    }
-                }
-
-                if (InfoMode[srcPlayerId] == 1 && srcPlayerId != suspectPlayerId)
-                {
-                    __instance.RpcClearVote(voter.GetClientId());
-                    var ch = false;
-                    if (Menu1.ContainsKey(suspectPlayerId))
-                    {
-                        var p = Menu1[suspectPlayerId];
-                        if (p == -1)
-                        {
-                            ch = true;
-                            InfoMode[srcPlayerId] = 3;
-
-                            Utils.SendMessage(GetString("InfoMenu2"), srcPlayerId);
-                        }
-                        if (p == 0)// /m
-                        {
-                            var role = voter.GetCustomRole();
-                            if (voter.Is(CustomRoles.Amnesia)) role = voter.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                            if (role == CustomRoles.Braid) role = CustomRoles.Driver;
-                            if (voter.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && voter.GetRoleClass() != null) role = voter.GetRoleClass().Jikaku();
-                            if (voter.IsGorstRole()) role = PlayerState.GetByPlayerId(voter.PlayerId).GhostRole;
-                            var RoleTextData = Utils.GetRoleColorCode(role);
-                            string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                            string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
-                            if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
-                                Utils.SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(voter.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{voter.GetRoleInfo(true)}" + voter.GetRoleInfo(true), voter.PlayerId, RoleInfoTitle);
-                            else if (role.GetRoleInfo()?.Description is { } description) Utils.SendMessage(description.FullFormatHelp, voter.PlayerId, RoleInfoTitle, removeTags: false);
-                            else Utils.SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(voter.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{voter.GetRoleInfo(true)}", voter.PlayerId, RoleInfoTitle);
-                            Utils.GetAddonsHelp(voter);
-                        }
-                        if (p == 1)// /n
-                            Utils.ShowActiveSettings(srcPlayerId);
-                        if (p == 2)// /n r
-                            Utils.ShowActiveRoles(srcPlayerId);
-                    }
-                    if (!ch)
-                    {
-                        InfoMode[srcPlayerId] = 0;
-                        Utils.SendMessage(GetString("InfoVote"), srcPlayerId);
-                    }
-                    return false;
-                }
-                if (InfoMode[srcPlayerId] == 3)
-                {
-                    __instance.RpcClearVote(voter.GetClientId());
-
-                    var p = Menu2[suspectPlayerId];
-                    if (Menu2.ContainsKey(suspectPlayerId))
-                    {
-                        if (p == 1)// /n
-                            Utils.ShowActiveSettings(srcPlayerId);
-                        if (p == 2)// /n r
-                            Utils.ShowActiveRoles(srcPlayerId);
-                    }
-                    InfoMode[srcPlayerId] = 0;
-                    Utils.SendMessage(GetString("InfoVote"), srcPlayerId);
-                    return false;
-                }
-            }
-
             foreach (var pc in Main.AllPlayerControls)
             {
                 var roleClass = pc.GetRoleClass();
+                if (Balancer.Id != 255 && !(suspectPlayerId == srcPlayerId || suspectPlayerId == Balancer.target1 || suspectPlayerId == Balancer.target2) && !pc.Is(CustomRoles.Balancer) && Balancer.OptionCanMeetingAbility.GetBool()) continue;
                 if (Amnesia.CheckAbilityreturn(pc)) roleClass = null;
 
                 if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
                     Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
-                    InfoMode[srcPlayerId] = srcPlayerId == suspectPlayerId || InfoMode[srcPlayerId] is 4 ? 4 : 0;
                     return false;
                 }
                 else
@@ -178,7 +58,6 @@ public static class MeetingHudPatch
                 {
                     Utils.SendMessage("君はイレクターなんだよ。\nスキップできない属性でね。\n誰かに投票してね。", voter.PlayerId);
                     __instance.RpcClearVote(voter.GetClientId());
-                    InfoMode[srcPlayerId] = 0;
                     Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} イレクター発動 => {srcPlayerId}", nameof(CastVotePatch));
                     return false;
                 }
@@ -190,8 +69,9 @@ public static class MeetingHudPatch
     public static string Oniku = "";
     public static string Send = "";
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartPatch
+    public class StartPatch
     {
+        public static bool Serialize = false;
         public static void Prefix()
         {
             Logger.Info("------------会議開始------------", "Phase");
@@ -199,6 +79,7 @@ public static class MeetingHudPatch
             GameStates.AlreadyDied |= !Utils.IsAllAlive;
             Main.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
             MeetingStates.MeetingCalled = true;
+            GameStates.Tuihou = false;
 
             if (!AntiBlackout.OverrideExiledPlayer)
             {
@@ -215,15 +96,40 @@ public static class MeetingHudPatch
                     }
                 }
             }
+            new LateTask(() =>
+            {
+                Dictionary<byte, bool> State = new();
+                foreach (var player in Main.AllAlivePlayerControls)
+                {
+                    State.TryAdd(player.PlayerId, player.Data.IsDead);
+                }
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    if (!State.ContainsKey(pc.PlayerId)) continue;
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    if (pc.IsModClient()) continue;
+                    foreach (PlayerControl tg in Main.AllAlivePlayerControls)
+                    {
+                        if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        if (tg.IsModClient()) continue;
+                        tg.Data.IsDead = true;
+                    }
+                    pc.Data.IsDead = false;
+                    Serialize = true;
+                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                    Serialize = false;
+                }
+                foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                {
+                    player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) ? data : false;
+
+                    RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
+                }
+            }, 6f, "SetDie");
         }
         public static void Postfix(MeetingHud __instance)
         {
             MeetingVoteManager.Start();
-            foreach (var pc in Main.AllPlayerControls)
-            {
-                if (CastVotePatch.InfoMode.ContainsKey(pc.PlayerId))
-                    CastVotePatch.InfoMode[pc.PlayerId] = 0;
-            }
 
             SoundManager.Instance.ChangeAmbienceVolume(0f);
             if (!GameStates.IsModHost) return;
@@ -284,6 +190,7 @@ public static class MeetingHudPatch
                 if (Send != "") Send += "\n";
                 Send += "<size=120%>【" + GetString("LastMeetingre") + "】\n</size>" + MeetingVoteManager.Voteresult;
             }
+            Send += $"\n<size=80%>{GetString("MeetingHelp")}</size>";
             TemplateManager.SendTemplate("OnMeeting", noErr: true);
             if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
             if (Send != "") Utils.SendMessage(Send);
@@ -357,44 +264,17 @@ public static class MeetingHudPatch
                 //相手のサブロール処理
                 foreach (var subRole in target.GetCustomSubRoles())
                 {
+                    if (subRole.IsRiaju() && (seer.GetRiaju() == subRole || seer.Data.IsDead))
+                    {
+                        sb.Append(Utils.ColorString(Utils.GetRoleColor(subRole), "♥"));
+                        continue; ;
+                    }
                     switch (subRole)
                     {
-                        case CustomRoles.ALovers:
-                            if (seer.Is(CustomRoles.ALovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ALovers), "♥"));
-                            break;
-                        case CustomRoles.BLovers:
-                            if (seer.Is(CustomRoles.BLovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.BLovers), "♥"));
-                            break;
-                        case CustomRoles.CLovers:
-                            if (seer.Is(CustomRoles.CLovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.CLovers), "♥"));
-                            break;
-                        case CustomRoles.DLovers:
-                            if (seer.Is(CustomRoles.DLovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.DLovers), "♥"));
-                            break;
-                        case CustomRoles.ELovers:
-                            if (seer.Is(CustomRoles.ELovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ELovers), "♥"));
-                            break;
-                        case CustomRoles.FLovers:
-                            if (seer.Is(CustomRoles.FLovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.FLovers), "♥"));
-                            break;
-                        case CustomRoles.GLovers:
-                            if (seer.Is(CustomRoles.GLovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.GLovers), "♥"));
-                            break;
-                        case CustomRoles.MaLovers:
-                            if (seer.Is(CustomRoles.MaLovers) || seer.Data.IsDead)
-                                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.MaLovers), "♥"));
-                            break;
                         case CustomRoles.Connecting:
                             if ((seer.Is(CustomRoles.Connecting) && !seer.Is(CustomRoles.WolfBoy)) || seer.Data.IsDead)
                                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Connecting), "Ψ"));
-                            break;
+                            continue;
                     }
                 }
 
@@ -472,6 +352,15 @@ public static class MeetingHudPatch
                     Utils.AddGameLog("Executed", string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
                     Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
+
+                    StartPatch.Serialize = true;
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        if (pc == player) continue;
+                        pc.Data.IsDead = false;
+                    }
+                    RPC.RpcSyncAllNetworkedPlayer(player.GetClientId());
+                    StartPatch.Serialize = false;
                 });
             }
             if (Balancer.Id != 255)
@@ -524,23 +413,22 @@ public static class MeetingHudPatch
         foreach (var playerId in playerIds)
         {
             //Loversの後追い
-            if (CustomRoles.ALovers.IsPresent() && !Main.isALoversDead && Main.ALoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.ALoversSuicide(playerId, true);
-            if (CustomRoles.BLovers.IsPresent() && !Main.isBLoversDead && Main.BLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.BLoversSuicide(playerId, true);
-            if (CustomRoles.CLovers.IsPresent() && !Main.isCLoversDead && Main.CLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.CLoversSuicide(playerId, true);
-            if (CustomRoles.DLovers.IsPresent() && !Main.isDLoversDead && Main.DLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.DLoversSuicide(playerId, true);
-            if (CustomRoles.ELovers.IsPresent() && !Main.isELoversDead && Main.ELoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.ELoversSuicide(playerId, true);
-            if (CustomRoles.FLovers.IsPresent() && !Main.isFLoversDead && Main.FLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.FLoversSuicide(playerId, true);
-            if (CustomRoles.GLovers.IsPresent() && !Main.isGLoversDead && Main.GLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.GLoversSuicide(playerId, true);
-            //MaL
-            if (CustomRoles.MaLovers.IsPresent() && !Main.isMaLoversDead && Main.MaMaLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                FixedUpdatePatch.MadonnaLoversSuicide(playerId, true);
+            if (CustomRoles.ALovers.IsPresent() && !Lovers.isALoversDead && Lovers.ALoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.ALoversSuicide(playerId, true);
+            if (CustomRoles.BLovers.IsPresent() && !Lovers.isBLoversDead && Lovers.BLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.BLoversSuicide(playerId, true);
+            if (CustomRoles.CLovers.IsPresent() && !Lovers.isCLoversDead && Lovers.CLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.CLoversSuicide(playerId, true);
+            if (CustomRoles.DLovers.IsPresent() && !Lovers.isDLoversDead && Lovers.DLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.DLoversSuicide(playerId, true);
+            if (CustomRoles.ELovers.IsPresent() && !Lovers.isELoversDead && Lovers.ELoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.ELoversSuicide(playerId, true);
+            if (CustomRoles.FLovers.IsPresent() && !Lovers.isFLoversDead && Lovers.FLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.FLoversSuicide(playerId, true);
+            if (CustomRoles.GLovers.IsPresent() && !Lovers.isGLoversDead && Lovers.GLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.GLoversSuicide(playerId, true);
+            if (CustomRoles.MaLovers.IsPresent() && !Lovers.isMaLoversDead && Lovers.MaMaLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
+                Lovers.MadonnaLoversSuicide(playerId, true);
             //道連れチェック
             RevengeOnExile(playerId, deathReason);
         }

@@ -65,13 +65,6 @@ namespace TownOfHost
                 return;
             }
 
-            if (Options.CurrentGameMode == CustomGameMode.Standard)
-                if (!Main.IsroleAssigned)
-                {
-                    taskIds[__instance.PlayerId] = taskTypeIds;
-                    return;
-                }
-
             var pc = __instance.Object;
             CustomRoles? RoleNullable = pc?.GetCustomRole();
             if (RoleNullable == null) return;
@@ -112,8 +105,16 @@ namespace TownOfHost
             }
             //変更点がない場合
             if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskSoroeru.GetBool()) &&
-                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks) return;
-
+                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks)
+            {
+                if (Options.CurrentGameMode == CustomGameMode.Standard)
+                    if (!Main.IsroleAssigned)
+                    {
+                        taskIds[__instance.PlayerId] = taskTypeIds;
+                        return;
+                    }
+                return;
+            }
             //割り当て可能なタスクのIDが入ったリスト
             //本来のRpcSetTasksの第二引数のクローン
             Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
@@ -198,6 +199,13 @@ namespace TownOfHost
             {
                 taskTypeIds[i] = TasksList[i];
             }
+
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
+                if (!Main.IsroleAssigned)
+                {
+                    taskIds[__instance.PlayerId] = taskTypeIds;
+                    return;
+                }
         }
 
         public static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)

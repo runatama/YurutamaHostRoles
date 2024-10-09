@@ -46,7 +46,7 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static void SetupOptionItem()
     {
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
-        OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentCooldown, new(0f, 180f, 2.5f), 0f, false, OptionCanVent)
+        OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentCooldown, new(0f, 180f, 0.5f), 0f, false, OptionCanVent)
                 .SetValueFormat(OptionFormat.Seconds);
         Options.OverrideTasksData.Create(RoleInfo, 20);
     }
@@ -55,7 +55,7 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         AURoleOptions.EngineerCooldown = ventCooldown;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished && !(CannotWinAtDeath && !Player.IsAlive()))
         {

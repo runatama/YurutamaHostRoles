@@ -210,7 +210,7 @@ public abstract class RoleBase : IDisposable
     public virtual bool OnEnterVent(PlayerPhysics physics, int ventId) => true;
     /// <summary>
     /// ベント移動を封じるかの関数。<br/>
-    /// OnEnterVentの方が速く呼ばれる。</br>
+    /// OnEnterVentの方が速く呼ばれる。<br/>
     /// 基本的にこれは移動を封じる時のみ使う。
     /// </summary>
     /// <param name="physics"></param>
@@ -283,7 +283,7 @@ public abstract class RoleBase : IDisposable
     /// タスクが一個完了するごとに呼ばれる関数
     /// </summary>
     /// <returns>falseを返すとバニラ処理をキャンセルする</returns>
-    public virtual bool OnCompleteTask() => true;
+    public virtual bool OnCompleteTask(uint taskid) => true;
 
     // == Sabotage関連処理 ==
     /// <summary>
@@ -452,13 +452,6 @@ public abstract class RoleBase : IDisposable
     /// <returns>名前を変更するかどうか</returns>
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
     public virtual void OnLeftPlayer(PlayerControl player) { }
-    /// <summary>
-    /// アドオンが付与されるときにチェックされる奴。
-    /// falseを返すことで対象外になる。
-    /// </summary>
-    /// <param name="addon"></param>
-    /// <returns></returns>
-    public virtual bool AddOnAssingCheck(CustomRoles addon) => true;
     /// <summary>
     /// 自身がゲッサーされそうになった時に呼ばれるやーつ
     /// falseを返すと返り討ち。

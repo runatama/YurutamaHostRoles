@@ -12,7 +12,8 @@ public sealed class Tracker : RoleBase
             player => new Tracker(player),
             RoleTypes.Tracker,
            SetUpCustomOption,
-           "#8cffff"
+           "#5f7c96"
+            , from: From.AmongUs
         );
     public Tracker(PlayerControl player)
     : base(
@@ -25,9 +26,9 @@ public sealed class Tracker : RoleBase
     public static OptionItem TrackerDuration;
     public static void SetUpCustomOption()
     {
-        TrackerCooldown = FloatOptionItem.Create(RoleInfo, 303, "TrackerCooldown", new(0f, 180f, 2.5f), 15f, false)
+        TrackerCooldown = FloatOptionItem.Create(RoleInfo, 303, "TrackerCooldown", new(0f, 180f, 0.5f), 15f, false)
         .SetValueFormat(OptionFormat.Seconds);
-        TrackerDelay = FloatOptionItem.Create(RoleInfo, 304, "TrackerDelay", new(0f, 180f, 1f), 5f, false)
+        TrackerDelay = FloatOptionItem.Create(RoleInfo, 304, "TrackerDelay", new(0f, 180f, 0.5f), 5f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         TrackerDuration = FloatOptionItem.Create(RoleInfo, 305, "TrackerDuration", new(0f, 180f, 1f), 5f, false, infinity: true)
                 .SetValueFormat(OptionFormat.Seconds);

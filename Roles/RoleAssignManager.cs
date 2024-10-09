@@ -139,14 +139,14 @@ namespace TownOfHost.Roles
                 var rand = IRandom.Instance;
                 var role = CustomRoles.Impostor;
 
-                if (roles.Count() != 0) role = roles[rand.Next(0, roles.Count())];
+                if (roles.Length != 0) role = roles[rand.Next(0, roles.Length)];
 
                 AssignRoleList.Clear();
 
                 for (var i = 0; i <= Main.AllPlayerControls.Count() + 1; i++)
                     AssignRoleList.Add(role);
 
-                if (addons.Count() != 0)
+                if (addons.Length != 0)
                     foreach (var addon in addons)
                         if (!AssignRoleList.Contains(addon)) AssignRoleList.Add(addon);
             }

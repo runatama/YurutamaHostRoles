@@ -12,7 +12,7 @@ namespace TownOfHost
         public OptionItem GiveAddons;
         //ゲッサー
         public OptionItem GiveGuesser;
-        public OptionItem CanGuessTime; public OptionItem OwnCanGuessTime; public OptionItem TryHideMsg;
+        public OptionItem CanGuessTime; public OptionItem OwnCanGuessTime;
         public OptionItem ICanGuessVanilla; public OptionItem ICanGuessNakama; public OptionItem ICanGuessTaskDoneSnitch;
         public OptionItem ICanWhiteCrew; public OptionItem AddTama;
         //マネジメント
@@ -65,11 +65,11 @@ namespace TownOfHost
         public OptionItem GiveLighting;
         //インフォプアー
         public OptionItem GiveInfoPoor;
-        public RoleAddAddons(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned)
+        public RoleAddAddons(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, bool NeutralKiller = false, bool MadMate = false, bool DefaaultOn = false)
         {
             this.IdStart = idStart;
             this.Role = role;
-            GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", false, tab, false).SetParent(Options.CustomRoleSpawnChances[role])
+            GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn, tab, false).SetParent(Options.CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
             GiveGuesser = BooleanOptionItem.Create(idStart++, "GiveGuesser", false, tab, false).SetParent(GiveAddons);
             CanGuessTime = FloatOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser)
@@ -77,7 +77,6 @@ namespace TownOfHost
             AddTama = BooleanOptionItem.Create(idStart++, "Addtama", false, tab, false).SetParent(GiveGuesser);
             OwnCanGuessTime = FloatOptionItem.Create(idStart++, "OwnCanGuessTime", new(1, 15, 1), 1, tab, false).SetParent(GiveGuesser)
                     .SetValueFormat(OptionFormat.Players);
-            TryHideMsg = BooleanOptionItem.Create(idStart++, "TryHideMsg", true, tab, false).SetParent(GiveGuesser);
             ICanGuessVanilla = BooleanOptionItem.Create(idStart++, "CanGuessVanilla", true, tab, false).SetParent(GiveGuesser);
             ICanGuessNakama = BooleanOptionItem.Create(idStart++, "CanGuessNakama", true, tab, false).SetParent(GiveGuesser);
             ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(idStart++, "CanGuessTaskDoneSnitch", false, tab, false).SetParent(GiveGuesser);
@@ -107,8 +106,8 @@ namespace TownOfHost
             GiveOpener = BooleanOptionItem.Create(idStart++, "GiveOpener", false, tab, false).SetParent(GiveAddons);
             if (!role.IsImpostor())
             {
-                GiveLighting = BooleanOptionItem.Create(idStart++, "GiveLighting", false, tab, false).SetParent(GiveAddons);
-                GiveMoon = BooleanOptionItem.Create(idStart++, "GiveMoon", false, tab, false).SetParent(GiveAddons);
+                GiveLighting = BooleanOptionItem.Create(idStart++, "GiveLighting", NeutralKiller, tab, false).SetParent(GiveAddons);
+                GiveMoon = BooleanOptionItem.Create(idStart++, "GiveMoon", NeutralKiller || MadMate, tab, false).SetParent(GiveAddons);
             }
             //デバフ
             GiveNotvoter = BooleanOptionItem.Create(idStart++, "GiveNotvoter", false, tab, false).SetParent(GiveAddons);
@@ -118,8 +117,8 @@ namespace TownOfHost
             OptionConvener = StringOptionItem.Create(idStart++, "ConverMode", EnumHelper.GetAllNames<Convener>(), 0, tab, false).SetParent(GiveNonReport);
 
             GiveTransparent = BooleanOptionItem.Create(idStart++, "GiveTransparent", false, tab, false).SetParent(GiveAddons);
-            GiveWater = BooleanOptionItem.Create(idStart++, "GiveWater", false, tab, false).SetParent(GiveAddons);
-            GiveClumsy = BooleanOptionItem.Create(idStart++, "GiveClumsy", false, tab, false).SetParent(GiveAddons);
+            GiveWater = BooleanOptionItem.Create(idStart++, "GiveWater", MadMate, tab, false).SetParent(GiveAddons);
+            GiveClumsy = BooleanOptionItem.Create(idStart++, "GiveClumsy", MadMate, tab, false).SetParent(GiveAddons);
             GiveSlacker = BooleanOptionItem.Create(idStart++, "GiveSlacker", false, tab, false).SetParent(GiveAddons);
 
             role = chrole == CustomRoles.NotAssigned ? role : chrole;
@@ -127,9 +126,9 @@ namespace TownOfHost
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするRoleAddAddonsが作成されました", "RoleAddAddons");
         }
-        public static RoleAddAddons Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned)
+        public static RoleAddAddons Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned, bool NeutralKiller = false, bool MadMate = false, bool DefaaultOn = false)
         {
-            return new RoleAddAddons(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename);
+            return new RoleAddAddons(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, NeutralKiller, MadMate, DefaaultOn);
         }
     }
 }

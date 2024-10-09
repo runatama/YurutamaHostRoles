@@ -26,7 +26,6 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     {
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
-        canVent = OptionCanVent.GetBool();
         Vote = OptionVote.GetInt();
         forvote = 225;
     }
@@ -35,7 +34,6 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
     private static int Vote;
-    private static bool canVent;
     bool Skill;
     byte forvote;
     enum OptionName
@@ -49,7 +47,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     public static void SetupOptionItem()
     {
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
-        OptionVote = FloatOptionItem.Create(RoleInfo, 11, OptionName.MadReduecdVote, new(-99f, -1f, 1f), -2f, false)
+        OptionVote = FloatOptionItem.Create(RoleInfo, 11, OptionName.MadReduecdVote, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Votes);
     }
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
@@ -81,7 +79,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             else
             {
                 Skill = true;
-                numVotes = Vote;
+                numVotes = Vote * -1;
                 forvote = sourceVotedForId;
             }
         }
@@ -98,7 +96,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         if (Skill)
         {
             var T = Utils.GetPlayerById(forvote);
-            Voteresult += string.Format(Translator.GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote * -1}</b>");
+            Voteresult += string.Format(Translator.GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote}</b>");
         }
     }
 }

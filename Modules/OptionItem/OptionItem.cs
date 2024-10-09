@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TownOfHost.Modules;
+using TownOfHost.Roles.Core;
 using UnityEngine;
 
 namespace TownOfHost
@@ -30,7 +31,8 @@ namespace TownOfHost
         public Color NameColor { get; protected set; }
         public string NameColorCode { get; protected set; }
         public string Fromtext { get; protected set; }
-        public bool Infinity { get; protected set; }
+        /// <summary>true→0が∞ false→通常 null→ 0がー</summary>
+        public bool? Infinity { get; protected set; }
         public OptionFormat ValueFormat { get; protected set; }
         public CustomGameMode GameMode { get; protected set; }
         public bool IsHeader { get; protected set; }
@@ -68,7 +70,7 @@ namespace TownOfHost
         // - 直接的な呼び出し
         public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
-        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false, bool infinity = false)
+        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false, bool? infinity = false)
         {
             // 必須情報の設定
             Id = id;
@@ -155,13 +157,21 @@ namespace TownOfHost
             => Do(i => ReplacementDictionary?.Remove(key));
 
         // Getter
-        public virtual string GetName(bool disableColor = false)
+        public virtual string GetName(bool disableColor = false, bool isoption = false)
         {
-            return disableColor ?
-                Translator.GetString(Name, ReplacementDictionary) :
-                NameColor != Color.white ?
-                Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary)) :
-                $"<color={NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>";
+            if (disableColor) return Translator.GetString(Name, ReplacementDictionary);
+
+            if (isoption)
+            {
+                var str = Translator.GetString(Name, ReplacementDictionary);
+                if (str != str.RemoveColorTags() && Name.StartsWith("Give"))
+                {
+                    str = str.RemoveGiveAddon();
+                    str += "<size=70%> :" + Translator.GetString($"{Name}Info", ReplacementDictionary);
+                    return NameColorCode != "#ffffff" ? $"<color={NameColorCode}>" + str + "</color>" : Utils.ColorString(NameColor, str);
+                }
+            }
+            return NameColorCode != "#ffffff" ? $"<color={NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>" : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
         public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
         public virtual bool OptionMeGetBool() => CurrentValue != 0;
@@ -181,7 +191,8 @@ namespace TownOfHost
 
         public string ApplyFormat(string value)
         {
-            if (value == "0" && Infinity) return "∞";
+            if (value == "0" && Infinity == true) return "∞";
+            if (value == "0" && Infinity == null) return "<b>―</b>";
             if (ValueFormat == OptionFormat.None) return value;
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
@@ -191,7 +202,20 @@ namespace TownOfHost
         {
             if (OptionBehaviour is not null and StringOption opt)
             {
-                opt.TitleText.text = "<b>" + GetName() + Fromtext + "</b>";
+                var role = CustomRoles.NotAssigned;
+                var size = "<size=105%>";
+                string mark = "";
+                if (Enum.TryParse(typeof(CustomRoles), Name, false, out var id))
+                {
+                    role = (CustomRoles)id;
+                    size = "<size=125%>";
+                    if (role.IsAddOn())
+                    {
+                        List<CustomRoles> list = new(1) { role };
+                        mark = $" {Utils.GetSubRoleMarks(list, CustomRoles.NotAssigned)}";
+                    }
+                }
+                opt.TitleText.text = size + "<b>" + GetName(isoption: true) + mark + Fromtext + "</b></size>";
                 opt.ValueText.text = GetString();
                 opt.oldValue = opt.Value = CurrentValue;
             }

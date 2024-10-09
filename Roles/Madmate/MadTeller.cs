@@ -39,9 +39,11 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
+        MyTaskState.NeedTaskCount = OptionTaskTrigger.GetInt();
     }
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
+    private static OptionItem OptionTaskTrigger;
     private static OptionItem Optioncollect;
     private static OptionItem OptionMaximum;
     private static OptionItem OptionRole;
@@ -64,7 +66,8 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         Ucount,
         tRole,
         Votemode,
-        meetingmc
+        meetingmc,
+        MadSnitchTaskTrigger
     }
     public enum VoteMode
     {
@@ -78,11 +81,12 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             .SetValueFormat(OptionFormat.Percent);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 15);
+        OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 15, Option.MadSnitchTaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
+        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
     }
 
     private void SendRPC()
@@ -94,13 +98,14 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         count = reader.ReadInt32();
     }
+    bool Check() => MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt());
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(!IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false) => Utils.ColorString(!Check() ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
 
         if (MadAvenger.Skill) return true;
-        if (Max > count && Is(voter) && IsTaskFinished && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && Check() && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
             {
@@ -149,9 +154,9 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             Utils.SendMessage(string.Format(GetString("Skill.MadTeller"), Utils.GetPlayerColor(target, true)) + "\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished)
+        if (Check())
         {
             Player.MarkDirtySettings();
         }

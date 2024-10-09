@@ -36,7 +36,7 @@ namespace TownOfHost.Roles.Impostor
             Spped = SpeedDownCount.GetFloat();
             tmpSpeed = Main.NormalOptions.PlayerSpeedMod;
         }
-
+        static OptionItem OptionKillCool;
         static OptionItem OptionKillDelay;
         static OptionItem SpeedDown;
         static OptionItem SpeedDownCount;
@@ -53,12 +53,16 @@ namespace TownOfHost.Roles.Impostor
 
         private static void SetupOptionItem()
         {
-            OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.VampireKillDelay, new(1f, 1000f, 1f), 10f, false)
+            OptionKillCool = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
+                .SetValueFormat(OptionFormat.Seconds);
+            OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.VampireKillDelay, new(1f, 1000f, 0.1f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             SpeedDown = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VampireSpeedDown, true, false);
             SpeedDownCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.VampireSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown)
             .SetValueFormat(OptionFormat.Seconds);
         }
+
+        public float CalculateKillCooldown() => OptionKillCool.GetFloat();
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
             if (!info.CanKill) return; //キル出来ない相手には無効
@@ -112,10 +116,7 @@ namespace TownOfHost.Roles.Impostor
                             {
                                 Main.AllPlayerSpeed[target.PlayerId] = Sp;
                                 target.MarkDirtySettings();
-                                //Logger.Info($"OK:{Sp}", "Vam");
                             }
-                            //else
-                            //Logger.Info($"Fall:{Sp}", "Vam");
                         }
                     }
                 }

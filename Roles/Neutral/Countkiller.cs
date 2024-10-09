@@ -5,7 +5,7 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
 
-public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
+public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -33,14 +33,12 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
         VictoryCount = OptionVictoryCount.GetInt();
         KillCooldown = OptionKillCooldown.GetFloat();
         CanVent = OptionCanVent.GetBool();
-        HasImpostorVision = OptionHasImpostorVision.GetBool();
         KillCount = 0;
         WinFuragu = false;
     }
     static OptionItem OptionKillCooldown;
     static OptionItem OptionAddWin;
     private static OptionItem OptionVictoryCount;
-    private static OptionItem OptionHasImpostorVision;
     public static OptionItem OptionCanVent;
 
     enum OptionName
@@ -49,25 +47,21 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
     }
     private int VictoryCount;
     public static bool CanVent;
-    private static bool HasImpostorVision;
     private static float KillCooldown;
     int KillCount = 0;
     bool WinFuragu;
     private static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionVictoryCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.CountKillerVictoryCount, new(1, 10, 1), 5, false)
         .SetValueFormat(OptionFormat.Times);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanVent, true, false);
         OptionAddWin = BooleanOptionItem.Create(RoleInfo, 13, OptionName.CountKillerAddWin, true, false);
-        OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.ImpostorVision, true, false);
         RoleAddAddons.Create(RoleInfo, 15);
     }
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.CountKiller;
-    public float CalculateKillCooldown() => KillCooldown;
-    public override void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision);
-    public override void Add()
+    public float CalculateKillCooldown() => KillCooldown; public override void Add()
     {
         var playerId = Player.PlayerId;
         KillCooldown = OptionKillCooldown.GetFloat();
@@ -124,4 +118,5 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner
     }
     public override string GetProgressText(bool comms = false)
     => Utils.ColorString(RoleInfo.RoleColor, $"({KillCount}/{VictoryCount})");
+    public bool CheckWin(ref CustomRoles winnerRole) => OptionAddWin.GetBool() && WinFuragu;
 }

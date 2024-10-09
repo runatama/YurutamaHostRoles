@@ -20,6 +20,10 @@ public sealed class Jester : RoleBase, IKiller
             "je",
             "#ec62a5",
                 true,
+                assignInfo: new RoleAssignInfo(CustomRoles.Jester, CustomRoleTypes.Neutral)
+                {
+                    AssignCountRule = new(0, 15, 1)
+                },
             from: From.Jester
         );
     public Jester(PlayerControl player)
@@ -42,8 +46,8 @@ public sealed class Jester : RoleBase, IKiller
     {
 
         CanUseShape = BooleanOptionItem.Create(RoleInfo, 3, Option.JesterCanUseShapeshift, false, false);
-        Cooldown = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
-        Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 2.5f), 5f, false, CanUseShape, infinity: true).SetValueFormat(OptionFormat.Seconds);
+        Cooldown = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
+        Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 0.5f), 5f, false, CanUseShape, infinity: true).SetValueFormat(OptionFormat.Seconds);
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 6, GeneralOption.CanVent, false, false);
         CanVentido = BooleanOptionItem.Create(RoleInfo, 7, Option.MadmateCanMovedByVent, false, false, CanUseVent);
     }

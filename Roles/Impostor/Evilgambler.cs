@@ -48,9 +48,9 @@ public sealed class Evilgambler : RoleBase, IImpostor
     {
         Optiongamblecollect = FloatOptionItem.Create(RoleInfo, 10, OptionName.Evillgamblergamblecollect, new(0, 100, 5), 50, false)
             .SetValueFormat(OptionFormat.Percent);
-        OptioncollectkillCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.EvillgamblercollectkillCooldown, new(0f, 180f, 2.5f), 2.5f, false)
+        OptioncollectkillCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.EvillgamblercollectkillCooldown, new(0f, 180f, 0.5f), 2.5f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionnotcollectkillCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvillgamblernotcollectkillCooldown, new(0f, 180f, 2.5f), 50.0f, false)
+        OptionnotcollectkillCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvillgamblernotcollectkillCooldown, new(0f, 180f, 0.5f), 50.0f, false)
             .SetValueFormat(OptionFormat.Seconds);
     }
     //public static void SetKillCooldown(byte id, float amount) => Main.AllPlayerKillCooldown[id] = amount;

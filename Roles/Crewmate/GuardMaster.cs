@@ -72,7 +72,7 @@ public sealed class GuardMaster : RoleBase
         Utils.NotifyRoles();
         return true;
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
         if (IsTaskFinished && Player.IsAlive())

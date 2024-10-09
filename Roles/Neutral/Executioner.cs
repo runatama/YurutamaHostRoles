@@ -60,7 +60,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     private bool TargetExiled;
     public static readonly CustomRoles[] ChangeRoles =
     {
-            CustomRoles.Crewmate, CustomRoles.Jester, CustomRoles.Opportunist,
+            CustomRoles.Crewmate, CustomRoles.Jester, CustomRoles.Opportunist,CustomRoles.Monochromer
     };
 
     private static void SetupOptionItem()

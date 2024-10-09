@@ -11,7 +11,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
         public static OptionItem KillCooldown;
         //ゲッサー
         public static OptionItem GiveGuesser;
-        public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime; public static OptionItem TryHideMsg;
+        public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
         public static OptionItem ICanGuessVanilla; public static OptionItem ICanGuessNakama; public static OptionItem ICanGuessTaskDoneSnitch;
         public static OptionItem ICanWhiteCrew; public static OptionItem AddTama;
         //マネジメント
@@ -30,7 +30,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
         public static OptionItem GiveTiebreaker;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1), fromtext: "<color=#ffffff>From:<color=#00bfff>TownOfHost</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1), fromtext: "<color=#000000>From:</color><color=#00bfff>TownOfHost</color></size>");
             KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor])
                 .SetValueFormat(OptionFormat.Seconds);
             OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastImpostor);
@@ -40,7 +40,6 @@ namespace TownOfHost.Roles.AddOns.Impostor
             AddTama = BooleanOptionItem.Create(Id + 9, "Addtama", false, TabGroup.Addons, false).SetParent(GiveGuesser);
             OwnCanGuessTime = FloatOptionItem.Create(Id + 13, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser)
                     .SetValueFormat(OptionFormat.Players);
-            TryHideMsg = BooleanOptionItem.Create(Id + 14, "TryHideMsg", true, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanGuessVanilla = BooleanOptionItem.Create(Id + 15, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanGuessNakama = BooleanOptionItem.Create(Id + 16, "CanGuessNakama", true, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(Id + 17, "CanGuessTaskDoneSnitch", false, TabGroup.Addons, false).SetParent(GiveGuesser);

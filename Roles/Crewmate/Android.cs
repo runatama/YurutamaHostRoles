@@ -48,7 +48,7 @@ public sealed class Android : RoleBase
 
     private static void SetupOptionItem()
     {
-        CoolTime = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 20f, false).SetValueFormat(OptionFormat.Seconds);
+        CoolTime = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false).SetValueFormat(OptionFormat.Seconds);
         InVentTime = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.EngineerInVentMaxTime, new(1f, 60f, 0.5f), 7.5f, false).SetValueFormat(OptionFormat.Seconds);
         TaskAddBattery = FloatOptionItem.Create(RoleInfo, 12, OptionName.AndroidAddTaskBattery, new(1f, 100f, 1f), 10f, false, RemoveBattery).SetValueFormat(OptionFormat.Percent);
         RemoveBattery = BooleanOptionItem.Create(RoleInfo, 13, OptionName.AndroidRemoveBattery, true, false);
@@ -64,7 +64,7 @@ public sealed class Android : RoleBase
         AURoleOptions.EngineerCooldown = Battery == 0 ? 200f : ((CoolTime.GetFloat() * 3) - (Battery * CoolTime.GetFloat() * 2));
         AURoleOptions.EngineerInVentMaxTime = Battery == 0 ? 1f : InMax;
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         var lastbatt = Battery;
 

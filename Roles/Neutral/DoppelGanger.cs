@@ -41,7 +41,6 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     }
 
     static OptionItem OptionKillCooldown;
-    static OptionItem OptionHasImpostorVision;
     static OptionItem OptionShepeCoolDown;
     static OptionItem OptionWinCount;
     static OptionItem OptionWin;
@@ -57,13 +56,12 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
 
     private static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.ImpostorVision, true, false);
-        OptionShepeCoolDown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionShepeCoolDown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionWinCount = FloatOptionItem.Create(RoleInfo, 13, "DoppelGangerWinCount", new(0f, 300f, 2.5f), 45f, false);
-        OptionWin = FloatOptionItem.Create(RoleInfo, 14, "DoppelGangerWin", new(0f, 300f, 2.5f), 70f, false);
+        OptionWinCount = FloatOptionItem.Create(RoleInfo, 13, "DoppelGangerWinCount", new(0f, 300f, 1f), 45f, false);
+        OptionWin = FloatOptionItem.Create(RoleInfo, 14, "DoppelGangerWin", new(0f, 300f, 1f), 70f, false);
         RoleAddAddons.Create(RoleInfo, 15);
     }
     public float CalculateKillCooldown() => KillCooldown;
@@ -78,7 +76,6 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         AURoleOptions.ShapeshifterCooldown = OptionShepeCoolDown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 0f;
         AURoleOptions.ShapeshifterLeaveSkin = false;
-        opt.SetVision(OptionHasImpostorVision.GetBool());
     }
 
     public override bool CheckShapeshift(PlayerControl target, ref bool animate)
@@ -90,7 +87,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         }
         Cankill = true;
         Target = target.PlayerId;
-        _ = new LateTask(() => Utils.NotifyRoles(), 1f, "");
+        _ = new LateTask(() => Utils.NotifyRoles(), 1f, "", true);
         return true;
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)

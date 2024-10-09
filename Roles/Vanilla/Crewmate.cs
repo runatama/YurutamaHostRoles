@@ -17,7 +17,7 @@ public sealed class Crewmate : RoleBase
             {
                 IsInitiallyAssignableCallBack =
                     () => false
-            }
+            }, from: From.AmongUs
         );
     public Crewmate(PlayerControl player)
     : base(

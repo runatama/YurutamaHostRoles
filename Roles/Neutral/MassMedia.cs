@@ -64,7 +64,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     public override void OnDestroy() => MassMedias.Clear();
     private static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionShikai = FloatOptionItem.Create(RoleInfo, 11, Option.MassMediaShikai, new(0f, 0.20f, 0.02f), 0.04f, false)
         .SetValueFormat(OptionFormat.Multiplier);

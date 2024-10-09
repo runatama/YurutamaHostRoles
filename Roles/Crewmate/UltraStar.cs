@@ -49,14 +49,14 @@ public sealed class UltraStar : RoleBase
         OptionSpeed = FloatOptionItem.Create(RoleInfo, 9, OptionName.Speed, new(0f, 5f, 0.25f), 2.0f, false)
             .SetValueFormat(OptionFormat.Multiplier);
         Optioncankill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.UltraStarCankill, false, false);
-        Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, OptionName.UltraStarKillCoolDown, new(0f, 180f, 2.5f), 30f, false, Optioncankill)
+        Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, OptionName.UltraStarKillCoolDown, new(0f, 180f, 0.5f), 30f, false, Optioncankill)
             .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void OnFixedUpdate(PlayerControl player)
     {
         //ホストじゃない or タスクターンじゃない or 生存していない ならブロック
-        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.Meeting) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.Meeting || GameStates.Tuihou) return;
         {//参考→https://github.com/Yumenopai/TownOfHost_Y/releases/tag/v514.20.3
             colorchange %= 18;
             if (colorchange is >= 0 and < 1) player.RpcSetColor(8);

@@ -24,7 +24,7 @@ namespace TownOfHost.Roles.Ghost
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.AsistingAngel, new(1, 1, 1));
             GhostRoleAssingData.Create(Id + 1, CustomRoles.AsistingAngel, CustomRoleTypes.Crewmate, CustomRoleTypes.Neutral);
-            CoolDown = FloatOptionItem.Create(Id + 2, "AsistingAngelCoolDown", new(0f, 180f, 2.5f), 25f, TabGroup.GhostRoles, false)
+            CoolDown = FloatOptionItem.Create(Id + 2, "AsistingAngelCoolDown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.AsistingAngel]);
             AddClowDown = FloatOptionItem.Create(Id + 3, "AsistingAngelAddClowDown", new(0f, 30f, 0.5f), 5f, TabGroup.GhostRoles, false)
             .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.AsistingAngel]);
@@ -85,7 +85,7 @@ namespace TownOfHost.Roles.Ghost
                         {
                             Guard = false;
                             pc.RpcResetAbilityCooldown(kousin: true);//成功の有無にかかわらずリセットさせる。
-                        }, Guardtime.GetFloat(), "");
+                        }, Guardtime.GetFloat(), "", true);
                     }
                     else//違うなら対象の位置を矢印で教えないとねっ
                     {

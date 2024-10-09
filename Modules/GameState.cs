@@ -151,6 +151,7 @@ namespace TownOfHost
     {
         public static int InitialTotalTasks;
         public int AllTasksCount;
+        public int NeedTaskCount;
         public int CompletedTasksCount;
         public bool hasTasks;
         public int RemainingTasksCount => AllTasksCount - CompletedTasksCount;
@@ -159,6 +160,7 @@ namespace TownOfHost
         public TaskState()
         {
             this.AllTasksCount = -1;
+            this.NeedTaskCount = -1;
             this.CompletedTasksCount = 0;
             this.hasTasks = false;
         }
@@ -170,6 +172,7 @@ namespace TownOfHost
             if (!Utils.HasTasks(player.Data, false))
             {
                 AllTasksCount = 0;
+                NeedTaskCount = 0;
                 return;
             }
             hasTasks = true;
@@ -197,6 +200,7 @@ namespace TownOfHost
             CompletedTasksCount = Math.Min(AllTasksCount, CompletedTasksCount);
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
         }
+        public int GetNeedCountOrAll() => NeedTaskCount < 0 ? AllTasksCount : NeedTaskCount;
         public bool HasCompletedEnoughCountOfTasks(int count) => IsTaskFinished || CompletedTasksCount >= count;
     }
     public class PlayerVersion

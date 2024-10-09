@@ -12,7 +12,6 @@ namespace TownOfHost.Roles.AddOns.Common
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｓs");
         public static List<byte> playerIdList = new();
         private static OptionItem CanKill;
-        public static int Guard;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.SlowStarter, new(1, 3, 1));
@@ -27,8 +26,6 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
         public static bool CanUseKill()
         {
             if (PlayerState.AllPlayerStates == null) return false;
@@ -39,7 +36,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (role.IsImpostor()) livingImpostorsNum++;
             }
 
-            return livingImpostorsNum <= (CanKill.GetFloat() - 1);
+            return livingImpostorsNum <= CanKill.GetFloat();
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HarmonyLib;
 
 namespace TownOfHost
 {
@@ -138,6 +139,7 @@ namespace TownOfHost
                     .EndRpc();
             }
             sender.SendMessage();
+            if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
         }
     }
 }

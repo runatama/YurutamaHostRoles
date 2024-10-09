@@ -9,6 +9,7 @@ namespace TownOfHost.Roles.Core;
 public enum From
 {
     None,
+    AmongUs,
     TheOtherRoles,
     TOR_GM_Edition,
     TOR_GM_Haoming_Edition,

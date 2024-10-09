@@ -6,6 +6,7 @@ using UnityEngine;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
+using HarmonyLib;
 
 namespace TownOfHost
 {
@@ -28,7 +29,7 @@ namespace TownOfHost
             };
             //ゲームモードの表示
             sb.Append($"{Options.GameMode.GetName()}: {Options.GameMode.GetString()}\n\n");
-            sb.AppendFormat("{0}: {1}\n\n", RoleAssignManager.OptionAssignMode.GetName(), RoleAssignManager.OptionAssignMode.GetString());
+            //sb.AppendFormat("{0}: {1}\n\n", RoleAssignManager.OptionAssignMode.GetName(), RoleAssignManager.OptionAssignMode.GetString());
             if (Options.HideGameSettings.GetBool() && !AmongUsClient.Instance.AmHost)
             {
                 sb.Append($"<color=#ff0000>{GetString("Message.HideGameSettings")}</color>");
@@ -38,30 +39,101 @@ namespace TownOfHost
                 //Standardの時のみ実行
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    if (Utils.GetRoleTypesCount() != "")
-                        sb.Append(Utils.GetRoleTypesCount() + "\n");
+                    var roleType = CustomRoleTypes.Impostor;
+                    var farst = true;
+                    var (imp, mad, crew, neu, addon, lover, gorst) = Utils.GetRoleTypesCountInt();
                     //有効な役職一覧
                     sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
-                    sb.Append(GetString("ActiveRolesList")).Append("\n<size=90%>");
-                    foreach (var kvp in Options.CustomRoleSpawnChances)
+                    sb.Append(GetString("ActiveRolesList")).Append("<size=90%>");
+                    var count = -1;
+                    var co = 0;
+                    var las = "";
+                    var a = Options.CustomRoleSpawnChances.Where(r => r.Key.IsImpostor())?.ToArray();
+                    var b = Options.CustomRoleSpawnChances.Where(r => r.Key.IsMadmate())?.ToArray();
+                    var cc = Options.CustomRoleSpawnChances.Where(r => r.Key.IsCrewmate())?.ToArray();
+                    var d = Options.CustomRoleSpawnChances.Where(r => r.Key.IsNeutral())?.ToArray();
+                    var e = Options.CustomRoleSpawnChances.Where(r => !r.Key.IsImpostor() && !r.Key.IsCrewmate() && !r.Key.IsMadmate() && !r.Key.IsNeutral()).ToArray();
+                    var addoncheck = false;
+                    foreach (var kvp in a.AddRangeToArray(b).AddRangeToArray(cc).AddRangeToArray(d).AddRangeToArray(e))
                         if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()) //スタンダードか全てのゲームモードで表示する役職
-                            sb.Append($"{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                        {
+                            var role = kvp.Key;
+                            if (farst && role.IsImpostor())
+                            {
+                                var maxtext = $"({imp})";
+                                var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
+                                if (che)
+                                {
+                                    maxtext += $"　[Max : {max} |Min : {min}]";
+                                }
+                                las = Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n");
+                                sb.Append(Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n"));
+                            }
+                            farst = false;
+                            if ((!addoncheck && roleType == CustomRoleTypes.Crewmate && (role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku)) || (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor))
+                            {
+                                var s = "";
+                                var c = 0;
+                                var cor = Color.white;
+                                if (role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku)
+                                {
+                                    s = "☆Add-ons☆";
+                                    c = addon + lover + gorst;
+                                    cor = ModColors.AddonsColor;
+                                    count = -1;
+                                    addoncheck = true;
+                                }
+                                else
+                                    switch (role.GetCustomRoleTypes())
+                                    {
+                                        case CustomRoleTypes.Crewmate: count = -1; s = "☆CrewMates☆"; c = crew; cor = ModColors.CrewMateBlue; break;
+                                        case CustomRoleTypes.Madmate: count = -1; s = "☆MadMates☆"; c = mad; cor = StringHelper.CodeColor("#ff7f50"); break;
+                                        case CustomRoleTypes.Neutral: count = -1; s = "☆Neutrals☆"; c = neu; cor = ModColors.NeutralGray; break;
+                                    }
+                                var maxtext = $"({c})";
+                                var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
+                                if (che)
+                                {
+                                    maxtext += $"　[Max : {max} |Min : {min}]";
+                                }
+                                las = Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n");
+                                sb.Append(Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n"));
+                                roleType = role.GetCustomRoleTypes();
+                            }
+                            var m = role.IsImpostor() ? Utils.ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? Utils.ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<color=#ff7f50>Ⓜ</color>" : (role.IsNeutral() ? Utils.ColorString(ModColors.NeutralGray, "Ⓝ") : "<color=#cccccc>⦿</color>")));
+
+                            if (role.IsBuffAddon()) m = Utils.AdditionalWinnerMark;
+                            if (role.IsRiaju()) m = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ALovers), "♥");
+                            if (role.IsDebuffAddon()) m = Utils.ColorString(Palette.DisabledGrey, "☆");
+                            if (role.IsGorstRole()) m = "<color=#8989d9>■</color>";
+
+                            if (count == 0) sb.Append($"\n{m}{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else if (count == -1) sb.Append($"{m}{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else sb.Append($"<pos=39%>{m}{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
+
+                            if (count == 0) co++;
+                            count = count is 0 or -1 ? 1 : 0;
+
+                            if (co >= 27)
+                            {
+                                co = 0;
+                                count = -1;
+                                pages.Add(sb.ToString() + "\n\n");
+                                sb.Clear();
+                                sb.Append("<size=90%>" + las);
+                            }
+                        }
                     pages.Add(sb.ToString() + "\n\n</size>");
                     sb.Clear();
                 }
                 //有効な役職と詳細設定一覧
                 pages.Add("");
-                if (RoleAssignManager.OptionAssignMode.GetBool())
-                {
-                    ShowChildren(RoleAssignManager.OptionAssignMode, ref sb, Color.white);
-                    sb.Append('\n');
-                }
                 nameAndValue(Options.EnableGM);
                 foreach (var kvp in Options.CustomRoleSpawnChances)
                 {
                     if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
                     sb.Append('\n');
-                    sb.Append($"</size>{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n<size=80%>");
+                    sb.Append($"</size><size=100%>{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
                     ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
                     string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
                     string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");
@@ -93,6 +165,7 @@ namespace TownOfHost
             if (currentPage >= pages.Count) currentPage = pages.Count - 1; //現在のページが最大ページ数を超えていれば最後のページに修正
             return $"{pages[currentPage]}{GetString("PressTabToNextPage")}({currentPage + 1}/{pages.Count})";
         }
+
         public static void Next()
         {
             currentPage++;
@@ -108,6 +181,7 @@ namespace TownOfHost
                 if (opt.Value.Name == "Giveseeing" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveAutopsy" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveTiebreaker" && !opt.Value.GetBool()) continue;
+                if (opt.Value.Name == "GiveMagicHand" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GivePlusVote" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveRevenger" && !opt.Value.GetBool()) continue;
                 if (opt.Value.Name == "GiveOpener" && !opt.Value.GetBool()) continue;

@@ -26,6 +26,7 @@ public sealed class King : RoleBase
     )
     {
         Die = false;
+        exdie = false;
     }
     static OptionItem ExileVoteCount;
     static OptionItem ExiledCrewDie;
@@ -38,6 +39,7 @@ public sealed class King : RoleBase
         CustomDeathReason.Kill,CustomDeathReason.Suicide,CustomDeathReason.Revenge,CustomDeathReason.FollowingSuicide
     };
     bool Die;
+    bool exdie;
     enum Op
     {
         KingExileVoteCount,
@@ -69,6 +71,7 @@ public sealed class King : RoleBase
             {
                 IsTie = false;
                 Exiled = Player.Data;
+                exdie = true;
                 return true;
             }
         }
@@ -76,6 +79,11 @@ public sealed class King : RoleBase
     }
     public override void OnLeftPlayer(PlayerControl player)
     {
+        if (player == Player)
+            if (exdie && !Die)
+            {
+                _ = new LateTask(() => CrewMateAbooooon(), 20f, "KingExdie");
+            }
         if (player == Player) Die = true;
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
@@ -92,21 +100,20 @@ public sealed class King : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (Die) return;
         if (GameStates.Tuihou) return;
-        if (player.Data.Disconnected) return;
+        if (!exdie)
+        {
+            if (Die) return;
 
+            if (player.Data.Disconnected && MyState.DeathReason is CustomDeathReason.Disconnected) return;
+        }
         if (player.IsAlive()) return;
         if (!player.IsAlive())
         {
             CrewMateAbooooon();
+            exdie = false;
             Die = true;
         }
-    }
-    public override bool AddOnAssingCheck(CustomRoles addon)
-    {
-        if (addon is CustomRoles.Amnesia or CustomRoles.Amanojaku) return false;
-        return true;
     }
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref UnityEngine.Color roleColor, ref string roleText, ref bool addon)
     {
@@ -115,12 +122,14 @@ public sealed class King : RoleBase
         if (seer.Is(CustomRoleTypes.Crewmate) || seer.Is(CustomRoles.BakeCat))
         {
             enabled = true;
+            roleColor = StringHelper.CodeColor("#FFD700");
+            roleText = Translator.GetString("King");
             addon = false;
         }
     }
     void CrewMateAbooooon()
     {
-        if (Die) return;
+        if (Die && !exdie) return;
         var rand = IRandom.Instance;
         int Count = ExiledCrewDie.GetInt();
 
@@ -252,5 +261,7 @@ public sealed class King : RoleBase
             }
         }
         _ = new LateTask(() => Utils.NotifyRoles(), 0.4f, "KingResetNotify");
+        Die = true;
+        exdie = false;
     }
 }

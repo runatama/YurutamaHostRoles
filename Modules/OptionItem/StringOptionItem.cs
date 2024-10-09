@@ -48,7 +48,16 @@ namespace TownOfHost
         public override float GetFloat() => Rule.GetValueByIndex(CurrentValue);
         public override string GetString()
         {
-            return Translator.GetString(Selections[Rule.GetValueByIndex(CurrentValue)]);
+            var text = Translator.GetString(Selections[Rule.GetValueByIndex(CurrentValue)]);
+            if (ChatCommands.GetRoleByInputName(text.RemoveHtmlTags(), out var r, true))
+            {
+                return $"<b>{Utils.ColorString(Utils.GetRoleColor(r, true), text.RemoveColorTags())}</b>";
+            }
+            return text;
+        }
+        public string GetString(int value)
+        {
+            return Translator.GetString(Selections[Rule.GetValueByIndex(value)]);
         }
         public int GetChance()
         {

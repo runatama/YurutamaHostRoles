@@ -55,12 +55,12 @@ public sealed class Madonna : RoleBase
     [GameModuleInitializer]
     public static void Mareset()
     {
-        Main.MaMaLoversPlayers.Clear();
-        Main.isMaLoversDead = false;
+        Lovers.MaMaLoversPlayers.Clear();
+        Lovers.isMaLoversDead = false;
     }
     public static readonly CustomRoles[] ChangeRoles =
     {
-            CustomRoles.Crewmate, CustomRoles.Jester, CustomRoles.Opportunist,CustomRoles.Madmate
+            CustomRoles.Crewmate, CustomRoles.Jester, CustomRoles.Opportunist,CustomRoles.Madmate,CustomRoles.Monochromer
     };
     private static void SetupOptionItem()
     {
@@ -103,8 +103,9 @@ public sealed class Madonna : RoleBase
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaCollect"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
             target.RpcSetCustomRole(CustomRoles.MaLovers);
             Player.RpcSetCustomRole(CustomRoles.MaLovers);
-            Main.MaMaLoversPlayers.Add(Player);
-            Main.MaMaLoversPlayers.Add(target);
+            Lovers.MaMaLoversPlayers.Add(Player);
+            Lovers.MaMaLoversPlayers.Add(target);
+            RPC.SyncMaLoversPlayers();
             Utils.AddGameLog($"Madonna", string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
 
             target.RpcProtectedMurderPlayer();
@@ -143,10 +144,9 @@ public sealed class Madonna : RoleBase
         else
         if (limit <= Main.day && Limitd && Player.IsAlive())
         {
-            PlayerState state = PlayerState.GetByPlayerId(Player.PlayerId);
             Player.RpcExileV2();
-            state.SetDead();
-            state.DeathReason = CustomDeathReason.Suicide;
+            MyState.SetDead();
+            MyState.DeathReason = CustomDeathReason.Suicide;
             ReportDeadBodyPatch.Musisuruoniku[Player.PlayerId] = false;
             Utils.AddGameLog($"Madonna", string.Format(GetString("log.AM"), Utils.GetPlayerColor(Utils.GetPlayerById(Player.PlayerId)), Utils.GetTrueRoleName(Player.PlayerId, false)));
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}は指定ターン経過したため自殺。", "Madonna");

@@ -44,8 +44,9 @@ namespace TownOfHost
             if (!isChecked)
             {
                 //CheckVersionsJson().GetAwaiter().GetResult();
-                //CheckRelease(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
-            }/*
+                CheckRelease(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
+            }
+            /*
             //オンライン無効化
             if (version.NotAvailableOnline)
             {
@@ -71,7 +72,8 @@ namespace TownOfHost
         public static async Task<bool> CheckRelease(bool beta = false, bool all = false)
         {
             bool updateCheck = version != null && version.Update.Version != null;
-            string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (updateCheck ? "/tags/" + version.Update.Version : (all ? "" : "/latest"));
+            //string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (updateCheck ? "/tags/" + version.Update.Version : (all ? "" : "/latest"));
+            string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (all ? "" : "/latest");
             try
             {
                 string result;

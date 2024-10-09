@@ -42,7 +42,7 @@ namespace TownOfHost.Roles.Impostor
         enum OptionName
         {
             LimiterTarnLimit,
-            LimiterLastTarnKillCool,
+            LimiterLastTarnKillCool, LimiterTimeLimit,
             blastrange,
         }
         static bool LimitTimer;
@@ -61,7 +61,7 @@ namespace TownOfHost.Roles.Impostor
             OptionLastTarnKillcool = FloatOptionItem.Create(RoleInfo, 10, OptionName.LimiterLastTarnKillCool, new(0f, 180f, 2.5f), 25f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionLimiterTarnLimit = FloatOptionItem.Create(RoleInfo, 11, OptionName.LimiterTarnLimit, new(1f, 15f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
-            OptionLimitTimer = FloatOptionItem.Create(RoleInfo, 13, OptionName.LimiterLastTarnKillCool, new(0f, 300f, 5f), 180f, false, infinity: true)
+            OptionLimitTimer = FloatOptionItem.Create(RoleInfo, 13, OptionName.LimiterTimeLimit, new(0f, 300f, 5f), 180f, false, infinity: true)
                 .SetValueFormat(OptionFormat.Seconds);
             Optionblastrange = FloatOptionItem.Create(RoleInfo, 12, OptionName.blastrange, new(0.5f, 20f, 0.5f), 5f, false);
         }

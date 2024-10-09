@@ -21,7 +21,7 @@ namespace TownOfHost.Roles.AddOns.Common
         }
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.NonReport, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.NonReport, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.NonReport, true, true, true, true);
             OptionConvener = StringOptionItem.Create(50, "ConverMode", EnumHelper.GetAllNames<Convener>(), 0, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.NonReport]);
         }

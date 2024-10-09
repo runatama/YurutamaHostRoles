@@ -1,4 +1,5 @@
 using UnityEngine;
+using static TownOfHost.StringHelper;
 
 namespace TownOfHost;
 
@@ -43,10 +44,18 @@ public static class ColorHelper
 public class ModColors
 {
     //こんびf7c114
-    public static Color32 ModColor = StringHelper.CodeColor(Main.ModColor);
+    public static Color32 ModColor = CodeColor(Main.ModColor);
     public static Color32 ImpostorRed = Palette.ImpostorRed;
     public static Color32 CrewMateBlue = Palette.CrewmateBlue;
-    public static Color32 MadMateOrenge = StringHelper.CodeColor("#ff7f50");
-    public static Color32 AddonsColor = StringHelper.CodeColor("#028760");
-    public static Color32 GhostRoleColor = StringHelper.CodeColor("#8989d9");
+    public static Color32 MadMateOrenge = CodeColor("#ff7f50");
+    public static Color32 AddonsColor = CodeColor("#028760");
+    public static Color32 GhostRoleColor = CodeColor("#8989d9");
+    public static Color32 NeutralGray = CodeColor("#cccccc");
+    public static Color32 JackalColor = CodeColor("#00b4eb");
+    public static Color32 SkeldColor = CodeColor("#666666");
+    public static Color32 MiraHpColor = CodeColor("#ff6633");
+    public static Color32 PolusColor = CodeColor("#980098");
+    public static Color32 AirShipColor = CodeColor("#ff3300");
+    public static Color32 FangleColor = CodeColor("#ff9900");
+    public static Color32 bluegreen = CodeColor("#13a85d");
 }

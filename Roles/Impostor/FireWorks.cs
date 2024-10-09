@@ -72,9 +72,9 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
         OptionFireWorksRadius = FloatOptionItem.Create(RoleInfo, 11, OptionName.FireWorksRadius, new(0.5f, 3f, 0.5f), 1f, false)
             .SetValueFormat(OptionFormat.Multiplier);
         OptionCankillAlltime = BooleanOptionItem.Create(RoleInfo, 13, OptionName.FireWorksCanKillAlways, false, false);
-        OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false)
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionPaaaaaaaanCooldown = FloatOptionItem.Create(RoleInfo, 15, OptionName.FireWorksPaaaaaanCoolDown, new(0f, 180f, 2.5f), 15f, false)
+        OptionPaaaaaaaanCooldown = FloatOptionItem.Create(RoleInfo, 15, OptionName.FireWorksPaaaaaanCoolDown, new(0f, 180f, 0.5f), 15f, false)
             .SetValueFormat(OptionFormat.Seconds);
     }
 

@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost
@@ -144,23 +145,21 @@ namespace TownOfHost
                             {
                                 if (!Player.IsAlive()) Player.RpcExileV2();
                                 Player.SetKillCooldown(kyousei: true, delay: true);
-                            }, Main.LagTime, "");
+                                (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player);
+                            }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>
-                    {
-                        _ = new LateTask(() =>
+                        {
+                            Utils.NotifyRoles(ForceLoop: true);
+                            foreach (var kvp in PlayerState.AllPlayerStates)
                             {
-                                Utils.NotifyRoles();
-                                foreach (var kvp in PlayerState.AllPlayerStates)
-                                {
-                                    kvp.Value.IsBlackOut = false;
-                                }
-                                Utils.SyncAllSettings();
-                                ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
-                                if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
-                            }, Main.LagTime, "AfterMeetingNotifyRoles");
-                    }, Main.LagTime, "");
-                }, 0.7f, "");
+                                kvp.Value.IsBlackOut = false;
+                            }
+                            Utils.SyncAllSettings();
+                            ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+                            if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
+                        }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
+                }, 0.7f, "", true);
             }
 
             //OFFならリセ
@@ -206,8 +205,7 @@ namespace TownOfHost
             Utils.CountAlivePlayers(true);
             Utils.AfterMeetingTasks();
             Utils.SyncAllSettings();
-            Utils.NotifyRoles();
-            _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
+            Utils.NotifyRoles(ForceLoop: true);
         }
 
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
@@ -254,6 +252,7 @@ namespace TownOfHost
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             Logger.Info("タスクフェイズ開始", "Phase");
             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+            _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
     }
 

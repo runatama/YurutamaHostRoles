@@ -40,7 +40,7 @@ namespace TownOfHost.Roles.Neutral
             CanKill = false;
             Killer = null;
         }
-        bool CanKill;
+        public static bool CanKill;
         private static OptionItem OptionKillCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
@@ -74,13 +74,13 @@ namespace TownOfHost.Roles.Neutral
         }
         public static void SetupOptionItem()
         {
-            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
+            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);
             OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             OptionDieKiller = BooleanOptionItem.Create(RoleInfo, 14, Op.BakeCatDieKiller, true, false);
-            OptionDieKillerTIme = FloatOptionItem.Create(RoleInfo, 15, Op.BakeCatDieKillerTime, new(0, 180, 3), 1, false, OptionDieKiller).SetValueFormat(OptionFormat.Seconds);
+            OptionDieKillerTIme = FloatOptionItem.Create(RoleInfo, 15, Op.BakeCatDieKillerTime, new(0, 180, 1), 1, false, OptionDieKiller).SetValueFormat(OptionFormat.Seconds);
         }
         public override void ApplyGameOptions(IGameOptions opt)
         {
@@ -120,8 +120,22 @@ namespace TownOfHost.Roles.Neutral
                 owner = catOwner;
 
                 if (AmongUsClient.Instance.AmHost)
+                {
                     Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
-
+                    foreach (var pc in Main.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer)
+                        {
+                            Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
+                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                        }
+                        else
+                        {
+                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                        }
+                    }
+                }
                 _ = new LateTask(() =>
                 {
                     Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
@@ -144,18 +158,43 @@ namespace TownOfHost.Roles.Neutral
             Utils.NotifyRoles();
             Utils.MarkEveryoneDirtySettings();
         }
-        public override void OnReportDeadBody(PlayerControl ___, NetworkedPlayerInfo __)
+        public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo sitai)
         {
             if (OptionDieKiller.GetBool())
-                _ = new LateTask(() =>
-                {
-                    if (!Killer.IsAlive()) return;
-                    Killer.RpcMurderPlayerV2(Killer);
-                }, OptionDieKillerTIme.GetFloat(), "BakeCatKillerDie");
+            {
+                if (!Killer.IsAlive()) return;
+                Killer.RpcMurderPlayerV2(Killer);
+                if (repo == Killer) ReportDeadBodyPatch.DieCheckReport(repo, sitai);
+            }
         }
-        /// <summary>
-        /// キルしてきた人とオプションに応じて名前の色を開示する
-        /// </summary>
+        public override void AfterMeetingTasks()
+        {
+            if (!CanKill) return;
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc == PlayerControl.LocalPlayer)
+                    {
+                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
+                        if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                    }
+                    else
+                    {
+                        Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                        if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                    }
+                }
+            }
+
+            _ = new LateTask(() =>
+            {
+                Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
+                CanKill = true;
+            }, 0.3f, "ResetKillCooldown");
+        }
         private void RevealNameColors(PlayerControl killer)
         {
             var c = RoleInfo.RoleColorCode;

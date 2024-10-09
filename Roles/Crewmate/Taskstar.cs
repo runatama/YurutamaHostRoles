@@ -34,7 +34,7 @@ public sealed class TaskStar : RoleBase
         if (IsTaskFinished)
             enabled = true;
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished)
         {

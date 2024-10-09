@@ -56,6 +56,13 @@ public static class OptionSaver
             // 今後バージョン間の移行方法を用意する場合，ここでバージョンごとの変換メソッドに振り分ける
             logger.Info($"読み込まれたオプションのバージョン {serializableOptionsData.Version} が現在のバージョン {Version} と一致しないためデフォルト値で上書きします");
             Save();
+            Main.Preset1.Value = Translator.GetString("Preset_1");
+            Main.Preset2.Value = Translator.GetString("Preset_2");
+            Main.Preset3.Value = Translator.GetString("Preset_3");
+            Main.Preset4.Value = Translator.GetString("Preset_4");
+            Main.Preset5.Value = Translator.GetString("Preset_5");
+            Main.Preset6.Value = Translator.GetString("Preset_6");
+            Main.Preset7.Value = Translator.GetString("Preset_7");
             return;
         }
         Dictionary<int, int> singleOptions = serializableOptionsData.SingleOptions;

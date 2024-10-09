@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-
+using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 
@@ -137,40 +137,13 @@ namespace TownOfHost
                     NameColorManager.ReceiveRPC(reader);
                     break;
                 case CustomRPC.SetLoversPlayers:
-                    Main.ALoversPlayers.Clear();
-                    Main.BLoversPlayers.Clear();
-                    Main.CLoversPlayers.Clear();
-                    Main.DLoversPlayers.Clear();
-                    Main.ELoversPlayers.Clear();
-                    Main.FLoversPlayers.Clear();
-                    Main.GLoversPlayers.Clear();
-                    int Acount = reader.ReadInt32();
-                    int Bcount = reader.ReadInt32();
-                    int Ccount = reader.ReadInt32();
-                    int Dcount = reader.ReadInt32();
-                    int Ecount = reader.ReadInt32();
-                    int Fcount = reader.ReadInt32();
-                    int Gcount = reader.ReadInt32();
-                    for (int i = 0; i < Acount; i++)
-                        Main.ALoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    for (int i = 0; i < Bcount; i++)
-                        Main.BLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    for (int i = 0; i < Ccount; i++)
-                        Main.CLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    for (int i = 0; i < Dcount; i++)
-                        Main.DLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    for (int i = 0; i < Ecount; i++)
-                        Main.ELoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    for (int i = 0; i < Fcount; i++)
-                        Main.FLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    for (int i = 0; i < Gcount; i++)
-                        Main.GLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
+                    Lovers.RPCSetLovers(reader);
                     break;
                 case CustomRPC.SetMaLovers:
-                    Main.MaMaLoversPlayers.Clear();
+                    Lovers.MaMaLoversPlayers.Clear();
                     int Macount = reader.ReadInt32();
                     for (int i = 0; i < Macount; i++)
-                        Main.MaMaLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
+                        Lovers.MaMaLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
                     break;
                 case CustomRPC.SetRealKiller:
                     byte targetId = reader.ReadByte();
@@ -344,28 +317,28 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
-            writer.Write(Main.ALoversPlayers.Count);
-            writer.Write(Main.BLoversPlayers.Count);
-            writer.Write(Main.CLoversPlayers.Count);
-            writer.Write(Main.DLoversPlayers.Count);
-            writer.Write(Main.ELoversPlayers.Count);
-            writer.Write(Main.FLoversPlayers.Count);
-            writer.Write(Main.GLoversPlayers.Count);
-            foreach (PlayerControl lp in Main.ALoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Main.BLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Main.CLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Main.DLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Main.ELoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Main.FLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Main.GLoversPlayers) writer.Write(lp.PlayerId);
+            writer.Write(Lovers.ALoversPlayers.Count);
+            writer.Write(Lovers.BLoversPlayers.Count);
+            writer.Write(Lovers.CLoversPlayers.Count);
+            writer.Write(Lovers.DLoversPlayers.Count);
+            writer.Write(Lovers.ELoversPlayers.Count);
+            writer.Write(Lovers.FLoversPlayers.Count);
+            writer.Write(Lovers.GLoversPlayers.Count);
+            foreach (PlayerControl lp in Lovers.ALoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.BLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.CLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.DLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.ELoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.FLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.GLoversPlayers) writer.Write(lp.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void SyncMaLoversPlayers()
         {
             if (!AmongUsClient.Instance.AmHost) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMaLovers, SendOption.Reliable, -1);
-            writer.Write(Main.MaMaLoversPlayers.Count);
-            foreach (PlayerControl lp in Main.MaMaLoversPlayers)
+            writer.Write(Lovers.MaMaLoversPlayers.Count);
+            foreach (PlayerControl lp in Lovers.MaMaLoversPlayers)
                 writer.Write(lp.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -402,6 +375,59 @@ namespace TownOfHost
             writer.Write(targetId);
             writer.Write(killerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        //参考元→SuperNewRoles様
+        public static void RpcSyncAllNetworkedPlayer(int TargetClientId = -1)
+        {
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            if (TargetClientId < 0)
+            {
+                writer.StartMessage(5);
+                writer.Write(AmongUsClient.Instance.GameId);
+            }
+            else
+            {
+                if (TargetClientId == PlayerControl.LocalPlayer.GetClientId()) return;
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(TargetClientId);
+            }
+            GameDataSerializePatch.Sending = true;
+            foreach (var player in GameData.Instance.AllPlayers)
+            {
+                // データを分割して送信
+                if (writer.Length > 1000)
+                {
+                    writer.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(writer);
+                    writer.Recycle();
+
+                    writer = MessageWriter.Get(SendOption.Reliable);
+                    if (TargetClientId < 0)
+                    {
+                        writer.StartMessage(5);
+                        writer.Write(AmongUsClient.Instance.GameId);
+                    }
+                    else
+                    {
+                        writer.StartMessage(6);
+                        writer.Write(AmongUsClient.Instance.GameId);
+                        writer.WritePacked(TargetClientId);
+                    }
+                }
+
+                writer.StartMessage(1); //0x01 Data
+                {
+                    writer.WritePacked(player.NetId);
+                    player.Serialize(writer, false);
+                }
+                writer.EndMessage();
+            }
+            GameDataSerializePatch.Sending = false;
+            writer.EndMessage();
+
+            AmongUsClient.Instance.SendOrDisconnect(writer);
+            writer.Recycle();
         }
     }
     [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpc))]

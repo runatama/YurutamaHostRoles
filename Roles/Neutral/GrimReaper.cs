@@ -36,19 +36,16 @@ namespace TownOfHost.Roles.Neutral
             KillCooldown = OptionKillCooldown.GetFloat();
             CanVent = OptionCanVent.GetBool();
             CanUseSabotage = OptionCanUseSabotage.GetBool();
-            HasImpostorVision = OptionHasImpostorVision.GetBool();
             GrimReaperCanButtom = OptionGrimReaperCanButtom.GetBool();
         }
 
         private static OptionItem OptionKillCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
-        private static OptionItem OptionHasImpostorVision;
         private static OptionItem OptionGrimReaperCanButtom;
         private static float KillCooldown;
         public static bool CanVent;
         public static bool CanUseSabotage;
-        private static bool HasImpostorVision;
         private static bool GrimReaperCanButtom;
         enum OptionName
         {
@@ -58,18 +55,16 @@ namespace TownOfHost.Roles.Neutral
         Dictionary<byte, float> GrimPlayers = new(14);
         private static void SetupOptionItem()
         {
-            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
+            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);//正味サボ使用不可でもいい気がする
-            OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             OptionGrimReaperCanButtom = BooleanOptionItem.Create(RoleInfo, 14, OptionName.GrimReaperCanButtom, false, false);
             RoleAddAddons.Create(RoleInfo, 15);
         }
         public float CalculateKillCooldown() => KillCooldown;
         public bool CanUseSabotageButton() => CanUseSabotage;
         public bool CanUseImpostorVentButton() => CanVent;
-        public override void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision);
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
             {

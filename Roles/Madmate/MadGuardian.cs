@@ -29,13 +29,16 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
     {
         FieldCanSeeKillFlash = MadmateCanSeeKillFlash.GetBool();
         CanSeeWhoTriedToKill = OptionCanSeeWhoTriedToKill.GetBool();
+        MyTaskState.NeedTaskCount = OptionTaskTrigger.GetInt();
     }
 
+    private static OptionItem OptionTaskTrigger;
     private static OptionItem OptionCanSeeWhoTriedToKill;
     public static OverrideTasksData Tasks;
     enum OptionName
     {
         MadGuardianCanSeeWhoTriedToKill
+        , MadSnitchTaskTrigger
     }
     private static bool FieldCanSeeKillFlash;
     private static bool CanSeeWhoTriedToKill;
@@ -43,6 +46,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
     private static void SetupOptionItem()
     {
         OptionCanSeeWhoTriedToKill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.MadGuardianCanSeeWhoTriedToKill, false, false);
+        OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 12, OptionName.MadSnitchTaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
         //ID10120~10123を使用
         Tasks = OverrideTasksData.Create(RoleInfo, 20);
     }
@@ -51,8 +55,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
         (var killer, var target) = info.AttemptTuple;
 
         //MadGuardianを切れるかの判定処理
-        if (!IsTaskFinished) return true;
-
+        if (!MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt())) return true;
 
         Utils.AddGameLog($"MadGuardian", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
         info.CanKill = false;

@@ -37,7 +37,6 @@ namespace TownOfHost.Roles.Neutral
             CanVent = OptionCanVent.GetBool();
             Cooldown = OptionCooldown.GetFloat();
             CanUseSabotage = OptionCanUseSabotage.GetBool();
-            HasImpostorVision = OptionHasImpostorVision.GetBool();
             SK = CanmakeSK.GetBool();
             Fall = false;
         }
@@ -46,7 +45,6 @@ namespace TownOfHost.Roles.Neutral
         private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
-        private static OptionItem OptionHasImpostorVision;
         static OptionItem CanmakeSK;
         static OptionItem CanImpSK;
         //サイドキックが元仲間の色を見える
@@ -58,7 +56,6 @@ namespace TownOfHost.Roles.Neutral
         private static float Cooldown;
         public static bool CanVent;
         public static bool CanUseSabotage;
-        private static bool HasImpostorVision;
         bool SK;
         bool Fall;
 
@@ -68,19 +65,18 @@ namespace TownOfHost.Roles.Neutral
 
         private static void SetupOptionItem()
         {
-            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
+            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);
-            OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             CanmakeSK = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanCreateSideKick, true, false);
             CanImpSK = BooleanOptionItem.Create(RoleInfo, 15, opt.JackaldollCanimp, false, false, CanmakeSK);
             SKcanImp = BooleanOptionItem.Create(RoleInfo, 16, opt.JackalbeforeImpCanSeeImp, false, false, CanImpSK);
             SKimpwocanimp = BooleanOptionItem.Create(RoleInfo, 17, opt.Jackaldollimpgaimpnimieru, false, false, CanImpSK);
-            OptionCooldown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false, CanmakeSK)
+            OptionCooldown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, CanmakeSK)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionDoll = BooleanOptionItem.Create(RoleInfo, 19, opt.JackaldollShoukaku, false, false, CanmakeSK);
-            RoleAddAddons.Create(RoleInfo, 20);
+            RoleAddAddons.Create(RoleInfo, 20, NeutralKiller: true);
         }
         public float CalculateKillCooldown() => KillCooldown;
         public bool CanUseSabotageButton() => CanUseSabotage;
@@ -89,7 +85,6 @@ namespace TownOfHost.Roles.Neutral
         {
             AURoleOptions.ShapeshifterCooldown = Fall ? 0f : Cooldown;
             AURoleOptions.ShapeshifterDuration = 1f;
-            opt.SetVision(HasImpostorVision);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOCButton => SK;
@@ -115,8 +110,8 @@ namespace TownOfHost.Roles.Neutral
                 Fall = true;
                 if (!ch)
                 {
-                    _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "");
-                    _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "");
+                    _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "", true);
+                    _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "", true);
                 }
                 return;
             }
@@ -131,7 +126,7 @@ namespace TownOfHost.Roles.Neutral
             Utils.MarkEveryoneDirtySettings();
             Utils.DelTask();
             JackalDoll.side++;
-            Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(target.PlayerId);
+            Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
         }
         public override string GetAbilityButtonText() => Translator.GetString("Sidekick");
         public override bool OverrideAbilityButton(out string text)

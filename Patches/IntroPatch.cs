@@ -8,7 +8,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Common;
-using Rewired;
+using System.Collections.Generic;
 //using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
@@ -32,6 +32,13 @@ namespace TownOfHost
                     __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
 
                     __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
+                }
+                else
+                if (role.IsVanilla())
+                {
+                    __instance.YouAreText.color = Utils.GetRoleColor(role);
+                    __instance.RoleText.color = Utils.GetRoleColor(role);
+                    __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
                 }
 
                 foreach (var subRole in PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SubRoles)
@@ -131,7 +138,7 @@ namespace TownOfHost
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
 
-            Utils.NotifyRoles();
+            Utils.NotifyRoles(ForceLoop: true);
             GameStates.InGame = true;
         }
     }
@@ -386,9 +393,9 @@ namespace TownOfHost
                                     }
                                     ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                                     Utils.NotifyRoles();
-                                }, 0.2f, "ResetCool");
-                            }, 0.2f, "Use On click Shepe");
-                    }, 0.5f, "Set Rolet");
+                                }, 0.2f, "ResetCool", true);
+                            }, 0.2f, "Use On click Shepe", true);
+                    }, 0.5f, "Set Rolet", true);
 
                 if (mapId != 4)
                 {
@@ -448,9 +455,7 @@ namespace TownOfHost
                     if (Options.SuddenDeathMode.GetBool())
                     {
                         NameColorManager.RemoveAll(pc.PlayerId);
-
-                        foreach (var pl in Main.AllPlayerControls)
-                            if (pl != pc) NameColorManager.Add(pc.PlayerId, pl.PlayerId, Main.PlayerColors[pl.PlayerId].ColorCode());
+                        Main.AllPlayerControls.DoIf(pl => pl != pc, pl => NameColorManager.Add(pc.PlayerId, pl.PlayerId, Main.PlayerColors[pl.PlayerId].ColorCode()));
                     }
                     if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
                     //RoleAddons
@@ -467,7 +472,7 @@ namespace TownOfHost
                 {
                     PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
                 }
-                _ = new LateTask(() => Utils.DelTask(), 1.25f, "Fix all task");
+                _ = new LateTask(() => Utils.DelTask(), 1.25f, "Fix all task", true);
                 GameStates.task = true;
 
                 //desyneインポかつ置き換えがimp以外ならそれにする。
@@ -477,17 +482,20 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     HudManagerPatch.BottonHud();
-                    foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                    CustomRoleManager.AllActiveRoles.Values.Do(role => role.StartGameTasks());
+                    foreach (var pl in Main.AllPlayerControls)
                     {
-                        role.StartGameTasks();
+                        List<uint> TaskList = new();
+                        if (pl.Data.Tasks != null)
+                            foreach (var task in pl.Data.Tasks) TaskList.Add(task.Id);
+                        Main.AllPlayerTask.TryAdd(pl.PlayerId, TaskList);
                     }
-                }, 0.3f, "");
+                }, 0.3f, "", true);
 
                 _ = new LateTask(() =>
                 {
-                    foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-                        role.Colorchnge();
-                }, 0.15f, "Color and Black");
+                    CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
+                }, 0.15f, "Color and Black", true);
 
                 _ = new LateTask(() =>
                 {
@@ -498,8 +506,8 @@ namespace TownOfHost
                         if (Utils.GetPlayerById(s.Key) == null) continue;
                         Utils.GetPlayerById(s.Key).SyncSettings();
                     }
-                    Utils.NotifyRoles();
-                }, 1.2f, "");
+                    Utils.NotifyRoles(ForceLoop: true);
+                }, 1.2f, "", true);
 
                 if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                 if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
@@ -508,8 +516,8 @@ namespace TownOfHost
                 {
                     Main.IntroHyoji = false; ;
                     if (GameStates.InGame && !GameStates.Meeting)
-                        _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "Introkesu");
-                }, 15f, "Intro");
+                        _ = new LateTask(() => Utils.NotifyRoles(), 0.2f, "Introkesu", true);
+                }, 15f, "Intro", true);
             }
             Logger.Info("OnDestroy", "IntroCutscene");
         }

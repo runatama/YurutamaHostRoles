@@ -70,7 +70,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         DieCanWin = BooleanOptionItem.Create(RoleInfo, 15, Option.BankerDieCanWin, true, false);
         DieRemoveCoin = IntegerOptionItem.Create(RoleInfo, 16, Option.BankerDieRemoveCoin, new(1, 100, 1), 30, false, DieCanWin);
         DieRemoveTarn = IntegerOptionItem.Create(RoleInfo, 17, Option.BankerDieRemoveTarn, new(1, 100, 1), 10, false, DieCanWin);
-        KillCoolDown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 15f, false);
+        KillCoolDown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 15f, false);
         Options.OverrideTasksData.Create(RoleInfo, 19);
         RoleAddAddons.Create(RoleInfo, 23);
     }
@@ -79,7 +79,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     public float CalculateKillCooldown() => KillCoolDown.GetFloat();
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
     public override bool CanUseAbilityButton() => Player != PlayerControl.LocalPlayer;
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (!Player.IsAlive()) return true;
 

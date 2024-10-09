@@ -35,6 +35,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         canAlsoBeExposedToImpostor = OptionCanAlsoBeExposedToImpostor.GetBool();
         TaskTrigger = OptionTaskTrigger.GetInt();
 
+        MyTaskState.NeedTaskCount = OptionTaskTrigger.GetInt();
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
 
@@ -81,7 +82,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         CheckAndAddNameColorToImpostors();
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         CheckAndAddNameColorToImpostors();
         return true;

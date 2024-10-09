@@ -41,8 +41,8 @@ public sealed class MadChanger : RoleBase, IKiller
     {
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, true, false);
         PlayAnimation = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.animate, true, false);
-        KillCoolDown = FloatOptionItem.Create(RoleInfo, 12, OptionName.MadChangerKillTargetCooldown, new(0f, 180f, 2.5f), 10f, false).SetValueFormat(OptionFormat.Seconds);
-        AbilityCoolDown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
+        KillCoolDown = FloatOptionItem.Create(RoleInfo, 12, OptionName.MadChangerKillTargetCooldown, new(0f, 180f, 0.5f), 10f, false).SetValueFormat(OptionFormat.Seconds);
+        AbilityCoolDown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
     }
     public void OnCheckMurderAsKiller(MurderInfo info)
     {

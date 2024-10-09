@@ -81,7 +81,7 @@ public sealed class FortuneTeller : RoleBase
     {
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.Ucount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 0, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
         Optionrolename = BooleanOptionItem.Create(RoleInfo, 12, Option.rolename, true, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
@@ -159,7 +159,7 @@ public sealed class FortuneTeller : RoleBase
         Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}", "FortuneTeller");
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
         return true;

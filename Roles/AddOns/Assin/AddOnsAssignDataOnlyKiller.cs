@@ -22,6 +22,8 @@ namespace TownOfHost.Roles.AddOns.Common
         OptionItem NeutralMaximum;
         static readonly CustomRoles[] InvalidRoles =
         {
+            CustomRoles.Phantom,
+            CustomRoles.Emptiness,
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
             CustomRoles.HASFox,
@@ -177,18 +179,6 @@ namespace TownOfHost.Roles.AddOns.Common
                     }
                 }
             }
-            var remove = new List<PlayerControl>();
-            foreach (var pc in candidates)
-            {
-                if (pc.GetRoleClass()?.AddOnAssingCheck(data.Role) == false)
-                {
-                    if (!remove.Contains(pc)) remove.Add(pc);
-                }
-            }
-
-            foreach (var re in remove)
-                if (candidates.Contains(re)) candidates.Remove(re);
-
             while (candidates.Count > data.Role.GetRealCount())
                 candidates.RemoveAt(rnd.Next(candidates.Count));
 

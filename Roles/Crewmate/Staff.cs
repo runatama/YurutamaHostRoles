@@ -46,7 +46,7 @@ public sealed class Staff : RoleBase
     }
 
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : (CanUseVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate);
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished && Player.IsAlive()) EndedTaskInAlive = true;
 

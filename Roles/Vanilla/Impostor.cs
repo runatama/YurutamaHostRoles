@@ -13,6 +13,7 @@ public sealed class Impostor : RoleBase, IImpostor
             player => new Impostor(player),
             RoleTypes.Impostor,
             null
+            , from: From.AmongUs
         );
     public Impostor(PlayerControl player)
     : base(

@@ -30,6 +30,8 @@ namespace TownOfHost.Roles.AddOns.Common
         OptionItem NeutralAssignTarget;
         static readonly CustomRoles[] InvalidRoles =
         {
+            CustomRoles.Emptiness,
+            CustomRoles.Phantom,
             CustomRoles.GuardianAngel,
             CustomRoles.SKMadmate,
             CustomRoles.Jackaldoll,
@@ -147,6 +149,11 @@ namespace TownOfHost.Roles.AddOns.Common
                     {
                         if (crewmates.Count == 0) break;
                         var selectedCrewmate = crewmates[rnd.Next(crewmates.Count)];
+                        if (data.Role is CustomRoles.Amnesia && selectedCrewmate.Is(CustomRoles.King))
+                        {
+                            crewmates.Remove(selectedCrewmate);
+                            continue;
+                        }
                         candidates.Add(selectedCrewmate);
                         crewmates.Remove(selectedCrewmate);
                     }
@@ -203,18 +210,6 @@ namespace TownOfHost.Roles.AddOns.Common
                     }
                 }
             }
-
-            var remove = new List<PlayerControl>();
-            foreach (var pc in candidates)
-            {
-                if (pc.GetRoleClass()?.AddOnAssingCheck(data.Role) == false)
-                {
-                    if (!remove.Contains(pc)) remove.Add(pc);
-                }
-            }
-
-            foreach (var re in remove)
-                if (candidates.Contains(re)) candidates.Remove(re);
 
             while (candidates.Count > data.Role.GetRealCount())
                 candidates.RemoveAt(rnd.Next(candidates.Count));

@@ -26,10 +26,19 @@ public sealed class Efficient : RoleBase
         player
     )
     {
+        Task.Clear();
         Cooldown = 0f;
     }
     enum Option { EfficientCollectRect }
     static OptionItem CollectRect;
+    public List<uint> Task = new();
+    public override void StartGameTasks()
+    {
+        foreach (var task in Player.myTasks)
+        {
+            if (!task.IsComplete && !task.WasCollected) Task.Add(task.Id);
+        }
+    }
     float Cooldown;
     private static void SetupOptionItem()
     {
@@ -43,19 +52,15 @@ public sealed class Efficient : RoleBase
 
         Cooldown -= Time.fixedDeltaTime;
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
+        if (Task.Contains(taskid)) Task.Remove(taskid);
         if (Cooldown > 0f) return true;
 
         int chance = IRandom.Instance.Next(1, 101);
 
         if (CollectRect.GetFloat() > chance)
         {
-            var Task = new List<uint>();
-            foreach (var task in Player.myTasks)
-            {
-                if (!task.IsComplete && !task.WasCollected) Task.Add(task.Id);
-            }
             if (Task.Count() == 0) return true;
             var rand = IRandom.Instance;
             var FinTask = Task[rand.Next(0, Task.Count())];
@@ -63,7 +68,7 @@ public sealed class Efficient : RoleBase
             if (Cooldown > 0f) return true;
 
             Cooldown = 3;
-            Player.RpcCompleteTask(FinTask);
+            new LateTask(() => Player.RpcCompleteTask(FinTask), 0.25f, "Efficient", true);
             Player.RpcProtectedMurderPlayer();
             Logger.Info($"{Player.name} => 効率化成功!タスクを一個減らすぞ!", "Efficient");
         }

@@ -6,7 +6,7 @@ using Hazel;
 using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Impostor;
-using Rewired;
+using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost
 {
@@ -89,6 +89,13 @@ namespace TownOfHost
                 if (!__instance.isActiveAndEnabled)
                 {
                     return false;
+                }
+                if (Main.RTAMode && (RpcCalls)callId == RpcCalls.SnapTo)
+                {
+                    var newReader = MessageReader.Get(reader);
+                    HudManagerPatch.TaskBattlep = NetHelpers.ReadVector2(newReader);
+                    HudManagerPatch.TaskBattleTimer = 0.0f;
+                    newReader.Recycle();
                 }
                 if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
                 {
@@ -347,7 +354,7 @@ namespace TownOfHost
 
             // CustomSpawn
             //Map6が来たときは終わり。どうにかしよう。
-            Options.CustomSpawn = BooleanOptionItem.Create(105900, "CustomSpawn", false, TabGroup.MainSettings, false).SetColorcode("yellow").SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
+            Options.CustomSpawn = BooleanOptionItem.Create(105900, "CustomSpawn", false, TabGroup.MainSettings, false).SetColor(Color.yellow).SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnCustom1 = BooleanOptionItem.Create(105901, SpawnPoint.Custom1, false, TabGroup.MainSettings, false).SetParent(Options.CustomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnCustom2 = BooleanOptionItem.Create(105902, SpawnPoint.Custom2, false, TabGroup.MainSettings, false).SetParent(Options.CustomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnCustom3 = BooleanOptionItem.Create(105903, SpawnPoint.Custom3, false, TabGroup.MainSettings, false).SetParent(Options.CustomSpawn).SetGameMode(CustomGameMode.All);

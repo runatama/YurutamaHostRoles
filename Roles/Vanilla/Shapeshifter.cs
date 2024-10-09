@@ -13,6 +13,7 @@ public sealed class Shapeshifter : RoleBase, IImpostor, IKiller
             player => new Shapeshifter(player),
             RoleTypes.Shapeshifter,
             SetUpCustomOption
+            , from: From.AmongUs
         );
     //変身持続時間
     //変身クールダウン
@@ -28,9 +29,9 @@ public sealed class Shapeshifter : RoleBase, IImpostor, IKiller
     public static OptionItem ShapeshifterLeaveSkin;
     public static void SetUpCustomOption()
     {
-        ShapeshifterCooldown = FloatOptionItem.Create(RoleInfo, 33, "ShapeshifterCooldown", new(0f, 180f, 2.5f), 15f, false)
+        ShapeshifterCooldown = FloatOptionItem.Create(RoleInfo, 33, "ShapeshifterCooldown", new(0f, 180f, 0.5f), 15f, false)
         .SetValueFormat(OptionFormat.Seconds);
-        ShapeshifterDuration = FloatOptionItem.Create(RoleInfo, 34, "ShapeshifterDuration", new(0f, 180f, 2.5f), 5f, false, infinity: true)
+        ShapeshifterDuration = FloatOptionItem.Create(RoleInfo, 34, "ShapeshifterDuration", new(0f, 180f, 0.5f), 5f, false, infinity: true)
                 .SetValueFormat(OptionFormat.Seconds);
         ShapeshifterLeaveSkin = BooleanOptionItem.Create(RoleInfo, 35, "ShapeshifterLeaveSkin", false, false)
                 .SetValueFormat(OptionFormat.Seconds);

@@ -47,37 +47,32 @@ namespace TownOfHost.Modules.ChatManager
             int operate = 0; // 1:ID 2:猜测
             string msg = message;
             string playername = player.GetNameWithRole();
-            string me = Main.LastMeg;
             message = message.ToLower().TrimStart().TrimEnd();
-            if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return; //
+            if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return;
             if (GameStates.IsInGame) operate = 3;
             if (!GameStates.IsInGame) operate = 6;
-            if (CheckCommond(ref msg, "bt", false)) operate = 2;
+            if (msg.StartsWith("<size=0>.</size>")) operate = 3;//投票の記録
+            else if (CheckCommond(ref msg, "bt", false)) operate = 2;
             else if (CommandCheck(message)) operate = 1;
-            else if (me == msg) operate = 5;
             else if (message.RemoveHtmlTags() != message) operate = 5;//tagが含まれてるならシステムメッセ
 
             if (operate == 1)
             {
-                Logger.Info($"これは記録しない", "ChatManager");
                 message = msg;
                 cancel = true;
             }
             else if (operate == 2)
             {
-                Logger.Info($"{msg}は記録しない", "ChatManager");
                 message = msg;
                 cancel = false;
             }
             else if (operate == 5)
             {
-                Logger.Info($"これはシステムメッセージなので記録しない", "ChatManager");
                 message = msg;
                 cancel = false;
             }
             else if (operate == 4)//特定の人物が喋ったら消すなどに。
             {
-                Logger.Info($"{msg}，は記録しない", "ChatManager");
                 message = msg;
                 cancel = false;
                 SendPreviousMessagesToAll();
@@ -132,6 +127,7 @@ namespace TownOfHost.Modules.ChatManager
                 var entryParts = entry.Split(':');
                 var senderId = entryParts[0].Trim();
                 var senderMessage = entryParts[1].Trim();
+                var isvote = senderMessage.StartsWith("<size=0>.</size>");
 
                 foreach (var senderPlayer in Main.AllPlayerControls)
                 {
@@ -141,7 +137,21 @@ namespace TownOfHost.Modules.ChatManager
                         {
                             //var deathReason = (PlayerState.DeathReason)senderPlayer.PlayerId;
                             senderPlayer.Revive();
+                            if (isvote)
+                            {
+                                DestroyableSingleton<HudManager>.Instance.Chat.AddChatNote(senderPlayer.Data, ChatNoteTypes.DidVote);
 
+                                var wt = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                wt.StartMessage(-1);
+                                wt.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChatNote)
+                                .Write(senderPlayer.PlayerId)
+                                .Write((int)ChatNoteTypes.DidVote)
+                                    .EndRpc();
+                                wt.EndMessage();
+                                wt.SendMessage();
+                                senderPlayer.Die(DeathReason.Kill, true);
+                                continue;
+                            }
                             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
 
                             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
@@ -156,6 +166,20 @@ namespace TownOfHost.Modules.ChatManager
                         }
                         else
                         {
+                            if (isvote)
+                            {
+                                DestroyableSingleton<HudManager>.Instance.Chat.AddChatNote(senderPlayer.Data, ChatNoteTypes.DidVote);
+
+                                var wt = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                wt.StartMessage(-1);
+                                wt.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChatNote)
+                                .Write(senderPlayer.PlayerId)
+                                .Write((int)ChatNoteTypes.DidVote)
+                                    .EndRpc();
+                                wt.EndMessage();
+                                wt.SendMessage();
+                                continue;
+                            }
                             DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
                             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                             writer.StartMessage(-1);

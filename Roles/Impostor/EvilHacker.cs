@@ -291,10 +291,9 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
 
         if (go || isForMeeting)
         {
-            if (!Name.ContainsKey(seen.PlayerId)) return "";
-            if (Name[seen.PlayerId] is "" or null) return "";
+            if (!Name.TryGetValue(seen.PlayerId, out var Admin)) return "";
 
-            text = "<color=#8cffff><size=1.5>" + Name[seen.PlayerId] + "</color></size>";
+            text = "<color=#8cffff><size=1.5>" + Admin + "</color></size>";
         }
         if (!canSeeMurderRoom || seer != Player || seen != Player || activeNotifies.Count <= 0)
         {

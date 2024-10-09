@@ -21,7 +21,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
         public static int NumShortTasks;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, fromtext: "<color=#ffffff>From:<color=#00bfff>TownOfHost</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, fromtext: "<color=#000000>From:</color><color=#00bfff>TownOfHost</color></size>");
             OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyTo%role%", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
             OptionAssignOnlyToCrewmate.ReplacementDictionary = new Dictionary<string, string> { { "%role%", Utils.ColorString(Palette.CrewmateBlue, Utils.GetRoleName(CustomRoles.Crewmate)) } };
             OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])

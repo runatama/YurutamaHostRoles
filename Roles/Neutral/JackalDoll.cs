@@ -57,16 +57,16 @@ public sealed class JackalDoll : RoleBase
     /// Va→oyabun
     /// </summary>
     /// <returns></returns>
-    public static Dictionary<byte, PlayerControl> Oyabun = new();
+    public static Dictionary<byte, byte> Oyabun = new();
     /// <summary>
     /// key →my
     /// va→role
     /// </summary>
     /// <returns></returns>
-    static Dictionary<PlayerControl, CustomRoles> role = new();
+    static Dictionary<byte, CustomRoles> role = new();
     public static readonly CustomRoles[] ChangeRoles =
     {
-        CustomRoles.Crewmate, CustomRoles.Madmate , CustomRoles.Jester, CustomRoles.Opportunist,
+        CustomRoles.Crewmate, CustomRoles.Madmate , CustomRoles.Jester, CustomRoles.Opportunist,CustomRoles.Monochromer
     };
     private static void SetupOptionItem()
     {
@@ -75,13 +75,11 @@ public sealed class JackalDoll : RoleBase
         JackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<diemode>(), 0, false);
         RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false);
         CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
-        VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
-        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentMaxTime, new(0f, 180f, 2.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
-        RoleAddAddons.Create(RoleInfo, 20);
+        VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
+        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentMaxTime, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
+        RoleAddAddons.Create(RoleInfo, 20, MadMate: true);
     }
 
-    //サイドキック用に
-    //全部使えないようにする。
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.EngineerCooldown = VentCool.GetFloat();
@@ -101,8 +99,8 @@ public sealed class JackalDoll : RoleBase
             if (Jackal.OptionDoll.GetBool())
             {
                 Main.AllPlayerKillCooldown[pc.PlayerId] = Jackal.OptionKillCooldown.GetFloat();
-                Oyabun.Add(pc.PlayerId, oyabun);
-                role.Add(pc, CustomRoles.Jackal);
+                Oyabun.Add(pc.PlayerId, oyabun.PlayerId);
+                role.Add(pc.PlayerId, CustomRoles.Jackal);
             }
             if (Jackal.SKcanImp.GetBool())
             {
@@ -127,8 +125,8 @@ public sealed class JackalDoll : RoleBase
             if (JackalMafia.OptionDoll.GetBool())
             {
                 Main.AllPlayerKillCooldown[pc.PlayerId] = JackalMafia.OptionKillCooldown.GetFloat();
-                Oyabun.Add(pc.PlayerId, oyabun);
-                role.Add(pc, CustomRoles.JackalMafia);
+                Oyabun.Add(pc.PlayerId, oyabun.PlayerId);
+                role.Add(pc.PlayerId, CustomRoles.JackalMafia);
             }
             if (JackalMafia.SKcanImp.GetBool())
             {
@@ -180,10 +178,8 @@ public sealed class JackalDoll : RoleBase
             {
                 //ガードなどは無視
                 PlayerState.GetByPlayerId(Jd.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                PlayerState state = PlayerState.GetByPlayerId(Player.PlayerId);
-                PlayerState.GetByPlayerId(Player.PlayerId);
                 Player.RpcExileV2();
-                state.SetDead();
+                MyState.SetDead();
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
@@ -220,14 +216,16 @@ public sealed class JackalDoll : RoleBase
         if (!player.IsAlive()) return;
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Oyabun.ContainsKey(player.PlayerId))
+        if (Oyabun.TryGetValue(player.PlayerId, out var oyabunid))
         {
-            if (!Oyabun[player.PlayerId].IsAlive() && !shoukaku)
+            var oya = Utils.GetPlayerById(oyabunid);
+            if (!oya.IsAlive() && !shoukaku)
             {
-                if (!role.ContainsKey(player)) role.Add(player, CustomRoles.Jackal);
+                var jacrole = CustomRoles.Jackal;
+                role.TryGetValue(player.PlayerId, out jacrole);
 
-                player.RpcSetCustomRole(role[player], true);
-                PlayerState.GetByPlayerId(player.PlayerId).SetCountType(CountTypes.Jackal);
+                player.RpcSetCustomRole(jacrole, true);
+                MyState.SetCountType(CountTypes.Jackal);
                 shoukaku = true;
             }
             shoukaku = false;
@@ -243,13 +241,13 @@ public sealed class JackalDoll : RoleBase
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         addon = false;
-        if (seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia))
+        if (seen.Is(CountTypes.Jackal))
             enabled = true;
     }
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         addon = false;
-        if (seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia))
+        if (seen.Is(CountTypes.Jackal))
             enabled = true;
     }
 }

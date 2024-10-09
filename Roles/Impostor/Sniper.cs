@@ -89,8 +89,8 @@ public sealed class Sniper : RoleBase, IImpostor
     {
         SniperBulletCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SniperBulletCount, new(1, 99, 1), 2, false)
             .SetValueFormat(OptionFormat.Pieces);
-        OpMadac = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
-        OpMadaj = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Duration, new(0f, 180f, 2.5f), 10f, false, infinity: true).SetValueFormat(OptionFormat.Seconds);
+        OpMadac = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
+        OpMadaj = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Duration, new(0f, 180f, 0.5f), 10f, false, infinity: true).SetValueFormat(OptionFormat.Seconds);
         SniperPrecisionShooting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.SniperPrecisionShooting, false, false);
         SniperAimAssist = BooleanOptionItem.Create(RoleInfo, 14, OptionName.SniperAimAssist, false, false);
         SniperAimAssistOnshot = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SniperAimAssistOneshot, false, false, SniperAimAssist);
@@ -312,7 +312,7 @@ public sealed class Sniper : RoleBase, IImpostor
                 GetArrow.Add(pc.PlayerId, SnipeBasePosition);
                 HyoujiTime = OpHyoujitime.GetFloat();
             }
-        }, Main.LagTime, "");
+        }, Main.LagTime, "", true);
 
     }
     public override void OnFixedUpdate(PlayerControl player)
@@ -326,7 +326,7 @@ public sealed class Sniper : RoleBase, IImpostor
             {
                 foreach (var pc in Main.AllPlayerControls)
                     GetArrow.Remove(pc.PlayerId, SnipeBasePosition);
-                _ = new LateTask(() => Utils.NotifyRoles(), 0.35f, "");
+                _ = new LateTask(() => Utils.NotifyRoles(), 0.35f, "", true);
             }
         }
 

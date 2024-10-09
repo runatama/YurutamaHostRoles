@@ -188,7 +188,9 @@ namespace TownOfHost
                         (__instance.GetRoleClass() as IUseTheShButton)?.Shape(__instance);
                         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                             role.Colorchnge();
-                    }, 0.25f, "");
+
+                        if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                    }, 0.25f, "", true);
                 }
                 if (target.shapeshifting)
                 {
@@ -261,7 +263,7 @@ namespace TownOfHost
                 {
                     role.Colorchnge();
                 }
-            }, 1.2f, "");
+            }, 1.2f, "", true);
 
             if (!shapeshifting)
             {
@@ -539,9 +541,10 @@ namespace TownOfHost
                 Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
             }
 
-            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+            foreach (var pc in Main.AllPlayerControls)
             {
-                role.OnReportDeadBody(__instance, target);
+                var roleClass = pc.GetRoleClass();
+                roleClass?.OnReportDeadBody(__instance, target);
             }
 
             foreach (var pc in Main.AllPlayerControls)
@@ -605,15 +608,15 @@ namespace TownOfHost
         /// <param name="repo">通報者</param>
         /// <param name="target">死体(null=button)</param>
         /// <param name="ch">属性等のチェック入れるか</param>
-        public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool ch = true)
+        public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool? ch = true)
         {
             if (GameStates.IsMeeting) return;
 
             var State = PlayerState.GetByPlayerId(repo.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null) return;
 
-            if (ch)
-                if (!CheckMeeting(repo, target)) return;
+            if (ch is null or true)
+                if (!CheckMeeting(repo, target, checkdie: ch is true)) return;
 
             if (!AmongUsClient.Instance.AmHost) return;
             GameStates.Meeting = true;
@@ -645,9 +648,10 @@ namespace TownOfHost
                 MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
                 Utils.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
             }
-            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+            foreach (var pc in Main.AllPlayerControls)
             {
-                role.OnReportDeadBody(repo, target);
+                var roleClass = pc.GetRoleClass();
+                roleClass?.OnReportDeadBody(repo, target);
             }
 
             foreach (var pc in Main.AllPlayerControls)
@@ -691,7 +695,7 @@ namespace TownOfHost
                     Utils.SyncAllSettings();
                 }, 20f, "AfterMeetingNotifyRoles");
         }
-        public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target)
+        public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target, bool checkdie = true)
         {
             var c = false;
             if (target != null)
@@ -785,7 +789,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return true;
 
             //通報者が死んでいる場合、本処理で会議がキャンセルされるのでここで止める
-            if (repoter.Data.IsDead)
+            if (repoter.Data.IsDead && checkdie)
             {
                 GameStates.Meeting = false;
                 Logger.Info($"通報者が死んでいるのでキャンセルする", "ReportDeadBody");
@@ -853,15 +857,23 @@ namespace TownOfHost
 
             if (!GameStates.IsModHost) return;
 
-            if (Main.RTAMode && GameStates.IsInTask)
+            if (Main.RTAMode && GameStates.IsInTask && Main.introDestroyed)
             {
-                HudManagerPatch.LowerInfoText.enabled = true;
-                HudManagerPatch.LowerInfoText.text = HudManagerPatch.GetTaskBattleTimer();
-                if (HudManagerPatch.TaskBattlep != (Vector2)PlayerControl.LocalPlayer.transform.position)
-                    if (HudManagerPatch.TaskBattlep == new Vector2(-25f, 40f))
-                        HudManagerPatch.TaskBattlep = PlayerControl.LocalPlayer.transform.position;
+                if (Main.RTAPlayer != byte.MaxValue)
+                {
+                    var playerRTA = Utils.GetPlayerById(Main.RTAPlayer);
+                    HudManagerPatch.LowerInfoText.enabled = true;
+                    HudManagerPatch.LowerInfoText.text = HudManagerPatch.GetTaskBattleTimer();
+                    if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && HudManagerPatch.TaskBattlep == new Vector2(-25f, 40f) && (Vector2)playerRTA.transform.position != new Vector2(-25f, 40f))
+                    {
+                        HudManagerPatch.TaskBattleTimer = 0.0f;
+                        if (playerRTA == PlayerControl.LocalPlayer)
+                            HudManagerPatch.TaskBattlep = (Vector2)playerRTA.transform.position;
+                    }
                     else
+                        if (HudManagerPatch.TaskBattlep != (Vector2)playerRTA.transform.position)
                         HudManagerPatch.TaskBattleTimer += Time.deltaTime;
+                }
             }
 
             if (GameStates.IsLobby)
@@ -985,14 +997,14 @@ namespace TownOfHost
 
                 if (GameStates.IsInGame)
                 {
-                    ALoversSuicide();
-                    BLoversSuicide();
-                    CLoversSuicide();
-                    DLoversSuicide();
-                    ELoversSuicide();
-                    FLoversSuicide();
-                    GLoversSuicide();
-                    MadonnaLoversSuicide();
+                    Lovers.ALoversSuicide();
+                    Lovers.BLoversSuicide();
+                    Lovers.CLoversSuicide();
+                    Lovers.DLoversSuicide();
+                    Lovers.ELoversSuicide();
+                    Lovers.FLoversSuicide();
+                    Lovers.GLoversSuicide();
+                    Lovers.MadonnaLoversSuicide();
                 }
 
                 if (GameStates.IsInGame && player.AmOwner)
@@ -1107,35 +1119,15 @@ namespace TownOfHost
                     Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
                     //ハートマークを付ける(会議中MOD視点)
-                    if (__instance.Is(CustomRoles.ALovers) && PlayerControl.LocalPlayer.Is(CustomRoles.ALovers))
+                    if (target.GetRiaju() == PlayerControl.LocalPlayer.GetRiaju() && target.GetRiaju() != CustomRoles.NotAssigned)
                     {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ALovers)}>♥</color>");
+                        Mark.Append(Utils.ColorString(Utils.GetRoleColor(target.GetRiaju()), "♥"));
                     }
-                    else if (__instance.Is(CustomRoles.ALovers) && PlayerControl.LocalPlayer.Data.IsDead)
+                    else if (PlayerControl.LocalPlayer.Data.IsDead && target.IsRiaju())
                     {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ALovers)}>♥</color>");
+                        Mark.Append(Utils.ColorString(Utils.GetRoleColor(target.GetRiaju()), "♥"));
                     }
-                    if (__instance.Is(CustomRoles.BLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.BLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.BLovers)}>♥</color>");
-                    else if (__instance.Is(CustomRoles.BLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.BLovers)}>♥</color>");
-                    if (__instance.Is(CustomRoles.CLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.CLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.CLovers)}>♥</color>");
-                    else if (__instance.Is(CustomRoles.CLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.CLovers)}>♥</color>");
-                    if (__instance.Is(CustomRoles.DLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.DLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.DLovers)}>♥</color>");
-                    else if (__instance.Is(CustomRoles.DLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.DLovers)}>♥</color>");
-                    if (__instance.Is(CustomRoles.ELovers) && PlayerControl.LocalPlayer.Is(CustomRoles.ELovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ELovers)}>♥</color>");
-                    else if (__instance.Is(CustomRoles.ELovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.ELovers)}>♥</color>");
-                    if (__instance.Is(CustomRoles.FLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.FLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.FLovers)}>♥</color>");
-                    else if (__instance.Is(CustomRoles.FLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.FLovers)}>♥</color>");
-                    if (__instance.Is(CustomRoles.GLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.GLovers)) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GLovers)}>♥</color>");
-                    else if (__instance.Is(CustomRoles.GLovers) && PlayerControl.LocalPlayer.Data.IsDead) Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GLovers)}>♥</color>");
 
-                    if (__instance.Is(CustomRoles.MaLovers) && PlayerControl.LocalPlayer.Is(CustomRoles.MaLovers))
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.MaLovers)}>♥</color>");
-                    }
-                    else if (__instance.Is(CustomRoles.MaLovers) && PlayerControl.LocalPlayer.Data.IsDead)
-                    {
-                        Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.MaLovers)}>♥</color>");
-                    }
                     if (__instance.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting)
                     && !__instance.Is(CustomRoles.WolfBoy) && !PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
                     {
@@ -1273,233 +1265,6 @@ namespace TownOfHost
                     if (PlayerControl.LocalPlayer == __instance) PlayerControl.LocalPlayer.cosmetics.nameText.text = Main.lobbyname == "" ? DataManager.player.Customization.Name : Main.lobbyname;
                     //役職テキストの座標を初期値に戻す
                     RoleText.transform.SetLocalY(0.2f);
-                }
-            }
-        }
-        //FIXME: 役職クラス化のタイミングで、このメソッドは移動予定
-        public static void ALoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.ALovers.IsPresent() && Main.isALoversDead == false)
-            {
-                foreach (var loversPlayer in Main.ALoversPlayers)
-                {
-                    //生きていて死ぬ予定でなければスキップ
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isALoversDead = true;
-                    foreach (var partnerPlayer in Main.ALoversPlayers)
-                    {
-                        //本人ならスキップ
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-
-                        //残った恋人を全て殺す(2人以上可)
-                        //生きていて死ぬ予定もない場合は心中
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void BLoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.BLovers.IsPresent() && Main.isBLoversDead == false)
-            {
-                foreach (var loversPlayer in Main.BLoversPlayers)
-                {
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isBLoversDead = true;
-                    foreach (var partnerPlayer in Main.BLoversPlayers)
-                    {
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void CLoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.CLovers.IsPresent() && Main.isCLoversDead == false)
-            {
-                foreach (var loversPlayer in Main.CLoversPlayers)
-                {
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isCLoversDead = true;
-                    foreach (var partnerPlayer in Main.CLoversPlayers)
-                    {
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void DLoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.DLovers.IsPresent() && Main.isDLoversDead == false)
-            {
-                foreach (var loversPlayer in Main.DLoversPlayers)
-                {
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isDLoversDead = true;
-                    foreach (var partnerPlayer in Main.DLoversPlayers)
-                    {
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void ELoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.ELovers.IsPresent() && Main.isELoversDead == false)
-            {
-                foreach (var loversPlayer in Main.ELoversPlayers)
-                {
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isELoversDead = true;
-                    foreach (var partnerPlayer in Main.ELoversPlayers)
-                    {
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void FLoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.FLovers.IsPresent() && Main.isFLoversDead == false)
-            {
-                foreach (var loversPlayer in Main.FLoversPlayers)
-                {
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isFLoversDead = true;
-                    foreach (var partnerPlayer in Main.FLoversPlayers)
-                    {
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void GLoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.GLovers.IsPresent() && Main.isGLoversDead == false)
-            {
-                foreach (var loversPlayer in Main.GLoversPlayers)
-                {
-                    if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-
-                    Main.isGLoversDead = true;
-                    foreach (var partnerPlayer in Main.GLoversPlayers)
-                    {
-                        if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
-                }
-            }
-        }
-        public static void MadonnaLoversSuicide(byte deathId = 0x7f, bool isExiled = false)
-        {
-            if (CustomRoles.Madonna.IsPresent() && Main.isMaLoversDead == false)
-            {
-                foreach (var MaloversPlayer in Main.MaMaLoversPlayers)
-                {
-                    //生きていて死ぬ予定でなければスキップ
-                    if (!MaloversPlayer.Data.IsDead && MaloversPlayer.PlayerId != deathId) continue;
-
-                    Main.isMaLoversDead = true;
-                    foreach (var partnerPlayer in Main.MaMaLoversPlayers)
-                    {
-                        //本人ならスキップ
-                        if (MaloversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-
-                        //残った恋人を全て殺す(2人以上可)
-                        //生きていて死ぬ予定もない場合は心中
-                        if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                        {
-                            PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
-                            {
-                                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[MaloversPlayer.PlayerId] = false;
-                            }
-                            else
-                                partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
-                        }
-                    }
                 }
             }
         }
@@ -1655,7 +1420,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
     class PlayerControlCompleteTaskPatch
     {
-        public static bool Prefix(PlayerControl __instance)
+        public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] uint taskid)
         {
             var pc = __instance;
 
@@ -1668,7 +1433,7 @@ namespace TownOfHost
             if (roleClass != null)
             {
                 if (Amnesia.CheckAbility(pc))
-                    ret = roleClass.OnCompleteTask();
+                    ret = roleClass.OnCompleteTask(taskid);
             }
             CustomRoleManager.onCompleteTaskOthers(__instance, ret);
             if (pc.Is(CustomRoles.Amnesia))

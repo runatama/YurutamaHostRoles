@@ -413,7 +413,6 @@ namespace TownOfHost
         public static OptionItem VRcanseemitidure;
         public static OptionItem Onlyseepet;
         public static OptionItem CommnTaskResetAssing;
-        public static OptionItem UseSelfVoteInfo;
 
         public static OptionItem DisableTaskWin;
         public static OptionItem GhostCanSeeOtherRoles;
@@ -517,7 +516,7 @@ namespace TownOfHost
             //タスクバトル
             TaskBattleSet = BooleanOptionItem.Create(200317, "TaskBattleSet", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle)
                 .SetHeader(true)
-                .SetColorcode("#87crfa");
+                .SetColorcode("#87cffa");
             TaskBattleCanVent = BooleanOptionItem.Create(200307, "TaskBattleCanVent", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
                 .SetGameMode(CustomGameMode.TaskBattle);
             TaskBattleVentCooldown = FloatOptionItem.Create(200308, "TaskBattleVentCooldown", new(0f, 99f, 1f), 5f, TabGroup.MainSettings, false).SetParent(TaskBattleCanVent)
@@ -559,7 +558,7 @@ namespace TownOfHost
             .SetGameMode(CustomGameMode.Standard);
             SuddenCannotSeeName = BooleanOptionItem.Create(200009, "SuddenCannotSeeName", false, TabGroup.MainSettings, false).SetParent(SuddenDeathMode)
             .SetGameMode(CustomGameMode.Standard);
-            SuddenDeathTimeLimit = FloatOptionItem.Create(200010, "SuddenDeathTimeLimit", new(0, 300, 2.5f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
+            SuddenDeathTimeLimit = FloatOptionItem.Create(200010, "SuddenDeathTimeLimit", new(0, 300, 1f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
             SuddenDeathReactortime = FloatOptionItem.Create(200011, "SuddenDeathReactortime", new(1, 30, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
@@ -626,23 +625,24 @@ namespace TownOfHost
                 .SetValueFormat(OptionFormat.Seconds);
             MadmateCanMovedByVent = BooleanOptionItem.Create(101013, "MadmateCanMovedByVent", true, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption);
 
+            //Com
+            SetupRoleOptions(50300, TabGroup.Combinations, CustomRoles.ALovers, assignCountRule: new(2, 2, 2), fromtext: "<color=#000000>From:</color><color=#ff6be4>Love Couple Mod</color></size>");
+            ALoversRole = BooleanOptionItem.Create(73010, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.ALovers]);
+            SetupRoleOptions(50310, TabGroup.Combinations, CustomRoles.BLovers, assignCountRule: new(2, 2, 2));
+            BLoversRole = BooleanOptionItem.Create(73020, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.BLovers]);
+            SetupRoleOptions(50320, TabGroup.Combinations, CustomRoles.CLovers, assignCountRule: new(2, 2, 2));
+            CLoversRole = BooleanOptionItem.Create(73030, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.CLovers]);
+            SetupRoleOptions(50330, TabGroup.Combinations, CustomRoles.DLovers, assignCountRule: new(2, 2, 2));
+            DLoversRole = BooleanOptionItem.Create(73040, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.DLovers]);
+            SetupRoleOptions(50340, TabGroup.Combinations, CustomRoles.ELovers, assignCountRule: new(2, 2, 2));
+            ELoversRole = BooleanOptionItem.Create(73050, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.ELovers]);
+            SetupRoleOptions(50350, TabGroup.Combinations, CustomRoles.FLovers, assignCountRule: new(2, 2, 2));
+            FLoversRole = BooleanOptionItem.Create(73060, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.FLovers]);
+            SetupRoleOptions(50360, TabGroup.Combinations, CustomRoles.GLovers, assignCountRule: new(2, 2, 2));
+            GLoversRole = BooleanOptionItem.Create(73070, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.GLovers]);
+
             // Add-Ons
             Amanojaku.SetupCustomOption();
-            SetupRoleOptions(50300, TabGroup.Addons, CustomRoles.ALovers, assignCountRule: new(2, 2, 2), fromtext: "<color=#ffffff>From:<color=#ff6be4>Love Couple Mod</color></size>");
-            ALoversRole = BooleanOptionItem.Create(73010, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.ALovers]);
-            SetupRoleOptions(50310, TabGroup.Addons, CustomRoles.BLovers, assignCountRule: new(2, 2, 2));
-            BLoversRole = BooleanOptionItem.Create(73020, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.BLovers]);
-            SetupRoleOptions(50320, TabGroup.Addons, CustomRoles.CLovers, assignCountRule: new(2, 2, 2));
-            CLoversRole = BooleanOptionItem.Create(73030, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.CLovers]);
-            SetupRoleOptions(50330, TabGroup.Addons, CustomRoles.DLovers, assignCountRule: new(2, 2, 2));
-            DLoversRole = BooleanOptionItem.Create(73040, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.DLovers]);
-            SetupRoleOptions(50340, TabGroup.Addons, CustomRoles.ELovers, assignCountRule: new(2, 2, 2));
-            ELoversRole = BooleanOptionItem.Create(73050, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.ELovers]);
-            SetupRoleOptions(50350, TabGroup.Addons, CustomRoles.FLovers, assignCountRule: new(2, 2, 2));
-            FLoversRole = BooleanOptionItem.Create(73060, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.FLovers]);
-            SetupRoleOptions(50360, TabGroup.Addons, CustomRoles.GLovers, assignCountRule: new(2, 2, 2));
-            GLoversRole = BooleanOptionItem.Create(73070, "LoversRole", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.GLovers]);
-            //特定の陣営
             LastImpostor.SetupCustomOption();
             LastNeutral.SetupCustomOption();
             Workhorse.SetupCustomOption();
@@ -1086,9 +1086,6 @@ namespace TownOfHost
             CommnTaskResetAssing = BooleanOptionItem.Create(900_005, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
-            UseSelfVoteInfo = BooleanOptionItem.Create(900_006, "UseSelfVoteInfo", false, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#cc3366");
 
             DisableTaskWin = BooleanOptionItem.Create(905_000, "DisableTaskWin", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
@@ -1166,12 +1163,12 @@ namespace TownOfHost
             var from = "<line-height=25%><size=25%>\n</size><size=60%><pos=50%></color> <b>" + fromtext + "</b></size>";
 
             var spawnOption = IntegerOptionItem.Create(id, combination == CombinationRoles.None ? role.ToString() : combination.ToString(), new(0, 100, 10), 0, tab, false, from)
-                .SetColor(Utils.GetRoleColor(role))
+                .SetColorcode(Utils.GetRoleColorCode(role))
+                .SetColor(Utils.GetRoleColor(role, true))
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as IntegerOptionItem;
-            var hidevalue = role is CustomRoles.Jackal or CustomRoles.JackalMafia or CustomRoles.Madonna or CustomRoles.CountKiller or CustomRoles.Egoist or CustomRoles.GrimReaper or CustomRoles.Remotekiller or CustomRoles.LastImpostor or
-                CustomRoles.Driver or CustomRoles.LastNeutral or CustomRoles.ALovers or CustomRoles.BLovers or CustomRoles.CLovers or CustomRoles.DLovers or CustomRoles.ELovers or CustomRoles.FLovers or CustomRoles.GLovers;
+            var hidevalue = role is CustomRoles.Driver || role.IsRiaju() || (assignCountRule.MaxValue == assignCountRule.MinValue);
 
             var countOption = IntegerOptionItem.Create(id + 1, "Maximum", assignCountRule, assignCountRule.Step, tab, false, HideValue: hidevalue)
                 .SetParent(spawnOption)

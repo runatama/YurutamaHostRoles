@@ -129,7 +129,7 @@ namespace TownOfHost
                 }
                 if (!SpecialEventText) return;
                 SpecialEventText.enabled = TitleLogoPatch.amongUsLogo != null;
-                if (Main.IsInitialRelease)
+                if (Event.IsInitialRelease)
                 {
                     SpecialEventText.text = $"Happy Birthday to {Main.ModName}!";
                     if (ColorUtility.TryParseHtmlString(Main.ModColor, out var col))
@@ -137,7 +137,7 @@ namespace TownOfHost
                         SpecialEventText.color = col;
                     }
                 }
-                if (Main.IsChristmas && CultureInfo.CurrentCulture.Name == "ja-JP")
+                if (Event.IsChristmas && CultureInfo.CurrentCulture.Name == "ja-JP")
                 {
                     //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...
                     //To anyone who has seen this source code. I would appreciate it if you would keep your mouth shut...

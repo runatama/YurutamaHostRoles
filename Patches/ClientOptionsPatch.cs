@@ -22,6 +22,8 @@ namespace TownOfHost
         private static ClientActionItem HideSomeFriendCodes;
         private static ToggleButtonBehaviour soundSettingsButton;
         private static ClientActionItem ViewPingDetails;
+        private static ClientActionItem DebugChatopen;
+        private static ClientActionItem DebugSendAmout;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -66,7 +68,7 @@ namespace TownOfHost
             {
                 SyncYomiage = ClientOptionItem.Create("SyncYomiage", Main.SyncYomiage, __instance);
             }
-            if ((CustomName == null || CustomName.ToggleButton == null) && (Main.IsHalloween || Main.IsChristmas || Main.White || Main.GoldenWeek || Main.April))
+            if ((CustomName == null || CustomName.ToggleButton == null) && Event.IsEventDay)
             {
                 CustomName = ClientOptionItem.Create("CustomName", Main.CustomName, __instance);
             }
@@ -83,6 +85,14 @@ namespace TownOfHost
             if (ViewPingDetails == null || ViewPingDetails.ToggleButton == null)
             {
                 ViewPingDetails = ClientOptionItem.Create("ViewPingDetails", Main.ViewPingDetails, __instance);
+            }
+            if (DebugChatopen == null || DebugChatopen.ToggleButton == null)
+            {
+                DebugChatopen = ClientOptionItem.Create("DebugChatopen", Main.DebugChatopen, __instance);
+            }
+            if (DebugSendAmout == null || DebugSendAmout.ToggleButton == null)
+            {
+                DebugSendAmout = ClientOptionItem.Create("DebugSendAmout", Main.DebugSendAmout, __instance);
             }
 #endif
             if (ModUnloaderScreen.Popup == null)

@@ -52,7 +52,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
 
     private static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
         OptionNameColor = BooleanOptionItem.Create(RoleInfo, 12, Op.EgoistNameColor, false, false);
@@ -75,8 +75,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     public bool CanUseSabotageButton() => true;
     public static bool CheckWin()
     {
-        if (Main.AllAlivePlayerControls.All(p => !p.Is(RoleTypes.Impostor)) &&
-            egoist.IsAlive()) //インポスター全滅でエゴイストが生存
+        if (Main.AllAlivePlayerControls.All(p => !p.Is(CustomRoleTypes.Impostor)) && egoist.IsAlive()) //インポスター全滅でエゴイストが生存
         {
             Win();
             return true;

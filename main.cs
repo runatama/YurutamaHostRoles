@@ -55,8 +55,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.8.17";
-        public const string DebugwebURL = "https://discord.com/api/webhooks/1254725548698107935/ysJAgFatE8SGQ1ufGbKLfvnjtNcOmefOfhGk6cl0Jp56gRSvfNvlEM0GRVprKQagf9fU";
+        public const string PluginVersion = "5.1.8.18";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
@@ -91,6 +90,8 @@ namespace TownOfHost
         public static ConfigEntry<bool> HideSomeFriendCodes { get; private set; }
         public static ConfigEntry<float> MapTheme { get; private set; }
         public static ConfigEntry<bool> ViewPingDetails { get; private set; }
+        public static ConfigEntry<bool> DebugChatopen { get; private set; }
+        public static ConfigEntry<bool> DebugSendAmout { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
         public static ConfigEntry<string> Preset1 { get; private set; }
@@ -111,33 +112,18 @@ namespace TownOfHost
         public static Dictionary<byte, Color32> PlayerColors = new();
         public static Dictionary<byte, CustomDeathReason> AfterMeetingDeathPlayers = new();
         public static Dictionary<CustomRoles, string> roleColors;
+        public static Dictionary<byte, List<uint>> AllPlayerTask = new();
         public static List<byte> winnerList;
         public static List<int> clientIdList;
         public static List<(string, byte, string)> MessagesToSend;
-        public static string LastMeg;
         public static bool isChatCommand = false;
-        public static List<PlayerControl> ALoversPlayers = new();
-        public static bool isALoversDead = true;
-        public static List<PlayerControl> BLoversPlayers = new();
-        public static bool isBLoversDead = true;
-        public static List<PlayerControl> CLoversPlayers = new();
-        public static bool isCLoversDead = true;
-        public static List<PlayerControl> DLoversPlayers = new();
-        public static bool isDLoversDead = true;
-        public static List<PlayerControl> ELoversPlayers = new();
-        public static bool isELoversDead = true;
-        public static List<PlayerControl> FLoversPlayers = new();
-        public static bool isFLoversDead = true;
-        public static List<PlayerControl> GLoversPlayers = new();
-        public static bool isGLoversDead = true;
-        public static List<PlayerControl> MaMaLoversPlayers = new();
-        public static bool isMaLoversDead = true;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
         public static Dictionary<byte, CustomRoleTypes> AllPlayerFirstTypes = new();
         public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
         public static List<List<byte>> TaskBattleTeams = new();
         public static bool RTAMode = false;
+        public static byte RTAPlayer = 0;
         public static bool EditMode = false;
         public static int page = 0;
         public static int day;
@@ -182,12 +168,6 @@ namespace TownOfHost
         public static bool introDestroyed = false;
         public static float DefaultCrewmateVision;
         public static float DefaultImpostorVision;
-        public static bool IsChristmas = DateTime.Now.Month == 12 && DateTime.Now.Day is 24 or 25;
-        public static bool White = DateTime.Now.Month == 3 && DateTime.Now.Day is 14;
-        public static bool IsInitialRelease = DateTime.Now.Month == 10 && DateTime.Now.Day is 31;
-        public static bool IsHalloween = DateTime.Now.Month == 10 && DateTime.Now.Day is 31;
-        public static bool GoldenWeek = DateTime.Now.Month == 5 && DateTime.Now.Day is 3 or 4 or 5;
-        public static bool April = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
         public static bool DebugAntiblackout = true;
 
         public const float RoleTextSize = 2f;
@@ -218,6 +198,8 @@ namespace TownOfHost
             HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
             MapTheme = Config.Bind("Client Options", "MapTheme", AmongUs.Data.Settings.AudioSettingsData.DEFAULT_MUSIC_VOLUME);
             ViewPingDetails = Config.Bind("Client Options", "View Ping Details", false);
+            DebugChatopen = Config.Bind("Client Options", "Debug Chat open", false);
+            DebugSendAmout = Config.Bind("Client Options", "Debug Send Amout", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
             ExplosionKeyInput = Config.Bind("Authentication", "Explosion Key", "");
 
@@ -240,7 +222,6 @@ namespace TownOfHost
             winnerList = new();
             VisibleTasksCount = false;
             MessagesToSend = new List<(string, byte, string)>();
-            LastMeg = "";
 
             Preset1 = Config.Bind("Preset Name Options", "Preset1", "Preset_1");
             Preset2 = Config.Bind("Preset Name Options", "Preset2", "Preset_2");

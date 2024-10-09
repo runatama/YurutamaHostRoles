@@ -13,6 +13,7 @@ using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Madmate;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost;
 
@@ -84,21 +85,6 @@ public static class GuessManager
         if (!pc.IsAlive()) return true;//本当は悪あがきはやめなって処理入れたかった(´・ω・｀)←入れてもいいけどめんどくs(((!(?)
         if (operate == 2)
         {
-            {
-                foreach (var p in Main.AllPlayerControls)
-                {
-                    if (!kakusu)
-                    {
-                        CustomRoles? RoleNullable = p?.GetCustomRole();
-                        CustomRoles Role = RoleNullable.Value;
-                        if (RoleAddAddons.AllData.TryGetValue(Role, out var data) && data.GiveGuesser.GetBool()) if (data.TryHideMsg.GetBool()) kakusu = true;
-                    }
-                }
-            }
-            //ゲッサー能力なくても生きててかつどれかの設定でHidemeg有効なってたらメッセージを隠す。
-            if ((pc.IsAlive() && (Guesser.TryHideMsg.GetBool() || LastImpostor.TryHideMsg.GetBool())) || LastNeutral.TryHideMsg.GetBool() || kakusu)
-                ChatManager.SendPreviousMessagesToAll();
-
             //Notゲッサーはここで処理を止める。
             if (!pc.Is(CustomRoles.Guesser)
                 && !(pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool())
@@ -124,6 +110,8 @@ public static class GuessManager
                 Utils.SendMessage(GetString("GuessErrorTuiho"), pc.PlayerId, $"<color=#ab80c2>{GetString("GuessErrorTuihoTitle")}</color>");
                 return true;
             }
+            if (Balancer.Id != 255 && !(Balancer.target1 == targetId || Balancer.target2 == targetId) && Balancer.OptionCanMeetingAbility.GetBool()) return true;
+
             var target = Utils.GetPlayerById(targetId);
             if (target != null)
             {
@@ -208,7 +196,14 @@ public static class GuessManager
                     //Utils.AfterPlayerDeathTasks(dp, true);
                     CustomRoleManager.OnMurderPlayer(pc, target);
 
-                    Utils.NotifyRoles(isForMeeting: true, NoCache: true);
+                    MeetingHudPatch.StartPatch.Serialize = true;
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        if (pc == dp) continue;
+                        pc.Data.IsDead = false;
+                    }
+                    RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
+                    MeetingHudPatch.StartPatch.Serialize = false;
                     //Main.LastLogVitel[dp.PlayerId] = GetString("DeathReason.Guess");
                     _ = new LateTask(() =>
                     {
@@ -293,7 +288,7 @@ public static class GuessManager
         var hudManager = DestroyableSingleton<HudManager>.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
-        foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
+        Utils.AllPlayerKillFlash();
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
@@ -338,7 +333,7 @@ public static class GuessManager
         var hudManager = DestroyableSingleton<HudManager>.Instance;
         SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
         hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
-        foreach (var ap in Main.AllPlayerControls) ap.KillFlash();
+        Utils.AllPlayerKillFlash();
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);

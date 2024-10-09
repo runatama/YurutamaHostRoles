@@ -17,7 +17,7 @@ public sealed class Bakery : RoleBase
             22006,
             null,
             "bak",
-            "#e65151",
+            "#8f6121",
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );
     public Bakery(PlayerControl player)
@@ -36,8 +36,8 @@ public sealed class Bakery : RoleBase
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
         if (Player.IsAlive())
         {
-            string BakeryTitle = $"<size=90%><color=#e65151>{GetString("Message.BakeryTitle")}</size></color>";
-            return BakeryTitle + "\n<size=70%>" + BakeryMeg() + "</size>\n";//, title: "<color=#e65151>" + BakeryTitle);
+            string BakeryTitle = $"<size=90%><color=#8f6121>{GetString("Message.BakeryTitle")}</size></color>";
+            return BakeryTitle + "\n<size=70%>" + BakeryMeg() + "</size>\n";//, title: "<color=#8f6121>" + BakeryTitle);
         }
         return "";
     }

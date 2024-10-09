@@ -28,6 +28,12 @@ public static class AbilityButtonDoClickPatch
     public static bool Prefix()
     {
         if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown || !PlayerControl.LocalPlayer.CanMove || Utils.IsActive(SystemTypes.MushroomMixupSabotage) || !PlayerControl.LocalPlayer.IsAlive()) return true;
+
+        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleTypes() is AmongUs.GameOptions.RoleTypes.Scientist)
+        {
+            CloseVitals.Ability = true;
+            return true;
+        }
         if (PlayerControl.LocalPlayer.GetRoleClass() is IUseTheShButton sb && sb.UseOCButton)
         {
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();

@@ -47,7 +47,7 @@ public sealed class Balancer : RoleBase
 
     static OptionItem OptionMeetingTime;
     static OptionItem OptionS;
-
+    public static OptionItem OptionCanMeetingAbility;
     //共有用
     public static byte target1 = 255, target2 = 255;
     public static byte Id = 255;
@@ -61,7 +61,8 @@ public sealed class Balancer : RoleBase
     enum Option
     {
         BalancerMeetingTime,
-        Balancersbalancer
+        Balancersbalancer,
+        BalancerCanUseMeetingAbility
     }
 
     private static void SetupOptionItem()
@@ -69,6 +70,7 @@ public sealed class Balancer : RoleBase
         OptionMeetingTime = IntegerOptionItem.Create(RoleInfo, 10, Option.BalancerMeetingTime, new(15, 120, 1), 30, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionS = BooleanOptionItem.Create(RoleInfo, 11, Option.Balancersbalancer, false, false);
+        OptionCanMeetingAbility = BooleanOptionItem.Create(RoleInfo, 12, Option.BalancerCanUseMeetingAbility, false, false);
     }
 
     public override void Add()
@@ -142,7 +144,6 @@ public sealed class Balancer : RoleBase
 
         void Vote()
         {
-            MeetingHudPatch.CastVotePatch.InfoMode[Player.PlayerId] = 4;
             //1一目が決まってないなら一人目を決める
             if (Target1 == 255)
                 Target1 = votedForId;
@@ -226,11 +227,13 @@ public sealed class Balancer : RoleBase
             if (!d1.IsAlive())
             {
                 Exiled = d2.Data;
+                vote[d2.PlayerId] = Main.AllAlivePlayerControls.Count();
                 return true;
             }
             if (!d2.IsAlive())
             {
                 Exiled = d1.Data;
+                vote[d1.PlayerId] = Main.AllAlivePlayerControls.Count();
                 return true;
             }
         }
@@ -339,7 +342,7 @@ public sealed class Balancer : RoleBase
         nickname = null;
 
         //名前にロールとかのを適用
-        _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: false, ForceLoop: true, NoCache: true), Main.LagTime);
+        _ = new LateTask(() => Utils.NotifyRoles(ForceLoop: true, NoCache: true), Main.LagTime);
 
         //リセット
         Id = 255;

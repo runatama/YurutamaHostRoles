@@ -52,7 +52,7 @@ public sealed class SpeedBooster : RoleBase
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 11, OptionName.SpeedBoosterTaskTrigger, new(1, 99, 1), 5, false)
             .SetValueFormat(OptionFormat.Pieces);
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         var playerId = Player.PlayerId;
         if (Player.IsAlive()

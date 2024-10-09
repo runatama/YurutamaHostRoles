@@ -114,7 +114,9 @@ public static class CustomRoleManager
                 // キラーのキルチェック処理実行
                 if (!attemptKiller.Is(CustomRoles.EarnestWolf))
                     if (Amnesia.CheckAbility(attemptKiller))
+                    {
                         killer.OnCheckMurderAsKiller(info);
+                    }
 
                 if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
                 {
@@ -229,14 +231,14 @@ public static class CustomRoleManager
         }
 
         //サブロール処理ができるまではラバーズをここで処理
-        FixedUpdatePatch.ALoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.BLoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.CLoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.DLoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.FLoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.ELoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.GLoversSuicide(attemptTarget.PlayerId);
-        FixedUpdatePatch.MadonnaLoversSuicide(attemptTarget.PlayerId);
+        Lovers.ALoversSuicide(attemptTarget.PlayerId);
+        Lovers.BLoversSuicide(attemptTarget.PlayerId);
+        Lovers.CLoversSuicide(attemptTarget.PlayerId);
+        Lovers.DLoversSuicide(attemptTarget.PlayerId);
+        Lovers.FLoversSuicide(attemptTarget.PlayerId);
+        Lovers.ELoversSuicide(attemptTarget.PlayerId);
+        Lovers.GLoversSuicide(attemptTarget.PlayerId);
+        Lovers.MadonnaLoversSuicide(attemptTarget.PlayerId);
 
         //以降共通処理
         var targetState = PlayerState.GetByPlayerId(attemptTarget.PlayerId);

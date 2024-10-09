@@ -62,9 +62,9 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
     public static bool Guard;
     public static void SetupOptionItems()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, OptionName.KillCooldown, new(0f, 180f, 2.5f), 30f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, OptionName.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        OptionBraidKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.BraidKillCooldown, new(0f, 180f, 2.5f), 15f, false)
+        OptionBraidKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.BraidKillCooldown, new(0f, 180f, 0.5f), 15f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionDriverseeKillFlash = BooleanOptionItem.Create(RoleInfo, 11, OptionName.DriverseeKillFlash, false, false);
         OptionKtaskTrigger = FloatOptionItem.Create(RoleInfo, 12, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionDriverseeKillFlash);

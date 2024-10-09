@@ -62,11 +62,11 @@ public sealed class BountyHunter : RoleBase, IImpostor
 
     private static void SetupOptionItem()
     {
-        OptionTargetChangeTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.BountyTargetChangeTime, new(10f, 900f, 2.5f), 60f, false)
+        OptionTargetChangeTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.BountyTargetChangeTime, new(5f, 900f, 1f), 60f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionSuccessKillCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.BountySuccessKillCooldown, new(0f, 180f, 2.5f), 2.5f, false)
+        OptionSuccessKillCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.BountySuccessKillCooldown, new(0f, 180f, 0.5f), 2.5f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionFailureKillCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.BountyFailureKillCooldown, new(0f, 180f, 2.5f), 50f, false)
+        OptionFailureKillCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.BountyFailureKillCooldown, new(0f, 180f, 0.5f), 50f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionShowTargetArrow = BooleanOptionItem.Create(RoleInfo, 13, OptionName.BountyShowTargetArrow, false, false);
     }
@@ -114,6 +114,29 @@ public sealed class BountyHunter : RoleBase, IImpostor
         }
         return;
     }
+    public void OnCheckMurderAsKiller(MurderInfo info)
+    {
+        if (!info.IsSuicide)
+        {
+            (var killer, var target) = info.AttemptTuple;
+
+            if (GetTarget() == target)
+            {//ターゲットをキルした場合
+                Logger.Info($"{killer?.Data?.PlayerName}:ターゲットをキル", "BountyHunter");
+                Main.AllPlayerKillCooldown[killer.PlayerId] = SuccessKillCooldown;
+                killer.SyncSettings();//キルクール処理を同期
+                ResetTarget();
+            }
+            else
+            {
+                Logger.Info($"{killer?.Data?.PlayerName}:ターゲット以外をキル", "BountyHunter");
+                Main.AllPlayerKillCooldown[killer.PlayerId] = FailureKillCooldown;
+                killer.SyncSettings();//キルクール処理を同期
+            }
+        }
+        return;
+    }
+
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (AmongUsClient.Instance.AmHost)

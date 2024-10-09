@@ -65,7 +65,7 @@ namespace TownOfHost.Roles.Impostor
         public static void SetupOptionItem()
         {
             OptionModeSwitchAction = StringOptionItem.Create(RoleInfo, 10, OptionName.WitchModeSwitchAction, EnumHelper.GetAllNames<SwitchTrigger>(), 0, false);
-            OptionShcool = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 30f, false)
+            OptionShcool = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
         }
         public override void ApplyGameOptions(IGameOptions opt)
@@ -241,7 +241,7 @@ namespace TownOfHost.Roles.Impostor
         public override void AfterMeetingTasks()
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-            if (Player.IsAlive() || MyState.DeathReason != CustomDeathReason.Vote)
+            if (Player.IsAlive() && MyState.DeathReason != CustomDeathReason.Vote)
             {//吊られなかった時呪いキル発動
                 var spelledIdList = new List<byte>();
                 foreach (var pc in Main.AllAlivePlayerControls)

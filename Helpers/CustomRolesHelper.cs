@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using Sentry.Unity.NativeUtils;
 using System.Linq;
 
 using TownOfHost.Roles.Core;
@@ -141,6 +142,19 @@ namespace TownOfHost
         public static bool IsRiaju(this PlayerControl pc)
         {
             return pc.Is(CustomRoles.ALovers) || pc.Is(CustomRoles.BLovers) || pc.Is(CustomRoles.CLovers) || pc.Is(CustomRoles.DLovers) || pc.Is(CustomRoles.ELovers) || pc.Is(CustomRoles.FLovers) || pc.Is(CustomRoles.GLovers) || pc.Is(CustomRoles.MaLovers);
+        }
+        public static CustomRoles GetRiaju(this PlayerControl pc)
+        {
+            if (pc == null) return CustomRoles.NotAssigned;
+            if (pc.Is(CustomRoles.ALovers)) return CustomRoles.ALovers;
+            if (pc.Is(CustomRoles.BLovers)) return CustomRoles.BLovers;
+            if (pc.Is(CustomRoles.CLovers)) return CustomRoles.CLovers;
+            if (pc.Is(CustomRoles.DLovers)) return CustomRoles.DLovers;
+            if (pc.Is(CustomRoles.ELovers)) return CustomRoles.ELovers;
+            if (pc.Is(CustomRoles.FLovers)) return CustomRoles.FLovers;
+            if (pc.Is(CustomRoles.GLovers)) return CustomRoles.GLovers;
+            if (pc.Is(CustomRoles.MaLovers)) return CustomRoles.MaLovers;
+            return CustomRoles.NotAssigned;
         }
         public static bool IsWhiteCrew(this CustomRoles roles)
         {

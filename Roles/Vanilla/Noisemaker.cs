@@ -12,7 +12,8 @@ public sealed class Noisemaker : RoleBase
             player => new Noisemaker(player),
             RoleTypes.Noisemaker,
             SetUpCustomOption,
-            "#8cffff"
+            "#287031"
+            , from: From.AmongUs
         );
     public Noisemaker(PlayerControl player)
     : base(

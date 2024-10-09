@@ -89,9 +89,10 @@ namespace TownOfHost.Roles.Crewmate
                     if (pc != PlayerControl.LocalPlayer)
                         Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
                 }
+                RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
                 Taskmode = true;
             }
-            _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), 0.2f, "NiceLogger");
+            _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");
         }
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
@@ -112,6 +113,9 @@ namespace TownOfHost.Roles.Crewmate
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
             if (Player.IsAlive())
             {
+                foreach (var pc in Main.AllPlayerControls)
+                    Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
+
                 string Send = "<size=70%>";
                 if (Log.Count != 0)
                     foreach (var log in Log.Values)
@@ -137,6 +141,7 @@ namespace TownOfHost.Roles.Crewmate
                         if (pc != PlayerControl.LocalPlayer)
                             Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Shapeshifter : RoleTypes.Crewmate, pc.GetClientId());
                     }
+                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Shapeshifter);
                     Taskmode = false;
                 }
         }

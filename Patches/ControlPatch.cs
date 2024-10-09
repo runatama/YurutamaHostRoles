@@ -183,13 +183,6 @@ namespace TownOfHost
             {
                 ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false);
             }
-            if (GameStates.IsLobby && !GameStates.InGame)
-                if (GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false))
-                {
-                    GameSettingMenuStartPatch.ModSettingsTab?.CloseMenu();
-                    GameSettingMenu.Instance?.GameSettingsTab?.CloseMenu();
-                    GameSettingMenu.Instance?.RoleSettingsTab?.CloseMenu();
-                }
             //--以下デバッグモード用コマンド--//
             if (!DebugModeManager.IsDebugMode) return;
 

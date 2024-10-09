@@ -1,5 +1,5 @@
 using AmongUs.GameOptions;
-
+using HarmonyLib;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
@@ -36,7 +36,7 @@ public sealed class Notifier : RoleBase, IImpostor
     private static float KillCooldown;
     private static void SetupOptionItems()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionNotifierProbability = FloatOptionItem.Create(RoleInfo, 11, OptionName.NotifierProbability, new(0, 100, 5), 50, false)
             .SetValueFormat(OptionFormat.Percent);
@@ -51,10 +51,7 @@ public sealed class Notifier : RoleBase, IImpostor
             if (chance <= NotifierProbability)
             {
                 Logger.Info($"{killer?.Data?.PlayerName}: フラ全体通知", "Notifier");
-                foreach (var player in PlayerControl.AllPlayerControls)
-                {
-                    player.KillFlash();
-                }
+                Main.AllPlayerControls.Do(pc => pc.KillFlash());
             }
             else
             {

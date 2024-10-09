@@ -25,7 +25,7 @@ namespace TownOfHost
         /// <summary>
         /// プレイヤーのスキンをロード(n c h s v np lev pet)
         /// </summary>
-        public static (string, int, string, string, string, string, uint, string) Load(PlayerControl player)
+        public static (string name, int color, string hat, string skin, string visor, string nameplate, uint level, string pet) Load(PlayerControl player)
         {
             return (name[player.PlayerId], color[player.PlayerId], hat[player.PlayerId], skin[player.PlayerId], visor[player.PlayerId], namep[player.PlayerId], level[player.PlayerId], pet[player.PlayerId]);
         }

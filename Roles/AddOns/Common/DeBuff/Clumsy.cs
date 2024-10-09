@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.AddOns.Common
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Clumsy, fromtext: "<color=#ffffff>From:<color=#ffff00>TownOfHost_Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Clumsy, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.Clumsy, true, true, true, true);
         }
 

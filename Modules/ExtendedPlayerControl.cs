@@ -15,6 +15,8 @@ using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Neutral;
+using HarmonyLib;
 
 namespace TownOfHost
 {
@@ -41,7 +43,7 @@ namespace TownOfHost
                 }
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
 
-                if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>" + Utils.GetSubRolesText(player.PlayerId);
+                if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>";
                 else if (log == null) Main.LastLogRole[player.PlayerId] = $"<size=40%>{Main.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>";
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
@@ -85,12 +87,22 @@ namespace TownOfHost
                 writer.Write(player.PlayerId);
                 writer.WritePacked((int)role);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-
                 player.SyncSettings();
                 player.SetKillCooldown(delay: true, kyousei: true);
                 player.RpcResetAbilityCooldown();
 
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) HudManagerPatch.BottonHud();
+                if (GameStates.IsInTask && !GameStates.Meeting)
+                {
+                    Utils.NotifyRoles(ForceLoop: true);
+                    (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
+                    if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                    foreach (var r in CustomRoleManager.AllActiveRoles.Values)
+                    {
+                        r.Colorchnge();
+                    }
+                }
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    HudManagerPatch.BottonHud();
             }
         }
         public static void RpcSetCustomRole(byte PlayerId, CustomRoles role)
@@ -257,7 +269,7 @@ namespace TownOfHost
                     {
                         player.ResetKillCooldown();
                         player.SyncSettings();
-                    }, 1f, "");
+                    }, 1f, "", true);
             }
             else
             {
@@ -269,7 +281,7 @@ namespace TownOfHost
                     {
                         player.ResetKillCooldown();
                         player.SyncSettings();
-                    }, 1f, "");
+                    }, 1f, "", true);
                 }, Main.LagTime, "Setkillcooldown delay");
             }
         }
@@ -724,9 +736,13 @@ namespace TownOfHost
         }
         public static bool IsNeutralKiller(this PlayerControl player)
         {
+            if (player.Is(CustomRoles.BakeCat)) return BakeCat.CanKill;
+
             return
                 player.GetCustomRole() is
                 CustomRoles.Egoist or
+                CustomRoles.Banker or
+                CustomRoles.DoppelGanger or
                 CustomRoles.Jackal or
                 CustomRoles.JackalMafia or
                 CustomRoles.Remotekiller or
@@ -885,6 +901,18 @@ namespace TownOfHost
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetColor, SendOption.None, target.GetClientId());
             writer.Write(pc.NetId);
             writer.Write(Color);
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                pc.SetColor(Color);
+                if (Nomal)
+                {
+                    pc.SetSkin("", Color);
+                    pc.SetHat("", Color);
+                    pc.SetVisor("", Color);
+                    pc.SetPet("", Color);
+                }
+                return;
+            }
 
             if (Nomal)
             {
@@ -924,6 +952,8 @@ namespace TownOfHost
             modosu.Write(petid);
             modosu.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
             AmongUsClient.Instance.FinishRpcImmediately(modosu);
+
+            pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "", pc.Data.DefaultOutfit.ColorId);
         }
         public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 

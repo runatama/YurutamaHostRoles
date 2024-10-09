@@ -58,11 +58,11 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
 
     static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JamperJampcount, new(1f, 10f, 1f), 4f, false);
-        Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JamperOneCoolTime, new(0f, 180f, 2.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
-        Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JamperCCoolTime, new(0f, 10f, 2.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
+        Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JamperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
+        Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JamperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
 
     }
     public override void ApplyGameOptions(IGameOptions opt)

@@ -158,7 +158,7 @@ public class Snitch : RoleBase
     /// <summary>
     /// タスクの進行状況の管理
     /// </summary>
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         var update = false;
         if (TargetList.Count == 0)

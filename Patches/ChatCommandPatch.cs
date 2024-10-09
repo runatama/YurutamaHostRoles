@@ -376,7 +376,7 @@ namespace TownOfHost
                                 break;
 
                             default:
-                                ShowHelp();
+                                ShowHelp(PlayerControl.LocalPlayer.PlayerId);
                                 break;
                         }
                         break;
@@ -651,6 +651,11 @@ namespace TownOfHost
                         if (DebugModeManager.EnableTOHkDebugMode.GetBool())
                         {
                             canceled = true;
+                            if (!GameStates.InGame)
+                            {
+                                SendMessage($"ロビーでは変更出来ないよっ");
+                                break;
+                            }
                             Main.DontGameSet = !Main.DontGameSet;
                             SendMessage($"ゲームを終了しない設定を{Main.DontGameSet}にしたよっ!!");
                         }
@@ -769,6 +774,11 @@ namespace TownOfHost
                         break;
 
                     default:
+                        if (args[0].StartsWith("/"))
+                        {
+                            canceled = true;
+                            break;
+                        }
                         Main.isChatCommand = false;
                         break;
                 }
@@ -790,10 +800,10 @@ namespace TownOfHost
 
         public static async Task Yomiage(int color, string text = "")
         {
+            var te = text;
             text = text.RemoveHtmlTags();//Html消す
             if (ChatManager.CommandCheck(text)) return;// /から始まってるならスルー
-            string me = Main.LastMeg;
-            if (me == text) return;
+            if (text != te) return;//htmlタグが入ってる場合は発言じゃないのでスルー
             // HttpClientを作成
             using var httpClient = new HttpClient();
             try
@@ -1188,21 +1198,25 @@ namespace TownOfHost
                 ChatManager.SendMessage(player, text);
             }
             if (GuessManager.GuesserMsg(player, text)) { canceled = true; return; }
+            if (text.RemoveHtmlTags() != text) return;
 
             switch (args[0])
             {
                 case "/l":
                 case "/lastresult":
+                    canceled = true;
                     ShowLastResult(player.PlayerId);
                     break;
 
                 case "/kl":
                 case "/killlog":
+                    canceled = true;
                     ShowKillLog(player.PlayerId);
                     break;
 
                 case "/n":
                 case "/now":
+                    canceled = true;
                     subArgs = args.Length < 2 ? "" : args[1];
                     switch (subArgs)
                     {
@@ -1223,6 +1237,7 @@ namespace TownOfHost
 
                 case "/h":
                 case "/help":
+                    canceled = true;
                     subArgs = args.Length < 2 ? "" : args[1];
                     switch (subArgs)
                     {
@@ -1236,6 +1251,9 @@ namespace TownOfHost
                             subArgs = args.Length < 3 ? "" : args[2];
                             GetRolesInfo(subArgs, player.PlayerId);
                             break;
+                        default:
+                            ShowHelp(player.PlayerId);
+                            break;
                     }
                     break;
 
@@ -1243,6 +1261,7 @@ namespace TownOfHost
                 case "/myrole":
                     if (GameStates.IsInGame)
                     {
+                        canceled = true;
                         var role = player.GetCustomRole();
                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
                         if (role == CustomRoles.Braid) role = CustomRoles.Driver;
@@ -1276,18 +1295,21 @@ namespace TownOfHost
 
                 case "/t":
                 case "/template":
+                    canceled = true;
                     if (args.Length > 1) TemplateManager.SendTemplate(args[1], player.PlayerId);
                     else SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId);
                     break;
 
                 case "/timer":
                 case "/tr":
+                    canceled = true;
                     if (!GameStates.IsInGame)
                         ShowTimer(player.PlayerId);
                     break;
 
                 case "/tp":
                     if (!GameStates.IsLobby || !Options.sotodererukomando.GetBool()) break;
+                    canceled = true;
                     subArgs = args[1];
                     switch (subArgs)
                     {
@@ -1304,12 +1326,14 @@ namespace TownOfHost
                     break;
 
                 case "/kf":
+                    canceled = true;
                     if (GameStates.InGame)
                         player.KillFlash(kiai: true);
                     break;
 
                 case "/MeeginInfo":
                 case "/mi":
+                    canceled = true;
                     if (GameStates.InGame)
                     {
                         SendMessage(MeetingHudPatch.Send, player.PlayerId);
@@ -1319,6 +1343,7 @@ namespace TownOfHost
                 case "/voice":
                 case "/vo":
                     if (!Main.UseYomiage.Value) break;
+                    canceled = true;
                     subArgs = args.Length < 2 ? "" : args[1];
                     string subArgs2 = args.Length < 3 ? "" : args[2];
                     string subArgs3 = args.Length < 4 ? "" : args[3];
@@ -1348,6 +1373,82 @@ namespace TownOfHost
                     }
                     else SendMessage("使用方法:\n/vo 音質(id) 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", player.PlayerId);
                     break;
+                default:
+                    if (args[0].StartsWith("/"))
+                    {
+                        canceled = true;
+                        if (GameStates.Tuihou)
+                        {
+                            ChatManager.SendPreviousMessagesToAll(); break;
+                        }
+                        break;
+                    }
+                    canceled = false;
+                    if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsCached)
+                    {
+                        if (GameStates.Tuihou) break;
+
+                        if (!player.IsAlive()) break;
+                        if (AmongUsClient.Instance.AmHost)
+                        {
+                            foreach (var pc in Main.AllAlivePlayerControls)
+                            {
+                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                if (pc.IsModClient()) continue;
+                                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                if (player.IsModClient()) continue;
+                                if (pc == player) continue;
+                                player.Data.IsDead = false;
+
+                                MeetingHudPatch.StartPatch.Serialize = true;
+                                RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                                {//send
+                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                    writer.StartMessage(pc.GetClientId());
+                                    writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                    .Write(text)
+                                    .EndRpc();
+                                    writer.EndMessage();
+                                    writer.SendMessage();
+                                }
+                            }
+                            new LateTask(() =>
+                            {
+                                Dictionary<byte, bool> State = new();
+                                foreach (var player in Main.AllAlivePlayerControls)
+                                {
+                                    State.TryAdd(player.PlayerId, player.Data.IsDead);
+                                }
+                                foreach (var pc in Main.AllAlivePlayerControls)
+                                {
+                                    if (!State.ContainsKey(pc.PlayerId)) continue;
+                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                    if (pc.IsModClient()) continue;
+                                    foreach (PlayerControl tg in Main.AllAlivePlayerControls)
+                                    {
+                                        if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                        if (tg.IsModClient()) continue;
+                                        tg.Data.IsDead = true;
+                                    }
+                                    pc.Data.IsDead = false;
+                                    MeetingHudPatch.StartPatch.Serialize = true;
+                                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                                    MeetingHudPatch.StartPatch.Serialize = false;
+                                }
+                                foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                                {
+                                    player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) ? data : false;
+
+                                    RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
+                                }
+                            }, 0.02f, "SetDie", true);
+                        }
+                    }
+                    break;
+            }
+            if (canceled)
+            {
+                if (GameStates.Tuihou) ChatManager.SendPreviousMessagesToAll();
             }
         }
     }

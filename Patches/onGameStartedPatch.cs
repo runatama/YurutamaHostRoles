@@ -17,6 +17,7 @@ using static TownOfHost.Translator;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Ghost;
+using TownOfHost.Roles.Crewmate;
 //using AmongUs.Data.Settings;
 
 namespace TownOfHost
@@ -48,6 +49,7 @@ namespace TownOfHost
             Main.LastLogPro = new Dictionary<byte, string>();
             Main.KillCount = new Dictionary<byte, int>();
             Main.Guard = new Dictionary<byte, int>();
+            Main.AllPlayerTask = new Dictionary<byte, List<uint>>();
             GhostRoleAssingData.GhostAssingCount = new Dictionary<CustomRoles, int>();
 
             Main.SKMadmateNowCount = 0;
@@ -191,7 +193,6 @@ namespace TownOfHost
             RandomSpawn.SpawnMap.NextSporn.Clear();
             RandomSpawn.SpawnMap.NextSpornName.Clear();
             Roles.Madmate.MadAvenger.Skill = false;
-            MeetingHudPatch.CastVotePatch.InfoMode.Clear();
             MeetingStates.MeetingCalled = false;
             MeetingStates.FirstMeeting = true;
             GameStates.AlreadyDied = false;
@@ -212,6 +213,7 @@ namespace TownOfHost
             Utils.TaskCh = true;
             Main.NowSabotage = false;
             JackalDoll.side = 0;
+            Balancer.Id = 255;
 
             Main.FeColl = 0;
             Main.GameCount++;
@@ -491,7 +493,7 @@ namespace TownOfHost
                     };
                     AssignCustomRolesFromList(role, baseRoleTypes);
                 }
-                AssignLoversRoles();
+                Lovers.AssignLoversRoles();
                 AddOnsAssignDataOnlyKiller.AssignAddOnsFromList();
                 AddOnsAssignDataTeamImp.AssignAddOnsFromList();
                 AddOnsAssignData.AssignAddOnsFromList();
@@ -560,13 +562,12 @@ namespace TownOfHost
             //役職選定後に処理する奴。
             foreach (var pc in Main.AllPlayerControls)
             {
-                MeetingHudPatch.CastVotePatch.InfoMode.Add(pc.PlayerId, 0);
                 //Log
                 var color = Palette.CrewmateBlue;
                 if (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate)) color = Palette.ImpostorRed;
                 if (pc.Is(CustomRoleTypes.Neutral)) color = Utils.GetRoleColor(pc.GetCustomRole());
                 Main.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
-                Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), GetString($"{pc.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(pc.PlayerId);
+                Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), GetString($"{pc.GetCustomRole()}")) + "</b>";
                 Main.AllPlayerFirstTypes.Add(pc.PlayerId, pc.GetCustomRole().GetCustomRoleTypes());
                 //FixTask
                 var roleClass = CustomRoleManager.GetByPlayerId(pc.PlayerId);
@@ -601,30 +602,40 @@ namespace TownOfHost
                 info.Disconnected = true;
                 info.SetDirtyBit(0b_1u << info.PlayerId);
             }
-            AmongUsClient.Instance.SendAllStreamedObjects();
+            RPC.RpcSyncAllNetworkedPlayer();
             Logger.Info("Disconnected", "RSetRole");
-            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
-            foreach (var pc in Main.AllPlayerControls)
+            new LateTask(() =>
             {
-                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                var hostRole = PlayerControl.LocalPlayer.GetCustomRole();
-                if (Options.EnableGM.GetBool())//こうしないとGMが動かない
-                    PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
-                else
-                    PlayerControl.LocalPlayer.RpcSetRoleDesync(
-                        Options.SuddenDeathMode.GetBool() || pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
-            }
-            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
-            foreach (var info in GameData.Instance.AllPlayers)
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    var hostRole = PlayerControl.LocalPlayer.GetCustomRole();
+                    if (Options.EnableGM.GetBool())//こうしないとGMが動かない
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
+                    else
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(
+                            Options.SuddenDeathMode.GetBool() || pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor || hostRole.GetRoleInfo().IsDesyncImpostor ? RoleTypes.Crewmate : hostRole.GetRoleTypes(), pc.GetClientId());
+                }
+            }, Main.LagTime, "SetHostRole");
+            new LateTask(() =>
             {
-                if (Disconnected.Contains(info.PlayerId))
-                    continue;
-                info.Disconnected = false;
-                info.SetDirtyBit(0b_1u << info.PlayerId);
-            }
-            yield return new UnityEngine.WaitForSeconds(Main.LagTime);
-            AmongUsClient.Instance.SendAllStreamedObjects();
-            Logger.Info("UnDisconnected", "RSetRole");
+                foreach (var info in GameData.Instance.AllPlayers)
+                {
+                    if (Disconnected.Contains(info.PlayerId))
+                        continue;
+                    info.Disconnected = false;
+                    info.SetDirtyBit(0b_1u << info.PlayerId);
+                }
+                foreach (var pc in Main.AllPlayerControls)
+                {
+                    if (Disconnected.Contains(pc.PlayerId))
+                        continue;
+                    pc.Data.Disconnected = false;
+                    pc.Data.SetDirtyBit(0b_1u << pc.Data.PlayerId);
+                }
+                RPC.RpcSyncAllNetworkedPlayer();
+            }, Main.LagTime * 2, "UnDisconnected");
+
             yield return new UnityEngine.WaitForSeconds(Main.LagTime);
             PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));
             PlayerControl.LocalPlayer.StopAllCoroutines();
@@ -640,6 +651,7 @@ namespace TownOfHost
                 Main.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
             }
 
+            Utils.NotifyRoles(ForceLoop: true);
             yield return new UnityEngine.WaitForSeconds(1.5f);//イントロが表示された後に本来の役職に変更
             if (senders2 != null)
                 senders2.Do(kvp => kvp.Value.SendMessage());
@@ -742,198 +754,6 @@ namespace TownOfHost
             }
             SetColorPatch.IsAntiGlitchDisabled = false;
             return AssignedPlayers;
-        }
-
-        private static void AssignLoversRoles(int RawCount = -1)
-        {
-            if (CustomRoles.ALovers.IsPresent())
-            {//Loversを初期化
-                Main.ALoversPlayers.Clear();
-                Main.isALoversDead = false;
-                var allPlayers = new List<PlayerControl>();
-                foreach (var player in Main.AllPlayerControls)
-                {
-                    if (player.Is(CustomRoles.GM)) continue;
-                    if (player.Is(CustomRoles.Madonna)) continue;
-                    if (player.Is(CustomRoles.Limiter)) continue;
-                    if (player.Is(CustomRoles.King)) continue;
-                    allPlayers.Add(player);
-                }
-                var loversRole = CustomRoles.ALovers;
-                var rand = IRandom.Instance;
-                var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                if (count <= 0) return;
-
-                for (var i = 0; i < count; i++)
-                {
-                    var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                    Main.ALoversPlayers.Add(player);
-                    allPlayers.Remove(player);
-                    PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                    Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                }
-            }
-            {
-                if (CustomRoles.BLovers.IsPresent())
-                {
-                    Main.BLoversPlayers.Clear(); Main.isBLoversDead = false;
-                    var allPlayers = new List<PlayerControl>();
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                        if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
-                        if (player.Is(CustomRoles.King)) continue;
-                        allPlayers.Add(player);
-                    }
-                    var loversRole = CustomRoles.BLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                    if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                    if (count <= 0) return;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                        Main.BLoversPlayers.Add(player);
-                        allPlayers.Remove(player);
-                        PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                        Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                    }
-                }
-            }
-            {
-                if (CustomRoles.CLovers.IsPresent())
-                {
-                    Main.CLoversPlayers.Clear(); Main.isCLoversDead = false;
-                    var allPlayers = new List<PlayerControl>();
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                        if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
-                        if (player.Is(CustomRoles.BLovers)) continue;
-                        if (player.Is(CustomRoles.King)) continue;
-                        allPlayers.Add(player);
-                    }
-                    var loversRole = CustomRoles.CLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                    if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                    if (count <= 0) return;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                        Main.CLoversPlayers.Add(player);
-                        allPlayers.Remove(player);
-                        PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                        Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                    }
-                }
-            }
-            {
-                if (CustomRoles.DLovers.IsPresent())
-                {
-                    Main.DLoversPlayers.Clear(); Main.isDLoversDead = false;
-                    var allPlayers = new List<PlayerControl>();
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                        if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
-                        if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
-                        if (player.Is(CustomRoles.King)) continue;
-                        allPlayers.Add(player);
-                    }
-                    var loversRole = CustomRoles.DLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                    if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                    if (count <= 0) return;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                        Main.DLoversPlayers.Add(player);
-                        allPlayers.Remove(player);
-                        PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                        Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                    }
-                }
-            }
-            {
-                if (CustomRoles.ELovers.IsPresent())
-                {
-                    Main.ELoversPlayers.Clear(); Main.isELoversDead = false;
-                    var allPlayers = new List<PlayerControl>();
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                        if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
-                        if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
-                        if (player.Is(CustomRoles.DLovers)) continue;
-                        if (player.Is(CustomRoles.King)) continue;
-                        allPlayers.Add(player);
-                    }
-                    var loversRole = CustomRoles.ELovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                    if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                    if (count <= 0) return;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                        Main.ELoversPlayers.Add(player);
-                        allPlayers.Remove(player);
-                        PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                        Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                    }
-                }
-            }
-            {
-                if (CustomRoles.FLovers.IsPresent())
-                {
-                    Main.FLoversPlayers.Clear(); Main.isFLoversDead = false;
-                    var allPlayers = new List<PlayerControl>();
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                        if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
-                        if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
-                        if (player.Is(CustomRoles.DLovers)) continue; if (player.Is(CustomRoles.ELovers)) continue;
-                        if (player.Is(CustomRoles.King)) continue;
-                        allPlayers.Add(player);
-                    }
-                    var loversRole = CustomRoles.FLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                    if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                    if (count <= 0) return;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                        Main.FLoversPlayers.Add(player);
-                        allPlayers.Remove(player);
-                        PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                        Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                    }
-                }
-            }
-            {
-                if (CustomRoles.GLovers.IsPresent())
-                {
-                    Main.GLoversPlayers.Clear(); Main.isGLoversDead = false;
-                    var allPlayers = new List<PlayerControl>();
-                    foreach (var player in Main.AllPlayerControls)
-                    {
-                        if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                        if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.ALovers)) continue;
-                        if (player.Is(CustomRoles.BLovers)) continue; if (player.Is(CustomRoles.CLovers)) continue;
-                        if (player.Is(CustomRoles.DLovers)) continue; if (player.Is(CustomRoles.ELovers)) continue;
-                        if (player.Is(CustomRoles.FLovers)) continue;
-                        if (player.Is(CustomRoles.King)) continue;
-                        allPlayers.Add(player);
-                    }
-                    var loversRole = CustomRoles.GLovers; var rand = IRandom.Instance; var count = Math.Clamp(RawCount, 0, allPlayers.Count);
-                    if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
-                    if (count <= 0) return;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var player = allPlayers[rand.Next(0, allPlayers.Count)];
-                        Main.GLoversPlayers.Add(player);
-                        allPlayers.Remove(player);
-                        PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                        Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
-                    }
-                }
-            }
-            RPC.SyncLoversPlayers();
         }
         public static int GetRoleTypesCount(RoleTypes roleTypes)
         {

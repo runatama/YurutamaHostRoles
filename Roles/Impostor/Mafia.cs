@@ -56,7 +56,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
             if (role.IsImpostor()) livingImpostorsNum++;
         }
 
-        return livingImpostorsNum <= (Cankill.GetFloat() - 1);
+        return (livingImpostorsNum <= Cankill.GetFloat());
     }
     public void OnClick()
     {

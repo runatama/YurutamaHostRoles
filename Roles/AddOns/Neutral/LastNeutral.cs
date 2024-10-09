@@ -12,7 +12,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static OptionItem GiveOpportunist;
         //ゲッサー
         public static OptionItem GiveGuesser;
-        public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime; public static OptionItem TryHideMsg;
+        public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
         public static OptionItem ICanGuessVanilla; public static OptionItem ICanGuessTaskDoneSnitch; public static OptionItem ICanWhiteCrew;
         public static OptionItem AddTama;
         //マネジメント
@@ -43,7 +43,6 @@ namespace TownOfHost.Roles.AddOns.Neutral
             AddTama = BooleanOptionItem.Create(Id + 13, "Addtama", false, TabGroup.Addons, false).SetParent(GiveGuesser);
             OwnCanGuessTime = FloatOptionItem.Create(Id + 14, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser)
                     .SetValueFormat(OptionFormat.Players);
-            TryHideMsg = BooleanOptionItem.Create(Id + 15, "TryHideMsg", true, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanGuessVanilla = BooleanOptionItem.Create(Id + 16, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(Id + 17, "CanGuessTaskDoneSnitch", false, TabGroup.Addons, false).SetParent(GiveGuesser);
             ICanWhiteCrew = BooleanOptionItem.Create(Id + 18, "CanWhiteCrew", false, TabGroup.Addons, false).SetParent(GiveGuesser);

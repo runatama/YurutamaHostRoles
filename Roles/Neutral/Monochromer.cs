@@ -16,7 +16,11 @@ public sealed class Monochromer : RoleBase
             50800,
             SetupOptionItem,
             "Mc",
-            "#808080"
+            "#808080",
+            assignInfo: new RoleAssignInfo(CustomRoles.Monochromer, CustomRoleTypes.Neutral)
+            {
+                AssignCountRule = new(0, 15, 1)
+            }
         );
     public Monochromer(PlayerControl player)
     : base(
@@ -48,6 +52,17 @@ public sealed class Monochromer : RoleBase
     }
     public override bool NotifyRolesCheckOtherName => true;
     public override void ApplyGameOptions(IGameOptions opt) => opt.SetVision(HasImpostorVision.GetBool());
+    public override bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null)
+    {
+        seen ??= seer;
+        if (GameStates.Meeting || !GameStates.IsInTask) return false;
+        if (seer == seen) return false;
+        if (!Is(seer)) return false;
+        if (!Player.IsAlive()) return false;
+        name = "<size=0></size>";
+        NoMarker = false;
+        return true;
+    }
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {
         //seenが省略の場合seer

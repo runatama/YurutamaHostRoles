@@ -14,6 +14,7 @@ public sealed class Phantom : RoleBase, IImpostor
             player => new Phantom(player),
             RoleTypes.Phantom,
             SetUpCustomOption
+            , from: From.AmongUs
         );
     public Phantom(PlayerControl player)
     : base(

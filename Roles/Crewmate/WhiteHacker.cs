@@ -129,7 +129,7 @@ public sealed class WhiteHacker : RoleBase
         return text;
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
         return true;

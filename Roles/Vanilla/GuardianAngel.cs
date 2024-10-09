@@ -17,6 +17,7 @@ public sealed class GuardianAngel : RoleBase
                 IsInitiallyAssignableCallBack =
                     () => false
             }
+            , from: From.AmongUs
         );
     public GuardianAngel(PlayerControl player)
     : base(

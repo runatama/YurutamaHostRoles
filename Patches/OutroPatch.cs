@@ -180,16 +180,10 @@ namespace TownOfHost
             switch (CustomWinnerHolder.WinnerTeam)
             {
                 //通常勝利
-                case CustomWinner.Crewmate:
-                    CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Engineer);
-                    break;
+                case CustomWinner.Crewmate: CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Crewmate); break;
                 //特殊勝利
-                case CustomWinner.Terrorist:
-                    __instance.Foreground.material.color = Color.red;
-                    break;
-                case CustomWinner.ALovers:
-                    __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.ALovers);
-                    break;
+                case CustomWinner.Terrorist: __instance.Foreground.material.color = Color.red; break;
+                case CustomWinner.ALovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.ALovers); break;
                 case CustomWinner.BLovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.BLovers); break;
                 case CustomWinner.CLovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.CLovers); break;
                 case CustomWinner.DLovers: __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.DLovers); break;
@@ -201,7 +195,10 @@ namespace TownOfHost
                     if (Main.winnerList.Count is 0) break;
                     if (Main.winnerList.Count == 1)
                         if (Main.RTAMode)
+                        {
                             __instance.WinText.text = "Game Over";
+                            CustomWinnerText = $"タイム: {HudManagerPatch.GetTaskBattleTimer().Replace(" : ", "：")}<size=0>";
+                        }
                         else
                             CustomWinnerText = Main.AllPlayerNames[Main.winnerList[0]];
                     else
@@ -297,14 +294,17 @@ namespace TownOfHost
             StringBuilder sb = new();
             if (Main.RTAMode && Options.CurrentGameMode == CustomGameMode.TaskBattle)
             {
-                sb.Append($"{GetString("TaskPlayerB")}:\n　{Main.AllPlayerNames[0]}")
+                sb.Append($"{GetString("TaskPlayerB")}:\n　{Main.AllPlayerNames[Main.winnerList[0]] ?? "?"}")
                 .Append($"\n{GetString("TaskCount")}:")
                 .Append($"\n　通常タスク数: {Main.NormalOptions.NumCommonTasks}")
                 .Append($"\n　ショートタスク数: {Main.NormalOptions.NumShortTasks}")
                 .Append($"\n　ロングタスク数: {Main.NormalOptions.NumLongTasks}")
                 .Append($"\nタイム: {HudManagerPatch.GetTaskBattleTimer()}")
-                .Append($"\nマップ: {Main.NormalOptions.MapId}")
+                .Append($"\nマップ: {(MapNames)Main.NormalOptions.MapId}")
                 .Append($"\nベント: " + (Options.TaskBattleCanVent.GetBool() ? "あり" : "なし"));//マップの設定なども記載しなければならない
+                if (Options.TaskBattleCanVent.GetBool())
+                    sb.Append($"\n　クールダウン:{Options.TaskBattleVentCooldown.GetFloat()}");
+                EndGamePatch.KillLog += $"<color=#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}\n" + sb.ToString().Replace("\n", "\n　") + $"\n{"★".Color(Palette.DisabledGrey)}<color=#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}";
             }
             else
             {

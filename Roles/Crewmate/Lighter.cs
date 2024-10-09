@@ -81,7 +81,7 @@ public sealed class Lighter : RoleBase
             opt.SetFloat(crewLightMod, CurrentVision * 5);
         }
     }
-    public override bool OnCompleteTask()
+    public override bool OnCompleteTask(uint taskid)
     {
         if (!Player.IsAlive() || MyTaskState.CompletedTasksCount == 0) return true;//死んでる or タスク数0
         if (LighterTriggerType == TriggerType.TaskCount && MyTaskState.CompletedTasksCount != TaskTrigger) return true;
