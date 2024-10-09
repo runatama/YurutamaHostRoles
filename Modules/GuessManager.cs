@@ -85,6 +85,10 @@ public static class GuessManager
         if (!pc.IsAlive()) return true;//本当は悪あがきはやめなって処理入れたかった(´・ω・｀)←入れてもいいけどめんどくs(((!(?)
         if (operate == 2)
         {
+            if (!Options.ExHideChatCommand.GetBool())
+            {
+                if (pc.IsAlive()) ChatManager.SendPreviousMessagesToAll();
+            }
             //Notゲッサーはここで処理を止める。
             if (!pc.Is(CustomRoles.Guesser)
                 && !(pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool())
