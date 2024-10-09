@@ -96,36 +96,39 @@ public static class MeetingHudPatch
                     }
                 }
             }
-            new LateTask(() =>
+            if (Options.ExHideChatCommand.GetBool())
             {
-                Dictionary<byte, bool> State = new();
-                foreach (var player in Main.AllAlivePlayerControls)
+                new LateTask(() =>
                 {
-                    State.TryAdd(player.PlayerId, player.Data.IsDead);
-                }
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (!State.ContainsKey(pc.PlayerId)) continue;
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (pc.IsModClient()) continue;
-                    foreach (PlayerControl tg in Main.AllAlivePlayerControls)
+                    Dictionary<byte, bool> State = new();
+                    foreach (var player in Main.AllAlivePlayerControls)
                     {
-                        if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                        if (tg.IsModClient()) continue;
-                        tg.Data.IsDead = true;
+                        State.TryAdd(player.PlayerId, player.Data.IsDead);
                     }
-                    pc.Data.IsDead = false;
-                    Serialize = true;
-                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                    Serialize = false;
-                }
-                foreach (PlayerControl player in Main.AllAlivePlayerControls)
-                {
-                    player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) ? data : false;
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        if (!State.ContainsKey(pc.PlayerId)) continue;
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        if (pc.IsModClient()) continue;
+                        foreach (PlayerControl tg in Main.AllAlivePlayerControls)
+                        {
+                            if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                            if (tg.IsModClient()) continue;
+                            tg.Data.IsDead = true;
+                        }
+                        pc.Data.IsDead = false;
+                        Serialize = true;
+                        RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                        Serialize = false;
+                    }
+                    foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                    {
+                        player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) ? data : false;
 
-                    RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                }
-            }, 6f, "SetDie");
+                        RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
+                    }
+                }, 6f, "SetDie");
+            }
         }
         public static void Postfix(MeetingHud __instance)
         {
@@ -352,15 +355,17 @@ public static class MeetingHudPatch
                     Utils.AddGameLog("Executed", string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
                     Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
-
-                    StartPatch.Serialize = true;
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    if (Options.ExHideChatCommand.GetBool())
                     {
-                        if (pc == player) continue;
-                        pc.Data.IsDead = false;
+                        StartPatch.Serialize = true;
+                        foreach (var pc in Main.AllAlivePlayerControls)
+                        {
+                            if (pc == player) continue;
+                            pc.Data.IsDead = false;
+                        }
+                        RPC.RpcSyncAllNetworkedPlayer(player.GetClientId());
+                        StartPatch.Serialize = false;
                     }
-                    RPC.RpcSyncAllNetworkedPlayer(player.GetClientId());
-                    StartPatch.Serialize = false;
                 });
             }
             if (Balancer.Id != 255)

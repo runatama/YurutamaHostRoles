@@ -195,15 +195,17 @@ public static class GuessManager
                     //死者检查
                     //Utils.AfterPlayerDeathTasks(dp, true);
                     CustomRoleManager.OnMurderPlayer(pc, target);
-
-                    MeetingHudPatch.StartPatch.Serialize = true;
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    if (Options.ExHideChatCommand.GetBool())
                     {
-                        if (pc == dp) continue;
-                        pc.Data.IsDead = false;
+                        MeetingHudPatch.StartPatch.Serialize = true;
+                        foreach (var pc in Main.AllAlivePlayerControls)
+                        {
+                            if (pc == dp) continue;
+                            pc.Data.IsDead = false;
+                        }
+                        RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
+                        MeetingHudPatch.StartPatch.Serialize = false;
                     }
-                    RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
-                    MeetingHudPatch.StartPatch.Serialize = false;
                     //Main.LastLogVitel[dp.PlayerId] = GetString("DeathReason.Guess");
                     _ = new LateTask(() =>
                     {

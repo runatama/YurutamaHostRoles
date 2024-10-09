@@ -651,6 +651,7 @@
 "ExperimentalMode","","試験的設定"
 "ExMeetingblackout","","会議前に視界を暗転させる"
 "ExAftermeetingflash","","会議後にフラッシュを入れる"
+"ExHideChatCommand","","会議時チャットコマンドを非表示にする\n<size=50%>(CT卓でのみONにしてください)</size>"
 
 "## マップ改造"
 "MapModification","Map Modifications","マップ改造","地图修改","","Модификации для карт","Modificações do Mapa",""

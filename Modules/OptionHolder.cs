@@ -103,6 +103,7 @@ namespace TownOfHost
         public static OptionItem ExperimentalMode;
         public static OptionItem ExMeetingblackout;
         public static OptionItem ExAftermeetingflash;
+        public static OptionItem ExHideChatCommand;
 
         //幽霊役職
         public static OptionItem GRRoleOp;
@@ -574,6 +575,8 @@ namespace TownOfHost
             ExMeetingblackout = BooleanOptionItem.Create(300001, "ExMeetingblackout", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
                 .SetGameMode(CustomGameMode.Standard);
             ExAftermeetingflash = BooleanOptionItem.Create(300002, "ExAftermeetingflash", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
+                            .SetGameMode(CustomGameMode.Standard);
+            ExHideChatCommand = BooleanOptionItem.Create(300003, "ExHideChatCommand", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
                             .SetGameMode(CustomGameMode.Standard);
 
             // Impostor

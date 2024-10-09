@@ -1383,6 +1383,9 @@ namespace TownOfHost
                         }
                         break;
                     }
+
+                    if (!Options.ExHideChatCommand.GetBool()) break;
+
                     canceled = false;
                     if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsCached)
                     {

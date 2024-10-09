@@ -131,14 +131,17 @@ public sealed class MeetingSheriff : RoleBase
 
             Utils.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]");
             Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>)";
-            MeetingHudPatch.StartPatch.Serialize = true;
-            foreach (var pc in Main.AllAlivePlayerControls)
+            if (Options.ExHideChatCommand.GetBool())
             {
-                if (pc == target) continue;
-                pc.Data.IsDead = false;
+                MeetingHudPatch.StartPatch.Serialize = true;
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    if (pc == target) continue;
+                    pc.Data.IsDead = false;
+                }
+                RPC.RpcSyncAllNetworkedPlayer(target.GetClientId());
+                MeetingHudPatch.StartPatch.Serialize = false;
             }
-            RPC.RpcSyncAllNetworkedPlayer(target.GetClientId());
-            MeetingHudPatch.StartPatch.Serialize = false;
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
             Utils.SendMessage(Utils.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             hudManager.ShowKillAnimation(target.Data, target.Data);
@@ -171,15 +174,17 @@ public sealed class MeetingSheriff : RoleBase
 
         Utils.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{Utils.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
         Main.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{Utils.GetTrueRoleName(target.PlayerId, false)}</b>)";
-
-        MeetingHudPatch.StartPatch.Serialize = true;
-        foreach (var pc in Main.AllAlivePlayerControls)
+        if (Options.ExHideChatCommand.GetBool())
         {
-            if (pc == Player) continue;
-            pc.Data.IsDead = false;
+            MeetingHudPatch.StartPatch.Serialize = true;
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                if (pc == target) continue;
+                pc.Data.IsDead = false;
+            }
+            RPC.RpcSyncAllNetworkedPlayer(target.GetClientId());
+            MeetingHudPatch.StartPatch.Serialize = false;
         }
-        RPC.RpcSyncAllNetworkedPlayer(Player.GetClientId());
-        MeetingHudPatch.StartPatch.Serialize = false;
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
         Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
         Utils.AllPlayerKillFlash();
