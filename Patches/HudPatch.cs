@@ -247,6 +247,7 @@ namespace TownOfHost
         public static Sprite ImpVentButton = null;
         public static void BottonHud()
         {
+            if (!GameStates.AfterIntro) return;
             if (!AmongUsClient.Instance.IsGameStarted) return;
             if (SetHudActivePatch.IsActive)
             {
@@ -256,14 +257,18 @@ namespace TownOfHost
 
                 var roleClass = player.GetRoleClass();
                 var __instance = DestroyableSingleton<HudManager>.Instance;
+                if (!__instance) return;
                 //定義
                 if (KillButton == null && __instance.KillButton.graphic.sprite) KillButton = __instance.KillButton.graphic.sprite;
                 if (ImpVentButton == null && __instance.ImpostorVentButton.graphic.sprite) ImpVentButton = __instance.ImpostorVentButton.graphic.sprite;
                 if (roleClass?.HasAbility ?? false || !player.IsAlive())
                 {
-                    if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer) EngButton = player.Data.Role.Ability.Image;
-                    if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter) ShepeButton = player.Data.Role.Ability.Image;
-                    if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) HyoiButton = player.Data.Role.Ability.Image;
+                    if (player.Data.Role.Ability.Image)
+                    {
+                        if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer) EngButton = player.Data.Role.Ability.Image;
+                        if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter) ShepeButton = player.Data.Role.Ability.Image;
+                        if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) HyoiButton = player.Data.Role.Ability.Image;
+                    }
                 }
                 if (player == !GameStates.IsModHost) return;
                 if (!AmongUsClient.Instance.IsGameStarted) return;

@@ -55,7 +55,7 @@ namespace TownOfHost
             if (CustomWinnerHolder.WinnerTeam == CustomWinner.Draw) meg = GetString("ForceEnd");
             if (CustomWinnerHolder.WinnerTeam == CustomWinner.None) meg = GetString("EveryoneDied");
 
-            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Utils.GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
             var s = "★".Color(winnerColor);
             KillLog = $"{GetString("GameLog")}\n" + Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
             outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;

@@ -651,6 +651,30 @@ namespace TownOfHost
                     };
                     AllModNews.Add(news);
                 }
+                {
+                    var news = new ModNews
+                    {
+                        Number = 100020,
+                        Title = "(^ ω ^ == ^ ω ^ )やぁ！またあったね！",
+                        SubTitle = "<color=#00c1ff>Town Of Host-K v5.1.9.18</color>",
+                        ShortTitle = "<color=#00c1ff>◆TOH-K v5.1.9.18</color>",
+                        Text = "<size=80%>"
+                        + "<size=125%>【バグ修正】</size>\n"
+                        + "・チャットコマンド秘匿がONでもラグで届かない問題"
+                        + "\n↑ 現バージョンでも発生する場合はOFFにすると大丈夫だと思います。"
+                        + "\n本家5.1.9に対応しました。"
+                        + "\n\n話すことないです。\n"
+                        + "他愛のない話はまぁ一周年ですると思うので大型アプデの内容ちょっとだけ\n"
+                        + "進捗がそこまでよくないです！！！！！！！！！\n"
+                        + "ジャンパーみたいなでHostModには少ない派手役職やりたいんですが思いつきません。\n思いついたら作りますし思いつけなかったら後回し。"
+                        + "\n\nそれじゃ！本体アプデ来ない限り次は1周年で！\n"
+                        + "じゃね!!!\n"
+                        + "ガチャ運無かった夜藍より。"
+                        ,
+                        Date = "2024-10-12T00:00:00Z"
+                    };
+                    AllModNews.Add(news);
+                }
                 AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
             }
         }

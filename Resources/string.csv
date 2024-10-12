@@ -652,6 +652,7 @@
 "ExMeetingblackout","","会議前に視界を暗転させる"
 "ExAftermeetingflash","","会議後にフラッシュを入れる"
 "ExHideChatCommand","","会議時チャットコマンドを非表示にする\n<size=50%>(CT卓でのみONにしてください)</size>"
+"FixSpawnPacketSize","Set When Disconnect above 8-9 People","8～9人以上で切断される現象の修正\n<size=50%><color=red>切断者が発生した場合のみ</color></size>"
 
 "## マップ改造"
 "MapModification","Map Modifications","マップ改造","地图修改","","Модификации для карт","Modificações do Mapa",""
@@ -1435,6 +1436,7 @@
 "Cancel","Cancel","キャンセル","取消","","Отменить","Cancelar",""
 "Unload","DISABLE","無効化","确认","","ОТКЛЮЧИТЬ","DESATIVAR",""
 "DumpLog","Output Log","ログを出力","输出日志","","Вывести Журнал","Log de Saída",""
+"OpenLogFolder","Open Log Folder","ログフォルダを開く"
 "UseWebHook","WebHooks","ウェブフック","","","","",""
 "UseYomiage","Read-aloud feature","読み上げ機能","","","","",""
 "ChangeSomeLanguage","ChangeSomeLanguage","一部言語に対応させる","","","","",""
@@ -1510,6 +1512,7 @@
 "Message.ExportedOptions","Exported options","オプションデータを出力しました","","","Экспортированные настройки","Opções exportadas",""
 "Message.LoadedOptions","Loaded options","オプションデータを読み込みました","","","Загруженные настройки","Opções carregadas",""
 "Message.OnlyHostCanLoadOptions","Only the host can load options","ホストのみがオプションを読み込めます","","","Только хост может загружать настройки","Apenas o anfitrião pode carregar opções",""
+"Message.LogsSavedInLogsFolder","Logs saved in the logs folder.Please create a bug ticket and attach this file.","ログフォルダにログを保存しました。バグ報告チケットを作成してこのファイルを添付してください。","","","","",""
 
 "## 警告"
 "Warning.EgoistCannotWin","Egoist cannot win","エゴイストが勝利できません","野心家无法获胜","利己主義者無法獲勝","Эгоист не может победить!","Egoísta não pode vencer",""

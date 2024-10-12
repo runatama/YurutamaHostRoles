@@ -11,7 +11,7 @@ public interface IUseTheShButton
     {
         if (!AmongUsClient.Instance.AmHost || Player.shapeshifting || !UseOCButton) return;
         PlayerSkinPatch.Save(Player);
-        Player.RpcShapeshift(PlayerControl.LocalPlayer, false);
+        if (!Player.IsModClient() && Player.PlayerId != 0) Player.RpcShapeshift(PlayerControl.LocalPlayer, false);
         ResetSkin(Player);
     }
 
@@ -30,7 +30,7 @@ public interface IUseTheShButton
     }
     public void ResetSkin(PlayerControl Player)
     {
-        Player.RpcShapeshift(PlayerControl.LocalPlayer, false);
+        if (!Player.IsModClient() && Player.PlayerId != 0) Player.RpcShapeshift(PlayerControl.LocalPlayer, false);
         var sd = PlayerSkinPatch.Load(Player);
         var sender = CustomRpcSender.Create();
 

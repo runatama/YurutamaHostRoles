@@ -322,6 +322,15 @@ namespace TownOfHost
             OptionItem.SyncAllOptions();
         }
     }
+    [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Close))]
+    class GameSettingMenuClosePatch
+    {
+        public static void Postfix()
+        {
+            GameSettingMenuStartPatch.ModSettingsButton = null;
+            GameSettingMenuStartPatch.ModSettingsTab = null;
+        }
+    }
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
     class GameSettingMenuStartPatch
     {

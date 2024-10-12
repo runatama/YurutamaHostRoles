@@ -87,7 +87,7 @@ public static class LastGameSave
         {
             var sb = new StringBuilder();
 
-            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
             if (oti)
             {
                 sb.Append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + Main.gamelog + "\n\n<b>" + "</b>");

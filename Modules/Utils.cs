@@ -1198,7 +1198,7 @@ namespace TownOfHost
                             var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                             if (che)
                             {
-                                maxtext += $"　[Max : {max} |Min : {min}]";
+                                maxtext += $"　[Min : {min}|Max : {max} ]";
                             }
                             sb.Append(ColorString(Palette.ImpostorRed, "\n\n<u>☆Impostors☆" + maxtext + "</u>\n"));
                         }
@@ -1218,7 +1218,7 @@ namespace TownOfHost
                             var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                             if (che)
                             {
-                                maxtext += $"　[Max : {max} |Min : {min}]";
+                                maxtext += $"　[Min : {min}|Max : {max} ]";
                             }
                             sb.Append(ColorString(cor, $"\n\n<u>{s + maxtext}</u>\n"));
                             roleType = role.GetCustomRoleTypes();
@@ -1482,8 +1482,7 @@ namespace TownOfHost
                 return;
             }
             var sb = new StringBuilder();
-
-            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
 
             sb.Append("""<align="center">""");
             sb.Append("<size=150%>").Append(GetString("LastResult")).Append("</size>");
@@ -1511,8 +1510,7 @@ namespace TownOfHost
         public static void WH_ShowLastResult(byte PlayerId = byte.MaxValue)
         {
             var sb = new StringBuilder();
-
-            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
             var tb = Options.CurrentGameMode == CustomGameMode.TaskBattle;
             sb.Append(GetString("LastResult"));
             if (!tb) sb.Append("\n## ").Append(SetEverythingUpPatch.LastWinsText).Append('\n');
@@ -2018,8 +2016,7 @@ namespace TownOfHost
             if (GameStates.IsLobby)
             {
                 if (!pc.IsModClient()) PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc, true);
-                else if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default && pc != PlayerControl.LocalPlayer)
-                    PlayerControl.LocalPlayer.RpcSetNamePrivate(name, false, pc);
+                else if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId) PlayerControl.LocalPlayer.RpcSetNamePrivate(name, false, pc);
             }
             else
             if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default) PlayerControl.LocalPlayer.RpcSetName(name);
@@ -2061,6 +2058,11 @@ namespace TownOfHost
                     if (Main.LastLogPro.ContainsKey(pp.PlayerId))
                         Main.LastLogPro[pp.PlayerId] = str;
                     else Main.LastLogPro.Add(pp.PlayerId, str);
+
+                    var mark = GetSubRolesText(pp.PlayerId, mark: true);
+                    if (Main.LastLogSubRole.ContainsKey(pp.PlayerId))
+                        Main.LastLogSubRole[pp.PlayerId] = mark;
+                    else Main.LastLogSubRole.Add(pp.PlayerId, mark);
                 }
             var caller = new StackFrame(1, false);
             var callerMethod = caller?.GetMethod();
@@ -2070,8 +2072,8 @@ namespace TownOfHost
             logger.Info("NotifyRolesが" + callerClassName + "." + callerMethodName + "から呼び出されました");
             HudManagerPatch.NowCallNotifyRolesCount++;
             HudManagerPatch.LastSetNameDesyncCount = 0;
-            var Info = $"<width=2000> <color=#ffffff><size=1.5f>\n\n</size><color={Main.ModColor}>TownOfHost-K</color><size=70%>";
-            Info += $" v{Main.version}</size></color><line-height=53%>\n</line-height><line-height=95%>";
+            var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+            Info += $"v{Main.version}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
             Info += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
 
             var seerList = PlayerControl.AllPlayerControls;
@@ -2585,23 +2587,47 @@ namespace TownOfHost
             foreach (char c in t) bc += Encoding.GetEncoding("UTF-8").GetByteCount(c.ToString()) == 1 ? 1 : 2;
             return t?.PadRight(Mathf.Max(num - (bc - t.Length), 0));
         }
+
+        public static DirectoryInfo GetLogFolder(bool auto = false)
+        {
+            var folder = Directory.CreateDirectory($"{Application.persistentDataPath}/TownOfHost_K/Logs");
+            if (auto)
+            {
+                folder = Directory.CreateDirectory($"{folder.FullName}/AutoLogs");
+            }
+            return folder;
+        }
         public static void DumpLog()
         {
-            string t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
-            string fileName = $"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}/TownOfHost-K-v{Main.PluginVersion}-{t}.log";
-            FileInfo file = new(@$"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
-            file.CopyTo(fileName);
-            OpenDirectory(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
+            var logs = GetLogFolder();
+            var filename = CopyLog(logs.FullName);
+            OpenDirectory(filename);
             if (PlayerControl.LocalPlayer != null)
-                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, "デスクトップにログを保存しました。バグ報告チケットを作成してこのファイルを添付してください。");
+                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, GetString("Message.LogsSavedInLogsFolder"));
+        }
+        public static void SaveNowLog()
+        {
+            var logs = GetLogFolder();
+            // 7日以上前のログを削除
+            logs.EnumerateFiles().Where(f => f.CreationTime < DateTime.Now.AddDays(-7)).ToList().ForEach(f => f.Delete());
+            CopyLog(logs.FullName);
+        }
+        public static string CopyLog(string path)
+        {
+            string t = DateTime.Now.ToString("yyyy-MM-dd_HH.mm.ss");
+            string fileName = $"{path}/TownOfHost_K-v{Main.PluginVersion}-{t}.log";
+            FileInfo file = new(@$"{Environment.CurrentDirectory}/BepInEx/LogOutput.log");
+            var logFile = file.CopyTo(fileName);
+            return logFile.FullName;
+        }
+        public static void OpenLogFolder()
+        {
+            var logs = GetLogFolder(true);
+            OpenDirectory(logs.FullName);
         }
         public static void OpenDirectory(string path)
         {
-            var startInfo = new ProcessStartInfo(path)
-            {
-                UseShellExecute = true,
-            };
-            Process.Start(startInfo);
+            Process.Start("Explorer.exe", $"/select,{path}");
         }
         public static string GetLogtext(byte pc)
         {
@@ -2615,7 +2641,7 @@ namespace TownOfHost
             if (Main.LastLogRole.ContainsKey(pc))
                 role = Main.LastLogRole[pc];
             var addon = "(´-ω-`)";
-            addon = GetSubRolesText(pc, mark: true);
+            addon = Main.LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
 
             return name + " " + pro + " : " + GetVitalText(pc, true) + " " + role + addon;
         }
@@ -2654,8 +2680,7 @@ namespace TownOfHost
                     role = Main.LastLogRole[id];
                 role = Regex.Replace(role, "<b>", "");
                 role = Regex.Replace(role, "</b>", "");
-                builder.Append(role);
-                builder.Append(GetSubRolesText(id, mark: true));
+                builder.Append(role); builder.Append(Main.LastLogSubRole.TryGetValue(id, out var m) ? m : GetSubRolesText(id, mark: true));
                 builder.Append("</pos>");
             }
             return builder.ToString();

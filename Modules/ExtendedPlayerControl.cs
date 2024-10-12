@@ -91,7 +91,7 @@ namespace TownOfHost
                 player.SetKillCooldown(delay: true, kyousei: true);
                 player.RpcResetAbilityCooldown();
 
-                if (GameStates.IsInTask && !GameStates.Meeting)
+                if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro)
                 {
                     Utils.NotifyRoles(ForceLoop: true);
                     (player.GetRoleClass() as IUseTheShButton)?.Shape(player);

@@ -1383,69 +1383,87 @@ namespace TownOfHost
                         }
                         break;
                     }
+                    canceled = false;
+                    /*
+                    if (!player.IsAlive() && GameStates.Tuihou && AntiBlackout.IsCached)
+                    {
+                        ChatManager.SendPreviousMessagesToAll();
+                        break;
+                    }*/
 
                     if (!Options.ExHideChatCommand.GetBool()) break;
 
-                    canceled = false;
                     if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsCached)
                     {
                         if (GameStates.Tuihou) break;
 
                         if (!player.IsAlive()) break;
-                        if (AmongUsClient.Instance.AmHost)
+                        new LateTask(() =>
                         {
-                            foreach (var pc in Main.AllAlivePlayerControls)
+                            if (AmongUsClient.Instance.AmHost)
                             {
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                if (pc.IsModClient()) continue;
-                                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                if (player.IsModClient()) continue;
-                                if (pc == player) continue;
-                                player.Data.IsDead = false;
+                                foreach (var pc in Main.AllAlivePlayerControls)
+                                {
+                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                    if (pc.IsModClient()) continue;
+                                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                    if (player.IsModClient()) continue;
+                                    if (pc == player) continue;
+                                    player.Data.IsDead = false;
 
-                                MeetingHudPatch.StartPatch.Serialize = true;
-                                RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                {//send
-                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-                                    writer.StartMessage(pc.GetClientId());
-                                    writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                                    .Write(text)
-                                    .EndRpc();
-                                    writer.EndMessage();
-                                    writer.SendMessage();
+                                    MeetingHudPatch.StartPatch.Serialize = true;
+                                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                                    MeetingHudPatch.StartPatch.Serialize = false;
+                                    //send
+                                    new LateTask(() =>
+                                    {
+                                        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                        writer.StartMessage(pc.GetClientId());
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                            .Write(text)
+                                            .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                    }, Main.LagTime, "", true);
                                 }
-                            }
-                            new LateTask(() =>
-                            {
                                 Dictionary<byte, bool> State = new();
                                 foreach (var player in Main.AllAlivePlayerControls)
                                 {
                                     State.TryAdd(player.PlayerId, player.Data.IsDead);
                                 }
-                                foreach (var pc in Main.AllAlivePlayerControls)
+                                new LateTask(() =>
                                 {
-                                    if (!State.ContainsKey(pc.PlayerId)) continue;
-                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                    if (pc.IsModClient()) continue;
-                                    foreach (PlayerControl tg in Main.AllAlivePlayerControls)
+                                    foreach (var pc in Main.AllAlivePlayerControls)
                                     {
-                                        if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                        if (tg.IsModClient()) continue;
-                                        tg.Data.IsDead = true;
+                                        if (!State.ContainsKey(pc.PlayerId)) continue;
+                                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                        if (pc.IsModClient()) continue;
+                                        foreach (PlayerControl tg in Main.AllAlivePlayerControls)
+                                        {
+                                            if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                            if (tg.IsModClient()) continue;
+                                            tg.Data.IsDead = true;
+                                        }
+                                        pc.Data.IsDead = false;
+                                        MeetingHudPatch.StartPatch.Serialize = true;
+                                        RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                                        MeetingHudPatch.StartPatch.Serialize = false;
                                     }
-                                    pc.Data.IsDead = false;
-                                    MeetingHudPatch.StartPatch.Serialize = true;
-                                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                    MeetingHudPatch.StartPatch.Serialize = false;
-                                }
+                                    foreach (PlayerControl player in Main.AllAlivePlayerControls)
+                                    {
+                                        player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) ? data : false;
+
+                                        RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
+                                    }
+                                }, Main.LagTime * 2, "SetDie", true);
                                 foreach (PlayerControl player in Main.AllAlivePlayerControls)
                                 {
                                     player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) ? data : false;
 
                                     RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
                                 }
-                            }, 0.02f, "SetDie", true);
-                        }
+                            }
+                        }, Main.LagTime, "", true);
                     }
                     break;
             }

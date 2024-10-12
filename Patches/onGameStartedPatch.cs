@@ -47,6 +47,7 @@ namespace TownOfHost
             Main.LastLog = new Dictionary<byte, string>();
             Main.LastLogRole = new Dictionary<byte, string>();
             Main.LastLogPro = new Dictionary<byte, string>();
+            Main.LastLogSubRole = new Dictionary<byte, string>();
             Main.KillCount = new Dictionary<byte, int>();
             Main.Guard = new Dictionary<byte, int>();
             Main.AllPlayerTask = new Dictionary<byte, List<uint>>();
@@ -594,7 +595,7 @@ namespace TownOfHost
         }
         private static System.Collections.IEnumerator CoReSetRole(AmongUsClient self)
         {
-            yield return new UnityEngine.WaitForSeconds(Main.LagTime);//MakeDesyncSenderが送られるまで待つ
+            yield return new UnityEngine.WaitForSeconds(Main.LagTime + 0.3f);//MakeDesyncSenderが送られるまで待つ
             foreach (var info in GameData.Instance.AllPlayers)
             {
                 if (info.Disconnected)
@@ -634,7 +635,7 @@ namespace TownOfHost
                     pc.Data.SetDirtyBit(0b_1u << pc.Data.PlayerId);
                 }
                 RPC.RpcSyncAllNetworkedPlayer();
-            }, Main.LagTime * 2, "UnDisconnected");
+            }, Main.LagTime * 2.5f, "UnDisconnected");
 
             yield return new UnityEngine.WaitForSeconds(Main.LagTime);
             PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));

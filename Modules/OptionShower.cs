@@ -64,7 +64,7 @@ namespace TownOfHost
                                 var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                                 if (che)
                                 {
-                                    maxtext += $"　[Max : {max} |Min : {min}]";
+                                    maxtext += $"　[Min : {min}|Max : {max} ]";
                                 }
                                 las = Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n");
                                 sb.Append(Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n"));
@@ -94,7 +94,7 @@ namespace TownOfHost
                                 var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                                 if (che)
                                 {
-                                    maxtext += $"　[Max : {max} |Min : {min}]";
+                                    maxtext += $"　[Min : {min}|Max : {max} ]";
                                 }
                                 las = Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n");
                                 sb.Append(Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n"));

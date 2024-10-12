@@ -55,7 +55,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.8.18";
+        public const string PluginVersion = "5.1.9.18";
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
@@ -133,6 +133,7 @@ namespace TownOfHost
         public static Dictionary<byte, string> LastLog = new();
         public static Dictionary<byte, string> LastLogRole = new();
         public static Dictionary<byte, string> LastLogPro = new();
+        public static Dictionary<byte, string> LastLogSubRole = new();
         public static Dictionary<byte, int> KillCount = new();
         public static string Alltask;
         public static Dictionary<int, List<Vector2>> CustomSpawnPosition = new();
@@ -350,6 +351,7 @@ namespace TownOfHost
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
 
             Harmony.PatchAll();
+            Application.quitting += new Action(Utils.SaveNowLog);
         }
 
         public static bool IsCs()

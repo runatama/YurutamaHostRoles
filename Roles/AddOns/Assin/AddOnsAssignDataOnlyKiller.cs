@@ -164,12 +164,9 @@ namespace TownOfHost.Roles.AddOns.Common
                 var neutralMaximum = data.NeutralMaximum.GetInt();
                 if (neutralMaximum > 0)
                 {
-                    var neutrals = validPlayers.Where(pc
-                        => pc.Is(CustomRoles.Egoist) ||
-                        pc.Is(CustomRoles.GrimReaper) ||
-                        pc.Is(CustomRoles.Jackal) ||
-                        pc.Is(CustomRoles.JackalMafia) ||
-                        pc.Is(CustomRoles.Remotekiller)).ToList();
+                    var neutrals = validPlayers.Where(pc => pc.IsNeutralKiller() ||
+                        pc.Is(CustomRoles.GrimReaper)).ToList();
+
                     for (var i = 0; i < neutralMaximum; i++)
                     {
                         if (neutrals.Count == 0) break;

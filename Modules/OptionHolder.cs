@@ -104,6 +104,7 @@ namespace TownOfHost
         public static OptionItem ExMeetingblackout;
         public static OptionItem ExAftermeetingflash;
         public static OptionItem ExHideChatCommand;
+        public static OptionItem FixSpawnPacketSize;
 
         //幽霊役職
         public static OptionItem GRRoleOp;
@@ -578,6 +579,10 @@ namespace TownOfHost
                             .SetGameMode(CustomGameMode.Standard);
             ExHideChatCommand = BooleanOptionItem.Create(300003, "ExHideChatCommand", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
                             .SetGameMode(CustomGameMode.Standard);
+            //9人以上部屋で落ちる現象の対策
+            FixSpawnPacketSize = BooleanOptionItem.Create(300004, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)
+                .SetColor(new Color32(255, 255, 0, 255))
+                .SetGameMode(CustomGameMode.All);
 
             // Impostor
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
