@@ -6,7 +6,6 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
-using HarmonyLib;
 
 namespace TownOfHost.Roles.Madmate;
 public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
@@ -18,7 +17,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoles.MadAvenger,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Madmate,
-            10500,
+            13000,
             SetupOptionItem,
             "mAe",
             introSound: () => GetIntroSound(RoleTypes.Impostor)
@@ -85,7 +84,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
-        if ((!IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count) || !can)
+        if ((!IsTaskFinished && PlayerCatch.AllAlivePlayerControls.Count() >= Count) || !can)
         {
             return OptionVent.GetBool();
         }
@@ -120,13 +119,13 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         //seeおよびseenが自分である場合以外は関係なし
         if (!Is(seer) || !Is(seen)) return "";
 
-        return Utils.ColorString(IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && Main.AllAlivePlayerControls.Count() >= Count ? "\n" + GetString("MadAvengerchallengeMeeting") : "\n" + GetString("MadAvengerreserve"));
+        return Utils.ColorString(IsTaskFinished && PlayerCatch.AllAlivePlayerControls.Count() >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && PlayerCatch.AllAlivePlayerControls.Count() >= Count ? "\n" + GetString("MadAvengerchallengeMeeting") : "\n" + GetString("MadAvengerreserve"));
     }
     public override void OnReportDeadBody(PlayerControl ___, NetworkedPlayerInfo __)
     {
         if (!Skill) return;
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        Utils.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
+        UtilsNotifyRoles.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 1.0f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 2.5f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 4.0f, "Kakumeikaigi");
@@ -156,7 +155,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                 }
                 else
                 {
-                    var pc = Utils.GetPlayerById(votedForId);
+                    var pc = PlayerCatch.GetPlayerById(votedForId);
                     if (pc.IsNeutralKiller() || pc.Is(CustomRoles.GrimReaper))
                     {
                         if (Guessd.Contains(pc))
@@ -169,7 +168,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                         Utils.SendMessage(GetString("Skill.MadAvengersuccess"), Player.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
                         foreach (var Guessdpc in Guessd)
                         {
-                            var pc1 = Main.AllAlivePlayerControls.Where(pc1 => pc1.IsNeutralKiller() || pc1.Is(CustomRoles.GrimReaper)).Count();
+                            var pc1 = PlayerCatch.AllAlivePlayerControls.Where(pc1 => pc1.IsNeutralKiller() || pc1.Is(CustomRoles.GrimReaper)).Count();
                             if (Guessd.Count == pc1)
                             {
                                 //革命成功
@@ -179,7 +178,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                                 _ = new LateTask(() => Utils.SendMessage(GetString("Skill.MadAvenger8"), title: $"<color=#ff1919>{GetString("MadAvenger")}　{Utils.ColorString(Main.PlayerColors[Player.PlayerId], $"{Player.name}</b>")}"), 9.5f, "Kakumeiseikou");
                                 _ = new LateTask(() =>//殺害処理
                                 {
-                                    foreach (var pc in Main.AllAlivePlayerControls)
+                                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                                     {
                                         if (pc.PlayerId != Player.PlayerId)
                                         {

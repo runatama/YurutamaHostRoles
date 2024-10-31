@@ -19,7 +19,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
             CustomRoles.EvilTracker,
             () => (TargetMode)OptionTargetMode.GetValue() == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            2900,
+            4300,
             SetupOptionItem,
             "et",
             canMakeMadmate: () => OptionCanCreateSideKick.GetBool(),
@@ -42,7 +42,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         //ImpostorsIdはEvilTracker内で共有
         ImpostorsId.Clear();
         var playerId = player.PlayerId;
-        foreach (var target in Main.AllAlivePlayerControls)
+        foreach (var target in PlayerCatch.AllAlivePlayerControls)
         {
             var targetId = target.PlayerId;
             if (targetId != playerId && target.Is(CustomRoleTypes.Impostor))
@@ -193,7 +193,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         SetTarget(target.PlayerId);
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に設定", "EvilTrackerTarget");
         Player.MarkDirtySettings();
-        Utils.NotifyRoles();
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         return false;
     }
     public override void AfterMeetingTasks()
@@ -205,7 +205,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
             ReEnableTargeting();
             Player.MarkDirtySettings();
         }
-        var target = Utils.GetPlayerById(TargetId);
+        var target = PlayerCatch.GetPlayerById(TargetId);
         if (!Player.IsAlive() || !target.IsAlive())
         {
             RemoveTarget();
@@ -245,7 +245,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         var sb = new StringBuilder(80);
         if (ImpostorsId.Count > 0)
         {
-            sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
+            sb.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor)}>");
             foreach (var impostorId in ImpostorsId)
             {
                 sb.Append(TargetArrow.GetArrows(Player, impostorId));

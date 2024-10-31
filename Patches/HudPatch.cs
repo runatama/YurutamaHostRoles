@@ -16,7 +16,7 @@ namespace TownOfHost
 {
     public static class CustomButton
     {
-        public static Sprite Get(string name) => Utils.LoadSprite($"TownOfHost.Resources.Button.{name}.png", 115f);
+        public static Sprite Get(string name) => UtilsSprite.LoadSprite($"TownOfHost.Resources.Button.{name}.png", 115f);
     }
 
     [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -93,11 +93,10 @@ namespace TownOfHost
                 __instance.AbilityButton.Show();
                 __instance.AbilityButton.OverrideText(GetString("EditCSp"));
             }
-
             //ゲーム中でなければ以下は実行されない
             if (!AmongUsClient.Instance.IsGameStarted) return;
 
-            Utils.CountAlivePlayers();
+            PlayerCatch.CountAlivePlayers();
 
             if (SetHudActivePatch.IsActive)
             {
@@ -120,6 +119,11 @@ namespace TownOfHost
                                 {
                                     __instance.AbilityButton.OverrideText(roleClass.GetAbilityButtonText());
                                     __instance.AbilityButton.ToggleVisible(roleClass.CanUseAbilityButton() && GameStates.IsInTask);
+                                    if (roleClass.AllEnabledColor)
+                                    {
+                                        __instance.AbilityButton.graphic.color = __instance.AbilityButton.buttonLabelText.color = Palette.EnabledColor;
+                                        __instance.AbilityButton.graphic.material.SetFloat(Desat, 0f);
+                                    }
                                 }
                             }
                         }
@@ -237,76 +241,93 @@ namespace TownOfHost
                 ? string.Format("{0:00} : {1:00} : {2:00} : {3:000}", hours, minutes, seconds, milliseconds)
                 : string.Format("{0:00} : {1:00} : {2:000}", minutes, seconds, milliseconds);
         }
+    }
+    class CustomButtonHud
+    {
         //カスタムぼたーん。
-        //参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.5.1
         public static bool? ch;
-        public static Sprite KillButton = null;
+        public static Sprite MotoKillButton = null;
         public static Sprite ShepeButton = null;
         public static Sprite EngButton = null;
         public static Sprite HyoiButton = null;
         public static Sprite ImpVentButton = null;
-        public static void BottonHud()
+        static bool? OldValue = null;
+        public static void BottonHud(bool reset = false)
         {
-            if (!GameStates.AfterIntro) return;
+            OldValue ??= Main.CustomSprite.Value;
+            if (!AmongUsClient.Instance) return;
             if (!AmongUsClient.Instance.IsGameStarted) return;
-            if (SetHudActivePatch.IsActive)
+            if (!GameStates.AfterIntro) return;
+            try
             {
-                if (!GameStates.IsModHost) return;
-                var player = PlayerControl.LocalPlayer;
-                if (player == null) return;
-
-                var roleClass = player.GetRoleClass();
-                var __instance = DestroyableSingleton<HudManager>.Instance;
-                if (!__instance) return;
-                //定義
-                if (KillButton == null && __instance.KillButton.graphic.sprite) KillButton = __instance.KillButton.graphic.sprite;
-                if (ImpVentButton == null && __instance.ImpostorVentButton.graphic.sprite) ImpVentButton = __instance.ImpostorVentButton.graphic.sprite;
-                if (roleClass?.HasAbility ?? false || !player.IsAlive())
+                if (SetHudActivePatch.IsActive)
                 {
-                    if (player.Data.Role.Ability.Image)
+                    if (!GameStates.IsModHost) return;
+                    var player = PlayerControl.LocalPlayer;
+                    if (player == null) return;
+                    var roleClass = player.GetRoleClass();
+                    var __instance = DestroyableSingleton<HudManager>.Instance;
+                    if (!__instance) return;
+                    //定義
+                    if (MotoKillButton == null && __instance.KillButton.graphic.sprite) MotoKillButton = __instance.KillButton.graphic.sprite;
+                    if (ImpVentButton == null && __instance.ImpostorVentButton.graphic.sprite) ImpVentButton = __instance.ImpostorVentButton.graphic.sprite;
+                    if ((roleClass?.HasAbility ?? false) || !player.IsAlive())
                     {
-                        if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer) EngButton = player.Data.Role.Ability.Image;
-                        if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter) ShepeButton = player.Data.Role.Ability.Image;
-                        if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) HyoiButton = player.Data.Role.Ability.Image;
+                        if (player?.Data?.Role?.Ability?.Image ?? false)
+                        {
+                            if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer) EngButton = player.Data.Role.Ability.Image;
+                            if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter) ShepeButton = player.Data.Role.Ability.Image;
+                            if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) HyoiButton = player.Data.Role.Ability.Image;
+                        }
                     }
-                }
-                if (player == !GameStates.IsModHost) return;
-                if (!AmongUsClient.Instance.IsGameStarted) return;
-                //リセット
-                if (__instance.KillButton.graphic.sprite && KillButton) __instance.KillButton.graphic.sprite = KillButton;
-                if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
-                if (roleClass?.HasAbility ?? false || !player.IsAlive())
-                {
-                    if (EngButton && player.Data.Role.Role is RoleTypes.Engineer) player.Data.Role.Ability.Image = EngButton;
-                    if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter) player.Data.Role.Ability.Image = ShepeButton;
-                    if (HyoiButton && !player.IsAlive() && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) player.Data.Role.Ability.Image = HyoiButton;
-                }
-
-                if (CustomRoles.Amnesia.IsPresent()) return;
-                if (ch == null)
-                    foreach (var pc in Main.AllPlayerControls)
+                    if (player == !GameStates.IsModHost) return;
+                    //リセット
+                    if (__instance.KillButton.graphic.sprite && MotoKillButton) __instance.KillButton.graphic.sprite = MotoKillButton;
+                    if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
+                    if ((roleClass?.HasAbility ?? false) || !player.IsAlive())
                     {
-                        if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;
+                        if (EngButton && player.Data.Role.Role is RoleTypes.Engineer) player.Data.Role.Ability.Image = EngButton;
+                        if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter) player.Data.Role.Ability.Image = ShepeButton;
+                        if (HyoiButton && !player.IsAlive() && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) player.Data.Role.Ability.Image = HyoiButton;
                     }
-                if (ch == true) return;
-                if (player.GetCustomRole().IsVanilla()) return;
-                if (roleClass == null) return;
-                if (Main.CustomSprite.Value)
-                {
-                    if (roleClass != null)
+                    if (CustomRoles.Amnesia.IsPresent()) return;
+                    if (ch == null)
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                        {
+                            if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;
+                        }
+                    if (ch == true) return;
+                    if (player.GetCustomRole().IsVanilla()) return;
+                    if (roleClass == null) return;
+                    if (Main.CustomSprite.Value)
                     {
-                        if (player.IsAlive() && roleClass.HasAbility)
-                            if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
-                                player.Data.Role.Ability.Image = CustomButton.Get(abname);
+                        if (roleClass != null)
+                        {
+                            if (player.IsAlive())
+                                if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
+                                {
+                                    player.Data.Role.Ability.Image = CustomButton.Get(abname);
+                                    if (reset && OldValue == Main.CustomSprite.Value)
+                                    {
+                                        var role = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke();
+                                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
+                                        RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
+                                    }
+                                }
 
-                        if (player.CanUseKillButton() && (roleClass as IKiller)?.OverrideKillButton(out string name) == true && Main.CustomSprite.Value)
-                            __instance.KillButton.graphic.sprite = CustomButton.Get(name);
+                            // Memo
+                            // キルボタンがバグってもなんかスイッチシェリフのキルボだけ大丈夫なことが多い。
+                            if ((roleClass as IKiller)?.OverrideKillButton(out string name) == true && Main.CustomSprite.Value)
+                                __instance.KillButton.graphic.sprite = CustomButton.Get(name);
 
-                        if ((roleClass as IKiller)?.OverrideImpVentButton(out string name2) == true && Main.CustomSprite.Value)
-                            __instance.ImpostorVentButton.graphic.sprite = CustomButton.Get(name2);
+                            if ((roleClass as IKiller)?.OverrideImpVentButton(out string name2) == true && Main.CustomSprite.Value)
+                                __instance.ImpostorVentButton.graphic.sprite = CustomButton.Get(name2);
+                        }
                     }
+                    OldValue = Main.CustomSprite.Value;//アビリティボタンのあれのせいでクールがあれなのでリセット入る時だけしっかり反映させる。
                 }
             }
+            catch (Exception ec) { Logger.Error($"{ec}", "ButtonHud"); }
         }
     }
     [HarmonyPatch(typeof(ShapeshifterPanel), nameof(ShapeshifterPanel.SetPlayer))]
@@ -319,7 +340,7 @@ namespace TownOfHost
             {
                 var seer = PlayerControl.LocalPlayer;
                 var seerRole = seer.GetRoleClass();
-                var target = Utils.GetPlayerById(pl.PlayerId);
+                var target = PlayerCatch.GetPlayerById(pl.PlayerId);
 
                 //変数定義
                 string name = "";
@@ -344,23 +365,35 @@ namespace TownOfHost
                 Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
                 //ハートマークを付ける(会議中MOD視点)
-                if (target.GetRiaju() == PlayerControl.LocalPlayer.GetRiaju() && target.GetRiaju() != CustomRoles.NotAssigned)
+                if (target.GetRiaju() == PlayerControl.LocalPlayer.GetRiaju() && target.GetRiaju() is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
                 {
-                    Mark.Append(Utils.ColorString(Utils.GetRoleColor(target.GetRiaju()), "♥"));
+                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetRiaju()), "♥"));
                 }
-                else if (PlayerControl.LocalPlayer.Data.IsDead && target.IsRiaju())
+                else if (PlayerControl.LocalPlayer.Data.IsDead && target.IsRiaju() && target.GetRiaju() != CustomRoles.OneLove)
                 {
-                    Mark.Append(Utils.ColorString(Utils.GetRoleColor(target.GetRiaju()), "♥"));
+                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetRiaju()), "♥"));
+                }
+                if (Lovers.OneLovePlayer.Ltarget == target.PlayerId && target.PlayerId != seer.PlayerId && PlayerControl.LocalPlayer.Is(CustomRoles.OneLove))
+                {
+                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
+                }
+                else if (target.Is(CustomRoles.OneLove) && target.PlayerId != PlayerControl.LocalPlayer.PlayerId && PlayerControl.LocalPlayer.Is(CustomRoles.OneLove))
+                {
+                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
+                }
+                else if (PlayerControl.LocalPlayer.Data.IsDead && Lovers.OneLovePlayer.Ltarget == target.PlayerId && !PlayerControl.LocalPlayer.Is(CustomRoles.OneLove))
+                {
+                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
                 }
 
                 if (target.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting)
                 && !target.Is(CustomRoles.WolfBoy) && !PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
                 {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                    Mark.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
                 else if (target.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Data.IsDead)
                 {
-                    Mark.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                    Mark.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
                 //プログレスキラー
                 if (Amnesia.CheckAbility(seer))
@@ -381,6 +414,17 @@ namespace TownOfHost
                                 }
                         }
                     }
+                    if (seer.Is(CustomRoles.JackalAlien))
+                    {
+                        foreach (var al in JackalAlien.Aliens)
+                        {
+                            if (al.Player == seer)
+                                if (target.Is(CustomRoles.Workhorse) && al.modeProgresskiller && JackalAlien.ProgressWorkhorseseen)
+                                {
+                                    Mark.Append($"<color=blue>♦</color>");
+                                }
+                        }
+                    }
                 }
 
                 //seerに関わらず発動するLowerText
@@ -395,7 +439,7 @@ namespace TownOfHost
                 if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
                     RealName = $"<size=0>{RealName}</size> ";
 
-                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
+                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
                 //Mark・Suffixの適用
                 if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
                     __instance.NameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
@@ -421,8 +465,8 @@ namespace TownOfHost
             if (player.CanUseKillButton())
             {
                 Color color = PlayerControl.LocalPlayer.GetRoleColor();
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
-                    Utils.GetRoleColor(CustomRoles.Impostor) : Utils.GetRoleColor(CustomRoles.SchrodingerCat));
+                if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
+                    UtilsRoleText.GetRoleColor(CustomRoles.Impostor) : UtilsRoleText.GetRoleColor(CustomRoles.SchrodingerCat));
                 ((Renderer)__instance.cosmetics.currentBodySprite.BodySprite).material.SetColor("_OutlineColor", color);
             }
         }
@@ -434,11 +478,11 @@ namespace TownOfHost
         {
             var player = PlayerControl.LocalPlayer;
             Color color = PlayerControl.LocalPlayer.GetRoleColor();
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? Utils.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
-                Utils.GetRoleColor(CustomRoles.Impostor) : Utils.GetRoleColor(CustomRoles.SchrodingerCat));
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
+                UtilsRoleText.GetRoleColor(CustomRoles.Impostor) : UtilsRoleText.GetRoleColor(CustomRoles.SchrodingerCat));
             if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null)
             {
-                color = Utils.GetRoleColor(player.GetRoleClass().Jikaku());
+                color = UtilsRoleText.GetRoleColor(player.GetRoleClass().Jikaku());
             }
         ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
             ((Renderer)__instance.myRend).material.SetColor("_AddColor", mainTarget ? color : Color.clear);
@@ -497,10 +541,16 @@ namespace TownOfHost
             var role = player.GetCustomRole();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
             if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
+
+            if (role is CustomRoles.Amnesiac)
+            {
+                if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
+                    role = CustomRoles.Sheriff;
+            }
             // 役職説明表示
             if (!role.IsVanilla() || player.IsGorstRole())
             {
-                var RoleWithInfo = $"{player.GetTrueRoleName()}:\r\n";
+                var RoleWithInfo = $"{UtilsRoleText.GetTrueRoleName(player.PlayerId)}:\r\n";
                 RoleWithInfo += player.GetRoleInfo();
                 __instance.taskText.text = Utils.ColorString(player.GetRoleColor(), RoleWithInfo) + "\n" + __instance.taskText.text;
             }

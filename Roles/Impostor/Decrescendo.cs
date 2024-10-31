@@ -1,6 +1,4 @@
 using AmongUs.GameOptions;
-using Hazel;
-using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -16,7 +14,7 @@ public sealed class Decrescendo : RoleBase, IImpostor
             CustomRoles.Decrescendo,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            70050,
+            5900,
             SetupOptionItem,
             "De"
         );
@@ -26,126 +24,89 @@ public sealed class Decrescendo : RoleBase, IImpostor
         player
     )
     {
-        KillCooldown = OptionKillCooldown.GetFloat();
-        KillerCount = 0;
-        Killcount = KillerCountopt.GetInt();
-        Yowakunaru = false;
-        CanVent = OptionCanVent.GetBool();
-        Jav = OptionJaHasImpostorVision.GetBool();
-        SaidaiCooldown = OptionSaidaiCooldown.GetFloat();
-        Minsikai = OptionMinsikai.GetFloat();
+        KillCount = 0;
+        Decrescending = false;
+        NowKillCool = OptionNomalKillCool.GetFloat();
+        NowVision = Main.DefaultImpostorVision;
     }
-    private static OptionItem OptionKillCooldown;
-    private static OptionItem KillerCountopt;
-    public static OptionItem OptionCanVent;
-    private static OptionItem OptionSaidaiCooldown;
-    private static OptionItem OptionJaHasImpostorVision;
-    private static OptionItem OptionMinsikai;
-    public static bool CanVent;
+    public bool CanBeLastImpostor { get; } = false;
+    static OptionItem OptionNomalKillCool;//通常キルク
+    static OptionItem OptionMaxKillCool;//最大キルク
+    static OptionItem OptionKillCoolx;//倍率
+    static OptionItem OptionDecVision;//視野変更するか
+    static OptionItem OptionVisionx;//視野変更の倍率
+    static OptionItem OptionMinVision;//最低視野
+    static OptionItem OptionDecCantVent;//ベント使えるか
+    static OptionItem OptionDecKillcount;//弱化開始キル数
     enum OptionName
     {
-        DecrescendoKillerCount,
-        DecrescendoCanvent,
-        DecrescendoImpVision,
-        DecrescendoSaidaiCooldown,
-        DecrescendoMinsikai
+        DecrescendoDecKillCount,
+        DecrescendoMaxKillcooldown,
+        DecrescendoKillCoolx,
+        DecrescendoDecVision,
+        DecrescendoVisionx,
+        DecrescendoMinVision,
+        DecrescendoCanUseVent
     }
-    /// <summary>キル数</summary>
-    public int KillerCount;
-    /// <summary>弱化開始キル数</summary>
-    public int Killcount;
-    /// <summary>デフォのクール</summary>
-    private static float KillCooldown;
-    /// <summary>最大クール</summary>
-    private static float SaidaiCooldown;
-    static bool Jav;
-    private static float Minsikai;
-    public bool CanBeLastImpostor { get; } = false;
-    private static bool Yowakunaru;
-    private static void SetupOptionItem()
+    /// <summary>弱化中か</summary>
+    bool Decrescending;
+    int KillCount;
+    float NowKillCool;
+    float NowVision;
+    static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 20f, false)
-                .SetValueFormat(OptionFormat.Seconds);
-        OptionSaidaiCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.DecrescendoSaidaiCooldown, new(0f, 180f, 2.5f), 60f, false)
-        .SetValueFormat(OptionFormat.Seconds);
-        KillerCountopt = IntegerOptionItem.Create(RoleInfo, 11, OptionName.DecrescendoKillerCount, new(1, 10, 1), 4, false)
-            .SetValueFormat(OptionFormat.Times);
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 12, OptionName.DecrescendoCanvent, false, false);
-        OptionJaHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, OptionName.DecrescendoImpVision, false, false);
-        OptionMinsikai = FloatOptionItem.Create(RoleInfo, 14, OptionName.DecrescendoMinsikai, new(0.0f, 1.0f, 0.25f), 0.05f, false, OptionJaHasImpostorVision);
+        OptionDecKillcount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.DecrescendoDecKillCount, new(0, 15, 1), 3, false);
+        OptionNomalKillCool = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.KillCooldown, new(0, 180, 0.5f), 25, false).SetValueFormat(OptionFormat.Seconds);
+        OptionKillCoolx = FloatOptionItem.Create(RoleInfo, 12, OptionName.DecrescendoKillCoolx, new(1, 2, 0.05f), 1.25f, false).SetValueFormat(OptionFormat.Multiplier);
+        OptionMaxKillCool = FloatOptionItem.Create(RoleInfo, 13, OptionName.DecrescendoMaxKillcooldown, new(0, 180, 0.5f), 60, false).SetValueFormat(OptionFormat.Seconds);
+        OptionDecVision = BooleanOptionItem.Create(RoleInfo, 14, OptionName.DecrescendoDecVision, true, false);
+        OptionVisionx = FloatOptionItem.Create(RoleInfo, 15, OptionName.DecrescendoVisionx, new(0, 1, 0.05f), 0.75f, false, OptionDecVision).SetValueFormat(OptionFormat.Multiplier);
+        OptionMinVision = FloatOptionItem.Create(RoleInfo, 16, OptionName.DecrescendoMinVision, new(0, 1, 0.05f), 0.1f, false, OptionDecVision).SetValueFormat(OptionFormat.Multiplier);
+        OptionDecCantVent = BooleanOptionItem.Create(RoleInfo, 17, OptionName.DecrescendoCanUseVent, true, false);
     }
     public float CalculateKillCooldown()
     {
-        if (!Yowakunaru) return KillCooldown;
-        else
-        {
-            var cool = KillCooldown * Killcount * (KillerCount - Killcount + 3) / (Killcount + 1);
-            if (cool <= SaidaiCooldown) cool = SaidaiCooldown;
-            return cool;
-        }
+        //弱化前なら通常
+        if (!Decrescending) return OptionNomalKillCool.GetFloat();
+        return NowKillCool;
     }
-    public override void Add()
+    public void OnMurderPlayerAsKiller(MurderInfo info)
     {
-        var playerId = Player.PlayerId;
-        KillCooldown = OptionKillCooldown.GetFloat();
+        if (!info.DoKill || !info.CanKill) return;
+        var (killer, target) = info.AppearanceTuple;
+        if (killer.PlayerId != Player.PlayerId) return;
 
-        Killcount = KillerCountopt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 後{KillerCount}発", "Decrescendo");
-    }
-    private void SendRPC()
-    {
-        using var sender = CreateSender();
-        sender.Writer.Write(KillerCount);
-    }
-    public override void ReceiveRPC(MessageReader reader)
-    {
-        KillerCount = reader.ReadInt32();
-    }
-    //public bool CanUseKillButton() => Player.IsAlive() && KillerCount > 0;
-    public void OnCheckMurderAsKiller(MurderInfo info)
-    {
-        if (!info.CanKill) return;
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (Is(info.AttemptKiller) && !info.IsSuicide)
+        Logger.Info($"{KillCount} / {OptionDecKillcount.GetInt()}", "Decrescend");
+        KillCount++;
+        if (OptionDecKillcount.GetInt() <= KillCount)
         {
-            (var killer, var target) = info.AttemptTuple;
-            KillerCount++;
-            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 残り{Killcount - KillerCount}発", "Decrescendo");
-            SendRPC();
-            if (KillerCount >= Killcount)
+            Decrescending = true;
+
+            NowKillCool = NowKillCool * OptionKillCoolx.GetFloat();
+            NowVision = NowVision * OptionVisionx.GetFloat();
+
+            if (OptionMaxKillCool.GetFloat() <= NowKillCool) NowKillCool = OptionMaxKillCool.GetFloat();
+            if (NowVision <= OptionMinVision.GetFloat()) NowVision = OptionMinVision.GetFloat();
+            _ = new LateTask(() =>
             {
-                //初期キルクール →ａ, キル数 →ｂ,
-                //弱化開始キル数 →ｃ
-                //ａ×ｃ×（ｂ-ｃ+３）／（ｃ+１）
-                Yowakunaru = true;
-                {
-                    var cool = KillCooldown * Killcount * (KillerCount - Killcount + 3) / (Killcount + 1);
-                    if (cool >= SaidaiCooldown) cool = SaidaiCooldown;
-                    Main.AllPlayerKillCooldown[killer.PlayerId] = cool;
-                    killer.SyncSettings();//キルクール処理を同期
-                }
-            }
+                killer.ResetKillCooldown();
+                killer.SetKillCooldown(delay: true);
+                killer.SyncSettings();
+            }, 0.2f, "Decrecend SyncSetting");
         }
-        return;
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
+        //弱化中じゃない or 視界は変更しないなら返す
+        if (!Decrescending || !OptionDecVision.GetBool()) return;
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!Player.IsAlive() || !Yowakunaru || !Jav) return;//死んでる or 弱化してない or インポしかいノママ
-        var Light = FloatOptionNames.ImpostorLightMod;
-        //ｄ×{1-(ｂ-ｃ+１)/(１１-ｃ)}
-        float b = KillerCount;
-        float c = Killcount;
-        float sikai = Main.DefaultImpostorVision * (10 - b) / (11 - c);
-        Logger.Info($"{sikai}= {Main.DefaultImpostorVision} * (10 - {b}) / (11 - {c})", "de");
-        if (sikai <= Minsikai) sikai = Minsikai;
-        opt.SetFloat(Light, (float)sikai);
+        opt.SetFloat(FloatOptionNames.ImpostorLightMod, NowVision);
     }
-
     public bool CanUseImpostorVentButton()
     {
-        if (CanVent && Yowakunaru) return false;
+        //弱化中かつ設定が有効の場合のみ返す
+        if (Decrescending && !OptionDecCantVent.GetBool()) return false;
         else return true;
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(!Yowakunaru ? Color.red : Color.gray, !Yowakunaru ? $"({Killcount - KillerCount})" : $"(´・ω・｀)");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Decrescending ? Utils.ColorString(ModColors.NeutralGray, "(´・ω・｀)") : Utils.ColorString(Palette.ImpostorRed, $"({KillCount}/{OptionDecKillcount.GetInt()})");
 }

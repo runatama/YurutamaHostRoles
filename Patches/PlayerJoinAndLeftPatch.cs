@@ -31,7 +31,7 @@ namespace TownOfHost
             Main.FeColl = 0;
             GameStates.canmusic = true;
             ErrorText.Instance.Clear();
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc == null) continue;
                 Logger.Info($"FriendCore:{pc.FriendCode},Puid:{pc.GetClient()?.GetHashedPuid()}", "Session");
@@ -54,6 +54,10 @@ namespace TownOfHost
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
+                foreach (var option in OptionItem.AllOptions)
+                {
+                    if (Event.OptionLoad.Contains(option.Name) && !Event.Special) option.SetValue(0);
+                }
             }
         }
     }
@@ -104,6 +108,21 @@ namespace TownOfHost
                 RPC.RpcSyncRoomTimer();
                 RPC.SyncYomiage();
                 //_ = new LateTask(() => client.Character.RpcSetNamePrivate($"<line-height=1000%><pos=30><size=2.8><color=green>host:<{Main.ModColor}>{Main.ModName} v{Main.PluginVersion}</color>\n</color><size=2.5>{client.PlayerName}\n</line-height>\n<line-height=30%>", true, force: true), 1.5f);
+                string name = DataManager.player.Customization.Name;
+                var playerName = client.PlayerName;
+                if (playerName == name || playerName == Main.nickName)
+                {
+                    List<string> names = new() { name, Main.nickName };
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                        if (pc != PlayerControl.LocalPlayer && pc != __instance) names.Add(pc.Data.PlayerName);
+                    for (int index1 = 1; index1 < 100; ++index1)
+                    {
+                        playerName = client.PlayerName + " " + index1.ToString();
+                        if (!names.Contains(playerName))
+                            break;
+                    }
+                    _ = new LateTask(() => client.Character.RpcSetName(playerName), 1.5f, "Fix Name");
+                }
             }
         }
     }
@@ -148,7 +167,7 @@ namespace TownOfHost
                         if (state.DeathReason == CustomDeathReason.etc) //死因が設定されていなかったら
                         {
                             state.DeathReason = CustomDeathReason.Disconnected;
-                            Utils.AddGameLog("Disconnected", data.PlayerName + GetString("DeathReason.Disconnected"));
+                            UtilsGameLog.AddGameLog("Disconnected", data.PlayerName + GetString("DeathReason.Disconnected"));
                         }
                         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                         {
@@ -157,8 +176,8 @@ namespace TownOfHost
                         state.SetDead();
                         AntiBlackout.OnDisconnect(data.Character.Data);
                         PlayerGameOptionsSender.RemoveSender(data.Character);
-                        Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
-                        Utils.NotifyRoles(NoCache: true);
+                        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
+                        UtilsNotifyRoles.NotifyRoles(NoCache: true);
                     }
                     Main.playerVersion.Remove(data.Character.PlayerId);
                     Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");
@@ -200,7 +219,7 @@ namespace TownOfHost
                         if (!AmongUsClient.Instance.IsGameStarted && client.Character != null && !Main.AssignSameRoles)
                         {
                             Main.isChatCommand = true;
-                            Utils.ShowLastResult(client.Character.PlayerId);
+                            UtilsGameLog.ShowLastResult(client.Character.PlayerId);
                         }
                     }
                     if (Options.AutoDisplayKillLog.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
@@ -208,7 +227,7 @@ namespace TownOfHost
                         if (!GameStates.IsInGame && client.Character != null)
                         {
                             Main.isChatCommand = true;
-                            Utils.ShowKillLog(client.Character.PlayerId);
+                            UtilsGameLog.ShowKillLog(client.Character.PlayerId);
                         }
                     }
                 }, 3.0f, "Welcome Meg");

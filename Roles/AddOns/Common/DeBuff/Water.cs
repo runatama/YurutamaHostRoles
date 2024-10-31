@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Water
     {
         private static readonly int Id = 70400;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Water);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Water);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｗ");
         public static List<byte> playerIdList = new();
 

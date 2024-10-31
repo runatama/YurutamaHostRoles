@@ -55,6 +55,30 @@ namespace TownOfHost
             TarnVitalTimer = 0;
             UseCount = 0;
         }
+        public static string GetAddminTimer()
+        {
+            if (Options.TimeLimitAdmin.GetFloat() == 0) return "";
+            if ((MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
+            var a = "<color=#00ff99>Ⓐ";
+            if (Options.TimeLimitAdmin.GetFloat() <= GameAdminTimer) return a + "×";
+            else return a + ":" + Math.Round(Options.TimeLimitAdmin.GetFloat() - GameAdminTimer) + "s";
+        }
+        public static string GetCamTimr()
+        {
+            if (Options.TimeLimitCamAndLog.GetFloat() == 0) return "";
+            if ((MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
+            var a = (MapNames)Main.NormalOptions.MapId is MapNames.Mira ? "<color=#cccccc>Ⓛ" : "<color=#cccccc>Ⓒ";
+            if (Options.TimeLimitCamAndLog.GetFloat() <= GameLogAndCamTimer) return a + "×";
+            else return a + ":" + Math.Round(Options.TimeLimitCamAndLog.GetFloat() - GameLogAndCamTimer) + "s";
+        }
+        public static string GetVitalTimer()
+        {
+            if (Options.TimeLimitVital.GetFloat() == 0) return "";
+            if ((MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.Mira) return "";
+            var a = "<color=#33ccff>Ⓥ";
+            if (Options.TimeLimitVital.GetFloat() <= GameVitalTimer) return a + "×";
+            else return a + ":" + Math.Round(Options.TimeLimitVital.GetFloat() - GameVitalTimer) + "s";
+        }
         public static readonly Dictionary<string, Vector2> DevicePos = new()
         {
             ["SkeldAdmin"] = new(3.48f, -8.62f),
@@ -93,20 +117,20 @@ namespace TownOfHost
             if (!player.IsAlive() && player.PlayerId == 0) return true;
             else if (!player.IsAlive()) return false;
 
-            if (DemonicCrusher.DemUseAbility) return i != null ? false : true;
+            if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitAdmin.GetFloat() != 0 && GameAdminTimer > Options.TimeLimitAdmin.GetFloat()) return i != null ? false : true;
+            if (Options.TimeLimitAdmin.GetFloat() != 0 && GameAdminTimer > Options.TimeLimitAdmin.GetFloat()) return i == null;
 
-            if (Options.TarnTimeLimitAdmin.GetFloat() != 0 && TarnAdminTimer > Options.TarnTimeLimitAdmin.GetFloat()) return i != null ? false : true;
+            if (Options.TarnTimeLimitAdmin.GetFloat() != 0 && TarnAdminTimer > Options.TarnTimeLimitAdmin.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
-                (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) &&
+                (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
                 data.GiveAddons.GetBool() && data.GiveInfoPoor.GetBool()))
-                return i != null ? false : true;
+                return i == null;
 
-            if (player.Is(CustomRoles.MassMedia)) return i != null ? false : true;
+            if (player.Is(CustomRoles.MassMedia)) return i == null;
 
-            return (bool)(i != null ? i : false);
+            return i ?? false;
         }
         public static bool VitealUsecheck(PlayerControl player, bool? i = null)
         {
@@ -114,20 +138,20 @@ namespace TownOfHost
             if (!player.IsAlive() && player.PlayerId == 0) return true;
             else if (!player.IsAlive()) return false;
 
-            if (DemonicCrusher.DemUseAbility) return i != null ? false : true;
+            if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitVital.GetFloat() != 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat()) return i != null ? false : true;
+            if (Options.TimeLimitVital.GetFloat() != 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat()) return i == null;
 
-            if (Options.TarnTimeLimitVital.GetFloat() != 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i != null ? false : true;
+            if (Options.TarnTimeLimitVital.GetFloat() != 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
-                            (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) &&
+                            (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
                             data.GiveAddons.GetBool() && data.GiveInfoPoor.GetBool()))
                 return i == null;
 
-            if (player.Is(CustomRoles.MassMedia)) return i != null ? false : true;
+            if (player.Is(CustomRoles.MassMedia)) return i == null;
 
-            return (bool)(i != null ? i : false);
+            return i ?? false;
         }
 
         public static bool LogAndCamUsecheck(PlayerControl player, bool? i = null)
@@ -136,19 +160,19 @@ namespace TownOfHost
             if (!player.IsAlive() && player.PlayerId == 0) return true;
             else if (!player.IsAlive()) return false;
 
-            if (DemonicCrusher.DemUseAbility) return i != null ? false : true;
+            if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitCamAndLog.GetFloat() != 0 && GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat()) return i != null ? false : true;
+            if (Options.TimeLimitCamAndLog.GetFloat() != 0 && GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat()) return i == null;
 
-            if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat()) return i != null ? false : true;
+            if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
-                            (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) &&
+                            (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
                             data.GiveAddons.GetBool() && data.GiveInfoPoor.GetBool()))
                 return i == null;
 
             //ここから
-            if (player.Is(CustomRoles.MassMedia)) return i != null ? false : true;
+            if (player.Is(CustomRoles.MassMedia)) return i == null;
 
             return (bool)(i != null ? i : false);
         }
@@ -197,7 +221,7 @@ namespace TownOfHost
             //if (frame != 0) return;
 
             //if (!DoDisable) return;
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 try
                 {

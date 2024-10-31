@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Slacker
     {
         private static readonly int Id = 70300;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Slacker);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Slacker);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Sl");
         public static List<byte> playerIdList = new();
 

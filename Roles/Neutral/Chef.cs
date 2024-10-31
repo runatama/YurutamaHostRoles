@@ -16,7 +16,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
             CustomRoles.Chef,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            59000,
+            34100,
             SetUpOptionItem,
             "ch",
             "#c79b2c",
@@ -75,7 +75,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         killer.SetKillCooldown(1);
         ChefTarget.Add(target.PlayerId);
         SendRPC(target.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         Logger.Info($"Player: {Player.name},Target: {target.name}", "Chef");
         info.DoKill = false;
     }
@@ -93,7 +93,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
             return Utils.ColorString(RoleInfo.RoleColor, "▲");
         else return "";
     }
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var c = GetCtargetCount();
         return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({c.Item1}/{c.Item2})");
@@ -101,7 +101,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     public (int, int) GetCtargetCount()
     {
         int c = 0, all = 0;
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (pc.PlayerId == Player.PlayerId) continue;
 

@@ -156,7 +156,7 @@ namespace TownOfHost
                 return decupleVanillaSpawnPositions.Contains(decuplePosition);
             }
             /// <summary>比較用 エアシップのバニラ湧き位置の10倍</summary>
-            private static readonly HashSet<(int x, int y)> decupleVanillaSpawnPositions = new()
+            public static readonly HashSet<(int x, int y)> decupleVanillaSpawnPositions = new()
             {
                 (-7, 85),  // 宿舎前通路
                 (-7, -10),  // エンジン
@@ -181,7 +181,7 @@ namespace TownOfHost
                     return false;
                 }
                 // ランダムスポーンが有効ならバニラの湧きをキャンセル
-                if (IsRandomSpawn())
+                if (IsRandomSpawn() || (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool()))
                 {
                     // バニラ処理のRpcSnapToForcedをAirshipSpawnに置き換えたもの
                     __instance.gotButton = true;
@@ -211,6 +211,16 @@ namespace TownOfHost
                     var penguin = player.GetRoleClass() as Penguin;
                     penguin?.OnSpawnAirship();
                 }
+                if (player.Is(CustomRoles.Alien))
+                {
+                    var alien = player.GetRoleClass() as Alien;
+                    alien?.OnSpawnAirship();
+                }
+                if (player.Is(CustomRoles.JackalAlien))
+                {
+                    var alien = player.GetRoleClass() as JackalAlien;
+                    alien?.OnSpawnAirship();
+                }
                 player.RpcResetAbilityCooldown();
                 if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
                     Options.CurrentGameMode != CustomGameMode.TaskBattle
@@ -225,6 +235,10 @@ namespace TownOfHost
                 else if (player.Is(CustomRoles.GM))
                 {
                     new AirshipSpawnMap().FirstTeleport(player);
+                }
+                else if (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool())
+                {
+                    AirshipSpawnMap.VpRandomTeleport(player);
                 }
             }
             PlayerState.GetByPlayerId(player.PlayerId).HasSpawned = true;
@@ -579,6 +593,13 @@ namespace TownOfHost
                 [Options.RandomSpawnAirshipToilet] = new(30.9f, 6.8f),
                 [Options.RandomSpawnAirshipShowers] = new(21.2f, -0.8f)
             };
+            public static void VpRandomTeleport(PlayerControl pc)
+            {
+                var spawnPoints = CustomNetworkTransformHandleRpcPatch.decupleVanillaSpawnPositions;
+                var location = spawnPoints.ToArray().OrderBy(i => Guid.NewGuid()).First();
+                Logger.Info($"{pc.Data.PlayerName}:{location}", "VpRandomSpawn");
+                pc.RpcSnapToForced(new Vector2(location.x / 10, location.y / 10));
+            }
         }
         public class FungleSpawnMap : SpawnMap
         {

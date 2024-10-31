@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Neutral
                 CustomRoles.Jackal,
                 () => CanmakeSK.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
-                51000,
+                30000,
                 SetupOptionItem,
                 "jac",
                 "#00b4eb",
@@ -119,14 +119,14 @@ namespace TownOfHost.Roles.Neutral
             Player.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(Player);
             target.RpcProtectedMurderPlayer(target);
-            Utils.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})"));
+            UtilsGameLog.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
             target.RpcSetCustomRole(CustomRoles.Jackaldoll);
             JackalDoll.Sidekick(target, Player);
             Main.FixTaskNoPlayer.Add(target);
-            Utils.MarkEveryoneDirtySettings();
-            Utils.DelTask();
+            UtilsOption.MarkEveryoneDirtySettings();
+            UtilsTask.DelTask();
             JackalDoll.side++;
-            Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
+            Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
         }
         public override string GetAbilityButtonText() => Translator.GetString("Sidekick");
         public override bool OverrideAbilityButton(out string text)

@@ -17,7 +17,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
             CustomRoles.TeleportKiller,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            60015,
+            5700,
             SetupOptionItem,
             "tk"
         );
@@ -243,7 +243,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
         {
             foreach (var targetid in TeleportandKill)
             {
-                var target = Utils.GetPlayerById(targetid);
+                var target = PlayerCatch.GetPlayerById(targetid);
                 if (TPCheck(target))
                 {
                     TeleportKill(Player, target);
@@ -272,7 +272,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
         CheckVentD[physics.myPlayer.PlayerId] = id;
         return true;
     }
-    public override string GetProgressText(bool comms = false) => Maximum == 0 ? "" : Utils.ColorString(Maximum >= usecount ? Color.red : Color.gray, $"({Maximum - usecount})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Maximum == 0 ? "" : Utils.ColorString(Maximum >= usecount ? Color.red : Color.gray, $"({Maximum - usecount})");
 
     public float CalculateKillCooldown() => KillCooldown;
 

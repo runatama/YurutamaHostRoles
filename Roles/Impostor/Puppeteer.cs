@@ -18,7 +18,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
             CustomRoles.Puppeteer,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            2000,
+            8500,
             SetUpOption,
             "pup",
             from: From.TownOfHost
@@ -88,7 +88,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
         PuppetCooltime[target.PlayerId] = 0;
         SendRPC(target.PlayerId, 1);
         puppeteer.SetKillCooldown();
-        Utils.NotifyRoles(SpecifySeer: puppeteer);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: puppeteer);
         info.DoKill = false;
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
@@ -103,8 +103,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
 
         if (Puppets.TryGetValue(puppet.PlayerId, out var puppeteer))
         {
-            float pu = 0;
-            if (PuppetCooltime.TryGetValue(puppet.PlayerId, out pu))
+            if (PuppetCooltime.TryGetValue(puppet.PlayerId, out float pu))
             {
                 PuppetCooltime[puppet.PlayerId] += Time.fixedDeltaTime;
             }
@@ -124,7 +123,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
             if (cool < PuppetCool.GetFloat()) return;
             var puppetPos = puppet.transform.position;//puppetの位置
             Dictionary<PlayerControl, float> targetDistance = new();
-            foreach (var pc in Main.AllAlivePlayerControls.ToArray())
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls.ToArray())
             {
                 if (pc.PlayerId != puppet.PlayerId && !pc.Is(CountTypes.Impostor) && !pc.Is(CustomRoles.King))
                 {
@@ -143,10 +142,10 @@ public sealed class Puppeteer : RoleBase, IImpostor
                 RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
                 target.SetRealKiller(Player);
                 puppet.RpcMurderPlayer(target);
-                Utils.MarkEveryoneDirtySettings();
+                UtilsOption.MarkEveryoneDirtySettings();
                 Puppets.Remove(puppet.PlayerId);
                 SendRPC(puppet.PlayerId, 2);
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
             }
         }
     }

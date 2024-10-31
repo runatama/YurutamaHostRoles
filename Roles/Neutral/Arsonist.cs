@@ -17,7 +17,7 @@ public sealed class Arsonist : RoleBase, IKiller
             CustomRoles.Arsonist,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            50500,
+            34000,
             SetupOptionItem,
             "ar",
             "#ff6633",
@@ -78,7 +78,7 @@ public sealed class Arsonist : RoleBase, IKiller
     }
     public override void Add()
     {
-        foreach (var ar in Main.AllPlayerControls)
+        foreach (var ar in PlayerCatch.AllPlayerControls)
             IsDoused.Add(ar.PlayerId, false);
     }
     public override bool NotifyRolesCheckOtherName => true;
@@ -86,7 +86,7 @@ public sealed class Arsonist : RoleBase, IKiller
     public bool CanUseImpostorVentButton() => IsDouseDone(Player) && !Player.inVent;
     public float CalculateKillCooldown() => DouseCooldown;
     public bool CanUseSabotageButton() => false;
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var doused = GetDousedPlayerCount();
         return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({doused.Item1}/{doused.Item2})");
@@ -132,7 +132,7 @@ public sealed class Arsonist : RoleBase, IKiller
         if (!IsDoused[target.PlayerId] && TargetInfo == null)
         {
             TargetInfo = new(target.PlayerId, 0f);
-            Utils.NotifyRoles(SpecifySeer: killer);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: killer);
             SendRPC(RPC_type.SetCurrentDousingTarget, target.PlayerId);
         }
         info.DoKill = false;
@@ -150,12 +150,12 @@ public sealed class Arsonist : RoleBase, IKiller
             if (!Player.IsAlive())
             {
                 TargetInfo = null;
-                Utils.NotifyRoles(SpecifySeer: Player);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 SendRPC(RPC_type.SetCurrentDousingTarget);
             }
             else
             {
-                var ar_target = Utils.GetPlayerById(TargetInfo.TargetId);//塗られる人
+                var ar_target = PlayerCatch.GetPlayerById(TargetInfo.TargetId);//塗られる人
                 var ar_time = TargetInfo.Timer;//塗った時間
                 if (!ar_target.IsAlive())
                 {
@@ -167,7 +167,7 @@ public sealed class Arsonist : RoleBase, IKiller
                     TargetInfo = null;//塗が完了したのでTupleから削除
                     IsDoused[ar_target.PlayerId] = true;//塗り完了
                     SendRPC(RPC_type.SetDousedPlayer, ar_target.PlayerId, true);
-                    Utils.NotifyRoles();//名前変更
+                    UtilsNotifyRoles.NotifyRoles();//名前変更
                     SendRPC(RPC_type.SetCurrentDousingTarget);
                 }
                 else
@@ -181,7 +181,7 @@ public sealed class Arsonist : RoleBase, IKiller
                     else//それ以外は削除
                     {
                         TargetInfo = null;
-                        Utils.NotifyRoles(SpecifySeer: Player);
+                        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                         SendRPC(RPC_type.SetCurrentDousingTarget);
 
                         Logger.Info($"Canceled: {Player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
@@ -194,7 +194,7 @@ public sealed class Arsonist : RoleBase, IKiller
     {
         if (GameStates.IsInGame && IsDouseDone(Player))
         {
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (pc.PlayerId != Player.PlayerId)
                 {
@@ -257,7 +257,7 @@ public sealed class Arsonist : RoleBase, IKiller
     {
         int doused = 0, all = 0;
         //多分この方がMain.isDousedでforeachするより他のアーソニストの分ループ数少なくて済む
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (pc.PlayerId == Player.PlayerId) continue; //アーソニストは除外
 

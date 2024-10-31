@@ -57,6 +57,10 @@ namespace TownOfHost
                 {
                     message = GetString("CanNotJoinPublicRoomNoLatest");
                 }
+                else if (ModUpdater.isBroken)
+                {
+                    message = GetString("ModBrokenMessage");
+                }
                 else if (!Main.IsPublicAvailableOnThisVersion)
                 {
                     message = GetString("PublicNotAvailableOnThisVersion");
@@ -64,10 +68,6 @@ namespace TownOfHost
                 else if (!VersionChecker.IsSupported)
                 {
                     message = GetString("UnsupportedVersion");
-                }
-                else if (ModUpdater.isBroken)
-                {
-                    message = GetString("ModBrokenMessage");
                 }
                 textObj.text = $"<size=2>{Utils.ColorString(Color.red, message)}</size>";
             }
@@ -179,7 +179,7 @@ namespace TownOfHost
                             }
                             if (innerNetObject.Chunked && innerNetObject.IsDirty)
                             {
-                                Logger.Info($"SendAllStreamedObjects: Chunked", "InnerNetClient");
+                                //Logger.Info($"SendAllStreamedObjects: Chunked", "InnerNetClient");
                                 __result = true;
                             }
                         }
@@ -226,10 +226,10 @@ namespace TownOfHost
                 Logger.Info($"HandleMessagePatch:Packet({reader.Length}) ,SendOption:{sendOption}", "InnerNetClient");
             }
             else*/
-            if (reader.Length > 1000)
+            /*if (reader.Length > 1000)
             {
                 Logger.Info($"HandleMessagePatch:Large Packet({reader.Length})", "InnerNetClient");
-            }
+            }*/
             return true;
         }
         [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendOrDisconnect)), HarmonyPrefix]
@@ -239,11 +239,11 @@ namespace TownOfHost
             {
                 Logger.Info($"SendOrDisconnectPatch:Packet({msg.Length}) ,SendOption:{msg.SendOption}", "InnerNetClient");
             }
-            else*/
+            else
             if (msg.Length > 1000)
             {
                 Logger.Info($"SendOrDisconnectPatch:Large Packet({msg.Length})", "InnerNetClient");
-            }
+            }*/
         }
         [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData)), HarmonyPrefix]
         public static bool SendInitialDataPatch(InnerNetClient __instance, int clientId)

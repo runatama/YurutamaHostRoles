@@ -14,7 +14,7 @@ public sealed class King : RoleBase
             CustomRoles.King,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            24000,
+            21400,
             SetupOptionItem,
             "k",
             "#FFD700"
@@ -136,7 +136,7 @@ public sealed class King : RoleBase
         List<PlayerControl> crews = new();
 
         //対象者
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (!pc) continue;
             if (pc == Player) continue;
@@ -260,7 +260,7 @@ public sealed class King : RoleBase
                 Logger.Info($"{pc.name}の役職クルーな！！ハハハ!!", "KingRoles");
             }
         }
-        _ = new LateTask(() => Utils.NotifyRoles(), 0.4f, "KingResetNotify");
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.4f, "KingResetNotify");
         Die = true;
         exdie = false;
     }

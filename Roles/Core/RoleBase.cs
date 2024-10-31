@@ -357,7 +357,7 @@ public abstract class RoleBase : IDisposable
     /// 役職名の横に出るテキスト
     /// </summary>
     /// <param name="comms">コミュサボ中扱いするかどうか</param>
-    public virtual string GetProgressText(bool comms = false) => "";
+    public virtual string GetProgressText(bool comms = false, bool GameLog = false) => "";
     /// <summary>
     /// seerが自分であるときのMark
     /// seer,seenともに自分以外であるときに表示したい場合は同じ引数でstaticとして実装し
@@ -390,6 +390,7 @@ public abstract class RoleBase : IDisposable
     /// <returns>構築したMark</returns>
     public virtual string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false) => "";
 
+    public virtual bool AllEnabledColor => false;
     /// <summary>
     /// アビリティボタンのテキストを変更します
     /// </summary>
@@ -409,7 +410,7 @@ public abstract class RoleBase : IDisposable
         return str.HasValue ? GetString(str.Value) : "Invalid";
     }
     /// <summary>
-    /// インポスターベントボタンの画像を変更します。
+    /// アビリティボタンの画像を変更します。
     /// </summary>
     /// <param name="text"></param>
     /// <returns></returns>
@@ -423,7 +424,7 @@ public abstract class RoleBase : IDisposable
     /// <see cref="OnReportDeadBody"/>より先に呼ばれる、キャンセルした場合は呼ばれない<br/>
     /// trueを返すとキャンセルされる
     /// </summary>
-    public virtual bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) => false;
+    public virtual bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, ref DontReportreson reason) => false;
 
     /// <summary>
     /// 占い結果で表示される役職を変更することができる<br/>
@@ -474,7 +475,7 @@ public abstract class RoleBase : IDisposable
     /// falseだとできない。
     /// </summary>
     /// <returns></returns>
-    public virtual bool CanTask() => Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
+    public virtual bool CanTask() => UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
 
     /// <summary>
     /// 覚醒等で使えたら!<br/>
@@ -485,6 +486,7 @@ public abstract class RoleBase : IDisposable
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
     public static AudioClip GetIntrosound(RoleTypes roleType) =>
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
+    public static FloatValueRule OptionBaseCoolTime => new(0, 180, 0.5f);
     protected enum GeneralOption
     {
         Cooldown,
@@ -502,5 +504,14 @@ public abstract class RoleBase : IDisposable
         UKakusei,
         OptionCount,
         EngineerInVentMaxTime
+    }
+    public enum DontReportreson
+    {
+        None,
+        wait,
+        NonReport,
+        Transparent,
+        CantUseButton,
+        Other
     }
 }

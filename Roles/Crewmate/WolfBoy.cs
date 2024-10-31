@@ -18,7 +18,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoles.WolfBoy,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Crewmate,
-            20475,
+            17300,
             SetupOptionItem,
             "wb",
             "#727171",
@@ -72,7 +72,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
         CurrentKillCooldown = KillCooldown.GetFloat();
 
         ShotLimit = ShotLimitOpt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "WolfBoy");
+        Logger.Info($"{PlayerCatch.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "WolfBoy");
     }
     private void SendRPC()
     {
@@ -113,10 +113,16 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
             {
                 AlienTairo = al.CheckSheriffKill(target);
             }
+            if (target.Is(CustomRoles.JackalAlien))
+                foreach (var al in Neutral.JackalAlien.Aliens)
+                {
+                    AlienTairo = al.CheckSheriffKill(target);
+                }
             if (!CanBeKilledBy(target) || AlienTairo)
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 :
+                target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : (target.Is(CustomRoles.JackalAlien) && JackalAlien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire);
                 killer.RpcMurderPlayer(killer);
                 info.DoKill = false;
                 return;
@@ -126,7 +132,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
         }
         return;
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(CanUseKillButton() ? Color.yellow : Color.gray, $"({ShotLimit})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(CanUseKillButton() ? Color.yellow : Color.gray, $"({ShotLimit})");
     public static bool CanBeKilledBy(PlayerControl player)
     {
         var cRole = player.GetCustomRole();

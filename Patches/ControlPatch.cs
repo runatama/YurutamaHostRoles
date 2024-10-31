@@ -63,21 +63,26 @@ namespace TownOfHost
                 Translator.ExportCustomTranslation();
                 Logger.seeingame("Exported Custom Translation File");
             }
+            if (GetKeysDown(KeyCode.Y, KeyCode.R) && !Event.Special)
+            {
+                Logger.Info($"YRWoKentisitaze", "KeyCommand");
+                Event.Special = GameStates.IsNotJoined;
+            }
             //ログファイルのダンプ
             if (GetKeysDown(KeyCode.F1, KeyCode.LeftControl))
             {
                 Logger.Info("Dump Logs", "KeyCommand");
-                Utils.DumpLog();
+                UtilsOutputLog.DumpLog();
             }
             //現在の設定をテキストとしてコピー
             if (GetKeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
             {
-                Utils.CopyCurrentSettings();
+                UtilsShowOption.CopyCurrentSettings();
             }
             //実行ファイルのフォルダを開く
             if (GetKeysDown(KeyCode.F10))
             {
-                Utils.OpenDirectory(System.Environment.CurrentDirectory);
+                UtilsOutputLog.OpenDirectory(System.Environment.CurrentDirectory);
             }
             /*if (GetKeysDown(KeyCode.T, KeyCode.B) && !Main.TaskBattleOptionv)
             {
@@ -107,22 +112,22 @@ namespace TownOfHost
             //ミーティングを強制終了
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)
             {
-                foreach (var Player in Main.AllPlayerControls)
+                foreach (var Player in PlayerCatch.AllPlayerControls)
                 {
-                    foreach (var pc in Main.AllPlayerControls)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc == PlayerControl.LocalPlayer) continue;
                         var taishou = PlayerControl.LocalPlayer;
                         if (!PlayerControl.LocalPlayer.IsAlive())
                         {
-                            var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
+                            var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
                             taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                         }
                         Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                     }
                 }
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
-                Utils.AddGameLog("Vote", Translator.GetString("voteskip") + "※Host");
+                UtilsGameLog.AddGameLog("Vote", Translator.GetString("voteskip") + "※Host");
                 GameStates.Meeting = false;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
@@ -136,7 +141,7 @@ namespace TownOfHost
             //即スタート
             if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown)
             {
-                if (!Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Any())
+                if (!PlayerCatch.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Any())
                 {
                     Logger.Info("CountDownTimer set to 0", "KeyCommand");
                     GameStartManager.Instance.countDownTimer = 0;
@@ -160,13 +165,13 @@ namespace TownOfHost
             if (GetKeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
             {
                 Main.isChatCommand = true;
-                Utils.ShowActiveSettingsHelp();
+                UtilsShowOption.ShowActiveSettingsHelp();
             }
             //現在の有効な設定を表示
             if (GetKeysDown(KeyCode.N, KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
             {
                 Main.isChatCommand = true;
-                Utils.ShowActiveSettings();
+                UtilsShowOption.ShowActiveSettings();
             }
             //キルフラッシュ
             if (GetKeysDown(KeyCode.K, KeyCode.L, KeyCode.LeftControl) && GameStates.InGame)
@@ -181,7 +186,43 @@ namespace TownOfHost
             //自分自身の死体をレポート
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.RightShift) && GameStates.IsInGame && ((!GameStates.Meeting && !GameStates.Intro) || DebugModeManager.IsDebugMode))
             {
-                ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false);
+                ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, Translator.GetString("MI.Kyousei"), Main.ModColor);
+            }
+            if (GameStates.IsLobby && !GameStates.InGame)
+            {
+                if (GameSettingMenuStartPatch.search?.gameObject?.active ?? false)
+                {
+                    /*
+                    if (!(HudManager.Instance?.Chat?.IsOpenOrOpening ?? false) && GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false))
+                    {
+                        GameSettingMenuStartPatch.ModSettingsTab?.CloseMenu();
+                        GameSettingMenu.Instance?.GameSettingsTab?.CloseMenu();
+                        GameSettingMenu.Instance?.RoleSettingsTab?.CloseMenu();
+                    }*/
+                    if (GetKeysDown(KeyCode.Return))
+                    {
+                        if (GameSettingMenuStartPatch.search.textArea.text != "")
+                        {
+                            GameSettingMenuStartPatch.search?.submitButton?.OnPressed?.Invoke();
+                        }
+                        else
+                        if (GameSettingMenuStartPatch.priset.textArea.text != "")
+                        {
+                            var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
+                            switch (pr.CurrentValue)
+                            {
+                                case 0: Main.Preset1.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                                case 1: Main.Preset2.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                                case 2: Main.Preset3.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                                case 3: Main.Preset4.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                                case 4: Main.Preset5.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                                case 5: Main.Preset6.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                                case 6: Main.Preset7.Value = GameSettingMenuStartPatch.priset.textArea.text; break;
+                            }
+                            GameSettingMenuStartPatch.priset.textArea.Clear();
+                        }
+                    }
+                }
             }
             //--以下デバッグモード用コマンド--//
             if (!DebugModeManager.IsDebugMode) return;
@@ -321,7 +362,8 @@ namespace TownOfHost
             PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
             PlayerControl.LocalPlayer.CanUseImpostorVentButton())
             {
-                DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.DoClick();
+                try { DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.DoClick(); }
+                catch { }
             }
         }
     }

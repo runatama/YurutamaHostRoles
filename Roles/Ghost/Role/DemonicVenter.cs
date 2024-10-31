@@ -3,7 +3,6 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 using System.Linq;
 using UnityEngine;
-using Hazel;
 
 namespace TownOfHost.Roles.Ghost
 {
@@ -40,7 +39,7 @@ namespace TownOfHost.Roles.Ghost
                 foreach (var vent in ShipStatus.Instance.AllVents)
                     Distance.Add(vent, Vector2.Distance(position, vent.transform.position));
                 var ve = Distance.OrderByDescending(x => x.Value).Last().Key;
-                foreach (var pl in Main.AllPlayerControls)
+                foreach (var pl in PlayerCatch.AllPlayerControls)
                 {
                     pc.RpcSnapToForced(ve.transform.position);
                     _ = new LateTask(() => pc.MyPhysics.RpcExitVent(ve.Id), 0.2f, "DemonicVenter3");

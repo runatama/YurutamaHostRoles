@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using HarmonyLib;
 
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
-using HarmonyLib;
 
 namespace TownOfHost
 {
@@ -41,9 +41,9 @@ namespace TownOfHost
                 {
                     var roleType = CustomRoleTypes.Impostor;
                     var farst = true;
-                    var (imp, mad, crew, neu, addon, lover, gorst) = Utils.GetRoleTypesCountInt();
+                    var (imp, mad, crew, neu, addon, lover, gorst) = UtilsShowOption.GetRoleTypesCountInt();
                     //有効な役職一覧
-                    sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
+                    sb.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.GM)}>{UtilsRoleText.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
                     sb.Append(GetString("ActiveRolesList")).Append("<size=90%>");
                     var count = -1;
                     var co = 0;
@@ -70,12 +70,12 @@ namespace TownOfHost
                                 sb.Append(Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n"));
                             }
                             farst = false;
-                            if ((!addoncheck && roleType == CustomRoleTypes.Crewmate && (role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku)) || (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor))
+                            if ((!addoncheck && roleType == CustomRoleTypes.Crewmate && role.IsSubRole()) || (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor))
                             {
                                 var s = "";
                                 var c = 0;
                                 var cor = Color.white;
-                                if (role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku)
+                                if (role.IsSubRole())
                                 {
                                     s = "☆Add-ons☆";
                                     c = addon + lover + gorst;
@@ -92,7 +92,7 @@ namespace TownOfHost
                                     }
                                 var maxtext = $"({c})";
                                 var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
-                                if (che)
+                                if (che && !role.IsSubRole())
                                 {
                                     maxtext += $"　[Min : {min}|Max : {max} ]";
                                 }
@@ -103,13 +103,13 @@ namespace TownOfHost
                             var m = role.IsImpostor() ? Utils.ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? Utils.ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<color=#ff7f50>Ⓜ</color>" : (role.IsNeutral() ? Utils.ColorString(ModColors.NeutralGray, "Ⓝ") : "<color=#cccccc>⦿</color>")));
 
                             if (role.IsBuffAddon()) m = Utils.AdditionalWinnerMark;
-                            if (role.IsRiaju()) m = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ALovers), "♥");
+                            if (role.IsRiaju()) m = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Lovers), "♥");
                             if (role.IsDebuffAddon()) m = Utils.ColorString(Palette.DisabledGrey, "☆");
                             if (role.IsGorstRole()) m = "<color=#8989d9>■</color>";
 
-                            if (count == 0) sb.Append($"\n{m}{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
-                            else if (count == -1) sb.Append($"{m}{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
-                            else sb.Append($"<pos=39%>{m}{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
+                            if (count == 0) sb.Append($"\n{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else if (count == -1) sb.Append($"{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else sb.Append($"<pos=39%>{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
 
                             if (count == 0) co++;
                             count = count is 0 or -1 ? 1 : 0;
@@ -133,8 +133,8 @@ namespace TownOfHost
                 {
                     if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
                     sb.Append('\n');
-                    sb.Append($"</size><size=100%>{Utils.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
-                    ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
+                    sb.Append($"</size><size=100%>{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
+                    ShowChildren(kvp.Value, ref sb, UtilsRoleText.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
                     string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
                     string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");
 
@@ -229,6 +229,53 @@ namespace TownOfHost
                 sb.Append($"{opt.Value.GetName()}: {opt.Value.GetString()}</size></line-height>\n");
                 if (opt.Value.GetBool()) ShowChildren(opt.Value, ref sb, color, deep + 1);
             }
+        }
+        public static bool? Checkenabled(OptionItem opt)
+        {
+            if (opt.Name == "GiveGuesser" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveWatching" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveManagement" && !opt.GetBool()) return false;
+            if (opt.Name == "Giveseeing" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveAutopsy" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveTiebreaker" && !opt.GetBool()) return false;
+            if (opt.Name == "GivePlusVote" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveRevenger" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveOpener" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveLighting" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveMoon" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveElector" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveInfoPoor" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveNonReport" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveTransparent" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveNotvoter" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveWater" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveSpeeding" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveGuarding" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveClumsy" && !opt.GetBool()) return false;
+            if (opt.Name == "GiveSlacker" && !opt.GetBool()) return false;
+
+            if (opt.Name == "DisableSkeldDevices" && !Options.IsActiveSkeld) return null;
+            if (opt.Name == "DisableMiraHQDevices" && !Options.IsActiveMiraHQ) return null;
+            if (opt.Name == "DisablePolusDevices" && !Options.IsActivePolus) return null;
+            if (opt.Name == "PolusReactorTimeLimit" && !Options.IsActivePolus) return null;
+            if (opt.Name == "DisableAirshipDevices" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "AirshipReactorTimeLimit" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "DisableFungleDevices" && !Options.IsActiveFungle) return null;
+            if (opt.Name == "FungleReactorTimeLimit" && !Options.IsActiveFungle) return null;
+            if (opt.Name == "SkeldReactorTimeLimit" && !Options.IsActiveSkeld) return null;
+            if (opt.Name == "SkeldO2TimeLimit" && !Options.IsActiveSkeld) return null;
+            if (opt.Name == "MiraReactorTimeLimit" && !Options.IsActiveMiraHQ) return null;
+            if (opt.Name == "MiraO2TimeLimit" && !Options.IsActiveMiraHQ) return null;
+            if (opt.Name == "FungleMushroomMixupDuration" && !Options.IsActiveFungle) return null;
+            if (opt.Name == "DisableFungleSporeTrigger" && !Options.IsActiveFungle) return null;
+            if (opt.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) return null;
+            if (opt.Name == "AirShipVariableElectrical" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "DisableAirshipMovingPlatform" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "DisableAirshipViewingDeckLightsPanel" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "DisableAirshipCargoLightsPanel" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "DisableAirshipGapRoomLightsPanel" && !Options.IsActiveAirship) return null;
+            if (opt.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveSkeld || Options.IsActiveMiraHQ || Options.IsActiveAirship || Options.IsActivePolus)) return null;
+            return true;
         }
     }
 }

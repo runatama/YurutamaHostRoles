@@ -9,6 +9,7 @@ using Object = UnityEngine.Object;
 using TownOfHost.Roles.Core;
 using AmongUs.GameOptions;
 using Il2CppSystem.Linq;
+using static TownOfHost.GameSettingMenuStartPatch;
 
 namespace TownOfHost
 {
@@ -20,6 +21,28 @@ namespace TownOfHost
 
         public static void Postfix(GameOptionsMenu __instance)
         {
+            if (priset)
+            {
+                priset.transform.localPosition = new Vector3(0f, 3.2f);
+                priset.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
+
+                search.transform.localPosition = new Vector3(0f, 3.5f);
+                search.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
+
+                activeonly.transform.localPosition = new Vector3(-2.05f, 3.3f);
+                activeonly.transform.localScale = new Vector3(0.6f, 0.6f, 0f);
+
+                searchtext.enabled = search.textArea.text == "";
+                prisettext.enabled = priset.textArea.text == "";
+
+                var active = ModSettingsButton?.selected ?? false;
+
+                searchtext.gameObject.SetActive(active);
+                prisettext.gameObject.SetActive(active);
+                search.gameObject.SetActive(active);
+                priset.gameObject.SetActive(active);
+                activeonly.gameObject.SetActive(active);
+            }
             //タイマー表示
             /*if (GameOptionsMenuPatch.Timer != null)
             {
@@ -58,11 +81,38 @@ namespace TownOfHost
 
                     enabled = AmongUsClient.Instance.AmHost &&
                         !option.IsHiddenOn(Options.CurrentGameMode);
+                    //起動時以外で表示/非表示を切り替える際に使う
+                    if (ActiveOnlyMode)
+                    {
+                        if (Options.CustomRoleSpawnChances.ContainsValue(option as IntegerOptionItem))
+                        {
+                            enabled = option.GetBool();
+                        }
+                        if (OptionShower.Checkenabled(option) is false or null)
+                        {
+                            var v = OptionShower.Checkenabled(option);
+                            enabled = v is not null && option.GetBool();
+                        }
+                        if (option.Parent is not null)
+                            if (OptionShower.Checkenabled(option.Parent) is false or null)
+                            {
+                                var v = OptionShower.Checkenabled(option.Parent);
+                                enabled = v is not null && option.Parent.GetBool();
+                            }
+                    }
+                    if (enabled && !Event.Special)
+                    {
+                        if (Options.CustomRoleSpawnChances.ContainsValue(option as IntegerOptionItem))
+                        {
+                            if (Event.OptionLoad.Contains(option.Name)) enabled = false;
+                        }
+                    }
+
                     if (enabled && find != "")
                     {
                         enabled = option.Name.ToLower().Contains(find.ToLower())
                         || (Enum.TryParse(typeof(CustomRoles), option.Name, true, out var role)
-                         ? Utils.GetCombinationCName((CustomRoles)role, false).ToLower().Contains(find.ToLower())
+                         ? UtilsRoleText.GetCombinationCName((CustomRoles)role, false).ToLower().Contains(find.ToLower())
                          : GetString(option.Name).ToLower().Contains(find.ToLower()));
                     }
                     var opt = option.OptionBehaviour.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
@@ -168,7 +218,7 @@ namespace TownOfHost
                 if (role.IsAddOn())
                 {
                     List<CustomRoles> list = new(1) { role };
-                    mark = $" {Utils.GetSubRoleMarks(list, CustomRoles.NotAssigned)}";
+                    mark = $" {UtilsRoleText.GetSubRoleMarks(list, CustomRoles.NotAssigned)}";
                 }
             }
             __instance.OnValueChanged = new Action<OptionBehaviour>((o) => { });
@@ -245,7 +295,28 @@ namespace TownOfHost
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 1 && !Main.TaskBattleOptionv) option.CurrentValue++;
             if (option.Name == "KickModClient") Main.LastKickModClient.Value = true;
-            option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
+            if (option.Name == "Role")
+            {
+                var ch = true;
+                var v = option.CurrentValue;
+                while (ch)
+                {
+                    v++;
+                    if (!ChatCommands.GetRoleByInputName((option as StringOptionItem).GetString(v).RemoveHtmlTags(), out var role, true))
+                    {
+                        v = -1;
+                        continue;
+                    }
+
+                    if ((Options.CustomRoleSpawnChances.TryGetValue(role, out var op) && (op?.GetBool() ?? false)) || role is CustomRoles.Crewmate or CustomRoles.Impostor or CustomRoles.Madmate or CustomRoles.Opportunist or CustomRoles.Braid or CustomRoles.NotAssigned)//マッド/オポチュは処理落ち対策。
+                    {
+                        ch = false;
+                        option.SetValue(v);
+                    }
+                }
+            }
+            else
+                option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
         }
     }
@@ -309,7 +380,29 @@ namespace TownOfHost
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 0 && !Main.TaskBattleOptionv) option.CurrentValue--;
             if (option.Name == "KickModClient") Main.LastKickModClient.Value = false;
-            option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
+
+            if (option.Name == "Role")
+            {
+                var ch = true;
+                var v = option.CurrentValue;
+                while (ch)
+                {
+                    v--;
+                    if (!ChatCommands.GetRoleByInputName((option as StringOptionItem).GetString(v).RemoveHtmlTags(), out var role, true))
+                    {
+                        v = (option as StringOptionItem).Rule.MaxValue;
+                        continue;
+                    }
+
+                    if ((Options.CustomRoleSpawnChances.TryGetValue(role, out var op) && (op?.GetBool() ?? false)) || role is CustomRoles.Crewmate or CustomRoles.Impostor or CustomRoles.Madmate or CustomRoles.Opportunist or CustomRoles.Braid or CustomRoles.NotAssigned)//マッド/オポチュは処理落ち対策。
+                    {
+                        ch = false;
+                        option.SetValue(v);
+                    }
+                }
+            }
+            else
+                option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
             return false;
         }
     }
@@ -327,8 +420,14 @@ namespace TownOfHost
     {
         public static void Postfix()
         {
-            GameSettingMenuStartPatch.ModSettingsButton = null;
-            GameSettingMenuStartPatch.ModSettingsTab = null;
+            ModSettingsButton = null;
+            ModSettingsTab = null;
+            activeonly = null;
+            ActiveOnlyMode = false;
+            priset = null;
+            prisettext = null;
+            search = null;
+            searchtext = null;
         }
     }
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
@@ -337,9 +436,16 @@ namespace TownOfHost
         public static bool dasu;
         public static PassiveButton ModSettingsButton;
         public static RolesSettingsMenu ModSettingsTab;
+        public static PassiveButton activeonly;
+        public static bool ActiveOnlyMode;
+        public static FreeChatInputField priset;
+        public static TMPro.TextMeshPro prisettext;
+        public static FreeChatInputField search;
+        public static TMPro.TextMeshPro searchtext;
         static Il2CppSystem.Collections.Generic.List<PassiveButton> hozon2;
         public static void Postfix(GameSettingMenu __instance)
         {
+            ActiveOnlyMode = false;
             var GamePresetButton = GameObject.Find("LeftPanel/GamePresetButton");
             var GameSettingsButton = GameObject.Find("LeftPanel/GameSettingsButton");
             var RoleSettingsButton = GameObject.Find("LeftPanel/RoleSettingsButton");
@@ -347,6 +453,15 @@ namespace TownOfHost
             var GamePresetButtons = GamePresetButton.GetComponent<PassiveButton>();
 
             var ModStgButton = GameObject.Instantiate(RoleSettingsButton, RoleSettingsButton.transform.parent);
+            var activeonlybutton = GameObject.Instantiate(GamePresetButton, __instance.RoleSettingsTab.transform.parent);
+
+            activeonly = activeonlybutton.GetComponent<PassiveButton>();
+            activeonly.buttonText.text = "有効なMap設定/役職のみ表示する <size=5>(OFF)</size>";
+
+            activeonly.inactiveSprites.GetComponent<SpriteRenderer>().color =
+            activeonly.activeSprites.GetComponent<SpriteRenderer>().color =
+            activeonly.selectedSprites.GetComponent<SpriteRenderer>().color = ModColors.bluegreen;
+            activeonly.buttonText.DestroyTranslator();
 
             GamePresetButtons.gameObject.SetActive(false);
             RoleSettingsButton.gameObject.SetActive(false);
@@ -359,9 +474,67 @@ namespace TownOfHost
             selectedSprite.color = StringHelper.CodeColor(Main.ModColor).ShadeColor(-0.2f);
             ModSettingsButton.buttonText.DestroyTranslator();//翻訳破壊☆
 
+            activeonly.OnClick = new();
+            activeonly.OnClick.AddListener((Action)(() =>
+            {
+                if (ModSettingsButton.selected)
+                {
+                    ActiveOnlyMode = !ActiveOnlyMode;
+                    activeonly.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    activeonly.activeSprites.GetComponent<SpriteRenderer>().color =
+                    activeonly.selectedSprites.GetComponent<SpriteRenderer>().color = ActiveOnlyMode ? ModColors.GhostRoleColor : ModColors.bluegreen;
+                    var now = ActiveOnlyMode ? "ON" : "OFF";
+                    activeonly.buttonText.text = $"有効なMap設定/役職のみ表示する <size=5>({now})</size>";
+                    activeonly.selected = false;
+                    ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                    ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
+                    ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                }
+            }));
+
             var roleTab = GameObject.Find("ROLES TAB");
             ModSettingsTab = GameObject.Instantiate(__instance.RoleSettingsTab, __instance.RoleSettingsTab.transform.parent).GetComponent<RolesSettingsMenu>();
 
+            if (priset == null)
+            {
+                try
+                {
+                    priset = GameObject.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
+                    search = GameObject.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
+
+                    prisettext = GameObject.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
+                    prisettext.text = "<size=120%><color=#cccccc><b>プリセット名編集</b></color></size>";
+                    prisettext.transform.localPosition = new Vector3(-2f, -1.1f);
+                    searchtext = GameObject.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
+                    searchtext.text = "<size=120%><color=#ffa826><b>検索</b></color></size>";
+                    searchtext.transform.localPosition = new Vector3(-2f, -0.3f);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Exception(ex, "OptionsManager");
+                }
+            }
+            priset.transform.localPosition = new Vector3(0f, 3.2f);
+            priset.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
+            priset?.gameObject?.SetActive(true);
+            priset.submitButton.OnPressed = (Action)(() =>
+            {
+                if (priset.textArea.text != "")
+                {
+                    var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
+                    switch (pr.CurrentValue)
+                    {
+                        case 0: Main.Preset1.Value = priset.textArea.text; break;
+                        case 1: Main.Preset2.Value = priset.textArea.text; break;
+                        case 2: Main.Preset3.Value = priset.textArea.text; break;
+                        case 3: Main.Preset4.Value = priset.textArea.text; break;
+                        case 4: Main.Preset5.Value = priset.textArea.text; break;
+                        case 5: Main.Preset6.Value = priset.textArea.text; break;
+                        case 6: Main.Preset7.Value = priset.textArea.text; break;
+                    }
+                    priset.textArea.Clear();
+                }
+            });
             Dictionary<TabGroup, GameObject> menus = new();
 
             GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(true);
@@ -396,7 +569,7 @@ namespace TownOfHost
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
-                    stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.LabelBackground.png");
+                    stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = GameSettingMenuChangeTabPatch.OptionLabelBackground(option.Name) ?? UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
                     stringOption.transform.FindChild("LabelBackground").localScale = new Vector3(1.3f, 1.14f, 1f);
                     stringOption.transform.FindChild("LabelBackground").SetLocalX(-2.2695f);
                     stringOption.transform.FindChild("PlusButton").localPosition += new Vector3(option.HideValue ? 100f : 1.1434f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
@@ -436,9 +609,9 @@ namespace TownOfHost
                 tabButton.name = tab.ToString();
                 tabButton.transform.position = templateTabButton.transform.position + new Vector3(0.762f * i, 0f);
                 Object.Destroy(tabButton.buttonText.gameObject);
-                tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.TabIcon_{tab}.png", 60);
-                tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.TabIcon_S_{tab}.png", 120);
-                tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.TabIcon_{tab}.png", 120);
+                tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 60);
+                tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
+                tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 120);
 
                 hozon.Add(tabButton);
             }
@@ -458,10 +631,10 @@ namespace TownOfHost
                         var n = EnumHelper.GetAllValues<TabGroup>()[j];
                         menus[(TabGroup)j].SetActive(false);
                         hozon[j].SelectButton(false);
-                        hozon[j].selectedSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.TabIcon_{n}.png", 120);
+                        hozon[j].selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{n}.png", 120);
                     }
                     tabButton.SelectButton(true);
-                    tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"TownOfHost.Resources.TabIcon_S_{tab}.png", 120);
+                    tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
                     menus[tab].SetActive(true);
                     var tabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
                     CategoryHeaderEditRole[] tabsubtitle = tabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
@@ -481,6 +654,102 @@ namespace TownOfHost
                 ModSettingsTab.roleTabs.Add(tabButton);
                 hozon2.Add(tabButton);
             }
+
+            search.transform.localPosition = new Vector3(0f, 3.5f);
+            search.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
+            search?.gameObject?.SetActive(true);
+            search.submitButton.OnPressed = (Action)(() =>
+            {
+                var ch = false;
+                foreach (var op in OptionItem.AllOptions)
+                    if (op.GetName().RemoveHtmlTags() == search.textArea.text)
+                    {
+                        var opt = op;
+                        if (opt.Parent != null)
+                            if (!op.GetBool())
+                            {
+                                opt = op.Parent;
+                                if (op.Parent.Parent != null)
+                                    if (!op.Parent.GetBool())
+                                    {
+                                        opt = op.Parent.Parent;
+                                        if (op.Parent.Parent.Parent != null)
+                                            if (!op.Parent.Parent.GetBool())
+                                            {
+                                                opt = op.Parent.Parent.Parent;
+                                            }
+                                    }
+                            }
+                        switch (opt.Tab)
+                        {
+                            case TabGroup.MainSettings: if (hozon2[0] != null) hozon2[0].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.ImpostorRoles: if (hozon2[1] != null) hozon2[1].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.MadmateRoles: if (hozon2[2] != null) hozon2[2].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.CrewmateRoles: if (hozon2[3] != null) hozon2[3].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.NeutralRoles: if (hozon2[4] != null) hozon2[4].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.Combinations: if (hozon2[5] != null) hozon2[5].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.Addons: if (hozon2[6] != null) hozon2[6].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            case TabGroup.GhostRoles: if (hozon2[7] != null) hozon2[7].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                        }
+                        _ = new LateTask(() =>
+                        {
+                            if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
+                            ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                            var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);// Scrollerのローカル空間における座標に変換
+                            var scrollAmount = 1 - relativePosition.y;
+                            ModSettingsTab.scrollBar.Inner.localPosition = ModSettingsTab.scrollBar.Inner.localPosition + Vector3.up * scrollAmount;  // 強制スクロール
+                            ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                        }, 0.1f, "", true);
+                        ch = true;
+                        break;
+                    }
+                if (!ch)
+                {
+                    foreach (var op in OptionItem.AllOptions)
+                        if (op.GetName().RemoveHtmlTags().Contains(search.textArea.text))
+                        {
+                            var opt = op;
+                            if (opt.Parent != null)
+                                if (!op.GetBool())
+                                {
+                                    opt = op.Parent;
+                                    if (op.Parent.Parent != null)
+                                        if (!op.Parent.GetBool())
+                                        {
+                                            opt = op.Parent.Parent;
+                                            if (op.Parent.Parent.Parent != null)
+                                                if (!op.Parent.Parent.GetBool())
+                                                {
+                                                    opt = op.Parent.Parent.Parent;
+                                                }
+                                        }
+                                }
+                            switch (opt.Tab)
+                            {
+                                case TabGroup.MainSettings: if (hozon2[0] != null) hozon2[0].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.ImpostorRoles: if (hozon2[1] != null) hozon2[1].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.MadmateRoles: if (hozon2[2] != null) hozon2[2].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.CrewmateRoles: if (hozon2[3] != null) hozon2[3].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.NeutralRoles: if (hozon2[4] != null) hozon2[4].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.Combinations: if (hozon2[5] != null) hozon2[5].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.Addons: if (hozon2[6] != null) hozon2[6].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                                case TabGroup.GhostRoles: if (hozon2[7] != null) hozon2[7].GetComponent<PassiveButton>().OnClick.Invoke(); break;
+                            }
+                            _ = new LateTask(() =>
+                            {
+                                if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
+                                ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                                var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);// Scrollerのローカル空間における座標に変換
+                                var scrollAmount = 1 - relativePosition.y;
+                                ModSettingsTab.scrollBar.Inner.localPosition = ModSettingsTab.scrollBar.Inner.localPosition + Vector3.up * scrollAmount;  // 強制スクロール
+                                ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                            }, 0.1f, "", true);
+                            ch = true;
+                            break;
+                        }
+                }
+                search.textArea.Clear();
+            });
 
             ModSettingsButton.OnClick = new();
             ModSettingsButton.OnClick.AddListener((Action)(() =>
@@ -516,15 +785,15 @@ namespace TownOfHost
                     case 5: Main.Preset6.Value = GetString("Preset_6"); break;
                     case 6: Main.Preset7.Value = GetString("Preset_7"); break;
                 }
-            }), Utils.LoadSprite("TownOfHost.Resources.RESET-STG.png", 150f));
+            }), UtilsSprite.LoadSprite("TownOfHost.Resources.RESET-STG.png", 150f));
             CreateButton("OptionCopy", Color.green, new Vector2(7.3f, -0.035f), new Action(() =>
             {
                 OptionSerializer.SaveToClipboard();
-            }), Utils.LoadSprite("TownOfHost.Resources.COPY-STG.png", 180f), true);
+            }), UtilsSprite.LoadSprite("TownOfHost.Resources.COPY-STG.png", 180f), true);
             CreateButton("OptionLoad", Color.green, new Vector2(7.3f + 0.125f, 0), new Action(() =>
             {
                 OptionSerializer.LoadFromClipboard();
-            }), Utils.LoadSprite("TownOfHost.Resources.LOAD-STG.png", 180f));
+            }), UtilsSprite.LoadSprite("TownOfHost.Resources.LOAD-STG.png", 180f));
 
             static void CreateButton(string text, Color color, Vector2 position, Action action, Sprite sprite = null, bool csize = false)
             {
@@ -550,12 +819,27 @@ namespace TownOfHost
             }
         }
     }
+
+    [HarmonyPatch(typeof(StringOption), nameof(StringOption.FixedUpdate))]
+    class PrisetNamechengePatch
+    {
+        public static void Postfix(StringOption __instance)
+        {
+            if (ModSettingsTab == null) return;
+
+            var option = OptionItem.AllOptions.Where(opt => opt.Id == 0).FirstOrDefault(opt => opt.OptionBehaviour == __instance);
+            if (option == null) return;
+
+            __instance.ValueText.text = option.GetString();
+        }
+    }
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
     class Prisetkesu
     {
         public static void Postfix(GameSettingMenu __instance)
         {
             __instance.ChangeTab(1, false);
+            _ = new LateTask(() => __instance.ChangeTab(1, false), 0.2f, "", true);
             GameSettingMenuChangeTabPatch.Hima = 0;
         }
     }
@@ -571,7 +855,7 @@ namespace TownOfHost
                 var ModSettingsTab = GameSettingMenuStartPatch.ModSettingsTab;
                 if (!ModSettingsTab) return true;
                 ModSettingsTab.gameObject.SetActive(false);
-                GameSettingMenuStartPatch.ModSettingsButton.SelectButton(false);
+                ModSettingsButton.SelectButton(false);
                 if (tabNum != 3) return true;
                 ModSettingsTab.gameObject.SetActive(true);
 
@@ -580,7 +864,7 @@ namespace TownOfHost
                 __instance.ToggleLeftSideDarkener(true);
                 __instance.ToggleRightSideDarkener(false);
                 ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-                GameSettingMenuStartPatch.ModSettingsButton.SelectButton(true);
+                ModSettingsButton.SelectButton(true);
             }
             return true;
         }
@@ -588,19 +872,19 @@ namespace TownOfHost
         public static int Hima = 0;
         public static void Postfix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
-            Logger.Info($"{tabNum}", "OPH");
+            //Logger.Info($"{tabNum}", "OPH");
             if (previewOnly) return;
 
             var l = Last;
             if (tabNum == Last && tabNum == 3)
             {
                 Hima++;
-                GameSettingMenuStartPatch.dasu = false;
+                dasu = false;
             }
             if (tabNum != Last)
             {
-                if (tabNum == 3) GameSettingMenuStartPatch.dasu = true;
-                else GameSettingMenuStartPatch.dasu = false;
+                if (tabNum == 3) dasu = true;
+                else dasu = false;
                 Last = tabNum;
             }
             if (100 > Hima)
@@ -667,7 +951,7 @@ namespace TownOfHost
                         }
                     }
                     GameOptionsSender.RpcSendOptions();
-                }, 0.02f);
+                }, 0.02f, "", true);
             }
             if (tabNum == 2)
             {
@@ -715,36 +999,64 @@ namespace TownOfHost
                                 break;
                         }
                     }
-                }, 0.02f);
+                }, 0.02f, "", true);
             }
 
             if (tabNum != 3 || l == tabNum) return;
-            //var length = GameSettingMenuStartPatch.ModSettingsTab.roleChances.ToArray().Length;
+            //var length = ModSettingsTab.roleChances.ToArray().Length;
             /*_ = new LateTask(() =>
             {*/
-            Logger.Info("!", "!");
-            var dd = GameSettingMenuStartPatch.ModSettingsTab.AllButton.transform.parent.GetComponentsInChildren<RoleSettingsTabButton>();
-            Logger.Info("2!", "!");
-            foreach (Component aaa in dd)
-            {
-                Object.Destroy(aaa.gameObject);
-            }
-            Logger.Info("3!", "!");
-            if (GameSettingMenuStartPatch.ModSettingsTab.roleChances != null)
-                foreach (var option in GameSettingMenuStartPatch.ModSettingsTab.roleChances?.ToArray())
+            //Logger.Info("!", "!");
+            if (!ModSettingsTab) return;
+            var dd = ModSettingsTab.AllButton.transform.parent.GetComponentsInChildren<RoleSettingsTabButton>();
+            //Logger.Info("2!", "!");
+            if (dd != null)
+                foreach (Component aaa in dd)
+                {
+                    if (aaa && (aaa?.gameObject ?? false))
+                        Object.Destroy(aaa.gameObject);
+                }
+            //Logger.Info("3!", "!");
+            if (ModSettingsTab.roleChances != null)
+                foreach (var option in ModSettingsTab.roleChances?.ToArray())
                     Object.Destroy(option?.gameObject);
-            Logger.Info("4!", "!");
-            GameSettingMenuStartPatch.ModSettingsTab.roleChances = new();
-            Logger.Info("5!", "!");
-            Object.Destroy(GameSettingMenuStartPatch.ModSettingsTab?.AllButton?.gameObject);
+            //Logger.Info("4!", "!");
+            ModSettingsTab.roleChances = new();
+            //Logger.Info("5!", "!");
+            Object.Destroy(ModSettingsTab?.AllButton?.gameObject);
             //}, 0.02f, "", true);
             /*_ = new LateTask(() =>
             {
                 if (length != 0) //動かない
                 {
-                    GameSettingMenuStartPatch.ModSettingsTab.transform.FindChild("HeaderButtons/MainSettings").GetComponent<PassiveButton>().OnClick.Invoke();
+                    ModSettingsTab.transform.FindChild("HeaderButtons/MainSettings").GetComponent<PassiveButton>().OnClick.Invoke();
                 }
-            }, 0.02f);*/
+            }, 0.02f,"",true);*/
+        }
+
+        public static Sprite OptionLabelBackground(string OptionName)
+        {
+            var path = "TownOfHost.Resources.Label.";
+            var la = "LabelBackground.png";
+            return OptionName switch
+            {
+                "MapModification" => UtilsSprite.LoadSprite($"{path}MapModification{la}"),
+                "MadmateOption" => UtilsSprite.LoadSprite($"{path}MadmateOption{la}"),
+                "Sabotage" => UtilsSprite.LoadSprite($"{path}Sabotage{la}"),
+                "RandomSpawn" => UtilsSprite.LoadSprite($"{path}RandomSpawn{la}"),
+                "Preset" => UtilsSprite.LoadSprite($"{path}Preset{la}"),
+                "GameMode" => UtilsSprite.LoadSprite($"{path}GameMode{la}"),
+                "Shyboy" => UtilsSprite.LoadSprite($"{path}Shyboy{la}"),
+                "MadTeller" => UtilsSprite.LoadSprite($"{path}Madteller{la}"),
+                "PonkotuTeller" => UtilsSprite.LoadSprite($"{path}PonkotuTeller{la}"),
+                "FortuneTeller" => UtilsSprite.LoadSprite($"{path}FortuneTeller{la}"),
+                "AmateurTeller" => UtilsSprite.LoadSprite($"{path}AmateurTeller{la}"),
+                "NiceAddoer" => UtilsSprite.LoadSprite($"{path}NiceAddoer{la}"),
+                "EvilAddoer" => UtilsSprite.LoadSprite($"{path}EvilAddoer{la}"),
+                "Alien" => UtilsSprite.LoadSprite($"{path}Alien{la}"),
+                "JackalAlien" => UtilsSprite.LoadSprite($"{path}JackalAlien{la}"),
+                _ => null,
+            };
         }
     }
 }

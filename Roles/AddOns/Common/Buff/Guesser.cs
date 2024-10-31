@@ -9,7 +9,7 @@ namespace TownOfHost.Roles.AddOns.Common;
 public static class Guesser
 {
     private static readonly int Id = 75000;
-    private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Guesser);
+    private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Guesser);
     public static string SubRoleMark = Utils.ColorString(RoleColor, "∮");
     private static List<byte> playerIdList = new();
 

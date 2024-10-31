@@ -25,7 +25,7 @@ public sealed class Merlin : RoleBase, IKillFlashSeeable
         player
     )
     {
-        foreach (var impostor in Main.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
+        foreach (var impostor in PlayerCatch.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
         {
             NameColorManager.Add(Player.PlayerId, impostor.PlayerId, impostor.GetRoleColorCode());
         }

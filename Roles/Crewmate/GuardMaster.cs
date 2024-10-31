@@ -11,7 +11,7 @@ public sealed class GuardMaster : RoleBase
             CustomRoles.GuardMaster,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21100,
+            21300,
             SetupOptionItem,
             "gms",
             "#8FBC8B"
@@ -67,9 +67,9 @@ public sealed class GuardMaster : RoleBase
         if (CanSeeCheck && kakusei) target.RpcProtectedMurderPlayer(target);
         info.CanKill = false;
         Guard--;
-        Utils.AddGameLog($"GuardMaster", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+        UtilsGameLog.AddGameLog($"GuardMaster", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
         Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Guard}回", "GuardMaster");
-        Utils.NotifyRoles();
+        UtilsNotifyRoles.NotifyRoles();
         return true;
     }
     public override bool OnCompleteTask(uint taskid)
@@ -79,6 +79,6 @@ public sealed class GuardMaster : RoleBase
             Guard += AddGuardCount;
         return true;
     }
-    public override string GetProgressText(bool comms = false) => CanSeeCheck ? Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})") : "";
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => CanSeeCheck ? Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})") : "";
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
 }

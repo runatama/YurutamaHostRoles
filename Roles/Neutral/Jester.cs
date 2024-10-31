@@ -15,7 +15,7 @@ public sealed class Jester : RoleBase, IKiller
             CustomRoles.Jester,
             () => CanUseShape.GetBool() ? RoleTypes.Shapeshifter : (CanUseVent.GetBool() ? RoleTypes.Impostor : RoleTypes.Crewmate),
             CustomRoleTypes.Neutral,
-            50000,
+            35100,
             SetupOptionItem,
             "je",
             "#ec62a5",

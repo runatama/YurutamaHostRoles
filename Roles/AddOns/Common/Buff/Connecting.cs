@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Connecting
     {
         private static readonly int Id = 75500;
-        public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Connecting);
+        public static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Connecting);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ψ");
         public static List<byte> playerIdList = new();
         public static void SetupCustomOption()

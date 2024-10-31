@@ -2,7 +2,6 @@ using System.Linq;
 using System.Collections.Generic;
 using TownOfHost.Roles.Core;
 using AmongUs.GameOptions;
-using System;
 
 using static TownOfHost.Translator;
 
@@ -64,8 +63,8 @@ namespace TownOfHost.Roles.Ghost
                     PlayerState.GetByPlayerId(pc.PlayerId).SetGhostRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
 
-                    Utils.AddGameLog($"{role}", string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))));
-                    Main.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role))}</size>";
+                    UtilsGameLog.AddGameLog($"{role}", string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))));
+                    Main.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))}</size>";
 
                     if (!d)
                     {
@@ -99,8 +98,8 @@ namespace TownOfHost.Roles.Ghost
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var AP = new List<PlayerControl>(Main.AllPlayerControls.Where(x => !x.IsGorstRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
-            var APc = new List<PlayerControl>(Main.AllPlayerControls.Where(x => !x.IsGorstRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
+            var AP = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGorstRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
+            var APc = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGorstRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
 
             if (!GhostAssingCount.ContainsKey(data.Role))//データ内なら0
             {

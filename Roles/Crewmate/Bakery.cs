@@ -14,7 +14,7 @@ public sealed class Bakery : RoleBase
             CustomRoles.Bakery,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            22006,
+            20700,
             null,
             "bak",
             "#8f6121",

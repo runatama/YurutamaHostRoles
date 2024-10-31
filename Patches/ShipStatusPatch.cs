@@ -22,50 +22,11 @@ namespace TownOfHost
                 }
                 else if (!float.IsNaN(Options.HideAndSeekKillDelayTimer))
                 {
-                    Utils.MarkEveryoneDirtySettings();
+                    UtilsOption.MarkEveryoneDirtySettings();
                     Options.HideAndSeekKillDelayTimer = float.NaN;
                     Logger.Info("キル能力解禁", "HideAndSeek");
                 }
             }
-            /*#if DEBUG
-                        if (Options.CurrentGameMode == CustomGameMode.Standard && !MeetingStates.FirstMeeting && !ExileControllerWrapUpPatch.AllSpawned && Options.AntiBlackOutSpawnVer.GetBool())
-                        {
-                            if (ExileControllerWrapUpPatch.SpawnTimer > 0)
-                            {
-                                ExileControllerWrapUpPatch.SpawnTimer -= Time.fixedDeltaTime;
-                                if (ExileControllerWrapUpPatch.SpawnTimer <= 0)
-                                    Main.AllPlayerControls.Do(pc => pc.KillFlash());
-                            }
-                            bool Alltp = true;
-                            foreach (var pc in Main.AllPlayerControls)
-                            {
-                                if (!PlayerState.GetByPlayerId(pc.PlayerId).TeleportedWithAntiBlackout)
-                                    Alltp = false;
-                            }
-                            if (!ExileControllerWrapUpPatch.AllSpawned && Alltp)
-                            {
-                                ExileControllerWrapUpPatch.AfterMeetingTasks();
-                                var rand = new System.Random();
-                                Main.AllPlayerControls.Do(pc =>
-                                {
-                                    var SpawnPoint = PlayerState.GetByPlayerId(pc.PlayerId).SpawnPoint;
-                                    List<Vector2> VanillaSpawnPositions = new()
-                                    {
-                                        new (-7, 85),  // 宿舎前通路
-                                        new (-7, -10),  // エンジン
-                                        new (-70, -115),  // キッチン
-                                        new (335, -15),  // 貨物
-                                        new (200, 105),  // アーカイブ
-                                        new (155, 0),  // メインホール
-                                    };
-                                    pc.SetKillCooldown();
-                                    pc.RpcResetAbilityCooldown();
-                                    pc.RpcSnapToForced(SpawnPoint == new Vector2(999f, 999f) ? VanillaSpawnPositions[rand.Next(0, VanillaSpawnPositions.Count)] / 10 : SpawnPoint);
-                                });
-                            }
-                            if (Alltp) ExileControllerWrapUpPatch.AllSpawned = true;
-                        }
-            #endif*/
         }
     }
     [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
@@ -95,8 +56,8 @@ namespace TownOfHost
                             var sb = Translator.GetString($"sb.{Main.SabotageType}");
 
                             if (systemType == SystemTypes.MushroomMixupSabotage)
-                                Utils.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
-                            else Utils.AddGameLog($"{systemType}", string.Format(Translator.GetString("Log.FixSab"), sb));
+                                UtilsGameLog.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
+                            else UtilsGameLog.AddGameLog($"{systemType}", string.Format(Translator.GetString("Log.FixSab"), sb));
                             Main.NowSabotage = false;
                             Main.sabotagetime = 0;
 
@@ -147,7 +108,7 @@ namespace TownOfHost
                 Main.CustomSpawnPosition.TryAdd(AmongUsClient.Instance.TutorialMapId, new List<Vector2>());
                 _ = new LateTask(() =>
                 {
-                    PlayerControl.LocalPlayer.StartCoroutine(PlayerControl.LocalPlayer.CoSetRole(AmongUs.GameOptions.RoleTypes.Shapeshifter, Main.SetRoleOverride));
+                    PlayerControl.LocalPlayer.StartCoroutine(PlayerControl.LocalPlayer.CoSetRole(AmongUs.GameOptions.RoleTypes.Shapeshifter, false));
                     if (PlayerControl.AllPlayerControls.Count < 10)
                     {
                         //SNR参考 https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Modules/BotManager.cs
@@ -159,15 +120,15 @@ namespace TownOfHost
                             var dummy = GameObject.Instantiate(AmongUsClient.Instance.PlayerPrefab);
                             dummy.isDummy = true;
                             dummy.PlayerId = id;
-                            GameData.Instance.AddPlayerInfo(dummy.Data);
+                            AmongUsClient.Instance.Spawn(GameData.Instance.AddDummy(dummy));
                             AmongUsClient.Instance.Spawn(dummy);
                             dummy.NetTransform.enabled = true;
-                            dummy.SetColor(8);
+                            dummy.SetColor(6);
                             id++;
                         }
                     }
                     //Mark
-                    var mark = Utils.LoadSprite("TownOfHost.Resources.SpawnMark.png", 300f);
+                    var mark = UtilsSprite.LoadSprite("TownOfHost.Resources.SpawnMark.png", 300f);
                     foreach (var p in PlayerControl.AllPlayerControls.ToArray().Where(p => p.PlayerId > 1))
                     {
                         _ = new LateTask(() =>
@@ -189,14 +150,14 @@ namespace TownOfHost
                 }, 0.2f);
                 return;
             }
-            if (GameStates.IsModHost && Main.UseWebHook.Value) Utils.WH_ShowActiveRoles();
-            Utils.CountAlivePlayers(true);
-            Main.RTAMode = Options.CurrentGameMode == CustomGameMode.TaskBattle && Main.AllPlayerControls.Count() == (Options.EnableGM.GetBool() ? 2 : 1);
+            if (GameStates.IsModHost && Main.UseWebHook.Value) UtilsWebHook.WH_ShowActiveRoles();
+            PlayerCatch.CountAlivePlayers(true);
+            Main.RTAMode = Options.CurrentGameMode == CustomGameMode.TaskBattle && PlayerCatch.AllPlayerControls.Count() == (Options.EnableGM.GetBool() ? 2 : 1);
             //RTAモードじゃないならLateTaskを作らない
             if (!Main.RTAMode) return;
             _ = new LateTask(() =>
             {
-                var playerRTA = Options.EnableGM.GetBool() ? Main.AllAlivePlayerControls.Where(p => p.PlayerId != PlayerControl.LocalPlayer.PlayerId).First() : PlayerControl.LocalPlayer;
+                var playerRTA = Options.EnableGM.GetBool() ? PlayerCatch.AllAlivePlayerControls.Where(p => p.PlayerId != PlayerControl.LocalPlayer.PlayerId).First() : PlayerControl.LocalPlayer;
                 if (playerRTA == null)
                 {
                     Logger.Warn("[TR] プレイヤーがnullです", "TaskBattle RTA");

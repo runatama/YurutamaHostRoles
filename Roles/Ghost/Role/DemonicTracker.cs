@@ -38,7 +38,7 @@ namespace TownOfHost.Roles.Ghost
             {
                 if (Mark.ContainsKey(pc))
                 {
-                    foreach (var imp in Main.AllPlayerControls)
+                    foreach (var imp in PlayerCatch.AllPlayerControls)
                     {
                         if (imp.GetCustomRole().IsImpostor())
                         {
@@ -50,7 +50,7 @@ namespace TownOfHost.Roles.Ghost
                 Mark[pc] = target.PlayerId;
                 pc.RpcResetAbilityCooldown();
 
-                foreach (var imp in Main.AllPlayerControls)
+                foreach (var imp in PlayerCatch.AllPlayerControls)
                 {
                     if (imp.GetCustomRole().IsImpostor())
                     {

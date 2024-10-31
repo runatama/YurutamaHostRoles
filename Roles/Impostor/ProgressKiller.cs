@@ -12,7 +12,7 @@ public sealed class ProgressKiller : RoleBase, IImpostor
             CustomRoles.ProgressKiller,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            9000,
+            5400,
             SetupOptionItem,
             "pk"
         );

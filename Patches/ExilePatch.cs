@@ -1,4 +1,3 @@
-using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
@@ -98,10 +97,10 @@ namespace TownOfHost
                 }, 0.4f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
-                    foreach (var Player in Main.AllPlayerControls)//役職判定を戻す。
+                    foreach (var Player in PlayerCatch.AllPlayerControls)//役職判定を戻す。
                     {
                         if (Player != PlayerControl.LocalPlayer)
-                            foreach (var pc in Main.AllPlayerControls)
+                            foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
                                 {
@@ -123,7 +122,7 @@ namespace TownOfHost
 
                                 if (pc.Is(CustomRoles.Amnesia))
                                 {
-                                    if (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && !pc.Is(CustomRoleTypes.Impostor))
+                                    if (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
                                         role = RoleTypes.Crewmate;
 
                                     if (Amnesia.DontCanUseAbility.GetBool())
@@ -150,30 +149,56 @@ namespace TownOfHost
                     }
                     _ = new LateTask(() =>
                         {
-                            Utils.NotifyRoles(ForceLoop: true);
+                            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                             foreach (var kvp in PlayerState.AllPlayerStates)
                             {
                                 kvp.Value.IsBlackOut = false;
                             }
-                            Utils.SyncAllSettings();
+                            UtilsOption.SyncAllSettings();
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
                 }, 0.7f, "", true);
+
+                //OFFならリセ
+                /*if (!Options.AntiBlackOutSpawnVer.GetBool())
+                {
+                    foreach (var state in PlayerState.AllPlayerStates.Values)
+                    {
+                        if (state == null) continue;
+                        state.TeleportedWithAntiBlackout = true;
+                    }
+                    AllSpawned = true;
+                }*/
+
+                if (Options.BlackOutwokesitobasu.GetBool())
+                {
+                    _ = new LateTask(() =>
+                    {
+                        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                        {
+                            if (!pc.IsModClient())
+                            {
+                                var role = pc.GetCustomRole().GetRoleTypes();
+                                var pos = pc.transform.position;
+                                pc.RpcSnapToDesync(pc, new UnityEngine.Vector2(9999, 9999));
+                                pc.ResetPlayerCam();
+                                _ = new LateTask(() =>
+                                {
+                                    if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                                        RandomSpawn.AirshipSpawn(pc);
+                                    else
+                                        pc.RpcSnapToForced(pos);
+                                    PlayerState.GetByPlayerId(pc.PlayerId).HasSpawned = true;
+                                    pc.RpcSetRoleDesync(role, pc.GetClientId());
+                                }, 0.65f);
+                            }
+                        }
+                    }, 0.25f);
+                }
             }
 
-            //OFFならリセ
-            /*if (!Options.AntiBlackOutSpawnVer.GetBool())
-            {
-                foreach (var state in PlayerState.AllPlayerStates.Values)
-                {
-                    if (state == null) continue;
-                    state.TeleportedWithAntiBlackout = true;
-                }
-                AllSpawned = true;
-            }*/
-
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 pc.ResetKillCooldown();
             }
@@ -184,28 +209,28 @@ namespace TownOfHost
                 {
                     case 0:
                         map = new RandomSpawn.SkeldSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                     case 1:
                         map = new RandomSpawn.MiraHQSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                     case 2:
                         map = new RandomSpawn.PolusSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                     case 5:
                         map = new RandomSpawn.FungleSpawnMap();
-                        Main.AllPlayerControls.Do(map.RandomTeleport);
+                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
                         break;
                 }
             }
             GameStates.task = true;
             FallFromLadder.Reset();
-            Utils.CountAlivePlayers(true);
+            PlayerCatch.CountAlivePlayers(true);
             Utils.AfterMeetingTasks();
-            Utils.SyncAllSettings();
-            Utils.NotifyRoles(ForceLoop: true);
+            UtilsOption.SyncAllSettings();
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
         }
 
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
@@ -228,7 +253,7 @@ namespace TownOfHost
                 {
                     Main.AfterMeetingDeathPlayers.Do(x =>
                     {
-                        var player = Utils.GetPlayerById(x.Key);
+                        var player = PlayerCatch.GetPlayerById(x.Key);
                         var roleClass = CustomRoleManager.GetByPlayerId(x.Key);
                         var requireResetCam = player?.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true;
                         var state = PlayerState.GetByPlayerId(x.Key);
@@ -247,11 +272,12 @@ namespace TownOfHost
                 }, 0.5f, "AfterMeetingDeathPlayers Task");
             }
 
-            GameStates.AlreadyDied |= !Utils.IsAllAlive;
+            GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             Logger.Info("タスクフェイズ開始", "Phase");
             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+            MeetingStates.First = false;
             _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
     }

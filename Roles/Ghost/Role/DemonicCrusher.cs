@@ -38,12 +38,12 @@ namespace TownOfHost.Roles.Ghost
                 if (DemUseAbility) return;//能力使用中に能力使えない。
                 DemUseAbility = true;
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
                 _ = new LateTask(() =>
                 {
                     DemUseAbility = false;
                     RemoveDisableDevicesPatch.UpdateDisableDevices(true);
-                    Utils.NotifyRoles();
+                    UtilsNotifyRoles.NotifyRoles();
                     pc.RpcResetAbilityCooldown();
                 }, AbilityTime.GetFloat(), "DemonicCrusher");
             }
@@ -53,7 +53,7 @@ namespace TownOfHost.Roles.Ghost
             seen ??= seer;
 
             if (seer == seen)
-                if (DemUseAbility) return Utils.ColorString(Utils.GetRoleColor(CustomRoles.DemonicCrusher), "？");
+                if (DemUseAbility) return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.DemonicCrusher), "？");
 
             return "";
         }

@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Transparent
     {
         private static readonly int Id = 70800;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Transparent);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Transparent);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｔ");
         public static List<byte> playerIdList = new();
 

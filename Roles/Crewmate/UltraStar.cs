@@ -12,7 +12,7 @@ public sealed class UltraStar : RoleBase
             CustomRoles.UltraStar,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            64030,
+            19600,
             SetupOptionItem,
             "us",
             "#ffff8e"
@@ -31,11 +31,13 @@ public sealed class UltraStar : RoleBase
     private static OptionItem OptionSpeed;
     private static OptionItem Optioncankill;
     private static OptionItem Optionkillcool;
+    static OptionItem OptionCheckKill;
     enum OptionName
     {
         Speed,
         UltraStarCankill,
-        UltraStarKillCoolDown
+        UltraStarKillCoolDown,
+        UltraStarcheckkill
     }
     float colorchange;
     float outkill;
@@ -49,14 +51,15 @@ public sealed class UltraStar : RoleBase
         OptionSpeed = FloatOptionItem.Create(RoleInfo, 9, OptionName.Speed, new(0f, 5f, 0.25f), 2.0f, false)
             .SetValueFormat(OptionFormat.Multiplier);
         Optioncankill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.UltraStarCankill, false, false);
-        Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, OptionName.UltraStarKillCoolDown, new(0f, 180f, 0.5f), 30f, false, Optioncankill)
+        Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false, Optioncankill)
             .SetValueFormat(OptionFormat.Seconds);
+        OptionCheckKill = BooleanOptionItem.Create(RoleInfo, 11, OptionName.UltraStarcheckkill, false, false, Optioncankill);
     }
 
     public override void OnFixedUpdate(PlayerControl player)
     {
         //ホストじゃない or タスクターンじゃない or 生存していない ならブロック
-        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.Meeting || GameStates.Tuihou) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.Meeting || GameStates.Tuihou || !MyState.HasSpawned) return;
         {//参考→https://github.com/Yumenopai/TownOfHost_Y/releases/tag/v514.20.3
             colorchange %= 18;
             if (colorchange is >= 0 and < 1) player.RpcSetColor(8);
@@ -85,9 +88,9 @@ public sealed class UltraStar : RoleBase
             Vector2 GSpos = player.transform.position;
 
             PlayerControl target = null;
-            var KillRange = 0.5;//GameOptionsData.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 1 / 1000)];
+            var KillRange = 0.5;
 
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (pc.PlayerId != player.PlayerId)
                 {
@@ -102,21 +105,24 @@ public sealed class UltraStar : RoleBase
             if (target != null && cankill && (outkill >= KillCool + 5))
             {
                 outkill = 5;//ラグの調整
-                player.RpcResetAbilityCooldown();
+                if (OptionCheckKill.GetBool())
+                {
+                    target.SetRealKiller(player);
+                    CustomRoleManager.OnCheckMurder(Player, target, Player, target);
+                    UtilsOption.MarkEveryoneDirtySettings();
+                    KillCoolCheck(player.PlayerId);
+                    return;
+                }
                 target.SetRealKiller(player);
                 player.RpcMurderPlayer(target);
-                Utils.MarkEveryoneDirtySettings();
+                UtilsOption.MarkEveryoneDirtySettings();
                 KillCoolCheck(player.PlayerId);
             }
         }
     }
     public override void AfterMeetingTasks()//あのままじゃホストだけキルクール回復するバグあったから
     {
-        if (cankill)
-        {
-            Logger.Info("ウルトラスターのクールを戻す", "UltraStar");
-            outkill = 0;
-        }
+        if (cankill) outkill = 0;
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
 
@@ -126,7 +132,7 @@ public sealed class UltraStar : RoleBase
     {
         cankill = true;
         float EndTime = KillCool;
-        var pc = Utils.GetPlayerById(playerId);
+        var pc = PlayerCatch.GetPlayerById(playerId);
 
         _ = new LateTask(() =>
         {
@@ -134,6 +140,6 @@ public sealed class UltraStar : RoleBase
             if (GameStates.IsMeeting) return;
             pc.RpcProtectedMurderPlayer();
             cankill = true;
-        }, EndTime, "★");
+        }, EndTime, "★", true);
     }
 }

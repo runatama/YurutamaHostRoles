@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Autopsy
     {
         private static readonly int Id = 71200;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Autopsy);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Autopsy);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Å");
         public static List<byte> playerIdList = new();
         public static OptionItem CanSeeComms;

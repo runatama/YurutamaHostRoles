@@ -16,7 +16,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
             CustomRoles.Executioner,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            50700,
+            35000,
             SetupOptionItem,
             "exe",
             "#611c3a",
@@ -79,11 +79,11 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         var playerId = Player.PlayerId;
         List<PlayerControl> targetList = new();
         var rand = IRandom.Instance;
-        foreach (var target in Main.AllPlayerControls)
+        foreach (var target in PlayerCatch.AllPlayerControls)
         {
             if (playerId == target.PlayerId) continue;
             else if (!CanTargetImpostor && target.Is(CustomRoleTypes.Impostor)) continue;
-            else if (!CanTargetNeutralKiller && (target.IsNeutralKiller()) || target.Is(CustomRoles.GrimReaper)) continue;
+            else if (!CanTargetNeutralKiller && target.IsNeutralKiller() || target.Is(CustomRoles.GrimReaper)) continue;
             if (target.Is(CustomRoles.GM)) continue;
 
             targetList.Add(target);
@@ -162,9 +162,9 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     }
     public void ChangeRole()
     {
-        Utils.AddGameLog($"Executioner", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.GetPlayerColor(TargetId, true), Translator.GetString($"{ChangeRolesAfterTargetKilled}").Color(Utils.GetRoleColor(ChangeRolesAfterTargetKilled))));
+        UtilsGameLog.AddGameLog($"Executioner", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.GetPlayerColor(TargetId, true), Translator.GetString($"{ChangeRolesAfterTargetKilled}").Color(UtilsRoleText.GetRoleColor(ChangeRolesAfterTargetKilled))));
         Player.RpcSetCustomRole(ChangeRolesAfterTargetKilled, true);
-        Utils.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
 
     public static void ChangeRoleByTarget(byte targetId)

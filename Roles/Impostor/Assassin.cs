@@ -62,7 +62,7 @@ public sealed class Assassin : RoleBase, IImpostor
             if (Exiled is null)
                 target = Player;
             else
-                target = Utils.GetPlayerById(Exiled.PlayerId);
+                target = PlayerCatch.GetPlayerById(Exiled.PlayerId);
             if (target.Is(CustomRoles.Merlin))
                 MeetingStates = 3;
             Exiled = Player.Data;
@@ -140,7 +140,7 @@ public sealed class Assassin : RoleBase, IImpostor
         _ = new LateTask(() =>
         {
             foreach (var id in sosei)
-                Utils.GetPlayerById(id).RpcExileV2();
+                PlayerCatch.GetPlayerById(id).RpcExileV2();
         }, 3f);
     }
 

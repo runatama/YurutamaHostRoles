@@ -18,7 +18,7 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Vampire,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                1300,
+                8400,
                 SetupOptionItem,
                 "va",
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
@@ -93,7 +93,7 @@ namespace TownOfHost.Roles.Impostor
             {
                 if (timer >= KillDelay)
                 {
-                    var target = Utils.GetPlayerById(targetId);
+                    var target = PlayerCatch.GetPlayerById(targetId);
                     KillBitten(target);
                     BittenPlayers.Remove(targetId);
                 }
@@ -103,7 +103,7 @@ namespace TownOfHost.Roles.Impostor
 
                     if (SpeedDown.GetBool() && timer >= Spped)
                     {
-                        var target = Utils.GetPlayerById(targetId);
+                        var target = PlayerCatch.GetPlayerById(targetId);
                         if (target.IsAlive())
                         {
                             var x = KillDelay - Spped;
@@ -127,7 +127,7 @@ namespace TownOfHost.Roles.Impostor
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
             foreach (var targetId in BittenPlayers.Keys)
             {
-                var target = Utils.GetPlayerById(targetId);
+                var target = PlayerCatch.GetPlayerById(targetId);
                 KillBitten(target, true);
                 if (repo == target)
                 {
@@ -157,7 +157,7 @@ namespace TownOfHost.Roles.Impostor
 
                 if (target.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[target.PlayerId] = AddOns.Common.Speeding.Speed;
                 //RoleAddons
-                if (RoleAddAddons.AllData.TryGetValue(target.GetCustomRole(), out var d) && d.GiveAddons.GetBool())
+                if (RoleAddAddons.GetRoleAddon(target.GetCustomRole(), out var d, target) && d.GiveAddons.GetBool())
                 {
                     if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[target.PlayerId] = d.Speed.GetFloat();
                 }

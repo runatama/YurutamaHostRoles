@@ -1,7 +1,8 @@
 using AmongUs.GameOptions;
-using Sentry.Unity.NativeUtils;
 using System.Linq;
-
+using TownOfHost.Roles;
+using TownOfHost.Roles.AddOns.Impostor;
+using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost
@@ -79,6 +80,7 @@ namespace TownOfHost
                 CustomRoles.Revenger or
                 CustomRoles.Autopsy or
                 CustomRoles.Tiebreaker or
+                CustomRoles.MagicHand or
                 //デバフ
                 CustomRoles.NonReport or
                 CustomRoles.Notvoter or
@@ -109,7 +111,8 @@ namespace TownOfHost
                 CustomRoles.seeing or
                 CustomRoles.Revenger or
                 CustomRoles.Autopsy or
-                CustomRoles.Tiebreaker
+                CustomRoles.Tiebreaker or
+                CustomRoles.MagicHand
                 ;
         }
         public static bool IsDebuffAddon(this CustomRoles roles)
@@ -127,33 +130,36 @@ namespace TownOfHost
                 CustomRoles.InfoPoor
                 ;
         }
-        public static bool IsRiaju(this CustomRoles roles)
+        public static bool IsSubRole(this CustomRoles role) => role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku;
+        public static bool IsRiaju(this CustomRoles roles, bool checkonelover = true)
         {
+            if (roles is CustomRoles.OneLove && checkonelover) return true;
             return roles is
-            CustomRoles.ALovers or
-            CustomRoles.BLovers or
-            CustomRoles.CLovers or
-            CustomRoles.DLovers or
-            CustomRoles.ELovers or
-            CustomRoles.FLovers or
-            CustomRoles.GLovers or
-            CustomRoles.MaLovers;
+            CustomRoles.Lovers or
+            CustomRoles.RedLovers or
+            CustomRoles.YellowLovers or
+            CustomRoles.BlueLovers or
+            CustomRoles.GreenLovers or
+            CustomRoles.WhiteLovers or
+            CustomRoles.PurpleLovers or
+            CustomRoles.MadonnaLovers;
         }
-        public static bool IsRiaju(this PlayerControl pc)
+        public static bool IsRiaju(this PlayerControl pc, bool checkonelover = true)
         {
-            return pc.Is(CustomRoles.ALovers) || pc.Is(CustomRoles.BLovers) || pc.Is(CustomRoles.CLovers) || pc.Is(CustomRoles.DLovers) || pc.Is(CustomRoles.ELovers) || pc.Is(CustomRoles.FLovers) || pc.Is(CustomRoles.GLovers) || pc.Is(CustomRoles.MaLovers);
+            return pc.Is(CustomRoles.Lovers) || pc.Is(CustomRoles.RedLovers) || pc.Is(CustomRoles.YellowLovers) || pc.Is(CustomRoles.BlueLovers) || pc.Is(CustomRoles.GreenLovers) || pc.Is(CustomRoles.WhiteLovers) || pc.Is(CustomRoles.PurpleLovers) || pc.Is(CustomRoles.MadonnaLovers) || (pc.Is(CustomRoles.OneLove) && checkonelover);
         }
         public static CustomRoles GetRiaju(this PlayerControl pc)
         {
             if (pc == null) return CustomRoles.NotAssigned;
-            if (pc.Is(CustomRoles.ALovers)) return CustomRoles.ALovers;
-            if (pc.Is(CustomRoles.BLovers)) return CustomRoles.BLovers;
-            if (pc.Is(CustomRoles.CLovers)) return CustomRoles.CLovers;
-            if (pc.Is(CustomRoles.DLovers)) return CustomRoles.DLovers;
-            if (pc.Is(CustomRoles.ELovers)) return CustomRoles.ELovers;
-            if (pc.Is(CustomRoles.FLovers)) return CustomRoles.FLovers;
-            if (pc.Is(CustomRoles.GLovers)) return CustomRoles.GLovers;
-            if (pc.Is(CustomRoles.MaLovers)) return CustomRoles.MaLovers;
+            if (pc.Is(CustomRoles.Lovers)) return CustomRoles.Lovers;
+            if (pc.Is(CustomRoles.RedLovers)) return CustomRoles.RedLovers;
+            if (pc.Is(CustomRoles.YellowLovers)) return CustomRoles.YellowLovers;
+            if (pc.Is(CustomRoles.BlueLovers)) return CustomRoles.BlueLovers;
+            if (pc.Is(CustomRoles.GreenLovers)) return CustomRoles.GreenLovers;
+            if (pc.Is(CustomRoles.WhiteLovers)) return CustomRoles.WhiteLovers;
+            if (pc.Is(CustomRoles.PurpleLovers)) return CustomRoles.PurpleLovers;
+            if (pc.Is(CustomRoles.MadonnaLovers)) return CustomRoles.MadonnaLovers;
+            if (pc.Is(CustomRoles.OneLove)) return CustomRoles.OneLove;
             return CustomRoles.NotAssigned;
         }
         public static bool IsWhiteCrew(this CustomRoles roles)
@@ -175,6 +181,18 @@ namespace TownOfHost
                         or CustomRoles.DemonicCrusher
                         or CustomRoles.AsistingAngel
                         ;
+        }
+        public static bool CheckGuesser()
+        {
+            foreach (var role in AllStandardRoles.Where(r => r.IsEnable()))
+            {
+                if (RoleAddAddons.GetRoleAddon(role, out var op))
+                    if (op.GiveAddons.GetBool() && op.GiveGuesser.GetBool()) return true;
+            }
+            if (CustomRoles.LastImpostor.IsPresent() && LastNeutral.GiveGuesser.GetBool()) return true;
+            if (CustomRoles.LastNeutral.IsPresent() && LastImpostor.GiveGuesser.GetBool()) return true;
+
+            return false;
         }
         public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
         {

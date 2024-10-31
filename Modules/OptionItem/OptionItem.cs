@@ -136,6 +136,7 @@ namespace TownOfHost
         public OptionItem SetGameMode(CustomGameMode value) => Do(i => i.GameMode = value);
         public OptionItem SetHeader(bool value) => Do(i => i.IsHeader = value);
         public OptionItem SetHidden(bool value) => Do(i => i.IsHidden = value);
+        public OptionItem SetInfo(string value) => Do(i => i.Fromtext = "<line-height=25%><size=25%>\n</size><size=60%></color> <b>" + value + "</b></size>");
 
         public OptionItem SetParent(OptionItem parent) => Do(i =>
         {
@@ -212,7 +213,7 @@ namespace TownOfHost
                     if (role.IsAddOn())
                     {
                         List<CustomRoles> list = new(1) { role };
-                        mark = $" {Utils.GetSubRoleMarks(list, CustomRoles.NotAssigned)}";
+                        mark = $" {UtilsRoleText.GetSubRoleMarks(list, CustomRoles.NotAssigned)}";
                     }
                 }
                 opt.TitleText.text = size + "<b>" + GetName(isoption: true) + mark + Fromtext + "</b></size>";
@@ -271,7 +272,7 @@ namespace TownOfHost
         public static void SyncAllOptions()
         {
             if (
-                Main.AllPlayerControls.Count() <= 1 ||
+                PlayerCatch.AllPlayerControls.Count() <= 1 ||
                 AmongUsClient.Instance.AmHost == false ||
                 PlayerControl.LocalPlayer == null
             ) return;

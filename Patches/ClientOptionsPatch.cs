@@ -47,11 +47,11 @@ namespace TownOfHost
             }
             if (DumpLog == null || DumpLog.ToggleButton == null)
             {
-                DumpLog = ClientActionItem.Create("DumpLog", Utils.DumpLog, __instance);
+                DumpLog = ClientActionItem.Create("DumpLog", UtilsOutputLog.DumpLog, __instance);
             }
             if (OpenLogFolder == null || OpenLogFolder.ToggleButton == null)
             {
-                OpenLogFolder = ClientActionItem.Create("OpenLogFolder", Utils.OpenLogFolder, __instance);
+                OpenLogFolder = ClientActionItem.Create("OpenLogFolder", UtilsOutputLog.OpenLogFolder, __instance);
             }
             if ((ForceEnd == null || ForceEnd.ToggleButton == null) && AmongUsClient.Instance.AmHost)
             {
@@ -80,7 +80,6 @@ namespace TownOfHost
             if (CustomSprite == null || CustomSprite.ToggleButton == null)
             {
                 CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance);
-                if (GameStates.InGame) HudManagerPatch.BottonHud();
             }
             if (HideSomeFriendCodes == null || HideSomeFriendCodes.ToggleButton == null)
             {
@@ -131,7 +130,7 @@ namespace TownOfHost
         private static void ForceEndProcess()
         {
             //左シフトが押されているなら強制廃村
-            if (Input.GetKey(KeyCode.LeftShift) || (Main.FeColl != 0) && !GameStates.IsLobby)
+            if (Input.GetKey(KeyCode.LeftShift) || ((Main.FeColl != 0) && !GameStates.IsLobby))
             {
                 GameManager.Instance.enabled = false;
                 CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;

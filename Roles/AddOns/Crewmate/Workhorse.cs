@@ -11,7 +11,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
     public static class Workhorse
     {
         private static readonly int Id = 79000;
-        public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
+        public static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Workhorse);
         public static List<byte> playerIdList = new();
         private static OptionItem OptionAssignOnlyToCrewmate;
         private static OptionItem OptionNumLongTasks;
@@ -23,7 +23,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, fromtext: "<color=#000000>From:</color><color=#00bfff>TownOfHost</color></size>");
             OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyTo%role%", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
-            OptionAssignOnlyToCrewmate.ReplacementDictionary = new Dictionary<string, string> { { "%role%", Utils.ColorString(Palette.CrewmateBlue, Utils.GetRoleName(CustomRoles.Crewmate)) } };
+            OptionAssignOnlyToCrewmate.ReplacementDictionary = new Dictionary<string, string> { { "%role%", Utils.ColorString(Palette.CrewmateBlue, UtilsRoleText.GetRoleName(CustomRoles.Crewmate)) } };
             OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
                 .SetValueFormat(OptionFormat.Pieces);
             OptionNumShortTasks = IntegerOptionItem.Create(Id + 12, "WorkhorseNumShortTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
@@ -50,7 +50,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
             if (!pc.IsAlive() || IsThisRole(pc.PlayerId) || pc.Is(CustomRoles.Amanojaku)) return false;
             var taskState = pc.GetPlayerTaskState();
             if (taskState.CompletedTasksCount < taskState.AllTasksCount) return false;
-            if (!Utils.HasTasks(pc.Data)) return false;
+            if (!UtilsTask.HasTasks(pc.Data)) return false;
             if (AssignOnlyToCrewmate) //クルーメイトのみ
                 return pc.Is(CustomRoles.Crewmate);
             return !OverrideTasksData.AllData.ContainsKey(pc.GetCustomRole()); //タスク上書きオプションが無い
@@ -69,10 +69,10 @@ namespace TownOfHost.Roles.AddOns.Crewmate
                 Add(pc.PlayerId);
                 pc.Data.RpcSetTasks(Array.Empty<byte>()); //タスクを再配布
                 pc.SyncSettings();
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
             }
 
-            Utils.AddGameLog($"Workhorse", string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true)));
+            UtilsGameLog.AddGameLog($"Workhorse", string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true)));
 
             return false;
         }

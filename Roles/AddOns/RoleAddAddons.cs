@@ -9,6 +9,7 @@ namespace TownOfHost
         public static Dictionary<CustomRoles, CustomRoles> chRoles = new(); //1人までしか対応していない、
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
+        public bool IsImpostor;
         public OptionItem GiveAddons;
         //ゲッサー
         public OptionItem GiveGuesser;
@@ -67,6 +68,7 @@ namespace TownOfHost
         public OptionItem GiveInfoPoor;
         public RoleAddAddons(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, bool NeutralKiller = false, bool MadMate = false, bool DefaaultOn = false)
         {
+            this.IsImpostor = role.IsImpostor();
             this.IdStart = idStart;
             this.Role = role;
             GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn, tab, false).SetParent(Options.CustomRoleSpawnChances[role])
@@ -130,10 +132,28 @@ namespace TownOfHost
         {
             return new RoleAddAddons(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, NeutralKiller, MadMate, DefaaultOn);
         }
+        public static bool GetRoleAddon(CustomRoles role, out RoleAddAddons data, PlayerControl player = null)
+        {
+            if (AllData.TryGetValue(role, out data)) return true;
+
+            if (player != null)
+            {
+                /*
+                    属性の受け渡し的なの
+                    if (player.GetCustomRoles().IsImpostor()) 
+                        {
+                            AllData.TryGetValue(CustomRoles.Madmate,out data) return true;
+                        }
+                    こういうのができる。
+                */
+            }
+
+            return false;
+        }
     }
 }
 /*
-            var pc = Utils.GetPlayerById(playerId);
+            var pc = PlayerCatch.GetPlayerById(playerId);
             CustomRoles? RoleNullable = pc?.GetCustomRole();
             if (RoleNullable == null) return;
             CustomRoles role = RoleNullable.Value;

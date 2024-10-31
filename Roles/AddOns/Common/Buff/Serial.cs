@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Serial
     {
         private static readonly int Id = 70600;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Serial);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Serial);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "∂");
         public static List<byte> playerIdList = new();
         public static OptionItem KillCooldown;

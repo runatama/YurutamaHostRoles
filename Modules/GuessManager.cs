@@ -9,11 +9,12 @@ using TownOfHost.Attributes;
 using TownOfHost.Roles.AddOns.Common;
 using UnityEngine;
 using static TownOfHost.Translator;
-using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Modules;
+using TownOfHost.Modules.ChatManager;
 
 namespace TownOfHost;
 
@@ -93,7 +94,7 @@ public static class GuessManager
             if (!pc.Is(CustomRoles.Guesser)
                 && !(pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool())
                 && !(pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool())
-                && !(RoleAddAddons.AllData.TryGetValue(pc.GetCustomRole(), out var op) && op.GiveAddons.GetBool() && op.GiveGuesser.GetBool())
+                && !(RoleAddAddons.GetRoleAddon(pc.GetCustomRole(), out var op, pc) && op.GiveAddons.GetBool() && op.GiveGuesser.GetBool())
                 )
             {
                 Utils.SendMessage(GetString("NotGuesserError"), pc.PlayerId, Utils.ColorString(Palette.AcceptedGreen, GetString("NotGuesserErrortitle")));
@@ -109,6 +110,10 @@ public static class GuessManager
                 Utils.SendMessage(GetString("GuessErrorMadAvenger"), pc.PlayerId, $"<color=#ff1919>{GetString("GuessErrorMadAvengerTitle")}</color>");
                 return true;
             }
+            if (!SelfVoteManager.Canuseability())
+            {
+                return true;
+            }
             if (GameStates.Tuihou)
             {
                 Utils.SendMessage(GetString("GuessErrorTuiho"), pc.PlayerId, $"<color=#ab80c2>{GetString("GuessErrorTuihoTitle")}</color>");
@@ -116,7 +121,7 @@ public static class GuessManager
             }
             if (Balancer.Id != 255 && !(Balancer.target1 == targetId || Balancer.target2 == targetId) && Balancer.OptionCanMeetingAbility.GetBool()) return true;
 
-            var target = Utils.GetPlayerById(targetId);
+            var target = PlayerCatch.GetPlayerById(targetId);
             if (target != null)
             {
                 bool guesserSuicide = false;
@@ -150,8 +155,12 @@ public static class GuessManager
                     Utils.SendMessage(GetString("Guesssuicide"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("Guesssuicidetitle")));
                     guesserSuicide = true;
                 }
-                else if (role.IsRiaju() && target.GetCustomRole().IsRiaju())
+                else if (role.IsRiaju(false) && target.IsRiaju(false))
                 {//ラバーズって打っててどれかのラバーズなら破滅★
+                    guesserSuicide = false;
+                }
+                else if (role is CustomRoles.OneLove && target.Is(CustomRoles.OneLove))
+                {
                     guesserSuicide = false;
                 }
                 //ここから陣営事に処理決める
@@ -198,11 +207,13 @@ public static class GuessManager
 
                     //死者检查
                     //Utils.AfterPlayerDeathTasks(dp, true);
+                    if (!dp.IsModClient() && !dp.AmOwner) pc.RpcMeetingKill(dp);
                     CustomRoleManager.OnMurderPlayer(pc, target);
+
                     if (Options.ExHideChatCommand.GetBool())
                     {
                         MeetingHudPatch.StartPatch.Serialize = true;
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                         {
                             if (pc == dp) continue;
                             pc.Data.IsDead = false;
@@ -213,7 +224,7 @@ public static class GuessManager
                     //Main.LastLogVitel[dp.PlayerId] = GetString("DeathReason.Guess");
                     _ = new LateTask(() =>
                     {
-                        foreach (var pl in Main.AllPlayerControls)
+                        foreach (var pl in PlayerCatch.AllPlayerControls)
                         {
                             Utils.SendMessage(Utils.GetPlayerColor(dp, true) + GetString("Meetingkill"), pl.PlayerId, GetString("MSKillTitle"));
                         }
@@ -222,11 +233,11 @@ public static class GuessManager
 
                 if (pc == dp)
                 {
-                    Utils.AddGameLog("Guess", string.Format(GetString("guessfall"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role))));
+                    UtilsGameLog.AddGameLog("Guess", string.Format(GetString("guessfall"), Utils.GetPlayerColor(pc, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(UtilsRoleText.GetRoleColor(role))));
                 }
                 else
                 {
-                    Utils.AddGameLog("Guess", string.Format(GetString("guesssuccess"), Utils.GetPlayerColor(pc, true) + $"(<b>{Utils.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dp, true) + $"(<b>{Utils.GetTrueRoleName(dp.PlayerId, false)}</b>)"));
+                    UtilsGameLog.AddGameLog("Guess", string.Format(GetString("guesssuccess"), Utils.GetPlayerColor(pc, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(pc.PlayerId, false)}</b>)", Utils.GetPlayerColor(dp, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(dp.PlayerId, false)}</b>)"));
                 }
 
                 _ = new LateTask(() =>
@@ -234,13 +245,13 @@ public static class GuessManager
                     string send = "";
                     if (pc == dp)
                     {
-                        send = string.Format(GetString("Rgobaku"), Utils.GetPlayerColor(pc, true), Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(Utils.GetRoleColor(role)));
+                        send = string.Format(GetString("Rgobaku"), Utils.GetPlayerColor(pc, true), Utils.GetPlayerColor(dareda, true), GetString($"{role}").Color(UtilsRoleText.GetRoleColor(role)));
                     }
                     else
                     {
                         send = string.Format(GetString("RMeetingKill"), Utils.GetPlayerColor(pc, true), Utils.GetPlayerColor(dp, true));
                     }
-                    foreach (var spl in Main.AllPlayerControls.Where(pc => !pc.IsAlive())) Utils.SendMessage(send, spl.PlayerId, GetString("RMSKillTitle"));
+                    foreach (var spl in PlayerCatch.AllPlayerControls.Where(pc => !pc.IsAlive())) Utils.SendMessage(send, spl.PlayerId, GetString("RMSKillTitle"));
                 }, 2.0f, "Reikai Guess Msg");
             }
         }
@@ -321,7 +332,7 @@ public static class GuessManager
             meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
             meetingHud.ClearVote();
             MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
-            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+            var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
             if (!voteAreaPlayer.AmOwner) continue;
             meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
             meetingHud.ClearVote();
@@ -367,7 +378,7 @@ public static class GuessManager
             meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
             meetingHud.ClearVote();
             MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
-            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+            var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
             if (!voteAreaPlayer.AmOwner) continue;
             MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
             meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
@@ -404,7 +415,7 @@ public static class GuessManager
         }
 
         //判断选择的玩家是否合理
-        PlayerControl target = Utils.GetPlayerById(id);
+        PlayerControl target = PlayerCatch.GetPlayerById(id);
         if (target == null || target.Data.IsDead)
         {
             error = GetString("GuessError2");
@@ -459,7 +470,7 @@ public static class GuessManager
         //全体
         var tama = 0;
         if (pc.Is(CustomRoles.Guesser)) tama = Guesser.CanGuessTime.GetInt();
-        if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
+        if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
         {
             if (data.GiveGuesser.GetBool())
                 if (data.AddTama.GetBool()) tama += data.CanGuessTime.GetInt();
@@ -471,7 +482,7 @@ public static class GuessManager
         //1会議
         var mtama = 0;
         if (pc.Is(CustomRoles.Guesser)) mtama = Guesser.CanGuessTime.GetInt();
-        if (RoleAddAddons.AllData.TryGetValue(role, out var d) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool()) if (d.GiveGuesser.GetBool()) mtama = d.OwnCanGuessTime.GetInt();
+        if (RoleAddAddons.GetRoleAddon(role, out var d, pc) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool()) if (d.GiveGuesser.GetBool()) mtama = d.OwnCanGuessTime.GetInt();
         if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool()) mtama = LastImpostor.CanGuessTime.GetInt();
 
         if (GuesserGuessed[pc.PlayerId] >= tama)
@@ -495,7 +506,7 @@ public static class GuessManager
         //全体
         var tama = 0;
         if (pc.Is(CustomRoles.Guesser)) tama = Guesser.CanGuessTime.GetInt();
-        if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool())
+        if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool())
         {
             if (data.GiveGuesser.GetBool())
             {
@@ -509,7 +520,7 @@ public static class GuessManager
         //1会議
         var mtama = 0;
         if (pc.Is(CustomRoles.Guesser)) mtama = Guesser.CanGuessTime.GetInt();
-        if (RoleAddAddons.AllData.TryGetValue(role, out var d) && data.GiveAddons.GetBool()) if (d.GiveGuesser.GetBool()) mtama = d.OwnCanGuessTime.GetInt();
+        if (RoleAddAddons.GetRoleAddon(role, out var d, pc) && data.GiveAddons.GetBool()) if (d.GiveGuesser.GetBool()) mtama = d.OwnCanGuessTime.GetInt();
         if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) mtama = LastNeutral.CanGuessTime.GetInt();
 
         if (GuesserGuessed[pc.PlayerId] >= tama)
@@ -533,7 +544,7 @@ public static class GuessManager
         //全体
         var tama = 0;
         if (pc.Is(CustomRoles.Guesser)) tama = Guesser.CanGuessTime.GetInt();
-        if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool())
+        if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool())
         {
             if (data.GiveGuesser.GetBool())
             {
@@ -544,7 +555,7 @@ public static class GuessManager
         //1会議
         var mtama = 0;
         if (pc.Is(CustomRoles.Guesser)) mtama = Guesser.CanGuessTime.GetInt();
-        if (RoleAddAddons.AllData.TryGetValue(role, out var d) && d.GiveAddons.GetBool()) if (d.GiveGuesser.GetBool()) mtama = d.OwnCanGuessTime.GetInt();
+        if (RoleAddAddons.GetRoleAddon(role, out var d, pc) && d.GiveAddons.GetBool()) if (d.GiveGuesser.GetBool()) mtama = d.OwnCanGuessTime.GetInt();
 
         if (GuesserGuessed[pc.PlayerId] >= tama)
         {
@@ -568,11 +579,11 @@ public static class GuessManager
         if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted())
         {
             var dame = Guesser.ICanGuessTaskDoneSnitch.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool()) dame = LastImpostor.ICanGuessTaskDoneSnitch.GetBool();
             if (!dame)
             {
-                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Impostor")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Impostor")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, "【=== 緑のあの子は打てないよ！ ===】"));
                 return true;
             }
         }
@@ -580,7 +591,7 @@ public static class GuessManager
         if (role.IsImpostor() && target.Is(CustomRoleTypes.Impostor))
         {
             var Nakama = Guesser.ICanGuessNakama.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool()) Nakama = LastImpostor.ICanGuessNakama.GetBool();
             if (!Nakama) return true;
         }
@@ -588,7 +599,7 @@ public static class GuessManager
         if (role.IsWhiteCrew())
         {
             var WC = Guesser.ICanWhiteCrew.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool()) WC = LastImpostor.ICanWhiteCrew.GetBool();
             if (!WC) return true;
         }
@@ -596,7 +607,7 @@ public static class GuessManager
         if (role.IsVanilla())
         {
             var va = Guesser.ICanGuessVanilla.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.GiveGuesser.GetBool()) va = LastImpostor.ICanGuessVanilla.GetBool();
             if (!va) return true;
         }
@@ -611,11 +622,11 @@ public static class GuessManager
         if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted())
         {
             var dame = Guesser.NCanGuessTaskDoneSnitch.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
             if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) dame = LastNeutral.ICanGuessTaskDoneSnitch.GetBool();
             if (!dame)
             {
-                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Neutral")), pc.PlayerId, Utils.ColorString(Palette.DisabledGrey, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Neutral")), pc.PlayerId, Utils.ColorString(Palette.DisabledGrey, "【=== スニッチ君は打てないよ！ ===】"));
                 return true;
             }
         }
@@ -623,7 +634,7 @@ public static class GuessManager
         if (role.IsWhiteCrew())
         {
             var WC = Guesser.NCanWhiteCrew.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
             if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) WC = LastNeutral.ICanWhiteCrew.GetBool();
             if (!WC) return true;
         }
@@ -631,7 +642,7 @@ public static class GuessManager
         if (role.IsVanilla())
         {
             var va = Guesser.NCanGuessVanilla.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
             if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) va = LastNeutral.ICanGuessVanilla.GetBool();
             if (!va) return true;
         }
@@ -645,10 +656,10 @@ public static class GuessManager
         if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted())
         {
             var dame = Guesser.MCanGuessTaskDoneSnitch.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
             if (!dame)
             {
-                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Madmate")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, "【===ﾁｮｯﾄﾏﾃﾁｮﾄﾏﾃｸﾙｰｻﾝ!!===】"));
+                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Madmate")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, "【=== 全てわかってる奴は打てないよ ===】"));
                 return true;
             }
         }
@@ -656,21 +667,21 @@ public static class GuessManager
         if (role.IsImpostorTeam() && (target.Is(CustomRoleTypes.Impostor) || target.Is(CustomRoleTypes.Madmate)))
         {
             var Nakama = Guesser.MCanGuessNakama.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
             if (!Nakama) return true;
         }
         //各白を打ち抜けるか
         if (role.IsWhiteCrew())
         {
             var WC = Guesser.MCanWhiteCrew.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
             if (!WC) return true;
         }
         //バニラを撃ちぬけるか
         if (role.IsVanilla())
         {
             var va = Guesser.MCanGuessVanilla.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
             if (!va) return true;
         }
         return false;
@@ -684,21 +695,21 @@ public static class GuessManager
         if (role.IsCrewmate() && target.Is(CustomRoleTypes.Crewmate))
         {
             var Nakama = Guesser.CCanGuessNakama.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
             if (!Nakama) return true;
         }
         //各白を打ち抜けるか
         if (role.IsWhiteCrew())
         {
             var WC = Guesser.CCanWhiteCrew.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
             if (!WC) return true;
         }
         //バニラを撃ちぬけるか
         if (role.IsVanilla())
         {
             var va = Guesser.CCanGuessVanilla.GetBool();
-            if (RoleAddAddons.AllData.TryGetValue(role, out var data) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
+            if (RoleAddAddons.GetRoleAddon(role, out var data, pc) && data.GiveAddons.GetBool()) if (data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
             if (!va) return true;
         }
         return false;

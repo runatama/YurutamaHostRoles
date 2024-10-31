@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using HarmonyLib;
-using TownOfHost.Roles.Core;
 using UnityEngine;
+
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class JackalDoll : RoleBase
@@ -15,7 +15,7 @@ public sealed class JackalDoll : RoleBase
             CustomRoles.Jackaldoll,
             () => CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            51200,
+            30600,
             SetupOptionItem,
             "jacd",
             "#00b4eb",
@@ -104,7 +104,7 @@ public sealed class JackalDoll : RoleBase
             }
             if (Jackal.SKcanImp.GetBool())
             {
-                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
                     if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
                     NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
@@ -112,7 +112,7 @@ public sealed class JackalDoll : RoleBase
             }
             if (Jackal.SKimpwocanimp.GetBool())
             {
-                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
                     var iste = PlayerState.GetByPlayerId(imp.Key);
                     if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
@@ -130,7 +130,7 @@ public sealed class JackalDoll : RoleBase
             }
             if (JackalMafia.SKcanImp.GetBool())
             {
-                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
                     if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
                     NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
@@ -138,7 +138,33 @@ public sealed class JackalDoll : RoleBase
             }
             if (JackalMafia.SKimpwocanimp.GetBool())
             {
-                foreach (var imp in Main.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                {
+                    var iste = PlayerState.GetByPlayerId(imp.Key);
+                    if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
+                    NameColorManager.Add(imp.Key, pc.PlayerId, "ffffff");
+                }
+            }
+        }
+        if (oyabun.Is(CustomRoles.JackalAlien))
+        {
+            if (JackalAlien.OptionDoll.GetBool())
+            {
+                Main.AllPlayerKillCooldown[pc.PlayerId] = JackalAlien.OptionKillCooldown.GetFloat();
+                Oyabun.Add(pc.PlayerId, oyabun.PlayerId);
+                role.Add(pc.PlayerId, CustomRoles.JackalAlien);
+            }
+            if (JackalAlien.SKcanImp.GetBool())
+            {
+                foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                {
+                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
+                    NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
+                }
+            }
+            if (JackalAlien.SKimpwocanimp.GetBool())
+            {
+                foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
                     var iste = PlayerState.GetByPlayerId(imp.Key);
                     if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
@@ -150,29 +176,29 @@ public sealed class JackalDoll : RoleBase
         pc.RpcSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, true);
 
         //サイドキックがガード等発動しないため。
-        if (RoleAddAddons.AllData.TryGetValue(CustomRoles.Jackaldoll, out var d) && d.GiveAddons.GetBool())
+        if (RoleAddAddons.GetRoleAddon(CustomRoles.Jackaldoll, out var d, pc) && d.GiveAddons.GetBool())
         {
             if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
             if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
         }
-        foreach (var pl in Main.AllPlayerControls)
+        foreach (var pl in PlayerCatch.AllPlayerControls)
         {
             if (pl.Is(CountTypes.Jackal))
             {
-                NameColorManager.Add(pl.PlayerId, pc.PlayerId, Utils.GetRoleColorCode(CustomRoles.Jackaldoll));
-                NameColorManager.Add(pc.PlayerId, pl.PlayerId, Utils.GetRoleColorCode(CustomRoles.Jackaldoll));
+                NameColorManager.Add(pl.PlayerId, pc.PlayerId, UtilsRoleText.GetRoleColorCode(CustomRoles.Jackaldoll));
+                NameColorManager.Add(pc.PlayerId, pl.PlayerId, UtilsRoleText.GetRoleColorCode(CustomRoles.Jackaldoll));
             }
         }
         //どっちにしろ更新を
-        Utils.NotifyRoles();
+        UtilsNotifyRoles.NotifyRoles();
     }
     public override void AfterMeetingTasks()
     {
         if (Oyabun.ContainsKey(Player.PlayerId)) return;
 
-        if (Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia))) return;
+        if (PlayerCatch.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien))) return;
 
-        foreach (var Jd in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
+        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
         {
             if ((diemode)JackaldieMode.GetValue() == diemode.FollowingSuicide)
             {
@@ -183,18 +209,19 @@ public sealed class JackalDoll : RoleBase
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
-                Utils.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(Utils.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
+                UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
             }
         }
     }
+    /*
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo t)
     {
         if (Oyabun.ContainsKey(Player.PlayerId)) return;
-        if (Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia))) return;
+        if (PlayerCatch.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien))) return;
 
-        foreach (var Jd in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
+        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
         {
             if ((diemode)JackaldieMode.GetValue() == diemode.FollowingSuicide)
             {
@@ -205,12 +232,12 @@ public sealed class JackalDoll : RoleBase
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
-                Utils.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(Utils.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
+                UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
             }
         }
-    }
+    }*/
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!player.IsAlive()) return;
@@ -218,7 +245,7 @@ public sealed class JackalDoll : RoleBase
 
         if (Oyabun.TryGetValue(player.PlayerId, out var oyabunid))
         {
-            var oya = Utils.GetPlayerById(oyabunid);
+            var oya = PlayerCatch.GetPlayerById(oyabunid);
             if (!oya.IsAlive() && !shoukaku)
             {
                 var jacrole = CustomRoles.Jackal;

@@ -76,17 +76,6 @@ namespace TownOfHost
                 Logger.Exception(ex, "CheckDenyNamePlayer");
             }
         }
-        //ホスト以外のModプレイヤーをキック
-        /*public static void CheckMod(ClientData player)
-        {
-            if (!AmongUsClient.Instance.AmHost || !Options.KickModClient.GetBool()) return;
-            if (Utils.GetPlayerById(player.Id).IsModClient())
-            {
-                AmongUsClient.Instance.KickPlayer(player.Id, false);
-                Logger.seeingame(string.Format(GetString("Message.KickedByModClient"), player.PlayerName));
-                Logger.Info($"{player.PlayerName}はModClientだったのでキックしました。", "Kick");
-            }
-        }*/
         public static void CheckBanPlayer(InnerNet.ClientData player)
         {
             if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;

@@ -14,7 +14,7 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.MadWorker,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            10600,
+            13200,
             SetupOptionItem,
             "mw"
         );

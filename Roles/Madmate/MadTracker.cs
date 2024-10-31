@@ -13,7 +13,7 @@ public sealed class MadTracker : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoles.MadTracker,
             () => RoleTypes.Tracker,
             CustomRoleTypes.Madmate,
-            13000,
+            11200,
             SetupOptionItem,
             "mt",
             introSound: () => GetIntroSound(RoleTypes.Impostor)

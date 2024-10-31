@@ -1,11 +1,10 @@
 using System.Collections.Generic;
+using System;
 using AmongUs.GameOptions;
 using UnityEngine;
 using Hazel;
-using System;
 
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Madmate;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Translator;
 
@@ -19,7 +18,7 @@ public sealed class FortuneTeller : RoleBase
             CustomRoles.FortuneTeller,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            28000,
+            18000,
             SetupOptionItem,
             "fo",
             "#6b3ec3",
@@ -43,13 +42,13 @@ public sealed class FortuneTeller : RoleBase
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
     }
 
-    private static OptionItem OptionMaximum;
-    private static OptionItem OptionVoteMode;
-    private static OptionItem Optionrolename;
-    private static OptionItem OptionRole;
-    private static OptionItem OptionCanTaskcount;
-    private static OptionItem Option1MeetingMaximum;
-    static OptionItem Kakusei;
+    public static OptionItem OptionMaximum;
+    public static OptionItem OptionVoteMode;
+    public static OptionItem Optionrolename;
+    public static OptionItem OptionRole;
+    public static OptionItem OptionCanTaskcount;
+    public static OptionItem Option1MeetingMaximum;
+    public static OptionItem Kakusei;
     public float Max;
     public VoteMode Votemode;
     public bool rolename;
@@ -108,19 +107,19 @@ public sealed class FortuneTeller : RoleBase
         if (Divination.ContainsKey(seen.PlayerId) && rolename)
         {
             if (srole)
-                return $"<color={Utils.GetRoleColorCode(Divination[seen.PlayerId])}>" + GetString(Divination[seen.PlayerId].ToString());
+                return $"<color={UtilsRoleText.GetRoleColorCode(Divination[seen.PlayerId])}>" + GetString(Divination[seen.PlayerId].ToString());
             else return GetString(Divination[seen.PlayerId].GetCustomRoleTypes().ToString());
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override void OnStartMeeting() => mcount = 0;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (MadAvenger.Skill) return true;
+        if (!Canuseability()) return true;
         if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
-            var target = Utils.GetPlayerById(votedForId);
+            var target = PlayerCatch.GetPlayerById(votedForId);
             if (Votemode == VoteMode.uvote)
             {
                 if (Player.PlayerId == votedForId || votedForId == SkipId) return true;
@@ -146,7 +145,7 @@ public sealed class FortuneTeller : RoleBase
     }
     public void Uranai(byte votedForId)
     {
-        var target = Utils.GetPlayerById(votedForId);
+        var target = PlayerCatch.GetPlayerById(votedForId);
         if (!target.IsAlive()) return;//死んでるならここで処理を止める。
         count++;//全体のカウント
         mcount++;//1会議のカウント
@@ -155,7 +154,7 @@ public sealed class FortuneTeller : RoleBase
         var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");
         Divination[votedForId] = role;
         SendRPC(votedForId, role);
-        Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
+        Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(UtilsRoleText.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}", "FortuneTeller");
     }
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;

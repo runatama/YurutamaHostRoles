@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using HarmonyLib;
 using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
@@ -9,21 +10,22 @@ using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 
-public sealed class Stealth : RoleBase, IImpostor
+public sealed class Stealth : RoleBase, IImpostor, IUseTheShButton
 {
     public Stealth(PlayerControl player) : base(RoleInfo, player)
     {
         excludeImpostors = optionExcludeImpostors.GetBool();
         darkenDuration = darkenTimer = optionDarkenDuration.GetFloat();
         darkenedPlayers = null;
+        adddarkenroom.Clear();
     }
     public static readonly SimpleRoleInfo RoleInfo = SimpleRoleInfo.Create(
         typeof(Stealth),
         player => new Stealth(player),
         CustomRoles.Stealth,
-        () => RoleTypes.Impostor,
+        () => optionAddDarkenRoom.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
         CustomRoleTypes.Impostor,
-        3200,
+        9400,
         SetupOptionItems,
         "st",
         introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
@@ -33,12 +35,18 @@ public sealed class Stealth : RoleBase, IImpostor
     #region カスタムオプション
     private static BooleanOptionItem optionExcludeImpostors;
     private static FloatOptionItem optionDarkenDuration;
-    private enum OptionName { StealthExcludeImpostors, StealthDarkenDuration, }
+    static OptionItem optionAddDarkenRoom;
+    static OptionItem optionmax;
+    static OptionItem optioncooldown;
+    private enum OptionName { StealthExcludeImpostors, StealthDarkenDuration, StealthAddDarkenRoom, StateAddRoomMax }
     private static void SetupOptionItems()
     {
         optionExcludeImpostors = BooleanOptionItem.Create(RoleInfo, 10, OptionName.StealthExcludeImpostors, true, false);
-        optionDarkenDuration = FloatOptionItem.Create(RoleInfo, 20, OptionName.StealthDarkenDuration, new(0.5f, 5f, 0.5f), 1f, false);
+        optionDarkenDuration = FloatOptionItem.Create(RoleInfo, 20, OptionName.StealthDarkenDuration, new(0.5f, 30f, 0.5f), 1f, false);
         optionDarkenDuration.SetValueFormat(OptionFormat.Seconds);
+        optionAddDarkenRoom = BooleanOptionItem.Create(RoleInfo, 23, OptionName.StealthAddDarkenRoom, false, false);
+        optionmax = IntegerOptionItem.Create(RoleInfo, 24, OptionName.StateAddRoomMax, (1, 20, 1), 1, false, optionAddDarkenRoom);
+        optioncooldown = FloatOptionItem.Create(RoleInfo, 25, GeneralOption.Cooldown, (0, 180, 0.5f), 25f, false, optionAddDarkenRoom).SetValueFormat(OptionFormat.Seconds);
     }
     #endregion
 
@@ -50,7 +58,7 @@ public sealed class Stealth : RoleBase, IImpostor
     private PlayerControl[] darkenedPlayers;
     /// <summary>暗くしている部屋</summary>
     private SystemTypes? darkenedRoom = null;
-
+    List<SystemTypes> adddarkenroom = new();
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         // キルできない，もしくは普通のキルじゃないならreturn
@@ -58,7 +66,12 @@ public sealed class Stealth : RoleBase, IImpostor
         {
             return;
         }
-        var playersToDarken = FindPlayersInSameRoom(info.AttemptTarget);
+        var adddarken = AddDarkRoomPlayer(PlayerCatch.AllAlivePlayerControls);
+
+        var playersToDarken = FindPlayersInSameRoom(info.AttemptTarget, adddarken);
+
+        logger.Info($"{playersToDarken.Count()} 人");
+        foreach (var pc in playersToDarken) logger.Info($"_(:3 」∠)_{pc.Data.PlayerName}");
         if (playersToDarken == null)
         {
             logger.Info("部屋の当たり判定を取得できないため暗転を行いません");
@@ -66,22 +79,41 @@ public sealed class Stealth : RoleBase, IImpostor
         }
         if (excludeImpostors)
         {
-            playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor));
+            playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoleTypes.Impostor));
         }
         DarkenPlayers(playersToDarken);
+        adddarkenroom.Clear();
     }
     /// <summary>自分と同じ部屋にいるプレイヤー全員を取得する</summary>
-    private IEnumerable<PlayerControl> FindPlayersInSameRoom(PlayerControl killedPlayer)
+    private IEnumerable<PlayerControl> FindPlayersInSameRoom(PlayerControl killedPlayer, IEnumerable<byte> players)
     {
         var room = killedPlayer.GetPlainShipRoom();
         if (room == null)
         {
+            if (optionAddDarkenRoom.GetBool() && adddarkenroom?.Count is not null and not 0) return PlayerCatch.AllAlivePlayerControls.Where(player => player != Player && players.Contains(player.PlayerId));
             return null;
         }
         var roomArea = room.roomArea;
         var roomName = room.RoomId;
         RpcDarken(roomName);
-        return Main.AllAlivePlayerControls.Where(player => player != Player && player.Collider.IsTouching(roomArea));
+        var darkenplayer = PlayerCatch.AllAlivePlayerControls.Where(player => player != Player && player.Collider.IsTouching(roomArea));
+
+        if (optionAddDarkenRoom.GetBool() && adddarkenroom?.Count is not null and not 0)
+            darkenplayer = PlayerCatch.AllAlivePlayerControls.Where(player => player != Player && (player.Collider.IsTouching(roomArea) || players.Contains(player.PlayerId)));
+        return darkenplayer;
+    }
+    private IEnumerable<byte> AddDarkRoomPlayer(IEnumerable<PlayerControl> player)
+    {
+        List<byte> players = new();
+        foreach (var pc in player)
+        {
+            var room = pc.GetPlainShipRoom();
+            if (room == null) continue;
+            var roomArea = room.roomArea;
+            var roomName = room.RoomId;
+            if (adddarkenroom.Contains(roomName) && pc.PlayerId != Player.PlayerId) players.Add(pc.PlayerId);
+        }
+        return players.Where(pc => pc != Player.PlayerId);
     }
     /// <summary>渡されたプレイヤーを<see cref="darkenDuration"/>秒分視界ゼロにする</summary>
     private void DarkenPlayers(IEnumerable<PlayerControl> playersToDarken)
@@ -111,11 +143,24 @@ public sealed class Stealth : RoleBase, IImpostor
             }
         }
     }
+    public override void ApplyGameOptions(IGameOptions opt)
+    {
+        AURoleOptions.ShapeshifterCooldown = optioncooldown.GetFloat();
+    }
+    public void OnClick()
+    {
+        var room = Player.GetPlainShipRoom();
+        if (room == null) return;
+        if (adddarkenroom.Contains(room.RoomId)) return;
+        if (optionmax.GetInt() <= adddarkenroom.Count) return;
+        adddarkenroom.Add(room.RoomId);
+    }
     public override void OnStartMeeting()
     {
         if (AmongUsClient.Instance.AmHost)
         {
             ResetDarkenState();
+            adddarkenroom.Clear();
         }
     }
     private void RpcDarken(SystemTypes? roomType)
@@ -144,7 +189,7 @@ public sealed class Stealth : RoleBase, IImpostor
         }
         darkenTimer = darkenDuration;
         RpcDarken(null);
-        Utils.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
@@ -155,6 +200,14 @@ public sealed class Stealth : RoleBase, IImpostor
         {
             return base.GetSuffix(seer, seen, isForMeeting);
         }
-        return string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value));
+        var addroom = "";
+        adddarkenroom.Do(room => addroom += $",{DestroyableSingleton<TranslationController>.Instance.GetString(room)}");
+        return string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value) + addroom);
+    }
+    public override string GetAbilityButtonText() => Translator.GetString("StealthAbility");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Stealth_ability";
+        return true;
     }
 }

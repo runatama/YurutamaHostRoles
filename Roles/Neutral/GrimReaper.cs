@@ -15,7 +15,7 @@ namespace TownOfHost.Roles.Neutral
                 CustomRoles.GrimReaper,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
-                52500,
+                32200,
                 SetupOptionItem,
                 "GR",
                 "#4b0082",
@@ -37,6 +37,7 @@ namespace TownOfHost.Roles.Neutral
             CanVent = OptionCanVent.GetBool();
             CanUseSabotage = OptionCanUseSabotage.GetBool();
             GrimReaperCanButtom = OptionGrimReaperCanButtom.GetBool();
+            cankill = true;
         }
 
         private static OptionItem OptionKillCooldown;
@@ -47,6 +48,7 @@ namespace TownOfHost.Roles.Neutral
         public static bool CanVent;
         public static bool CanUseSabotage;
         private static bool GrimReaperCanButtom;
+        bool cankill;
         enum OptionName
         {
             GrimReaperCanButtom,
@@ -68,6 +70,8 @@ namespace TownOfHost.Roles.Neutral
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
             {
+                info.DoKill = false;
+
                 if (!info.IsSuicide)
                 {
                     (var kille, var taret) = info.AttemptTuple;
@@ -88,13 +92,13 @@ namespace TownOfHost.Roles.Neutral
                     return;
                 }
 
-                if (!GrimPlayers.ContainsKey(target.PlayerId))
-                {
-                    killer.SetKillCooldown();
-                    GrimPlayers.Add(target.PlayerId, 0f);
-                }
-                info.DoKill = false;
-
+                if (cankill)
+                    if (!GrimPlayers.ContainsKey(target.PlayerId))
+                    {
+                        killer.SetKillCooldown(delay: true, kousin: false);
+                        GrimPlayers.Add(target.PlayerId, 0f);
+                        cankill = false;
+                    }
             }
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
@@ -102,7 +106,7 @@ namespace TownOfHost.Roles.Neutral
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
             foreach (var targetId in GrimPlayers.Keys)
             {
-                var target = Utils.GetPlayerById(targetId);
+                var target = PlayerCatch.GetPlayerById(targetId);
                 KillBitten(target, true);
                 if (repo == target)
                 {
@@ -111,10 +115,10 @@ namespace TownOfHost.Roles.Neutral
             }
             GrimPlayers.Clear();
         }
-        public override void AfterMeetingTasks()//あのままじゃホストだけキルクール回復するバグあったから
+        public override void AfterMeetingTasks()
         {
+            cankill = true;
             if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.defaultKillCool.GetBool()) return;
-            Logger.Info("死神のキルクールを戻す", "GrimReaper");
             Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
             Player.SyncSettings();
         }
@@ -125,31 +129,20 @@ namespace TownOfHost.Roles.Neutral
             {
                 PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Grim;
                 target.SetRealKiller(Grim);
-                CustomRoleManager.OnCheckMurder(
-                    Grim, target,
-                    target, target
-                );
-                Logger.Info($"死神キル:{target.name}を天界に連れ去ったぜ", "GrimReaper");
-                if (!isButton && Grim.IsAlive())
-                {
-                    RPC.PlaySoundRPC(Grim.PlayerId, Sounds.KillSound);
-                }
-            }
-            else
-            {
-                Logger.Info($"死神キル:{target.name}は会議始まる前に死んだぜ", "GrimReaper");
+                CustomRoleManager.OnCheckMurder(Grim, target, target, target, true, true);
+                if (!isButton && Grim.IsAlive()) RPC.PlaySoundRPC(Grim.PlayerId, Sounds.KillSound);
             }
         }
-        public override bool CancelReportDeadBody(PlayerControl repo, NetworkedPlayerInfo oniku)
+        public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, ref DontReportreson reportreson)
         {
-            if (repo.Is(CustomRoles.GrimReaper) && oniku != null)//死体通報はデフォでさせない。
+            if (reporter.Is(CustomRoles.GrimReaper) && target != null)//死体通報はデフォでさせない。
             {
-                Logger.Info("死神だから会議をキャンセル。", "GrimReaper");
+                reportreson = DontReportreson.Other;
                 return true;
             }
-            if (repo.Is(CustomRoles.GrimReaper) && oniku == null && !GrimReaperCanButtom)//ボタン使用不可でボタンであろう場面のみ
+            if (reporter.Is(CustomRoles.GrimReaper) && target == null && !GrimReaperCanButtom)//ボタン使用不可でボタンであろう場面のみ
             {
-                Logger.Info("死神はボタンも使えない。", "GrimReaper");
+                reportreson = DontReportreson.Other;
                 return true;
             }
             return false;

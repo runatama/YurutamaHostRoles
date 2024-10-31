@@ -14,7 +14,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
             CustomRoles.DoppelGanger,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Neutral,
-            53000,
+            32300,
             SetupOptionItem,
             "dg",
             "#47266e",
@@ -56,7 +56,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
 
     private static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionShepeCoolDown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
@@ -87,7 +87,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         }
         Cankill = true;
         Target = target.PlayerId;
-        _ = new LateTask(() => Utils.NotifyRoles(), 1f, "", true);
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 1f, "", true);
         return true;
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
@@ -163,7 +163,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         if (Count != (int)Seconds)
         {
             Count = (int)Seconds;
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
     }
 

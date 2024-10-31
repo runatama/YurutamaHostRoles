@@ -21,6 +21,18 @@ public static class SabotageButtonDoClickPatch
         return false;
     }
 }
+[HarmonyPatch(typeof(SabotageButton), nameof(SabotageButton.Refresh))]
+public static class SabotageButtonRefreshPatch
+{
+    public static void Postfix()
+    {
+        //ホストがMODを導入していないorロビーなら実行しない
+        if (!GameStates.IsModHost || GameStates.IsLobby) return;
+        if (GameStates.Meeting) return;
+
+        HudManager.Instance.SabotageButton.ToggleVisible(PlayerControl.LocalPlayer.CanUseSabotageButton());
+    }
+}
 
 [HarmonyPatch(typeof(AbilityButton), nameof(AbilityButton.DoClick))]
 public static class AbilityButtonDoClickPatch
@@ -29,7 +41,10 @@ public static class AbilityButtonDoClickPatch
     {
         if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown || !PlayerControl.LocalPlayer.CanMove || Utils.IsActive(SystemTypes.MushroomMixupSabotage) || !PlayerControl.LocalPlayer.IsAlive()) return true;
 
-        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleTypes() is AmongUs.GameOptions.RoleTypes.Scientist)
+        var role = PlayerControl.LocalPlayer.GetCustomRole();
+        var roleInfo = role.GetRoleInfo();
+
+        if (role.GetRoleTypes() is AmongUs.GameOptions.RoleTypes.Scientist)
         {
             CloseVitals.Ability = true;
             return true;
@@ -41,25 +56,25 @@ public static class AbilityButtonDoClickPatch
             return false;
         }
         else
-        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Shapeshifter)
+        if (roleInfo?.IsDesyncImpostor == true && roleInfo.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Shapeshifter)
         {
             if (!(PlayerControl.LocalPlayer.GetRoleClass()?.CanUseAbilityButton() ?? false)) return false;
-            foreach (var p in Main.AllPlayerControls)
+            foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }
             PlayerControl.LocalPlayer.Data.Role.Cast<ShapeshifterRole>().UseAbility();
-            foreach (var p in Main.AllPlayerControls)
+            foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }
             return true;
         }
         else
-        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Phantom)
+        if (roleInfo?.IsDesyncImpostor == true && roleInfo?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Phantom)
         {
             if (!(PlayerControl.LocalPlayer.GetRoleClass()?.CanUseAbilityButton() ?? false)) return false;
-            foreach (var p in Main.AllPlayerControls)
+            foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }

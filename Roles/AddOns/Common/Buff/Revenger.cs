@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Revenger
     {
         private static readonly int Id = 71100;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Revenger);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Revenger);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "я");
         public static List<byte> playerIdList = new();
         public static OptionItem Imp;

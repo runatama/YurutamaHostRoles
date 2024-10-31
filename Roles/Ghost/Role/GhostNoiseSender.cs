@@ -44,6 +44,5 @@ namespace TownOfHost.Roles.Ghost
                 }
             }
         }
-
     }
 }

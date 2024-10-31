@@ -11,7 +11,7 @@ public sealed class Lighter : RoleBase
             CustomRoles.Lighter,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20100,
+            20600,
             SetupOptionItem,
             "li",
             "#eee5be",

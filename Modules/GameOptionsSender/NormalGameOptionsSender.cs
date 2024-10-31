@@ -1,3 +1,4 @@
+using System;
 using AmongUs.GameOptions;
 
 namespace TownOfHost.Modules
@@ -10,14 +11,23 @@ namespace TownOfHost.Modules
         {
             get
             {
-                if (GameManager.Instance.LogicComponents == null) return false;
-                if (_logicOptions == null || (!GameManager.Instance.LogicComponents?.Contains(_logicOptions) ?? false))
+                try
                 {
-                    foreach (var glc in GameManager.Instance?.LogicComponents)
-                        if (glc.TryCast<LogicOptions>(out var lo))
-                            _logicOptions = lo;
+                    if (!GameManager.Instance) return false;
+                    if (GameManager.Instance.LogicComponents == null) return false;
+                    if (_logicOptions == null || (!GameManager.Instance?.LogicComponents?.Contains(_logicOptions) ?? false))
+                    {
+                        foreach (var glc in GameManager.Instance?.LogicComponents)
+                            if (glc.TryCast<LogicOptions>(out var lo))
+                                _logicOptions = lo;
+                    }
+                    return _logicOptions != null && (_logicOptions?.IsDirty ?? false);
                 }
-                return _logicOptions != null && (_logicOptions?.IsDirty ?? false);
+                catch (Exception ex)
+                {
+                    Logger.Error($"{ex}", "NomalGameOptionsSender");
+                    return false;
+                }
             }
             protected set
             {

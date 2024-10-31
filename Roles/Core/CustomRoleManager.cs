@@ -1,18 +1,17 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using HarmonyLib;
-using Hazel;
 using Il2CppSystem.Text;
-
+using UnityEngine;
+using Hazel;
+using HarmonyLib;
 using AmongUs.GameOptions;
+
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Crewmate;
-using TownOfHost.Roles.Impostor;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Core;
 
@@ -95,11 +94,10 @@ public static class CustomRoleManager
                             CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                             attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
 
+                            UtilsGameLog.AddGameLog($"AsistingAngel", Utils.GetPlayerColor(PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
+                            + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
 
-                            Utils.AddGameLog($"AsistingAngel", Utils.GetPlayerColor(Main.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
-                            + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
-
-                            Utils.NotifyRoles();
+                            UtilsNotifyRoles.NotifyRoles();
 
                             killer.OnCheckMurderDontKill(info);
                             return false;
@@ -126,9 +124,9 @@ public static class CustomRoleManager
                         Main.Guard[attemptTarget.PlayerId]--;
                         attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
 
-                        Utils.AddGameLog($"Guard", Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{Utils.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        UtilsGameLog.AddGameLog($"Guard", Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
                         Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
-                        Utils.NotifyRoles();
+                        UtilsNotifyRoles.NotifyRoles();
                         killer.OnCheckMurderDontKill(info);
                         return false;
                     }
@@ -143,7 +141,7 @@ public static class CustomRoleManager
                 if (appearanceTarget.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Noisemaker)
                 {
                     if (AmongUsClient.Instance.AmHost)
-                        foreach (var pc in Main.AllPlayerControls)
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
                             if (pc == PlayerControl.LocalPlayer)
                                 appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
@@ -155,7 +153,7 @@ public static class CustomRoleManager
             if (GhostNoiseSender.Nois.ContainsValue(appearanceTarget.PlayerId))
             {
                 if (AmongUsClient.Instance.AmHost)
-                    foreach (var pc in Main.AllPlayerControls)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc == PlayerControl.LocalPlayer)
                             appearanceTarget.StartCoroutine(appearanceTarget.CoSetRole(RoleTypes.Noisemaker, true));
@@ -231,14 +229,15 @@ public static class CustomRoleManager
         }
 
         //サブロール処理ができるまではラバーズをここで処理
-        Lovers.ALoversSuicide(attemptTarget.PlayerId);
-        Lovers.BLoversSuicide(attemptTarget.PlayerId);
-        Lovers.CLoversSuicide(attemptTarget.PlayerId);
-        Lovers.DLoversSuicide(attemptTarget.PlayerId);
-        Lovers.FLoversSuicide(attemptTarget.PlayerId);
-        Lovers.ELoversSuicide(attemptTarget.PlayerId);
-        Lovers.GLoversSuicide(attemptTarget.PlayerId);
-        Lovers.MadonnaLoversSuicide(attemptTarget.PlayerId);
+        Lovers.LoversSuicide(attemptTarget.PlayerId);
+        Lovers.RedLoversSuicide(attemptTarget.PlayerId);
+        Lovers.YellowLoversSuicide(attemptTarget.PlayerId);
+        Lovers.BlueLoversSuicide(attemptTarget.PlayerId);
+        Lovers.WhiteLoversSuicide(attemptTarget.PlayerId);
+        Lovers.GreenLoversSuicide(attemptTarget.PlayerId);
+        Lovers.PurpleLoversSuicide(attemptTarget.PlayerId);
+        Lovers.MadonnLoversSuicide(attemptTarget.PlayerId);
+        Lovers.OneLoveSuicide(attemptTarget.PlayerId);
 
         //以降共通処理
         var targetState = PlayerState.GetByPlayerId(attemptTarget.PlayerId);
@@ -249,7 +248,7 @@ public static class CustomRoleManager
         }
         //あっ!死ぬ前にどこにいたかだけ教えてね!
         var room = "";
-        var KillRoom = Utils.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom();
+        var KillRoom = PlayerCatch.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom();
         if (KillRoom != null)
         {
             room = Translator.GetString($"{KillRoom.RoomId}");
@@ -279,18 +278,18 @@ public static class CustomRoleManager
 
         GhostRoleAssingData.AssignAddOnsFromList(true);
 
-        Utils.CountAlivePlayers(true);
+        PlayerCatch.CountAlivePlayers(true);
 
         Utils.TargetDies(info);
 
-        Utils.SyncAllSettings();
-        Utils.NotifyRoles();
+        UtilsOption.SyncAllSettings();
+        UtilsNotifyRoles.NotifyRoles();
         //サブロールは表示めんどいしながいから省略★
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
 
-            Utils.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{Utils.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
-            if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{Utils.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
+            UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
+            if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
 
         if (Main.KillCount.ContainsKey(appearanceKiller.PlayerId))
@@ -305,7 +304,7 @@ public static class CustomRoleManager
                     else
                     if (appearanceKiller.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                     {
-                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
+                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
                             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
                         else if (appearanceKiller.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
                         {
@@ -317,7 +316,7 @@ public static class CustomRoleManager
                     {
                         appearanceKiller.RpcResetAbilityCooldown(kousin: true);
                         appearanceKiller.SetKillCooldown(delay: true);
-                        Utils.NotifyRoles();
+                        UtilsNotifyRoles.NotifyRoles();
                     }, 0.2f, "SetKillCOolDown");
                 }
             }
@@ -330,7 +329,7 @@ public static class CustomRoleManager
 
     public static void OnFixedUpdate(PlayerControl player)
     {
-        if (GameStates.IsInTask && !GameStates.Meeting)
+        if (GameStates.IsInTask && !GameStates.Meeting && (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.FirstMeeting))
         {
             if (Amnesia.CheckAbility(player))
                 player.GetRoleClass()?.OnFixedUpdate(player);
@@ -378,7 +377,7 @@ public static class CustomRoleManager
     }
     public static void CreateInstance()
     {
-        foreach (var pc in Main.AllPlayerControls)
+        foreach (var pc in PlayerCatch.AllPlayerControls)
         {
             CreateInstance(pc.GetCustomRole(), pc);
         }
@@ -421,6 +420,7 @@ public static class CustomRoleManager
                 case CustomRoles.seeing: seeing.Add(pc.PlayerId); break;
                 case CustomRoles.Guarding: Guarding.Add(pc.PlayerId); break;
                 case CustomRoles.Autopsy: Autopsy.Add(pc.PlayerId); break;
+                case CustomRoles.MagicHand: MagicHand.Add(pc.PlayerId); break;
 
                 case CustomRoles.SlowStarter: SlowStarter.Add(pc.PlayerId); break;
                 case CustomRoles.Notvoter: Notvoter.Add(pc.PlayerId); break;
@@ -645,6 +645,8 @@ public enum CustomRoles
     Magician,
     Decrescendo,
     Alien,
+    SpeedStar,
+    EvilTeller,
     Limiter,
     ProgressKiller,
     Mole,
@@ -652,6 +654,9 @@ public enum CustomRoles
     Reloader,
     Jumper,
     EarnestWolf,
+    Amnesiac,
+    MadSuicide,
+    Camouflager,
     //Madmate
     MadGuardian,
     Madmate,
@@ -710,6 +715,9 @@ public enum CustomRoles
     NiceLogger,
     Android,
     King,
+    AmateurTeller,
+    ConnectSaver,
+    Cakeshop,
     //Neutral
     Arsonist,
     Egoist,
@@ -735,6 +743,9 @@ public enum CustomRoles
     Banker,
     BakeCat,
     Emptiness,
+    JackalAlien,
+    CurseMaker,
+    PhantomThief,
     TaskPlayerB,
     //HideAndSeek
     HASFox,
@@ -750,8 +761,8 @@ public enum CustomRoles
     LastNeutral,
     Workhorse,
     //第三属性
-    ALovers, BLovers, CLovers, DLovers, ELovers, FLovers, GLovers,
-    MaLovers, Amanojaku,
+    Lovers, RedLovers, YellowLovers, BlueLovers, GreenLovers, WhiteLovers, PurpleLovers,
+    MadonnaLovers, OneLove, Amanojaku,
 
     //バフ
     Guesser,
@@ -769,6 +780,7 @@ public enum CustomRoles
     Lighting,
     Moon,
     Guarding,
+    MagicHand,
     //デバフ
     Amnesia,
     Notvoter,

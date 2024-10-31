@@ -48,7 +48,7 @@ namespace TownOfHost.Roles.Ghost
                 target.SetKillCooldown(kyousei: true);
                 if (ResetAbilityCool.GetBool()) target.RpcResetAbilityCooldown(kousin: true);
 
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: pc);
                 pc.RpcResetAbilityCooldown();
             }
         }
@@ -60,7 +60,7 @@ namespace TownOfHost.Roles.Ghost
             {
                 var count = 0;
                 if (Counts.ContainsKey(seer.PlayerId)) count = Counts[seer.PlayerId];
-                return Utils.ColorString(Utils.GetRoleColor(CustomRoles.GhostReseter).ShadeColor(-0.25f), $" ({count}/{Count.GetInt()})");
+                return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GhostReseter).ShadeColor(-0.25f), $" ({count}/{Count.GetInt()})");
             }
             return "";
         }

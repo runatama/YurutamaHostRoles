@@ -11,7 +11,7 @@ public sealed class InSender : RoleBase
             CustomRoles.InSender,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20080,
+            20100,
             SetupOptionItem,
             "in",
             "#eee8aa",

@@ -4,7 +4,6 @@ using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Translator;
 using System.Linq;
 using TownOfHost.Attributes;
-using TownOfHost.Roles.Madmate;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Madonna : RoleBase
@@ -16,7 +15,7 @@ public sealed class Madonna : RoleBase
             CustomRoles.Madonna,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            52000,
+            35200,
             SetupOptionItem,
             "Ma",
             "#f09199",
@@ -42,6 +41,8 @@ public sealed class Madonna : RoleBase
     private static OptionItem Optionlimit;
     private static OptionItem OptionLoverChenge;
     public static CustomRoles LoverChenge;
+    public static OptionItem MadonnaLoverAddwin;
+    public static OptionItem MaLoversSolowin3players;
     public float limit;
     bool Limitd;
     bool Hangyaku;
@@ -49,14 +50,16 @@ public sealed class Madonna : RoleBase
     enum Option
     {
         Madonnalimit,
-        MadonnaFallChenge
+        MadonnaFallChenge,
+        LoversRoleAddwin,
+        LoverSoloWin3players
     }
 
     [GameModuleInitializer]
     public static void Mareset()
     {
-        Lovers.MaMaLoversPlayers.Clear();
-        Lovers.isMaLoversDead = false;
+        Lovers.MaMadonnaLoversPlayers.Clear();
+        Lovers.isMadonnaLoversDead = false;
     }
     public static readonly CustomRoles[] ChangeRoles =
     {
@@ -67,14 +70,16 @@ public sealed class Madonna : RoleBase
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
         Optionlimit = FloatOptionItem.Create(RoleInfo, 10, Option.Madonnalimit, new(1f, 10f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
         OptionLoverChenge = StringOptionItem.Create(RoleInfo, 11, Option.MadonnaFallChenge, cRolesString, 4, false);
+        MadonnaLoverAddwin = BooleanOptionItem.Create(RoleInfo, 12, Option.LoversRoleAddwin, false, false);
+        MaLoversSolowin3players = BooleanOptionItem.Create(RoleInfo, 13, Option.LoverSoloWin3players, false, false);
     }
 
     public override void Add()
         => AddS(Player);
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (MadAvenger.Skill) return true;
-        if (!Player.Is(CustomRoles.MaLovers) && Limitd && Is(voter))
+        if (!Canuseability()) return true;
+        if (!Player.Is(CustomRoles.MadonnaLovers) && Limitd && Is(voter))
         {
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
@@ -92,21 +97,42 @@ public sealed class Madonna : RoleBase
     }
     public void MadonnaL(byte votedForId)
     {
-        var target = Utils.GetPlayerById(votedForId);
+        var target = PlayerCatch.GetPlayerById(votedForId);
         if (!target.IsAlive()) return;
-        if (!target.Is(CustomRoles.ALovers) && !target.Is(CustomRoles.BLovers) && !target.Is(CustomRoles.CLovers) && !target.Is(CustomRoles.DLovers) &&
-            !target.Is(CustomRoles.ELovers) && !target.Is(CustomRoles.FLovers) && !target.Is(CustomRoles.GLovers))
+        if (target.Is(CustomRoles.OneLove))
+        {
+            Limitd = false;
+            Hangyaku = true;
+            Logger.Info($"Player: {Player.name},Target: {target.name}　相手が片思いで断わられた{LoverChenge}に役職変更。", "Madonna");
+            Utils.SendMessage(string.Format(GetString("Skill.MadonnaOneLover"), Utils.GetPlayerColor(target, true), GetString($"{LoverChenge}")) + GetString("VoteSkillFin"), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("Skill.MadonnaOneLoverNo"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
+
+            UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
+            target.RpcProtectedMurderPlayer();
+        }
+        else
+        if (Lovers.OneLovePlayer.Ltarget == target.PlayerId)
+        {
+            Limitd = false;
+            Hangyaku = true;
+            Logger.Info($"Player: {Player.name},Target: {target.name}　視線が凄いからやめといた{LoverChenge}に役職変更。", "Madonna");
+            Utils.SendMessage(string.Format(GetString("Skill.MadonnnaOneLovertarget"), Utils.GetPlayerColor(target, true), GetString($"{LoverChenge}")) + GetString("VoteSkillFin"), Player.PlayerId);
+
+            UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
+        }
+        else
+        if (!target.IsRiaju())
         {
             Limitd = false;
             Logger.Info($"Player: {Player.name},Target: {target.name}", "Madonna");
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaMyCollect"), Utils.GetPlayerColor(target, true)) + GetString("VoteSkillFin"), Player.PlayerId);
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaCollect"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
-            target.RpcSetCustomRole(CustomRoles.MaLovers);
-            Player.RpcSetCustomRole(CustomRoles.MaLovers);
-            Lovers.MaMaLoversPlayers.Add(Player);
-            Lovers.MaMaLoversPlayers.Add(target);
-            RPC.SyncMaLoversPlayers();
-            Utils.AddGameLog($"Madonna", string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
+            target.RpcSetCustomRole(CustomRoles.MadonnaLovers);
+            Player.RpcSetCustomRole(CustomRoles.MadonnaLovers);
+            Lovers.MaMadonnaLoversPlayers.Add(Player);
+            Lovers.MaMadonnaLoversPlayers.Add(target);
+            RPC.SyncMadonnaLoversPlayers();
+            UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
 
             target.RpcProtectedMurderPlayer();
         }
@@ -116,21 +142,21 @@ public sealed class Madonna : RoleBase
             Hangyaku = true;
             Logger.Info($"Player: {Player.name},Target: {target.name}　相手がラバーズなので断わられた{LoverChenge}に役職変更。", "Madonna");
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaMynotcollect"), Utils.GetPlayerColor(target, true), GetString($"{LoverChenge}")) + GetString("VoteSkillFin"), Player.PlayerId);
-            Utils.SendMessage(string.Format(GetString("Skill.Madoonnanotcollect"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
+            Utils.SendMessage(string.Format(GetString("Skill.MadonnaOneLoverNo"), Utils.GetPlayerColor(Player, true)), target.PlayerId);
 
-            Utils.AddGameLog($"Madonna", string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
+            UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
             target.RpcProtectedMurderPlayer();
         }
     }
     public override void AfterMeetingTasks()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        if (Player.Is(CustomRoles.MaLovers))
+        if (Player.Is(CustomRoles.MadonnaLovers))
         {
             Wakarero = true;//リア充ならバクハフラグを立てる
         }
         else
-        if (Player.IsAlive() && !Player.Is(CustomRoles.MaLovers) && Wakarero)
+        if (Player.IsAlive() && !Player.Is(CustomRoles.MadonnaLovers) && Wakarero)
         {//生きててラバーズ状態が解消されててる状態なら実行
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaHAMETU"), GetString($"{LoverChenge}")), Player.PlayerId);
             Player.RpcSetCustomRole(LoverChenge, true);
@@ -148,7 +174,7 @@ public sealed class Madonna : RoleBase
             MyState.SetDead();
             MyState.DeathReason = CustomDeathReason.Suicide;
             ReportDeadBodyPatch.Musisuruoniku[Player.PlayerId] = false;
-            Utils.AddGameLog($"Madonna", string.Format(GetString("log.AM"), Utils.GetPlayerColor(Utils.GetPlayerById(Player.PlayerId)), Utils.GetTrueRoleName(Player.PlayerId, false)));
+            UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("log.AM"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Player.PlayerId)), UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)));
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}は指定ターン経過したため自殺。", "Madonna");
         }
     }

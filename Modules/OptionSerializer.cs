@@ -26,7 +26,7 @@ public static class OptionSerializer
         }
         var output = $"{exportDir.FullName}/Preset{OptionItem.CurrentPreset}_{DateTime.Now.Ticks}.txt";
         File.WriteAllText(output, GenerateOptionsString());
-        Utils.OpenDirectory(exportDir.FullName);
+        UtilsOutputLog.OpenDirectory(exportDir.FullName);
         Logger.seeingame(Utils.ColorString(Color.green, Translator.GetString("Message.ExportedOptions")));
     }
     public static void LoadFromClipboard()

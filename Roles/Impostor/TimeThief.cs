@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.TimeThief,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                2400,
+                9100,
                 SetupOptionItem,
                 "tt",
                 from: From.TownOfHost
@@ -58,7 +58,7 @@ namespace TownOfHost.Roles.Impostor
             var sec = -(DecreaseMeetingTime * MyState.GetKillCount(true));
             return sec;
         }
-        public override string GetProgressText(bool comms = false)
+        public override string GetProgressText(bool comms = false, bool gamelog = false)
         {
             var time = CalculateMeetingTimeDelta();
             return time < 0 ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"{time}s") : "";

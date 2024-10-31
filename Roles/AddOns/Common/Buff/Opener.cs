@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Opener
     {
         private static readonly int Id = 70900;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Opener);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Opener);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "п");
         public static List<byte> playerIdList = new();
         public static void SetupCustomOption()

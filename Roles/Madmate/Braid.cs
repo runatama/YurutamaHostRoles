@@ -7,8 +7,6 @@ using static TownOfHost.Roles.Impostor.Driver;
 namespace TownOfHost.Roles.Madmate;
 public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
-    //意味わからないことにRoleInfoの役職説明が反映されないようです。
-    //ってことで勝手にブレイドの役職取得しようとするとドライバーにしてます()
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(Braid),
@@ -16,7 +14,7 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.Braid,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            23000,
+            40100,
             null,
             "br",
             introSound: () => GetIntroSound(RoleTypes.Impostor),

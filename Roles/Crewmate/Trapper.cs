@@ -12,7 +12,7 @@ public sealed class Trapper : RoleBase
             CustomRoles.Trapper,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20850,
+            20200,
             SetupOptionItem,
             "tra",
             "#5a8fd0",

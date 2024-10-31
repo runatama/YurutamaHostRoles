@@ -100,7 +100,7 @@ namespace TownOfHost.Modules.ChatManager
         {
             var rd = IRandom.Instance;
             string msg;
-            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().ToList();
+            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsRiaju() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE()).ToList();
             string[] specialTexts = new string[] { "bt" };
 
             for (int i = chatHistory.Count; i < 30; i++)
@@ -109,9 +109,9 @@ namespace TownOfHost.Modules.ChatManager
                 msg += specialTexts[rd.Next(0, specialTexts.Length - 1)] + " ";
                 msg += rd.Next(0, 15).ToString() + " ";
                 CustomRoles role = roles[rd.Next(0, roles.Count)];
-                msg += Utils.GetRoleName(role) + " ";
+                msg += UtilsRoleText.GetRoleName(role) + " ";
 
-                var player = Main.AllAlivePlayerControls.ToArray()[rd.Next(0, Main.AllAlivePlayerControls.Count())];
+                var player = PlayerCatch.AllAlivePlayerControls.ToArray()[rd.Next(0, PlayerCatch.AllAlivePlayerControls.Count())];
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
                 var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                 writer.StartMessage(-1);
@@ -129,7 +129,7 @@ namespace TownOfHost.Modules.ChatManager
                 var senderMessage = entryParts[1].Trim();
                 var isvote = senderMessage.StartsWith("<size=0>.</size>");
 
-                foreach (var senderPlayer in Main.AllPlayerControls)
+                foreach (var senderPlayer in PlayerCatch.AllPlayerControls)
                 {
                     if (senderPlayer.PlayerId.ToString() == senderId)
                     {

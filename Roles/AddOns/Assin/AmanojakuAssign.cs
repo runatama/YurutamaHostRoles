@@ -85,11 +85,11 @@ namespace TownOfHost.Roles.AddOns.Common
 
                 foreach (var pc in assignTargetList)
                 {
-                    Utils.AddGameLog($"Amanojaku", string.Format(GetString("Log.Amanojaku"), Utils.GetPlayerColor(pc) + $"({Utils.GetTrueRoleName(pc.PlayerId, false)})"));
+                    UtilsGameLog.AddGameLog($"Amanojaku", string.Format(GetString("Log.Amanojaku"), Utils.GetPlayerColor(pc) + $"({UtilsRoleText.GetTrueRoleName(pc.PlayerId, false)})"));
                     PlayerState.GetByPlayerId(pc.PlayerId).SetSubRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
                     Amanojaku.Add(pc.PlayerId);
-                    Main.LastLogRole[pc.PlayerId] = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amanojaku), GetString("Amanojaku") + GetString($"{pc.GetCustomRole()}"));
+                    Main.LastLogRole[pc.PlayerId] = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Amanojaku), GetString("Amanojaku") + GetString($"{pc.GetCustomRole()}"));
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            var validPlayers = PlayerCatch.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
 
             if (data.CrewmateMaximum != null)
             {

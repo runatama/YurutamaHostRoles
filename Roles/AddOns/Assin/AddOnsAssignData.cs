@@ -13,19 +13,19 @@ namespace TownOfHost.Roles.AddOns.Common
     /// </summary>
     public class AddOnsAssignData
     {
-        static Dictionary<CustomRoles, AddOnsAssignData> AllData = new();
+        public static Dictionary<CustomRoles, AddOnsAssignData> AllData = new();
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
-        OptionItem CrewmateMaximum;
+        public OptionItem CrewmateMaximum;
         OptionItem CrewmateFixedRole;
         OptionItem CrewmateAssignTarget;
-        OptionItem ImpostorMaximum;
+        public OptionItem ImpostorMaximum;
         OptionItem ImpostorFixedRole;
         OptionItem ImpostorAssignTarget;
-        OptionItem MadmateMaximum;
+        public OptionItem MadmateMaximum;
         OptionItem MadmateFixedRole;
         OptionItem MadmateAssignTarget;
-        OptionItem NeutralMaximum;
+        public OptionItem NeutralMaximum;
         OptionItem NeutralFixedRole;
         OptionItem NeutralAssignTarget;
         static readonly CustomRoles[] InvalidRoles =
@@ -120,7 +120,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (SuddenAllRoleonaji.GetBool() && assignTargetList.Count != 0)
                 {
                     assignTargetList.Clear();
-                    Main.AllPlayerControls.Do(p => assignTargetList.Add(p));
+                    PlayerCatch.AllPlayerControls.Do(p => assignTargetList.Add(p));
                 }
                 foreach (var pc in assignTargetList)
                 {
@@ -136,7 +136,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            var validPlayers = PlayerCatch.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
 
             if (data.CrewmateMaximum != null)
             {

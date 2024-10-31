@@ -55,7 +55,7 @@ namespace TownOfHost
         }
         public CustomRoles GetCustomRole()
         {
-            var RoleInfo = Utils.GetPlayerInfoById(PlayerId);
+            var RoleInfo = PlayerCatch.GetPlayerInfoById(PlayerId);
             return RoleInfo.Role == null
                 ? MainRole
                 : RoleInfo.Role.Role switch
@@ -169,7 +169,7 @@ namespace TownOfHost
         {
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
             if (player == null || player.Data == null || player.Data.Tasks == null) return;
-            if (!Utils.HasTasks(player.Data, false))
+            if (!UtilsTask.HasTasks(player.Data, false))
             {
                 AllTasksCount = 0;
                 NeedTaskCount = 0;
@@ -252,5 +252,6 @@ namespace TownOfHost
         public static bool IsExistDeadBody => DeadBodies.Length > 0;
         public static bool MeetingCalled = false;
         public static bool FirstMeeting = true;
+        public static bool First = true;
     }
 }

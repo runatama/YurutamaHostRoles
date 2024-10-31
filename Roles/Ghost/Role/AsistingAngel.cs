@@ -51,7 +51,7 @@ namespace TownOfHost.Roles.Ghost
 
         public static bool ch()
         {
-            foreach (var pc in Main.AllPlayerControls.Where(x => x.IsGorstRole()))
+            foreach (var pc in PlayerCatch.AllPlayerControls.Where(x => x.IsGorstRole()))
             {
                 if (pc.Is(CustomRoles.AsistingAngel)) return true;
             }
@@ -68,7 +68,7 @@ namespace TownOfHost.Roles.Ghost
                 {
                     Asist = target;
                     pc.RpcResetAbilityCooldown();
-                    Utils.NotifyRoles();
+                    UtilsNotifyRoles.NotifyRoles();
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace TownOfHost.Roles.Ghost
                         Track = target.PlayerId;
                         pos = target.transform.position;
                         GetArrow.Add(Asist.PlayerId, target.transform.position);
-                        Utils.NotifyRoles();
+                        UtilsNotifyRoles.NotifyRoles();
                     }
                 }
             }

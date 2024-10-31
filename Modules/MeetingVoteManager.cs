@@ -48,7 +48,7 @@ public class MeetingVoteManager
     /// <param name="exiled">追放先</param>
     public void ClearAndExile(byte voter, byte exiled)
     {
-        logger.Info($"{Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} によって {GetVoteName(exiled)} が追放されます");
+        logger.Info($"{PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} によって {GetVoteName(exiled)} が追放されます");
         ClearVotes();
         var vote = new VoteData(voter);
         vote.DoVote(exiled, 1);
@@ -78,16 +78,16 @@ public class MeetingVoteManager
         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
         {
             var (roleVoteFor, roleNumVotes, roleDoVote) = ((byte?)voteFor, (int?)numVotes, isIntentional);
-            var player = Utils.GetPlayerById(voter);
+            var player = PlayerCatch.GetPlayerById(voter);
             if (Amnesia.CheckAbility(player))
                 (roleVoteFor, roleNumVotes, roleDoVote) = role.ModifyVote(voter, voteFor, isIntentional);
 
             if (roleVoteFor.HasValue)
             {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
                 voteFor = roleVoteFor.Value;
             }
-            var pc = Utils.GetPlayerById(voteFor);
+            var pc = PlayerCatch.GetPlayerById(voteFor);
             if (!pc.IsAlive() && voteFor != Skip && voteFor != NoVote)
             {
                 logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} 相手が死んでいるので投票は取り消されます");
@@ -97,35 +97,35 @@ public class MeetingVoteManager
             //追加投票
             if (roleNumVotes.HasValue)//追加投票訳
             {
-                if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
+                if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, pc) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
                 {
                     if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + data.AdditionalVote.GetInt() + PlusVote.AdditionalVote.GetInt();
                     else numVotes = roleNumVotes.Value + data.AdditionalVote.GetInt();
                 }
                 else if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + PlusVote.AdditionalVote.GetInt();
                 else numVotes = roleNumVotes.Value;
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes} に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes} に変更します");
             }
-            else if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
+            else if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, pc) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
             {
                 if (player.Is(CustomRoles.PlusVote)) numVotes = data.AdditionalVote.GetInt() + PlusVote.AdditionalVote.GetInt() + 1;
                 else numVotes = data.AdditionalVote.GetInt() + 1;
             }
             else if (player.Is(CustomRoles.PlusVote))//プラスポート
             {
-                logger.Info($"プラスポート:{role.Player.GetNameWithRole().RemoveHtmlTags()} が {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes}+{PlusVote.AdditionalVote.GetInt()}  に変更します");
+                logger.Info($"プラスポート:{role.Player.GetNameWithRole().RemoveHtmlTags()} が {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes}+{PlusVote.AdditionalVote.GetInt()}  に変更します");
                 numVotes = PlusVote.AdditionalVote.GetInt();
             }
 
             if (player.Is(CustomRoles.Notvoter))
             {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
                 numVotes = 0;
             }
             else
-            if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveNotvoter.GetBool())
+            if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, pc) && data.GiveAddons.GetBool() && data.GiveNotvoter.GetBool())
             {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {Utils.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
+                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
                 numVotes = 0;
             }
 
@@ -135,7 +135,7 @@ public class MeetingVoteManager
                 doVote = false;
             }
             else
-            if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var da))
+            if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var da, pc))
             {
                 if (da.GiveElector.GetBool() && voteFor == Skip)
                 {
@@ -172,11 +172,11 @@ public class MeetingVoteManager
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole().RemoveHtmlTags();
         logger.Info($"追放者: {logName} で会議を終了します");
 
-        var r = result.Exiled == null ? (result.IsTie ? Translator.GetString("votetie") : Translator.GetString("voteskip")) : Utils.GetPlayerColor(Utils.GetPlayerById(result.Exiled.Object.PlayerId)) + Translator.GetString("fortuihou");
+        var r = result.Exiled == null ? (result.IsTie ? Translator.GetString("votetie") : Translator.GetString("voteskip")) : Utils.GetPlayerColor(PlayerCatch.GetPlayerById(result.Exiled.Object.PlayerId)) + Translator.GetString("fortuihou");
         if (Voteresult == "")
         {
             Voteresult = r;
-            Utils.AddGameLog("Vote", r);
+            UtilsGameLog.AddGameLog("Vote", r);
         }
         var states = new List<MeetingHud.VoterState>();
         foreach (var voteArea in meetingHud.playerStates)
@@ -184,7 +184,7 @@ public class MeetingVoteManager
             var voteData = AllVotes.TryGetValue(voteArea.TargetPlayerId, out var value) ? value : null;
             if (voteData == null)
             {
-                logger.Warn($"{Utils.GetPlayerById(voteArea.TargetPlayerId).GetNameWithRole().RemoveHtmlTags()} の投票データがありません");
+                logger.Warn($"{PlayerCatch.GetPlayerById(voteArea.TargetPlayerId).GetNameWithRole().RemoveHtmlTags()} の投票データがありません");
                 continue;
             }
             for (var i = 0; i < voteData.NumVotes; i++)
@@ -204,14 +204,18 @@ public class MeetingVoteManager
                 if (result.Exiled != null)
                     if (result.Exiled == PlayerControl.LocalPlayer.Data)
                     {
-                        foreach (var Player in Main.AllPlayerControls)
+                        foreach (var Player in PlayerCatch.AllPlayerControls)
                         {
                             var taishou = Player;
-                            foreach (var pc in Main.AllPlayerControls)
+                            foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 taishou = pc;
-                                var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x.PlayerId != pc.PlayerId && !x.Data.Disconnected && x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
-                                taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                                var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x.PlayerId != pc.PlayerId && !x.Data.Disconnected && x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+                                if (List?.Count is null or 0)
+                                {
+                                    Logger.Error($"{Player.Data.PlayerName} : 変更対象が存在しません", "DontBlackout ch = false");
+                                }
+                                else taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                                 if (pc == PlayerControl.LocalPlayer) continue;
                                 Player.RpcSetRoleDesync(Player.PlayerId == taishou.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                             }
@@ -221,18 +225,22 @@ public class MeetingVoteManager
                     }
 
                 if (ch)
-                    foreach (var Player in Main.AllPlayerControls)
+                    foreach (var Player in PlayerCatch.AllPlayerControls)
                     {
                         var taishou = PlayerControl.LocalPlayer;
-                        foreach (var pc in Main.AllPlayerControls)
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
                             if (pc == PlayerControl.LocalPlayer) continue;
                             var t = byte.MaxValue;
                             if (!PlayerControl.LocalPlayer.IsAlive())
                             {
                                 if (result.Exiled != null) t = result.Exiled.PlayerId;
-                                var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x.PlayerId != pc.PlayerId && !x.Data.Disconnected && x.PlayerId != t && x.PlayerId != PlayerControl.LocalPlayer.PlayerId && x.PlayerId != 0));
-                                taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                                var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x.PlayerId != pc.PlayerId && !x.Data.Disconnected && x.PlayerId != t && x.PlayerId != PlayerControl.LocalPlayer.PlayerId && x.PlayerId != 0));
+                                if (List?.Count is null or 0)
+                                {
+                                    Logger.Error($"{Player.Data.PlayerName} : 変更対象が存在しません", "DontBlackout ch = true");
+                                }
+                                else taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                             }
                             Player?.RpcSetRoleDesync(Player.PlayerId == taishou.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
                         }
@@ -288,16 +296,16 @@ public class MeetingVoteManager
                 continue;
             }
 
-            if (Utils.GetPlayerById(vote.Voter) == null) continue;
+            if (PlayerCatch.GetPlayerById(vote.Voter) == null) continue;
 
             votes[vote.VotedFor] += vote.NumVotes;
 
             if (vote.NumVotes != 0)
             {
-                if (Utils.GetPlayerById(vote.Voter).Is(CustomRoles.Tiebreaker)
-                || (Utils.GetPlayerById(vote.Voter).Is(CustomRoles.LastImpostor) && LastImpostor.GiveTiebreaker.GetBool())
-                || (Utils.GetPlayerById(vote.Voter).Is(CustomRoles.LastNeutral) && LastNeutral.GiveTiebreaker.GetBool())
-                || (RoleAddAddons.AllData.TryGetValue(Utils.GetPlayerById(vote.Voter).GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveTiebreaker.GetBool())
+                if (PlayerCatch.GetPlayerById(vote.Voter).Is(CustomRoles.Tiebreaker)
+                || (PlayerCatch.GetPlayerById(vote.Voter).Is(CustomRoles.LastImpostor) && LastImpostor.GiveTiebreaker.GetBool())
+                || (PlayerCatch.GetPlayerById(vote.Voter).Is(CustomRoles.LastNeutral) && LastNeutral.GiveTiebreaker.GetBool())
+                || (RoleAddAddons.GetRoleAddon(PlayerCatch.GetPlayerById(vote.Voter).GetCustomRole(), out var data, PlayerCatch.GetPlayerById(vote.Voter)) && data.GiveAddons.GetBool() && data.GiveTiebreaker.GetBool())
                 )//タイブレ投票は1固定
                 { Tie[vote.VotedFor] += 1; }
             }
@@ -322,7 +330,7 @@ public class MeetingVoteManager
             var vote = voteData.Value;
             if (!vote.HasVoted)
             {
-                var voterName = Utils.GetPlayerById(vote.Voter).GetNameWithRole().RemoveHtmlTags();
+                var voterName = PlayerCatch.GetPlayerById(vote.Voter).GetNameWithRole().RemoveHtmlTags();
                 switch (noVoteMode)
                 {
                     case VoteMode.Suicide:
@@ -341,7 +349,7 @@ public class MeetingVoteManager
             }
             else if (!ignoreSkipMode && vote.IsSkip)
             {
-                var voterName = Utils.GetPlayerById(vote.Voter).GetNameWithRole().RemoveHtmlTags();
+                var voterName = PlayerCatch.GetPlayerById(vote.Voter).GetNameWithRole().RemoveHtmlTags();
                 switch (skipMode)
                 {
                     case VoteMode.Suicide:
@@ -364,7 +372,7 @@ public class MeetingVoteManager
     public static string GetVoteName(byte num, bool color = false)
     {
         string name = "invalid";
-        var player = Utils.GetPlayerById(num);
+        var player = PlayerCatch.GetPlayerById(num);
         if (num < 15 && player != null)
         {
             if (color)
@@ -398,7 +406,7 @@ public class MeetingVoteManager
             if (PlayerState.GetByPlayerId(Voter) == null) return true;
             if (PlayerState.GetByPlayerId(Voter).IsDead || VotedFor == Skip) return true;
             if (VotedFor is /*Skip or*/ NoVote) return false;//ここのスキップいらなくね?
-            if (Utils.GetPlayerById(VotedFor) != null) return !PlayerState.GetByPlayerId(VotedFor).IsDead;
+            if (PlayerCatch.GetPlayerById(VotedFor) != null) return !PlayerState.GetByPlayerId(VotedFor).IsDead;
             return false;
         }
 
@@ -406,10 +414,10 @@ public class MeetingVoteManager
 
         public void DoVote(byte voteTo, int numVotes)
         {
-            logger.Info($"投票: {Utils.GetPlayerById(Voter).GetNameWithRole().RemoveHtmlTags()} => {GetVoteName(voteTo)} x {numVotes}");
+            logger.Info($"投票: {PlayerCatch.GetPlayerById(Voter).GetNameWithRole().RemoveHtmlTags()} => {GetVoteName(voteTo)} x {numVotes}");
             VotedFor = voteTo;
             NumVotes = numVotes;
-            ChatManager.ChatManager.SendMessage(Utils.GetPlayerById(Voter), "<size=0>.</size>");
+            ChatManager.ChatManager.SendMessage(PlayerCatch.GetPlayerById(Voter), "<size=0>.</size>");
         }
     }
 
@@ -500,11 +508,11 @@ public class MeetingVoteManager
                         var toExile = mostVotedPlayers.Where(id => id != Skip).ToArray();
                         foreach (var playerId in toExile)
                         {
-                            Utils.GetPlayerById(playerId)?.SetRealKiller(null);
+                            PlayerCatch.GetPlayerById(playerId)?.SetRealKiller(null);
                         }
                         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
                         Voteresult = string.Join(',', mostVotedPlayers.Select(id => GetVoteName(id, true))) + Translator.GetString("fortuihou");
-                        Utils.AddGameLog("Vote", Voteresult);
+                        UtilsGameLog.AddGameLog("Vote", Voteresult);
 
                         Exiled = null;
                         logger.Info("全員追放します");
@@ -514,9 +522,9 @@ public class MeetingVoteManager
                         Exiled = GameData.Instance.GetPlayerById(exileId);
                         IsTie = false;
                         logger.Info($"ランダム追放: {GetVoteName(exileId)}");
-                        var player = Utils.GetPlayerById(exileId);
+                        var player = PlayerCatch.GetPlayerById(exileId);
                         Voteresult = Utils.GetPlayerColor(player) + Translator.GetString("fortuihou");
-                        Utils.AddGameLog("Vote", Utils.GetPlayerColor(player) + Translator.GetString("fortuihou"));
+                        UtilsGameLog.AddGameLog("Vote", Utils.GetPlayerColor(player) + Translator.GetString("fortuihou"));
                         break;
                 }
             }

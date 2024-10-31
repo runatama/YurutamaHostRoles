@@ -18,7 +18,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.MadTeller,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            52300,
+            12000,
             SetupOptionItem,
             "Mt",
             introSound: () => GetIntroSound(RoleTypes.Scientist)
@@ -89,6 +89,8 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
     }
 
+    public override void Add()
+        => AddS(Player);
     private void SendRPC()
     {
         using var sender = CreateSender();
@@ -100,11 +102,10 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     }
     bool Check() => MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt());
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(!Check() ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!Check() ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-
-        if (MadAvenger.Skill) return true;
+        if (!Canuseability()) return true;
         if (Max > count && Is(voter) && Check() && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
@@ -133,7 +134,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public void Uranai(byte votedForId)
     {
         int chance = IRandom.Instance.Next(1, 101);
-        var target = Utils.GetPlayerById(votedForId);
+        var target = PlayerCatch.GetPlayerById(votedForId);
         if (!target.IsAlive()) return;
         count++;
         mcount++;
@@ -145,7 +146,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : target.GetCustomRole();
             var s = "です" + (role.IsImpostorTeam() ? "!" : "...");
             SendRPC();
-            Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(Utils.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(UtilsRoleText.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
         }
         else
         {

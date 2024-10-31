@@ -17,7 +17,7 @@ class Penguin : RoleBase, IImpostor
             CustomRoles.Penguin,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            3400,
+            8700,
             SetupOptionItem,
             "pe",
             from: From.SuperNewRoles
@@ -79,7 +79,7 @@ class Penguin : RoleBase, IImpostor
         }
         else
         {
-            AbductVictim = Utils.GetPlayerById(victim);
+            AbductVictim = PlayerCatch.GetPlayerById(victim);
             AbductTimer = AbductTimerLimit;
         }
     }

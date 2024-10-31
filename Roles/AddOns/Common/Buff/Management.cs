@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Management
     {
         private static readonly int Id = 75400;
-        public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Management);
+        public static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Management);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "θ");
         public static List<byte> playerIdList = new();
         private static OptionItem OptionPercentGage;

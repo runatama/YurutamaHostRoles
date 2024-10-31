@@ -29,7 +29,7 @@ namespace TownOfHost
         /// <param name="role">変更する役職</param>
         /// <param name="setRole">基本trueにしよう()</param>
         /// <param name="log">true→役職上書き null→役職変更表示 false→なんもしない</param>
-        public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = false, bool? log = false)
+        public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = true, bool? log = false)
         {
             if (player.GetCustomRole() == role) return;
 
@@ -43,8 +43,8 @@ namespace TownOfHost
                 }
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
 
-                if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>";
-                else if (log == null) Main.LastLogRole[player.PlayerId] = $"<size=40%>{Main.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(Utils.GetRoleColor(role), GetString($"{role}")) + "</b>";
+                if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
+                else if (log == null) Main.LastLogRole[player.PlayerId] = $"<size=40%>{Main.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
@@ -54,11 +54,12 @@ namespace TownOfHost
             {
                 if (role < CustomRoles.NotAssigned)
                 {
+                    Main.showkillbutton = false;
                     if (setRole)
                     {
                         if (role.GetRoleInfo()?.IsDesyncImpostor ?? false)
                         {
-                            foreach (var pc in Main.AllPlayerControls)
+                            foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 if (pc == PlayerControl.LocalPlayer)
                                 {
@@ -74,12 +75,23 @@ namespace TownOfHost
                             if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                             {
                                 var roleInfo = role.GetRoleInfo();
-                                if (roleInfo?.IsDesyncImpostor ?? false && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
+                                if ((roleInfo?.IsDesyncImpostor ?? false) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
                                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate);
                             }
                         }
                         else
                             player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
+
+                        if (role.GetRoleInfo()?.IsCantSeeTeammates == true && role.IsImpostor())
+                        {
+                            var clientId = player.GetClientId();
+                            foreach (var killer in PlayerCatch.AllPlayerControls)
+                            {
+                                if (!killer.GetCustomRole().IsImpostor()) continue;
+                                //Amnesiac視点インポスターをクルーにする
+                                killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
+                            }
+                        }
                     }
                 }
 
@@ -88,21 +100,24 @@ namespace TownOfHost
                 writer.WritePacked((int)role);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 player.SyncSettings();
-                player.SetKillCooldown(delay: true, kyousei: true);
+                player.SetKillCooldown(delay: true, kyousei: true, kousin: true);
                 player.RpcResetAbilityCooldown();
 
                 if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro)
                 {
-                    Utils.NotifyRoles(ForceLoop: true);
+                    UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
-                    if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                    if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                     foreach (var r in CustomRoleManager.AllActiveRoles.Values)
                     {
                         r.Colorchnge();
                     }
                 }
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                    HudManagerPatch.BottonHud();
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro)
+                {
+                    CustomButtonHud.BottonHud(true);
+                    _ = new LateTask(() => Main.showkillbutton = true, 0.02f, "", true);
+                }
             }
         }
         public static void RpcSetCustomRole(byte PlayerId, CustomRoles role)
@@ -180,7 +195,7 @@ namespace TownOfHost
         }
         public static void RpcSetNameEx(this PlayerControl player, string name)
         {
-            foreach (var seer in Main.AllPlayerControls)
+            foreach (var seer in PlayerCatch.AllPlayerControls)
             {
                 Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
             }
@@ -238,14 +253,14 @@ namespace TownOfHost
             writer.Write(Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool kyousei = false, bool delay = false)
+        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool kyousei = false, bool delay = false, bool kousin = true)
         {
             if (player == null) return;
             if (target == null) target = player;
             CustomRoles role = player.GetCustomRole();
             if (!player.CanUseKillButton() && !kyousei) return;
 
-            if (player == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
+            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) CustomButtonHud.BottonHud();
 
             if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId))
             {
@@ -265,11 +280,12 @@ namespace TownOfHost
             {
                 player.RpcProtectedMurderPlayer(target);
                 if (player != target) player.RpcProtectedMurderPlayer();
-                _ = new LateTask(() =>
-                    {
-                        player.ResetKillCooldown();
-                        player.SyncSettings();
-                    }, 1f, "", true);
+                if (kousin)
+                    _ = new LateTask(() =>
+                        {
+                            player.ResetKillCooldown();
+                            player.SyncSettings();
+                        }, 1f, "", true);
             }
             else
             {
@@ -277,13 +293,25 @@ namespace TownOfHost
                 {
                     player.RpcProtectedMurderPlayer(target);
                     if (player != target) player.RpcProtectedMurderPlayer();
-                    _ = new LateTask(() =>
-                    {
-                        player.ResetKillCooldown();
-                        player.SyncSettings();
-                    }, 1f, "", true);
-                }, Main.LagTime, "Setkillcooldown delay");
+                    if (kousin)
+                        _ = new LateTask(() =>
+                        {
+                            player.ResetKillCooldown();
+                            player.SyncSettings();
+                        }, 1f, "", true);
+                }, Main.LagTime, "Setkillcooldown delay", true);
             }
+        }
+        public static void RpcMeetingKill(this PlayerControl killer, PlayerControl target = null)
+        {
+            if (!GameStates.InGame) return;
+            if (target == null) target = killer;
+
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, target.GetClientId());
+            messageWriter.WriteNetObject(target);
+            messageWriter.Write((int)MurderResultFlags.Succeeded);
+            AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+
         }
         public static void RpcSpecificMurderPlayer(this PlayerControl killer, PlayerControl target = null)
         {
@@ -316,10 +344,10 @@ namespace TownOfHost
         public static void RpcResetAbilityCooldownAllPlayer()
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            Utils.SyncAllSettings();
+            UtilsOption.SyncAllSettings();
             _ = new LateTask(() =>
             {
-                foreach (var target in Main.AllPlayerControls)
+                foreach (var target in PlayerCatch.AllPlayerControls)
                 {
                     if (PlayerControl.LocalPlayer == target)
                     {
@@ -336,7 +364,7 @@ namespace TownOfHost
                     }
                 }
             }
-            , 0.2f, "AllPlayerResetAbilityCoolDown");
+            , 0.2f, "AllPlayerResetAbilityCoolDown", null);
         }
         public static void RpcResetAbilityCooldown(this PlayerControl target, bool log = true, bool kousin = false)
         {
@@ -345,7 +373,7 @@ namespace TownOfHost
                 return;
             }
             if (kousin) target.SyncSettings();
-            if (target == PlayerControl.LocalPlayer) HudManagerPatch.BottonHud();
+            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId) CustomButtonHud.BottonHud(true);
             if (log) Logger.Info($"アビリティクールダウンのリセット:{target?.name ?? "ﾇﾙﾎﾟｯ"}({target?.PlayerId ?? 334})", "RpcResetAbilityCooldown");
 
             if (kousin)
@@ -405,7 +433,7 @@ namespace TownOfHost
         public static void RpcSpecificRejectShapeshift(this PlayerControl player, PlayerControl target, bool shouldAnimate)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            foreach (var seer in Main.AllPlayerControls)
+            foreach (var seer in PlayerCatch.AllPlayerControls)
             {
                 if (seer != player)
                 {
@@ -435,22 +463,6 @@ namespace TownOfHost
             messageWriter.Write(msgWriter, false);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
-
-        /*public static void RpcBeKilled(this PlayerControl player, PlayerControl KilledBy = null) {
-            if(!AmongUsClient.Instance.AmHost) return;
-            byte KilledById;
-            if(KilledBy == null)
-                KilledById = byte.MaxValue;
-            else
-                KilledById = KilledBy.PlayerId;
-
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)CustomRPC.BeKilled, Hazel.SendOption.Reliable, -1);
-            writer.Write(player.PlayerId);
-            writer.Write(KilledById);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-
-            RPC.BeKilled(player.PlayerId, KilledById);
-        }*/
         public static void MarkDirtySettings(this PlayerControl player)
         {
             PlayerGameOptionsSender.SetDirty(player.PlayerId);
@@ -464,17 +476,6 @@ namespace TownOfHost
         {
             return PlayerState.GetByPlayerId(player.PlayerId).GetTaskState();
         }
-
-        /*public static GameOptionsData DeepCopy(this GameOptionsData opt)
-        {
-            var optByte = opt.ToBytes(5);
-            return GameOptionsData.FromBytes(optByte);
-        }*/
-
-        public static string GetTrueRoleName(this PlayerControl player)
-        {
-            return Utils.GetTrueRoleName(player.PlayerId);
-        }
         public static string GetSubRoleName(this PlayerControl player)
         {
             var SubRoles = PlayerState.GetByPlayerId(player.PlayerId).SubRoles;
@@ -483,7 +484,7 @@ namespace TownOfHost
             foreach (var role in SubRoles)
             {
                 if (role == CustomRoles.NotAssigned) continue;
-                sb.Append($"{Utils.ColorString(Color.white, " + ")}{Utils.GetRoleName(role)}");
+                sb.Append($"{Utils.ColorString(Color.white, " + ")}{UtilsRoleText.GetRoleName(role)}");
             }
 
             return sb.ToString();
@@ -491,7 +492,7 @@ namespace TownOfHost
         public static string GetAllRoleName(this PlayerControl player)
         {
             if (!player) return null;
-            var text = Utils.GetRoleName(player.GetCustomRole());
+            var text = UtilsRoleText.GetRoleName(player.GetCustomRole());
             text += player.GetSubRoleName();
             return text;
         }
@@ -501,13 +502,13 @@ namespace TownOfHost
         }
         public static string GetRoleColorCode(this PlayerControl player)
         {
-            return Utils.GetRoleColorCode(player.GetCustomRole());
+            return UtilsRoleText.GetRoleColorCode(player.GetCustomRole());
         }
         public static Color GetRoleColor(this PlayerControl player)
         {
             if (player.GetRoleClass() != null && player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
             {
-                return Utils.GetRoleColor(player.GetRoleClass().Jikaku());
+                return UtilsRoleText.GetRoleColor(player.GetRoleClass().Jikaku());
             }
             if (player.Is(CustomRoles.Amnesia))
             {
@@ -515,7 +516,7 @@ namespace TownOfHost
                 if (player.Is(CustomRoleTypes.Neutral) || player.Is(CustomRoleTypes.Madmate)) return Palette.DisabledGrey;
                 else return Palette.CrewmateBlue;
             }
-            return Utils.GetRoleColor(player.GetCustomRole());
+            return UtilsRoleText.GetRoleColor(player.GetCustomRole());
         }
         public static void ResetPlayerCam(this PlayerControl pc, float delay = 0f)
         {
@@ -564,7 +565,9 @@ namespace TownOfHost
         }
         public static bool CanUseKillButton(this PlayerControl pc)
         {
-            if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && !Main.showkillbutton && Main.CustomSprite.Value) return false;
+            if (!pc.IsAlive()) return false;
+            if (pc?.Data?.Role?.Role == RoleTypes.GuardianAngel) return false;
 
             if (pc.Is(CustomRoles.Amnesia) && !pc.Is(CustomRoleTypes.Impostor)) return false;
 
@@ -652,7 +655,7 @@ namespace TownOfHost
             messageWriter.WriteNetObject(target);
             messageWriter.Write((int)SuccessFlags);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-            Utils.NotifyRoles();
+            UtilsNotifyRoles.NotifyRoles();
         }
         public static void RpcProtectedMurderPlayer(this PlayerControl killer, PlayerControl target = null)
         {
@@ -674,13 +677,16 @@ namespace TownOfHost
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
         }
+
+        /*サボタージュ中でも関係なしに会議を起こせるメソッド
+        targetがnullの場合はボタンとなる*/
+        ///基本<see cref="ReportDeadBodyPatch.DieCheckReport"/>を使用する。
         public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target)
-        { /*サボタージュ中でも関係なしに会議を起こせるメソッド
-            targetがnullの場合はボタンとなる*/
-            Utils.MeetingMoji = $"<color={Main.ModColor}><u><i>★</color>" + "<color=#ffffff>" + GetString("MI.Kyousei") + "</i></u></color>";
+        {
+            UtilsNotifyRoles.MeetingMoji = GetString("MI.Kyousei");
             GameStates.Meeting = true;
             GameStates.task = false;
-            Utils.NotifyRoles(isForMeeting: true, ForceLoop: true, NoCache: true);
+            UtilsNotifyRoles.NotifyRoles(isForMeeting: true, ForceLoop: true, NoCache: true);
             MeetingRoomManager.Instance.AssignSelf(reporter, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
             reporter.RpcStartMeeting(target);
@@ -745,6 +751,7 @@ namespace TownOfHost
                 CustomRoles.DoppelGanger or
                 CustomRoles.Jackal or
                 CustomRoles.JackalMafia or
+                CustomRoles.JackalAlien or
                 CustomRoles.Remotekiller or
                 CustomRoles.CountKiller;
         }
@@ -764,7 +771,7 @@ namespace TownOfHost
             if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || LastImpostor.ACanSeeComms.GetBool();
             if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || LastNeutral.ACanSeeComms.GetBool();
 
-            if (RoleAddAddons.AllData.TryGetValue(seer.GetCustomRole(), out var data))
+            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer))
                 if (data.GiveAutopsy.GetBool() && data.GiveAddons.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || data.ACanSeeComms.GetBool();
 
             // 役職による仕分け
@@ -808,12 +815,13 @@ namespace TownOfHost
                         break;
                 };
 
-            /*NextUpdete
             if (role is CustomRoles.Amnesiac)
             {
-                if (roleClass is Amnesiac amnesiac && !amnesiac.思い出した)
+                if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                {
                     text = CustomRoles.Sheriff.ToString();
-            }*/
+                }
+            }
 
             var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
             if (player.IsGorstRole())
@@ -821,7 +829,7 @@ namespace TownOfHost
                 var state = PlayerState.GetByPlayerId(player.PlayerId);
                 if (state != null)
                 {
-                    return Utils.ColorString(Utils.GetRoleColor(state.GhostRole), GetString($"{state.GhostRole}Info"));
+                    return Utils.ColorString(UtilsRoleText.GetRoleColor(state.GhostRole), GetString($"{state.GhostRole}Info"));
                 }
             }
             if (Options.SuddenDeathMode.GetBool())
@@ -847,7 +855,7 @@ namespace TownOfHost
         public static PlayerControl GetRealKiller(this PlayerControl target)
         {
             var killerId = PlayerState.GetByPlayerId(target.PlayerId).GetRealKiller();
-            return killerId == byte.MaxValue ? null : Utils.GetPlayerById(killerId);
+            return killerId == byte.MaxValue ? null : PlayerCatch.GetPlayerById(killerId);
         }
         public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
         {
@@ -888,10 +896,6 @@ namespace TownOfHost
         /// 自身の色を特定の人視点のみ変更する。<br/>
         /// 前→変更対象者<br/>
         /// target→視認対象者<br/>
-        /// <br/>
-        /// 多分Colorのbyte<br/>
-        /// 0→赤, 1→青,　2→緑, 3→桃, 4→橙, 5→黄, 6→黒, 7→白 8→紫<br/>
-        /// 9→茶, 10→水, 11→黄緑, 12→小豆,　13→ローズ,　14→バナナ,　15→グレー, 16→タン,　17→コーラル
         /// </summary>
         /// <param name="target">見せる相手</param>
         /// <param name="Color">色</param>
@@ -938,9 +942,9 @@ namespace TownOfHost
 
         public static void OnlySeeMePet(this PlayerControl pc, string petid)
         {
-            //Main.AllPlayerControls.Do(p => p.RpcSetPet("")); //ペットを全員視点消して本人視点のみ付けるRPCを送信
+            //PlayerCatch.AllPlayerControls.Do(p => p.RpcSetPet("")); //ペットを全員視点消して本人視点のみ付けるRPCを送信
             //↑バニラ視点自身の消えるから戻す。
-            foreach (var ap in Main.AllPlayerControls)
+            foreach (var ap in PlayerCatch.AllPlayerControls)
             {
                 MessageWriter kesuwriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, ap.GetClientId());
                 kesuwriter.Write("");

@@ -22,6 +22,7 @@ namespace TownOfHost
         public static bool hasUpdate = false;
         public static bool isBroken = false;
         public static bool isChecked = false;
+        public static bool isSubUpdata = false;
         public static Version latestVersion = null;
         public static string latestTitle = null;
         public static string downloadUrl = null;
@@ -138,7 +139,7 @@ namespace TownOfHost
                         if (assets[i]["name"].ToString() == "TownOfHost-K.dll")
                             downloadUrl = assets[i]["browser_download_url"].ToString();
                     }
-                    hasUpdate = latestVersion.CompareTo(Main.version) > 0 || version.Update.ShowUpdateButton || version.Update.Forced;
+                    hasUpdate = latestVersion.CompareTo(Main.version) > 0 /*|| version.Update.ShowUpdateButton || version.Update.Forced*/;
                 }
                 if (all) return true;
                 if (downloadUrl == null)
@@ -149,9 +150,18 @@ namespace TownOfHost
                 isChecked = true;
                 isBroken = false;
                 body = data["body"].ToString();
+                // Subverのチェック。
+                // バージョンが同一で、　　　　　　　　　　　　　　　　現在のサブバージョンがGitHubに記載されてなくて、　　　　　　　　サブバージョンの記載がある時～
+                if (latestVersion.CompareTo(Main.version) == 0 && !body.Contains($"PluginSubVersion:{Main.PluginSubVersion}") && body.Contains($"PluginSubVersion:"))
+                {
+                    hasUpdate = true;
+                    isSubUpdata = true;
+                    latestTitle += $"<sub>{Main.PluginSubVersion}</sub>";
+                }
+                else isSubUpdata = false;
                 //if (body.Contains("📢公開ルーム○")) publicok = true;
                 //else if (body.Contains("📢公開ルーム×")) publicok = false;
-                nothostbug = body.Contains("非ホストmodクライアントにバグあり");
+                //nothostbug = body.Contains("非ホストmodクライアントにバグあり");
             }
             catch (Exception ex)
             {

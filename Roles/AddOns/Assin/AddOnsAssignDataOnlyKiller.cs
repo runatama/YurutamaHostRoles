@@ -89,7 +89,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (SuddenAllRoleonaji.GetBool() && assignTargetList.Count != 0)
                 {
                     assignTargetList.Clear();
-                    Main.AllPlayerControls.Do(p => assignTargetList.Add(p));
+                    PlayerCatch.AllPlayerControls.Do(p => assignTargetList.Add(p));
                 }
 
                 foreach (var pc in assignTargetList)
@@ -106,7 +106,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            var validPlayers = PlayerCatch.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
 
             if (data.CrewmateMaximum != null)
             {
@@ -164,9 +164,9 @@ namespace TownOfHost.Roles.AddOns.Common
                 var neutralMaximum = data.NeutralMaximum.GetInt();
                 if (neutralMaximum > 0)
                 {
-                    var neutrals = validPlayers.Where(pc => pc.IsNeutralKiller() ||
+                    var neutrals = validPlayers.Where(pc
+                        => pc.IsNeutralKiller() ||
                         pc.Is(CustomRoles.GrimReaper)).ToList();
-
                     for (var i = 0; i < neutralMaximum; i++)
                     {
                         if (neutrals.Count == 0) break;

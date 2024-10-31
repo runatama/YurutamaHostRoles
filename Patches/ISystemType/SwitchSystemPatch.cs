@@ -46,7 +46,7 @@ public static class SwitchSystemUpdateSystemPatch
                 return false;
             }
 
-        if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveWater.GetBool()) return false;
+        if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) && data.GiveAddons.GetBool() && data.GiveWater.GetBool()) return false;
 
         //Airshipの特定の停電を直せないならキャンセル
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)

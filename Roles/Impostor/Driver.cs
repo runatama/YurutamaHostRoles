@@ -14,7 +14,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             CustomRoles.Driver,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            15000,
+            40000,
             SetupOptionItems,
             "dr",
             tab: TabGroup.Combinations,
@@ -105,9 +105,9 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             killer.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(target);
             info.CanKill = false;
-            Utils.AddGameLog($"Driver", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+            UtilsGameLog.AddGameLog($"Driver", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Guard}回", "Driver");
-            Utils.NotifyRoles();
+            UtilsNotifyRoles.NotifyRoles();
         }
         return true;
     }

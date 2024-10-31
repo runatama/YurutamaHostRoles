@@ -18,7 +18,7 @@ public sealed class Sniper : RoleBase, IImpostor
             CustomRoles.Sniper,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            1800,
+            9000,
             SetupOptionItem,
             "snp",
             from: From.NebulaontheShip
@@ -180,7 +180,7 @@ public sealed class Sniper : RoleBase, IImpostor
         //至近距離で外す対策に一歩後ろから判定を開始する
         snipePos -= dir;
 
-        foreach (var target in Main.AllAlivePlayerControls)
+        foreach (var target in PlayerCatch.AllAlivePlayerControls)
         {
             //自分には当たらない
             if (target.PlayerId == Player.PlayerId) continue;
@@ -286,7 +286,7 @@ public sealed class Sniper : RoleBase, IImpostor
             foreach (var otherPc in targets.Keys)
             {
                 snList.Add(otherPc.PlayerId);
-                Utils.NotifyRoles(SpecifySeer: otherPc);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: otherPc);
             }
             SendRPC();
             _ = new LateTask(
@@ -297,7 +297,7 @@ public sealed class Sniper : RoleBase, IImpostor
                     {
                         foreach (var otherPc in targets.Keys)
                         {
-                            Utils.NotifyRoles(SpecifySeer: otherPc);
+                            UtilsNotifyRoles.NotifyRoles(SpecifySeer: otherPc);
                         }
                         SendRPC();
                     }
@@ -307,7 +307,7 @@ public sealed class Sniper : RoleBase, IImpostor
         }
         _ = new LateTask(() =>
         {
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 GetArrow.Add(pc.PlayerId, SnipeBasePosition);
                 HyoujiTime = OpHyoujitime.GetFloat();
@@ -324,9 +324,9 @@ public sealed class Sniper : RoleBase, IImpostor
             HyoujiTime -= Time.fixedDeltaTime;
             if (HyoujiTime <= 0)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                     GetArrow.Remove(pc.PlayerId, SnipeBasePosition);
-                _ = new LateTask(() => Utils.NotifyRoles(), 0.35f, "", true);
+                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.35f, "", true);
             }
         }
 
@@ -339,7 +339,7 @@ public sealed class Sniper : RoleBase, IImpostor
             //エイム終了
             IsAim = false;
             AimTime = 0f;
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
                 GetArrow.Remove(pc.PlayerId, SnipeBasePosition);
             return;
         }
@@ -353,14 +353,16 @@ public sealed class Sniper : RoleBase, IImpostor
         else
         {
             AimTime += Time.fixedDeltaTime;
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         MeetingReset = true;
+        foreach (var pc in PlayerCatch.AllPlayerControls)
+            GetArrow.Remove(pc.PlayerId, SnipeBasePosition);
     }
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         return Utils.ColorString(Color.yellow, $"({BulletCount})");
     }
@@ -386,6 +388,7 @@ public sealed class Sniper : RoleBase, IImpostor
     {
         seen ??= seer;
         var Y = "";
+        if (isForMeeting) return "";
 
         //各スナイパーから
         foreach (var sniper in Snipers)

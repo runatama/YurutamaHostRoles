@@ -13,7 +13,7 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.MadJester,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            60050,
+            13100,
             SetupOptionItem,
             "mje",
             introSound: () => GetIntroSound(RoleTypes.Impostor),

@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Crewmate
                 CustomRoles.TimeManager,
                 () => RoleTypes.Crewmate,
                 CustomRoleTypes.Crewmate,
-                21500,
+                21200,
                 SetupOptionItem,
                 "tm",
                 "#6495ed",
@@ -49,10 +49,10 @@ namespace TownOfHost.Roles.Crewmate
             var sec = IncreaseMeetingTime * MyTaskState.CompletedTasksCount;
             return sec;
         }
-        public override string GetProgressText(bool comms = false)
+        public override string GetProgressText(bool comms = false, bool gamelog = false)
         {
             var time = CalculateMeetingTimeDelta();
-            return time > 0 ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.TimeManager).ShadeColor(0.5f), $"+{time}s") : "";
+            return time > 0 ? Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.TimeManager).ShadeColor(0.5f), $"+{time}s") : "";
         }
     }
 }

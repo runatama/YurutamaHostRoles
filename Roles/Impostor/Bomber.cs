@@ -6,7 +6,6 @@ using Hazel;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor
 {
@@ -19,7 +18,7 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Bomber,
                 () => RoleTypes.Shapeshifter,
                 CustomRoleTypes.Impostor,
-                1350,
+                5100,
                 SetupOptionItem,
                 "bb"
             );
@@ -44,9 +43,7 @@ namespace TownOfHost.Roles.Impostor
         {
             BomberKillDelay,
             blastrange,
-            BomberExplosion,
-            Cooldown,
-            UOcShButton
+            BomberExplosion
         }
 
         static float KillDelay;
@@ -61,9 +58,9 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.BomberKillDelay, new(1f, 1000f, 1f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionBlastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(1f, 30f, 0.5f), 1f, false);
+            OptionBlastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(1f, 30f, 0.5f), 1f, false).SetValueFormat(OptionFormat.Multiplier);
             OptionBomberExplosion = IntegerOptionItem.Create(RoleInfo, 12, OptionName.BomberExplosion, new(1, 99, 1), 2, false);
-            OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.Cooldown, new(0f, 999f, 1f), 0, false);
+            OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 999f, 0.5f), 0, false).SetValueFormat(OptionFormat.Seconds);
         }
 
         private void SendRPC()
@@ -89,9 +86,9 @@ namespace TownOfHost.Roles.Impostor
             Player.RpcResetAbilityCooldown();
             Player.RpcProtectedMurderPlayer(target);
             BomberExplosionPlayers.Add(target.PlayerId, 0f);
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
-        public override string GetProgressText(bool comms = false) => Utils.ColorString(0 < BomberExplosion ? Color.red : Color.gray, $"({BomberExplosion})");
+        public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(0 < BomberExplosion ? Color.red : Color.gray, $"({BomberExplosion})");
         public override void OnFixedUpdate(PlayerControl _)
         {
             if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
@@ -100,11 +97,11 @@ namespace TownOfHost.Roles.Impostor
             {
                 if (timer >= KillDelay)
                 {
-                    var target = Utils.GetPlayerById(targetId);
+                    var target = PlayerCatch.GetPlayerById(targetId);
                     if (target.IsAlive())
                     {
                         var pos = target.transform.position;
-                        foreach (var target2 in Main.AllAlivePlayerControls)
+                        foreach (var target2 in PlayerCatch.AllAlivePlayerControls)
                         {
                             if (target2.Is(CustomRoles.King)) continue;
                             var dis = Vector2.Distance(pos, target2.transform.position);

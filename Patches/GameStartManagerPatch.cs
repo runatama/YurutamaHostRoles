@@ -39,7 +39,7 @@ namespace TownOfHost
                 GameMaster = Object.Instantiate(__instance.GameRoomNameCode, __instance.StartButton.transform.parent);
                 GameMaster.gameObject.SetActive(false);
                 GameMaster.name = "GMText";
-                GameMaster.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.GM), GetString("GameMasterON"));
+                GameMaster.text = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GM), GetString("GameMasterON"));
                 GameMaster.SetOutlineColor(Color.black);
                 GameMaster.SetOutlineThickness(0.2f);
 
@@ -67,15 +67,15 @@ namespace TownOfHost
                         GameStartManager.Instance.ResetStartState();
                 }));
 
-                /*
-                escボタン押したりしたらクリック反応しなくなっちゃうので封印します
                 if (GameStates.IsOnlineGame)
                 {
                     __instance.GameRoomNameCode.gameObject.AddComponent<BoxCollider2D>().size = new(2, 1);
                     var codePassive = __instance.GameRoomNameCode.gameObject.AddComponent<PassiveButton>();
                     codePassive.OnClick = new();
+                    codePassive.OnMouseOut = new();
+                    codePassive.OnMouseOver = new();
                     codePassive.OnClick.AddListener((Action)(() => LobbyInfoPane.Instance.CopyGameCode()));
-                }*/
+                }
 
                 LobbyInfoPanePatch.Postfix();
 
@@ -241,7 +241,7 @@ namespace TownOfHost
             {
                 SelectRandomMap();
 
-                var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
+                var invalidColor = PlayerCatch.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
                 if (invalidColor.Any())
                 {
                     var msg = GetString("Error.InvalidColor");
@@ -254,11 +254,11 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleTeamMode.GetBool())
                 {
                     //チェック
-                    var teamc = Math.Min(Options.TaskBattleTeamC.GetFloat(), Main.AllPlayerControls.Count());
-                    var playerc = Main.AllPlayerControls.Count() / teamc;
+                    var teamc = Math.Min(Options.TaskBattleTeamC.GetFloat(), PlayerCatch.AllPlayerControls.Count());
+                    var playerc = PlayerCatch.AllPlayerControls.Count() / teamc;
 
                     //チーム数でプレイヤーが足りない場合
-                    if (Options.TaskBattleTeamC.GetFloat() > Main.AllPlayerControls.Count())
+                    if (Options.TaskBattleTeamC.GetFloat() > PlayerCatch.AllPlayerControls.Count())
                     {
                         var msg = GetString("Warning.MoreTeamsThanPlayers");
                         Logger.seeingame(msg);
@@ -326,6 +326,14 @@ namespace TownOfHost
                     Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
                     PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
                 }
+            }
+        }
+        [HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.Update))]
+        class HostInfoPanelUpdatePatch
+        {
+            public static void Postfix(HostInfoPanel __instance)
+            {
+                __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(ModColors.GetPlayerColor32((ModColors.PlayerColor)AmongUsClient.Instance.GetHost().ColorId))}</b>";
             }
         }
     }

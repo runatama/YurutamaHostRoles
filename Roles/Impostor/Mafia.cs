@@ -11,9 +11,9 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
             typeof(Mafia),
             player => new Mafia(player),
             CustomRoles.Mafia,
-            () => CanAddMad.GetBool() && Options.CanMakeMadmateCount.GetInt() != 0 ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+            () => CanmakeSidekickMadMate.GetBool() && Options.CanMakeMadmateCount.GetInt() != 0 ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            1600,
+            8600,
             SetupCustomOption,
             "mf",
             from: From.TheOtherRoles
@@ -24,23 +24,28 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
         player
     )
     {
-        SKMad = CanAddMad.GetBool();
+        SKMad = CanmakeSidekickMadMate.GetBool();
+        canusekill = false;
     }
-    static OptionItem CanAddMad;
-    static OptionItem OptionCankill;
-    static OptionItem Cankill;
+    static OptionItem CanmakeSidekickMadMate;
+    static OptionItem OptionKillCoolDown;
+    static OptionItem CanKillImpostorCount;
+    static OptionItem CanKillDay;
     bool SKMad;
+    bool canusekill;
     enum Option
     {
-        MafiaCankill
+        MafiaCankill,
+        MafiaCanKillDay
     }
     public static void SetupCustomOption()
     {
-        Cankill = IntegerOptionItem.Create(RoleInfo, 9, Option.MafiaCankill, new(1, 3, 1), 2, false).SetValueFormat(OptionFormat.Players);
-        OptionCankill = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 2.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
-        CanAddMad = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
+        CanKillImpostorCount = IntegerOptionItem.Create(RoleInfo, 9, Option.MafiaCankill, new(1, 3, 1), 2, false).SetValueFormat(OptionFormat.Players);
+        CanKillDay = FloatOptionItem.Create(RoleInfo, 12, Option.MafiaCanKillDay, new(0, 30, 1), 0, false, infinity: null).SetValueFormat(OptionFormat.day);
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
+        CanmakeSidekickMadMate = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
     }
-    public float CalculateKillCooldown() => OptionCankill.GetFloat();
+    public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.ShapeshifterCooldown = 1f;
@@ -50,13 +55,20 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
     {
         if (PlayerState.AllPlayerStates == null) return false;
         int livingImpostorsNum = 0;
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             var role = pc.GetCustomRole();
             if (role.IsImpostor()) livingImpostorsNum++;
         }
 
-        return (livingImpostorsNum <= Cankill.GetFloat());
+        return (livingImpostorsNum <= CanKillImpostorCount.GetFloat()) || canusekill;
+    }
+    public override void OnStartMeeting()
+    {
+        if (CanKillDay.GetFloat() == 0) return;
+        if (!Player.IsAlive()) return;
+
+        if (CanKillDay.GetFloat() <= Main.day) canusekill = true;
     }
     public void OnClick()
     {
@@ -68,9 +80,9 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
         Player.RpcProtectedMurderPlayer(target);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
-        Utils.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({Utils.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({Utils.GetTrueRoleName(Player.PlayerId)})"));
+        UtilsGameLog.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
         target.RpcSetCustomRole(CustomRoles.SKMadmate);
-        foreach (var pl in Main.AllPlayerControls)
+        foreach (var pl in PlayerCatch.AllPlayerControls)
         {
             if (pl == PlayerControl.LocalPlayer)
                 target.StartCoroutine(target.CoSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
@@ -78,8 +90,8 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
                 target.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
         }
         Main.SKMadmateNowCount++;
-        Utils.MarkEveryoneDirtySettings();
-        Utils.NotifyRoles();
-        Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(Utils.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + Utils.GetSubRolesText(target.PlayerId);
+        UtilsOption.MarkEveryoneDirtySettings();
+        UtilsNotifyRoles.NotifyRoles();
+        Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
     }
 }

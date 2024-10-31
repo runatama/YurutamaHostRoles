@@ -14,7 +14,7 @@ public sealed class Comebacker : RoleBase
             CustomRoles.Comebacker,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
-            25800,
+            23300,
             SetupOptionItem,
             "cb",
             "#ff9966",

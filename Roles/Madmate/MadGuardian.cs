@@ -14,7 +14,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
             CustomRoles.MadGuardian,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            10100,
+            10200,
             SetupOptionItem,
             "mg",
             introSound: () => GetIntroSound(RoleTypes.Impostor),
@@ -57,7 +57,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
         //MadGuardianを切れるかの判定処理
         if (!MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt())) return true;
 
-        Utils.AddGameLog($"MadGuardian", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+        UtilsGameLog.AddGameLog($"MadGuardian", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
         info.CanKill = false;
 
         killer.SetKillCooldown();
@@ -71,7 +71,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
 
             if (CanSeeWhoTriedToKill)
                 NameColorManager.Add(target.PlayerId, killer.PlayerId, RoleInfo.RoleColorCode);
-            Utils.NotifyRoles();
+            UtilsNotifyRoles.NotifyRoles();
         }
 
         return false;

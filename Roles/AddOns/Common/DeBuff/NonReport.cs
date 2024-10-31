@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class NonReport
     {
         private static readonly int Id = 70000;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.NonReport);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.NonReport);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｒ");
         public static List<byte> playerIdList = new();
         public static OptionItem OptionConvener;

@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using Hazel;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Madmate;
 using System;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Translator;
@@ -17,7 +16,7 @@ public sealed class ShrineMaiden : RoleBase
             CustomRoles.ShrineMaiden,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            28410,
+            18500,
             SetupOptionItem,
             "SM",
             "#b7282e",
@@ -108,10 +107,10 @@ public sealed class ShrineMaiden : RoleBase
         Oniku = 111;
     }
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (MadAvenger.Skill) return true;
+        if (!Canuseability()) return true;
         if (Repo && Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
@@ -139,8 +138,8 @@ public sealed class ShrineMaiden : RoleBase
     }
     public void Miko(byte votedForId)
     {
-        var target1 = Utils.GetPlayerById(Oniku);
-        var target2 = Utils.GetPlayerById(votedForId);
+        var target1 = PlayerCatch.GetPlayerById(Oniku);
+        var target2 = PlayerCatch.GetPlayerById(votedForId);
         if (!target2.IsAlive()) return;
         count++;
         mcount++;

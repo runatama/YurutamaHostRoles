@@ -201,7 +201,7 @@ internal class OnGameJoinedPatch
         __instance.StartCoroutine(Blacklist.Check(ClientId: __instance.ClientId).WrapToIl2Cpp());
         _ = new LateTask(() =>
         {
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc != null) __instance.StartCoroutine(Blacklist.Check(pc.GetClient(), pc.GetClientId()).WrapToIl2Cpp());
             }
@@ -219,7 +219,7 @@ internal class OnPlayerJoinedPatch
         {
             __instance.StartCoroutine(Blacklist.Check(data).WrapToIl2Cpp());
 
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc != null) __instance.StartCoroutine(Blacklist.Check(pc.GetClient(), pc.GetClientId()).WrapToIl2Cpp());
             }

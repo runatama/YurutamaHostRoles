@@ -12,7 +12,7 @@ public sealed class VentMaster : RoleBase
             CustomRoles.VentMaster,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
-            22000,
+            23400,
             null,
             "vm",
             "#ff6666",
@@ -36,7 +36,7 @@ public sealed class VentMaster : RoleBase
         var user = physics.myPlayer;
         if (!user.Is(CustomRoles.VentMaster))
         {
-            foreach (var seer in Main.AllPlayerControls)
+            foreach (var seer in PlayerCatch.AllPlayerControls)
             {
                 if (seer.Is(CustomRoles.VentMaster) && seer.PlayerId != user.PlayerId) if (!seer.Data.IsDead || !GameStates.IsMeeting) seer.KillFlash(false);
             }

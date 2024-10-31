@@ -12,7 +12,7 @@ public sealed class Mayor : RoleBase
             CustomRoles.Mayor,
             () => OptionHasPortableButton.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20200,
+            20900,
             SetupOptionItem,
             "my",
             "#204d42",
@@ -99,7 +99,9 @@ public sealed class Mayor : RoleBase
     {
         // 既定値
         var (votedForId, numVotes, doVote) = base.ModifyVote(voterId, sourceVotedForId, isIntentional);
-        if (voterId == Player.PlayerId && Count >= Utils.AllAlivePlayersCount && Kakusei)
+
+        if (Options.FirstTurnMeeting.GetBool() && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return (votedForId, numVotes, doVote);
+        if (voterId == Player.PlayerId && Count >= PlayerCatch.AllAlivePlayersCount && Kakusei)
         {
             numVotes = AdditionalVote + KadditionaVote + 1;
         }

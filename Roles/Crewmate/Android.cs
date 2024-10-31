@@ -14,7 +14,7 @@ public sealed class Android : RoleBase
             CustomRoles.Android,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
-            26100,
+            23200,
             SetupOptionItem,
             "And",
             "#8a99b7",
@@ -124,7 +124,7 @@ public sealed class Android : RoleBase
             }
             if (Now() != bat)
             {
-                Utils.NotifyRoles(SpecifySeer: Player);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 bat = Now();
                 Player.MarkDirtySettings();
             }

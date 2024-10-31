@@ -16,7 +16,7 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Insider,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                2800,
+                8200,
                 SetupOptionItem,
                 "ins",
                 from: From.TownOfHost
@@ -103,7 +103,7 @@ namespace TownOfHost.Roles.Impostor
         {
             enabled |= KnowAllyRole(seen);
         }
-        public override string GetProgressText(bool isComms = false)
+        public override string GetProgressText(bool isComms = false, bool gamelog = false)
         {
             if (!canSeeMadmates) return "";
 
@@ -119,11 +119,11 @@ namespace TownOfHost.Roles.Impostor
 
             // 死亡したLoversのマーク追加
             if (seen.GetRiaju() != seer.GetRiaju() && seen.IsRiaju() && KnowDeadRole(seen))
-                mark.Append(Utils.ColorString(Utils.GetRoleColor(seen.GetRiaju()), "♥"));
+                mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(seen.GetRiaju()), "♥"));
 
             if (canSeeImpostorAbilities)
             {
-                foreach (var impostor in Main.AllPlayerControls)
+                foreach (var impostor in PlayerCatch.AllPlayerControls)
                 {
                     if (seer == impostor || impostor.Is(CustomRoles.Insider) || !impostor.Is(CustomRoleTypes.Impostor)) continue;
                     mark.Append(impostor.GetRoleClass()?.GetMark(impostor, seen, isForMeeting));

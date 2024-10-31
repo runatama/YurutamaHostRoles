@@ -27,7 +27,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
             CustomRoles.FireWorks,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            1700,
+            9500,
             SetupCustomOption,
             "fw",
             from: From.TownOfHost
@@ -119,7 +119,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
                 {
                     //爆破処理はホストのみ
                     bool suicide = false;
-                    foreach (var fireTarget in Main.AllAlivePlayerControls)
+                    foreach (var fireTarget in PlayerCatch.AllAlivePlayerControls)
                     {
                         foreach (var pos in FireWorksPosition)
                         {
@@ -141,7 +141,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
                     }
                     if (suicide)
                     {
-                        var totalAlive = Main.AllAlivePlayerControls.Count();
+                        var totalAlive = PlayerCatch.AllAlivePlayerControls.Count();
                         //自分が最後の生き残りの場合は勝利のために死なない
                         if (totalAlive != 1)
                         {
@@ -156,7 +156,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
             default:
                 break;
         }
-        Utils.NotifyRoles();
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
 
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
@@ -167,7 +167,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
         {
             Logger.Info("爆破準備OK", "FireWorks");
             State = FireWorksState.ReadyFire;
-            Utils.NotifyRoles();
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
         switch (State)
         {

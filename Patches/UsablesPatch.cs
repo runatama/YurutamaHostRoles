@@ -13,9 +13,9 @@ namespace TownOfHost
             canUse = couldUse = false;
             //こいつをfalseでreturnしても、タスク(サボ含む)以外の使用可能な物は使えるまま(ボタンなど)
             if (!GameStates.InGame)
-                return __instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
+                return __instance.AllowImpostor || UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
             else
-                return __instance.AllowImpostor || (Utils.HasTasks(PlayerControl.LocalPlayer.Data, false) && ((PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true) || (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))));
+                return __instance.AllowImpostor || (UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false) && ((PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true) || (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))));
         }
     }
     [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]

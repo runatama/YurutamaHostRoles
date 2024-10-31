@@ -12,7 +12,7 @@ public sealed class Shyboy : RoleBase
             CustomRoles.Shyboy,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
-            22015,
+            23000,
             SetupOptionItem,
             "Sy",
             "#00fa9a",
@@ -56,6 +56,7 @@ public sealed class Shyboy : RoleBase
         AURoleOptions.EngineerCooldown = (float)Coold;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
+    public override bool AllEnabledColor => true;
     public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -90,7 +91,7 @@ public sealed class Shyboy : RoleBase
 
             Vector2 GSpos = player.transform.position;
             bool Hito = false;
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (pc != player)
                 {

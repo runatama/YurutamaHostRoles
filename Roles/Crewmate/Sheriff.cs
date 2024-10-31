@@ -20,7 +20,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoles.Sheriff,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Crewmate,
-            20400,
+            17000,
             SetupOptionItem,
             "sh",
             "#f8cd46",
@@ -101,8 +101,8 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
     {
         var id = RoleInfo.ConfigId + idOffset;
         if (parent == null) parent = RoleInfo.RoleOption;
-        var roleName = Utils.GetRoleName(role);
-        Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(role), roleName) } };
+        var roleName = UtilsRoleText.GetRoleName(role);
+        Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(role), roleName) } };
         KillTargetOptions[role] = BooleanOptionItem.Create(id, OptionName.SheriffCanKill + "%role%", defaultValue, RoleInfo.Tab, false).SetParent(parent);
         KillTargetOptions[role].ReplacementDictionary = replacementDic;
     }
@@ -113,7 +113,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         // (%team%陣営)
         var inTeam = GetString("In%team%", new Dictionary<string, string>() { ["%team%"] = GetRoleString(catType.ToString()) });
         // シュレディンガーの猫(%team%陣営)
-        var catInTeam = Utils.ColorString(SchrodingerCat.GetCatColor(catType), Utils.GetRoleName(CustomRoles.SchrodingerCat) + inTeam);
+        var catInTeam = Utils.ColorString(SchrodingerCat.GetCatColor(catType), UtilsRoleText.GetRoleName(CustomRoles.SchrodingerCat) + inTeam);
         Dictionary<string, string> replacementDic = new() { ["%role%"] = catInTeam };
         SchrodingerCatKillTargetOptions[catType] = BooleanOptionItem.Create(id, OptionName.SheriffCanKill + "%role%", defaultValue, RoleInfo.Tab, false).SetParent(parent);
         SchrodingerCatKillTargetOptions[catType].ReplacementDictionary = replacementDic;
@@ -124,7 +124,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         CurrentKillCooldown = KillCooldown.GetFloat();
 
         ShotLimit = ShotLimitOpt.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "Sheriff");
+        Logger.Info($"{PlayerCatch.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "Sheriff");
     }
     private void SendRPC()
     {
@@ -165,10 +165,16 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             {
                 AlienTairo = al.CheckSheriffKill(target);
             }
+            if (target.Is(CustomRoles.JackalAlien))
+                foreach (var al in Neutral.JackalAlien.Aliens)
+                {
+                    AlienTairo = al.CheckSheriffKill(target);
+                }
             if (!CanBeKilledBy(target) || AlienTairo)
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 :
+                (target.Is(CustomRoles.JackalAlien) && JackalAlien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire);
                 killer.RpcMurderPlayer(killer);
                 if (!MisfireKillsTarget.GetBool())
                 {
@@ -181,7 +187,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
         }
         return;
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(CanUseKillButton() ? Color.yellow : Color.gray, $"({ShotLimit})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(CanUseKillButton() ? Color.yellow : Color.gray, $"({ShotLimit})");
     public static bool CanBeKilledBy(PlayerControl player)
     {
         var cRole = player.GetCustomRole();
@@ -209,6 +215,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
 
         if (cRole == CustomRoles.Jackaldoll) return CanKillNeutrals.GetValue() == 0 || (!KillTargetOptions.TryGetValue(CustomRoles.Jackal, out var option) && option.GetBool()) || (!KillTargetOptions.TryGetValue(CustomRoles.JackalMafia, out var op) && op.GetBool());
         if (cRole == CustomRoles.SKMadmate) return KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool();
+        if (player.Is(CustomRoles.Amanojaku)) return CanKillNeutrals.GetValue() == 0;
 
         return cRole.GetCustomRoleTypes() switch
         {

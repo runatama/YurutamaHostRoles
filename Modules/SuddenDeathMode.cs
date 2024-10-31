@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
-using TownOfHost.Roles.Core;
 using UnityEngine;
+
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Modules
 {
@@ -55,31 +55,31 @@ namespace TownOfHost.Modules
                 var systemtypes = Utils.GetCriticalSabotageSystemType();
                 ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
                 Logger.Info("ｷﾐﾊﾓｳｼﾞｷｼﾇ...!!", "SuddenDeath");
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
                 return;
             }
             if (time - SuddenDeathtime < 10 && nokori10s != null)
             {
                 nokori10s = true;
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
                 return;
             }
             if (time - SuddenDeathtime < 15 && nokori15s != null)
             {
                 nokori15s = true;
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
                 return;
             }
             if (time - SuddenDeathtime < 30 && nokori30s != null)
             {
                 nokori30s = true;
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
                 return;
             }
             if (time - SuddenDeathtime < 60 && nokori60s != null)
             {
                 nokori60s = true;
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
                 return;
             }
         }
@@ -96,10 +96,10 @@ namespace TownOfHost.Modules
             if (ItijohoSendTime > Options.SuddenItijohoSenddis.GetFloat() && arrow)
             {
                 ItijohoSendTime = 0;
-                foreach (var pc in Main.AllAlivePlayerControls) pos.Do(pos => GetArrow.Remove(pc.PlayerId, pos));
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls) pos.Do(pos => GetArrow.Remove(pc.PlayerId, pos));
                 pos.Clear();
-                foreach (var pc in Main.AllAlivePlayerControls) pos.Add(pc.transform.position);
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls) pos.Add(pc.transform.position);
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                 {
                     var p = pc.transform.position;
                     foreach (var po in pos) if (po != p) GetArrow.Add(pc.PlayerId, po);

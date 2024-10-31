@@ -58,4 +58,79 @@ public class ModColors
     public static Color32 AirShipColor = CodeColor("#ff3300");
     public static Color32 FangleColor = CodeColor("#ff9900");
     public static Color32 bluegreen = CodeColor("#13a85d");
+
+    /* ★ Player color ★ */
+    public enum PlayerColor
+    {
+        Red, Blue, Green, Pink, Orange, Yellow, Black, white, Purple,
+        Brown, Cyan, Lime, Maroon, Rose, Banana, Gray, Tan, Coral
+    }
+    public static Color32 Pink = CodeColor("#ee54bb"); public static string codepink = "#ee54bb";
+    public static Color32 Orange = CodeColor("#f07d0d"); public static string codeorange = "#f07d0d";
+    public static Color32 Yellow = CodeColor("#f6f657"); public static string codeyellow = "#f6f657";
+    public static Color32 White = CodeColor("#d7e1f1"); public static string codewhite = "#d7e1f1";
+    public static Color32 Cyan = CodeColor("#38ffdd"); public static string codecyan = "#38ffdd";
+    public static Color32 Lime = CodeColor("#50f039"); public static string codelime = "#50f039";
+    public static Color32 Rose = CodeColor("#ecc0d3"); public static string coderose = "#ecc0d3";
+    public static Color32 Banana = CodeColor("#f0e7a8"); public static string codebanana = "#f0e7a8";
+    public static Color32 Coral = CodeColor("#d76464"); public static string codecoral = "#d76464";
+    public static Color32 Red = CodeColor("#c61111"); public static string codered = "#c61111";
+    public static Color32 Blue = CodeColor("#132ed2"); public static string codeblue = "#132ed2";
+    public static Color32 Green = CodeColor("#11802d"); public static string codegreen = "#11802d";
+    public static Color32 Black = CodeColor("#3f474e"); public static string codeblack = "#3f474e";
+    public static Color32 Purple = CodeColor("#6b2fbc"); public static string codepurple = "#6b2fbc";
+    public static Color32 Brown = CodeColor("#71491e"); public static string codebrown = "#71491e";
+    public static Color32 Maroon = CodeColor("#5f1d2e"); public static string codemaroon = "#5f1d2e";
+    public static Color32 Gray = CodeColor("#758593"); public static string codegray = "#758593";
+    public static Color32 Tan = CodeColor("#918877"); public static string codetan = "#918877";
+    public static Color32 GetPlayerColor32(PlayerColor color)
+    {
+        return color switch
+        {
+            PlayerColor.Red => Red,
+            PlayerColor.Blue => Blue,
+            PlayerColor.Green => Green,
+            PlayerColor.Pink => Pink,
+            PlayerColor.Orange => Orange,
+            PlayerColor.Yellow => Yellow,
+            PlayerColor.Black => Black,
+            PlayerColor.white => White,
+            PlayerColor.Purple => Purple,
+            PlayerColor.Brown => Brown,
+            PlayerColor.Cyan => Cyan,
+            PlayerColor.Lime => Lime,
+            PlayerColor.Maroon => Maroon,
+            PlayerColor.Rose => Rose,
+            PlayerColor.Banana => Banana,
+            PlayerColor.Gray => Gray,
+            PlayerColor.Tan => Tan,
+            PlayerColor.Coral => Coral,
+            _ => new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, byte.MaxValue),
+        };
+    }
+    public static string GetPlayerColorCode(PlayerColor color)
+    {
+        return color switch
+        {
+            PlayerColor.Red => codered,
+            PlayerColor.Blue => codeblue,
+            PlayerColor.Green => codegreen,
+            PlayerColor.Pink => codepink,
+            PlayerColor.Orange => codeorange,
+            PlayerColor.Yellow => codeyellow,
+            PlayerColor.Black => codeblack,
+            PlayerColor.white => codewhite,
+            PlayerColor.Purple => codepurple,
+            PlayerColor.Brown => codebrown,
+            PlayerColor.Cyan => codecyan,
+            PlayerColor.Lime => codelime,
+            PlayerColor.Maroon => codemaroon,
+            PlayerColor.Rose => coderose,
+            PlayerColor.Banana => codebanana,
+            PlayerColor.Gray => codegray,
+            PlayerColor.Tan => codetan,
+            PlayerColor.Coral => codecoral,
+            _ => "#ffffff",
+        };
+    }
 }

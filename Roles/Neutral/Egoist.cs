@@ -14,7 +14,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
             CustomRoles.Egoist,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Neutral,
-            50600,
+            32000,
             SetupOptionItem,
             "eg",
             "#5600ff",
@@ -52,7 +52,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
 
     private static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
         OptionNameColor = BooleanOptionItem.Create(RoleInfo, 12, Op.EgoistNameColor, false, false);
@@ -60,7 +60,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     }
     public override void Add()
     {
-        foreach (var impostor in Main.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)))
+        foreach (var impostor in PlayerCatch.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)))
         {
             if (OptionNameColor.GetBool()) NameColorManager.Add(impostor.PlayerId, Player.PlayerId);
             else NameColorManager.Add(impostor.PlayerId, Player.PlayerId, "#ff1919");
@@ -75,7 +75,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     public bool CanUseSabotageButton() => true;
     public static bool CheckWin()
     {
-        if (Main.AllAlivePlayerControls.All(p => !p.Is(CustomRoleTypes.Impostor)) && egoist.IsAlive()) //インポスター全滅でエゴイストが生存
+        if (PlayerCatch.AllAlivePlayerControls.All(p => !p.Is(CustomRoleTypes.Impostor)) && egoist.IsAlive()) //インポスター全滅でエゴイストが生存
         {
             Win();
             return true;

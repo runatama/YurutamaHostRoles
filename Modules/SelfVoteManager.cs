@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+using TownOfHost.Roles.Madmate;
 using static TownOfHost.Modules.MeetingVoteManager;
 
 namespace TownOfHost.Modules
@@ -60,5 +60,12 @@ namespace TownOfHost.Modules
 
         public static void SetMode(PlayerControl player, bool mode)
             => CheckVote[player.PlayerId] = mode;
+
+        public static bool Canuseability()
+        {
+            if (MadAvenger.Skill) return false;
+            if (Options.FirstTurnMeeting.GetBool() && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return false;
+            return true;
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Witch,
                 () => ((SwitchTrigger)OptionModeSwitchAction.GetValue() is SwitchTrigger.OnShapeshift or SwitchTrigger.WitchOcShButton) ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                1500,
+                9300,
                 SetupOptionItem,
                 "wi",
                 from: From.TheOtherRoles
@@ -135,7 +135,7 @@ namespace TownOfHost.Roles.Impostor
             {
                 IsSpellMode = !IsSpellMode;
                 SendRPC(false);
-                Utils.NotifyRoles(SpecifySeer: Player);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
             }
         }
         public static bool IsSpelled(byte target = 255)
@@ -207,7 +207,7 @@ namespace TownOfHost.Roles.Impostor
                 if (target != null)
                 {
                     SetSpelled(target);
-                    Utils.NotifyRoles(SpecifySeer: Player);
+                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
                 occool = target is null ? 0 : cool;
                 Player.MarkDirtySettings();
@@ -244,7 +244,7 @@ namespace TownOfHost.Roles.Impostor
             if (Player.IsAlive() && MyState.DeathReason != CustomDeathReason.Vote)
             {//吊られなかった時呪いキル発動
                 var spelledIdList = new List<byte>();
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                 {
                     if (SpelledPlayer.Contains(pc.PlayerId) && !Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
                     {

@@ -1,12 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
 using Hazel;
+using AmongUs.GameOptions;
+using UnityEngine;
+
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral
 {
@@ -19,7 +18,7 @@ namespace TownOfHost.Roles.Neutral
                 CustomRoles.BakeCat,
                 () => RoleTypes.Crewmate,
                 CustomRoleTypes.Neutral,
-                51400,
+                38100,
                 SetupOptionItem,
                 "bk",
                 "#ededc7",
@@ -122,7 +121,7 @@ namespace TownOfHost.Roles.Neutral
                 if (AmongUsClient.Instance.AmHost)
                 {
                     Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
-                    foreach (var pc in Main.AllPlayerControls)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc == PlayerControl.LocalPlayer)
                         {
@@ -155,8 +154,8 @@ namespace TownOfHost.Roles.Neutral
 
             RevealNameColors(killer);
 
-            Utils.NotifyRoles();
-            Utils.MarkEveryoneDirtySettings();
+            UtilsNotifyRoles.NotifyRoles();
+            UtilsOption.MarkEveryoneDirtySettings();
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo sitai)
         {
@@ -174,7 +173,7 @@ namespace TownOfHost.Roles.Neutral
             if (AmongUsClient.Instance.AmHost)
             {
                 Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (pc == PlayerControl.LocalPlayer)
                     {
@@ -199,12 +198,12 @@ namespace TownOfHost.Roles.Neutral
         {
             var c = RoleInfo.RoleColorCode;
             if (killer.Is(CustomRoles.WolfBoy))
-                c = WolfBoy.Shurenekodotti.GetBool() ? Utils.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+                c = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
 
             NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
             NameColorManager.Add(Player.PlayerId, killer.PlayerId);
 
-            Utils.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{Utils.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+            UtilsGameLog.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             Main.LastLogRole[Player.PlayerId] = Main.LastLogRole[Player.PlayerId].RemoveColorTags().Color(DisplayRoleColor);
         }
         public override CustomRoles Jikaku() => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;
@@ -302,19 +301,19 @@ namespace TownOfHost.Roles.Neutral
             Color? color = catType switch
             {
                 TeamType.None => RoleInfo.RoleColor,
-                TeamType.Mad => Utils.GetRoleColor(CustomRoles.Madmate),
-                TeamType.Crew => Utils.GetRoleColor(CustomRoles.Crewmate),
-                TeamType.Jackal => Utils.GetRoleColor(CustomRoles.Jackal),
-                TeamType.Egoist => Utils.GetRoleColor(CustomRoles.Egoist),
-                TeamType.Remotekiller => Utils.GetRoleColor(CustomRoles.Remotekiller),
-                TeamType.CountKiller => Utils.GetRoleColor(CustomRoles.CountKiller),
-                TeamType.DoppelGanger => Utils.GetRoleColor(CustomRoles.DoppelGanger),
+                TeamType.Mad => UtilsRoleText.GetRoleColor(CustomRoles.Madmate),
+                TeamType.Crew => UtilsRoleText.GetRoleColor(CustomRoles.Crewmate),
+                TeamType.Jackal => UtilsRoleText.GetRoleColor(CustomRoles.Jackal),
+                TeamType.Egoist => UtilsRoleText.GetRoleColor(CustomRoles.Egoist),
+                TeamType.Remotekiller => UtilsRoleText.GetRoleColor(CustomRoles.Remotekiller),
+                TeamType.CountKiller => UtilsRoleText.GetRoleColor(CustomRoles.CountKiller),
+                TeamType.DoppelGanger => UtilsRoleText.GetRoleColor(CustomRoles.DoppelGanger),
                 _ => null,
             };
             if (!color.HasValue)
             {
                 logger.Warn($"不明な猫に対する色の取得: {catType}");
-                return Utils.GetRoleColor(CustomRoles.Crewmate);
+                return UtilsRoleText.GetRoleColor(CustomRoles.Crewmate);
             }
             return color.Value;
         }

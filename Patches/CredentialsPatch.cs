@@ -37,14 +37,16 @@ namespace TownOfHost
 
                 sb.Clear();
 
-                sb.Append("\r\n").Append(Main.credentialsText);
+                var Debugver = "";
+                if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
+                sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Subver + Debugver);
 
-                if (Options.NoGameEnd.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+                if (Options.NoGameEnd.GetBool() && (GameStates.IsLobby || Main.DontGameSet)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) sb.Append($"\r\n").Append(Utils.ColorString(Color.cyan, GetString("TaskBattle")));
-                if (Options.SuddenDeathMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
-                if (Options.EnableGM.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.GM), GetString("GM")));
+                if (Options.SuddenDeathMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
+                if (Options.EnableGM.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GM), GetString("GM")));
                 if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
                 if (DebugModeManager.IsDebugMode)
                 {
@@ -73,6 +75,7 @@ namespace TownOfHost
 #endif
             }
         }
+        public static string Subver;
         [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
         class VersionShowerStartPatch
         {
@@ -84,9 +87,12 @@ namespace TownOfHost
                 TMPTemplate.SetBase(__instance.text);
                 var Debugver = "";
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
-                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Debugver;
+                Subver = "";
+                /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
+                if (Main.PluginSubVersion != 0 && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
+                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Subver + Debugver;
 #if DEBUG
-                Main.credentialsText += $"\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
+                if (!GameStates.InGame) Main.credentialsText += $"\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
 #endif
                 var credentials = TMPTemplate.Create(
                     "TOHCredentialsText",
@@ -96,7 +102,7 @@ namespace TownOfHost
                     setActive: true);
                 credentials.transform.position = new Vector3(2.3419f, 2.29f, -5f);
 #if DEBUG
-                credentials.transform.position -= new Vector3(0f, 0.1218f, 0f);
+                if (!GameStates.InGame) credentials.transform.position -= new Vector3(0f, 0.1218f, 0f);
 #endif
                 if (GameObject.Find("FilterSettings")) credentials.transform.position = new Vector3(3.2438f, -2.8192f, 5f);
 
@@ -142,7 +148,7 @@ namespace TownOfHost
                     //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...
                     //To anyone who has seen this source code. I would appreciate it if you would keep your mouth shut...
                     SpecialEventText.text = $"何とは言いませんが、特別な日ですね。\n<size=15%>\n\n末永く爆発しろ</size>";
-                    SpecialEventText.color = Utils.GetRoleColor(CustomRoles.ALovers);
+                    SpecialEventText.color = UtilsRoleText.GetRoleColor(CustomRoles.Lovers);
                 }
             }
         }
@@ -164,7 +170,7 @@ namespace TownOfHost
                 logoTransform.parent = rightpanel;
                 logoTransform.localPosition = new(0f, 0.15f, 1f);
                 logoTransform.localScale *= 1.0f;
-                TohkLogo.sprite = Utils.LoadSprite("TownOfHost.Resources.TownOfHost-K.png", 300f);
+                TohkLogo.sprite = UtilsSprite.LoadSprite("TownOfHost.Resources.TownOfHost-K.png", 300f);
             }
         }
         [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]

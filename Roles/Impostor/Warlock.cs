@@ -18,7 +18,7 @@ public sealed class Warlock : RoleBase, IImpostor
             CustomRoles.Warlock,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            1400,
+            9200,
             null,
             "wa",
             from: From.TheOtherRoles
@@ -95,7 +95,7 @@ public sealed class Warlock : RoleBase, IImpostor
                 Vector2 cpPos = CursedPlayer.transform.position;
                 Dictionary<PlayerControl, float> candidateList = new();
                 float distance;
-                foreach (PlayerControl candidatePC in Main.AllAlivePlayerControls)
+                foreach (PlayerControl candidatePC in PlayerCatch.AllAlivePlayerControls)
                 {
                     if (candidatePC != CursedPlayer && !candidatePC.Is(CustomRoles.King))
                     {

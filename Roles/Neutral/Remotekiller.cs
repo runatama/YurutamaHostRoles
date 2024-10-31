@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Neutral
                 CustomRoles.Remotekiller,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
-                51500,
+                32100,
                 SetupOptionItem,
                 "rk",
                 "#8f00ce",
@@ -92,7 +92,7 @@ namespace TownOfHost.Roles.Neutral
             var user = physics.myPlayer;
             if (Rtarget != 111 && Player.PlayerId == user.PlayerId)
             {
-                var target = Utils.GetPlayerById(Rtarget);
+                var target = PlayerCatch.GetPlayerById(Rtarget);
                 if (!target.IsAlive()) return true;
                 if (RKillAnimation.GetBool())
                 {

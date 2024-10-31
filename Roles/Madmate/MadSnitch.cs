@@ -16,7 +16,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.MadSnitch,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            10200,
+            10100,
             SetupOptionItem,
             "msn",
             introSound: () => GetIntroSound(RoleTypes.Impostor),
@@ -72,7 +72,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         if (!KnowsImpostor()) return;
 
-        foreach (var impostor in Main.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.WolfBoy)))
+        foreach (var impostor in PlayerCatch.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.WolfBoy)))
         {
             NameColorManager.Add(Player.PlayerId, impostor.PlayerId, Player.GetRoleColorCode());
         }
@@ -105,7 +105,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             return string.Empty;
         }
 
-        return Utils.ColorString(Utils.GetRoleColor(CustomRoles.MadSnitch), "★");
+        return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.MadSnitch), "★");
     }
 
     public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;

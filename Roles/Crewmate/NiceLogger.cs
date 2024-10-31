@@ -17,7 +17,7 @@ namespace TownOfHost.Roles.Crewmate
                 CustomRoles.NiceLogger,
                 () => RoleTypes.Shapeshifter,
                 CustomRoleTypes.Crewmate,
-                26000,
+                16000,
                 SetupOptionItem,
                 "NL",
                 "#4a5c59",
@@ -84,7 +84,7 @@ namespace TownOfHost.Roles.Crewmate
 
             if (AmongUsClient.Instance.AmHost)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (pc != PlayerControl.LocalPlayer)
                         Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
@@ -92,7 +92,7 @@ namespace TownOfHost.Roles.Crewmate
                 RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
                 Taskmode = true;
             }
-            _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");
         }
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
@@ -113,7 +113,7 @@ namespace TownOfHost.Roles.Crewmate
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
             if (Player.IsAlive())
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                     Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
 
                 string Send = "<size=70%>";
@@ -124,7 +124,7 @@ namespace TownOfHost.Roles.Crewmate
                     }
                 else Send += string.Format(Translator.GetString("NiceLoggerAbility2"), Room);
 
-                _ = new LateTask(() => Utils.SendMessage(Send, Player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceLogger), Translator.GetString("NiceLoggerTitle"))), 4f, "NiceLoggerSned");
+                _ = new LateTask(() => Utils.SendMessage(Send, Player.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.NiceLogger), Translator.GetString("NiceLoggerTitle"))), 4f, "NiceLoggerSned");
             }
         }
         public override void AfterMeetingTasks()
@@ -136,7 +136,7 @@ namespace TownOfHost.Roles.Crewmate
             if (Player.IsAlive())
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    foreach (var pc in Main.AllPlayerControls)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc != PlayerControl.LocalPlayer)
                             Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Shapeshifter : RoleTypes.Crewmate, pc.GetClientId());
@@ -174,5 +174,11 @@ namespace TownOfHost.Roles.Crewmate
                 }
             }
         }
+        public override bool OverrideAbilityButton(out string text)
+        {
+            text = "NiceLogger_Ability";
+            return true;
+        }
+        public override string GetAbilityButtonText() => Translator.GetString("NiceLogger_Ability");
     }
 }

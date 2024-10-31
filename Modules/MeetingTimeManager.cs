@@ -3,8 +3,6 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Impostor;
-using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Modules
 {
@@ -34,7 +32,7 @@ namespace TownOfHost.Modules
         }
         public static void OnReportDeadBody()
         {
-            if (Options.AllAliveMeeting.GetBool() && Utils.IsAllAlive)
+            if (Options.AllAliveMeeting.GetBool() && PlayerCatch.IsAllAlive)
             {
                 DiscussionTime = 0;
                 VotingTime = Options.AllAliveMeetingTime.GetInt();
@@ -46,21 +44,14 @@ namespace TownOfHost.Modules
             int BonusMeetingTime = 0;
             int MeetingTimeMin = 0;
             int MeetingTimeMax = 300;
+            MeetingTimeMin = Options.LowerLimitVotingTime.GetInt();
+            MeetingTimeMax = Options.MeetingTimeLimit.GetInt();
 
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
                 if (role is IMeetingTimeAlterable meetingTimeAlterable)
                 {
-                    if (role is TimeThief)
-                    {
-                        // Hyz-sui: 会議時間をいじる役職が増えたら上限&下限設定の置き場所要検討
-                        MeetingTimeMin = Options.LowerLimitVotingTime.GetInt();
-                    }
-
-                    if (role is TimeManager)
-                    {
-                        MeetingTimeMax = Options.LowerLimitVotingTime.GetInt();
-                    }
+                    // Hyz-sui: 会議時間をいじる役職が増えたら上限&下限設定の置き場所要検討
 
                     if (!role.Player.IsAlive() && meetingTimeAlterable.RevertOnDie)
                     {

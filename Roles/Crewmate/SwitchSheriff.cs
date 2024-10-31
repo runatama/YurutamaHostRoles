@@ -21,7 +21,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoles.SwitchSheriff,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
-            20500,
+            17100,
             SetupOptionItem,
             "swsh",
             "#f8cd46",
@@ -85,7 +85,6 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 990f, 1f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
         Options.OverrideKilldistance.Create(RoleInfo, 8);
-        Options.OverrideTasksData.Create(RoleInfo, 16);
         MisfireKillsTarget = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SheriffMisfireKillsTarget, false, false);
         ShotLimitOpt = IntegerOptionItem.Create(RoleInfo, 12, OptionName.SheriffShotLimit, new(1, 15, 1), 15, false)
             .SetValueFormat(OptionFormat.Times);
@@ -95,6 +94,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         CanKillNeutrals = StringOptionItem.Create(RoleInfo, 14, OptionName.SheriffCanKillNeutrals, KillOption, 0, false);
         SetUpNeutralOptions(30);
         CanKillLovers = BooleanOptionItem.Create(RoleInfo, 22, OptionName.SheriffCanKillLovers, true, false);
+        Options.OverrideTasksData.Create(RoleInfo, 16);
     }
     public static void SetUpNeutralOptions(int idOffset)
     {
@@ -118,8 +118,8 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     {
         var id = RoleInfo.ConfigId + idOffset;
         if (parent == null) parent = RoleInfo.RoleOption;
-        var roleName = Utils.GetRoleName(role);
-        Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(role), roleName) } };
+        var roleName = UtilsRoleText.GetRoleName(role);
+        Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(role), roleName) } };
         KillTargetOptions[role] = BooleanOptionItem.Create(id, OptionName.SheriffCanKill + "%role%", defaultValue, RoleInfo.Tab, false).SetParent(parent);
         KillTargetOptions[role].ReplacementDictionary = replacementDic;
     }
@@ -130,7 +130,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         // (%team%陣営)
         var inTeam = GetString("In%team%", new Dictionary<string, string>() { ["%team%"] = GetRoleString(catType.ToString()) });
         // シュレディンガーの猫(%team%陣営)
-        var catInTeam = Utils.ColorString(SchrodingerCat.GetCatColor(catType), Utils.GetRoleName(CustomRoles.SchrodingerCat) + inTeam);
+        var catInTeam = Utils.ColorString(SchrodingerCat.GetCatColor(catType), UtilsRoleText.GetRoleName(CustomRoles.SchrodingerCat) + inTeam);
         Dictionary<string, string> replacementDic = new() { ["%role%"] = catInTeam };
         SchrodingerCatKillTargetOptions[catType] = BooleanOptionItem.Create(id, OptionName.SheriffCanKill + "%role%", defaultValue, RoleInfo.Tab, false).SetParent(parent);
         SchrodingerCatKillTargetOptions[catType].ReplacementDictionary = replacementDic;
@@ -139,7 +139,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
     {
         ShotLimit = ShotLimitOpt.GetInt();
         CurrentKillCooldown = KillCooldown.GetFloat();
-        Logger.Info($"{Utils.GetPlayerById(Player.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "SwitchSheriff");
+        Logger.Info($"{PlayerCatch.GetPlayerById(Player.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : 残り{ShotLimit}発", "SwitchSheriff");
     }
     private void SendRPC()
     {
@@ -194,10 +194,16 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             {
                 AlienTairo = al.CheckSheriffKill(target);
             }
+            if (target.Is(CustomRoles.JackalAlien))
+                foreach (var al in Neutral.JackalAlien.Aliens)
+                {
+                    AlienTairo = al.CheckSheriffKill(target);
+                }
             if (!CanBeKilledBy(target) || AlienTairo)
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire
-                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire;
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = target.Is(CustomRoles.Tairou) && Tairou.TairoDeathReason ? CustomDeathReason.Revenge1 : target.Is(CustomRoles.Alien) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 :
+                (target.Is(CustomRoles.JackalAlien) && JackalAlien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire);
 
                 _ = new LateTask(() => killer.RpcMurderPlayer(killer), Main.LagTime, "SwSheMiss");
                 if (!MisfireKillsTarget.GetBool())
@@ -226,10 +232,10 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         _ = new LateTask(() => nowcool = CurrentKillCooldown, Main.LagTime, "Reset-SwitchSheriff");
     }
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var r = Utils.ColorString(Ch() ? Color.yellow : Color.gray, $"({ShotLimit})");
-        if (!GameStates.Meeting) r += Utils.ColorString(Color.yellow, Taskmode ? $" [Task]<color=#ffffff>({last})</color>" : $"  [Sheriff]<color=#ffffff>({last})</color>");
+        if (!GameStates.Meeting && !gamelog) r += Utils.ColorString(Color.yellow, Taskmode ? $" [Task]<color=#ffffff>({last})</color>" : $"  [Sheriff]<color=#ffffff>({last})</color>");
         return r;
     }
     public static bool CanBeKilledBy(PlayerControl player)
@@ -259,6 +265,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
 
         if (cRole == CustomRoles.Jackaldoll) return CanKillNeutrals.GetValue() == 0 || (!KillTargetOptions.TryGetValue(CustomRoles.Jackal, out var option) && option.GetBool()) || (!KillTargetOptions.TryGetValue(CustomRoles.JackalMafia, out var op) && op.GetBool());
         if (cRole == CustomRoles.SKMadmate) return KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool();
+        if (player.Is(CustomRoles.Amanojaku)) return CanKillNeutrals.GetValue() == 0;
 
         return cRole.GetCustomRoleTypes() switch
         {
@@ -286,7 +293,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         if (Taskmode && Utils.IsActive(SystemTypes.Comms)) return false;//Hostはタスクモード(エンジ)での切り替えできるからさせないようにする
 
         ModeSwitching();
-        //_ = new LateTask(() => Player.SetKillCooldown(kill), 0.2f, "");
+        //_ = new LateTask(() => Player.SetKillCooldown(kill), 0.2f, "",true);
         return false;
     }
     public override bool CanTask()
@@ -311,7 +318,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             if (now <= 0) player.SetKillCooldown(0.5f);//相互性が取れないので～
             last = now;
             if (player != PlayerControl.LocalPlayer)
-                Utils.NotifyRoles(SpecifySeer: player);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: player);
         }
     }
     public override bool OnSabotage(PlayerControl _, SystemTypes sabotage)
@@ -334,7 +341,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         //ロール変更
         if (!Is(PlayerControl.LocalPlayer))
         {
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 var role = pc.GetCustomRole();
                 if (role.IsImpostor())
@@ -346,7 +353,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         //シェリフモードのみ実行
         if (!Taskmode)
         {
-            Player.SetKillCooldown(last, delay: true);//ラグで貯まる一瞬前にぼーんできないように
+            Player.SetKillCooldown(last, delay: true, kousin: false);//ラグで貯まる一瞬前にぼーんできないように
         }
         return Taskmode;
     }

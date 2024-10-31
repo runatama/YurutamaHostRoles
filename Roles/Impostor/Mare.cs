@@ -16,7 +16,7 @@ public sealed class Mare : RoleBase, IImpostor
             CustomRoles.Mare,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            2300,
+            8300,
             SetupCustomOption,
             "ma",
             assignInfo: new(CustomRoles.Mare, CustomRoleTypes.Impostor)
@@ -99,7 +99,7 @@ public sealed class Mare : RoleBase, IImpostor
             SendRPC();
             Player.SyncSettings();
             _ = new LateTask(() => Player.SetKillCooldown(delay: true), Main.LagTime, "MareKillCool");
-            Utils.NotifyRoles();
+            UtilsNotifyRoles.NotifyRoles();
         }
     }
     public void SendRPC()

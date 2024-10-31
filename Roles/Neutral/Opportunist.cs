@@ -14,7 +14,7 @@ public sealed class Opportunist : RoleBase, IAdditionalWinner
             CustomRoles.Opportunist,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            50100,
+            38200,
             null,
             "op",
             "#00ff00",

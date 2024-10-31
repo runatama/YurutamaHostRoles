@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
@@ -15,7 +14,7 @@ public sealed class Efficient : RoleBase
             CustomRoles.Efficient,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            26400,
+            20800,
             SetupOptionItem,
             "ef",
             "#a68b96"
@@ -61,14 +60,14 @@ public sealed class Efficient : RoleBase
 
         if (CollectRect.GetFloat() > chance)
         {
-            if (Task.Count() == 0) return true;
+            if (Task.Count == 0) return true;
             var rand = IRandom.Instance;
-            var FinTask = Task[rand.Next(0, Task.Count())];
+            var FinTask = Task[rand.Next(0, Task.Count)];
 
             if (Cooldown > 0f) return true;
 
             Cooldown = 3;
-            new LateTask(() => Player.RpcCompleteTask(FinTask), 0.25f, "Efficient", true);
+            _ = new LateTask(() => Player.RpcCompleteTask(FinTask), 0.25f, "Efficient", true);
             Player.RpcProtectedMurderPlayer();
             Logger.Info($"{Player.name} => 効率化成功!タスクを一個減らすぞ!", "Efficient");
         }

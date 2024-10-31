@@ -9,7 +9,6 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -22,7 +21,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             CustomRoles.EvilHacker,
             () => OptionShapeshiftAdmin.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            3100,
+            4200,
             SetupOptionItems,
             "eh",
             from: From.TheOtherRoles
@@ -134,8 +133,8 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             }
             m.Append(builder);
             m.Append('\n');
-            var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-            var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
             Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
 
             builder.Clear();
@@ -190,7 +189,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         });
         if (AmongUsClient.Instance.AmHost)
         {
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
     }
     public override bool NotifyRolesCheckOtherName => true;
@@ -238,14 +237,14 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                             }
                             m.Append(builder);
                             m.Append('\n');
-                            var p = Main.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                            var a = Main.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+                            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
                             Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
 
                             builder.Clear();
                             g++;
                             time = 0;
-                            Utils.NotifyRoles(SpecifySeer: Player);
+                            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                         }
                     }
                     time += Time.fixedDeltaTime;
@@ -253,7 +252,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                 else
                 {
                     time = 0;
-                    if (go) Utils.NotifyRoles(SpecifySeer: Player);
+                    if (go) UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                     go = false;
                     pos = player.GetTruePosition();
                 }
@@ -281,7 +280,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         }
         if (doNotifyRoles && AmongUsClient.Instance.AmHost)
         {
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
     }
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
@@ -314,7 +313,13 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         shouldAnimate = false;
         return false;
     }
-    private static readonly string ImpostorMark = "★".Color(Palette.ImpostorRed);
+    public override string GetAbilityButtonText() => Translator.GetString("EvilHackerAbility");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "EvilHacker_ability";
+        return true;
+    }
+    public static readonly string ImpostorMark = "★".Color(Palette.ImpostorRed);
     /// <summary>相方がキルしたときに名前の下に通知を表示する長さ</summary>
     private static readonly TimeSpan NotifyDuration = TimeSpan.FromSeconds(10);
 

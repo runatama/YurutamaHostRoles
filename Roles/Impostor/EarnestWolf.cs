@@ -1,4 +1,3 @@
-
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
@@ -15,7 +14,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
             CustomRoles.EarnestWolf,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            27000,
+            5800,
             SetupOptionItem,
             "EW"
         );
@@ -48,11 +47,11 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
 
     static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
         OptionOverKillCanCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0f, 15f, 1f), 2f, false).SetValueFormat(OptionFormat.Times);
-        OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(1f, 10f, 0.1f), 2f, false).SetValueFormat(OptionFormat.Multiplier);
+        OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(1f, 10f, 0.01f), 1.25f, false).SetValueFormat(OptionFormat.Multiplier);
         OptionNomalKillDistance = StringOptionItem.Create(RoleInfo, 13, OptionName.EarnestWolfNomalKllDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
-        OptionOverKillDistance = StringOptionItem.Create(RoleInfo, 14, OptionName.EarnestWolfOverKillDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
+        OptionOverKillDistance = StringOptionItem.Create(RoleInfo, 14, OptionName.EarnestWolfOverKillDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 2, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -80,7 +79,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
             }, 0.2f, "EarnestWolf");
         }
     }
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var c = OptionOverKillCanCount.GetInt() - count;
         return c <= 0 ? Utils.ColorString(Palette.DisabledGrey, $"{c}") : Utils.ColorString(Palette.ImpostorRed, $"({c})");
@@ -98,9 +97,14 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUseTheShButton
         OverKillMode = !OverKillMode;
         _ = new LateTask(() =>
         {
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
             Player.SyncSettings();
         }, 0.2f, "EarnestWolf OnClick");
     }
     public float CalculateKillCooldown() => KillCoolDown;
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = Translator.GetString("Modechenge");
+        return true;
+    }
 }

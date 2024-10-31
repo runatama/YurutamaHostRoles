@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections.Generic;
 
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Madmate;
 
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
@@ -21,7 +20,7 @@ public sealed class Balancer : RoleBase
             CustomRoles.Balancer,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            22215,
+            18800,
             SetupOptionItem,
             "bal",
             "#cff100",
@@ -43,6 +42,7 @@ public sealed class Balancer : RoleBase
         used = false;
         Id = 255;
         nickname = null;
+        CustomRoleManager.MarkOthers.Add(OtherMark);
     }
 
     static OptionItem OptionMeetingTime;
@@ -80,8 +80,8 @@ public sealed class Balancer : RoleBase
         Id = 255;
         if (Target1 != 255 && Target2 != 255)
         {
-            Utils.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
-            Utils.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
+            PlayerCatch.GetPlayerById(Target1).RpcSetName(Main.AllPlayerNames[Target1]);
+            PlayerCatch.GetPlayerById(Target2).RpcSetName(Main.AllPlayerNames[Target2]);
         }
         target1 = 255;
         target2 = 255;
@@ -92,7 +92,7 @@ public sealed class Balancer : RoleBase
 
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (MadAvenger.Skill) return true;
+        if (!Canuseability()) return true;
         //誰かが天秤を発動していて、自分ではないなら実行しない
         if (Id is not 255 && Id != Player.PlayerId) return true;
         //発動してるなら～
@@ -156,8 +156,8 @@ public sealed class Balancer : RoleBase
                 Target2 = 255;
 
             //プレイヤーの状態を取得
-            var p1 = Utils.GetPlayerById(Target1);
-            var p2 = Utils.GetPlayerById(Target2);
+            var p1 = PlayerCatch.GetPlayerById(Target1);
+            var p2 = PlayerCatch.GetPlayerById(Target2);
 
             //切断or死んでいるならリセット
             if (!p1.IsAlive())
@@ -170,27 +170,27 @@ public sealed class Balancer : RoleBase
             {
                 //どちらかが決まっていなかったら一人目
                 var n = (Target1 != 255 && Target2 != 255) ? GetString("TowPlayer") : GetString("OnePlayer");
-                var s = string.Format(GetString("Skill.Balancer"), n, Utils.GetPlayerColor(Utils.GetPlayerById(votedForId), true));
+                var s = string.Format(GetString("Skill.Balancer"), n, Utils.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true));
                 Utils.SendMessage(s.ToString(), Player.PlayerId);
             }
 
             //二人決まったなら会議を終了
             if (Target1 != 255 && Target2 != 255)
             {
-                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(Utils.GetPlayerById(Target1), true), Utils.GetPlayerColor(Utils.GetPlayerById(Target2), true));
+                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target1), true), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target2), true));
                 used = true;
                 target1 = Target1;
                 target2 = Target2;
 
-                foreach (var Player in Main.AllPlayerControls)
+                foreach (var Player in PlayerCatch.AllPlayerControls)
                 {
-                    foreach (var pc in Main.AllPlayerControls)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc == PlayerControl.LocalPlayer) continue;
                         var taishou = PlayerControl.LocalPlayer;
                         if (!PlayerControl.LocalPlayer.IsAlive())
                         {
-                            var List = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
+                            var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
                             taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
                         }
                         Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
@@ -212,8 +212,8 @@ public sealed class Balancer : RoleBase
         //ディクテーターなどの強制的に会議を終わらせるものなら生存確認の処理スキップ
         if (!ClearAndExile)
         {
-            var d1 = Utils.GetPlayerById(Target1);
-            var d2 = Utils.GetPlayerById(Target2);
+            var d1 = PlayerCatch.GetPlayerById(Target1);
+            var d2 = PlayerCatch.GetPlayerById(Target2);
 
             //二人とも切断or死んでいるなら同数
             if (!d1.IsAlive() && !d2.IsAlive())
@@ -227,13 +227,13 @@ public sealed class Balancer : RoleBase
             if (!d1.IsAlive())
             {
                 Exiled = d2.Data;
-                vote[d2.PlayerId] = Main.AllAlivePlayerControls.Count();
+                vote[d2.PlayerId] = PlayerCatch.AllAlivePlayerControls.Count();
                 return true;
             }
             if (!d2.IsAlive())
             {
                 Exiled = d1.Data;
-                vote[d1.PlayerId] = Main.AllAlivePlayerControls.Count();
+                vote[d1.PlayerId] = PlayerCatch.AllAlivePlayerControls.Count();
                 return true;
             }
         }
@@ -252,7 +252,7 @@ public sealed class Balancer : RoleBase
             var voted = voteData.Value;
 
             //死んでたらスキップ
-            if (!Utils.GetPlayerById(voted.Voter).IsAlive()) continue;
+            if (!PlayerCatch.GetPlayerById(voted.Voter).IsAlive()) continue;
 
             //ディクテーターなどの強制的に会議を終わらせるものではないならランダム投票
             if (!voted.HasVoted && !ClearAndExile)
@@ -287,16 +287,16 @@ public sealed class Balancer : RoleBase
                     Main.nickName = GetString("Balancer.Executad") + "<size=0>";
                 }
                 else
-                    Utils.GetPlayerById(exileId).RpcSetName(GetString("Balancer.Executad") + "<size=0>");
+                    PlayerCatch.GetPlayerById(exileId).RpcSetName(GetString("Balancer.Executad") + "<size=0>");
             }, 4f, "dotiramotuihou☆");
             var toExile = data.Keys.ToArray();
             foreach (var playerId in toExile)
             {
-                Utils.GetPlayerById(playerId)?.SetRealKiller(null);
+                PlayerCatch.GetPlayerById(playerId)?.SetRealKiller(null);
             }
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
             Voteresult = GetString("Balancer.Executad");
-            Utils.AddGameLog($"Vote", GetString("Balancer.Executad"));
+            UtilsGameLog.AddGameLog($"Vote", GetString("Balancer.Executad"));
 
         }
         return true;
@@ -310,22 +310,36 @@ public sealed class Balancer : RoleBase
             //天秤会議にする
             Id = Player.PlayerId;
             //対象の名前を天秤の色に
-            foreach (var pc in Main.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
-                pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u><color=red>Ω");
             Balancer(meetingtime);
-            _ = new LateTask(() => PlayerControl.LocalPlayer.NoCheckStartMeeting(PlayerControl.LocalPlayer.Data), 2f, "BalanerMeeting");
-            //アナウンス(合体させるからコメントアウト)
-            //Utils.SendMessage($"{Main.AllPlayerNames[Target1]}と{Main.AllPlayerNames[Target2]}が天秤に掛けられました！\n\nどちらかに投票せよ！");
+            var ran = IRandom.Instance.Next(0, 2);
+            var oniku = PlayerCatch.GetPlayerById(ran == 0 ? Target1 : Target2) ?? PlayerControl.LocalPlayer;
+            var reporter = PlayerCatch.GetPlayerById(ran == 0 ? Target2 : Target1) ?? PlayerControl.LocalPlayer;
+
+            foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
+                pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u>");
+            _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(reporter, oniku.Data, false, GetString("Balancer.meeting"), UtilsRoleText.GetRoleColorCode(CustomRoles.Balancer)), 2f, "BalanerMeeting");
 
             _ = new LateTask(() =>
             {
                 //名前を戻す
-                Utils.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
-                Utils.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
+                UtilsGameLog.AddGameLog("Meeting", string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target1), true), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target2), true)).Split("\n")[0] + "</color>");
+                PlayerCatch.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
+                PlayerCatch.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
             }, 2.8f);
 
             return;
         }
+    }
+    public static string OtherMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
+    {
+        seen ??= seer;
+        if (!isForMeeting) return "";
+        if (Id == byte.MaxValue) return "";
+        if (seen.PlayerId == target1 || seen.PlayerId == target2)
+        {
+            return "<color=red>Ω</color>";
+        }
+        return "";
     }
     public override void AfterMeetingTasks()
     {
@@ -334,15 +348,15 @@ public sealed class Balancer : RoleBase
             return;
 
         //名前を戻す
-        Utils.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
-        Utils.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
+        PlayerCatch.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
+        PlayerCatch.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
 
         if (nickname != null)
             Main.nickName = nickname;
         nickname = null;
 
         //名前にロールとかのを適用
-        _ = new LateTask(() => Utils.NotifyRoles(ForceLoop: true, NoCache: true), Main.LagTime);
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true, NoCache: true), Main.LagTime);
 
         //リセット
         Id = 255;

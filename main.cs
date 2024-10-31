@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.9.18";
-
+        public const string PluginVersion = "5.1.9.21";
+        public const int PluginSubVersion = 0;//通常0
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
         // サポートされている最低のAmongUsバージョン
@@ -118,10 +118,10 @@ namespace TownOfHost
         public static List<(string, byte, string)> MessagesToSend;
         public static bool isChatCommand = false;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
-        public static Dictionary<byte, CustomRoleTypes> AllPlayerFirstTypes = new();
         public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
         public static List<List<byte>> TaskBattleTeams = new();
+        public static bool showkillbutton = false;
         public static bool RTAMode = false;
         public static byte RTAPlayer = 0;
         public static bool EditMode = false;
@@ -172,10 +172,6 @@ namespace TownOfHost
         public static bool DebugAntiblackout = true;
 
         public const float RoleTextSize = 2f;
-
-        public static IEnumerable<PlayerControl> AllPlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.PlayerId <= 15);
-        public static IEnumerable<PlayerControl> AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive() && p.PlayerId <= 15);
-
         public static Main Instance;
         public override void Load()
         {
@@ -284,6 +280,7 @@ namespace TownOfHost
                     {CustomRoles.Autopsy,"#80ffdd"},
                     {CustomRoles.Tiebreaker,"#00552e"},
                     {CustomRoles.Guarding, "#7b68ee"},
+                    {CustomRoles.MagicHand , "#dea785"},
                     //デバフ
                     {CustomRoles.NonReport,"#006666"},
                     {CustomRoles.Notvoter,"#6c848d"},
@@ -298,14 +295,15 @@ namespace TownOfHost
 
                     //第三属性
                     {CustomRoles.Amanojaku,"#005243"},
-                    {CustomRoles.ALovers, "#ff6be4"},
-                    {CustomRoles.BLovers, "#d70035"},
-                    {CustomRoles.CLovers, "#fac559"},
-                    {CustomRoles.DLovers, "#6c9bd2"},
-                    {CustomRoles.ELovers, "#00885a"},
-                    {CustomRoles.FLovers, "#fdede4"},
-                    {CustomRoles.GLovers, "#af0082"},
-                    {CustomRoles.MaLovers, "#f09199"},
+                    {CustomRoles.Lovers, "#ff6be4"},
+                    {CustomRoles.RedLovers, "#d70035"},
+                    {CustomRoles.YellowLovers, "#fac559"},
+                    {CustomRoles.BlueLovers, "#6c9bd2"},
+                    {CustomRoles.GreenLovers, "#00885a"},
+                    {CustomRoles.WhiteLovers, "#fdede4"},
+                    {CustomRoles.PurpleLovers, "#af0082"},
+                    {CustomRoles.MadonnaLovers, "#f09199"},
+                    {CustomRoles.OneLove , "#ff7961"},
 
                     // 幽霊役職
                     {CustomRoles.Ghostbuttoner,"#d0af4c"},
@@ -351,7 +349,7 @@ namespace TownOfHost
             ClassInjector.RegisterTypeInIl2Cpp<ErrorText>();
 
             Harmony.PatchAll();
-            Application.quitting += new Action(Utils.SaveNowLog);
+            Application.quitting += new Action(UtilsOutputLog.SaveNowLog);
         }
 
         public static bool IsCs()
@@ -374,7 +372,7 @@ namespace TownOfHost
             return (AllowCS && IsCs()) || (!IsCs() && !ModUpdater.hasUpdate && !ModUpdater.isBroken && AllowPublicRoom && IsPublicAvailableOnThisVersion);
         }
         public static bool IsroleAssigned
-            => !(SetRoleOverride/* && Options.CurrentGameMode == CustomGameMode.Standard*/) || SelectRolesPatch.roleAssigned;
+            => !SetRoleOverride/* && Options.CurrentGameMode == CustomGameMode.Standard*/ || SelectRolesPatch.roleAssigned;
     }
     public enum CustomDeathReason
     {
@@ -411,14 +409,15 @@ namespace TownOfHost
         Jester = CustomRoles.Jester,
         PlagueDoctor = CustomRoles.PlagueDoctor,
         Terrorist = CustomRoles.Terrorist,
-        ALovers = CustomRoles.ALovers,
-        BLovers = CustomRoles.BLovers,
-        CLovers = CustomRoles.CLovers,
-        DLovers = CustomRoles.DLovers,
-        ELovers = CustomRoles.ELovers,
-        FLovers = CustomRoles.FLovers,
-        GLovers = CustomRoles.GLovers,
-        MaLovers = CustomRoles.MaLovers,
+        Lovers = CustomRoles.Lovers,
+        RedLovers = CustomRoles.RedLovers,
+        YellowLovers = CustomRoles.YellowLovers,
+        BlueLovers = CustomRoles.BlueLovers,
+        GreenLovers = CustomRoles.GreenLovers,
+        WhiteLovers = CustomRoles.WhiteLovers,
+        PurpleLovers = CustomRoles.PurpleLovers,
+        MadonnaLovers = CustomRoles.MadonnaLovers,
+        OneLove = CustomRoles.OneLove,
         Executioner = CustomRoles.Executioner,
         Arsonist = CustomRoles.Arsonist,
         Egoist = CustomRoles.Egoist,

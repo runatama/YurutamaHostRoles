@@ -53,7 +53,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
                     Main.SabotageType = (SystemTypes)amount;
                     var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
                     if (!Main.NowSabotage)
-                        Utils.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb));
+                        UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({UtilsRoleText.GetTrueRoleName(player.PlayerId, false)})", sb));
                     Main.NowSabotage = true;
                     Main.LastSab = player.PlayerId;
                 }
@@ -79,7 +79,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
                 Main.SabotageType = (SystemTypes)amount;
                 var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
 
-                Utils.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({Utils.GetTrueRoleName(player.PlayerId, false)})", sb));
+                UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({UtilsRoleText.GetTrueRoleName(player.PlayerId, false)})", sb));
                 Main.NowSabotage = true;
                 Main.LastSab = player.PlayerId;
             }
@@ -103,9 +103,9 @@ public static class ElectricTaskInitializePatch
 {
     public static void Postfix()
     {
-        Utils.MarkEveryoneDirtySettings();
+        UtilsOption.MarkEveryoneDirtySettings();
         if (!GameStates.IsMeeting)
-            Utils.NotifyRoles(ForceLoop: true);
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
     }
 }
 [HarmonyPatch(typeof(ElectricTask), nameof(ElectricTask.Complete))]
@@ -113,8 +113,8 @@ public static class ElectricTaskCompletePatch
 {
     public static void Postfix()
     {
-        Utils.MarkEveryoneDirtySettings();
+        UtilsOption.MarkEveryoneDirtySettings();
         if (!GameStates.IsMeeting)
-            Utils.NotifyRoles(ForceLoop: true);
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
     }
 }

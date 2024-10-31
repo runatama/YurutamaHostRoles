@@ -5,7 +5,6 @@ using System.Text;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
-using static TownOfHost.Utils;
 
 namespace TownOfHost.Modules;
 
@@ -87,7 +86,7 @@ public static class LastGameSave
         {
             var sb = new StringBuilder();
 
-            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
             if (oti)
             {
                 sb.Append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + Main.gamelog + "\n\n<b>" + "</b>");
@@ -101,16 +100,16 @@ public static class LastGameSave
             sb.Append("<size=70%>\n");
             List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
 
-            foreach (var pc in cloneRoles) if (GetPlayerById(pc) == null) continue;
+            foreach (var pc in cloneRoles) if (PlayerCatch.GetPlayerById(pc) == null) continue;
 
             foreach (var id in Main.winnerList)
             {
-                sb.Append($"\n★ ".Color(winnerColor)).Append(GetLogtext(id));
+                sb.Append($"\n★ ".Color(winnerColor)).Append(UtilsGameLog.GetLogtext(id));
                 cloneRoles.Remove(id);
             }
             foreach (var id in cloneRoles)
             {
-                sb.Append($"\n　 ").Append(GetLogtext(id));
+                sb.Append($"\n　 ").Append(UtilsGameLog.GetLogtext(id));
             }
             sb.Append("\n\n");
             sb.Append(string.Format(GetString("Result.Task"), Main.Alltask));

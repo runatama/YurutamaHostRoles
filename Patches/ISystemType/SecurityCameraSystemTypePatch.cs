@@ -1,7 +1,5 @@
 using HarmonyLib;
 using Hazel;
-using TownOfHost.Roles.Core;
-//using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost.Patches.ISystemType;
 

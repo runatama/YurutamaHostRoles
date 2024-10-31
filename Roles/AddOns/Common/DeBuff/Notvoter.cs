@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Notvoter
     {
         private static readonly int Id = 70100;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Notvoter);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Notvoter);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｖ");
         public static List<byte> playerIdList = new();
 

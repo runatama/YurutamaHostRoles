@@ -7,18 +7,18 @@ class GameDataSerializePatch
 {
     public static bool Sending;
 
-    public static bool Prefix(NetworkedPlayerInfo __instance, ref bool initialState)
+    public static bool Prefix(NetworkedPlayerInfo __instance, ref bool __result)
     {
         if (AmongUsClient.Instance == null || !GameStates.InGame)
         {
             Sending = false;
-            initialState = true;
+            __result = true;
             return true;
         }
         if (MeetingHudPatch.StartPatch.Serialize)
         {
             Sending = false;
-            initialState = true;
+            __result = true;
             return true;
         }
         if (Options.CurrentGameMode != CustomGameMode.Standard || !GameStates.IsMeeting || GameStates.Tuihou || AntiBlackout.IsCached)
@@ -28,7 +28,7 @@ class GameDataSerializePatch
         }
 
         __instance.ClearDirtyBits();
-        initialState = false;
+        __result = false;
         return false;
     }
 }

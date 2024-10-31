@@ -14,7 +14,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
             CustomRoles.Jumper,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            36000,
+            3000,
             SetupOptionItem,
             "Jm"
         );
@@ -39,6 +39,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
     static OptionItem Jampcount;
     static OptionItem Onecooltime;
     static OptionItem Jampcooltime;
+    static OptionItem Jampdis;
     Vector2 position;
     Vector2 nowposition;
     int PlayerColor;
@@ -53,17 +54,17 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
     bool aname;
     enum Op
     {
-        JamperOneCoolTime, JamperCCoolTime, JamperJampcount
+        JamperOneCoolTime, JamperCCoolTime, JamperJampcount, JamperJampDis
     }
 
     static void SetupOptionItem()
     {
-        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
+        OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JamperJampcount, new(1f, 10f, 1f), 4f, false);
+        Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JamperJampcount, new(1f, 30f, 1f), 4f, false);
         Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JamperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JamperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
-
+        Jampdis = FloatOptionItem.Create(RoleInfo, 14, Op.JamperJampDis, new(0.2f, 3, 0.1f), 1.5f, false).SetValueFormat(OptionFormat.Seconds);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -79,19 +80,19 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
 
         timer += Time.fixedDeltaTime;
 
-        if (timer > 1.5f)
+        if (timer > Jampdis.GetFloat())
         {
             if (count == 1) aname = true;
             int chance = IRandom.Instance.Next(0, 18);
-            Main.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
-            Utils.NotifyRoles(ForceLoop: true);
+            PlayerCatch.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
             player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
             player.RpcProtectedMurderPlayer();
             _ = new LateTask(() =>
             {
                 if (!GameStates.Meeting && player.IsAlive())
                 {
-                    foreach (var target in Main.AllAlivePlayerControls)
+                    foreach (var target in PlayerCatch.AllAlivePlayerControls)
                     {
                         if (target.Is(CustomRoles.King)) continue;
                         if (target != player)
@@ -113,10 +114,11 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 if (!ability)
                 {
                     Player.RpcSetColor((byte)PlayerColor);
+                    (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player);
                     aname = false;
-                    _ = new LateTask(() => Utils.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
+                    _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
                 }
-            }, 1.3f, "abo-n");
+            }, Jampdis.GetFloat() - 0.2f, "abo-n");
             if (count == Jampcount.GetInt())
             {
                 ability = false;
@@ -126,7 +128,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 nowposition = new Vector2(999f, 999f);
                 Main.AllPlayerSpeed[Player.PlayerId] = speed;
                 _ = new LateTask(() => player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampowari");
-                Utils.NotifyRoles(ForceLoop: true);
+                UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                 player.SetKillCooldown();
             }
             count++;
@@ -154,7 +156,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         {
             position = Player.transform.position;
             Player.RpcResetAbilityCooldown(kousin: true);
-            _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), 0.2f, "Jamperset");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "Jamperset");
             return;
         }
         timer = 0;
@@ -169,7 +171,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         _ = new LateTask(() =>
         {
             Player.SyncSettings();
-            Utils.NotifyRoles(ForceLoop: true);
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
         }, 0.4f, "Jamper0Speed");
 
     }

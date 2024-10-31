@@ -1,16 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using AmongUs.Data;
-using AmongUs.GameOptions;
+using System.Collections.Generic;
 using HarmonyLib;
-using InnerNet;
-using TMPro;
 using UnityEngine;
+
+using TownOfHost.Roles.Core;
+
 using Object = UnityEngine.Object;
 using static TownOfHost.Translator;
-using TownOfHost.Roles;
-using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {

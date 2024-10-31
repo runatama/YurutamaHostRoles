@@ -31,84 +31,86 @@ public interface IUseTheShButton
     public void ResetSkin(PlayerControl Player)
     {
         if (!Player.IsModClient() && Player.PlayerId != 0) Player.RpcShapeshift(PlayerControl.LocalPlayer, false);
-        var sd = PlayerSkinPatch.Load(Player);
+        var (name, color, hat, skin, visor, nameplate, level, pet) = PlayerSkinPatch.Load(Player);
         var sender = CustomRpcSender.Create();
 
-        Player.SetColor(sd.color);
+        Player.SetColor(color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetColor)
             .Write(Player.Data.NetId)
-            .Write(sd.color)
+            .Write(color)
             .EndRpc();
 
-        Player.SetHat(sd.hat, sd.color);
+        Player.SetHat(hat, color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetHatStr)
-            .Write(sd.hat)
+            .Write(hat)
             .Write(Player.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
 
-        Player.SetSkin(sd.skin, sd.color);
+        Player.SetSkin(skin, color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetSkinStr)
-            .Write(sd.skin)
+            .Write(skin)
             .Write(Player.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
 
-        Player.SetVisor(sd.visor, sd.color);
+        Player.SetVisor(visor, color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetVisorStr)
-            .Write(sd.visor)
+            .Write(visor)
             .Write(Player.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
 
-        Player.RpcSetPet(sd.pet);
-        Player.RpcSetName(sd.name);
+        Player.RpcSetPet(pet);
+        Player.RpcSetName(name);
 
         _ = new LateTask(() =>
         {
             sender.SendMessage();
-            if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
-            new LateTask(() => Utils.NotifyRoles(false, NoCache: true), 0.2f, "");
-        }, 0.3f);
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(false, NoCache: true), 0.2f, "", true);
+        }, 0.23f);
     }
     public void ResetS(PlayerControl Player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        var sd = PlayerSkinPatch.Load(Player);
+        if (Camouflage.IsCamouflage) return;
+        if (Player.inVent) return;
+        var (name, color, hat, skin, visor, nameplate, level, pet) = PlayerSkinPatch.Load(Player);
         var sender = CustomRpcSender.Create();
 
-        Player.SetColor(sd.color);
+        Player.SetColor(color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetColor)
             .Write(Player.Data.NetId)
-            .Write(sd.color)
+            .Write(color)
             .EndRpc();
 
-        Player.SetHat(sd.hat, sd.color);
+        Player.SetHat(hat, color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetHatStr)
-            .Write(sd.hat)
+            .Write(hat)
             .Write(Player.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
 
-        Player.SetSkin(sd.skin, sd.color);
+        Player.SetSkin(skin, color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetSkinStr)
-            .Write(sd.skin)
+            .Write(skin)
             .Write(Player.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
 
-        Player.SetVisor(sd.visor, sd.color);
+        Player.SetVisor(visor, color);
         sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetVisorStr)
-            .Write(sd.visor)
+            .Write(visor)
             .Write(Player.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
 
-        Player.RpcSetPet(sd.pet);
-        Player.RpcSetName(sd.name);
+        if (Player.IsAlive()) Player.RpcSetPet(pet);
+        if (!GameStates.Meeting) Player.RpcSetName(name);
 
         _ = new LateTask(() =>
         {
             sender.SendMessage();
-            if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
-            new LateTask(() => Utils.NotifyRoles(false, NoCache: true), 0.2f, "");
-        }, 0.3f);
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(false, NoCache: true), 0.2f, "", true);
+        }, 0.23f);
     }
 
     public void OnClick()

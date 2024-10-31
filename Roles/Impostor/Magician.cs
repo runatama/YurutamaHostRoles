@@ -18,7 +18,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
             CustomRoles.Magician,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            60177,
+            6200,
             SetupOptionItem,
             "mc"
         );
@@ -108,7 +108,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         Dictionary<PlayerControl, float> distance = new();
         float dis;
         bool check = false;
-        foreach (var p in Main.AllAlivePlayerControls)
+        foreach (var p in PlayerCatch.AllAlivePlayerControls)
         {
             if (p.Is(CustomRoles.King)) continue;
             dis = Vector2.Distance(Player.transform.position, p.transform.position);
@@ -128,7 +128,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
             KillList.Add(target.PlayerId);
             Player.RpcProtectedMurderPlayer(target);
             MagicCooldown = (count >= Maximum && Maximum != 0) ? 999 : DefaultCooldown;
-            _ = new LateTask(() => Utils.NotifyRoles(), 0.1f);
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.1f);
         }
         else
         {
@@ -148,7 +148,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         if (KillList.Count == 0 || killc < rt) return;
         foreach (var id in KillList)
         {
-            var target = Utils.GetPlayerById(id);
+            var target = PlayerCatch.GetPlayerById(id);
             if (!target.IsAlive()) continue;
             var state = PlayerState.GetByPlayerId(target.PlayerId);
             Player.RpcProtectedMurderPlayer(target);
@@ -168,7 +168,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         killc -= rt;
         Player.SetKillCooldown();
         _ = new LateTask(() => (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player), 0.3f);
-        _ = new LateTask(() => Utils.NotifyRoles(), 0.1f);
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.1f);
     }
 
     public override string GetAbilityButtonText() => GetString("MagicButtonText");
@@ -178,7 +178,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         return true;
     }
 
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         if (Maximum == 0 && rt == 0) return "";
         var text = "(";

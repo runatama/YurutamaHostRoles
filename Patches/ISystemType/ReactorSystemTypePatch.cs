@@ -32,7 +32,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
             return false;
         }
         if (Options.SuddenDeathMode.GetBool()) return false;
-        if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
+        if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
         if (Amnesia.CheckAbility(player))
             if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateReactorSystem(__instance, amount))

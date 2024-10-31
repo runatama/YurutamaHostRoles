@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
     public static class Clumsy
     {
         private static readonly int Id = 70200;
-        private static Color RoleColor = Utils.GetRoleColor(CustomRoles.Clumsy);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Clumsy);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｃ");
         public static List<byte> playerIdList = new();
 

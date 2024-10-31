@@ -19,7 +19,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
             CustomRoles.AntiReporter,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            60077,
+            5000,
             SetupOptionItem,
             "anr"
         );
@@ -82,13 +82,17 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
         Player.RpcProtectedMurderPlayer(target);
         Logger.Info($"{target.name}のメガホンワンクリックだから間違えて壊しちゃった☆ ﾃﾍｯ", "AntiReporter");
         SendRPC();
-        Utils.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(Use > 0 ? Color.red : Color.gray, $"({Use})");
-    public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(Use > 0 ? Color.red : Color.gray, $"({Use})");
+    public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, ref DontReportreson reportreson)
     {
-        Logger.Info("!!!", "mg");
-        return mg.ContainsKey(reporter.PlayerId);
+        if (mg.ContainsKey(reporter.PlayerId))
+        {
+            reportreson = DontReportreson.Other;
+            return true;
+        }
+        return false;
     }
     public override string GetAbilityButtonText()
     {

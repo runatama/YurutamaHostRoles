@@ -1,7 +1,15 @@
 using System;
+using System.Collections.Generic;
+using AmongUs.GameOptions;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
+using static TownOfHost.Translator;
+using UnityEngine;
+using TownOfHost.Attributes;
+using HarmonyLib;
 
 namespace TownOfHost;
-class Event
+static class Event
 {
     public static bool IsChristmas = DateTime.Now.Month == 12 && DateTime.Now.Day is 24 or 25;
     public static bool White = DateTime.Now.Month == 3 && DateTime.Now.Day is 14;
@@ -10,4 +18,277 @@ class Event
     public static bool GoldenWeek = DateTime.Now.Month == 5 && DateTime.Now.Day is 3 or 4 or 5;
     public static bool April = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool IsEventDay => IsChristmas || White || IsInitialRelease || IsHalloween || GoldenWeek || April;
+    public static bool Special = false;
+    public static List<string> OptionLoad = new();
+    public static bool IsE(this CustomRoles role) => role is CustomRoles.SpeedStar or CustomRoles.EvilTeller;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//やぁ。気付いちゃった...?( ᐛ )
+//ファイル作っちゃうとばれちゃうからね。
+//ｶ ｸ ｼ ﾃ ﾙ ﾅ ﾗ ﾏ ｧ ｺ ｺ ｼﾞ ｬ ﾝ ?
+public sealed class SpeedStar : RoleBase, IImpostor, IUseTheShButton
+{
+    public static readonly SimpleRoleInfo RoleInfo =
+        SimpleRoleInfo.Create(
+            typeof(SpeedStar),
+            player => new SpeedStar(player),
+            CustomRoles.SpeedStar,
+            () => RoleTypes.Shapeshifter,
+            CustomRoleTypes.Impostor,
+            6400,
+            SetUpOptionItem,
+            "SS",
+            from: From.Speyrp
+        );
+    public SpeedStar(PlayerControl player)
+    : base(
+        RoleInfo,
+        player
+    )
+    {
+        allplayerspeed.Clear();
+    }
+    static OptionItem abilitytime;
+    static OptionItem cooldown;
+    static OptionItem killcooldown;
+    static OptionItem Speed;
+    Dictionary<byte, float> allplayerspeed = new();
+    public override void StartGameTasks()
+    {
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+        {
+            allplayerspeed.TryAdd(pc.PlayerId, Main.AllPlayerSpeed[pc.PlayerId]);
+        }
+    }
+    static void SetUpOptionItem()
+    {
+        killcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        cooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        abilitytime = FloatOptionItem.Create(RoleInfo, 12, "GhostNoiseSenderTime", new(1, 300, 1f), 10f, false).SetValueFormat(OptionFormat.Seconds);
+        Speed = FloatOptionItem.Create(RoleInfo, 13, "SpeedStarSpeed", new(0, 10, 0.05f), 3f, false).SetValueFormat(OptionFormat.Multiplier);
+    }
+    public float CalculateKillCooldown() => killcooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = cooldown.GetFloat();
+    public void OnClick()
+    {
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+        {
+            Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
+        }
+        UtilsOption.MarkEveryoneDirtySettings();
+        _ = new LateTask(() =>
+        {
+            if (GameStates.InGame)
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    Main.AllPlayerSpeed[pc.PlayerId] = allplayerspeed[pc.PlayerId];
+                }
+                _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 0.2f, "", true);
+                Player.RpcResetAbilityCooldown();
+            }
+        }, abilitytime.GetFloat(), "", true);
+    }
+    public override void OnStartMeeting()
+    {
+        if (GameStates.InGame)
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                Main.AllPlayerSpeed[pc.PlayerId] = allplayerspeed[pc.PlayerId];
+            }
+            _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 0.2f, "", true);
+        }
+    }
+}
+public sealed class EvilTeller : RoleBase, IImpostor, IUseTheShButton
+{
+    public static readonly SimpleRoleInfo RoleInfo =
+        SimpleRoleInfo.Create(
+            typeof(EvilTeller),
+            player => new EvilTeller(player),
+            CustomRoles.EvilTeller,
+            () => RoleTypes.Shapeshifter,
+            CustomRoleTypes.Impostor,
+            6500,
+            SetUpOptionItem,
+            "Et",
+            from: From.Speyrp
+        );
+    public EvilTeller(PlayerControl player)
+    : base(
+        RoleInfo,
+        player
+    )
+    {
+        Tellnow.Clear();
+        seentarget.Clear();
+        nowuse = false;
+        fall = false;
+    }
+    static OptionItem cooldown;
+    static OptionItem killcooldown;
+    static OptionItem telltime;
+    static OptionItem Distance;
+    static OptionItem tellroleteam;
+    static OptionItem tellrole;
+    static OptionItem usekillcoool;
+    static Dictionary<byte, float> Tellnow = new();
+    bool nowuse;
+    bool fall;
+    static Dictionary<byte, CustomRoles> seentarget = new();
+    enum OptionName { EvilTellerTellTime, EvilTellerDistance, EvilTellertellrole }
+    static void SetUpOptionItem()
+    {
+        killcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        cooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        telltime = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvilTellerTellTime, new(0, 100, 0.5f), 5, false).SetValueFormat(OptionFormat.Seconds);
+        Distance = FloatOptionItem.Create(RoleInfo, 13, OptionName.EvilTellerDistance, new(1f, 30f, 0.25f), 1.75f, false);
+        tellroleteam = BooleanOptionItem.Create(RoleInfo, 14, "tRole", false, false);
+        tellrole = BooleanOptionItem.Create(RoleInfo, 15, OptionName.EvilTellertellrole, false, false);
+        usekillcoool = BooleanOptionItem.Create(RoleInfo, 16, "OptionSetKillcooldown", false, false);
+    }
+    public float CalculateKillCooldown() => killcooldown.GetFloat();
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = fall ? 1 : (nowuse ? telltime.GetFloat() : cooldown.GetFloat());
+    public void OnClick()
+    {
+        var target = Player.GetKillTarget();
+        if (target == null) { fall = true; return; }
+        if (target.Is(CustomRoleTypes.Impostor)) { fall = true; return; }
+
+        if (seentarget.ContainsKey(target.PlayerId)) { fall = true; return; }
+        Tellnow.TryAdd(target.PlayerId, 0);
+        nowuse = true;
+        fall = false;
+        _ = new LateTask(() =>
+        {
+            Player.RpcResetAbilityCooldown(kousin: true);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        }, 0.2f, "", true);
+    }
+    [PluginModuleInitializer]
+    public static void Load()
+    {
+        Event.OptionLoad.Add("SpeedStar");
+        Event.OptionLoad.Add("EvilTeller");
+    }
+    public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+    {
+        seen ??= seer;
+        if (isForMeeting) return "";
+        if (!seer.IsAlive()) return "";
+
+        if (Tellnow.ContainsKey(seen.PlayerId)) return "<color=#ff1919>◆</color>";
+        return "";
+    }
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) { fall = false; Tellnow.Clear(); nowuse = false; }
+    public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+    {
+        if (!seen) return;
+        if (!Player.IsAlive()) return;
+
+        if (seentarget.TryGetValue(seen.PlayerId, out var role))
+        {
+            enabled = true;
+            addon = false;
+            if (tellrole.GetBool()) role = seen.GetCustomRole();
+            if (!tellroleteam.GetBool())
+            {
+                switch (seen.GetCustomRole().GetCustomRoleTypes())
+                {
+                    case CustomRoleTypes.Crewmate:
+                    case CustomRoleTypes.Madmate:
+                        roleColor = Palette.CrewmateBlue;
+                        roleText = GetString("Crewmate");
+                        break;
+                    case CustomRoleTypes.Impostor:
+                        roleColor = ModColors.ImpostorRed;
+                        roleText = GetString("Impostor");
+                        break;
+                    case CustomRoleTypes.Neutral:
+                        roleColor = ModColors.NeutralGray;
+                        roleText = GetString("Neutral");
+                        break;
+                }
+            }
+            roleText = GetString($"{role}");
+            roleColor = UtilsRoleText.GetRoleColor(role);
+        }
+    }
+    public override void OnFixedUpdate(PlayerControl player)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        if (GameStates.IsInTask)
+        {
+            if (Tellnow.Count == 0) return;
+            List<byte> del = new();
+            foreach (var data in Tellnow)
+            {
+                var target = PlayerCatch.GetPlayerById(data.Key);
+                if (!target)
+                {
+                    del.Add(target.PlayerId);
+                    fall = true;
+                    continue;
+                }
+                if (!target.IsAlive())
+                {
+                    del.Add(target.PlayerId);
+                    fall = true;
+                    continue;
+                }
+                if (telltime.GetFloat() <= data.Value)//超えたなら消して追加
+                {
+                    fall = false;
+                    seentarget.TryAdd(target.PlayerId, target.GetCustomRole());
+                    del.Add(target.PlayerId);
+                    continue;
+                }
+
+                float dis;
+                dis = Vector2.Distance(Player.transform.position, target.transform.position);//距離を出す
+                if (dis <= Distance.GetFloat())//一定の距離にターゲットがいるならば時間をカウント
+                    Tellnow[data.Key] += Time.fixedDeltaTime;
+                else//それ以外は削除
+                { del.Add(target.PlayerId); fall = true; }
+            }
+            if (del.Count != 0)
+            {
+                nowuse = false;
+                del.Do(x => Tellnow.Remove(x));
+                _ = new LateTask(() =>
+                {
+                    Player.RpcResetAbilityCooldown(kousin: true);
+                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                    if (usekillcoool.GetBool() && !fall) Player.SetKillCooldown();
+                }, 0.2f, "", true);
+            }
+        }
+    }
 }

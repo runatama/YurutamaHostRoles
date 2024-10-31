@@ -14,7 +14,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
             CustomRoles.CountKiller,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            60100,
+            32400,
             SetupOptionItem,
             "ck",
             "#FF1493",
@@ -67,7 +67,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
         KillCooldown = OptionKillCooldown.GetFloat();
 
         VictoryCount = OptionVictoryCount.GetInt();
-        Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 後{VictoryCount - KillCount}発", "CountKiller");
+        Logger.Info($"{PlayerCatch.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : 後{VictoryCount - KillCount}発", "CountKiller");
     }
     private void SendRPC()
     {
@@ -116,7 +116,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CountKiller);
         CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
     }
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     => Utils.ColorString(RoleInfo.RoleColor, $"({KillCount}/{VictoryCount})");
     public bool CheckWin(ref CustomRoles winnerRole) => OptionAddWin.GetBool() && WinFuragu;
 }

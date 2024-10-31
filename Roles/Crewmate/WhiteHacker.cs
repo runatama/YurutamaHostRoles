@@ -1,10 +1,11 @@
 using UnityEngine;
 using AmongUs.GameOptions;
 using Hazel;
+using HarmonyLib;
 
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Madmate;
 using static TownOfHost.Translator;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Crewmate;
 
@@ -15,9 +16,9 @@ public sealed class WhiteHacker : RoleBase
             typeof(WhiteHacker),
             player => new WhiteHacker(player),
             CustomRoles.WhiteHacker,
-            () => RoleTypes.Crewmate,
+            () => CanUseTrackAbility.GetBool() && !Kakusei.GetBool() ? RoleTypes.Tracker : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            34100,
+            18600,
             SetupOptionItem,
             "WH",
             "#efefef"
@@ -34,12 +35,16 @@ public sealed class WhiteHacker : RoleBase
         Max = OptionMaximum.GetFloat();
         cont = 0;
         use = false;
+        NowTracker = false;
         kakusei = !Kakusei.GetBool();
     }
 
     private static OptionItem Optioncantaskcount;
     private static OptionItem OptionMaximum;
-
+    static OptionItem CanUseTrackAbility;
+    static OptionItem TrackerCooldown;
+    static OptionItem TrackerDelay;
+    static OptionItem TrackerDuration;
     static OptionItem Kakusei;
     bool kakusei;
     private static float cantaskcount;
@@ -47,17 +52,32 @@ public sealed class WhiteHacker : RoleBase
     static float Max;
     float cont;
     bool use;
+    bool NowTracker;
     enum Option
     {
         WhiteHackerTrackTimes,
+        WhiteHackerCanUseTrackAbility
     }
 
     private static void SetupOptionItem()
     {
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        CanUseTrackAbility = BooleanOptionItem.Create(RoleInfo, 13, Option.WhiteHackerCanUseTrackAbility, false, false);
+        TrackerCooldown = FloatOptionItem.Create(RoleInfo, 14, "TrackerCooldown", new(0f, 180f, 0.5f), 15f, false, CanUseTrackAbility)
+        .SetValueFormat(OptionFormat.Seconds);
+        TrackerDelay = FloatOptionItem.Create(RoleInfo, 15, "TrackerDelay", new(0f, 180f, 0.5f), 5f, false, CanUseTrackAbility)
+                .SetValueFormat(OptionFormat.Seconds);
+        TrackerDuration = FloatOptionItem.Create(RoleInfo, 16, "TrackerDuration", new(0f, 180f, 1f), 5f, false, CanUseTrackAbility, true)
+                .SetValueFormat(OptionFormat.Seconds);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.WhiteHackerTrackTimes, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
         Kakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.UKakusei, true, false);
+    }
+    public override void ApplyGameOptions(IGameOptions opt)
+    {
+        AURoleOptions.TrackerCooldown = TrackerCooldown.GetFloat();
+        AURoleOptions.TrackerDelay = TrackerDelay.GetFloat();
+        AURoleOptions.TrackerDuration = TrackerDuration.GetFloat();
     }
     private void SendRPC()
     {
@@ -73,7 +93,7 @@ public sealed class WhiteHacker : RoleBase
 
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (MadAvenger.Skill) return true;
+        if (!SelfVoteManager.Canuseability()) return true;
         if (Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && Max > cont)
         {
             if (Player.PlayerId == votedForId || votedForId == 253)
@@ -86,7 +106,7 @@ public sealed class WhiteHacker : RoleBase
                 cont++;
                 P = votedForId;
                 use = true;
-                Utils.SendMessage(string.Format(GetString("Skill.WhiteHacker"), Utils.GetPlayerColor(Utils.GetPlayerById(votedForId), true), Max - cont), Player.PlayerId);
+                Utils.SendMessage(string.Format(GetString("Skill.WhiteHacker"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true), Max - cont), Player.PlayerId);
                 SendRPC();
                 return true;
             }
@@ -112,7 +132,7 @@ public sealed class WhiteHacker : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
 
     public string GetLastRoom(PlayerControl seen)
     {
@@ -132,6 +152,11 @@ public sealed class WhiteHacker : RoleBase
     public override bool OnCompleteTask(uint taskid)
     {
         if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        if (!NowTracker && kakusei && CanUseTrackAbility.GetBool())
+        {
+            PlayerCatch.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Tracker, Player.GetClientId()));
+            NowTracker = true;
+        }
         return true;
     }
 }

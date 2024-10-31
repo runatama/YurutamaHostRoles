@@ -14,7 +14,7 @@ public sealed class Terrorist : RoleBase
             CustomRoles.Terrorist,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Neutral,
-            50200,
+            35600,
             SetupOptionItem,
             "te",
             "#00ff00",
@@ -82,7 +82,7 @@ public sealed class Terrorist : RoleBase
     }
     public void Win()
     {
-        foreach (var otherPlayer in Main.AllAlivePlayerControls)
+        foreach (var otherPlayer in PlayerCatch.AllAlivePlayerControls)
         {
             if (otherPlayer.Is(CustomRoles.Terrorist))
             {

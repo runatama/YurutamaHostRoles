@@ -33,14 +33,15 @@ public abstract class RoleDescription
             builder.AppendFormat("<size={0}>{1}", SecondSize, Translator.GetString("Basis"));
             builder.AppendFormat("<line-height=1.3pic><size={0}>:{1}\n", SecondSize, Translator.GetString(RoleInfo.BaseRoleType.Invoke().ToString()));
             //From
-            if (RoleInfo.From != From.None) builder.AppendFormat("<line-height=1.3pic><size={0}>{1}\n", SecondSize, Utils.GetFrom(RoleInfo).RemoveSizeTags());
+            if (RoleInfo.From != From.None) builder.AppendFormat("<line-height=1.3pic><size={0}>{1}\n", SecondSize, UtilsOption.GetFrom(RoleInfo).RemoveSizeTags());
 
             //説明
             builder.AppendFormat("<line-height=1.3pic><size={0}>\n", BlankLineSize);
             builder.AppendFormat("<size={0}>{1}\n", BodySize, Description);
             //設定
             var sb = new StringBuilder();
-            Utils.ShowChildrenSettings(Options.CustomRoleSpawnChances[RoleInfo.RoleName], ref sb);
+            if (Options.CustomRoleSpawnChances.TryGetValue(RoleInfo.RoleName, out var op)) UtilsShowOption.ShowChildrenSettings(op, ref sb);
+            else if (RoleInfo.RoleName is CustomRoles.Braid) UtilsShowOption.ShowChildrenSettings(Options.CustomRoleSpawnChances[CustomRoles.Driver], ref sb);
             if (RoleInfo.CustomRoleType == CustomRoleTypes.Madmate)
             {
                 string rule = "┣ ";
@@ -63,6 +64,7 @@ public abstract class RoleDescription
                         sb.Append($"┃ {rule}{Options.MadNekomataCanCrew.GetName()}: {Options.MadNekomataCanCrew.GetString()}\n");
                         sb.Append($"┃ {ruleFooter}{Options.MadNekomataCanNeu.GetName()}: {Options.MadNekomataCanNeu.GetString()}\n");
                     }
+                    sb.Append($"{rule}{Options.MadCanSeeImpostor.GetName()}: {Options.MadCanSeeImpostor.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateVentCooldown.GetName()}: {Options.MadmateVentCooldown.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateVentMaxTime.GetName()}: {Options.MadmateVentMaxTime.GetString()}\n");
                     sb.Append($"{ruleFooter}{Options.MadmateCanMovedByVent.GetName()}: {Options.MadmateCanMovedByVent.GetString()}\n");

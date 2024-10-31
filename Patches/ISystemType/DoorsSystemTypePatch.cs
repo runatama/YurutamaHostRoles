@@ -18,7 +18,7 @@ public static class DoorsSystemTypeUpdateSystemPatch
             amount = newReader.ReadByte();
             newReader.Recycle();
         }
-        if (player.Is(CustomRoles.Opener) || (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveOpener.GetBool()))
+        if (player.Is(CustomRoles.Opener) || (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) && data.GiveAddons.GetBool() && data.GiveOpener.GetBool()))
         {
             if (DoorsProgressing) return true;
             int mapId = Main.NormalOptions.MapId;

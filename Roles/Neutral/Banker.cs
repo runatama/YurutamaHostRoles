@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
-
 namespace TownOfHost.Roles.Neutral;
 public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
 {
@@ -16,7 +15,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             CustomRoles.Banker,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Neutral,
-            42000,
+            32500,
             SetUpOptionItem,
             "bu",
             "#489972",
@@ -70,7 +69,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         DieCanWin = BooleanOptionItem.Create(RoleInfo, 15, Option.BankerDieCanWin, true, false);
         DieRemoveCoin = IntegerOptionItem.Create(RoleInfo, 16, Option.BankerDieRemoveCoin, new(1, 100, 1), 30, false, DieCanWin);
         DieRemoveTarn = IntegerOptionItem.Create(RoleInfo, 17, Option.BankerDieRemoveTarn, new(1, 100, 1), 10, false, DieCanWin);
-        KillCoolDown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 15f, false);
+        KillCoolDown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         Options.OverrideTasksData.Create(RoleInfo, 19);
         RoleAddAddons.Create(RoleInfo, 23);
     }
@@ -86,8 +85,8 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         Coin += TaskAddCoin.GetInt();
         return true;
     }
-    public override string GetProgressText(bool comms = false)
-    => Player.IsAlive() || DieCanWin.GetBool() ? ((TaskMode ? "[Task]" : "[Kill]") + Utils.ColorString(Utils.GetRoleColor(CustomRoles.Banker), $"({Coin})")) : "";
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
+    => Player.IsAlive() || DieCanWin.GetBool() ? (gamelog ? "" : (TaskMode ? "[Task]" : "[Kill]") + Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Banker), $"({Coin})")) : "";
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
@@ -120,7 +119,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             {
                 Die = true;
                 Coin -= DieRemoveCoin.GetInt();
-                _ = new LateTask(() => Utils.NotifyRoles(SpecifySeer: Player), Main.LagTime, "Bankerdie");
+                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), Main.LagTime, "Bankerdie");
             }
         }
     }
@@ -132,10 +131,9 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             Coin -= TarnRemoveCoin.GetInt();
         else Coin -= DieRemoveTarn.GetInt();
 
-
         if (AmongUsClient.Instance.AmHost)
         {
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc == PlayerControl.LocalPlayer)
                     Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
@@ -147,7 +145,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         _ = new LateTask(() =>
         {
             Player.SetKillCooldown();
-            Utils.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }, Main.LagTime, "Bankerchenge");
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
@@ -158,7 +156,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
 
             if (AmongUsClient.Instance.AmHost)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (pc == PlayerControl.LocalPlayer)
                         Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
@@ -171,7 +169,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             _ = new LateTask(() =>
             {
                 Player.SetKillCooldown();
-                Utils.NotifyRoles(SpecifySeer: Player);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
             }, Main.LagTime, "Bankerchenge");
         }
         return false;

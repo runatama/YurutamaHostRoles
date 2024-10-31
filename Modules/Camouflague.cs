@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
 {
@@ -51,7 +53,7 @@ namespace TownOfHost
 
             if (oldIsCamouflage != IsCamouflage)
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     RpcSetSkin(pc);
                     // The code is intended to remove pets at dead players to combat a vanilla bug
@@ -60,24 +62,25 @@ namespace TownOfHost
                         pc.RpcSetPet("");
                     }
                 }
-                Utils.NotifyRoles(NoCache: true);
+                UtilsNotifyRoles.NotifyRoles(NoCache: true);
                 if (!IsCamouflage)
                 {
-                    foreach (var role in Roles.Core.CustomRoleManager.AllActiveRoles.Values)
+                    foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                     {
                         role.Colorchnge();
                     }
                 }
             }
         }
-        public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool kyousei = false)
+        public static List<byte> ventplayr = new();
+        public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool? kyousei = false)
         {
-            if (!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || kyousei)) return;
+            if (!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (kyousei is null or true))) return;
             if (GameStates.IsLobby) return;
             if (target == null) return;
             var id = target.PlayerId;
 
-            if (IsCamouflage && !kyousei)
+            if (IsCamouflage && kyousei is true)
             {
                 //コミュサボ中
 
@@ -87,11 +90,11 @@ namespace TownOfHost
 
             var newOutfit = CamouflageOutfit;
 
-            if (!IsCamouflage || ForceRevert || kyousei)
+            if (!IsCamouflage || ForceRevert || kyousei is true)
             {
                 //コミュサボ解除または強制解除
 
-                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && shapeshifting && !RevertToDefault)
+                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && target.GetRoleClass() is not IUseTheShButton && shapeshifting && !RevertToDefault && kyousei is not null)
                 {
                     //シェイプシフターなら今の姿のidに変更
                     id = Main.ShapeshiftTarget[id];
@@ -100,7 +103,14 @@ namespace TownOfHost
                 newOutfit = PlayerSkins[id];
             }
 
-            if (newOutfit.Compare(target.Data.DefaultOutfit) && !kyousei) return;
+            if (target.inVent)
+            {
+                ventplayr.Add(target.PlayerId);
+                Logger.Info($"{target.Data.PlayerName} : invent", "camouflague");
+                return;
+            }
+
+            if (newOutfit.Compare(target.Data.DefaultOutfit) && kyousei is false) return;
 
             Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 
@@ -139,7 +149,11 @@ namespace TownOfHost
                     .EndRpc();
             }
             sender.SendMessage();
-            if (Options.Onlyseepet.GetBool()) Main.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+                (pc.GetRoleClass() as IUseTheShButton)?.ResetS(pc);
+
+            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
         }
     }
 }

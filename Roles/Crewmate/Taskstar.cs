@@ -13,7 +13,7 @@ public sealed class TaskStar : RoleBase
             CustomRoles.TaskStar,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            28720,
+            19500,
             SetupOptionItem,
             "ts",
             "#FFD700"

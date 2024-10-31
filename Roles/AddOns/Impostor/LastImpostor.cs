@@ -82,7 +82,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
             if (CurrentGameMode == CustomGameMode.HideAndSeek
             || !CustomRoles.LastImpostor.IsPresent() || Main.AliveImpostorCount != 1)
                 return;
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (CanBeLastImpostor(pc))
                 {
@@ -90,8 +90,8 @@ namespace TownOfHost.Roles.AddOns.Impostor
                     Add(pc.PlayerId);
                     if ((pc.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true) SetKillCooldown();
                     pc.SyncSettings();
-                    Utils.NotifyRoles();
-                    Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";
+                    UtilsNotifyRoles.NotifyRoles();
+                    Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(UtilsRoleText.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";
                     break;
                 }
             }

@@ -29,7 +29,7 @@ public static class HeliSabotageSystemUpdateSystemPatch
         {
             return false;
         }
-        if (RoleAddAddons.AllData.TryGetValue(player.GetCustomRole(), out var data) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
+        if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
         if (Roles.AddOns.Common.Amnesia.CheckAbility(player))
             if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHeliSabotageSystem(__instance, amount))

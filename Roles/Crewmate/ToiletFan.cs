@@ -12,7 +12,7 @@ public sealed class ToiletFan : RoleBase
             CustomRoles.ToiletFan,
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
-            22004,
+            23500,
             SetupOptionItem,
             "to",
             "#5f5573",

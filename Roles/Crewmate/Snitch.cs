@@ -15,7 +15,7 @@ public class Snitch : RoleBase
             CustomRoles.Snitch,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20575,
+            21500,
             SetupOptionItem,
             "sn",
             "#b8fb4f",
@@ -151,7 +151,7 @@ public class Snitch : RoleBase
         foreach (var targetId in TargetList)
         {
             var arrow = TargetArrow.GetArrows(seer, targetId);
-            arrows += CanGetColoredArrow ? Utils.ColorString(Utils.GetPlayerById(targetId).Is(CustomRoles.WolfBoy) ? Palette.ImpostorRed : TargetColorlist[targetId], arrow) : arrow;
+            arrows += CanGetColoredArrow ? Utils.ColorString(PlayerCatch.GetPlayerById(targetId).Is(CustomRoles.WolfBoy) ? Palette.ImpostorRed : TargetColorlist[targetId], arrow) : arrow;
         }
         return arrows;
     }
@@ -164,7 +164,7 @@ public class Snitch : RoleBase
         if (TargetList.Count == 0)
         {
             //TargetListが未作成ならここで作る
-            foreach (var target in Main.AllAlivePlayerControls)
+            foreach (var target in PlayerCatch.AllAlivePlayerControls)
             {
                 if (!IsSnitchTarget(target)) continue;
 
@@ -192,14 +192,14 @@ public class Snitch : RoleBase
             IsComplete = true;
             foreach (var targetId in TargetList)
             {
-                NameColorManager.Add(Player.PlayerId, targetId, Utils.GetPlayerById(targetId).Is(CustomRoles.WolfBoy) ? "#ff1919" : "");
+                NameColorManager.Add(Player.PlayerId, targetId, PlayerCatch.GetPlayerById(targetId).Is(CustomRoles.WolfBoy) ? "#ff1919" : "");
 
                 if (EnableTargetArrow)
                     TargetArrow.Add(Player.PlayerId, targetId);
             }
             update = true;
         }
-        if (update) Utils.NotifyRoles();
+        if (update) UtilsNotifyRoles.NotifyRoles();
         return true;
     }
 }

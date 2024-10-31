@@ -5,7 +5,6 @@ using AmongUs.GameOptions;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Madmate;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
@@ -18,7 +17,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
             CustomRoles.MassMedia,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            45000,
+            35300,
             SetupOptionItem,
             "MM",
             "#512513",
@@ -73,7 +72,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        var tg = Utils.GetPlayerById(Target);
+        var tg = PlayerCatch.GetPlayerById(Target);
         if (tg == null) return;
 
         if (!player.IsAlive()) return;
@@ -157,7 +156,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
 
         if (seen == seer && Is(seen))
         {
-            if (Utils.GetPlayerById(Target).IsAlive())
+            if (PlayerCatch.GetPlayerById(Target).IsAlive())
                 return "<color=#512513>" + TargetArrow.GetArrows(Player, Target) + "</color>";
             else return "<color=#512513>" + GetArrow.GetArrows(Player, TagePo) + "</color>";
         }
@@ -165,7 +164,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (MadAvenger.Skill) return true;
+        if (!SelfVoteManager.Canuseability()) return true;
         if (Is(voter) && Winchance && Player.Is(CustomRoles.MassMedia))
         {
             if (votedForId == 253)
@@ -185,9 +184,9 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
                 //違うなら消えてもらおうか。
                 MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, Player.PlayerId);
                 MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Misfire, Player.PlayerId);
-                Utils.GetPlayerById(votedForId).SetRealKiller(Player);
+                PlayerCatch.GetPlayerById(votedForId).SetRealKiller(Player);
 
-                Utils.AddGameLog($"MassMedia", string.Format(Translator.GetString("MassMedia.log"), Utils.GetPlayerColor(Player)));
+                UtilsGameLog.AddGameLog($"MassMedia", string.Format(Translator.GetString("MassMedia.log"), Utils.GetPlayerColor(Player)));
                 return true;
             }
         }
@@ -198,7 +197,7 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Win)
         {
-            foreach (var crew in Main.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
+            foreach (var crew in PlayerCatch.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
             {
                 crew.SetRealKiller(Player);
                 crew.RpcMurderPlayer(crew);

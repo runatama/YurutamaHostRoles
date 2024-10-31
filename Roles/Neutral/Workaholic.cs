@@ -14,7 +14,7 @@ public sealed class Workaholic : RoleBase
             CustomRoles.Workaholic,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            50900,
+            35700,
             SetupOptionItem,
             "wh",
             "#008b8b",

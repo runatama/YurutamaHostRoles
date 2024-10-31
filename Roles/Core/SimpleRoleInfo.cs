@@ -25,6 +25,7 @@ public enum From
     TownOfHost_Y,
     TownOfHost_for_E,
     TownOfHost_E,
+    Speyrp,
     RevolutionaryHostRoles,
     Love_Couple_Mod
 
@@ -57,6 +58,8 @@ public class SimpleRoleInfo
     public CombinationRoles Combination;
     /// <summary>役職の説明関係</summary>
     public RoleDescription Description { get; private set; }
+    /// <summary>チームを視認することができない</summary>
+    public bool IsCantSeeTeammates;
 
     private SimpleRoleInfo(
         Type classType,
@@ -75,7 +78,8 @@ public class SimpleRoleInfo
         Func<bool> canMakeMadmate,
         RoleAssignInfo assignInfo,
         CombinationRoles combination,
-        From from
+        From from,
+        bool isCantSeeTeammates
     )
     {
         ClassType = classType;
@@ -93,6 +97,7 @@ public class SimpleRoleInfo
         AssignInfo = assignInfo;
         From = from;
         Combination = combination;
+        IsCantSeeTeammates = isCantSeeTeammates;
 
         if (colorCode == "")
             colorCode = customRoleType switch
@@ -135,7 +140,8 @@ public class SimpleRoleInfo
         CountTypes? countType = null,
         RoleAssignInfo assignInfo = null,
         CombinationRoles combination = CombinationRoles.None,
-        From from = From.None
+        From from = From.None,
+        bool isCantSeeTeammates = false
     )
     {
         countType ??= customRoleType == CustomRoleTypes.Impostor ?
@@ -160,7 +166,8 @@ public class SimpleRoleInfo
             canMakeMadmate,
             assignInfo,
             combination,
-            from
+            from,
+            isCantSeeTeammates
             );
         roleInfo.Description = new SingleRoleDescription(roleInfo);
         return roleInfo;
@@ -240,7 +247,8 @@ public class SimpleRoleInfo
             () => canMakeMadmate,
             assignInfo ?? new(roleName, customRoleType),
             combination,
-            from);
+            from,
+            false);
         roleInfo.Description = new VanillaRoleDescription(roleInfo, baseRoleType);
         return roleInfo;
     }

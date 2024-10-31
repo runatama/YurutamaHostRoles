@@ -26,7 +26,7 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
             __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
         }
         // Desyncインポスター目線のプレイヤー名の表示/非表示を反映
-        Utils.NotifyRoles(ForceLoop: true);
+        UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
     }
 }
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
@@ -42,14 +42,14 @@ public static class MushroomMixupSabotageSystemDeterioratePatch
         if (__instance.IsActive != __state)
         {
             // Desyncインポスター目線のプレイヤー名の表示/非表示を反映
-            Utils.NotifyRoles(ForceLoop: true);
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
 
             if (!__instance.IsActive)
             {
                 _ = new LateTask(() =>
                 {
                     //ワンクリックを使う人のシェイプをリセット
-                    Main.AllPlayerControls.Do(pc =>
+                    PlayerCatch.AllPlayerControls.Do(pc =>
                     {
                         (pc.GetRoleClass() as IUseTheShButton)?.ResetSkin(pc);
                     });

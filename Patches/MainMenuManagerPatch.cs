@@ -161,7 +161,54 @@ namespace TownOfHost
                 pb.inactiveSprites.GetComponent<SpriteRenderer>().color = new(88, 101, 242, byte.MaxValue);
                 pb.activeSprites.GetComponent<SpriteRenderer>().color = new(148, 161, byte.MaxValue, byte.MaxValue);
                 pb.OnClick.AddListener((Action)(() => Main.EditMode = true));
-                freeplayButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => Main.EditMode = false));
+                freeplayButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => Main.EditMode = false));//ボタンを生成
+                if (SimpleButton.IsNullOrDestroyed(VersionChangeButton))
+                {
+                    VersionChangeButton = CreateButton(
+                        "VersionChangeButton",
+                        new(2.4036f, -2.6963f, 1f),
+                        new(0, 202, 255, byte.MaxValue),
+                        new(60, 255, 255, byte.MaxValue),
+                        () =>
+                        {
+                            CredentialsPatch.TohkLogo.gameObject.SetActive(false);
+                            __instance.screenTint.enabled = true;
+                            if (VersionMenu != null)
+                            {
+                                VersionMenu.SetActive(true);
+                                return;
+                            }
+                            VersionMenu = new GameObject("verPanel");
+                            VersionMenu.transform.parent = __instance.gameModeButtons.transform.parent;
+                            VersionMenu.transform.localPosition = new(-0.0964f, 0.1378f, 1f);
+                            VersionMenu.SetActive(true);
+                            ModUpdater.CheckRelease(all: true).GetAwaiter().GetResult();
+                            int i = 0;
+                            foreach (var release in ModUpdater.releases)
+                            {
+                                int column = i % 4;
+                                int row = i / 4;
+                                // X 座標と Y 座標を計算
+                                float x = -1.6891f + (1.6891f * column);
+                                float y = 0.8709f - (0.3927f * row);
+                                var button2 = new SimpleButton(
+                                VersionMenu.transform,
+                                release.TagName,
+                                new(x, y, 1f),
+                                new(0, 202, 255, byte.MaxValue),
+                                new(60, 255, 255, byte.MaxValue),
+                                () =>
+                                {
+                                    if (release.DownloadUrl != null)
+                                        ModUpdater.StartUpdate(release.DownloadUrl);
+                                },
+                                "v" + release.TagName.TrimStart('v') + (release.DownloadUrl == null ? "(ERROR)" : ""));
+                                i++;
+                            }
+                        },
+                        $"{Translator.GetString("verChangeButton")}");
+                    VersionChangeButton.FontSize = 2;
+                }
             }
 #endif
         }
@@ -260,7 +307,7 @@ namespace TownOfHost
                         Title = "ハッピーハロウィンついにTOH-Kリリース！",
                         SubTitle = "やっとリリースしたよ！",
                         ShortTitle = "◆TOH-K v5.1.14",
-                        Text = "ハロウィンにリリースしたのだぁー\n\rってことで(?)TOH-Kを使ってくれてありがとおおお!\n\r\n\rあ、詳しくは<nobr><link=\"https://github.com/KYMario/TownOfHost-K\">README</nobr></link> 見てね～\n\r\n\rマジでここなに書いたらいいんやろな なにも思いつかないぜ(これただ独り言めっちゃ書いてるやばいやつだ)\n\rまぁTOH-Kのこと話します 初リリースってことで元々24役職(ﾈﾀ役職含め)あったのを12役職まで減らしたんだぜ！ 多分いつかアプデで一部は追加すると思う\n\rそ～し～て～実は隠し要素あります！ 1つはコマンド、もう一つは隠しコマンド(key)で使えるようになるよ！探してみてね\n\rあとYouTubeとかTwitter(X)でTOHkの動画とかじゃんじゃん投稿しちゃって！"
+                        Text = "ハロウィンにリリースしたのだぁー\n\rってことで(?)TOH-Kを使ってくれてありがとおおお!\n\r\n\rあ、詳しくは<nobr><link=\"https://github.com/KYMario/TownOfHost-K\">README</nobr></link> 見てね～\n\r\n\rマジでここなに書いたらいいんやろな なにも思いつかないぜ(これただ独り言めっちゃ書いてるやばいやつだ)\n\rまぁTOH-Kのこと話します 初リリースってことで元々24役職(ﾈﾀ役職含め)あったのを12役職まで減らしたんだぜ！ 多分いつかアプデで一部は追加すると思う\n\rそ～し～て～実は隠し要素あります！ 1つはコマンド、もう一つは隠しコマンド(key)で使えるようになるよ！<size=40%>\nやぁ。Yだ。1周年記念でニュースを閉じた画面で特定のキーを押す隠しコマンドを追加してみたのさ。\n探してみてネ。ハハハ</size>\n探してみてね\n\rあとYouTubeとかTwitter(X)でTOHkの動画とかじゃんじゃん投稿しちゃって！"
                         + " あ、でもちゃんとMODで本家じゃなくてTOHkってことわかるようにしてね それだけ守ってくれれば.. 配信とか動画で使ってくれるとめちゃ喜びます！\n\rそれじゃあこのぐらいでいいかな、じゃあkを楽しんできてね～\n\r\n\rTOH-K開発者: けーわい,タイガー,夜藍/中の人,ねむa,はろん\nサポーター:りぃりぃ",
                         Date = "2023-10-31T00:00:00Z"
                     };
@@ -674,6 +721,49 @@ namespace TownOfHost
                         Date = "2024-10-12T00:00:00Z"
                     };
                     AllModNews.Add(news);
+                }
+                {
+                    var news = new ModNews
+                    {
+                        Number = 100021,
+                        Title = "一周年だ～～～！！ﾄﾞﾝﾄﾞﾝﾊﾟﾌﾊﾟﾌ-!ﾄﾞﾝｶﾞﾗｶﾞｯｼｬｰﾝ!!",
+                        SubTitle = "<color=#00c1ff>Town Of Host-K v5.1.9.21</color>",
+                        ShortTitle = "<color=#00c1ff>◆TOH-K v5.1.9.21</color>",
+                        Text = "<size=80%>なんやかんやあって一周年。"
+                        + "\nまず...全ての内容を知りたかったら<nobr><link=\"https://github.com/KYMario/TownOfHost-K/releases/tag/5.1.9.21\">GitHubのリリースノート</nobr></link>を見てね！\nめっちゃながい！\n"
+                        + "\nざーっとおさらいします！\n"
+                        + "\n<size=125%>【バグ修正】</size>\nいっぱい。(GitHubに記載してるよ!)\n"
+                        + "\n<size=125%>【仕様変更】</size>\nたくさん！(GitHubに記載してるよ!)\n"
+                        + "\n<size=125%>【新設定】</size>\nどっさり...(GitHubに記載してるよ!)\n"
+                        + "\n<size=125%>【新役職】</size>\nそこそk(((殴  流石に新役職位は説明しまス...\n\n"
+                        + "<b>Ⓘカモフラージャー</b>\n┗ ワンクリで一定時間全員カモフラージュさせます\n"
+                        + "<b>Ⓘコネクトセーバー</b>\n┗ 半年前位の役職応募企画の夜藍枠です。\n"
+                        + "<b>Ⓘ記憶喪失者</b>\n┗ 半年前位の役職応募企画のけーわい枠です。\n"
+                        + "<b>Ⓒかけだし占い師</b>\n┗ 占いに1ターンかかってしまう占い師です。\n"
+                        + "<b>Ⓝ怪盗</b>\n┗ 半年くらい前の役職応募企画のりぃりぃ枠です。\n"
+                        + "<b>Ⓝカースメーカー</b>\n┗ 呪ってあぼーんしてゲーム終わったら勝ち！\n"
+                        + "<b>Ⓛ片思い</b>\n┗ 片思いしているラバーズ系重複役職です。\n"
+                        + "<b>Ⓐマジックハンド</b>\n┗ キルディスタンスが調整できる属性です。\n"
+                        + "\n詳しくはGitHubのREADMEだったり/h r {役職名}で表示させてください。\n"
+                        + "\n<size=125%>【1周年だョ！全員集合！】</size>\n"
+                        + "...ここ書いてたやつほぼ消えました。よらんのぽんこつううううううううううううう！！！\n"
+                        + "書き直し！ああもう！！\n"
+                        + "...そういや全員からコメント貰ってましたっけ夜藍さん？\n"
+                        + "ねむaさんは「開発期間が長すぎて実感ねぇ」って...\nはろんさんは「開発期間が短い俺がいちばん実感無い」「ということでほんとうに申し訳ない」って...\n"
+                        + "けーわいさんは「僕からしたら実質二周年だしねぇ..」って言いながら虎さんとアンケート見て懐かしんでたり、何度K壊したんやってねむaさんと話してて...\n"
+                        + "りぃりぃからは\n「サポーターになって9か月...時の流れは早い......\n　リリースから1年間頑張ったし、開発者様少し休暇ゲットしましょ。\n　休暇ゲット...キュウカゲット....キュウカゲツ.....ﾌﾌﾌ」\n...\n一人で長々喋りますかぁ！()\n"
+                        + "<size=50%>というわけで、Kが初リリースしてから1周年となりました。\n皆様いつも使っていただいたりバグ報告だったり色々ありがとうございます...!\nKを遊ばない開発陣からするとすごく有難い限りです...\n"
+                        + "\nTwitterで感想ポストが流れてきた時とか配信してる時とかそっこり見てたりします。!\n楽しい！とか笑ってくれてたりしたら凄いモチベーションにつながります!!!ｲﾂﾓｱﾘｶﾞﾄｳ!!!\n"
+                        + "1年でこんな感じになってるとは思いませんでした！\nまぁ夜藍君は1月末辺りからK開発者活動始めたのでそこまで実感はないですけど。('ω')\n僕もそうですけどけーわいさん、虎さんもすごい成長したんじゃないかなぁって。"
+                        + "1年でこんだけ役職数が増えたり要素が増えたり豊富になって行って凄いよなぁ...\nK追加役職数50は越えてます。凄い。属性抜きですよ!!( ﾟДﾟ)\nそういやKのコンセプトってなんでしょう?\nc#知識0の人が～とか他Modにある～とか書いてますけど...\n"
+                        + "やりたいことをやるとかが結構大きいかなぁ。\n各々の開発者で作る役職の味が全然違いますし。\n夜藍君は多種多様だったりﾜｲﾜｲｶﾞﾔｶﾞﾔよりだったり、\nけーわいさんは何かすごい事だったり無かった部分だったり(殴)\n虎さんは真面目な時でも使えるような感じだったり。\n"
+                        + "なんかKらしいな。\n1周年の後もよろしくお願いします...\nあっ、プルリクイツデモカンg(((ｹﾞﾌﾝｹﾞﾌﾝ..."
+                        + "\n僕は開発者が協力していったらKは凄くなると思ってます。ホント。一人の限界ってありますし。\nもっと便利で使いやすくて面白いmodにけーわいさんが率先してやってくr(殴...\nKらしくのびのびゆったりたまに夜藍君が指揮とってせかしていきます。\n"
+                        + "ちょっとしゃべり過ぎたかも。\nそうでもないか...?</size>\n\nいたずらっ子の\nYR",
+                        Date = "2024-10-31T00:00:00Z"
+                    };
+                    AllModNews.Add(news);
+
                 }
                 AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
             }

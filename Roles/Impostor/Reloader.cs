@@ -14,7 +14,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
             CustomRoles.Reloader,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            25000,
+            5500,
             SetupOptionItem,
             "rd",
             from: From.RevolutionaryHostRoles
@@ -45,9 +45,9 @@ public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
     private static int Count;
     private static void SetupOptionItem()
     {
-        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
+        OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        OptionRKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.ReloaderKillCooldown, new(0f, 180f, 0.5f), 20f, false)
+        OptionRKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.ReloaderKillCooldown, new(0f, 180f, 0.5f), 10f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
@@ -69,9 +69,9 @@ public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
         Player.SetKillCooldown(RKillCooldown);
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
         Player.SyncSettings();
-        Utils.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
-    public override string GetProgressText(bool comms = false) => Utils.ColorString(Count > 0 ? RoleInfo.RoleColor : Palette.DisabledGrey, $"({Count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(Count > 0 ? RoleInfo.RoleColor : Palette.DisabledGrey, $"({Count})");
 
     public override string GetAbilityButtonText()
     {

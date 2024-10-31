@@ -13,7 +13,7 @@ public sealed class Evilgambler : RoleBase, IImpostor
                 CustomRoles.Evilgambler,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                3000,
+                4000,
                 SetupOptionItem,
                 "eg",
                 from: From.SuperNewRoles

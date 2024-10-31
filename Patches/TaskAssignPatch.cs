@@ -5,7 +5,6 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Crewmate;
-//using System.Threading.Tasks;
 
 namespace TownOfHost
 {

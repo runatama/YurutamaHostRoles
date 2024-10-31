@@ -89,6 +89,7 @@ namespace TownOfHost
         public static OptionItem MadNekomataCanNeu;
         public static OptionItem MadNekomataCanMad;
         public static OptionItem MadNekomataCanCrew;
+        public static OptionItem MadCanSeeImpostor;
         public static OptionItem MadmateCanFixLightsOut;
         public static OptionItem MadmateCanFixComms;
         //public static OptionItem MadmateHasImpostorVision;
@@ -105,6 +106,9 @@ namespace TownOfHost
         public static OptionItem ExAftermeetingflash;
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
+        public static OptionItem BlackOutwokesitobasu;
+        public static OptionItem UseCustomRpcSenderAtGameEnd;
+        public static OptionItem ExIntroSystem;
 
         //幽霊役職
         public static OptionItem GRRoleOp;
@@ -199,12 +203,16 @@ namespace TownOfHost
         public static OptionItem TimeLimitAdmin;
         public static OptionItem TimeLimitCamAndLog;
         public static OptionItem TimeLimitVital;
+        public static OptionItem CanSeeTimeLimit;
+        public static OptionItem CanseeImpTimeLimit;
+        public static OptionItem CanseeMadTimeLimit;
+        public static OptionItem CanseeCrewTimeLimit;
+        public static OptionItem CanseeNeuTimeLimit;
 
         public static OptionItem TarnTimeLimitDevice;
         public static OptionItem TarnTimeLimitAdmin;
         public static OptionItem TarnTimeLimitCamAndLog;
         public static OptionItem TarnTimeLimitVital;
-
 
         // ランダムマップ
         public static OptionItem RandomMapsMode;
@@ -359,6 +367,8 @@ namespace TownOfHost
         //会議時間
         public static OptionItem LowerLimitVotingTime;
         public static OptionItem MeetingTimeLimit;
+        public static OptionItem FirstTurnMeeting;
+        public static OptionItem FirstTurnMeetingCantability;
 
         //転落死
         public static OptionItem LadderDeath;
@@ -415,6 +425,10 @@ namespace TownOfHost
         public static OptionItem VRcanseemitidure;
         public static OptionItem Onlyseepet;
         public static OptionItem CommnTaskResetAssing;
+        public static OptionItem TeamHideChat;
+        public static OptionItem ImpostorHideChat;
+        public static OptionItem LoversHideChat;
+        public static OptionItem JackalHideChat;
 
         public static OptionItem DisableTaskWin;
         public static OptionItem GhostCanSeeOtherRoles;
@@ -427,13 +441,6 @@ namespace TownOfHost
         public static OptionItem GhostCanSeeKillflash;
         public static OptionItem GhostCanSeeNumberOfButtonsOnOthers;
         public static OptionItem RoleImpostor;
-        public static OptionItem ALoversRole;
-        public static OptionItem BLoversRole;
-        public static OptionItem CLoversRole;
-        public static OptionItem DLoversRole;
-        public static OptionItem ELoversRole;
-        public static OptionItem FLoversRole;
-        public static OptionItem GLoversRole;
 
         // プリセット対象外
         public static OptionItem NoGameEnd;
@@ -446,7 +453,6 @@ namespace TownOfHost
         public static OptionItem ChangeNameToRoleInfo;
         public static OptionItem RoleAssigningAlgorithm;
         public static OptionItem sotodererukomando;
-        public static OptionItem AntiBlackOutSpawnVer;
 
         public static OptionItem ApplyDenyNameList;
         public static OptionItem KickPlayerFriendCodeNotExist;
@@ -510,7 +516,7 @@ namespace TownOfHost
             var sortedRoleInfo = CustomRoleManager.AllRolesInfo.Values.OrderBy(role => role.ConfigId);
             // GM
             EnableGM = BooleanOptionItem.Create(100, "GM", false, TabGroup.MainSettings, false)
-                .SetColor(Utils.GetRoleColor(CustomRoles.GM))
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.GM))
                 .SetHeader(true);
 
             RoleAssignManager.SetupOptionItem();
@@ -578,11 +584,37 @@ namespace TownOfHost
             ExAftermeetingflash = BooleanOptionItem.Create(300002, "ExAftermeetingflash", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
                             .SetGameMode(CustomGameMode.Standard);
             ExHideChatCommand = BooleanOptionItem.Create(300003, "ExHideChatCommand", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
-                            .SetGameMode(CustomGameMode.Standard);
+                            .SetGameMode(CustomGameMode.Standard)
+                            .SetInfo(Translator.GetString("ExHideChatCommandInfo"));
+            TeamHideChat = BooleanOptionItem.Create(900_006, "TeamHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetParent(ExHideChatCommand);
+            ImpostorHideChat = BooleanOptionItem.Create(900_007, "ImpostorHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(ModColors.ImpostorRed).SetParent(TeamHideChat);
+            JackalHideChat = BooleanOptionItem.Create(900_008, "JackalHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Jackal)).SetParent(TeamHideChat);
+            LoversHideChat = BooleanOptionItem.Create(900_009, "LoversHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Lovers)).SetParent(TeamHideChat);
+            BlackOutwokesitobasu = BooleanOptionItem.Create(1_000_009, "BlackOutwokesitobasu", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#ff0000")
+                .SetParent(ExperimentalMode)
+                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
+            UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", true, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetParent(ExperimentalMode)
+                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));
+            ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetParent(ExperimentalMode);
             //9人以上部屋で落ちる現象の対策
             FixSpawnPacketSize = BooleanOptionItem.Create(300004, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)
                 .SetColor(new Color32(255, 255, 0, 255))
-                .SetGameMode(CustomGameMode.All);
+                .SetGameMode(CustomGameMode.All)
+                .SetInfo(Translator.GetString("FixSpawnPacketSizeInfo"));
 
             // Impostor
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
@@ -591,13 +623,16 @@ namespace TownOfHost
                 info.OptionCreator?.Invoke();
             });
 
-            DefaultShapeshiftCooldown = FloatOptionItem.Create(5011, "DefaultShapeshiftCooldown", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false)
+            DefaultShapeshiftCooldown = FloatOptionItem.Create(1100, "DefaultShapeshiftCooldown", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Seconds);
 
             // Madmate, Crewmate, Neutral
             sortedRoleInfo.Where(role => role.CustomRoleType != CustomRoleTypes.Impostor).Do(info =>
             {
+#if RELEASE
+                if (info.RoleName == CustomRoles.Cakeshop && !(Event.IsHalloween && DateTime.Now.Year == 2024)) return;
+#endif
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
             });
@@ -625,30 +660,17 @@ namespace TownOfHost
             MadNekomataCanCrew = BooleanOptionItem.Create(101009, "NekomataCanCrew", true, TabGroup.MadmateRoles, false).SetParent(MadmateRevengeCrewmate);
             MadNekomataCanMad = BooleanOptionItem.Create(1010018, "NekoKabochaMadmatesGetRevenged", true, TabGroup.MadmateRoles, false).SetParent(MadmateRevengeCrewmate);
             MadNekomataCanNeu = BooleanOptionItem.Create(101010, "NekomataCanNeu", true, TabGroup.MadmateRoles, false).SetParent(MadmateRevengeCrewmate);
+            MadCanSeeImpostor = BooleanOptionItem.Create(101019, "MadmateCanSeeImpostor", false, TabGroup.MadmateRoles, false).SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Snitch)).SetParent(MadMateOption);
 
-            MadmateVentCooldown = FloatOptionItem.Create(101011, "MadmateVentCooldown", new(0f, 180f, 2.5f), 0f, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption)
+            MadmateVentCooldown = FloatOptionItem.Create(101011, "MadmateVentCooldown", new(0f, 180f, 0.5f), 0f, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Seconds);
-            MadmateVentMaxTime = FloatOptionItem.Create(101018, "MadmateVentMaxTime", new(0f, 180f, 2.5f), 0f, TabGroup.MadmateRoles, false, infinity: true).SetColorcode("#8cffff").SetParent(MadMateOption)
+            MadmateVentMaxTime = FloatOptionItem.Create(101018, "MadmateVentMaxTime", new(0f, 180f, 0.5f), 0f, TabGroup.MadmateRoles, false, infinity: true).SetColorcode("#8cffff").SetParent(MadMateOption)
                 .SetValueFormat(OptionFormat.Seconds);
             MadmateCanMovedByVent = BooleanOptionItem.Create(101013, "MadmateCanMovedByVent", true, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption);
 
             //Com
-            SetupRoleOptions(50300, TabGroup.Combinations, CustomRoles.ALovers, assignCountRule: new(2, 2, 2), fromtext: "<color=#000000>From:</color><color=#ff6be4>Love Couple Mod</color></size>");
-            ALoversRole = BooleanOptionItem.Create(73010, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.ALovers]);
-            SetupRoleOptions(50310, TabGroup.Combinations, CustomRoles.BLovers, assignCountRule: new(2, 2, 2));
-            BLoversRole = BooleanOptionItem.Create(73020, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.BLovers]);
-            SetupRoleOptions(50320, TabGroup.Combinations, CustomRoles.CLovers, assignCountRule: new(2, 2, 2));
-            CLoversRole = BooleanOptionItem.Create(73030, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.CLovers]);
-            SetupRoleOptions(50330, TabGroup.Combinations, CustomRoles.DLovers, assignCountRule: new(2, 2, 2));
-            DLoversRole = BooleanOptionItem.Create(73040, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.DLovers]);
-            SetupRoleOptions(50340, TabGroup.Combinations, CustomRoles.ELovers, assignCountRule: new(2, 2, 2));
-            ELoversRole = BooleanOptionItem.Create(73050, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.ELovers]);
-            SetupRoleOptions(50350, TabGroup.Combinations, CustomRoles.FLovers, assignCountRule: new(2, 2, 2));
-            FLoversRole = BooleanOptionItem.Create(73060, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.FLovers]);
-            SetupRoleOptions(50360, TabGroup.Combinations, CustomRoles.GLovers, assignCountRule: new(2, 2, 2));
-            GLoversRole = BooleanOptionItem.Create(73070, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.GLovers]);
-
+            Lovers.SetLoversOptions();
             // Add-Ons
             Amanojaku.SetupCustomOption();
             LastImpostor.SetupCustomOption();
@@ -658,6 +680,7 @@ namespace TownOfHost
             //バフ(ゲッサー→特定陣営→会議効果→タスクターン)
             Guesser.SetupCustomOption();
             Serial.SetupCustomOption();
+            MagicHand.SetupCustomOption();
             Connecting.SetupCustomOption();
             watching.SetupCustomOption();
             PlusVote.SetupCustomOption();
@@ -835,6 +858,16 @@ namespace TownOfHost
                             .SetGameMode(CustomGameMode.All).SetColorcode("#cccccc").SetValueFormat(OptionFormat.Seconds).SetParent(TimeLimitDevices);
             TimeLimitVital = FloatOptionItem.Create(109003, "TimeLimitVital", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
                             .SetGameMode(CustomGameMode.All).SetColorcode("#33ccff").SetValueFormat(OptionFormat.Seconds).SetParent(TimeLimitDevices);
+            CanSeeTimeLimit = BooleanOptionItem.Create(109050, "CanSeeTimeLimit", false, TabGroup.MainSettings, false)
+                            .SetGameMode(CustomGameMode.All).SetColorcode("#cc8b60").SetParent(TimeLimitDevices);
+            CanseeImpTimeLimit = BooleanOptionItem.Create(109051, "CanseeImpTimeLimit", false, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All).SetColor(ModColors.ImpostorRed).SetParent(CanSeeTimeLimit);
+            CanseeMadTimeLimit = BooleanOptionItem.Create(109052, "CanseeMadTimeLimit", false, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All).SetColor(ModColors.MadMateOrenge).SetParent(CanSeeTimeLimit);
+            CanseeCrewTimeLimit = BooleanOptionItem.Create(109053, "CanseeCrewTimeLimit", false, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All).SetColor(ModColors.CrewMateBlue).SetParent(CanSeeTimeLimit);
+            CanseeNeuTimeLimit = BooleanOptionItem.Create(109054, "CanseeNeuTimeLimit", false, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All).SetColor(Palette.DisabledGrey).SetParent(CanSeeTimeLimit);
 
             TarnTimeLimitDevice = BooleanOptionItem.Create(109100, "TarnTimeLimitDevice", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
@@ -983,11 +1016,13 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All);
             RandomSpawn.SetupCustomOption();
 
+            //初手強制会議
+            FirstTurnMeeting = BooleanOptionItem.Create(100570, "FirstTurnMeeting", false, TabGroup.MainSettings, false).SetHeader(true).SetColorcode("#64ff0a");
+            FirstTurnMeetingCantability = BooleanOptionItem.Create(100571, "FirstTurnMeetingCantability", false, TabGroup.MainSettings, false).SetParent(FirstTurnMeeting);
             // 投票モード
             ShowRoleAtFirstMeeting = BooleanOptionItem.Create(100540, "ShowRoleAtFirstMeeting", true, TabGroup.MainSettings, false)
-                .SetHeader(true)
                 .SetGameMode(CustomGameMode.Standard)
-                .SetColorcode("#33ff99");
+                .SetColorcode("#64ff0a");
             VoteMode = BooleanOptionItem.Create(100500, "VoteMode", false, TabGroup.MainSettings, false)
                 .SetColorcode("#33ff99")
                 .SetGameMode(CustomGameMode.Standard);
@@ -1023,16 +1058,16 @@ namespace TownOfHost
             LowerLimitVotingTime = FloatOptionItem.Create(100950, "LowerLimitVotingTime", new(5f, 300f, 1f), 60f, TabGroup.MainSettings, false)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard)
-            .SetColorcode("#33ff99");
+            .SetColorcode("#64ff0a");
             MeetingTimeLimit = FloatOptionItem.Create(100951, "LimitMeetingTime", new(5f, 300f, 1f), 300f, TabGroup.MainSettings, false)
             .SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard)
-            .SetColorcode("#33ff99");
+            .SetColorcode("#64ff0a");
 
             // 全員生存時の会議時間
             AllAliveMeeting = BooleanOptionItem.Create(100900, "AllAliveMeeting", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.Standard)
-                .SetColorcode("#33ff99");
+                .SetColorcode("#64ff0a");
             AllAliveMeetingTime = FloatOptionItem.Create(100901, "AllAliveMeetingTime", new(1f, 300f, 1f), 10f, TabGroup.MainSettings, false).SetParent(AllAliveMeeting)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1094,6 +1129,20 @@ namespace TownOfHost
             CommnTaskResetAssing = BooleanOptionItem.Create(900_005, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
+            /*いい感じの秘匿方法を思いつくまで...
+            TeamHideChat = BooleanOptionItem.Create(900_006, "TeamHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#cc3366").SetParent(ExHideChatCommand);
+            ImpostorHideChat = BooleanOptionItem.Create(900_007, "ImpostorHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(ModColors.ImpostorRed).SetParent(TeamHideChat);
+            JackalHideChat = BooleanOptionItem.Create(900_008, "JackalHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Jackal)).SetParent(TeamHideChat);
+            LoversHideChat = BooleanOptionItem.Create(900_009, "LoversHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Lovers)).SetParent(TeamHideChat);
+            */
 
             DisableTaskWin = BooleanOptionItem.Create(905_000, "DisableTaskWin", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
@@ -1128,10 +1177,10 @@ namespace TownOfHost
                 .RegisterUpdateValueEvent(
                     (object obj, OptionItem.UpdateValueEventArgs args) => IRandom.SetInstanceById(args.CurrentValue)
                 );
-
             sotodererukomando = BooleanOptionItem.Create(1_000_007, "sotodererukomando", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#00c1ff");
+
             ApplyDenyNameList = BooleanOptionItem.Create(1_000_100, "ApplyDenyNameList", true, TabGroup.MainSettings, true)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.All);
@@ -1151,7 +1200,7 @@ namespace TownOfHost
             IsLoaded = true;
         }
         private static List<CombinationRoles> Combinations = new();
-        public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: Utils.GetFrom(info), combination: info.Combination);
+        public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: UtilsOption.GetFrom(info), combination: info.Combination);
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
         {
             if ((role is CustomRoles.Crewmate or CustomRoles.Phantom or CustomRoles.Impostor or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
@@ -1171,8 +1220,8 @@ namespace TownOfHost
             var from = "<line-height=25%><size=25%>\n</size><size=60%><pos=50%></color> <b>" + fromtext + "</b></size>";
 
             var spawnOption = IntegerOptionItem.Create(id, combination == CombinationRoles.None ? role.ToString() : combination.ToString(), new(0, 100, 10), 0, tab, false, from)
-                .SetColorcode(Utils.GetRoleColorCode(role))
-                .SetColor(Utils.GetRoleColor(role, true))
+                .SetColorcode(UtilsRoleText.GetRoleColorCode(role))
+                .SetColor(UtilsRoleText.GetRoleColor(role, true))
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as IntegerOptionItem;
@@ -1206,7 +1255,7 @@ namespace TownOfHost
                 this.IdStart = idStart;
                 this.Role = role;
                 var r = chrole == CustomRoles.NotAssigned ? role : chrole;
-                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(r), Utils.GetRoleName(r)) } };
+                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
                 Killdistance = StringOptionItem.Create(IdStart++, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, tab, false)
                 .SetParent(CustomRoleSpawnChances[role]);
                 Killdistance.ReplacementDictionary = replacementDic;
@@ -1258,7 +1307,7 @@ namespace TownOfHost
                 this.IdStart = idStart;
                 this.Role = role;
                 var r = chrole == CustomRoles.NotAssigned ? role : chrole;
-                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(r), Utils.GetRoleName(r)) } };
+                Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
                 doOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab, false).SetParent(CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
                 doOverride.ReplacementDictionary = replacementDic;

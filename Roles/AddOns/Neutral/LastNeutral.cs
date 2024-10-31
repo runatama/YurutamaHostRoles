@@ -10,6 +10,8 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static OptionItem ChKilldis;
         //追加勝利
         public static OptionItem GiveOpportunist;
+        public static OptionItem CanNotCrewWin;
+        public static OptionItem CanNotTaskWin;
         //ゲッサー
         public static OptionItem GiveGuesser;
         public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
@@ -37,6 +39,8 @@ namespace TownOfHost.Roles.AddOns.Neutral
             ChKilldis = BooleanOptionItem.Create(Id + 7, "ChKilldis", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
             OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastNeutral);
             GiveOpportunist = BooleanOptionItem.Create(Id + 10, "GiveOpportunist", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
+            CanNotCrewWin = BooleanOptionItem.Create(Id + 30, "LastNeutralCanNotCrewWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist);
+            CanNotTaskWin = BooleanOptionItem.Create(Id + 31, "LastNeutralCanNottaskwWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
             CanGuessTime = FloatOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser)
                 .SetValueFormat(OptionFormat.Players);
@@ -79,7 +83,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
             if (CurrentGameMode == CustomGameMode.HideAndSeek
             || !CustomRoles.LastNeutral.IsPresent() || Main.AliveNeutalCount != 1)
                 return;
-            foreach (var pc in Main.AllAlivePlayerControls)
+            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (CanBeLastNeutral(pc))
                 {
@@ -87,8 +91,8 @@ namespace TownOfHost.Roles.AddOns.Neutral
                     Add(pc.PlayerId);
                     SetKillCooldown();
                     pc.SyncSettings();
-                    Utils.NotifyRoles();
-                    Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(Utils.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";
+                    UtilsNotifyRoles.NotifyRoles();
+                    Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(UtilsRoleText.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";
                     break;
                 }
             }

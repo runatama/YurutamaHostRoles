@@ -13,7 +13,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoles.MadReduced,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            65150,
+            12100,
             SetupOptionItem,
             "mre",
             introSound: () => GetIntroSound(RoleTypes.Impostor)
@@ -54,6 +54,8 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     {
         // 既定値
         var (votedForId, numVotes, doVote) = base.ModifyVote(voterId, sourceVotedForId, isIntentional);
+
+        if (Options.FirstTurnMeeting.GetBool() && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return (votedForId, numVotes, doVote);
         if (voterId == Player.PlayerId)
         {
             if (sourceVotedForId == NoVote)
@@ -95,7 +97,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         }
         if (Skill)
         {
-            var T = Utils.GetPlayerById(forvote);
+            var T = PlayerCatch.GetPlayerById(forvote);
             Voteresult += string.Format(Translator.GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote}</b>");
         }
     }

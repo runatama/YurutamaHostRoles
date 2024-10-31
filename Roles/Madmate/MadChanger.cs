@@ -13,7 +13,7 @@ public sealed class MadChanger : RoleBase, IKiller
             CustomRoles.MadChanger,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Madmate,
-            12000,
+            11100,
             SetupOptionItem,
             "Mc",
             isDesyncImpostor: true,
@@ -94,6 +94,11 @@ public sealed class MadChanger : RoleBase, IKiller
     {
         AURoleOptions.ShapeshifterCooldown = AbilityCoolDown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;
-        opt.SetVision(false);
     }
+    public bool OverrideKillButtonText(out string text)
+    {
+        text = Translator.GetString("MadChanger_Targetset");
+        return true;
+    }
+    public override string GetAbilityButtonText() => Translator.GetString("MadChanger_Change");
 }

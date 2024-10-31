@@ -114,7 +114,7 @@ namespace TownOfHost
             foreach (var arrowInfo in arrowList)
             {
                 var targetId = arrowInfo.To;
-                var target = Utils.GetPlayerById(targetId);
+                var target = PlayerCatch.GetPlayerById(targetId);
                 if (seerIsDead || !target.IsAlive())
                 {
                     TargetArrows.Remove(arrowInfo);
@@ -147,7 +147,7 @@ namespace TownOfHost
             }
             if (update)
             {
-                Utils.NotifyRoles(SpecifySeer: seer);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: seer);
             }
         }
     }
@@ -287,7 +287,7 @@ namespace TownOfHost
             }
             if (update)
             {
-                Utils.NotifyRoles(SpecifySeer: seer);
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: seer);
             }
         }
     }

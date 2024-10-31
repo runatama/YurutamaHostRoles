@@ -32,7 +32,7 @@ class VentilationSystemUpdateSystemPatch
 
         //タスクを持っていないならベント掃除をなかったことにする
         if (Options.CurrentGameMode == CustomGameMode.Standard)
-            return Utils.HasTasks(player.Data);
+            return UtilsTask.HasTasks(player.Data);
 
         return true;
     }

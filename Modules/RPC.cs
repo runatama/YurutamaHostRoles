@@ -22,7 +22,7 @@ namespace TownOfHost
         SetNameColorData,
         SetRealKiller,
         SetLoversPlayers,
-        SetMaLovers,
+        SetMadonnaLovers,
         SyncRoomTimer,
         SyncYomiage,
         Guess,
@@ -58,12 +58,13 @@ namespace TownOfHost
                     break;
                 case RpcCalls.SendChat:
                     var text = subReader.ReadString();
-                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
+                    bool systemmeg = text != text.RemoveHtmlTags();
+                    Logger.Info($"{(systemmeg ? "○" : "")}{__instance.GetNameWithRole().RemoveHtmlTags()}:{text.RemoveHtmlTags()}", "ReceiveChat");
                     ChatCommands.OnReceiveChat(__instance, text, out var canceled);
                     if (canceled) return false;
                     break;
                 case RpcCalls.StartMeeting:
-                    PlayerControl p = Utils.GetPlayerById(subReader.ReadByte());
+                    PlayerControl p = PlayerCatch.GetPlayerById(subReader.ReadByte());
                     Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {p?.GetNameWithRole().RemoveHtmlTags() ?? "null"}", "StartMeeting");
                     break;
             }
@@ -84,7 +85,7 @@ namespace TownOfHost
         }
         public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
         {
-            if (DebugModeManager.EnableTOHkDebugMode.GetBool()) Logger.Info(callId + $"{(callId < (byte)CustomRPC.VersionCheck ? (RpcCalls)callId : (CustomRPC)callId)}" + "RPCを受け取りました！", "RPC");
+            if (DebugModeManager.EnableTOHkDebugMode.GetBool() && callId != (byte)RpcCalls.SetPetStr) Logger.Info(callId + $"{(callId < (byte)CustomRPC.VersionCheck ? (RpcCalls)callId : (CustomRPC)callId)}" + "RPCを受け取りました！", "RPC");
             //CustomRPC以外は処理しない
             if (callId < (byte)CustomRPC.VersionCheck) return;
 
@@ -139,11 +140,11 @@ namespace TownOfHost
                 case CustomRPC.SetLoversPlayers:
                     Lovers.RPCSetLovers(reader);
                     break;
-                case CustomRPC.SetMaLovers:
-                    Lovers.MaMaLoversPlayers.Clear();
+                case CustomRPC.SetMadonnaLovers:
+                    Lovers.MaMadonnaLoversPlayers.Clear();
                     int Macount = reader.ReadInt32();
                     for (int i = 0; i < Macount; i++)
-                        Lovers.MaMaLoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
+                        Lovers.MaMadonnaLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
                     break;
                 case CustomRPC.SetRealKiller:
                     byte targetId = reader.ReadByte();
@@ -161,13 +162,13 @@ namespace TownOfHost
                     GuessManager.ReceiveRPC(reader, __instance);
                     break;
                 case CustomRPC.GuessKill:
-                    GuessManager.RpcClientGuess(Utils.GetPlayerById(reader.ReadByte()));
+                    GuessManager.RpcClientGuess(PlayerCatch.GetPlayerById(reader.ReadByte()));
                     break;
                 case CustomRPC.SyncYomiage:
                     if (Main.SyncYomiage.Value)
                     {
                         ChatCommands.YomiageS.Clear();
-                        foreach (PlayerControl pc in Main.AllPlayerControls)
+                        foreach (PlayerControl pc in PlayerCatch.AllPlayerControls)
                             ChatCommands.YomiageS[reader.ReadInt32()] = reader.ReadString();
                     }
                     break;
@@ -177,7 +178,7 @@ namespace TownOfHost
                     Logger.Info("(灬՞ةڼ◔灬)", "RPC Dev");
                     if (AmongUsClient.Instance.AmHost)
                     {
-                        Main.AllPlayerControls.Where(pc => pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                        PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
                             .Do(pc => AmongUsClient.Instance.KickPlayer(pc.GetClientId(), true));
                         AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
                         SceneChanger.ChangeScene("MainMenu");
@@ -305,7 +306,7 @@ namespace TownOfHost
             else if (role < CustomRoles.NotAssigned)
             {
                 PlayerState.GetByPlayerId(targetId).SetMainRole(role);
-                CustomRoleManager.CreateInstance(role, Utils.GetPlayerById(targetId));
+                CustomRoleManager.CreateInstance(role, PlayerCatch.GetPlayerById(targetId));
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
                 PlayerState.GetByPlayerId(targetId).SetSubRole(role);
@@ -313,32 +314,32 @@ namespace TownOfHost
             HudManager.Instance.SetHudActive(true);
             if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();
         }
-        public static void SyncLoversPlayers()
+        public static void SynYellowLoversPlayers()
         {
             if (!AmongUsClient.Instance.AmHost) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
-            writer.Write(Lovers.ALoversPlayers.Count);
-            writer.Write(Lovers.BLoversPlayers.Count);
-            writer.Write(Lovers.CLoversPlayers.Count);
-            writer.Write(Lovers.DLoversPlayers.Count);
-            writer.Write(Lovers.ELoversPlayers.Count);
-            writer.Write(Lovers.FLoversPlayers.Count);
-            writer.Write(Lovers.GLoversPlayers.Count);
-            foreach (PlayerControl lp in Lovers.ALoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.BLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.CLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.DLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.ELoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.FLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.GLoversPlayers) writer.Write(lp.PlayerId);
+            writer.Write(Lovers.LoversPlayers.Count);
+            writer.Write(Lovers.RedLoversPlayers.Count);
+            writer.Write(Lovers.YellowLoversPlayers.Count);
+            writer.Write(Lovers.BlueLoversPlayers.Count);
+            writer.Write(Lovers.GreenLoversPlayers.Count);
+            writer.Write(Lovers.WhiteLoversPlayers.Count);
+            writer.Write(Lovers.PurpleLoversPlayers.Count);
+            foreach (PlayerControl lp in Lovers.LoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.RedLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.YellowLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.BlueLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.GreenLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.WhiteLoversPlayers) writer.Write(lp.PlayerId);
+            foreach (PlayerControl lp in Lovers.PurpleLoversPlayers) writer.Write(lp.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void SyncMaLoversPlayers()
+        public static void SyncMadonnaLoversPlayers()
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMaLovers, SendOption.Reliable, -1);
-            writer.Write(Lovers.MaMaLoversPlayers.Count);
-            foreach (PlayerControl lp in Lovers.MaMaLoversPlayers)
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMadonnaLovers, SendOption.Reliable, -1);
+            writer.Write(Lovers.MaMadonnaLoversPlayers.Count);
+            foreach (PlayerControl lp in Lovers.MaMadonnaLoversPlayers)
                 writer.Write(lp.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -351,7 +352,7 @@ namespace TownOfHost
             try
             {
                 target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId)?.PlayerName;
-                from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
+                from = PlayerCatch.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
             }
             catch { }
             Logger.Info($"FromNetID:{targetNetId}({from}) TargetClientID:{targetClientId}({target}) CallID:{callId}({rpcName})", "SendRPC");

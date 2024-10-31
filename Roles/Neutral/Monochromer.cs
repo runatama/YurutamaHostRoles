@@ -13,7 +13,7 @@ public sealed class Monochromer : RoleBase
             CustomRoles.Monochromer,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            50800,
+            35400,
             SetupOptionItem,
             "Mc",
             "#808080",
@@ -73,7 +73,7 @@ public sealed class Monochromer : RoleBase
             var c = seen.GetRoleColor();
             if (seen.Is(CustomRoles.WolfBoy))
             {
-                c = Utils.GetRoleColor(CustomRoles.Impostor);
+                c = UtilsRoleText.GetRoleColor(CustomRoles.Impostor);
             }
             return Utils.ColorString(color ? c : Palette.DisabledGrey, "★");
         }
@@ -83,7 +83,7 @@ public sealed class Monochromer : RoleBase
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
-        foreach (var pc in Main.AllPlayerControls)
+        foreach (var pc in PlayerCatch.AllPlayerControls)
         {
             if (pc == Player) continue;
             if (pc == null) continue;
@@ -100,11 +100,11 @@ public sealed class Monochromer : RoleBase
             else
                 pc.RpcChColor(Player, 15, true);
         }
-        Utils.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
     {
-        foreach (var pc in Main.AllPlayerControls)
+        foreach (var pc in PlayerCatch.AllPlayerControls)
         {
             var id = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
             pc.SetColor(id);
@@ -113,7 +113,7 @@ public sealed class Monochromer : RoleBase
     }
     public static bool CheckWin(GameOverReason reason)
     {
-        foreach (var pc in Main.AllAlivePlayerControls)
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (pc.Is(CustomRoles.Monochromer))
             {

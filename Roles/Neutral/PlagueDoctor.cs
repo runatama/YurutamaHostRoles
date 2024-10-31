@@ -21,7 +21,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             CustomRoles.PlagueDoctor,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            51900,
+            34200,
             SetupOptionItem,
             "pd",
             "#ff6633",
@@ -124,7 +124,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         return true;
     }
     public bool CanUseSabotageButton() => false;
-    public override string GetProgressText(bool comms = false)
+    public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({InfectCount})");
     }
@@ -197,7 +197,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             //感染者の場合
             var changed = false;
             var inVent = player.inVent;
-            foreach (var target in Main.AllAlivePlayerControls)
+            foreach (var target in PlayerCatch.AllAlivePlayerControls)
             {
                 //ペスト医師は自身が感染できない場合は除外
                 if (!CanInfect(target)) continue;
@@ -226,7 +226,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             {
                 //誰かの感染が進行していたら
                 CheckWin();
-                Utils.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles();
             }
         }
     }
@@ -264,7 +264,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return "";
         var str = new StringBuilder(40);
         str.Append($"<color={RoleInfo.RoleColorCode}>");
-        foreach (var player in Main.AllAlivePlayerControls)
+        foreach (var player in PlayerCatch.AllAlivePlayerControls)
         {
             if (!player.Is(CustomRoles.PlagueDoctor))
                 str.Append(GetInfectRateCharactor(player));
@@ -294,7 +294,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         Logger.Info($"InfectRate[{player.GetNameWithRole().RemoveHtmlTags()}]:100%", "OnCheckMurderAsKiller");
         InfectInfos[player.PlayerId] = 100;
         SendRPC(player.PlayerId, 100);
-        Utils.NotifyRoles();
+        UtilsNotifyRoles.NotifyRoles();
         CheckWin();
     }
     public static void CheckWin()
@@ -303,13 +303,13 @@ public sealed class PlagueDoctor : RoleBase, IKiller
         //だれかの勝利処理中なら無効
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
 
-        bool comprete = Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId));
+        bool comprete = PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId));
 
         if (comprete)
         {
             InfectActive = false;
 
-            foreach (var player in Main.AllAlivePlayerControls)
+            foreach (var player in PlayerCatch.AllAlivePlayerControls)
             {
                 if (player.Is(CustomRoles.PlagueDoctor)) continue;
                 player.SetRealKiller(null);
@@ -319,7 +319,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
                 state.SetDead();
             }
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
-            foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
+            foreach (var plagueDoctor in PlayerCatch.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
                 CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
         }
     }

@@ -13,7 +13,7 @@ public sealed class Psychic : RoleBase
             CustomRoles.Psychic,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            26200,
+            20400,
             SetupOptionItem,
             "Ps",
             "#a34fee",
@@ -65,5 +65,4 @@ public sealed class Psychic : RoleBase
             }
         }
     }
-
 }

@@ -3,20 +3,6 @@ using HarmonyLib;
 
 namespace TownOfHost
 {
-    /* つかわないから消す
-    [HarmonyPatch(typeof(RoleOptionSetting), nameof(RoleOptionSetting.UpdateValuesAndText))]
-    class ChanceChangePatch
-    {
-        public static void Postfix(RoleOptionSetting __instance)
-        {
-            string DisableText = $" ({GetString("Disabled")})";
-            if (__instance.Role.Role == RoleTypes.Phantom)
-            {
-                __instance.titleText.text = GetString("Phantom");
-            }
-        }
-    }*/
-
     [HarmonyPatch(typeof(GameOptionsManager), nameof(GameOptionsManager.SwitchGameMode))]
     class SwitchGameModePatch
     {

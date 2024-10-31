@@ -26,8 +26,8 @@ namespace TownOfHost
             if (Options.StandardHAS.GetBool()) ch = Translator.GetString("StandardHAS");
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                if (Utils.GetRoleTypesCount() != "")
-                    ch += $"<size=70%>{Utils.GetRoleTypesCount()}</size>";
+                if (UtilsShowOption.GetRoleTypesCount() != "")
+                    ch += $"<size=70%>{UtilsShowOption.GetRoleTypesCount()}</size>";
             }
             return CurrentValue switch
             {

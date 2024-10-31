@@ -94,7 +94,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (SuddenAllRoleonaji.GetBool() && assignTargetList.Count != 0)
                 {
                     assignTargetList.Clear();
-                    Main.AllPlayerControls.Do(p => assignTargetList.Add(p));
+                    PlayerCatch.AllPlayerControls.Do(p => assignTargetList.Add(p));
                 }
                 foreach (var pc in assignTargetList)
                 {
@@ -110,7 +110,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var validPlayers = Main.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            var validPlayers = PlayerCatch.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
             if (data.CrewmateMaximum != null)
             {
                 var CrewmateMaximum = data.CrewmateMaximum.GetInt();
