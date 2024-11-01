@@ -156,7 +156,9 @@ namespace TownOfHost
                 {
                     hasUpdate = true;
                     isSubUpdata = true;
-                    latestTitle += $"<sub>{Main.PluginSubVersion}</sub>";
+                    var entryParts = body.Split("luginSubVersion:");
+                    var subvarsion = 1 <= entryParts.Length ? entryParts[1].Trim() : "?";
+                    latestTitle += $"<sub>{subvarsion.RemoveText(true)}</sub>";
                 }
                 else isSubUpdata = false;
                 //if (body.Contains("📢公開ルーム○")) publicok = true;

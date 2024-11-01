@@ -603,10 +603,10 @@ namespace TownOfHost
                 .SetColorcode("#ff0000")
                 .SetParent(ExperimentalMode)
                 .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
-            UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", true, TabGroup.MainSettings, false)
+            /*UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode)
-                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));
+                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));*/
             ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode);

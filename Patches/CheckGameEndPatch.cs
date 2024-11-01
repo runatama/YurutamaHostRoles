@@ -170,7 +170,7 @@ namespace TownOfHost
             return false;
         }
         public static void StartEndGame(GameOverReason reason)
-        {
+        {/*
             if (Options.UseCustomRpcSenderAtGameEnd.GetBool())
             {
                 var sender = new CustomRpcSender("EndGameSender", SendOption.Reliable, true);
@@ -230,7 +230,8 @@ namespace TownOfHost
 
                 sender.SendMessage();
             }
-            else AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
+            else*/
+            AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
         }
         private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)
         {

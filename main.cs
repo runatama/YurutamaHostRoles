@@ -335,7 +335,7 @@ namespace TownOfHost
                 ExceptionMessageIsShown = false;
             }
             TownOfHost.Logger.Info($"{Application.version}", "AmongUs Version");
-            TownOfHost.Logger.Info($"{ModName} v.{PluginVersion}", "ModPluginVersion");
+            TownOfHost.Logger.Info($"{ModName} v.{PluginVersion} - {PluginSubVersion}", "ModPluginVersion");
 
             var handler = TownOfHost.Logger.Handler("GitVersion");
             handler.Info($"{nameof(ThisAssembly.Git.Branch)}: {ThisAssembly.Git.Branch}");

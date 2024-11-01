@@ -449,10 +449,21 @@ namespace TownOfHost
         public static string RemoveColorTags(this string str) => Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
         public static string RemoveSizeTags(this string str) => Regex.Replace(str, "</?size[^>]*?>", "");
         public static string RemoveGiveAddon(this string str) => Regex.Replace(str, "を付与する", "");
-        public static string RemoveText(this string str)
+        public static string RemoveText(this string str, bool Update = false)
         {
             bool musi = false;
             string returns = "";
+            if (Update)
+            {
+                for (var i = 0; i < str.Length; i++)
+                {
+                    string s = "";
+                    s = str.Substring(i, 1);
+                    if (s == Regex.Replace(s, "[0-9]", "")) continue;
+                    returns += s;
+                }
+                return returns;
+            }
 
             for (var i = 0; i < str.Length; i++)
             {
