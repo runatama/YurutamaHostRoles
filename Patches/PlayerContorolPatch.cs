@@ -488,7 +488,7 @@ namespace TownOfHost
         public static Dictionary<byte, bool> CanReport;
         public static Dictionary<byte, bool> Musisuruoniku;
         public static Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = new();
-        public static Dictionary<byte, Vector2> Pos = new();
+        //public static Dictionary<byte, Vector2> Pos = new();
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
         {
             if (GameStates.IsMeeting) return false;
@@ -528,7 +528,7 @@ namespace TownOfHost
             //以下、ボタンが押されることが確定したものとする。
             //=============================================
             GameStates.task = false;
-            Pos.Clear();
+            //Pos.Clear();
 
             DisableDevice.StartMeeting();
             foreach (var kvp in PlayerState.AllPlayerStates)
@@ -540,13 +540,15 @@ namespace TownOfHost
                         PlayerCatch.GetPlayerById(kvp.Key).MarkDirtySettings();
                 }
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
-                Pos.TryAdd(pc.PlayerId, pc.GetTruePosition());
+                //Pos.TryAdd(pc.PlayerId, pc.GetTruePosition());
                 if (pc == null) continue;
                 kvp.Value.LastRoom = pc.GetPlainShipRoom();
             }
 
             AdminProvider.CalculateAdmin(true);
-            PlayerCatch.AllAlivePlayerControls.Do(pc => PlayerCatch.AllAlivePlayerControls.DoIf(pl => pc.PlayerId != pl.PlayerId, pl => pl.RpcSnapToDesync(pc, new Vector2(999f, 999f))));
+
+            try { PlayerCatch.AllAlivePlayerControls.Do(pc => PlayerCatch.AllAlivePlayerControls.DoIf(pl => pc.PlayerId != pl.PlayerId, pl => pl.RpcSnapToDesync(pc, new Vector2(999f, 999f)))); }
+            catch { Logger.Error($"ReportDeadBodyPathcのPrefixのtpでエラー！", "ReportDeadbodyPatch"); }
 
             if (target != null)
             {
@@ -563,16 +565,18 @@ namespace TownOfHost
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                if (!pc) continue;
                 var roleClass = pc.GetRoleClass();
                 roleClass?.OnReportDeadBody(__instance, target);
             }
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                if (!pc) continue;
                 if (pc.Is(CustomRoles.UltraStar)) continue;
-                var id = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
-                pc.RpcChColor(pc, (byte)id);
-                pc.RpcChColor(PlayerControl.LocalPlayer, (byte)id);
+                Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var id);
+                pc.RpcChColor(pc, (byte)id.ColorId);
+                pc.RpcChColor(PlayerControl.LocalPlayer, (byte)id.ColorId);
             }
             PlayerCatch.AllPlayerControls
                 .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
@@ -589,12 +593,14 @@ namespace TownOfHost
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                if (!pc) continue;
                 if (!pc.IsAlive() && (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false)))
                     foreach (var Player in PlayerCatch.AllPlayerControls)
                     {
                         if (Player == PlayerControl.LocalPlayer) continue;
                         pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, Player.GetClientId());
                     }
+                if (!pc.IsAlive()) pc.RpcExileV2();
             }
 
             //サボ関係多分なしに～
@@ -621,7 +627,7 @@ namespace TownOfHost
 
                         PlayerCatch.GetPlayerById(id)?.RpcSnapToForced(pos);//元の場所に。
                     }*/
-                    Pos.Clear();
+                    //Pos.Clear();
                 }, 4f, "AfterMeetingNotifyRoles", true);
             return false;
         }
@@ -652,7 +658,7 @@ namespace TownOfHost
 
             if (!AmongUsClient.Instance.AmHost) return;
             GameStates.Meeting = true;
-            GameStates.task = false; Pos.Clear();
+            GameStates.task = false;// Pos.Clear();
 
             DisableDevice.StartMeeting();
             foreach (var kvp in PlayerState.AllPlayerStates)
@@ -664,13 +670,15 @@ namespace TownOfHost
                         PlayerCatch.GetPlayerById(kvp.Key).MarkDirtySettings();
                 }
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
-                Pos.TryAdd(pc.PlayerId, pc.GetTruePosition());
+                //Pos.TryAdd(pc.PlayerId, pc.GetTruePosition());
                 if (pc == null) continue;
                 kvp.Value.LastRoom = pc.GetPlainShipRoom();
             }
 
             AdminProvider.CalculateAdmin(true);
-            PlayerCatch.AllAlivePlayerControls.Do(pc => PlayerCatch.AllAlivePlayerControls.DoIf(pl => pc.PlayerId != pl.PlayerId, pl => pl.RpcSnapToDesync(pc, new Vector2(999f, 999f))));
+            try { PlayerCatch.AllAlivePlayerControls.Do(pc => PlayerCatch.AllAlivePlayerControls.DoIf(pl => pc.PlayerId != pl.PlayerId, pl => pl.RpcSnapToDesync(pc, new Vector2(999f, 999f)))); }
+            catch { Logger.Error($"DiecheckReportのtpでエラー！", "ReportDeadbodyPatch"); }
+
 
             if (Meetinginfo == "")
             {
@@ -719,6 +727,7 @@ namespace TownOfHost
                         if (Player == PlayerControl.LocalPlayer) continue;
                         pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, Player.GetClientId());
                     }
+                if (!pc.IsAlive()) pc.RpcExileV2();
             }
 
             MeetingTimeManager.OnReportDeadBody();
@@ -774,6 +783,7 @@ namespace TownOfHost
         }
         public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target, bool checkdie = true)
         {
+            Logger.Info($"{repoter.Data?.PlayerName ?? "( ᐛ )"} => {target?.PlayerName ?? "ボタン"}", "CheckMeeting");
             var c = false;
             if (target != null)
                 if (repoter.Is(CustomRoles.MassMedia))
@@ -993,6 +1003,7 @@ namespace TownOfHost
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     //非導入者が遥か彼方へ行かないように。
                     {
+                        if (pc == null) continue;
                         if (pc.IsModClient()) continue;
                         Vector2 c = new(0f, 0f);
                         Vector2 pj = pc.transform.position;
@@ -1020,20 +1031,31 @@ namespace TownOfHost
                     Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
                     __instance.ReportDeadBody(info);
                 }
-                if (GameStates.IsInTask && ReportDeadBodyPatch.DontReport.TryGetValue(__instance.PlayerId, out var data))
-                {
-                    var time = data.time += Time.fixedDeltaTime;
 
-                    if (4f <= time)
+                if (GameStates.InGame)
+                {
+                    if (GameStates.IsInTask && ReportDeadBodyPatch.DontReport.TryGetValue(__instance.PlayerId, out var data))
                     {
-                        ReportDeadBodyPatch.DontReport.Remove(__instance.PlayerId);
-                        _ = new LateTask(() =>
+                        try
                         {
-                            if (!GameStates.Meeting) UtilsNotifyRoles.NotifyRoles();
-                        }, 0.2f, "", true);
+                            var time = data.time += Time.fixedDeltaTime;
+
+                            if (4f <= time)
+                            {
+                                ReportDeadBodyPatch.DontReport.Remove(__instance.PlayerId);
+                                _ = new LateTask(() =>
+                                {
+                                    if (!GameStates.Meeting) UtilsNotifyRoles.NotifyRoles();
+                                }, 0.2f, "", true);
+                            }
+                            else
+                                ReportDeadBodyPatch.DontReport[__instance.PlayerId] = (time, data.reason);
+                        }
+                        catch
+                        {
+                            Logger.Error($"{__instance.PlayerId}でエラー！", "DontReport");
+                        }
                     }
-                    else
-                        ReportDeadBodyPatch.DontReport[__instance.PlayerId] = (time, data.reason);
                 }
 
                 DoubleTrigger.OnFixedUpdate(player);
@@ -1081,10 +1103,13 @@ namespace TownOfHost
                         }
                     }
                 }
-                if (Options.SuddenDeathMode.GetBool())
+                if (GameStates.InGame)
                 {
-                    if (Options.SuddenDeathTimeLimit.GetFloat() != 0 && player == PlayerControl.LocalPlayer) SuddenDeathMode.SuddenDeathReactor();
-                    if (Options.SuddenItijohoSend.GetBool() && player == PlayerControl.LocalPlayer) SuddenDeathMode.ItijohoSend();
+                    if (Options.SuddenDeathMode.GetBool())
+                    {
+                        if (Options.SuddenDeathTimeLimit.GetFloat() != 0 && player == PlayerControl.LocalPlayer) SuddenDeathMode.SuddenDeathReactor();
+                        if (Options.SuddenItijohoSend.GetBool() && player == PlayerControl.LocalPlayer) SuddenDeathMode.ItijohoSend();
+                    }
                 }
                 if (GameStates.IsInTask && Main.introDestroyed && player.IsAlive() && !player.IsModClient())
                 {
@@ -1186,50 +1211,53 @@ namespace TownOfHost
                     pc.Data.DefaultOutfit.VisorId = Camouflage.PlayerSkins[pc.PlayerId].VisorId;
                 }
             }
-            if (__instance.AmOwner && Camouflage.ventplayr.Count != 0)
+            if (GameStates.InGame)
             {
-                var remove = new List<byte>();
-                foreach (var id in Camouflage.ventplayr)
+                if (__instance.AmOwner && Camouflage.ventplayr.Count != 0)
                 {
-                    var target = PlayerCatch.GetPlayerById(id);
-                    if (target.inVent) continue;
-
-                    if (Camouflage.IsCamouflage)
+                    var remove = new List<byte>();
+                    foreach (var id in Camouflage.ventplayr)
                     {
-                        var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
-                        byte color = (byte)ModColors.PlayerColor.Gray;
+                        var target = PlayerCatch.GetPlayerById(id);
+                        if (target.inVent) continue;
 
-                        target.SetColor(color);
-                        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
-                            .Write(target.Data.NetId)
-                            .Write(color)
-                            .EndRpc();
+                        if (Camouflage.IsCamouflage)
+                        {
+                            var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+                            byte color = (byte)ModColors.PlayerColor.Gray;
 
-                        target.SetHat("", color);
-                        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
-                            .Write("")
-                            .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-                            .EndRpc();
+                            target.SetColor(color);
+                            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
+                                .Write(target.Data.NetId)
+                                .Write(color)
+                                .EndRpc();
 
-                        target.SetSkin("", color);
-                        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
-                            .Write("")
-                            .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-                            .EndRpc();
+                            target.SetHat("", color);
+                            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
+                                .Write("")
+                                .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+                                .EndRpc();
 
-                        target.SetVisor("", color);
-                        sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
-                            .Write("")
-                            .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-                            .EndRpc();
-                        sender.SendMessage();
-                        if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                            target.SetSkin("", color);
+                            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
+                                .Write("")
+                                .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+                                .EndRpc();
+
+                            target.SetVisor("", color);
+                            sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
+                                .Write("")
+                                .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+                                .EndRpc();
+                            sender.SendMessage();
+                            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                        }
+                        else Camouflage.RpcSetSkin(target);
+
+                        remove.Add(id);
                     }
-                    else Camouflage.RpcSetSkin(target);
-
-                    remove.Add(id);
+                    if (remove.Count != 0) remove.Do(id => Camouflage.ventplayr.Remove(id));
                 }
-                if (remove.Count != 0) remove.Do(id => Camouflage.ventplayr.Remove(id));
             }
 
             //役職テキストの表示

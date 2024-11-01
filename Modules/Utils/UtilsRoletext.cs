@@ -344,7 +344,7 @@ namespace TownOfHost
                 return role.GetRoleInfo()?.Combination == CombinationRoles.None ? GetRoleName(role).Color(GetRoleColor(role)) : GetString(role.GetRoleInfo().Combination.ToString()).Color(GetRoleColor(role));
             return role.GetRoleInfo()?.Combination == CombinationRoles.None ? GetRoleName(role) : GetString(role.GetRoleInfo().Combination.ToString());
         }
-        public static string GetProgressText(byte playerId, bool comms = false, bool Mane = true)
+        public static string GetProgressText(byte playerId, bool comms = false, bool Mane = true, bool gamelog = false)
         {
             var ProgressText = new StringBuilder();
             var State = PlayerState.GetByPlayerId(playerId);
@@ -354,7 +354,7 @@ namespace TownOfHost
             ProgressText.Append(GetTaskProgressText(playerId, comms, Mane));
             if (roleClass != null && !GetPlayerById(playerId).Is(CustomRoles.Amnesia) && (roleClass?.Jikaku() is CustomRoles.NotAssigned or CustomRoles.FortuneTeller))
             {
-                ProgressText.Append(roleClass.GetProgressText(comms));
+                ProgressText.Append(roleClass.GetProgressText(comms, gamelog));
             }
             if (GetPlayerById(playerId).CanMakeMadmate()) ProgressText.Append(ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"[{Options.CanMakeMadmateCount.GetInt() - Main.SKMadmateNowCount}]"));
             return ProgressText.ToString();

@@ -74,7 +74,7 @@ public static class MeetingHudPatch
         public static bool Serialize = false;
         public static void Prefix()
         {
-            Logger.Info("------------会議開始------------", "Phase");
+            Logger.Info($"------------会議開始　day:{Main.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             PlayerCatch.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());

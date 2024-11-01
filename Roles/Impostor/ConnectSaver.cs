@@ -97,7 +97,7 @@ public sealed class ConnectSaver : RoleBase, IImpostor
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
                 if (status is VoteStatus.Self)
-                    Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.ConnectSaver"), GetString("Vote.MeetingSheriff")) + GetString("VoteSkillMode"), Player.PlayerId);
+                    Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.ConnectSaver"), GetString("Vote.ConnectSaver")) + GetString("VoteSkillMode"), Player.PlayerId);
                 if (status is VoteStatus.Skip)
                 {
                     P1 = byte.MaxValue;

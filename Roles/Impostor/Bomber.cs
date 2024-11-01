@@ -78,9 +78,6 @@ namespace TownOfHost.Roles.Impostor
             if (0 >= BomberExplosion || target == null) return;
 
             if (target.Is(CustomRoles.King)) return;
-            if (target.Is(CustomRoles.Bait)) return;
-            if (target.Is(CustomRoles.InSender)) return;
-
             BomberExplosion--;
             SendRPC();
             Player.RpcResetAbilityCooldown();

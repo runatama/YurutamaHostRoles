@@ -53,7 +53,7 @@ namespace TownOfHost
                     player.Collider.offset = new Vector2(0f, -0.3636f);
                 }
             }
-            if (Main.DebugChatopen.Value && DebugModeManager.EnableDebugMode.GetBool())
+            if (Main.DebugChatopen.Value && DebugModeManager.AmDebugger && DebugModeManager.EnableDebugMode.GetBool())
                 if (__instance.Chat)
                 {
                     if (!__instance.Chat?.gameObject?.active ?? false)
@@ -309,7 +309,7 @@ namespace TownOfHost
                                     player.Data.Role.Ability.Image = CustomButton.Get(abname);
                                     if (reset && OldValue == Main.CustomSprite.Value)
                                     {
-                                        var role = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke();
+                                        var role = PlayerControl.LocalPlayer.GetCustomRole().GetRoleTypes();
                                         if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
                                         RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
                                     }
@@ -328,6 +328,14 @@ namespace TownOfHost
                 }
             }
             catch (Exception ec) { Logger.Error($"{ec}", "ButtonHud"); }
+        }
+    }
+    [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SetRole))]
+    class SetRolePatch
+    {
+        public static void Postfix(RoleManager __instance, [HarmonyArgument(0)] PlayerControl targetplayer, [HarmonyArgument(1)] RoleTypes role)
+        {
+            Logger.Info($"{targetplayer?.Data?.name ?? "( ᐛ )"} =>  {role}", "RoleManagerSetRole");
         }
     }
     [HarmonyPatch(typeof(ShapeshifterPanel), nameof(ShapeshifterPanel.SetPlayer))]

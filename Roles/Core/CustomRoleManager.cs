@@ -657,6 +657,7 @@ public enum CustomRoles
     Amnesiac,
     MadSuicide,
     Camouflager,
+    ConnectSaver,
     //Madmate
     MadGuardian,
     Madmate,
@@ -716,7 +717,6 @@ public enum CustomRoles
     Android,
     King,
     AmateurTeller,
-    ConnectSaver,
     Cakeshop,
     //Neutral
     Arsonist,

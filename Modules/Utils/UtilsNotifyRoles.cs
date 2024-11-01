@@ -39,7 +39,7 @@ namespace TownOfHost
             if (Main.introDestroyed)
                 foreach (var pp in PlayerCatch.AllPlayerControls)
                 {
-                    var str = GetProgressText(pp, Mane: false);
+                    var str = GetProgressText(pp.PlayerId, Mane: false, gamelog: true);
                     str = Regex.Replace(str, "ffffff", "000000");
                     if (Main.LastLogPro.ContainsKey(pp.PlayerId))
                         Main.LastLogPro[pp.PlayerId] = str;

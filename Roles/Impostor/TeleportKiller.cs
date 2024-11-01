@@ -103,11 +103,11 @@ public sealed class TeleportKiller : RoleBase, IImpostor
         OptionDuration = FloatOptionItem.Create(RoleInfo, 13, OptionName.Duration, new(0f, 15, 1f), 5f, false, infinity: true)
             .SetValueFormat(OptionFormat.Seconds);
         OptionTeleportKillerFall = BooleanOptionItem.Create(RoleInfo, 14, OptionName.TeleportKillerFall, false, false);
-        OptionTeleportKillerVentgaaa = BooleanOptionItem.Create(RoleInfo, 15, OptionName.TeleportKillerVentgaaa, false, false).SetParent(OptionTeleportKillerFall);
-        OptionTeleportKillerPlatformFall = BooleanOptionItem.Create(RoleInfo, 16, OptionName.TeleportKillerPlatformFall, false, false).SetParent(OptionTeleportKillerFall);
-        OptionTeleportKillerLadderFall = BooleanOptionItem.Create(RoleInfo, 17, OptionName.TeleportKillerLadderFall, false, false).SetParent(OptionTeleportKillerFall);
-        //OptionZiplineFall = BooleanOptionItem.Create(RoleInfo, 18, OptionName.ZiplineFall, false, false).SetParent(OptionTeleportKillerFall);
-        OptionTeleportKillerDokkaaaan = BooleanOptionItem.Create(RoleInfo, 19, OptionName.TeleportKillerDokkaaaan, false, false).SetParent(OptionTeleportKillerFall);
+        OptionTeleportKillerVentgaaa = BooleanOptionItem.Create(RoleInfo, 15, OptionName.TeleportKillerVentgaaa, false, false, OptionTeleportKillerFall);
+        OptionTeleportKillerPlatformFall = BooleanOptionItem.Create(RoleInfo, 16, OptionName.TeleportKillerPlatformFall, false, false, OptionTeleportKillerFall);
+        OptionTeleportKillerLadderFall = BooleanOptionItem.Create(RoleInfo, 17, OptionName.TeleportKillerLadderFall, false, false, OptionTeleportKillerFall);
+        //OptionZiplineFall = BooleanOptionItem.Create(RoleInfo, 18, OptionName.ZiplineFall, false, false,OptionTeleportKillerFall);
+        OptionTeleportKillerDokkaaaan = BooleanOptionItem.Create(RoleInfo, 19, OptionName.TeleportKillerDokkaaaan, false, false, OptionTeleportKillerFall);
         //OptionLeaveSkin = BooleanOptionItem.Create(RoleInfo, 15, OptionName.LeaveSkin, false, false);
         OptionTeleportKillerKillCooldownReset = BooleanOptionItem.Create(RoleInfo, 20, OptionName.TeleportKillerKillCooldownReset, false, false);
         OptionDeathReason = BooleanOptionItem.Create(RoleInfo, 21, OptionName.TeleportKillerChangeDeathReason, false, false);

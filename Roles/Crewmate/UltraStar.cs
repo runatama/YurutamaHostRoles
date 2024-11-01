@@ -36,7 +36,6 @@ public sealed class UltraStar : RoleBase
     {
         Speed,
         UltraStarCankill,
-        UltraStarKillCoolDown,
         UltraStarcheckkill
     }
     float colorchange;
@@ -107,7 +106,6 @@ public sealed class UltraStar : RoleBase
                 outkill = 5;//ラグの調整
                 if (OptionCheckKill.GetBool())
                 {
-                    target.SetRealKiller(player);
                     CustomRoleManager.OnCheckMurder(Player, target, Player, target);
                     UtilsOption.MarkEveryoneDirtySettings();
                     KillCoolCheck(player.PlayerId);

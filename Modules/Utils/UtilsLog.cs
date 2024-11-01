@@ -34,7 +34,7 @@ namespace TownOfHost
             var filename = CopyLog(logs.FullName);
             OpenDirectory(filename);
             if (PlayerControl.LocalPlayer != null)
-                HudManager.Instance?.Chat?.AddChat(PlayerControl.LocalPlayer, GetString("Message.LogsSavedInLogsFolder"));
+                SendMessage(GetString("Message.LogsSavedInLogsFolder"));
         }
         public static void SaveNowLog()
         {
@@ -69,6 +69,11 @@ namespace TownOfHost
     {
         public static string GetLogtext(byte pc)
         {
+            var longestNameByteCount = Main.AllPlayerNames.Values.Select(name => name.GetByteCount()).OrderByDescending(byteCount => byteCount).FirstOrDefault();
+            var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
+            var pos1 = pos + 4f;
+            var pos2 = pos + 4f + (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8f : 4.5f);
+
             var name = "('ω')";
             if (Main.LastLog.ContainsKey(pc))
                 name = Main.LastLog[pc];
@@ -81,7 +86,7 @@ namespace TownOfHost
             var addon = "(´-ω-`)";
             addon = Main.LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
 
-            return name + " " + pro + " : " + GetVitalText(pc, true) + " " + role + addon;
+            return name + $"<pos={pos}em>" + pro + $"<pos={pos1}em>" + " : " + GetVitalText(pc, true) + " " + $"<pos={pos2}em>" + role + addon;
         }
         public static string SummaryTexts(byte id)
         {
@@ -94,7 +99,7 @@ namespace TownOfHost
             //最大11.5emとする(★+日本語10文字分+半角空白)
             var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f /* ★+末尾の半角空白 */ , 11.5f);
             builder.Append(ColorString(Main.PlayerColors[id], Main.AllPlayerNames[id]));
-            builder.AppendFormat("<pos={0}em>", pos).Append(GetProgressText(id, Mane: false)).Append("</pos>");
+            builder.AppendFormat("<pos={0}em>", pos).Append(GetProgressText(id, Mane: false, gamelog: true)).Append("</pos>");
             // "(00/00) " = 4em
             pos += 4f;
             builder.AppendFormat("<pos={0}em>", pos).Append(GetVitalText(id, true)).Append("</pos>");
@@ -195,7 +200,7 @@ namespace TownOfHost
             sb.Append('\n').Append(SetEverythingUpPatch.LastWinsText.Mark(winnerColor, false));
             sb.Append("</align>");
 
-            sb.Append("<size=70%>\n");
+            sb.Append("<size=65%>\n");
             List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
 
             foreach (var pc in cloneRoles) if (GetPlayerById(pc) == null) continue;
@@ -282,14 +287,14 @@ namespace TownOfHost
                 if (!tb)
                 {
                     sb.Append("\n┣  ").Append(GetVitalText(id)).Append('　');
-                    sb.Append(GetProgressText(id, Mane: false).RemoveColorTags());
+                    sb.Append(GetProgressText(id, Mane: false, gamelog: true).RemoveColorTags());
                     sb.Append(sr ? "\n┣  " : "\n┗   ").Append(GetTrueRoleName(id, false).RemoveColorTags());
                     if (sr) sb.Append("\n┗  ").Append(GetSubRolesText(id).RemoveColorTags());
                 }
                 else
                 {
                     sb.Append('\n').Append($"{Main.AllPlayerNames[id]}{GetString("Win")}").Append('\n');
-                    sb.Append('　').Append(GetProgressText(id, Mane: false).RemoveColorTags());
+                    sb.Append('　').Append(GetProgressText(id, Mane: false, gamelog: true).RemoveColorTags());
                 }
                 cloneRoles.Remove(id);
             }
@@ -300,12 +305,12 @@ namespace TownOfHost
                 if (!tb)
                 {
                     sb.Append("\n┣  ").Append(GetVitalText(id)).Append('　');
-                    sb.Append(GetProgressText(id, Mane: false).RemoveColorTags());
+                    sb.Append(GetProgressText(id, Mane: false, gamelog: true).RemoveColorTags());
                     sb.Append(sr ? "\n┣  " : "\n┗   ").Append(GetTrueRoleName(id, false).RemoveColorTags());
                     if (sr) sb.Append("\n┗  ").Append(GetSubRolesText(id).RemoveColorTags());
                 }
                 else
-                    sb.Append('　').Append(GetProgressText(id).RemoveColorTags());
+                    sb.Append('　').Append(GetProgressText(id, gamelog: true).RemoveColorTags());
             }
             Webhook.Send(sb.ToString());
             Webhook.Send(EndGamePatch.KillLog.RemoveHtmlTags());

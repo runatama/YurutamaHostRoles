@@ -268,7 +268,7 @@
 "PenguinInfo","Let's drag and kill!","ぺちぺち！","","","Давайте тащить и убивать!","Vamos arrastar e matar!",""
 "InsiderInfo","Knowledge is power","知は力なり","","","Знание - сила!","Conhecimento é poder",""
 "AntiReporterInfo","I won't let you report a corpse!","死体通報はさせないぞ！","我不会让你举报尸体的！","我不會讓你舉報屍體的！","Я не позволю вам сообщить о трупе!","Eu não vou deixar você denunciar um cadáver!",""
-"TeleportKCillerInfo","Teleport to you!","君のもとへテレポート！","传送到你身边！","傳送到你身邊！","Телепортируйтесь к вам!","Teletransporte para você!",""
+"TeleportKillerInfo","Teleport to you!","君のもとへテレポート！","传送到你身边！","傳送到你身邊！","Телепортируйтесь к вам!","Teletransporte para você!",""
 "BomberInfo","Art is a blast","芸術は爆発だ","艺术是一种爆炸","藝術是一種爆炸","Искусство - это взрыв","A arte é uma explosão",""
 "TairouInfo","Confuse the Crewmates","クルーを惑わせ！","","","","",""
 "EvilgamblerInfo","Life is a Gamble","人生はギャンブルゾイ","","","","",""
@@ -1138,6 +1138,7 @@
 "TimeManagerIncreaseMeetingTime","Increase voting time","伸びる会議時間","延长投票的时间","延長時間","Увеличить время встреч на","Aumentar Tempo de Votação",""
 "UltraStarCankill","Cankill","キル能力を持つ","","","","",""
 "UltraStarKillCoolDown","KillCooldown","キルクールダウン","","","","",""
+"UltraStarcheckkill","","役職などのガードを適応する"
 "MeetingSheriffCanKillMadMate","CankillMadmates","<color=#ff1919>マッド系役職</color>をキルできる","","","","",""
 "MeetingSheriffCanKillNeutrals","CankillNeutrals","<color=#808080>ニュートラル系役職</color>をキルできる","","","","",""
 "WhiteHackerTrackTimes","Track times","追跡可能回数","","","","",""
@@ -1405,6 +1406,7 @@
 "Vote.Divied","Vote→Divination ability to activate","誰かに投票→占い能力発動","","","","",""
 "Vote.Balancer","Vote(Select two)→Balancer ability to activate","誰かに投票(2人選択)→天秤の能力発動","","","","",""
 "Vote.MeetingSheriff","Vote→Sheriff ability to activate","誰かに投票→シェリフの能力発動","","","","",""^
+"Vote.ConnectSaver","Vote(tow)→ ability to activate","誰かに投票(2人選択)→対象の命を接続","","","","",""^
 "Vote.Madonna","Vote→Confession","誰かに投票→告白","","","","",""
 "Vote.Dictator","Vote → DictatorAbility","誰かに投票 → その人を追放"
 

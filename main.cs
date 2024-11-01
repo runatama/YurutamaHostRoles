@@ -56,7 +56,7 @@ namespace TownOfHost
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
         public const string PluginVersion = "5.1.9.21";
-        public const int PluginSubVersion = 0;//通常0
+        public const int PluginSubVersion = 1;//通常0
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
         // サポートされている最低のAmongUsバージョン

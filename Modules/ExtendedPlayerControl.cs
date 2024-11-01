@@ -35,6 +35,7 @@ namespace TownOfHost
 
             if (role < CustomRoles.NotAssigned)
             {
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro) Main.showkillbutton = false;
                 var roleClass = player.GetRoleClass();
                 if (roleClass != null)
                 {
@@ -54,7 +55,6 @@ namespace TownOfHost
             {
                 if (role < CustomRoles.NotAssigned)
                 {
-                    Main.showkillbutton = false;
                     if (setRole)
                     {
                         if (role.GetRoleInfo()?.IsDesyncImpostor ?? false)
@@ -113,11 +113,11 @@ namespace TownOfHost
                         r.Colorchnge();
                     }
                 }
-                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro)
-                {
-                    CustomButtonHud.BottonHud(true);
-                    _ = new LateTask(() => Main.showkillbutton = true, 0.02f, "", true);
-                }
+            }
+            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro)
+            {
+                CustomButtonHud.BottonHud(true);
+                _ = new LateTask(() => Main.showkillbutton = true, 0.02f, "", true);
             }
         }
         public static void RpcSetCustomRole(byte PlayerId, CustomRoles role)
@@ -243,6 +243,9 @@ namespace TownOfHost
             //player: ロールの変更対象
 
             if (player == null) return;
+
+            Logger.Info($"{player?.Data?.name ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
+
             if (AmongUsClient.Instance.ClientId == clientId)
             {
                 player.StartCoroutine(player.CoSetRole(role, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard));
@@ -631,6 +634,7 @@ namespace TownOfHost
         }
         public static void RpcExileV2(this PlayerControl player)
         {
+            if (player == null) return;
             player.Exiled();
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None, -1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

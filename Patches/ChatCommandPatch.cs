@@ -1883,6 +1883,11 @@ namespace TownOfHost
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
             Main.MessagesToSend.RemoveAt(0);
             int clientId = sendTo == byte.MaxValue ? -1 : GetPlayerById(sendTo).GetClientId();
+            if (sendTo != byte.MaxValue && GetPlayerById(sendTo) == null)
+            {
+                Logger.Info($"{sendTo}がnullだから弾いたぞ!", "ChatUpdatePatch");
+                return;
+            }
             var name = player.Data.PlayerName;
             if (Options.ExHideChatCommand.GetBool())
             {
@@ -1890,8 +1895,10 @@ namespace TownOfHost
                 {
                     if (player.PlayerId != 0)
                     {
+                        Logger.Info($"aaa", "aaa");
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
+                            Logger.Info($"{pc.PlayerId}", "aaa");
                             clientId = pc.GetClientId();
                             var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                             Nwriter.StartMessage(clientId);
@@ -1908,9 +1915,9 @@ namespace TownOfHost
                             .EndRpc();
                             Nwriter.EndMessage();
                             Nwriter.SendMessage();
-                            __instance.timeSinceLastMessage = 0f;
-                            return;
                         }
+                        __instance.timeSinceLastMessage = 0f;
+                        return;
                     }
                     else
                     {

@@ -108,7 +108,7 @@ namespace TownOfHost
                                 }
                                 var role = pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
                                 if (!pc.IsAlive())
-                                    if (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as Roles.Core.Interfaces.IKiller)?.CanUseSabotageButton() ?? false))
+                                    if (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
                                     {
                                         role = RoleTypes.ImpostorGhost;
                                     }

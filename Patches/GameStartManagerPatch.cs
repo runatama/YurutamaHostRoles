@@ -333,6 +333,8 @@ namespace TownOfHost
         {
             public static void Postfix(HostInfoPanel __instance)
             {
+                if (!__instance) return;
+                if (!AmongUsClient.Instance || (AmongUsClient.Instance?.GetHost()?.PlayerName == null)) return;
                 __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(ModColors.GetPlayerColor32((ModColors.PlayerColor)AmongUsClient.Instance.GetHost().ColorId))}</b>";
             }
         }
