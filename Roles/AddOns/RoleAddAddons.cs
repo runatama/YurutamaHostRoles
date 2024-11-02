@@ -132,6 +132,10 @@ namespace TownOfHost
         {
             return new RoleAddAddons(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, NeutralKiller, MadMate, DefaaultOn);
         }
+        public static RoleAddAddons Create(int idStart, TabGroup tab, CustomRoles role)
+        {
+            return new RoleAddAddons(idStart, tab, role);
+        }
         public static bool GetRoleAddon(CustomRoles role, out RoleAddAddons data, PlayerControl player = null)
         {
             if (AllData.TryGetValue(role, out data)) return true;
@@ -148,6 +152,7 @@ namespace TownOfHost
                 */
             }
 
+            AllData.TryGetValue(CustomRoles.NotAssigned, out data);
             return false;
         }
     }

@@ -53,7 +53,8 @@ namespace TownOfHost
                     player.Collider.offset = new Vector2(0f, -0.3636f);
                 }
             }
-            if (Main.DebugChatopen.Value && DebugModeManager.AmDebugger && DebugModeManager.EnableDebugMode.GetBool())
+#if DEBUG
+            if (Main.DebugChatopen.Value && DebugModeManager.EnableDebugMode.GetBool())
                 if (__instance.Chat)
                 {
                     if (!__instance.Chat?.gameObject?.active ?? false)
@@ -61,6 +62,7 @@ namespace TownOfHost
                         __instance.Chat?.gameObject?.SetActive(true);
                     }
                 }
+#endif
 
             if (GameStates.IsLobby && !GameStates.IsFreePlay && !Main.EditMode)
             {

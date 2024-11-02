@@ -19,6 +19,8 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 
 [本家TOHはこちら](https://github.com/tukasa0001/TownOfHost) TOH-K以外の説明を省いているので本家の役職などはこちらから
 
+## [Wiki](https://github.com/KYMario/TownOfHost-K/wiki)もあるよ!
+
 ## リリース
 
 AmongUsバージョン : **2024.8.13**<br>

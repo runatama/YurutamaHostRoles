@@ -603,10 +603,10 @@ namespace TownOfHost
                 .SetColorcode("#ff0000")
                 .SetParent(ExperimentalMode)
                 .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
-            /*UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", true, TabGroup.MainSettings, false)
+            UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode)
-                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));*/
+                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));
             ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode);
@@ -631,11 +631,13 @@ namespace TownOfHost
             sortedRoleInfo.Where(role => role.CustomRoleType != CustomRoleTypes.Impostor).Do(info =>
             {
 #if RELEASE
-                if (info.RoleName == CustomRoles.Cakeshop && !(Event.IsHalloween && DateTime.Now.Year == 2024)) return;
+                if (info.RoleName == CustomRoles.Cakeshop && !(((DateTime.Now.Month == 10 && DateTime.Now.Day is 31 ) || DateTime.Now.Month == 11 && DateTime.Now.Day < 4)&& DateTime.Now.Year == 2024)) return;
 #endif
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
             });
+            SetupRoleOptions(1800, TabGroup.MainSettings, CustomRoles.NotAssigned, new(1, 1, 1));
+            RoleAddAddons.Create(1805, TabGroup.MainSettings, CustomRoles.NotAssigned);
             // Madmate Common Options
             CanMakeMadmateCount = IntegerOptionItem.Create(101012, "CanMakeMadmateCount", new(0, 15, 1), 0, TabGroup.MadmateRoles, false)
                 .SetValueFormat(OptionFormat.Players)
@@ -1224,6 +1226,7 @@ namespace TownOfHost
                 .SetColor(UtilsRoleText.GetRoleColor(role, true))
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHeader(true)
+                .SetHidden(role == CustomRoles.NotAssigned)
                 .SetGameMode(customGameMode) as IntegerOptionItem;
             var hidevalue = role is CustomRoles.Driver || role.IsRiaju() || (assignCountRule.MaxValue == assignCountRule.MinValue);
 

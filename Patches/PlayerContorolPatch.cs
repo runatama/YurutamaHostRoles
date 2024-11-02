@@ -547,7 +547,19 @@ namespace TownOfHost
 
             AdminProvider.CalculateAdmin(true);
 
-            try { PlayerCatch.AllAlivePlayerControls.Do(pc => PlayerCatch.AllAlivePlayerControls.DoIf(pl => pc.PlayerId != pl.PlayerId, pl => pl.RpcSnapToDesync(pc, new Vector2(999f, 999f)))); }
+            try
+            {
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                {
+                    if (pc == null) continue;
+                    foreach (var pl in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        if (pl == null) continue;
+                        if (pl.PlayerId == pc.PlayerId) continue;
+                        pl.RpcSnapToDesync(pc, new Vector2(999f, 999f));
+                    }
+                }
+            }
             catch { Logger.Error($"ReportDeadBodyPathcのPrefixのtpでエラー！", "ReportDeadbodyPatch"); }
 
             if (target != null)
@@ -676,7 +688,20 @@ namespace TownOfHost
             }
 
             AdminProvider.CalculateAdmin(true);
-            try { PlayerCatch.AllAlivePlayerControls.Do(pc => PlayerCatch.AllAlivePlayerControls.DoIf(pl => pc.PlayerId != pl.PlayerId, pl => pl.RpcSnapToDesync(pc, new Vector2(999f, 999f)))); }
+
+            try
+            {
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                {
+                    if (pc == null) continue;
+                    foreach (var pl in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        if (pl == null) continue;
+                        if (pl.PlayerId == pc.PlayerId) continue;
+                        pl.RpcSnapToDesync(pc, new Vector2(999f, 999f));
+                    }
+                }
+            }
             catch { Logger.Error($"DiecheckReportのtpでエラー！", "ReportDeadbodyPatch"); }
 
 
@@ -721,6 +746,7 @@ namespace TownOfHost
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                if (pc == null) continue;
                 if (!pc.IsAlive() && (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false)))
                     foreach (var Player in PlayerCatch.AllPlayerControls)
                     {
@@ -810,6 +836,7 @@ namespace TownOfHost
                 Logger.Info("コミュサボ中はレポート出来なくするため、レポートをキャンセルします。", "ReportDeadBody");
                 return false;
             }*/
+            Logger.Info("1", "ReportDeadBody");
             if (RoleAddAddons.GetRoleAddon(repoter.GetCustomRole(), out var da, repoter) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
             {
                 if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
@@ -860,25 +887,33 @@ namespace TownOfHost
                 }
             }
 
+            Logger.Info("2", "ReportDeadBody");
             if (target != null)
             {
                 var tage = PlayerCatch.GetPlayerById(target.PlayerId);
-                if (tage.Is(CustomRoles.Transparent) && !c)
+                if (tage != null && (tage?.Is(CustomRoles.Transparent) ?? false) && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
                     AddDontrepo(repoter.PlayerId, DontReportreson.Transparent);
                     return false;
                 }
-                else if (RoleAddAddons.GetRoleAddon(repoter.GetCustomRole(), out var d, repoter) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
+                if (Transparent.playerIdList.Contains(target.PlayerId))
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
                     AddDontrepo(repoter.PlayerId, DontReportreson.Transparent);
                     return false;
                 }
-                else
-                if (!Musisuruoniku[tage.PlayerId] && !c)
+                if (tage != null)
+                    if (RoleAddAddons.GetRoleAddon(tage.GetCustomRole(), out var d, tage) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
+                    {
+                        GameStates.Meeting = false;
+                        Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
+                        AddDontrepo(repoter.PlayerId, DontReportreson.Transparent);
+                        return false;
+                    }
+                if (Musisuruoniku.TryGetValue(target.PlayerId, out var oniku) && oniku == false && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"ターゲットがなんらかの理由で無視されるようになってるので通報をキャンセルする。", "ReportDeadBody");
@@ -889,13 +924,14 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return true;
 
             //通報者が死んでいる場合、本処理で会議がキャンセルされるのでここで止める
-            if (repoter.Data.IsDead && checkdie)
+            if (repoter?.Data?.IsDead ?? false && checkdie)
             {
                 GameStates.Meeting = false;
                 Logger.Info($"通報者が死んでいるのでキャンセルする", "ReportDeadBody");
                 return false;
             }
 
+            Logger.Info("3", "ReportDeadBody");
             var r = DontReportreson.None;
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
@@ -1024,13 +1060,14 @@ namespace TownOfHost
 
             if (AmongUsClient.Instance.AmHost)
             {//実行クライアントがホストの場合のみ実行
-                if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[__instance.PlayerId] && ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Count > 0)
-                {
-                    var info = ReportDeadBodyPatch.WaitReport[__instance.PlayerId][0];
-                    ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Clear();
-                    Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
-                    __instance.ReportDeadBody(info);
-                }
+                if (__instance)
+                    if (GameStates.IsInTask && ReportDeadBodyPatch.CanReport[__instance.PlayerId] && ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Count > 0)
+                    {
+                        var info = ReportDeadBodyPatch.WaitReport[__instance.PlayerId][0];
+                        ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Clear();
+                        Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
+                        __instance.ReportDeadBody(info);
+                    }
 
                 if (GameStates.InGame)
                 {
@@ -1077,6 +1114,7 @@ namespace TownOfHost
                             {
                                 Main.MessagesToSend.RemoveAt(0);
                                 int clientId = PlayerCatch.GetPlayerById(sendTo).GetClientId();
+                                if (PlayerCatch.GetPlayerById(sendTo) == null) return;
                                 var name = pc.Data.PlayerName;
                                 if (clientId == -1)
                                 {
@@ -1187,6 +1225,7 @@ namespace TownOfHost
                 if (GameStates.InGame && !(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (__instance.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false) && !__instance.Data.IsDead)
                     foreach (var p in PlayerCatch.AllPlayerControls)
                     {
+                        if (!p || (p?.Data == null)) continue;
                         p.Data.Role.NameColor = Color.white;
                     }
 
@@ -1203,7 +1242,10 @@ namespace TownOfHost
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
+
                     if (!Camouflage.PlayerSkins.ContainsKey(pc.PlayerId)) continue;
+                    if (pc == null) continue;
+                    if (pc.Data == null) continue;
 
                     pc.Data.DefaultOutfit.ColorId = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
                     pc.Data.DefaultOutfit.HatId = Camouflage.PlayerSkins[pc.PlayerId].HatId;

@@ -69,7 +69,7 @@ namespace TownOfHost
     {
         public static string GetLogtext(byte pc)
         {
-            var longestNameByteCount = Main.AllPlayerNames.Values.Select(name => name.GetByteCount()).OrderByDescending(byteCount => byteCount).FirstOrDefault();
+            var longestNameByteCount = Main.AllPlayerNames?.Values?.Select(name => name.GetByteCount())?.OrderByDescending(byteCount => byteCount)?.FirstOrDefault() ?? 10;
             var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
             var pos1 = pos + 4f;
             var pos2 = pos + 4f + (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8f : 4.5f);

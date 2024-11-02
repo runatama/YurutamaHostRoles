@@ -765,6 +765,33 @@ namespace TownOfHost
                     AllModNews.Add(news);
 
                 }
+                {
+                    var news = new ModNews
+                    {
+                        Number = 100022,
+                        Title = "まだまだバグあると思う_(:3 」∠)_",
+                        SubTitle = "<color=#1d8c4f>Town Of Host-K v5.1.9.21<sub>(1/2)</sub></color>",
+                        ShortTitle = "<color=#1d8c4f>◆TOH-K v5.1.9.21<sub>(1/2)</sub></color>",
+                        Text = "<size=80%>"
+                        + "<size=150%>v.5.1.9.21<sub>1</sub></size>\n"
+                        + "<size=125%>【バグ修正】</size>\n"
+                        + "\n・役職変更処理が行われるとホストのキルボタンが消える問題の修正"
+                        + "\n・CustomRpcを使用しての試合終了処理がうまく動作しないので封印"
+                        + "\n・秘匿チャットONの時ホスト死亡後、システムメッセージが届かない問題の修正"
+                        + "\n・コネクトセーバーの能力発動メッセージがミーテの奴な問題の修正"
+                        + "\n・一部翻訳が未翻訳になっている問題の修正"
+                        + "\n・爆弾魔の爆弾がベイト、インセンダーに付与されない問題の修正"
+                        + "\n・一部状況下で個人に贈る予定のチャットが全員に送られる問題の修正"
+                        + "\n・エラーが起こっているかもしれない部分を抑制 / ログ仕込み"
+                        + "\n\n<size=150%>v.5.1.9.21<sub>2</sub></size>\n"
+                        + "<size=125%>【バグ修正】</size>\n"
+                        + "・回線落ちがいる時、通報処理が正常に行われない問題の修正"
+                        ,
+                        Date = "2024-11-02T18:00:00Z"
+                    };
+                    AllModNews.Add(news);
+
+                }
                 AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
             }
         }
