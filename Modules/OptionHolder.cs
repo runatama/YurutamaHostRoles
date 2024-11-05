@@ -330,6 +330,12 @@ namespace TownOfHost
         public static OptionItem RandomSpawnCustom7;
         public static OptionItem RandomSpawnCustom8;
 
+        public static OptionItem ShowVoteResult;
+        public static OptionItem ShowVoteJudgment;
+        public static readonly string[] ShowVoteJudgments =
+        {
+            "Impostor", "Neutral", "CrewMate(Mad)", "Crewmate","Role"
+        };
         // 投票モード
         public static OptionItem VoteMode;
         public static OptionItem WhenSkipVote;
@@ -1019,8 +1025,8 @@ namespace TownOfHost
             RandomSpawn.SetupCustomOption();
 
             //初手強制会議
-            FirstTurnMeeting = BooleanOptionItem.Create(100570, "FirstTurnMeeting", false, TabGroup.MainSettings, false).SetHeader(true).SetColorcode("#64ff0a");
-            FirstTurnMeetingCantability = BooleanOptionItem.Create(100571, "FirstTurnMeetingCantability", false, TabGroup.MainSettings, false).SetParent(FirstTurnMeeting);
+            FirstTurnMeeting = BooleanOptionItem.Create(100570, "FirstTurnMeeting", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.Standard).SetHeader(true).SetColorcode("#64ff0a");
+            FirstTurnMeetingCantability = BooleanOptionItem.Create(100571, "FirstTurnMeetingCantability", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.Standard).SetParent(FirstTurnMeeting);
             // 投票モード
             ShowRoleAtFirstMeeting = BooleanOptionItem.Create(100540, "ShowRoleAtFirstMeeting", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.Standard)
@@ -1073,6 +1079,9 @@ namespace TownOfHost
             AllAliveMeetingTime = FloatOptionItem.Create(100901, "AllAliveMeetingTime", new(1f, 300f, 1f), 10f, TabGroup.MainSettings, false).SetParent(AllAliveMeeting)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
+            ShowVoteResult = BooleanOptionItem.Create(100980, "ShowVoteResult", false, TabGroup.MainSettings, false);
+            ShowVoteJudgment = StringOptionItem.Create(100981, "ShowVoteJudgment", ShowVoteJudgments, 0, TabGroup.MainSettings, false).SetParent(ShowVoteResult);
 
             // 転落死
             LadderDeath = BooleanOptionItem.Create(101100, "LadderDeath", false, TabGroup.MainSettings, false)

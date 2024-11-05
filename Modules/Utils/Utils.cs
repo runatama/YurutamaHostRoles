@@ -25,6 +25,7 @@ namespace TownOfHost
     {
         public static bool IsActive(SystemTypes type)
         {
+            if (GameStates.IsFreePlay && Main.EditMode) return false;
             // ないものはfalse
             if (!ShipStatus.Instance.Systems.ContainsKey(type))
             {
@@ -464,7 +465,6 @@ namespace TownOfHost
                 }
                 return returns;
             }
-
             for (var i = 0; i < str.Length; i++)
             {
                 string s = "";

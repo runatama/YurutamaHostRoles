@@ -107,8 +107,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     {
         OptionCanSeeKillFlash = BooleanOptionItem.Create(RoleInfo, 10, OptionName.EvilTrackerCanSeeKillFlash, true, false);
         OptionTargetMode = StringOptionItem.Create(RoleInfo, 11, OptionName.EvilTrackerTargetMode, TargetModeText, 2, false);
-        OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, false, false);
-        OptionCanCreateSideKick.SetParent(OptionTargetMode);
+        OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, false, false, OptionTargetMode);
         OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.EvilTrackerCanSeeLastRoomInMeeting, false, false);
     }
     public bool CheckKillFlash(MurderInfo info) // IKillFlashSeeable

@@ -287,10 +287,11 @@ public static class CustomRoleManager
         //サブロールは表示めんどいしながいから省略★
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
-
             UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
+        //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId) 
+            (appearanceKiller.GetRoleClass() as IUsePhantomButton)?.Init(appearanceKiller);
 
         if (Main.KillCount.ContainsKey(appearanceKiller.PlayerId))
             if (appearanceKiller.Is(CustomRoles.Amnesia) && Amnesia.TriggerKill.GetBool())
@@ -396,6 +397,10 @@ public static class CustomRoleManager
         {
             Main.CheckShapeshift.TryAdd(player.PlayerId, false);
             (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
+        }
+        if (player.Data.Role.Role == RoleTypes.Phantom || player.GetCustomRole().GetRoleTypes() == RoleTypes.Phantom)
+        {
+            (player.GetRoleClass() as IUsePhantomButton)?.Init(player);
         }
     }
 

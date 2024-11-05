@@ -31,7 +31,6 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
 
-        canVent = OptionCanVent.GetBool();
         canAlsoBeExposedToImpostor = OptionCanAlsoBeExposedToImpostor.GetBool();
         TaskTrigger = OptionTaskTrigger.GetInt();
 
@@ -52,7 +51,6 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-    private static bool canVent;
     private static bool canAlsoBeExposedToImpostor;
     private static int TaskTrigger;
 

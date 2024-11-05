@@ -107,6 +107,7 @@ namespace TownOfHost
                 {
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
+                    (player.GetRoleClass() as IUsePhantomButton)?.Init(player);
                     if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                     foreach (var r in CustomRoleManager.AllActiveRoles.Values)
                     {
@@ -244,7 +245,7 @@ namespace TownOfHost
 
             if (player == null) return;
 
-            Logger.Info($"{player?.Data?.name ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
+            //Logger.Info($"{player?.Data?.PlayerName ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
@@ -256,9 +257,13 @@ namespace TownOfHost
             writer.Write(Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool kyousei = false, bool delay = false, bool kousin = true)
+        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool kyousei = false, bool delay = false, bool kousin = true, bool PB = false)
         {
             if (player == null) return;
+            if (!PB)
+            {
+                (player.GetRoleClass() as IUsePhantomButton)?.Init(player);
+            }
             if (target == null) target = player;
             CustomRoles role = player.GetCustomRole();
             if (!player.CanUseKillButton() && !kyousei) return;

@@ -53,6 +53,7 @@ namespace TownOfHost
                     player.Collider.offset = new Vector2(0f, -0.3636f);
                 }
             }
+            GameObject.Find("Main Camera/Hud/TaskDisplay/ProgressTracker")?.SetActive(false);
 #if DEBUG
             if (Main.DebugChatopen.Value && DebugModeManager.EnableDebugMode.GetBool())
                 if (__instance.Chat)
@@ -337,7 +338,7 @@ namespace TownOfHost
     {
         public static void Postfix(RoleManager __instance, [HarmonyArgument(0)] PlayerControl targetplayer, [HarmonyArgument(1)] RoleTypes role)
         {
-            Logger.Info($"{targetplayer?.Data?.name ?? "( ᐛ )"} =>  {role}", "RoleManagerSetRole");
+            Logger.Info($"{targetplayer?.Data?.PlayerName ?? "( ᐛ )"} =>  {role}", "RoleManagerSetRole");
         }
     }
     [HarmonyPatch(typeof(ShapeshifterPanel), nameof(ShapeshifterPanel.SetPlayer))]

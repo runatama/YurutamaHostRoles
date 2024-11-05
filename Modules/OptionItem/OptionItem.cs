@@ -59,6 +59,7 @@ namespace TownOfHost
         public int SingleValue { get; private set; }
 
         // 親子情報
+        public bool parented = false;
         public OptionItem Parent { get; private set; }
         public List<OptionItem> Children;
 
@@ -89,6 +90,7 @@ namespace TownOfHost
             IsHeader = false;
             IsHidden = false;
             Infinity = infinity;
+            parented = false;
 
             // オブジェクト初期化
             Children = new();
@@ -140,6 +142,12 @@ namespace TownOfHost
 
         public OptionItem SetParent(OptionItem parent) => Do(i =>
         {
+            if (parent != null && parented)
+            {
+                Logger.Warn($"{Name} : 既にSetParentがされてます", "SetParent");
+                return;
+            }
+            if (parent != null) parented = true;
             i.Parent = parent;
             parent.SetChild(i);
         });
@@ -174,7 +182,8 @@ namespace TownOfHost
             }
             return NameColorCode != "#ffffff" ? $"<color={NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>" : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
-        public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
+        public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool())
+                                        && (GameMode == CustomGameMode.All || GameMode == Options.CurrentGameMode);
         public virtual bool OptionMeGetBool() => CurrentValue != 0;
         public virtual int GetInt() => CurrentValue;
         public virtual float GetFloat() => CurrentValue;

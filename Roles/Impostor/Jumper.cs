@@ -5,14 +5,14 @@ using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
-public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
+public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(Jumper),
             player => new Jumper(player),
             CustomRoles.Jumper,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             3000,
             SetupOptionItem,
@@ -68,7 +68,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = position == new Vector2(999f, 999f) ? Onecooltime.GetFloat() : Jampcooltime.GetFloat();
+        AURoleOptions.PhantomCooldown = position == new Vector2(999f, 999f) ? Onecooltime.GetFloat() : Jampcooltime.GetFloat();
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
     public override bool CanDesyncShapeshift => true;
@@ -114,7 +114,6 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
                 if (!ability)
                 {
                     Player.RpcSetColor((byte)PlayerColor);
-                    (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player);
                     aname = false;
                     _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
                 }
@@ -149,18 +148,22 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public bool CanUseKillButton() => !ability;
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
         if (ability) return;
+        fall = false;
         if (position == new Vector2(999f, 999f))
         {
             position = Player.transform.position;
+            resetkillcooldown = false;
+            Player.RpcSpecificRejectShapeshift(Player, false);
             Player.RpcResetAbilityCooldown(kousin: true);
             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "Jamperset");
             return;
         }
         timer = 0;
         count = 1;
+        resetkillcooldown = true;
         ability = true;
         nowposition = Player.transform.position;
         x = position.x - nowposition.x;
@@ -170,6 +173,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUseTheShButton
         Main.AllPlayerSpeed[Player.PlayerId] = Main.MinSpeed;
         _ = new LateTask(() =>
         {
+            Player.RpcSetPet("");
             Player.SyncSettings();
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
         }, 0.4f, "Jamper0Speed");

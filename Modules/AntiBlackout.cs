@@ -15,7 +15,7 @@ namespace TownOfHost
         ///<summary>
         ///追放処理を上書きするかどうか
         ///</summary>
-        public static bool OverrideExiledPlayer => PlayerCatch.AllPlayerControls.Count() < 4 && !ModClientOnly && (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
+        public static bool OverrideExiledPlayer => PlayerCatch.AllPlayerControls.Count() < 4 && !ModClientOnly && (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool()) && Options.BlackOutwokesitobasu.GetBool();
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();

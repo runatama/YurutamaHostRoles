@@ -765,8 +765,8 @@ namespace TownOfHost
     #region  Option
     public static class UtilsOption
     {
-        public static string GetFrom(SimpleRoleInfo info) => GetFrom(info.From);
-        public static string GetFrom(From from)
+        public static string GetFrom(SimpleRoleInfo info) => GetFrom(info.From, info.RoleName);
+        public static string GetFrom(From from, CustomRoles role = CustomRoles.NotAssigned)
         {
             string Fromtext = "<color=#000000>From:</color>";
             switch (from)
@@ -792,6 +792,7 @@ namespace TownOfHost
                 case From.RevolutionaryHostRoles: Fromtext += $"<color=#3cb371>RevolutionaryHostRoles</color>"; break;
                 case From.Love_Couple_Mod: Fromtext += "<color=#ff6be4>Love Couple Mod</color>"; break;
             }
+            if (role is CustomRoles.MadSuicide) Fromtext += "  <color=#000000>(<color=#ff1919>崇拝者</color>)</color>";
             return Fromtext;
         }
         public static void SetVision(this IGameOptions opt, bool HasImpVision)

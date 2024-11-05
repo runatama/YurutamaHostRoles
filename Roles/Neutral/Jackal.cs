@@ -5,14 +5,14 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral
 {
-    public sealed class Jackal : RoleBase, ILNKiller, ISchrodingerCatOwner, IUseTheShButton
+    public sealed class Jackal : RoleBase, ILNKiller, ISchrodingerCatOwner, IUsePhantomButton
     {
         public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
                 typeof(Jackal),
                 player => new Jackal(player),
                 CustomRoles.Jackal,
-                () => CanmakeSK.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+                () => CanmakeSK.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
                 30000,
                 SetupOptionItem,
@@ -83,19 +83,20 @@ namespace TownOfHost.Roles.Neutral
         public bool CanUseImpostorVentButton() => CanVent;
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.ShapeshifterCooldown = Fall ? 0f : Cooldown;
+            AURoleOptions.PhantomCooldown = Fall ? 0f : Cooldown;
             AURoleOptions.ShapeshifterDuration = 1f;
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
-        public bool UseOCButton => SK;
+        public bool UseOneclickButton => SK;
         public override bool CanUseAbilityButton() => SK;
         public override void AfterMeetingTasks()
         {
             Fall = false;
             Player.MarkDirtySettings();
         }
-        public void OnClick()
+        public void OnClick(ref bool resetkillcooldown, ref bool fall)
         {
+            resetkillcooldown = false;
             if (!SK) return;
 
             if (JackalDoll.sidekick.GetInt() <= JackalDoll.side)
@@ -107,12 +108,14 @@ namespace TownOfHost.Roles.Neutral
             var target = Player.GetKillTarget();
             if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
             {
+                fall = true;
+                /*
                 Fall = true;
                 if (!ch)
                 {
                     _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "", true);
                     _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "", true);
-                }
+                }*/
                 return;
             }
             SK = false;

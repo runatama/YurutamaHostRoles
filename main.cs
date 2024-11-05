@@ -55,8 +55,9 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "5.1.9.21";
-        public const int PluginSubVersion = 2;//通常0
+        public const string PluginVersion = "519.22";
+        public const int PluginSubVersion = 0;//通常0
+        public const string ModVersion = ".22";//リリースver用バージョン変更
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
         // サポートされている最低のAmongUsバージョン
@@ -336,7 +337,6 @@ namespace TownOfHost
             }
             TownOfHost.Logger.Info($"{Application.version}", "AmongUs Version");
             TownOfHost.Logger.Info($"{ModName} v.{PluginVersion} - {PluginSubVersion}", "ModPluginVersion");
-
             var handler = TownOfHost.Logger.Handler("GitVersion");
             handler.Info($"{nameof(ThisAssembly.Git.Branch)}: {ThisAssembly.Git.Branch}");
             handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");

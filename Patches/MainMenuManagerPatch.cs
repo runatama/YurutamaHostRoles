@@ -24,7 +24,9 @@ namespace TownOfHost
         private static SimpleButton TwitterXButton;
         private static SimpleButton TOHkBOTButton;
         private static SimpleButton VersionChangeButton;
+        private static SimpleButton betaversionchange;
         public static GameObject VersionMenu;
+        public static GameObject betaVersionMenu;
         public static AnnouncementPopUp updatea;
 
         [HarmonyPatch(nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.Normal)]
@@ -74,7 +76,7 @@ namespace TownOfHost
                     "TOHkBOTButton",
                     new(2.6f, -1f, 1f),
                     new(0, 201, 87, byte.MaxValue),
-                    new(60, 255, 255, byte.MaxValue),
+                    new(60, 201, 87, byte.MaxValue),
                     () => Application.OpenURL("https://discord.com/api/oauth2/authorize?client_id=1198276538563567716&permissions=8&scope=bot"),
                     "TOHkBOT");
             }
@@ -130,6 +132,56 @@ namespace TownOfHost
                     "▽",
                     new(0.5f, 0.5f),
                     isActive: false);
+            }
+            //同じバージョンの 安定ver,デバッグバージョンの切り替えの奴
+            if (SimpleButton.IsNullOrDestroyed(betaversionchange))
+            {
+                betaversionchange = CreateButton(
+                    "betaversionchange",
+                    new(-2.3f, -2.6963f, 1f),
+                    new(0, 255, 183, byte.MaxValue),
+                    new(60, 255, 183, byte.MaxValue),
+                    () =>
+                    {
+                        CredentialsPatch.TohkLogo.gameObject.SetActive(false);
+                        __instance.screenTint.enabled = true;
+                        if (betaVersionMenu != null)
+                        {
+                            betaVersionMenu.SetActive(true);
+                            return;
+                        }
+                        betaVersionMenu = new GameObject("verPanel");
+                        betaVersionMenu.transform.parent = __instance.gameModeButtons.transform.parent;
+                        betaVersionMenu.transform.localPosition = new(-0.0964f, 0.1378f, 1f);
+                        betaVersionMenu.SetActive(true);
+                        ModUpdater.CheckRelease(all: true, snap: true).GetAwaiter().GetResult();
+                        int i = 0;
+                        if (ModUpdater.snapshots.Count == 0) return;
+
+                        foreach (var release in ModUpdater.snapshots)
+                        {
+                            int column = i % 4;
+                            int row = i / 4;
+                            // X 座標と Y 座標を計算
+                            float x = -1.6891f + (1.6891f * column);
+                            float y = 0.8709f - (0.3927f * row);
+                            var button2 = new SimpleButton(
+                            betaVersionMenu.transform,
+                            release.TagName,
+                            new(x, y, 1f),
+                            release.TagName.Contains("S") ? new(0, 255, 183, byte.MaxValue) : new(0, 202, 255, byte.MaxValue),
+                            release.TagName.Contains("S") ? new(60, 255, 183, byte.MaxValue) : new(60, 255, 255, byte.MaxValue),
+                            () =>
+                            {
+                                if (release.DownloadUrl != null)
+                                    ModUpdater.StartUpdate(release.DownloadUrl);
+                            },
+                            "v" + release.TagName.TrimStart('v') + (release.DownloadUrl == null ? "(ERROR)" : ""));
+                            i++;
+                        }
+                    },
+                    $"バージョン切り替え");
+                betaversionchange.FontSize = 2;
             }
 
             // フリープレイの無効化
@@ -200,7 +252,7 @@ namespace TownOfHost
                                 () =>
                                 {
                                     if (release.DownloadUrl != null)
-                                        ModUpdater.StartUpdate(release.DownloadUrl);
+                                        ModUpdater.StartUpdate(release.DownloadUrl, release.OpenURL);
                                 },
                                 "v" + release.TagName.TrimStart('v') + (release.DownloadUrl == null ? "(ERROR)" : ""));
                                 i++;
@@ -251,6 +303,8 @@ namespace TownOfHost
             }
             if (VersionMenu != null)
                 VersionMenu.SetActive(false);
+            if (betaVersionMenu != null)
+                betaVersionMenu.SetActive(false);
         }
         [HarmonyPatch(nameof(MainMenuManager.ResetScreen)), HarmonyPostfix]
         public static void ResetScreenPostfix()
@@ -261,6 +315,8 @@ namespace TownOfHost
             }
             if (VersionMenu != null)
                 VersionMenu.SetActive(false);
+            if (betaVersionMenu != null)
+                betaVersionMenu.SetActive(false);
         }
     }
     public class ModNews
@@ -768,12 +824,12 @@ namespace TownOfHost
                 {
                     var news = new ModNews
                     {
-                        Number = 100022,
-                        Title = "まだまだバグあると思う_(:3 」∠)_",
-                        SubTitle = "<color=#1d8c4f>Town Of Host-K v5.1.9.21<sub>(1/2)</sub></color>",
-                        ShortTitle = "<color=#1d8c4f>◆TOH-K v5.1.9.21<sub>(1/2)</sub></color>",
+                        Number = 100023,
+                        Title = "ほぼテストバージョン",
+                        SubTitle = "<color=#00c1ff>Town Of Host-K v519.22</color>",
+                        ShortTitle = "<color=#00c1ff>◆TOH-K v519.22</color>",
                         Text = "<size=80%>"
-                        + "<size=150%>v.5.1.9.21<sub>1</sub></size>\n"
+                        + "バージョン表記がちょっと変わりました。いい感じに切り替えれる奴の実装で...\n"
                         + "<size=125%>【バグ修正】</size>\n"
                         + "\n・役職変更処理が行われるとホストのキルボタンが消える問題の修正"
                         + "\n・CustomRpcを使用しての試合終了処理がうまく動作しないので封印"
@@ -783,9 +839,22 @@ namespace TownOfHost
                         + "\n・爆弾魔の爆弾がベイト、インセンダーに付与されない問題の修正"
                         + "\n・一部状況下で個人に贈る予定のチャットが全員に送られる問題の修正"
                         + "\n・エラーが起こっているかもしれない部分を抑制 / ログ仕込み"
-                        + "\n\n<size=150%>v.5.1.9.21<sub>2</sub></size>\n"
-                        + "<size=125%>【バグ修正】</size>\n"
-                        + "・回線落ちがいる時、通報処理が正常に行われない問題の修正"
+                        + "\n・回線落ちがいる時、通報処理が正常に行われない問題の修正"
+                        + "\n・ジャッカルマフィアがキル不可能になっている問題の修正"
+                        + "\n・一部役職の役職設定表示がうまくいっていない問題の修正"
+                        + "\n・タスクバトルでホストが正常にエンジニア置き換えになっていない問題の修正"
+                        + "\n・バケネコのキルボタンが生えない問題の修正"
+                        + "<size=125%>【変更点】</size>\n"
+                        + "\n・<b>リセットカメラ式暗転対策</b>がOnの場合、プレイヤー数に関係なく追放を表示させるように"
+                        + "\n・アップデートしたけどぽんこつしでかしてた時用にバージョンを弄ったりできる奴を追加"
+                        + "\n・ハロウィン専用イントロ結構追加"
+                        + "<size=125%>【新設定】</size>\n"
+                        + "\n・追放を確認する設定"
+                        + "\n┗ バニラのあれです。ModでOFFにしてるので次の会議で結果が表示されます。"
+                        + "<size=125%>【ジャッカルとジャンパーでテスト!】</size>\n"
+                        + "ジャッカルとジャンパーの判定を<b>亡r...ファントム</b>にしました。\nファントムの消えるボタンをクリックすることで能力が使えると思います"
+                        + "何かしらバグが発生した場合はお知らせください。\n"
+                        + "ファングルのキノコサボ中もワンクリ使えるぞ!\n\nそういえばアレ皆分かるのかな。Yr."
                         ,
                         Date = "2024-11-02T18:00:00Z"
                     };

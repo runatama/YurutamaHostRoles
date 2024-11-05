@@ -110,10 +110,46 @@ namespace TownOfHost
                     if (Options.CurrentGameMode == CustomGameMode.Standard)
                         _ = new LateTask(() =>
                         {
-                            foreach (var pc in PlayerCatch.AllPlayerControls)
+                            foreach (var Player in PlayerCatch.AllPlayerControls)
                             {
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
-                                (pc.GetRoleClass() as Roles.Core.Interfaces.IUseTheShButton)?.Shape(pc);
+                                if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
+                                if (Player.GetRoleClass() is Roles.Core.Interfaces.IUseTheShButton useshe) useshe.Shape(Player);
+                                else
+                                {
+                                    if (!AmongUsClient.Instance.AmHost) return;
+                                    if (Camouflage.IsCamouflage) return;
+                                    if (Player.inVent) return;
+                                    var (name, color, hat, skin, visor, nameplate, level, pet) = PlayerSkinPatch.Load(Player);
+                                    var sender = CustomRpcSender.Create();
+
+                                    Player.SetColor(color);
+                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetColor)
+                                        .Write(Player.Data.NetId)
+                                        .Write(color)
+                                        .EndRpc();
+
+                                    Player.SetHat(hat, color);
+                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetHatStr)
+                                        .Write(hat)
+                                        .Write(Player.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+                                        .EndRpc();
+
+                                    Player.SetSkin(skin, color);
+                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetSkinStr)
+                                        .Write(skin)
+                                        .Write(Player.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+                                        .EndRpc();
+
+                                    Player.SetVisor(visor, color);
+                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetVisorStr)
+                                        .Write(visor)
+                                        .Write(Player.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+                                        .EndRpc();
+
+                                    if (Player.IsAlive()) Player.RpcSetPet(pet);
+
+                                    _ = new LateTask(() => sender.SendMessage(), 0.23f);
+                                }
                             }
                             _ = new LateTask(() =>
                             {
@@ -499,6 +535,9 @@ namespace TownOfHost
                 if ((roleInfo?.IsDesyncImpostor == true || Options.SuddenDeathMode.GetBool()) && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
 
+                if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool())
+                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
+
                 _ = new LateTask(() =>
                 {
                     CustomRoleManager.AllActiveRoles.Values.Do(role => role.StartGameTasks());
@@ -538,12 +577,16 @@ namespace TownOfHost
                     _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, GetString("Firstmeetinginfo"), "#23dbc0"), 3f, "", true);
                 }
                 else
+                {
                     _ = new LateTask(() =>
                     {
                         Main.IntroHyoji = false;
                         if (GameStates.InGame && !GameStates.Meeting)
                             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.2f, "Introkesu", true);
                     }, 15f, "Intro", true);
+
+                    UtilsNotifyRoles.NotifyRoles(NoCache: true);
+                }
             }
             _ = new LateTask(() => Main.showkillbutton = true, 0.5f, "", true);
             Logger.Info("OnDestroy", "IntroCutscene");

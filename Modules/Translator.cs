@@ -96,11 +96,27 @@ namespace TownOfHost
                     {
                         "Bakery" => "ケーキ作りのパン屋",
                         "BakeryInfo" => "今日はパンじゃなくてケーキだよ！",
+                        "ChefInfo" => "全員にチキンを渡そう",
                         "Arsonist" => "ライティングタクロース",
                         "ArsonistInfo" => "全員にプレゼントを渡して逃げろ！",
                         "ArsonistDouseButtonText" => "渡す",
                         "EnterVentToWin" => "ベントに入って逃げろ！",
                         "Message.Bakery1" => "パン屋がケーキを作ったよ！",
+                        "SuddenDeathIntro" => "他を落としていい子になれ",
+                        "KingInfo" => "ほっほっほ...",
+                        "ShyboyInfo" => "雪に埋まりたい",
+                        "UltraStarInfo" => "ｼｬｰﾝｼｬｰﾝｼｬｰﾝ",
+                        "PonkotuTellerInfo" => "あの子がサンタさん!?",
+                        "GrimReaperInfo" => "悪い子にはお仕置きを",
+                        "MadonnaInfo" => "ず...ずっと君の事が...!",
+                        "WhiteLoversInfo" => "クリスマスが記念日",
+                        "JesterInfo" => "あ～した雪ふ～れ",
+                        "MadJesterInfo" => "あ～した霰ふ～れ",
+                        "EfficientInfo" => "速く終わらせてサンタさんを待たないと..!",
+                        "NiceAddoerInfo" => "いっぱいプレゼント貰っちゃったぁ",
+                        "JumperInfo" => "サンタは一瞬で過ぎ去るのさ",
+                        "BomberInfo" => "僕からもプレゼントがあるよ",
+                        "FireWorksInfo" => "聖夜に花火はいかが?",
                         _ => res
                     };
                 }
@@ -108,11 +124,27 @@ namespace TownOfHost
                 {
                     res = str switch
                     {
+                        "MadmateInfo" => "インポスターが有利になるようイタズラしろ",
                         "Bakery" => "お菓子作りのパン屋",
                         "BakeryInfo" => "今日はパンじゃなくてお菓子だよ！",
                         "ChefInfo" => "パン屋とお菓子作りに苦戦中..",
                         "TaskPlayerBInfo" => "タスクを誰よりも早く済ませ人にはお菓子が！？",
                         "Message.Bakery1" => "ハッピーハロウィン！ パン屋がお菓子を作ったよ！",
+                        "SuddenDeathIntro" => "お菓子は全て我が頂くのだ",
+                        "WolfBoyInfo" => "仮装だよ!!仲間だよっ!!",
+                        "ShrineMaidenInfo" => "オバケの声が聞こえる...",
+                        "ShyboyInfo" => "ﾓｸﾞﾓｸﾞﾓｸﾞﾓｸﾞﾓｸﾞ...",
+                        "PonkotuTellerInfo" => "えっそれ仮装なの!?",
+                        "JackalAlienInfo" or "AlienInfo" => "ﾜﾚﾜﾚﾊ..ｳﾁｭｳｼﾞﾝﾀﾞ..",
+                        "GrimReaperInfo" => "悪い子には悪戯を",
+                        "YellowLoversInfo" => "おそろいのカボチャのコーデ",
+                        "EfficientInfo" => "おかしいっぱい食べるぞぉ",
+                        "CamouflagerInfo" => "同じ仮装にしちゃうぞ!",
+                        "MoleInfo" => "今...君の下にいるよ?",
+                        "LimiterInfo" => "せめてお菓子だけは...!",
+                        "TairouInfo" => "仮装よくできてるって?ありがとよっ",
+                        "VampireInfo" => "噛んじゃうぞぉ～",
+                        "ShapeMasterInfo" => "あの子に似てるでしょ!",
                         _ => res
                     };
                 }
@@ -124,6 +156,10 @@ namespace TownOfHost
                         "BakeryInfo" => "今日はパンじゃなくてホワイトチョコだよ！",
                         "ChefInfo" => "ホワイトチョコを配ろう！",
                         "Message.Bakery1" => "パン屋がホワイトチョコを作ったよ！",
+                        "ShyboyInfo" => "ﾁｮ...ﾁｮｺ...!?",
+                        "EfficientInfo" => "チョコいっぱい食べないと!",
+                        "JumperInfo" => "そこどきなさぁい!!!",
+                        "BomberInfo" => "僕からも...",
                         _ => res
                     };
                 }
@@ -134,6 +170,10 @@ namespace TownOfHost
                         "Bakery" => "鯉のぼり作りのパン屋...?",
                         "BakeryInfo" => "今回はパンではなくこいのぼり制作！",
                         "Message.Bakery1" => "パン屋がこいのぼりを大量に制作したよ...?",
+                        "ShyboyInfo" => "人だかりが多いよぉ...",
+                        "JesterInfo" => "あ～した天気になぁれ",
+                        "MadJesterInfo" => "あ～した雨になぁれ",
+                        "EfficientInfo" => "あそこも行って..こっちにも...",
                         _ => res
                     };
                 }

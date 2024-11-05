@@ -151,6 +151,7 @@ namespace TownOfHost.Roles.Neutral
             int livingImpostorsNum = 0;
             foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
+                if (pc.PlayerId == Player.PlayerId) continue;
                 if (pc.Is(CountTypes.Jackal)) livingImpostorsNum++;
             }
             return livingImpostorsNum <= 0;

@@ -18,6 +18,7 @@ using TownOfHost.Roles.Neutral;
 using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
 {
@@ -216,6 +217,7 @@ namespace TownOfHost
             GameStates.Meeting = false;
             GameStates.Tuihou = false;
             GameStates.canmusic = false;
+            IUsePhantomButton.IPPlayerKillCooldown.Clear();
             CustomButtonHud.ch = null;
             UtilsTask.TaskCh = true;
             UtilsNotifyRoles.MeetingMoji = "";

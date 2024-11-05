@@ -96,7 +96,7 @@ public sealed class Sniper : RoleBase, IImpostor
         SniperAimAssistOnshot = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SniperAimAssistOneshot, false, false, SniperAimAssist);
         OpCanShape = BooleanOptionItem.Create(RoleInfo, 16, OptionName.SniperCanShapeshift, false, false);
         OpCankill = BooleanOptionItem.Create(RoleInfo, 17, OptionName.SniperCanKill, true, false);
-        OpHyoujitime = FloatOptionItem.Create(RoleInfo, 18, OptionName.SniperHyoujitime, new(0f, 60f, 1f), 10f, false).SetValueFormat(OptionFormat.Seconds);
+        OpHyoujitime = FloatOptionItem.Create(RoleInfo, 18, OptionName.SniperHyoujitime, new(0f, 60f, 1f), 10f, false, infinity: null).SetValueFormat(OptionFormat.Seconds);
         OpFriendlyFire = BooleanOptionItem.Create(RoleInfo, 19, OptionName.SniperFriendlyFire, true, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)

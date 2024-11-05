@@ -172,7 +172,7 @@ public class MeetingVoteManager
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole().RemoveHtmlTags();
         logger.Info($"追放者: {logName} で会議を終了します");
 
-        var r = result.Exiled == null ? (result.IsTie ? Translator.GetString("votetie") : Translator.GetString("voteskip")) : Utils.GetPlayerColor(PlayerCatch.GetPlayerById(result.Exiled.Object.PlayerId)) + Translator.GetString("fortuihou");
+        var r = result.Exiled == null ? (result.IsTie ? UtilsRoleText.GetExpelledText(byte.MaxValue, true, false) : UtilsRoleText.GetExpelledText(byte.MaxValue, false, true)) : UtilsRoleText.GetExpelledText(result.Exiled.PlayerId, false, false);
         if (Voteresult == "")
         {
             Voteresult = r;
@@ -196,16 +196,17 @@ public class MeetingVoteManager
                 });
             }
         }
-        if (!AntiBlackout.OverrideExiledPlayer)
+        if (!AntiBlackout.OverrideExiledPlayer && !Options.BlackOutwokesitobasu.GetBool())
         {
             var ch = true;
             if (AmongUsClient.Instance.AmHost)
             {
                 if (result.Exiled != null)
-                    if (result.Exiled == PlayerControl.LocalPlayer.Data)
+                    if (result.Exiled.PlayerId == PlayerControl.LocalPlayer.Data.PlayerId)
                     {
                         foreach (var Player in PlayerCatch.AllPlayerControls)
                         {
+                            var a = false;
                             var taishou = Player;
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
@@ -215,11 +216,12 @@ public class MeetingVoteManager
                                 {
                                     Logger.Error($"{Player.Data.PlayerName} : 変更対象が存在しません", "DontBlackout ch = false");
                                 }
-                                else taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
-                                if (pc == PlayerControl.LocalPlayer) continue;
+                                else taishou = List.OrderBy(x => x.PlayerId).LastOrDefault();
+                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                                 Player.RpcSetRoleDesync(Player.PlayerId == taishou.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                                a = true;
                             }
-                            Logger.Info($"{Player.name} => {taishou.name} , Ch = false!", "NotAntenEx");
+                            if (a) Logger.Info($"{Player.name} => {taishou.name} , Ch = false!", "NotAntenEx");
                         }
                         ch = false;
                     }
@@ -227,10 +229,11 @@ public class MeetingVoteManager
                 if (ch)
                     foreach (var Player in PlayerCatch.AllPlayerControls)
                     {
+                        var a = false;
                         var taishou = PlayerControl.LocalPlayer;
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
-                            if (pc == PlayerControl.LocalPlayer) continue;
+                            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                             var t = byte.MaxValue;
                             if (!PlayerControl.LocalPlayer.IsAlive())
                             {
@@ -240,11 +243,12 @@ public class MeetingVoteManager
                                 {
                                     Logger.Error($"{Player.Data.PlayerName} : 変更対象が存在しません", "DontBlackout ch = true");
                                 }
-                                else taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
+                                else taishou = List.OrderBy(x => x.PlayerId).LastOrDefault();
                             }
                             Player?.RpcSetRoleDesync(Player.PlayerId == taishou.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                            a = true;
                         }
-                        Logger.Info($"{Player.name} => {taishou.name} , Ch = true!", "NotAntenEx");
+                        if (a) Logger.Info($"{Player.name} => {taishou.name} , Ch = true!", "NotAntenEx");
                     }
             }
         }
@@ -511,7 +515,7 @@ public class MeetingVoteManager
                             PlayerCatch.GetPlayerById(playerId)?.SetRealKiller(null);
                         }
                         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
-                        Voteresult = string.Join(',', mostVotedPlayers.Select(id => GetVoteName(id, true))) + Translator.GetString("fortuihou");
+                        Voteresult = string.Join('\n', mostVotedPlayers.Select(id => UtilsRoleText.GetExpelledText(id, false, false)));
                         UtilsGameLog.AddGameLog("Vote", Voteresult);
 
                         Exiled = null;
@@ -522,9 +526,8 @@ public class MeetingVoteManager
                         Exiled = GameData.Instance.GetPlayerById(exileId);
                         IsTie = false;
                         logger.Info($"ランダム追放: {GetVoteName(exileId)}");
-                        var player = PlayerCatch.GetPlayerById(exileId);
-                        Voteresult = Utils.GetPlayerColor(player) + Translator.GetString("fortuihou");
-                        UtilsGameLog.AddGameLog("Vote", Utils.GetPlayerColor(player) + Translator.GetString("fortuihou"));
+                        Voteresult = UtilsRoleText.GetExpelledText(exileId, false, false);
+                        UtilsGameLog.AddGameLog("Vote", UtilsRoleText.GetExpelledText(exileId, false, false));
                         break;
                 }
             }

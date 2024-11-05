@@ -159,9 +159,7 @@ namespace TownOfHost
         private static readonly LogHandler logger = Logger.Handler(nameof(PlayerControl.MurderPlayer));
         public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] MurderResultFlags resultFlags, ref bool __state /* 成功したキルかどうか */ )
         {
-            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.protectedByGuardianThisRound ? "(Protected)" : "")}", "MurderPlayer");
-
-            logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}({resultFlags})");
+            logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.protectedByGuardianThisRound ? "(Protected)" : "")} ({resultFlags})");
             var isProtectedByClient = resultFlags.HasFlag(MurderResultFlags.DecisionByHost) && target.IsProtected();
             var isProtectedByHost = resultFlags.HasFlag(MurderResultFlags.FailedProtected);
             var isFailed = resultFlags.HasFlag(MurderResultFlags.FailedError);
@@ -172,7 +170,7 @@ namespace TownOfHost
             }
             if (isProtectedByHost)
             {
-                logger.Info("守護されているため，キルはホストによってキャンセルされました");
+                //logger.Info("守護されているため，キルはホストによってキャンセルされました");
             }
             if (isFailed)
             {
@@ -1056,6 +1054,11 @@ namespace TownOfHost
 
             CustomRoleManager.OnFixedUpdate(player);
 
+            if (player)
+            {
+                (player.GetRoleClass() as IUsePhantomButton)?.FixedUpdate(player);
+            }
+
             if (Main.NowSabotage && player.PlayerId == 0) Main.sabotagetime += Time.fixedDeltaTime;
 
             if (AmongUsClient.Instance.AmHost)
@@ -1793,7 +1796,7 @@ namespace TownOfHost
     {
         public static void Postfix(PlayerControl __instance)
         {
-            Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}", "RemoveProtection");
+            //Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}", "RemoveProtection");
         }
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
@@ -1913,16 +1916,34 @@ namespace TownOfHost
         [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
         [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
         [HarmonyPrefix]
-        public static void Prefix(PlayerControl __instance)
+        public static bool Prefix(PlayerControl __instance)
         {
-            Logger.seeingame("!");
-            foreach (var pc in PlayerCatch.AllPlayerControls)
+            Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
+            var resetkillcooldown = false;
+            var fall = false;
+
+            if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton) iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
+
+            __instance.RpcSetRoleDesync(RoleTypes.Impostor, __instance.GetClientId());
+            _ = new LateTask(() =>
             {
-                if (!pc.GetCustomRole().GetRoleInfo().IsDesyncImpostor) continue;
-                pc.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
-                __instance.RpcSetRoleDesync(RoleTypes.Phantom, pc.GetClientId());
-            }
-        }
+                __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
+
+                float k = 0;
+                IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out k);
+                Main.AllPlayerKillCooldown.TryGetValue(__instance.PlayerId, out var killcool);
+                /* 初手で、キルク修正がオフでキルクが10s以上で、キルが0回*/
+                if (MeetingStates.FirstMeeting && !Options.FixFirstKillCooldown.GetBool() && killcool > 10 && PlayerState.GetByPlayerId(__instance.PlayerId)?.GetKillCount() is 0 or null)
+                    killcool = 10;
+                float cooldown = killcool - k;
+                if (cooldown <= 1) cooldown = 0.005f;
+
+                if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
+                if (!fall) __instance.RpcResetAbilityCooldown(false, true);
+            }, 0.00001f, "", true);
+
+            return false;
+        }/*
         [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
         [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
         [HarmonyPostfix]
@@ -1983,6 +2004,6 @@ namespace TownOfHost
                 }
             }, 1.76f);
 
-        }
+        }*/
     }
 }

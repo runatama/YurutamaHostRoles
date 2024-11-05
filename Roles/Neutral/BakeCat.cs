@@ -170,29 +170,32 @@ namespace TownOfHost.Roles.Neutral
         {
             if (!CanKill) return;
 
-            if (AmongUsClient.Instance.AmHost)
-            {
-                Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
-                foreach (var pc in PlayerCatch.AllPlayerControls)
-                {
-                    if (pc == PlayerControl.LocalPlayer)
-                    {
-                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
-                        if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
-                    }
-                    else
-                    {
-                        Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                        if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
-                    }
-                }
-            }
-
             _ = new LateTask(() =>
             {
-                Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
-                CanKill = true;
-            }, 0.3f, "ResetKillCooldown");
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        if (pc == PlayerControl.LocalPlayer)
+                        {
+                            Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
+                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                        }
+                        else
+                        {
+                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
+                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                        }
+                    }
+                }
+
+                _ = new LateTask(() =>
+                {
+                    Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
+                    CanKill = true;
+                }, 0.3f, "ResetKillCooldown", true);
+            }, 5f, "Bakecatkillbutton");
         }
         private void RevealNameColors(PlayerControl killer)
         {

@@ -618,5 +618,40 @@ namespace TownOfHost
 
             return sb.ToString();
         }
+        public static string GetRoleColorAndtext(CustomRoles role) => ColorString(GetRoleColor(role), GetString($"{role}"));
+
+        public static string GetExpelledText(byte expelledid, bool istie, bool isskip)
+        {
+            if (istie) return GetString("votetie");
+            if (isskip) return GetString("voteskip");
+
+            if (expelledid == byte.MaxValue) return GetString("voteskip");
+
+            var playername = GetPlayerColor(expelledid, true);
+            var role = PlayerState.GetByPlayerId(expelledid)?.MainRole ?? CustomRoles.NotAssigned;
+
+            if (Options.ShowVoteResult.GetBool() && role is not CustomRoles.NotAssigned)
+            {
+                switch (Options.ShowVoteJudgments[Options.ShowVoteJudgment.GetValue()])
+                {
+                    case "Impostor":
+                        return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(CustomRoles.Impostor),
+                            role.IsImpostor() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
+                    case "Neutral":
+                        return string.Format(GetString("fortuihourole"), playername, $"<color=#cccccc>{GetString("Neutral")}</color>",
+                            role.IsNeutral() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
+                    case "CrewMate(Mad)":
+                        return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(CustomRoles.Crewmate),
+                            role.IsCrewmate() || role.IsMadmate() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
+                    case "Crewmate":
+                        return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(CustomRoles.Crewmate),
+                            role.IsCrewmate() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
+                    case "Role":
+                        return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(role), GetString("fortuihouisrole"));
+                }
+            }
+
+            return string.Format(GetString("fortuihou"), playername);
+        }
     }
 }

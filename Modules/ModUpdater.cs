@@ -32,6 +32,7 @@ namespace TownOfHost
         public static bool nothostbug = false;
         public static string body = "詳細のチェックに失敗しました";
         public static List<Release> releases = new();
+        public static List<Release> snapshots = new();
         private static List<SimpleButton> buttons = new();
         public static Versions version;
 
@@ -70,11 +71,12 @@ namespace TownOfHost
             MainMenuManagerPatch.UpdateButton.Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMPro.TMP_Text>().SetText($"{GetString("updateButton")}\n{latestTitle}");
             MainMenuManagerPatch.UpdateButton2.Button.gameObject.SetActive(hasUpdate);
         }
-        public static async Task<bool> CheckRelease(bool beta = false, bool all = false)
+        public static async Task<bool> CheckRelease(bool beta = false, bool all = false, bool snap = false)
         {
             bool updateCheck = version != null && version.Update.Version != null;
             //string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (updateCheck ? "/tags/" + version.Update.Version : (all ? "" : "/latest"));
             string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (all ? "" : "/latest");
+            if (snap) url = url + "?page=1";
             try
             {
                 string result;
@@ -96,11 +98,54 @@ namespace TownOfHost
                     downloadUrl = data["url"].ToString();
                     hasUpdate = latestTitle != ThisAssembly.Git.Commit;
                 }
+                else if (snap)
+                {
+                    snapshots = JsonSerializer.Deserialize<List<Release>>(result);
+                    List<Release> del = new();
+                    foreach (var release in snapshots)
+                    {
+                        var assets = release.Assets;
+                        var tag = release.TagName;
+                        if (tag == null)
+                        {
+                            del.Add(release);
+                            continue;
+                        }
+                        if (!tag.Contains($"{Main.ModVersion}"))
+                        {
+                            del.Add(release);
+                            continue;//そのバージョンの奴じゃないなら除外
+                        }
+                        if (tag.Contains("5.1."))//今の表記は519とかなので5.1.x表示ならもう表示しない
+                        {
+                            del.Add(release);
+                            continue;
+                        }
+                        foreach (var asset in assets)
+                        {
+                            if (asset.Name == "TownOfHost-K_Steam.dll" && Constants.GetPlatformType() == Platforms.StandaloneSteamPC)
+                            {
+                                release.DownloadUrl = asset.DownloadUrl;
+                                break;
+                            }
+                            if (asset.Name == "TownOfHost-K_Epic.dll" && Constants.GetPlatformType() == Platforms.StandaloneEpicPC)
+                            {
+                                release.DownloadUrl = asset.DownloadUrl;
+                                break;
+                            }
+                            if (asset.Name == "TownOfHost-K.dll")
+                                release.DownloadUrl = asset.DownloadUrl;
+                        }
+                        release.OpenURL = $"https://github.com/KYMario/TownOfHost-K/releases/tag/{tag}";
+                    }
+                    if (del != null) del.Do(r => snapshots.Remove(r));
+                }
                 else if (all)
                 {
                     releases = JsonSerializer.Deserialize<List<Release>>(result);
                     foreach (var release in releases)
                     {
+                        var tag = release.TagName;
                         var assets = release.Assets;
                         foreach (var asset in assets)
                         {
@@ -117,11 +162,12 @@ namespace TownOfHost
                             if (asset.Name == "TownOfHost-K.dll")
                                 release.DownloadUrl = asset.DownloadUrl;
                         }
+                        release.OpenURL = $"https://github.com/KYMario/TownOfHost-K/releases/tag/{tag}";
                     }
                 }
                 else
                 {
-                    latestVersion = new(data["tag_name"]?.ToString().TrimStart('v'));
+                    latestVersion = new(data["tag_name"]?.ToString().TrimStart('v')?.Trim('S')?.Trim('s'));
                     latestTitle = $"Ver. {latestVersion}";
                     JArray assets = data["assets"].Cast<JArray>();
                     for (int i = 0; i < assets.Count; i++)
@@ -149,7 +195,8 @@ namespace TownOfHost
                 }
                 isChecked = true;
                 isBroken = false;
-                body = data["body"].ToString();
+                /*body = data["body"].ToString();
+                
                 // Subverのチェック。
                 // バージョンが同一で、　　　　　　　　　　　　　　　　現在のサブバージョンがGitHubに記載されてなくて、　　　　　　　　サブバージョンの記載がある時～
                 if (latestVersion.CompareTo(Main.version) == 0 && !body.Contains($"PluginSubVersion:{Main.PluginSubVersion}") && body.Contains($"PluginSubVersion:"))
@@ -161,7 +208,7 @@ namespace TownOfHost
                     latestTitle += $"<sub>{subvarsion.RemoveText(true)}</sub>";
                 }
                 else isSubUpdata = false;
-                //if (body.Contains("📢公開ルーム○")) publicok = true;
+                *///if (body.Contains("📢公開ルーム○")) publicok = true;
                 //else if (body.Contains("📢公開ルーム×")) publicok = false;
                 //nothostbug = body.Contains("非ホストmodクライアントにバグあり");
             }
@@ -173,20 +220,15 @@ namespace TownOfHost
             }
             return true;
         }
-        public static void StartUpdate(string url)
+        public static void StartUpdate(string url, string openurl = "")
         {
             ShowPopup(GetString("updatePleaseWait"));
             if (!BackupDLL())
             {
-                ShowPopup(GetString("updateManually"), true);
+                ShowPopup(GetString("updateManually"), true, openurl);
                 return;
             }
-            _ = DownloadDLL(url);
-            return;
-        }
-        public static void GoGithub()
-        {
-            ShowPopup(GetString("gogithub"), true);
+            _ = DownloadDLL(url, openurl);
             return;
         }
         public static bool BackupDLL()
@@ -218,7 +260,7 @@ namespace TownOfHost
             }
             return;
         }
-        public static async Task<bool> DownloadDLL(string url)
+        public static async Task<bool> DownloadDLL(string url, string openurl)
         {
             try
             {
@@ -230,7 +272,7 @@ namespace TownOfHost
                     using var stream = content.ReadAsStream();
                     using var file = new FileStream("BepInEx/plugins/TownOfHost-K.dll", FileMode.Create, FileAccess.Write);
                     stream.CopyTo(file);
-                    ShowPopup(GetString("updateRestart"), true);
+                    ShowPopup(GetString("updateRestart"), true, openurl);
                     return true;
                 }
             }
@@ -238,14 +280,14 @@ namespace TownOfHost
             {
                 Logger.Error($"ダウンロードに失敗しました。\n{ex}", "DownloadDLL", false);
             }
-            ShowPopup(GetString("updateManually"), true);
+            ShowPopup(GetString("updateManually"), true, openurl);
             return false;
         }
         private static void DownloadCallBack(object sender, DownloadProgressChangedEventArgs e)
         {
             ShowPopup($"{GetString("updateInProgress")}\n{e.BytesReceived}/{e.TotalBytesToReceive}({e.ProgressPercentage}%)");
         }
-        private static void ShowPopup(string message, bool showButton = false)
+        private static void ShowPopup(string message, bool showButton = false, string OpenURL = "")
         {
             if (InfoPopup != null)
             {
@@ -258,7 +300,7 @@ namespace TownOfHost
                     button.GetComponent<PassiveButton>().OnClick = new();
                     button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() =>
                     {
-                        Application.OpenURL("https://github.com/KYMario/TownOfHost-K/releases/latest");
+                        Application.OpenURL(OpenURL == "" ? "https://github.com/KYMario/TownOfHost-K/releases/latest" : OpenURL);
                         Application.Quit();
                     }));
                 }
@@ -288,6 +330,7 @@ namespace TownOfHost
             public List<Asset> Assets { get; set; }
 
             public string DownloadUrl { get; set; }
+            public string OpenURL { get; set; }
 
             public class Asset
             {

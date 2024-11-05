@@ -605,7 +605,7 @@ namespace TownOfHost
                     case "/say":
                         canceled = true;
                         if (args.Length > 1)
-                            SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
+                            SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>", rob: true);
                         break;
 
                     case "/settask":
@@ -1898,20 +1898,22 @@ namespace TownOfHost
                         Logger.Info($"aaa", "aaa");
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
+                            var sender = pc;
+                            if (!pc.IsAlive()) sender = player;
                             Logger.Info($"{pc.PlayerId}", "aaa");
                             clientId = pc.GetClientId();
                             var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                             Nwriter.StartMessage(clientId);
-                            Nwriter.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                            .Write(pc.Data.NetId)
+                            Nwriter.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                            .Write(sender.Data.NetId)
                             .Write(title)
                             .EndRpc();
-                            Nwriter.StartRpc(pc.NetId, (byte)RpcCalls.SendChat)
+                            Nwriter.StartRpc(sender.NetId, (byte)RpcCalls.SendChat)
                             .Write(msg)
                             .EndRpc();
-                            Nwriter.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                            .Write(pc.Data.NetId)
-                            .Write(pc.Data.PlayerName)
+                            Nwriter.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
+                            .Write(sender.Data.NetId)
+                            .Write(sender.Data.PlayerName)
                             .EndRpc();
                             Nwriter.EndMessage();
                             Nwriter.SendMessage();
