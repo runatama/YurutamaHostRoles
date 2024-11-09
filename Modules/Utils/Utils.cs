@@ -322,7 +322,7 @@ namespace TownOfHost
                         case SuffixModes.None:
                             break;
                         case SuffixModes.TOH:
-                            name += $"</size>\r\n<color={Main.ModColor}>TOH-K v{Main.PluginVersion}{CredentialsPatch.Subver}</color><size=150%>";
+                            name += $"</size>\r\n<color={Main.ModColor}>TOH-K v{Main.PluginShowVersion}</color><size=150%>";
                             break;
                         case SuffixModes.Streaming:
                             name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color><size=150%>";
@@ -367,7 +367,7 @@ namespace TownOfHost
                     else at += "\r\n";
 
                     info += "</size>";
-                    n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginVersion}{CredentialsPatch.Subver}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
+                    n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginShowVersion}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
                     PlayerControl.LocalPlayer.Data.PlayerName = n;
                 }
             }

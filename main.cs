@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.22";
-        public const string PluginSubVersion = "01";//通常""
+        public const string PluginVersion = "519.22.11";
+        public const string PluginShowVersion = "519.22<sub>.11</sub>";
         public const string ModVersion = ".22";//リリースver用バージョン変更
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
@@ -336,7 +336,7 @@ namespace TownOfHost
                 ExceptionMessageIsShown = false;
             }
             TownOfHost.Logger.Info($"{Application.version}", "AmongUs Version");
-            TownOfHost.Logger.Info($"{ModName} v.{PluginVersion} - {PluginSubVersion}", "ModPluginVersion");
+            TownOfHost.Logger.Info($"{ModName} v.{PluginVersion}", "ModPluginVersion");
             var handler = TownOfHost.Logger.Handler("GitVersion");
             handler.Info($"{nameof(ThisAssembly.Git.Branch)}: {ThisAssembly.Git.Branch}");
             handler.Info($"{nameof(ThisAssembly.Git.BaseTag)}: {ThisAssembly.Git.BaseTag}");

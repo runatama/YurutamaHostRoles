@@ -399,7 +399,7 @@ namespace TownOfHost
                 sb.Append('\n');
             }
             sb.Append("</line-height></size>" + GetString("Settings") + "\n<line-height=60%><size=70%>");
-            sb.Append($"Mod:<color={Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginVersion}{CredentialsPatch.Subver} {(Main.DebugVersion ? $"☆{GetString("Debug")}☆" : "")}</color>\n");
+            sb.Append($"Mod:<color={Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginShowVersion} {(Main.DebugVersion ? $"☆{GetString("Debug")}☆" : "")}</color>\n");
             sb.Append($"Map:{Constants.MapNames[Main.NormalOptions.MapId]}\n");
             sb.Append($"{GetString("Impostor")}:{Main.NormalOptions.NumImpostors.ToString()}\n");
             sb.Append($"{GetString("NumEmergencyMeetings")}:{Main.NormalOptions.NumEmergencyMeetings.ToString()}\n");

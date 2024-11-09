@@ -60,7 +60,7 @@ namespace TownOfHost
             HudManagerPatch.NowCallNotifyRolesCount++;
             HudManagerPatch.LastSetNameDesyncCount = 0;
             var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
-            Info += $"v{Main.version}{CredentialsPatch.Subver}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
+            Info += $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
             Info += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
 
             var seerList = PlayerControl.AllPlayerControls;
@@ -466,7 +466,7 @@ namespace TownOfHost
                             {
                                 var TInfo = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
 
-                                var IInfo = $"v{Main.version}{CredentialsPatch.Subver}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
+                                var IInfo = $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
                                 IInfo += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
 
                                 TInfo += IInfo;

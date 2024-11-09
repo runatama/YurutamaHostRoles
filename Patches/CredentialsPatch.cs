@@ -39,7 +39,7 @@ namespace TownOfHost
 
                 var Debugver = "";
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
-                sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Subver + Debugver);
+                sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
 
                 if (Options.NoGameEnd.GetBool() && (GameStates.IsLobby || Main.DontGameSet)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
@@ -89,8 +89,8 @@ namespace TownOfHost
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
                 Subver = "";
                 /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
-                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
-                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Subver + Debugver;
+                //                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
+                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver;
 #if DEBUG
                 if (!GameStates.InGame) Main.credentialsText += $"\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
 #endif
