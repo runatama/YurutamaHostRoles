@@ -42,7 +42,6 @@ namespace TownOfHost.Roles.Neutral
         private byte Rtarget;
         private static float KillCooldown;
 
-        public bool CanBeLastImpostor { get; } = false;
         enum OptionName
         {
             KillAnimation

@@ -333,14 +333,6 @@ namespace TownOfHost
             catch (Exception ec) { Logger.Error($"{ec}", "ButtonHud"); }
         }
     }
-    [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SetRole))]
-    class SetRolePatch
-    {
-        public static void Postfix(RoleManager __instance, [HarmonyArgument(0)] PlayerControl targetplayer, [HarmonyArgument(1)] RoleTypes role)
-        {
-            Logger.Info($"{targetplayer?.Data?.PlayerName ?? "( ᐛ )"} =>  {role}", "RoleManagerSetRole");
-        }
-    }
     [HarmonyPatch(typeof(ShapeshifterPanel), nameof(ShapeshifterPanel.SetPlayer))]
     class ShapeShifterNamePatch
     {

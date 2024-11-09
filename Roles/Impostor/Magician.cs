@@ -9,14 +9,14 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
-public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
+public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(Magician),
             player => new Magician(player),
             CustomRoles.Magician,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             6200,
             SetupOptionItem,
@@ -99,12 +99,13 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
             MagicCooldown = DefaultCooldown;
     }
 
-    public void OnCheckMurderAsKiller(MurderInfo info)
-        => killc++;
-
-    public void OnClick()
+    public void OnCheckMurderAsKiller(MurderInfo info) => killc++;
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = true;
         if (count >= Maximum && Maximum != 0) return;
+        fall = false;
         Dictionary<PlayerControl, float> distance = new();
         float dis;
         bool check = false;
@@ -167,7 +168,7 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
         KillList.Clear();
         killc -= rt;
         Player.SetKillCooldown();
-        _ = new LateTask(() => (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player), 0.3f);
+        //_ = new LateTask(() => (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player), 0.3f);
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.1f);
     }
 
@@ -189,7 +190,6 @@ public sealed class Magician : RoleBase, IImpostor, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = MagicCooldown;
-        AURoleOptions.ShapeshifterDuration = MagicCooldown;
+        AURoleOptions.PhantomCooldown = MagicCooldown;
     }
 }

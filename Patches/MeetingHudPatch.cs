@@ -232,18 +232,31 @@ public static class MeetingHudPatch
                 {
                     foreach (var seen in PlayerCatch.AllPlayerControls)
                     {
-                        var seenName = seen.GetRealName(isMeeting: true);
-                        var coloredName = Utils.ColorString(seen.GetRoleColor(), seenName);
                         foreach (var seer in PlayerCatch.AllPlayerControls)
                         {
-                            seen.RpcSetNamePrivate(
-                                seer == seen ? coloredName : seenName,
-                                true,
-                                seer);
+                            var seenName = seen.GetRealName(isMeeting: true);
+                            seenName = seenName.ApplyNameColorData(seer, seen, true);
+
+                            seen.RpcSetNamePrivate(seenName, true, seer, true);
                         }
                     }
                     ChatUpdatePatch.DoBlockChat = false;
                 }, 3f, "SetName To Chat");
+
+                _ = new LateTask(() =>
+                {
+                    foreach (var seen in PlayerCatch.AllPlayerControls)
+                    {
+                        foreach (var seer in PlayerCatch.AllPlayerControls)
+                        {
+                            var seenName = seen.GetRealName(isMeeting: true);
+                            seenName = seenName.ApplyNameColorData(seer, seen, true);
+
+                            seen.RpcSetNamePrivate(seenName, true, seer, true);
+                        }
+                    }
+                    ChatUpdatePatch.DoBlockChat = false;
+                }, 10f, "SetName To Chat", true);
             }
 
             foreach (var pva in __instance.playerStates)

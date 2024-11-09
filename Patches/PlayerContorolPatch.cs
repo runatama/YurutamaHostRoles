@@ -834,7 +834,6 @@ namespace TownOfHost
                 Logger.Info("コミュサボ中はレポート出来なくするため、レポートをキャンセルします。", "ReportDeadBody");
                 return false;
             }*/
-            Logger.Info("1", "ReportDeadBody");
             if (RoleAddAddons.GetRoleAddon(repoter.GetCustomRole(), out var da, repoter) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
             {
                 if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
@@ -885,7 +884,6 @@ namespace TownOfHost
                 }
             }
 
-            Logger.Info("2", "ReportDeadBody");
             if (target != null)
             {
                 var tage = PlayerCatch.GetPlayerById(target.PlayerId);
@@ -929,7 +927,6 @@ namespace TownOfHost
                 return false;
             }
 
-            Logger.Info("3", "ReportDeadBody");
             var r = DontReportreson.None;
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
@@ -1918,7 +1915,7 @@ namespace TownOfHost
         [HarmonyPrefix]
         public static bool Prefix(PlayerControl __instance)
         {
-            Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
+            //Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
             var resetkillcooldown = false;
             var fall = false;
 

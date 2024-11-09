@@ -51,14 +51,14 @@ static class Event
 //やぁ。気付いちゃった...?( ᐛ )
 //ファイル作っちゃうとばれちゃうからね。
 //ｶ ｸ ｼ ﾃ ﾙ ﾅ ﾗ ﾏ ｧ ｺ ｺ ｼﾞ ｬ ﾝ ?
-public sealed class SpeedStar : RoleBase, IImpostor, IUseTheShButton
+public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(SpeedStar),
             player => new SpeedStar(player),
             CustomRoles.SpeedStar,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             6400,
             SetUpOptionItem,
@@ -93,9 +93,11 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUseTheShButton
         Speed = FloatOptionItem.Create(RoleInfo, 13, "SpeedStarSpeed", new(0, 10, 0.05f), 3f, false).SetValueFormat(OptionFormat.Multiplier);
     }
     public float CalculateKillCooldown() => killcooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = cooldown.GetFloat();
-    public void OnClick()
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown.GetFloat();
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        fall = false;
+        resetkillcooldown = fall;
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
@@ -126,14 +128,14 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUseTheShButton
         }
     }
 }
-public sealed class EvilTeller : RoleBase, IImpostor, IUseTheShButton
+public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(EvilTeller),
             player => new EvilTeller(player),
             CustomRoles.EvilTeller,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             6500,
             SetUpOptionItem,
@@ -174,9 +176,11 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUseTheShButton
         usekillcoool = BooleanOptionItem.Create(RoleInfo, 16, "OptionSetKillcooldown", false, false);
     }
     public float CalculateKillCooldown() => killcooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = fall ? 1 : (nowuse ? telltime.GetFloat() : cooldown.GetFloat());
-    public void OnClick()
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = fall ? 1 : (nowuse ? telltime.GetFloat() : cooldown.GetFloat());
+    public void OnClick(ref bool resetkillcooldown, ref bool falla)
     {
+        resetkillcooldown = true;
+        falla = true;
         var target = Player.GetKillTarget();
         if (target == null) { fall = true; return; }
         if (target.Is(CustomRoleTypes.Impostor)) { fall = true; return; }

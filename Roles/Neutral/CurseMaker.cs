@@ -6,14 +6,14 @@ using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
-public sealed class CurseMaker : RoleBase, IKiller, IUseTheShButton
+public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(CurseMaker),
             player => new CurseMaker(player),
             CustomRoles.CurseMaker,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Neutral,
             34300,
             SetupOptionItem,
@@ -160,14 +160,17 @@ public sealed class CurseMaker : RoleBase, IKiller, IUseTheShButton
     public bool CanUseSabotageButton() => false;
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = OptionShepeCooldown.GetFloat();
+        AURoleOptions.PhantomCooldown = OptionShepeCooldown.GetFloat();
         opt.SetVision(false);
     }
     public float CalculateKillCooldown() => fall ? 0.00000000001f : OptionKillCoolDown.GetFloat();
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        fall = true;
         if (!Player.IsAlive()) return;
         if (Noroi.Count == 0) return;
+        resetkillcooldown = true;
+        fall = false;
 
         Noroi.Add(Player.PlayerId, 0);
         foreach (var nr in Noroi)

@@ -6,14 +6,14 @@ using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
-public sealed class Camouflager : RoleBase, IImpostor, IUseTheShButton
+public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(Camouflager),
             player => new Camouflager(player),
             CustomRoles.Camouflager,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             6300,
             SetupOptionItem,
@@ -48,7 +48,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = NowUse ? (OptionAblitytime.GetFloat() + 1f) : OptionCooldown.GetFloat();
+        AURoleOptions.PhantomCooldown = NowUse ? (OptionAblitytime.GetFloat() + 1f) : OptionCooldown.GetFloat();
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -124,8 +124,10 @@ public sealed class Camouflager : RoleBase, IImpostor, IUseTheShButton
         VentPlayers.Clear();
     }
     public override bool NotifyRolesCheckOtherName => true;
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = true;
         if (NowUse) return;
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)

@@ -12,14 +12,14 @@ using HarmonyLib;
 
 namespace TownOfHost.Roles.Neutral;
 
-public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, ISchrodingerCatOwner, INekomata, IUseTheShButton
+public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, ISchrodingerCatOwner, INekomata, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
                 typeof(JackalAlien),
                 player => new JackalAlien(player),
                 CustomRoles.JackalAlien,
-                () => CanmakeSK.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+                () => CanmakeSK.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
                 30100,
                 SetupOptionItem,
@@ -756,15 +756,15 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override bool OnInvokeSabotage(SystemTypes systemType) => OptionCanUseSabotage.GetBool();
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = Fall ? 0f : OptionCooldown.GetFloat();
-        AURoleOptions.ShapeshifterDuration = 1f;
+        AURoleOptions.PhantomCooldown = Fall ? 0f : OptionCooldown.GetFloat();
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
-    public bool UseOCButton => SK;
-    public override bool CanUseAbilityButton() => SK;
-    public void OnClick()
+    public bool UseOneclickButton => SK;
+    public override bool CanUseAbilityButton() => SK; public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
         if (!SK) return;
+
         if (JackalDoll.sidekick.GetInt() <= JackalDoll.side)
         {
             SK = false;
@@ -772,14 +772,16 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         }
         var ch = Fall;
         var target = Player.GetKillTarget();
-        if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CountTypes.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
+        if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoles.Jackaldoll) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.JackalMafia) || ((target.GetCustomRole().IsImpostor() || target.Is(CustomRoles.Egoist)) && !CanImpSK.GetBool()))
         {
+            fall = true;
+            /*
             Fall = true;
             if (!ch)
             {
                 _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "", true);
                 _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "", true);
-            }
+            }*/
             return;
         }
         SK = false;
@@ -795,6 +797,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         JackalDoll.side++;
         Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
     }
+
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
         (var killer, var target) = info.AttemptTuple;
@@ -858,29 +861,31 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     {
         RestartAbduct();
     }
-    public string Mode()
+
+    public string Mode(bool gamelog = false)
     {
         if (!Player.IsAlive()) return "";
+        var size = gamelog ? "<size=30%>" : "<size=75%>";
 
-        if (modeNone) return "<size=75%><color=#00b4eb>mode:None</color></size>";
-        if (modeVampire) return "<size=75%><color=#00b4eb>mode:" + GetString("Vampire") + "</color></size>";
-        if (modeEvilHacker) return "<size=75%><color=#00b4eb>mode:" + GetString("EvilHacker") + "</color></size>";
-        if (modeLimiter) return "<size=75%><color=#00b4eb>mode:" + GetString("Limiter") + "</color></size>";
-        if (modePuppeteer) return "<size=75%><color=#00b4eb>mode:" + GetString("Puppeteer") + "</color></size>";
-        if (modeStealth) return "<size=75%><color=#00b4eb>mode:" + GetString("Stealth") + "</color></size>";
-        if (modeRemotekiller) return "<size=75%><color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
-        if (modeNotifier) return "<size=75%><color=#00b4eb>mode:" + GetString("Notifier") + "</color></size>";
-        if (modeTimeThief) return "<size=75%><color=#00b4eb>mode:" + GetString("TimeThief") + "</color></size>";
-        if (modeTairo) return "<size=75%><color=#00b4eb>mode:" + GetString("Tairou") + "</color></size>";
-        if (modeMayor) return "<size=75%><color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
-        if (modeMole) return "<size=75%><color=#00b4eb>mode:" + GetString("Mole") + "</color></size>";
-        if (modeProgresskiller) return "<size=75%><color=#00b4eb>mode:" + GetString("ProgressKiller") + "</color></size>";
-        if (modeNekokabocha) return "<size=75%><color=#00b4eb>mode:" + GetString("NekoKabocha") + "</color></size>";
-        if (modeinsider) return "<size=75%><color=#00b4eb>mode:" + GetString("Insider") + "</color></size>";
-        if (modepenguin) return "<size=75%><color=#00b4eb>mode:" + GetString("Penguin") + "</color></size>";
-        if (modeNomal) return "<size=75%><color=#00b4eb>mode:Normal</color></size>";
+        if (modeNone) return size + "<color=#ff1919>mode:None</color></size>";
+        if (modeVampire) return size + "<color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
+        if (modeEvilHacker) return size + "<color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
+        if (modeLimiter) return size + "<color=#ff1919>mode:" + GetString("Limiter") + "</color></size>";
+        if (modePuppeteer) return size + "<color=#ff1919>mode:" + GetString("Puppeteer") + "</color></size>";
+        if (modeStealth) return size + "<color=#ff1919>mode:" + GetString("Stealth") + "</color></size>";
+        if (modeRemotekiller) return size + "<color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
+        if (modeNotifier) return size + "<color=#ff1919>mode:" + GetString("Notifier") + "</color></size>";
+        if (modeTimeThief) return size + "<color=#ff1919>mode:" + GetString("TimeThief") + "</color></size>";
+        if (modeTairo) return size + "<color=#ff1919>mode:" + GetString("Tairou") + "</color></size>";
+        if (modeMayor) return size + "<color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
+        if (modeMole) return size + "<color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
+        if (modeProgresskiller) return size + "<color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
+        if (modeNekokabocha) return size + "<color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
+        if (modeinsider) return size + "<color=#ff1919>mode:" + GetString("Insider") + "</color></size>";
+        if (modepenguin) return size + "<color=#ff1919>mode:" + GetString("Penguin") + "</color></size>";
+        if (modeNomal) return size + "<color=#ff1919>mode:Normal</color></size>";
 
-        return "<size=75%><color=#00b4eb>mode:？</color></size>";
+        return size + "<color=#ff1919>mode:？</color></size>";
     }
     void ChengeMode(int chance)
     {

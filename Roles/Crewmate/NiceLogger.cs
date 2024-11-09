@@ -8,14 +8,14 @@ using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate
 {
-    public sealed class NiceLogger : RoleBase, IKiller, IUseTheShButton
+    public sealed class NiceLogger : RoleBase, IKiller, IUsePhantomButton
     {
         public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
                 typeof(NiceLogger),
                 player => new NiceLogger(player),
                 CustomRoles.NiceLogger,
-                () => RoleTypes.Shapeshifter,
+                () => RoleTypes.Phantom,
                 CustomRoleTypes.Crewmate,
                 16000,
                 SetupOptionItem,
@@ -65,10 +65,12 @@ namespace TownOfHost.Roles.Crewmate
         public override void ApplyGameOptions(IGameOptions opt)
         {
             opt.SetVision(false);
-            AURoleOptions.ShapeshifterCooldown = 0.0001f;
+            AURoleOptions.PhantomCooldown = 0.0001f;
         }
-        public void OnClick()
+        public void OnClick(ref bool resetkillcooldown, ref bool fall)
         {
+            resetkillcooldown = true;
+            fall = true;
             Dictionary<OpenableDoor, float> Distance = new();
             Vector2 position = Player.transform.position;
             foreach (var door in ShipStatus.Instance.AllDoors)

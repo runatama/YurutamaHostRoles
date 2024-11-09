@@ -69,7 +69,7 @@ namespace TownOfHost
                     {
                         version_text += $"{kvp.Key}:{GetPlayerById(kvp.Key)?.Data?.PlayerName}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n";
                     }
-                    if (version_text != "") HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, version_text);
+                    if (version_text != "") SendMessage(version_text, PlayerControl.LocalPlayer.PlayerId);
                     break;
                 case "/voice":
                 case "/vo":
@@ -588,9 +588,8 @@ namespace TownOfHost
                     case "/template":
                         canceled = true;
                         if (args.Length > 1) TemplateManager.SendTemplate(args[1]);
-                        else HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, $"{GetString("ForExample")}:\n{args[0]} test");
+                        else SendMessage($"{GetString("ForExample")}:\n{args[0]} test", PlayerControl.LocalPlayer.PlayerId);
                         break;
-
                     case "/mw":
                     case "/messagewait":
                         canceled = true;
@@ -741,6 +740,43 @@ namespace TownOfHost
                     case "/at":
                         canceled = true;
                         //Roles.Neutral.NoName.OnCommand(PlayerControl.LocalPlayer.PlayerId, int.TryParse(args.Length < 2 ? "" : args[1], out var coin) ? coin : null);
+                        break;
+
+                    case "/yaminabe":
+                    case "/yami":
+                    case "/ym":
+                        if (GameStates.IsLobby && !GameStates.IsCountDown)
+                        {
+                            canceled = true;
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && (!Event.IsE(option.Key) || Event.Special)))
+                            {
+                                var r = option.Key;
+                                if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral()) option.Value.SetValue(10);
+                            }
+                        }
+                        break;
+                    case "/superyaminabe":
+                    case "/superyami":
+                    case "/sym":
+                        if (GameStates.IsLobby && !GameStates.IsCountDown)
+                        {
+                            canceled = true;
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && (!Event.IsE(option.Key) || Event.Special)))
+                            {
+                                option.Value.SetValue(10);
+                            }
+                        }
+                        break;
+                    case "/rolereset":
+                    case "/resetrole":
+                        if (GameStates.IsLobby && !GameStates.IsCountDown)
+                        {
+                            canceled = true;
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned))
+                            {
+                                option.Value.SetValue(0);
+                            }
+                        }
                         break;
 
                     case "/cr":
@@ -1805,7 +1841,7 @@ namespace TownOfHost
                                     if (pc.IsModClient()) continue;
                                     if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                                     if (player.IsModClient()) continue;
-                                    if (pc == player) continue;
+                                    if (pc.PlayerId == player.PlayerId) continue;
                                     player.Data.IsDead = false;
 
                                     MeetingHudPatch.StartPatch.Serialize = true;
@@ -1895,12 +1931,10 @@ namespace TownOfHost
                 {
                     if (player.PlayerId != 0)
                     {
-                        Logger.Info($"aaa", "aaa");
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
                             var sender = pc;
                             if (!pc.IsAlive()) sender = player;
-                            Logger.Info($"{pc.PlayerId}", "aaa");
                             clientId = pc.GetClientId();
                             var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                             Nwriter.StartMessage(clientId);

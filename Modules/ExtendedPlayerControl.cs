@@ -400,7 +400,7 @@ namespace TownOfHost
                         writer.Write(0);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                     }
-                }, Main.LagTime, "abilityrset");
+                }, Main.LagTime, "abilityrset", null);
             else
             {
                 if (PlayerControl.LocalPlayer == target)
@@ -456,6 +456,7 @@ namespace TownOfHost
         }
         public static void RpcDesyncUpdateSystem(this PlayerControl target, SystemTypes systemType, int amount)
         {
+            if (target == null) return;
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
             messageWriter.Write((byte)systemType);
             messageWriter.WriteNetObject(target);
@@ -611,12 +612,12 @@ namespace TownOfHost
         {
             if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId)) Main.AllPlayerKillCooldown.Add(player.PlayerId, Options.DefaultKillCooldown);
             Main.AllPlayerKillCooldown[player.PlayerId] = (player.GetRoleClass() as IKiller)?.CalculateKillCooldown() ?? Options.DefaultKillCooldown; //キルクールをデフォルトキルクールに変更
-            if (player.PlayerId == LastImpostor.currentId && ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true))
-                LastImpostor.SetKillCooldown();
-            if (player.PlayerId == LastNeutral.currentId && (player.GetRoleClass() is ILNKiller))
-                LastNeutral.SetKillCooldown();
             if (player.Is(CustomRoles.Serial))
                 Main.AllPlayerKillCooldown[player.PlayerId] = Serial.KillCooldown.GetFloat();
+            if (player.PlayerId == LastImpostor.currentId)
+                LastImpostor.SetKillCooldown(player);
+            if (player.PlayerId == LastNeutral.currentId)
+                LastNeutral.SetKillCooldown(player);
 
             if (player.Is(CustomRoles.Amnesia) && Amnesia.defaultKillCool.GetBool()) Main.AllPlayerKillCooldown[player.PlayerId] = Options.DefaultKillCooldown;
         }

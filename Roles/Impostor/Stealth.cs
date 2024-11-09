@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 
-public sealed class Stealth : RoleBase, IImpostor, IUseTheShButton
+public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
 {
     public Stealth(PlayerControl player) : base(RoleInfo, player)
     {
@@ -23,12 +23,12 @@ public sealed class Stealth : RoleBase, IImpostor, IUseTheShButton
         typeof(Stealth),
         player => new Stealth(player),
         CustomRoles.Stealth,
-        () => optionAddDarkenRoom.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+        () => optionAddDarkenRoom.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
         CustomRoleTypes.Impostor,
         9400,
         SetupOptionItems,
         "st",
-        introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
+        introSound: () => GetIntroSound(RoleTypes.Phantom),
         from: From.TownOfHost);
     private static LogHandler logger = Logger.Handler(nameof(Stealth));
 
@@ -70,8 +70,6 @@ public sealed class Stealth : RoleBase, IImpostor, IUseTheShButton
 
         var playersToDarken = FindPlayersInSameRoom(info.AttemptTarget, adddarken);
 
-        logger.Info($"{playersToDarken.Count()} 人");
-        foreach (var pc in playersToDarken) logger.Info($"_(:3 」∠)_{pc.Data.PlayerName}");
         if (playersToDarken == null)
         {
             logger.Info("部屋の当たり判定を取得できないため暗転を行いません");
@@ -145,14 +143,17 @@ public sealed class Stealth : RoleBase, IImpostor, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = optioncooldown.GetFloat();
+        AURoleOptions.PhantomCooldown = optioncooldown.GetFloat();
     }
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = true;
         var room = Player.GetPlainShipRoom();
         if (room == null) return;
         if (adddarkenroom.Contains(room.RoomId)) return;
         if (optionmax.GetInt() <= adddarkenroom.Count) return;
+        fall = false;
         adddarkenroom.Add(room.RoomId);
     }
     public override void OnStartMeeting()

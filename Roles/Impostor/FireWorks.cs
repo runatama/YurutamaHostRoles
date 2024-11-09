@@ -9,7 +9,7 @@ using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
 
-public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
+public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
 {
     public enum FireWorksState
     {
@@ -25,7 +25,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
             typeof(FireWorks),
             player => new FireWorks(player),
             CustomRoles.FireWorks,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             9500,
             SetupCustomOption,
@@ -93,12 +93,13 @@ public sealed class FireWorks : RoleBase, IImpostor, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterDuration = 1f;
-        AURoleOptions.ShapeshifterCooldown = (State is FireWorksState.ReadyFire or FireWorksState.WaitTime) ? OptionPaaaaaaaanCooldown.GetFloat() : Cool;
+        AURoleOptions.PhantomCooldown = (State is FireWorksState.ReadyFire or FireWorksState.WaitTime) ? OptionPaaaaaaaanCooldown.GetFloat() : Cool;
     }
-    public bool UseOCButton => true;
-    public void OnClick()
+    public bool UseOneclickButton => true;
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = false;
         Logger.Info($"FireWorks ShapeShift", "FireWorks");
         switch (State)
         {

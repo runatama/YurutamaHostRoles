@@ -46,6 +46,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem OptionHasImpostorVision;
         public static OptionItem OptionDieKiller;
         public static OptionItem OptionDieKillerTIme;
+        static OptionItem OptionCountChenge;
         PlayerControl Killer;
         /// <summary>
         /// 自分をキルしてきた人のロール
@@ -69,7 +70,7 @@ namespace TownOfHost.Roles.Neutral
         private static LogHandler logger = Logger.Handler(nameof(BakeCat));
         enum Op
         {
-            BakeCatDieKiller, BakeCatDieKillerTime
+            BakeCatDieKiller, BakeCatDieKillerTime, BakeCatCountChenge
         }
         public static void SetupOptionItem()
         {
@@ -80,6 +81,7 @@ namespace TownOfHost.Roles.Neutral
             OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             OptionDieKiller = BooleanOptionItem.Create(RoleInfo, 14, Op.BakeCatDieKiller, true, false);
             OptionDieKillerTIme = FloatOptionItem.Create(RoleInfo, 15, Op.BakeCatDieKillerTime, new(0, 180, 1), 1, false, OptionDieKiller).SetValueFormat(OptionFormat.Seconds);
+            OptionCountChenge = BooleanOptionItem.Create(RoleInfo, 16, Op.BakeCatCountChenge, false, false);
         }
         public override void ApplyGameOptions(IGameOptions opt)
         {
@@ -139,6 +141,13 @@ namespace TownOfHost.Roles.Neutral
                 {
                     Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
                     CanKill = true;
+
+                    if (OptionCountChenge.GetBool())
+                    {
+                        MyState.SetCountType(killer.GetCustomRole().GetRoleInfo()?.CountType ?? CountTypes.Crew);
+                        if (OptionDieKiller.GetBool())//死ぬならカウントが増えないようにキラーのカウントをクルーにしてやる
+                            PlayerState.GetByPlayerId(killer.PlayerId).SetCountType(CountTypes.Crew);
+                    }
                 }, 0.3f, "ResetKillCooldown");
                 if (OptionDieKiller.GetBool())
                     _ = new LateTask(() =>

@@ -10,14 +10,14 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
-public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
+public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(AntiReporter),
             player => new AntiReporter(player),
             CustomRoles.AntiReporter,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             5000,
             SetupOptionItem,
@@ -72,11 +72,14 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
     {
         Use = reader.ReadInt32();
     }
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = true;
         var target = Player.GetKillTarget();
         if (target == null) return;
         if (!CanUseAbilityButton() || mg.ContainsKey(target.PlayerId)) return;
+        fall = false;
         mg.Add(target.PlayerId, 0f);
         Use--;
         Player.RpcProtectedMurderPlayer(target);
@@ -122,9 +125,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = Cooldown;
-        AURoleOptions.ShapeshifterLeaveSkin = false;
-        AURoleOptions.ShapeshifterDuration = 1;
+        AURoleOptions.PhantomCooldown = Cooldown;
     }
     public override bool OverrideAbilityButton(out string text)
     {

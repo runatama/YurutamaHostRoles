@@ -89,7 +89,7 @@ namespace TownOfHost
             if (sendList.Count == 0 && !noErr)
             {
                 if (playerId == 0xff)
-                    HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
+                    Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")), PlayerControl.LocalPlayer.PlayerId);
                 else Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
             }
             else for (int i = 0; i < sendList.Count; i++) Utils.SendMessage(ApplyReplaceDictionary(sendList[i]), playerId, str == "welcome" ? $"<color={Main.ModColor}>【This Room Use \"Town Of Host-K\"】" : "");

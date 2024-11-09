@@ -9,6 +9,11 @@ namespace TownOfHost.Roles.AddOns.Impostor
         private static readonly int Id = 79100;
         public static byte currentId = byte.MaxValue;
         public static OptionItem KillCooldown;
+        public static OptionItem GiveKillCooldown;
+        public static readonly string[] Givekillcooldownmode =
+        {
+            "ColoredOff","GiveKillcoolShort","AllGiveKillCoolShort","ColoredOn"
+        };
         //ゲッサー
         public static OptionItem GiveGuesser;
         public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
@@ -31,7 +36,8 @@ namespace TownOfHost.Roles.AddOns.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor, new(1, 1, 1), fromtext: "<color=#000000>From:</color><color=#00bfff>TownOfHost</color></size>");
-            KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor])
+            GiveKillCooldown = StringOptionItem.Create(Id + 7, "Givekillcoondown", Givekillcooldownmode, 3, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
+            KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(GiveKillCooldown)
                 .SetValueFormat(OptionFormat.Seconds);
             OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastImpostor);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
@@ -58,10 +64,25 @@ namespace TownOfHost.Roles.AddOns.Impostor
         }
         public static void Init() => currentId = byte.MaxValue;
         public static void Add(byte id) => currentId = id;
-        public static void SetKillCooldown()
+        public static void SetKillCooldown(PlayerControl player)
         {
             if (currentId == byte.MaxValue) return;
-            Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+            switch (Givekillcooldownmode[GiveKillCooldown.GetValue()])
+            {
+                case "GiveKillcoolShort"://短くなる場合のみ
+                    if (KillCooldown.GetFloat() < Main.AllPlayerKillCooldown[currentId] &&
+                        ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true))//かつラスポスキルク受け取る
+                        Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+                    break;
+                case "AllGiveKillCoolShort"://ラスポルでキルク恩恵受け取るかに関わらず短くなるなら貰う
+                    if (KillCooldown.GetFloat() < Main.AllPlayerKillCooldown[currentId])
+                        Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+                    break;
+                case "ColoredOn":
+                    if ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true)
+                        Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+                    break;
+            }
         }
         public static bool CanBeLastImpostor(PlayerControl pc)
         {
@@ -88,7 +109,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
                 {
                     pc.RpcSetCustomRole(CustomRoles.LastImpostor);
                     Add(pc.PlayerId);
-                    if ((pc.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true) SetKillCooldown();
+                    SetKillCooldown(pc);
                     pc.SyncSettings();
                     UtilsNotifyRoles.NotifyRoles();
                     Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(UtilsRoleText.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";

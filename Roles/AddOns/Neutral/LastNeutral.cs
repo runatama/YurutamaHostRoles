@@ -1,4 +1,5 @@
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Options;
 namespace TownOfHost.Roles.AddOns.Neutral
 {
@@ -7,6 +8,11 @@ namespace TownOfHost.Roles.AddOns.Neutral
         private static readonly int Id = 79300;
         public static byte currentId = byte.MaxValue;
         public static OptionItem KillCooldown;
+        public static OptionItem GiveKillCooldown;
+        public static readonly string[] Givekillcooldownmode =
+        {
+            "ColoredOff","GiveKillcoolShort","AllGiveKillCoolShort","ColoredOn"
+        };
         public static OptionItem ChKilldis;
         //追加勝利
         public static OptionItem GiveOpportunist;
@@ -34,7 +40,8 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.LastNeutral, new(1, 1, 1));
-            KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral])
+            GiveKillCooldown = StringOptionItem.Create(Id + 6, "Givekillcoondown", Givekillcooldownmode, 3, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
+            KillCooldown = FloatOptionItem.Create(Id + 8, "KillCooldown", new(0f, 180f, 1f), 15f, TabGroup.Addons, false).SetParent(GiveKillCooldown)
                 .SetValueFormat(OptionFormat.Seconds);
             ChKilldis = BooleanOptionItem.Create(Id + 7, "ChKilldis", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
             OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastNeutral);
@@ -64,10 +71,25 @@ namespace TownOfHost.Roles.AddOns.Neutral
         }
         public static void Init() => currentId = byte.MaxValue;
         public static void Add(byte id) => currentId = id;
-        public static void SetKillCooldown()
+        public static void SetKillCooldown(PlayerControl player)
         {
             if (currentId == byte.MaxValue) return;
-            Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+            switch (Givekillcooldownmode[GiveKillCooldown.GetValue()])
+            {
+                case "GiveKillcoolShort"://短くなる場合のみ
+                    if (KillCooldown.GetFloat() < Main.AllPlayerKillCooldown[currentId] &&
+                        (player.GetRoleClass() is ILNKiller))//かつラスポスキルク受け取る
+                        Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+                    break;
+                case "AllGiveKillCoolShort"://ラスポルでキルク恩恵受け取るかに関わらず短くなるなら貰う
+                    if (KillCooldown.GetFloat() < Main.AllPlayerKillCooldown[currentId])
+                        Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+                    break;
+                case "ColoredOn":
+                    if (player.GetRoleClass() is ILNKiller)
+                        Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
+                    break;
+            }
         }
         public static bool CanBeLastNeutral(PlayerControl pc)
         {
@@ -89,7 +111,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
                 {
                     pc.RpcSetCustomRole(CustomRoles.LastNeutral);
                     Add(pc.PlayerId);
-                    SetKillCooldown();
+                    SetKillCooldown(pc);
                     pc.SyncSettings();
                     UtilsNotifyRoles.NotifyRoles();
                     Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(UtilsRoleText.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";

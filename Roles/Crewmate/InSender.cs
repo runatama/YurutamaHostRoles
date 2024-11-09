@@ -47,6 +47,7 @@ public sealed class InSender : RoleBase
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
+        if (!kakusei) return;
         var tien = 0f;
         //小数対応
         if (Saiaichien.GetFloat() != 0)

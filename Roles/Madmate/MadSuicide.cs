@@ -6,14 +6,14 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
-public sealed class MadSuicide : RoleBase, IKiller, IUseTheShButton
+public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(MadSuicide),
             player => new MadSuicide(player),
             CustomRoles.MadSuicide,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Madmate,
             11300,
             SetupOptionItem,
@@ -59,7 +59,7 @@ public sealed class MadSuicide : RoleBase, IKiller, IUseTheShButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterCooldown = OptionAbilityCoolDown.GetFloat();
+        AURoleOptions.PhantomCooldown = OptionAbilityCoolDown.GetFloat();
     }
     public bool CanUseKillButton() => true;
     public bool CanUseImpostorVentButton() => OptionCanusevent.GetBool();
@@ -101,9 +101,11 @@ public sealed class MadSuicide : RoleBase, IKiller, IUseTheShButton
         Player.SetRealKiller(Player);
         killer.RpcMurderPlayer(killer);
     }
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
         if (!Player.IsAlive()) return;
+        resetkillcooldown = true;
+        fall = true;
         MyState.DeathReason = deathReasons[OptionAbilityDeathreason.GetValue()];
         Player.RpcMurderPlayer(Player);
     }

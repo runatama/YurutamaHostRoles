@@ -4,7 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
-public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
+public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -46,11 +46,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
         CanmakeSidekickMadMate = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt)
-    {
-        AURoleOptions.ShapeshifterCooldown = 1f;
-        AURoleOptions.ShapeshifterDuration = 1f;
-    }
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = 1f;
     public bool CanUseKillButton()
     {
         if (PlayerState.AllPlayerStates == null) return false;
@@ -70,8 +66,10 @@ public sealed class Mafia : RoleBase, IImpostor, IUseTheShButton
 
         if (CanKillDay.GetFloat() <= Main.day) canusekill = true;
     }
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = true;
         if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount) return;
         var target = Player.GetKillTarget();
         if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoleTypes.Impostor)) return;

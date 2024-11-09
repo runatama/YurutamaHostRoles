@@ -89,7 +89,7 @@ namespace TownOfHost
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
                 Subver = "";
                 /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
-                if (Main.PluginSubVersion != 0 && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
+                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
                 Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginVersion}" + Subver + Debugver;
 #if DEBUG
                 if (!GameStates.InGame) Main.credentialsText += $"\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";

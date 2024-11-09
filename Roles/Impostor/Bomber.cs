@@ -9,14 +9,14 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor
 {
-    public sealed class Bomber : RoleBase, IImpostor, IUseTheShButton
+    public sealed class Bomber : RoleBase, IImpostor, IUsePhantomButton
     {
         public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
                 typeof(Bomber),
                 player => new Bomber(player),
                 CustomRoles.Bomber,
-                () => RoleTypes.Shapeshifter,
+                () => RoleTypes.Phantom,
                 CustomRoleTypes.Impostor,
                 5100,
                 SetupOptionItem,
@@ -60,7 +60,7 @@ namespace TownOfHost.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             OptionBlastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(1f, 30f, 0.5f), 1f, false).SetValueFormat(OptionFormat.Multiplier);
             OptionBomberExplosion = IntegerOptionItem.Create(RoleInfo, 12, OptionName.BomberExplosion, new(1, 99, 1), 2, false);
-            OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 999f, 0.5f), 0, false).SetValueFormat(OptionFormat.Seconds);
+            OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 999f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         }
 
         private void SendRPC()
@@ -72,8 +72,10 @@ namespace TownOfHost.Roles.Impostor
         {
             BomberExplosion = reader.ReadInt32();
         }
-        public void OnClick()
+        public void OnClick(ref bool resetkillcooldown, ref bool fall)
         {
+            resetkillcooldown = true;
+            fall = true;
             var target = Player.GetKillTarget();
             if (0 >= BomberExplosion || target == null) return;
 
@@ -81,7 +83,7 @@ namespace TownOfHost.Roles.Impostor
             BomberExplosion--;
             SendRPC();
             Player.RpcResetAbilityCooldown();
-            Player.RpcProtectedMurderPlayer(target);
+            Player.SetKillCooldown(target: target);
             BomberExplosionPlayers.Add(target.PlayerId, 0f);
             UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
@@ -134,9 +136,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.ShapeshifterCooldown = Cooldown;
-            AURoleOptions.ShapeshifterLeaveSkin = false;
-            AURoleOptions.ShapeshifterDuration = 1;
+            AURoleOptions.PhantomCooldown = Cooldown;
         }
     }
 }

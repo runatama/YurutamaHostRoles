@@ -5,14 +5,14 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
 
-public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
+public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(Reloader),
             player => new Reloader(player),
             CustomRoles.Reloader,
-            () => RoleTypes.Shapeshifter,
+            () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             5500,
             SetupOptionItem,
@@ -53,18 +53,17 @@ public sealed class Reloader : RoleBase, IImpostor, IUseTheShButton
             .SetValueFormat(OptionFormat.Seconds);
         OptionCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.ReloaderCount, new(1, 15, 1), 2, false);
     }
-    public bool UseOCButton => true;
-    public override void ApplyGameOptions(IGameOptions opt)
-    {
-        AURoleOptions.ShapeshifterCooldown = Cooldown;
-        AURoleOptions.ShapeshifterDuration = 1;
-    }
+    public bool UseOneclickButton => true;
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = Cooldown;
     public float CalculateKillCooldown() => KillCooldown;
     public override bool CanUseAbilityButton() => Count > 0;
-    public void OnClick()
+    public void OnClick(ref bool resetkillcooldown, ref bool fall)
     {
+        resetkillcooldown = false;
+        fall = false;
         if (Count <= 0) return;
 
+        resetkillcooldown = true;
         Count--;
         Player.SetKillCooldown(RKillCooldown);
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;

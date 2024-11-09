@@ -309,7 +309,9 @@ namespace TownOfHost
             string n = name;
             if (AmongUsClient.Instance.IsGameStarted)
             {
-                if (Options.ColorNameMode.GetBool() && Main.nickName == "") name = Palette.GetColorName(Camouflage.PlayerSkins[PlayerControl.LocalPlayer.PlayerId].ColorId);
+                if (!Camouflage.PlayerSkins.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var color)) return;
+
+                if (Options.ColorNameMode.GetBool() && Main.nickName == "") name = Palette.GetColorName(color.ColorId);
             }
             else if (GameStates.IsLobby)
             {
@@ -365,7 +367,7 @@ namespace TownOfHost
                     else at += "\r\n";
 
                     info += "</size>";
-                    n = "<size=150%><line-height=-1500%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1400%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginVersion}{CredentialsPatch.Subver}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
+                    n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginVersion}{CredentialsPatch.Subver}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
                     PlayerControl.LocalPlayer.Data.PlayerName = n;
                 }
             }
@@ -450,6 +452,8 @@ namespace TownOfHost
         public static string RemoveColorTags(this string str) => Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
         public static string RemoveSizeTags(this string str) => Regex.Replace(str, "</?size[^>]*?>", "");
         public static string RemoveGiveAddon(this string str) => Regex.Replace(str, "を付与する", "");
+        public static string RemoveSN(this string str) => Regex.Replace(str, "\n", "");
+        public static string RemoveaAlign(this string str) => Regex.Replace(str, "align", "");
         public static string RemoveText(this string str, bool Update = false)
         {
             bool musi = false;

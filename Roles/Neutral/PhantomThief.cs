@@ -79,6 +79,13 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         Player.SetKillCooldown();
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "PhantomThief Target");
     }
+    public override void OnMurderPlayerAsTarget(MurderInfo info)
+    {
+        Target = null;
+        roletarget = byte.MaxValue;
+        tagerole = CustomRoles.NotAssigned;
+        MeetingNotice = false;
+    }
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
@@ -105,8 +112,9 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         seen ??= seer;
         if (seen == seer && seer == Player)
         {
-            var notage = "<size=60%>" + Translator.GetString("PhantomThieftarget") + "</size>";
-            var akiramero = "<size=60%>" + Translator.GetString("PhantomThiefakiarmero") + "</size>";
+            if (!seer.IsAlive()) return "";
+            var notage = "<size=60%>" + GetString("PhantomThieftarget") + "</size>";
+            var akiramero = "<size=60%>" + GetString("PhantomThiefakiarmero") + "</size>";
             if (roletarget == byte.MaxValue)
                 if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayerControls.Count())
                 {
@@ -173,7 +181,6 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         text = "PhantomThief_Kill";
         return true;
     }
-    //public bool OverrideKillButton(out string text){text = "Sheriff_Kill"; return true;}
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
     public bool CheckKillFlash(MurderInfo info)
     {
@@ -182,7 +189,6 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
     }
     public bool CheckWin(ref CustomRoles winnerRole)
     {
-        //Logger.Info($"{roletarget} {tagerole} {Player.IsAlive()}", "PT");
         if (roletarget == byte.MaxValue || !Player.IsAlive()) return false;
         if (CustomWinnerHolder.WinnerIds.Contains(roletarget))
         {

@@ -130,6 +130,10 @@ namespace TownOfHost
                 CustomRoles.InfoPoor
                 ;
         }
+        public static bool IsCrewmate(this RoleTypes role) =>
+            role is RoleTypes.Crewmate or RoleTypes.CrewmateGhost or
+                    RoleTypes.Engineer or RoleTypes.GuardianAngel or
+                    RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker;
         public static bool IsSubRole(this CustomRoles role) => role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku;
         public static bool IsRiaju(this CustomRoles roles, bool checkonelover = true)
         {

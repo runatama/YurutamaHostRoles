@@ -660,7 +660,6 @@ public enum CustomRoles
     Jumper,
     EarnestWolf,
     Amnesiac,
-    MadSuicide,
     Camouflager,
     ConnectSaver,
     //Madmate
@@ -677,6 +676,7 @@ public enum CustomRoles
     MadWorker,
     MadTracker,
     MadChanger,
+    MadSuicide,
     //Crewmate(Vanilla)
     Engineer,
     GuardianAngel,

@@ -147,12 +147,12 @@ namespace TownOfHost
                 foreach (var opt in OptionItem.AllOptions.Where(x => x.Id >= 90000 && !x.IsHiddenOn(Options.CurrentGameMode) && x.Parent == null))
                 {
                     if (opt.IsHeader) sb.Append('\n');
-                    sb.Append($"{opt.GetName()}: {opt.GetString()}\n");
+                    sb.Append($"{opt.GetName()}: {opt.GetString().RemoveSN()}\n");
                     if (opt.GetBool())
                         ShowChildren(opt, ref sb, Color.white, 1);
                 }
                 //Onの時に子要素まで表示するメソッド
-                void nameAndValue(OptionItem o) => sb.Append($"{o.GetName()}: {o.GetString()}\n");
+                void nameAndValue(OptionItem o) => sb.Append($"{o.GetName()}: {o.GetString().RemoveSN()}\n");
             }
             //1ページにつき35行までにする処理
             List<string> tmp = new(sb.ToString().Split("\n\n"));
@@ -226,7 +226,7 @@ namespace TownOfHost
                     sb.Append(string.Concat(Enumerable.Repeat(Utils.ColorString(color, "┃"), deep - 1)));
                     sb.Append(Utils.ColorString(color, opt.Index == option.Children.Count ? "┗ " : "┣ "));
                 }
-                sb.Append($"{opt.Value.GetName()}: {opt.Value.GetString()}</size></line-height>\n");
+                sb.Append($"{opt.Value.GetName()}: {opt.Value.GetString().RemoveSN()}</size></line-height>\n");
                 if (opt.Value.GetBool()) ShowChildren(opt.Value, ref sb, color, deep + 1);
             }
         }

@@ -206,13 +206,21 @@ namespace TownOfHost
             if (AmongUsClient.Instance.AmHost)
             {
                 if (client?.Character?.PlayerId == 0)
-                    _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check");
+                    _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check", true);
                 OptionItem.SyncAllOptions();
+
                 _ = new LateTask(() =>
                 {
                     if (client.Character == null) return;
-                    if (AmongUsClient.Instance.IsGamePublic) Utils.SendMessage(string.Format(GetString("Message.AnnounceTOH-K"), Main.PluginVersion), client.Character.PlayerId);
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
+
+                    if (client.Character == null) return;
+                    var varsion = Main.PluginVersion + (Main.PluginSubVersion == "" ? "" : $".{Main.PluginSubVersion}");
+                    var text = $"<size=80%>この部屋では\n<color={Main.ModColor}><size=180%><u><b>{Main.ModName}</color></b></size> v.{varsion}</u>\nを導入しております。<size=40%>\n\n</size>現在AmongUsでは、<color=#fc8803>公開ルームでのMod利用はできません</color><size=40%>\n\n";
+                    var text2 = "</size><color=red>公開ルームからMod部屋へ勧誘/誘導をするのは<b>禁止</b>です</color>。<size=40%>\n<color=red>勧誘/誘導行為</color>にあった場合はスクリーンショット等と一緒に開発者にお知らせください。<color=red>Mod使えなくします</color>。";
+                    var text3 = "</size>\n<size=60%>\n☆参加型配信を行ったり、オープンチャットやTwitterで募集するのは?\n<size=50%>→<color=#352ac9>全然大丈夫です!!やっちゃってください!!</color>\n　<color=#fc8803>バニラAmongUsの公開ルーム</color>での<color=red>宣伝/勧誘/誘導</color>がダメなのです!!</size>";
+                    var text4 = "\n☆開発者から許可貰ってるって言ってる?　　\n<size=50%>→<color=#c9145a>個々で許可を出しておりません</color>!!大噓つきですよ!!</size>\n☆公開ルームに参加し、コード宣伝して「来てね～」って言うのは?\n<size=50%>→<color=red>勧誘/誘導</color>に当たるのでダメです。迷惑考えてくださいよ!!</size>";
+                    Utils.SendMessage($"{text}{text2}{text3}{text4}", client.Character.PlayerId, $"<color={Main.ModColor}>【This Room Use \"Town Of Host-K\"】");
 
                     if (Options.AutoDisplayLastResult.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
                     {

@@ -26,7 +26,7 @@ namespace TownOfHost
             this.name = name;
             this.NoLog = NoLog;
             Tasks.Add(this);
-            if (name != "" && NoLog == false)
+            if (name != "" && NoLog == false && name != "No Name Task")
                 Logger.Info("\"" + name + "\" is created", "LateTask");
         }
         public static void Update(float deltaTime)

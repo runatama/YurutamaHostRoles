@@ -10,14 +10,14 @@ using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Impostor
 {
-    public sealed class Witch : RoleBase, IImpostor, IUseTheShButton
+    public sealed class Witch : RoleBase, IImpostor, IUsePhantomButton
     {
         public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
                 typeof(Witch),
                 player => new Witch(player),
                 CustomRoles.Witch,
-                () => ((SwitchTrigger)OptionModeSwitchAction.GetValue() is SwitchTrigger.OnShapeshift or SwitchTrigger.WitchOcShButton) ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+                () => ((SwitchTrigger)OptionModeSwitchAction.GetValue() is SwitchTrigger.OnPhantom or SwitchTrigger.WitchOcButton) ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 9300,
                 SetupOptionItem,
@@ -51,8 +51,8 @@ namespace TownOfHost.Roles.Impostor
             TriggerKill,
             TriggerVent,
             TriggerDouble,
-            OnShapeshift,
-            WitchOcShButton,
+            OnPhantom,
+            WitchOcButton,
         };
 
         public bool IsSpellMode;
@@ -70,8 +70,7 @@ namespace TownOfHost.Roles.Impostor
         }
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.ShapeshifterDuration = 1f;
-            AURoleOptions.ShapeshifterCooldown = NowSwitchTrigger is SwitchTrigger.WitchOcShButton ? occool : 0;
+            AURoleOptions.PhantomCooldown = NowSwitchTrigger is SwitchTrigger.WitchOcButton ? occool : 0;
         }
         public override void Add()
         {
@@ -127,7 +126,7 @@ namespace TownOfHost.Roles.Impostor
                 case SwitchTrigger.TriggerVent:
                     needSwitch = !kill;
                     break;
-                case SwitchTrigger.OnShapeshift:
+                case SwitchTrigger.OnPhantom:
                     needSwitch = !kill;
                     break;
             }
@@ -180,11 +179,12 @@ namespace TownOfHost.Roles.Impostor
                 Player.SetKillCooldown();
             }
         }
-        public bool UseOCButton => NowSwitchTrigger is SwitchTrigger.OnShapeshift or SwitchTrigger.WitchOcShButton;
-        public void OnClick()
+        public bool UseOneclickButton => NowSwitchTrigger is SwitchTrigger.OnPhantom or SwitchTrigger.WitchOcButton;
+        public void OnClick(ref bool resetkillcooldown, ref bool fall)
         {
-            if (NowSwitchTrigger is SwitchTrigger.WitchOcShButton)
+            if (NowSwitchTrigger is SwitchTrigger.WitchOcButton)
             {
+                fall = false;
                 var target = Player.GetKillTarget();
                 if (target.GetRoleClass() is SchrodingerCat schrodingerCat)
                 {
@@ -210,12 +210,15 @@ namespace TownOfHost.Roles.Impostor
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
                 occool = target is null ? 0 : cool;
+                resetkillcooldown = target != null;
                 Player.MarkDirtySettings();
                 Player.RpcResetAbilityCooldown();
             }
             else
-            if (NowSwitchTrigger is SwitchTrigger.OnShapeshift)
+            if (NowSwitchTrigger is SwitchTrigger.OnPhantom)
             {
+                fall = true;
+                resetkillcooldown = false;
                 SwitchSpellMode(false);
             }
         }
@@ -277,7 +280,7 @@ namespace TownOfHost.Roles.Impostor
         {
             seen ??= seer;
             if (!Is(seen) || isForMeeting) return "";
-            if (NowSwitchTrigger is SwitchTrigger.WitchOcShButton) return "";
+            if (NowSwitchTrigger is SwitchTrigger.WitchOcButton) return "";
 
             var sb = new StringBuilder();
             sb.Append(isForHud ? GetString("WitchCurrentMode") : "Mode:");

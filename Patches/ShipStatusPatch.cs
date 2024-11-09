@@ -67,7 +67,7 @@ namespace TownOfHost
                             }
                         }
                     }
-            }, 0.2f, "Check Sabotage");
+            }, 0.2f, "Check Sabotage", true);
         }
         public static void CheckAndOpenDoorsRange(ShipStatus __instance, int amount, int min, int max)
         {

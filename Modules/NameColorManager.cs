@@ -16,12 +16,12 @@ namespace TownOfHost
                     colorCode = target.GetRoleColorCode();
             }
             string openTag = "", closeTag = "";
-            if (seer == target && seer.Is(CustomRoles.Amnesia))
+            if (seer.PlayerId == target.PlayerId && seer.Is(CustomRoles.Amnesia))
             {
                 colorCode = seer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate) : (seer.Is(CustomRoleTypes.Impostor) ?
                 UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : UtilsRoleText.GetRoleColorCode(CustomRoles.SchrodingerCat));
             }
-            if (seer == target && seer.GetRoleClass() != null && seer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+            if (seer.PlayerId == target.PlayerId && seer.GetRoleClass() != null && seer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
             {
                 colorCode = UtilsRoleText.GetRoleColorCode(seer.GetRoleClass().Jikaku());
             }
@@ -30,7 +30,6 @@ namespace TownOfHost
             var targetRole = target.GetCustomRole();
             if (seer != target && seerRole.IsImpostor() && targetRole.IsImpostor())
             {
-
                 if (targetRole.GetRoleInfo()?.IsCantSeeTeammates == true)
                     colorCode = Roles.Vanilla.Impostor.RoleInfo.RoleColorCode;
                 if (seerRole.GetRoleInfo()?.IsCantSeeTeammates == true && !(seer.GetRoleClass() as Amnesiac).omoidasita)
@@ -45,11 +44,12 @@ namespace TownOfHost
             }
             return openTag + name + closeTag;
         }
-        private static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, bool isMeeting)
+        public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, bool isMeeting)
         {
             return seer == target
                 || target.Is(CustomRoles.GM)
-                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
+                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)
+                && (!seer.Is(CustomRoles.Amnesiac) || ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita ?? false)))
                 || Mare.KnowTargetRoleColor(target, isMeeting);
         }
         public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)

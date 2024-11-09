@@ -566,7 +566,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         if (!Player.IsAlive()) return "";
-        if (AlienHitoku || GameStates.Meeting) return Mode();
+        if (AlienHitoku || GameStates.Meeting) return Mode(gamelog);
 
         return "";
     }
@@ -774,29 +774,30 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     {
         RestartAbduct();
     }
-    public string Mode()
+    public string Mode(bool gamelog = false)
     {
         if (!Player.IsAlive()) return "";
+        var size = gamelog ? "<size=30%>" : "<size=75%>";
 
-        if (modeNone) return "<size=75%><color=#ff1919>mode:None</color></size>";
-        if (modeVampire) return "<size=75%><color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
-        if (modeEvilHacker) return "<size=75%><color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
-        if (modeLimiter) return "<size=75%><color=#ff1919>mode:" + GetString("Limiter") + "</color></size>";
-        if (modePuppeteer) return "<size=75%><color=#ff1919>mode:" + GetString("Puppeteer") + "</color></size>";
-        if (modeStealth) return "<size=75%><color=#ff1919>mode:" + GetString("Stealth") + "</color></size>";
-        if (modeRemotekiller) return "<size=75%><color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
-        if (modeNotifier) return "<size=75%><color=#ff1919>mode:" + GetString("Notifier") + "</color></size>";
-        if (modeTimeThief) return "<size=75%><color=#ff1919>mode:" + GetString("TimeThief") + "</color></size>";
-        if (modeTairo) return "<size=75%><color=#ff1919>mode:" + GetString("Tairou") + "</color></size>";
-        if (modeMayor) return "<size=75%><color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
-        if (modeMole) return "<size=75%><color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
-        if (modeProgresskiller) return "<size=75%><color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
-        if (modeNekokabocha) return "<size=75%><color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
-        if (modeinsider) return "<size=75%><color=#ff1919>mode:" + GetString("Insider") + "</color></size>";
-        if (modepenguin) return "<size=75%><color=#ff1919>mode:" + GetString("Penguin") + "</color></size>";
-        if (modeNomal) return "<size=75%><color=#ff1919>mode:Normal</color></size>";
+        if (modeNone) return size + "<color=#ff1919>mode:None</color></size>";
+        if (modeVampire) return size + "<color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
+        if (modeEvilHacker) return size + "<color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
+        if (modeLimiter) return size + "<color=#ff1919>mode:" + GetString("Limiter") + "</color></size>";
+        if (modePuppeteer) return size + "<color=#ff1919>mode:" + GetString("Puppeteer") + "</color></size>";
+        if (modeStealth) return size + "<color=#ff1919>mode:" + GetString("Stealth") + "</color></size>";
+        if (modeRemotekiller) return size + "<color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
+        if (modeNotifier) return size + "<color=#ff1919>mode:" + GetString("Notifier") + "</color></size>";
+        if (modeTimeThief) return size + "<color=#ff1919>mode:" + GetString("TimeThief") + "</color></size>";
+        if (modeTairo) return size + "<color=#ff1919>mode:" + GetString("Tairou") + "</color></size>";
+        if (modeMayor) return size + "<color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
+        if (modeMole) return size + "<color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
+        if (modeProgresskiller) return size + "<color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
+        if (modeNekokabocha) return size + "<color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
+        if (modeinsider) return size + "<color=#ff1919>mode:" + GetString("Insider") + "</color></size>";
+        if (modepenguin) return size + "<color=#ff1919>mode:" + GetString("Penguin") + "</color></size>";
+        if (modeNomal) return size + "<color=#ff1919>mode:Normal</color></size>";
 
-        return "<size=75%><color=#ff1919>mode:？</color></size>";
+        return size + "<color=#ff1919>mode:？</color></size>";
     }
     void ChengeMode(int chance)
     {

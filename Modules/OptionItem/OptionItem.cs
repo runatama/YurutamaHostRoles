@@ -182,8 +182,17 @@ namespace TownOfHost
             }
             return NameColorCode != "#ffffff" ? $"<color={NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>" : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
-        public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool())
+        public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool() || CheckRoleOption(Parent))
                                         && (GameMode == CustomGameMode.All || GameMode == Options.CurrentGameMode);
+        public bool InfoGetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
+        bool CheckRoleOption(OptionItem option)
+        {
+            if (option == null) return false;
+            var intopiton = option as IntegerOptionItem;
+            if (intopiton == null) return false;
+            if (Options.CustomRoleSpawnChances.ContainsValue(intopiton)) return true;
+            return false;
+        }
         public virtual bool OptionMeGetBool() => CurrentValue != 0;
         public virtual int GetInt() => CurrentValue;
         public virtual float GetFloat() => CurrentValue;
