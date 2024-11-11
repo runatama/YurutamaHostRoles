@@ -548,7 +548,7 @@ namespace TownOfHost
             if (role is CustomRoles.Amnesiac)
             {
                 if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                    role = CustomRoles.Sheriff;
+                    role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
             // 役職説明表示
             if (!role.IsVanilla() || player.IsGorstRole())

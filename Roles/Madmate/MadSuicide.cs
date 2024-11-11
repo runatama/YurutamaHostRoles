@@ -101,7 +101,7 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton
         Player.SetRealKiller(Player);
         killer.RpcMurderPlayer(killer);
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         if (!Player.IsAlive()) return;
         resetkillcooldown = true;

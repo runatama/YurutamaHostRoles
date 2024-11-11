@@ -432,6 +432,7 @@ namespace TownOfHost
             }
             GuessManager.Reset();//会議後にリセット入れる
             if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            GameStates.Tuihou = false;
         }
         #endregion
         public static void ChangeInt(ref int ChangeTo, int input, int max)

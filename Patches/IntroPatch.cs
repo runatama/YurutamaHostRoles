@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Common;
 using System.Collections.Generic;
+using TownOfHost.Roles.Impostor;
 //using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
@@ -36,7 +37,10 @@ namespace TownOfHost
                     //Amnesiacだった場合シェリフと表示させる
                     if (role == CustomRoles.Amnesiac)
                     {
-                        __instance.RoleText.text = UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        __instance.RoleText.text = Amnesiac.OptIamWolfBoy.GetBool() ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                        __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                        __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
                     }
                 }
                 else
@@ -194,10 +198,10 @@ namespace TownOfHost
                     else __instance.BackgroundBar.material.color = Palette.DisabledGrey;
                     break;
             }
+            if (role is CustomRoles.Amnesiac) role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             switch (role)
             {
                 case CustomRoles.Sheriff:
-                case CustomRoles.Amnesiac:
                     __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
                     __instance.ImpostorText.gameObject.SetActive(true);
                     var numImpostors = Main.NormalOptions.NumImpostors;

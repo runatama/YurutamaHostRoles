@@ -30,13 +30,11 @@ public static class GuessManager
     public static void Guessreset()
     {
         kakusu = false;
-        Logger.Info("全員のゲスをリセットするぜ!!", "Guesser");
         GuesserGuessed.Clear();
         TGuess.Clear();//ゲスでターン終了したらリセットされないので
     }
     public static void Reset()
     {
-        Logger.Info("会議制限を解除するぜ", "Guesser");
         TGuess.Clear();
     }
 

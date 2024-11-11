@@ -94,7 +94,7 @@ namespace TownOfHost.Roles.Neutral
             Fall = false;
             Player.MarkDirtySettings();
         }
-        public void OnClick(ref bool resetkillcooldown, ref bool fall)
+        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
             resetkillcooldown = false;
             if (!SK) return;

@@ -164,7 +164,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         opt.SetVision(false);
     }
     public float CalculateKillCooldown() => fall ? 0.00000000001f : OptionKillCoolDown.GetFloat();
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         fall = true;
         if (!Player.IsAlive()) return;

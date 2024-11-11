@@ -272,6 +272,10 @@ namespace TownOfHost
             var roleInfo = role.GetRoleInfo();
             if (roleInfo != null)
                 return roleInfo.BaseRoleType.Invoke();
+
+            if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool() && role is CustomRoles.TaskPlayerB)
+                return RoleTypes.Engineer;
+
             return role switch
             {
                 CustomRoles.GM => RoleTypes.GuardianAngel,

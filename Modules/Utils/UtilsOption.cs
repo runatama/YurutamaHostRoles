@@ -541,7 +541,7 @@ namespace TownOfHost
             if (role is CustomRoles.Amnesiac)
             {
                 if (player.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                    role = CustomRoles.Sheriff;
+                    role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
 
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)

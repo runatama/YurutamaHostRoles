@@ -37,8 +37,8 @@ public sealed class Amnesiac : RoleBase, IImpostor
         CanUseVent = OptCanUseVent.GetBool();
         CanUseSabotage = OptCanUseSabotage.GetBool();
 
-        ShShotLimit = Crewmate.Sheriff.ShotLimitOpt.GetInt();
-        ShKillCooldown = Crewmate.Sheriff.KillCooldown.GetFloat();
+        ShShotLimit = OptIamWolfBoy.GetBool() ? Crewmate.WolfBoy.ShotLimitOpt.GetInt() : Crewmate.Sheriff.ShotLimitOpt.GetInt();
+        ShKillCooldown = OptIamWolfBoy.GetBool() ? Crewmate.WolfBoy.KillCooldown.GetFloat() : Crewmate.Sheriff.KillCooldown.GetFloat();
 
         omoidasita = false;
         KillCount = 0;
@@ -52,6 +52,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
     public static OptionItem OptKillsRequired;
     public static OptionItem OptCanUseVent;
     public static OptionItem OptCanUseSabotage;
+    public static OptionItem OptIamWolfBoy;
 
     public static bool CantKillImposter;
     public static bool MatchSettingstoSheriff;
@@ -69,26 +70,28 @@ public sealed class Amnesiac : RoleBase, IImpostor
 
     enum Options
     {
-        CantKillImposter,
-        MatchSettingstoSheriff,
-        omoidaseru,//←がONの状態での追加設定↓
-        ImpNeedtoKill,
-        NeedtoKill,
-        KillsRequired,
-        AmnCanUseVent,
-        AmnCanUseSabotage
+        AmnesiacCantKillImposter,
+        AmnesiacMatchSettingstoSheriff,
+        Amnesiacomoidaseru,//←がONの状態での追加設定↓
+        AmnesiacImpNeedtoKill,
+        AmnesiacNeedtoKill,
+        AmnesiacKillsRequired,
+        AmnesiacCanUseVent,
+        AmnesiacCanUseSabotage,
+        AmnesiacIamWolfboy
     }
 
     public static void SetupCustomOption()
     {
-        OptCantKillImposter = BooleanOptionItem.Create(RoleInfo, 10, Options.CantKillImposter, true, false);
-        OptMatchSettingstoSheriff = BooleanOptionItem.Create(RoleInfo, 11, Options.MatchSettingstoSheriff, true, false);
-        Optomoidaseru = BooleanOptionItem.Create(RoleInfo, 12, Options.omoidaseru, false, false);
-        OptImpNeedtoKill = BooleanOptionItem.Create(RoleInfo, 13, Options.ImpNeedtoKill, false, false, Optomoidaseru);
-        OptNeedtoKill = BooleanOptionItem.Create(RoleInfo, 14, Options.NeedtoKill, false, false, Optomoidaseru);
-        OptKillsRequired = IntegerOptionItem.Create(RoleInfo, 15, Options.KillsRequired, new(1, 6, 1), 2, false, OptNeedtoKill);
-        OptCanUseVent = BooleanOptionItem.Create(RoleInfo, 16, Options.AmnCanUseVent, false, false, Optomoidaseru);
-        OptCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 17, Options.AmnCanUseSabotage, false, false, Optomoidaseru);
+        OptCantKillImposter = BooleanOptionItem.Create(RoleInfo, 10, Options.AmnesiacCantKillImposter, true, false);
+        OptMatchSettingstoSheriff = BooleanOptionItem.Create(RoleInfo, 11, Options.AmnesiacMatchSettingstoSheriff, true, false);
+        Optomoidaseru = BooleanOptionItem.Create(RoleInfo, 12, Options.Amnesiacomoidaseru, false, false);
+        OptImpNeedtoKill = BooleanOptionItem.Create(RoleInfo, 13, Options.AmnesiacImpNeedtoKill, false, false, Optomoidaseru);
+        OptNeedtoKill = BooleanOptionItem.Create(RoleInfo, 14, Options.AmnesiacNeedtoKill, false, false, Optomoidaseru);
+        OptKillsRequired = IntegerOptionItem.Create(RoleInfo, 15, Options.AmnesiacKillsRequired, new(1, 6, 1), 2, false, OptNeedtoKill);
+        OptCanUseVent = BooleanOptionItem.Create(RoleInfo, 16, Options.AmnesiacCanUseVent, false, false, Optomoidaseru);
+        OptCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 17, Options.AmnesiacCanUseSabotage, false, false, Optomoidaseru);
+        OptIamWolfBoy = BooleanOptionItem.Create(RoleInfo, 20, Options.AmnesiacIamWolfboy, false, false);
     }
 
     public float CalculateKillCooldown() => MatchSettingstoSheriff && !omoidasita ? ShKillCooldown : TownOfHost.Options.DefaultKillCooldown;
@@ -96,7 +99,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
     public bool CanUseSabotageButton() => omoidasita && CanUseSabotage;
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        opt.SetVision(omoidasita);
+        opt.SetVision(omoidasita || (MatchSettingstoSheriff && OptIamWolfBoy.GetBool() && Crewmate.WolfBoy.ImpostorVision.GetBool()));
     }
 
     public void OnCheckMurderAsKiller(MurderInfo info)
@@ -145,13 +148,13 @@ public sealed class Amnesiac : RoleBase, IImpostor
         //本人にはシェリフ、インポスターにはロールカラーを赤に
         if (Is(seer))
         {
-            roleColor = Crewmate.Sheriff.RoleInfo.RoleColor;
-            roleText = omoidasita ? roleText : GetString(CustomRoles.Sheriff.ToString());
+            roleColor = OptIamWolfBoy.GetBool() ? Crewmate.WolfBoy.RoleInfo.RoleColor : Crewmate.Sheriff.RoleInfo.RoleColor;
+            roleText = omoidasita ? roleText : (OptIamWolfBoy.GetBool() ? GetString(CustomRoles.WolfBoy.ToString()) : GetString(CustomRoles.Sheriff.ToString()));
         }
     }
     public bool OverrideKillButton(out string text)
     {
-        text = "Sheriff_Kill";
+        text = OptIamWolfBoy.GetBool() ? "WolfBoy_Kill" : "Sheriff_Kill";
         return true;
     }
 

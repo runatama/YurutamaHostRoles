@@ -400,7 +400,7 @@ namespace TownOfHost
                             if (role is CustomRoles.Amnesiac)
                             {
                                 if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                                    role = CustomRoles.Sheriff;
+                                    role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                             }
                             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)//バーニラならこっちで
                             {
@@ -433,8 +433,8 @@ namespace TownOfHost
 
                                         if (role is CustomRoles.Amnesiac)
                                         {
-                                            if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                                                role = CustomRoles.Sheriff;
+                                            if (player.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                                role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                                         }
 
                                         var RoleTextData = GetRoleColorCode(role);
@@ -1437,8 +1437,8 @@ namespace TownOfHost
 
                         if (role is CustomRoles.Amnesiac)
                         {
-                            if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                                role = CustomRoles.Sheriff;
+                            if (player.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                         }
 
                         var RoleTextData = GetRoleColorCode(role);
@@ -1902,7 +1902,8 @@ namespace TownOfHost
             }
             if (canceled)
             {
-                if (GameStates.Tuihou) ChatManager.SendPreviousMessagesToAll();
+                if (GameStates.Tuihou)
+                    ChatManager.SendPreviousMessagesToAll();
             }
         }
     }

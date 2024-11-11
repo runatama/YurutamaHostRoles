@@ -72,7 +72,7 @@ namespace TownOfHost.Roles.Impostor
         {
             BomberExplosion = reader.ReadInt32();
         }
-        public void OnClick(ref bool resetkillcooldown, ref bool fall)
+        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
             resetkillcooldown = true;
             fall = true;

@@ -515,6 +515,7 @@ namespace TownOfHost
         }
         public static Color GetRoleColor(this PlayerControl player)
         {
+            if (player.Is(CustomRoles.Amnesiac) && Amnesiac.OptIamWolfBoy.GetBool()) return UtilsRoleText.GetRoleColor(CustomRoles.WolfBoy);
             if (player.GetRoleClass() != null && player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
             {
                 return UtilsRoleText.GetRoleColor(player.GetRoleClass().Jikaku());
@@ -829,7 +830,7 @@ namespace TownOfHost
             {
                 if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
                 {
-                    text = CustomRoles.Sheriff.ToString();
+                    text = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy.ToString() : CustomRoles.Sheriff.ToString();
                 }
             }
 

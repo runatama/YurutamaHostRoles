@@ -176,7 +176,7 @@ namespace TownOfHost
                                 if (release.DownloadUrl != null)
                                     ModUpdater.StartUpdate(release.DownloadUrl);
                             },
-                            "v" + release.TagName.TrimStart('v') + (release.DownloadUrl == null ? "(ERROR)" : ""));
+                            "v" + release.TagName.TrimStart('v').Trim('S').Trim('s') + (release.DownloadUrl == null ? "(ERROR)" : ""));
                             i++;
                         }
                     },
@@ -866,8 +866,8 @@ namespace TownOfHost
                     {
                         Number = 100024,
                         Title = "やっぱりテストバージョン",
-                        SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.01</color>",
-                        ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.01</color>",
+                        SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.11</color>",
+                        ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.11</color>",
                         Text = "<size=80%>"
                         + "<size=125%>【バグ修正】</size>\n"
                         + "・爆弾魔のクールダウンデフォルトが0だった問題の修正\n"
@@ -891,6 +891,36 @@ namespace TownOfHost
                         + "\n\nウマクウゴケバイイナ。そこらのパンダ"
                         ,
                         Date = "2024-11-09T18:00:00Z"
+                    };
+                    AllModNews.Add(news);
+
+                }
+                {
+                    var news = new ModNews
+                    {
+                        Number = 100025,
+                        Title = "予想通りのテストバージョン",
+                        SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.12</color>",
+                        ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.12</color>",
+                        Text = "<size=80%>"
+                        + "<size=125%>【バグ修正/仕様変更】</size>\n"
+                        + "・タスクバトルで参加者にベントが生えない問題の修正\n"
+                        + "・バージョン切り替えのタスがちょっと見にくいのを修正\n"
+                        + "・霊界視点ジャンパーの丸が正常に反映されてない問題の修正\n"
+                        + "・イントロで記憶喪失者が透ける問題の修正\n"
+                        + "・/mで記憶喪失者が透ける問題の修正\n"
+                        + "・サドンデスモードのヘリサボが正常に動作しない問題の修正\n"
+                        + "・ナイスロガーのセンサー設置時、ホストの役職/生死判定がおかしくなる問題の修正\n"
+                        + "・ゲーム終了時、試合結果を正常に反映さやすいように変更\n"
+                        + "・ファントムワンクリックが回線状況によって消えてしまう問題の対応\n"
+                        + "・サドンデスモード中はドア閉鎖不可能に変更\n"
+                        + "・ガーディングをキルしようとした場合、強制的に守護天使を表示するように\n"
+                        + "・天秤会議の時間が正常に動作してない問題の修正\n"
+                        + "\n<size=125%>【新機能】</size>\n"
+                        + "・記憶喪失者に狼少年と錯覚する設定の追加\n"
+                        + "\nってなわけでバグ修正だぜ。バグが凄く出てくる!!\nここほれわんわんでもこんな堀出ない気がするゾ!!\n見直しって大事だよね()by 夜藍"
+                        ,
+                        Date = "2024-11-11T11:11:11Z"
                     };
                     AllModNews.Add(news);
 

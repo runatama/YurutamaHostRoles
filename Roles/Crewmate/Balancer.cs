@@ -309,8 +309,6 @@ public sealed class Balancer : RoleBase
         {
             //天秤会議にする
             Id = Player.PlayerId;
-            //対象の名前を天秤の色に
-            Balancer(meetingtime);
             var ran = IRandom.Instance.Next(0, 2);
             var oniku = PlayerCatch.GetPlayerById(ran == 0 ? Target1 : Target2) ?? PlayerControl.LocalPlayer;
             var reporter = PlayerCatch.GetPlayerById(ran == 0 ? Target2 : Target1) ?? PlayerControl.LocalPlayer;
@@ -318,6 +316,9 @@ public sealed class Balancer : RoleBase
             foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
                 pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u>");
             _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(reporter, oniku.Data, false, GetString("Balancer.meeting"), UtilsRoleText.GetRoleColorCode(CustomRoles.Balancer)), 2f, "BalanerMeeting");
+
+            //対象の名前を天秤の色に
+            Balancer(meetingtime);
 
             _ = new LateTask(() =>
             {

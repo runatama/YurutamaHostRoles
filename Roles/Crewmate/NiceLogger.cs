@@ -67,10 +67,10 @@ namespace TownOfHost.Roles.Crewmate
             opt.SetVision(false);
             AURoleOptions.PhantomCooldown = 0.0001f;
         }
-        public void OnClick(ref bool resetkillcooldown, ref bool fall)
+        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
             resetkillcooldown = true;
-            fall = true;
+            fall = null;
             Dictionary<OpenableDoor, float> Distance = new();
             Vector2 position = Player.transform.position;
             foreach (var door in ShipStatus.Instance.AllDoors)
@@ -88,10 +88,11 @@ namespace TownOfHost.Roles.Crewmate
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    if (pc != PlayerControl.LocalPlayer)
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, true));
+                    if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
                         Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
                 }
-                RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
                 Taskmode = true;
             }
             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");

@@ -50,7 +50,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     float timer;
     float speed;
     int count;
-    bool ability;
+    public bool ability;
     bool aname;
     enum Op
     {
@@ -148,7 +148,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public bool CanUseKillButton() => !ability;
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         if (ability) return;
         fall = false;

@@ -1917,14 +1917,14 @@ namespace TownOfHost
         {
             //Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
             var resetkillcooldown = false;
-            var fall = false;
+            bool? fall = false;
 
             if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton) iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
 
-            __instance.RpcSetRoleDesync(RoleTypes.Impostor, __instance.GetClientId());
+            if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Impostor, __instance.GetClientId());
             _ = new LateTask(() =>
             {
-                __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
+                if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
 
                 float k = 0;
                 IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out k);
@@ -1936,8 +1936,15 @@ namespace TownOfHost
                 if (cooldown <= 1) cooldown = 0.005f;
 
                 if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
-                if (!fall) __instance.RpcResetAbilityCooldown(false, true);
-            }, 0.00001f, "", true);
+                if (fall == false) __instance.RpcResetAbilityCooldown(false, true);
+                if (!GameStates.Meeting)
+                    _ = new LateTask(() =>
+                    {
+                        __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
+                        if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
+                        if (fall == false) __instance.RpcResetAbilityCooldown(false, true);
+                    }, Main.LagTime * 2, "", true);
+            }, Main.LagTime, "", true);
 
             return false;
         }/*

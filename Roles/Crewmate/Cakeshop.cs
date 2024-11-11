@@ -45,7 +45,7 @@ public sealed class Cakeshop : RoleBase, INekomata
         {
             var addons = GetAddons(pc.GetCustomRole().GetCustomRoleTypes());
             if (addons == null) return;
-            var addon = addons.Where(x => !pc.GetCustomSubRoles().Contains(x))
+            var addon = addons.Where(x => !pc.GetCustomSubRoles().Contains(x) && x is not CustomRoles.Amnesia and not CustomRoles.Amanojaku)
                               .OrderBy(x => Guid.NewGuid())
                               .FirstOrDefault();
             Addedaddons[pc.PlayerId] = addon;

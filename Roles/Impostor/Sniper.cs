@@ -186,8 +186,8 @@ public sealed class Sniper : RoleBase, IImpostor
             if (target.PlayerId == Player.PlayerId) continue;
             //君臨者には当たらん！
             if (target.Is(CustomRoles.King)) continue;
-            //FriendlyFireがOFFならImpostorを除外
-            if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor()) continue;
+            //FriendlyFireがOFFかつサドンデスモードならImpostorを除外
+            if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor() && !Options.SuddenDeathMode.GetBool()) continue;
             //死んでいない対象の方角ベクトル作成
             var target_pos = target.transform.position - snipePos;
             //自分より後ろの場合はあたらない

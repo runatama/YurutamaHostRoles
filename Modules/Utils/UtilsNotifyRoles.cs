@@ -459,7 +459,7 @@ namespace TownOfHost
                             //全てのテキストを合成します。
                             var g = string.Format("<line-height={0}%>", isForMeeting ? "90" : "85");
                             string TargetName = $"{g}{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}</line-height>";
-                            if (!isForMeeting && !seer.IsAlive())
+                            if (!isForMeeting && !seer.IsAlive() && !((target.GetRoleClass() as Jumper)?.ability == true))
                                 TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
 
                             if (isForMeeting)

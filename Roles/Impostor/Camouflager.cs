@@ -120,11 +120,12 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         NowUse = false;
-        Limit = 0;
+        Limit = -50;
         VentPlayers.Clear();
+        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, kyousei: null));
     }
     public override bool NotifyRolesCheckOtherName => true;
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = true;

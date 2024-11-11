@@ -122,7 +122,7 @@ public static class CustomRoleManager
                     {
                         CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
                         Main.Guard[attemptTarget.PlayerId]--;
-                        attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
+                        attemptKiller.SetKillCooldown(target: attemptTarget, kyousei: true, delay: true);
 
                         UtilsGameLog.AddGameLog($"Guard", Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
                         Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");

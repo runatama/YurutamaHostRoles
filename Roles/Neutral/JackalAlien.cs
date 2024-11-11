@@ -654,7 +654,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien)) && OptionJackalCanAlsoBeExposedToJMafia.GetBool())
             enabled = true;
     }
-    #endregion    
+    #endregion
     #region Vent
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
@@ -760,7 +760,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
     public bool UseOneclickButton => SK;
-    public override bool CanUseAbilityButton() => SK; public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public override bool CanUseAbilityButton() => SK; public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         if (!SK) return;

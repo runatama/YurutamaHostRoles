@@ -96,7 +96,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
         AURoleOptions.PhantomCooldown = (State is FireWorksState.ReadyFire or FireWorksState.WaitTime) ? OptionPaaaaaaaanCooldown.GetFloat() : Cool;
     }
     public bool UseOneclickButton => true;
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = false;

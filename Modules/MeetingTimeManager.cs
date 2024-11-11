@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Modules
 {
@@ -32,6 +33,11 @@ namespace TownOfHost.Modules
         }
         public static void OnReportDeadBody()
         {
+            if (Roles.Crewmate.Balancer.Id != 255 && Roles.Crewmate.Balancer.target1 is not 255 && Roles.Crewmate.Balancer.target1 is not 255)
+            {
+                Balancer(Roles.Crewmate.Balancer.meetingtime);
+                return;
+            }
             if (Options.AllAliveMeeting.GetBool() && PlayerCatch.IsAllAlive)
             {
                 DiscussionTime = 0;

@@ -94,10 +94,10 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
     }
     public float CalculateKillCooldown() => killcooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown.GetFloat();
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         fall = false;
-        resetkillcooldown = fall;
+        resetkillcooldown = false;
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();

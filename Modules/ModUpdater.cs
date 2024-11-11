@@ -195,6 +195,7 @@ namespace TownOfHost
                 }
                 isChecked = true;
                 isBroken = false;
+                body = data["body"].ToString();
                 /*body = data["body"].ToString();
                 
                 // Subverのチェック。

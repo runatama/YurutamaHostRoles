@@ -37,18 +37,17 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
         HasImpV = ImpostorVision.GetBool();
     }
 
-    private static OptionItem KillCooldown;
-    private static OptionItem ShotLimitOpt;
-    private static OptionItem CanKillAllAlive;
+    public static OptionItem KillCooldown;
+    public static OptionItem ShotLimitOpt;
+    public static OptionItem CanKillAllAlive;
     public static OptionItem Shurenekodotti;
-    static OptionItem ImpostorVision;
+    public static OptionItem ImpostorVision;
     enum OptionName
     {
         SheriffShotLimit,
         SheriffCanKillAllAlive,
         WolfBoySchrodingerCatTime
     }
-    public static Dictionary<SchrodingerCat.TeamType, OptionItem> SchrodingerCatKillTargetOptions = new();
     public int ShotLimit = 0;
     public float CurrentKillCooldown = 30;
     bool HasImpV;

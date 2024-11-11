@@ -36,7 +36,7 @@ public interface IUsePhantomButton
                 else Init(player);
             }
     }
-    public void CheckOnClick(ref bool resetkillcooldown, ref bool fall)
+    public void CheckOnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         if (!UseOneclickButton)
         {
@@ -55,7 +55,7 @@ public interface IUsePhantomButton
     ///  </summary>
     /// <param name="resetkillcooldown">trueで使用後キルクールダウンの調整処理を行わない</param>
     /// <param name="fall">trueでアビリティリセット処理を入れない</param>
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     { }
     /// <summary>ワンクリックボタンが使えるか</summary>
     public bool UseOneclickButton => true;

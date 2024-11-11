@@ -145,7 +145,7 @@ public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
     {
         AURoleOptions.PhantomCooldown = optioncooldown.GetFloat();
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = true;

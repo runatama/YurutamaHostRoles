@@ -180,7 +180,7 @@ namespace TownOfHost.Roles.Impostor
             }
         }
         public bool UseOneclickButton => NowSwitchTrigger is SwitchTrigger.OnPhantom or SwitchTrigger.WitchOcButton;
-        public void OnClick(ref bool resetkillcooldown, ref bool fall)
+        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
             if (NowSwitchTrigger is SwitchTrigger.WitchOcButton)
             {

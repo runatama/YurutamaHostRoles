@@ -66,7 +66,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
 
         if (CanKillDay.GetFloat() <= Main.day) canusekill = true;
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = true;

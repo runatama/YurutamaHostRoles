@@ -100,7 +100,7 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
     }
 
     public void OnCheckMurderAsKiller(MurderInfo info) => killc++;
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = true;

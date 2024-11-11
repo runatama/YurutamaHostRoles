@@ -627,7 +627,7 @@ namespace TownOfHost
                 }
                 if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId)) Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);
             }
-            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue)
+            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue && Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 Main.LastLogRole[Lovers.OneLovePlayer.Ltarget] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
                 if (Lovers.OneLovePlayer.doublelove) Main.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
@@ -654,6 +654,7 @@ namespace TownOfHost
                 if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || role.IsNeutral() || Options.SuddenDeathMode.GetBool())
                 {
                     roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : (role.IsNeutral() ? RoleTypes.Impostor : roleType));
+                    if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                 }
                 if (pc.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool())
                 {
@@ -708,6 +709,7 @@ namespace TownOfHost
                     if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || role.IsNeutral() || Options.SuddenDeathMode.GetBool())
                     {
                         roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : (role.IsNeutral() ? RoleTypes.Crewmate : roleType));
+                        if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                     }
 
                     if (pc.Is(CustomRoles.Amnesia) && Amnesia.DontCanUseAbility.GetBool())

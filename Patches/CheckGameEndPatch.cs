@@ -235,9 +235,9 @@ namespace TownOfHost
                 // ゲーム終了を確実に最後に届けるための遅延
                 yield return new WaitForSeconds(EndGameDelay);
             }
-
-            //Outroのテキストを名前に変換してバニラにも表示
+            //ちゃんとバニラに試合結果表示させるための遅延
             SetRoleSummaryText();
+            yield return new WaitForSeconds(EndGameDelay);
 
             // ゲーム終了
             GameManager.Instance.RpcEndGame(reason, false);
@@ -297,7 +297,7 @@ namespace TownOfHost
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc == null) continue;
-                var target = (winnerList.Contains(pc.PlayerId) ? pc : (winnerList.Count == 0 ? pc : PlayerCatch.GetPlayerById(winnerList[0]) ?? pc)) ?? pc;
+                var target = (winnerList.Contains(pc.PlayerId) ? pc : (winnerList.Count == 0 ? pc : PlayerCatch.GetPlayerById(winnerList.OrderBy(pc => pc).FirstOrDefault()) ?? pc)) ?? pc;
                 var targetname = Main.AllPlayerNames[target.PlayerId].Color(UtilsRoleText.GetRoleColor(target.GetCustomRole()));
                 var text = sb.ToString() + $"\n</align><voffset=23><size=5>{UtilsGameLog.GetLastWinTeamtext()}</size>\n<voffset=45><size=1.75>{targetname}";
                 if (sender == null)

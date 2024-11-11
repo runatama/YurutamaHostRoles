@@ -144,8 +144,11 @@ namespace TownOfHost
                             {
                                 if (!Player.IsAlive()) Player.RpcExileV2();
                                 Player.SetKillCooldown(kyousei: true, delay: true);
-                                (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player);
-                                (Player.GetRoleClass() as IUsePhantomButton)?.Init(Player);
+                                if (Player.IsAlive())
+                                {
+                                    (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player);
+                                    (Player.GetRoleClass() as IUsePhantomButton)?.Init(Player);
+                                }
                             }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>

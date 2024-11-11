@@ -94,7 +94,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         if (seer == seen && !isForMeeting) return OverKillMode ? "<color=#ff1919>◎</color>" : "";
         return "";
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = true;

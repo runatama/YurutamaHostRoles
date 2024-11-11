@@ -72,7 +72,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     {
         Use = reader.ReadInt32();
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool fall)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         fall = true;
