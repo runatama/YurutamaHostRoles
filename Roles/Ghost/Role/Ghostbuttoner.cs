@@ -46,8 +46,5 @@ namespace TownOfHost.Roles.Ghost
                     }
             }
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-
     }
 }

@@ -233,6 +233,7 @@ namespace TownOfHost
             }
 
             var clientId = seer.GetClientId();
+            if (clientId == -1) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, Hazel.SendOption.Reliable, clientId);
             writer.Write(player.Data.NetId);
             writer.Write(name);
@@ -241,6 +242,11 @@ namespace TownOfHost
         }
         public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
         {
+            if (clientId == -1)
+            {
+                Logger.Error($"clientIdが-1!", "RpcSetRoleDesync");
+                return;
+            }
             //player: ロールの変更対象
 
             if (player == null) return;
@@ -683,6 +689,27 @@ namespace TownOfHost
             if (killer.PlayerId != 0)
             {
                 var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
+                writer.WriteNetObject(target);
+                writer.Write((int)MurderResultFlags.FailedProtected);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            }
+        }
+        public static void RpcProtectedMurderPlayer(this PlayerControl killer, PlayerControl seer, PlayerControl target = null)
+        {
+            if (seer == null) return;
+            //killerが死んでいる場合は実行しない
+            if (!killer.IsAlive()) return;
+
+            if (target == null) target = killer;
+            // Host
+            if (killer.AmOwner)
+            {
+                killer.MurderPlayer(target, MurderResultFlags.FailedProtected);
+            }
+            // Other Clients
+            if (killer.PlayerId != 0)
+            {
+                var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, seer.GetClientId());
                 writer.WriteNetObject(target);
                 writer.Write((int)MurderResultFlags.FailedProtected);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);

@@ -8,11 +8,6 @@ using UnityEngine;
 using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.AddOns.Common;
-using TownOfHost.Roles.AddOns.Impostor;
-using TownOfHost.Roles.AddOns.Crewmate;
-using TownOfHost.Roles.AddOns.Neutral;
-using TownOfHost.Roles.Ghost;
 
 namespace TownOfHost
 {
@@ -671,48 +666,7 @@ namespace TownOfHost
 
             //Com
             Lovers.SetLoversOptions();
-            // Add-Ons
-            Amanojaku.SetupCustomOption();
-            LastImpostor.SetupCustomOption();
-            LastNeutral.SetupCustomOption();
-            Workhorse.SetupCustomOption();
-
-            //バフ(ゲッサー→特定陣営→会議効果→タスクターン)
-            Guesser.SetupCustomOption();
-            Serial.SetupCustomOption();
-            MagicHand.SetupCustomOption();
-            Connecting.SetupCustomOption();
-            watching.SetupCustomOption();
-            PlusVote.SetupCustomOption();
-            Tiebreaker.SetupCustomOption();
-            Autopsy.SetupCustomOption();
-            Revenger.SetupCustomOption();
-            Speeding.SetupCustomOption();
-            Guarding.SetupCustomOption();
-            Management.SetupCustomOption();
-            seeing.SetupCustomOption();
-            Opener.SetupCustomOption();
-            Lighting.SetupCustomOption();
-            Moon.SetupCustomOption();
-            //デバフ達
-            Amnesia.SetupCustomOption();
-            SlowStarter.SetupCustomOption();
-            Notvoter.SetupCustomOption();
-            Elector.SetupCustomOption();
-            InfoPoor.SetupCustomOption();
-            NonReport.SetupCustomOption();
-            Transparent.SetupCustomOption();
-            Water.SetupCustomOption();
-            Clumsy.SetupCustomOption();
-            Slacker.SetupCustomOption();
-            //ゆーれーやくしょく
-            DemonicTracker.SetupCustomOption();
-            DemonicCrusher.SetupCustomOption();
-            DemonicVenter.SetupCustomOption();
-            AsistingAngel.SetupCustomOption();
-            Ghostbuttoner.SetupCustomOption();
-            GhostNoiseSender.SetupCustomOption();
-            GhostReseter.SetupCustomOption();
+            GhostRoleCore.SetupCustomOptionAddonAndGhostRole();
             //幽霊役職の設定
             GRRoleOp = BooleanOptionItem.Create(102001, "GRRoleOptions", false, TabGroup.GhostRoles, false)
                 .SetHeader(true)
@@ -1206,7 +1160,7 @@ namespace TownOfHost
         public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: UtilsOption.GetFrom(info), combination: info.Combination);
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
         {
-            if ((role is CustomRoles.Crewmate or CustomRoles.Phantom or CustomRoles.Impostor or CustomRoles.GuardianAngel) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
+            if ((role is CustomRoles.Crewmate or CustomRoles.Phantom or CustomRoles.Impostor) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
             if (role.IsVanilla())
             {
                 switch (role)

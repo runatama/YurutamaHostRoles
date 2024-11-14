@@ -159,8 +159,9 @@ public sealed class Madonna : RoleBase
         if (Player.IsAlive() && !Player.Is(CustomRoles.MadonnaLovers) && Wakarero)
         {//生きててラバーズ状態が解消されててる状態なら実行
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaHAMETU"), GetString($"{LoverChenge}")), Player.PlayerId);
-            Player.RpcSetCustomRole(LoverChenge, true);
             Wakarero = false;
+            if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
+            Player.RpcSetCustomRole(LoverChenge, true);
         }
         if (Hangyaku)
         {

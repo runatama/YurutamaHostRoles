@@ -210,6 +210,7 @@ public sealed class JackalDoll : RoleBase
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
                 UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
+                if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
                 UtilsNotifyRoles.NotifyRoles();
             }
@@ -251,9 +252,10 @@ public sealed class JackalDoll : RoleBase
                 var jacrole = CustomRoles.Jackal;
                 role.TryGetValue(player.PlayerId, out jacrole);
 
-                player.RpcSetCustomRole(jacrole, true);
                 MyState.SetCountType(CountTypes.Jackal);
                 shoukaku = true;
+                if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
+                player.RpcSetCustomRole(jacrole, true);
             }
             shoukaku = false;
         }

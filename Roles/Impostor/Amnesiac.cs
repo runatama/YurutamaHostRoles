@@ -134,6 +134,8 @@ public sealed class Amnesiac : RoleBase, IImpostor
             pc.RpcSetRoleDesync(role.GetRoleTypes(), clientId);
         }
 
+        if (!Utils.RoleSendList.Contains(Player.PlayerId))
+            Utils.RoleSendList.Add(Player.PlayerId);
         Player.RpcProtectedMurderPlayer();
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }

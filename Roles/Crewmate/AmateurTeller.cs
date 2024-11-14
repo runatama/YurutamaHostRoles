@@ -149,7 +149,13 @@ public sealed class AmateurTeller : RoleBase
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= OptionCanTaskcount.GetInt()) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptionCanTaskcount.GetInt()))
+        {
+            if (kakusei == false)
+                if (!Utils.RoleSendList.Contains(Player.PlayerId))
+                    Utils.RoleSendList.Add(Player.PlayerId);
+            kakusei = true;
+        }
         return true;
     }
     public static string OtherArrow(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)

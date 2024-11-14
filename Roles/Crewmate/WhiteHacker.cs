@@ -151,7 +151,13 @@ public sealed class WhiteHacker : RoleBase
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks((int)cantaskcount))
+        {
+            if (kakusei == false)
+                if (!Utils.RoleSendList.Contains(Player.PlayerId))
+                    Utils.RoleSendList.Add(Player.PlayerId);
+            kakusei = true;
+        }
         if (!NowTracker && kakusei && CanUseTrackAbility.GetBool())
         {
             PlayerCatch.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Tracker, Player.GetClientId()));

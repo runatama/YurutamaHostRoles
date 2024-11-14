@@ -687,6 +687,7 @@ namespace TownOfHost
             if (role == CustomRoles.Ghostbuttoner) s += k + AddonInfo(role);
             if (role == CustomRoles.GhostNoiseSender) s += k + AddonInfo(role);
             if (role == CustomRoles.GhostReseter) s += k + AddonInfo(role);
+            if (role == CustomRoles.GuardianAngel) s += k + AddonInfo(role);
             if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role);
             if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role);
             if (role == CustomRoles.DemonicVenter) s += k + AddonInfo(role);

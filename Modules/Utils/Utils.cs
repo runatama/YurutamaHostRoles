@@ -18,6 +18,7 @@ using TownOfHost.Roles.Ghost;
 using static TownOfHost.Translator;
 using HarmonyLib;
 using static TownOfHost.UtilsRoleText;
+using System.Collections.Generic;
 
 namespace TownOfHost
 {
@@ -378,7 +379,7 @@ namespace TownOfHost
         }
         #region AfterMeetingTasks
         public static bool CanVent;
-        public static bool OKure = false;
+        public static List<byte> RoleSendList = new();
         public static void AfterMeetingTasks()
         {
             GameStates.Meeting = false;
@@ -399,12 +400,11 @@ namespace TownOfHost
                         {
                             if (p.Is(CustomRoles.Amnesia))
                             {
-                                OKure = true;
+                                if (!RoleSendList.Contains(p.PlayerId)) RoleSendList.Add(p.PlayerId);
                                 Amnesia.Kesu(p.PlayerId);
                             }
                         }
                     }
-                    else OKure = false;
                 }
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {

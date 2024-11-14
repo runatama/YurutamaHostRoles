@@ -40,6 +40,7 @@ namespace TownOfHost.Modules
             if (time <= 30) nokori30s = null;
             if (time <= 15) nokori15s = null;
             if (time <= 10) nokori10s = null;
+            CustomRoleManager.LowerOthers.Add(GetLowerTextOthers);
         }
         public static void SuddenDeathReactor()
         {
@@ -128,17 +129,6 @@ namespace TownOfHost.Modules
         }
         public static string SuddenDeathProgersstext(PlayerControl seer)
         {
-            var ar = "";
-            if (Options.SuddenItijohoSend.GetBool())
-            {
-                ar += "\n";
-                foreach (var p in pos)
-                {
-                    ar += " " + GetArrow.GetArrows(seer, p);
-                }
-                ar = Utils.ColorString(color, ar);
-            }
-
             var nokori = "";
             if (!sabotage)
             {
@@ -147,7 +137,20 @@ namespace TownOfHost.Modules
                 if (nokori15s ?? false) nokori = Utils.ColorString(Palette.Orange, "15s");
                 if (nokori10s ?? false) nokori = Utils.ColorString(Color.red, "10s");
             }
-            return nokori + ar;
+            return nokori;
+        }
+        public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        {
+            var ar = "";
+            if (Options.SuddenItijohoSend.GetBool())
+            {
+                foreach (var p in pos)
+                {
+                    ar += " " + GetArrow.GetArrows(seer, p);
+                }
+                ar = Utils.ColorString(color, ar);
+            }
+            return ar;
         }
     }
 }

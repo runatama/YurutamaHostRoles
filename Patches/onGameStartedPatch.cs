@@ -4,15 +4,11 @@ using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
-using BepInEx.Unity.IL2CPP.Utils.Collections;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
-using TownOfHost.Roles.AddOns.Impostor;
-using TownOfHost.Roles.AddOns.Crewmate;
-using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Translator;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Modules.ChatManager;
@@ -30,13 +26,16 @@ namespace TownOfHost
             //注:この時点では役職は設定されていません。
             Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
 
-            var op = Main.NormalOptions;
-            if (op.NumCommonTasks + op.NumLongTasks + op.NumShortTasks >= 255)
+            if (GameStates.IsOnlineGame && !Main.IsCs())
             {
-                Main.NormalOptions.SetInt(Int32OptionNames.NumCommonTasks, 85);
-                Main.NormalOptions.SetInt(Int32OptionNames.NumLongTasks, 84);
-                Main.NormalOptions.SetInt(Int32OptionNames.NumShortTasks, 84);
-                Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
+                var op = Main.NormalOptions;
+                if (op.NumCommonTasks + op.NumLongTasks + op.NumShortTasks >= 255)
+                {
+                    Main.NormalOptions.SetInt(Int32OptionNames.NumCommonTasks, 85);
+                    Main.NormalOptions.SetInt(Int32OptionNames.NumLongTasks, 85);
+                    Main.NormalOptions.SetInt(Int32OptionNames.NumShortTasks, 84);
+                    Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
+                }
             }
 
             PlayerState.Clear();
@@ -148,47 +147,11 @@ namespace TownOfHost
             CustomRoleManager.Initialize();
             DisableDevice.Reset();
             FallFromLadder.Reset();
-            LastImpostor.Init();
-            LastNeutral.Init();
             TargetArrow.Init();
             GetArrow.Init();
             DoubleTrigger.Init();
-            watching.Init();
-            Serial.Init();
-            Management.Init();
-            Speeding.Init();
-            Guarding.Init();
-            Connecting.Init();
-            Opener.Init();
-            Moon.Init();
-            Tiebreaker.Init();
-            MagicHand.Init();
-            Amnesia.Init();
-            Lighting.Init();
-            seeing.Init();
-            Revenger.Init();
-            Amanojaku.Init();
-            Guesser.Init();
-            Autopsy.Init();
-            Workhorse.Init();
-            Ghostbuttoner.Init();
-            GhostNoiseSender.Init();
-            GhostReseter.Init();
-            DemonicTracker.Init();
-            DemonicCrusher.Init();
-            DemonicVenter.Init();
-            AsistingAngel.Init();
+            GhostRoleCore.Init();
             PlayerSkinPatch.RemoveAll();
-            NonReport.Init();
-            Notvoter.Init();
-            PlusVote.Init();
-            Elector.Init();
-            InfoPoor.Init();
-            Water.Init();
-            SlowStarter.Init();
-            Slacker.Init();
-            Transparent.Init();
-            Clumsy.Init();
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             GuessManager.Guessreset();
@@ -203,22 +166,14 @@ namespace TownOfHost
             RandomSpawn.SpawnMap.NextSporn.Clear();
             RandomSpawn.SpawnMap.NextSpornName.Clear();
             CustomRoleManager.MarkOthers.Add(ReportDeadBodyPatch.Dontrepomark);
-            MeetingStates.MeetingCalled = false;
-            MeetingStates.FirstMeeting = true;
-            MeetingStates.First = true;
+            GameStates.Reset();
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
             MeetingHudPatch.Title = "";
             MeetingVoteManager.Voteresult = "";
-            GameStates.AlreadyDied = false;
-            GameStates.Intro = true;
-            GameStates.task = false;
-            GameStates.AfterIntro = false;
-            GameStates.Meeting = false;
-            GameStates.Tuihou = false;
-            GameStates.canmusic = false;
             IUsePhantomButton.IPPlayerKillCooldown.Clear();
             CustomButtonHud.ch = null;
+            Utils.RoleSendList.Clear();
             UtilsTask.TaskCh = true;
             UtilsNotifyRoles.MeetingMoji = "";
             Roles.Madmate.MadAvenger.Skill = false;

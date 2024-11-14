@@ -224,6 +224,19 @@ namespace TownOfHost
     }
     public static class GameStates
     {
+        public static void Reset()
+        {
+            MeetingStates.MeetingCalled = false;
+            MeetingStates.FirstMeeting = true;
+            MeetingStates.First = true;
+            AlreadyDied = false;
+            Intro = true;
+            task = false;
+            AfterIntro = false;
+            Meeting = false;
+            Tuihou = false;
+            canmusic = false;
+        }
         public static bool InGame = false;
         public static bool AlreadyDied = false;
         public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().FirstOrDefault(x => x.PlayerId == 0 && x.IsModClient());

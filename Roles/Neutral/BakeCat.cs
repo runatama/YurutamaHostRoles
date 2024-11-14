@@ -141,6 +141,7 @@ namespace TownOfHost.Roles.Neutral
                 {
                     Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
                     CanKill = true;
+                    if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
 
                     if (OptionCountChenge.GetBool())
                     {

@@ -90,7 +90,8 @@ public sealed class Mayor : RoleBase
         {
             var user = physics.myPlayer;
             physics.RpcBootFromVent(ventId);
-            user?.ReportDeadBody(null);
+            if (user == null) return false;
+            ReportDeadBodyPatch.DieCheckReport(user, null);
         }
 
         return false;
@@ -120,11 +121,12 @@ public sealed class Mayor : RoleBase
     }
     public override string GetAbilityButtonText()
     {
+        if (!HasPortableButton) return base.GetAbilityButtonText();
         return Translator.GetString("Mayor_Abilitytext");
     }
     public override bool OverrideAbilityButton(out string text)
     {
         text = "Mayor_Ability";
-        return true;
+        return HasPortableButton;
     }
 }

@@ -74,7 +74,13 @@ public sealed class GuardMaster : RoleBase
     }
     public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(ta))
+        {
+            if (kakusei == false)
+                if (!Utils.RoleSendList.Contains(Player.PlayerId))
+                    Utils.RoleSendList.Add(Player.PlayerId);
+            kakusei = true;
+        }
         if (IsTaskFinished && Player.IsAlive())
             Guard += AddGuardCount;
         return true;

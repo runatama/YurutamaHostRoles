@@ -180,7 +180,13 @@ public sealed class PonkotuTeller : RoleBase
     public override CustomRoles Jikaku() => kakusei ? (MeisFT.GetBool() ? CustomRoles.FortuneTeller : CustomRoles.NotAssigned) : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks((int)cantaskcount))
+        {
+            if (kakusei == false)
+                if (!Utils.RoleSendList.Contains(Player.PlayerId))
+                    Utils.RoleSendList.Add(Player.PlayerId);
+            kakusei = true;
+        }
         return true;
     }
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)

@@ -117,7 +117,7 @@ namespace TownOfHost
                     }
                     var opt = option.OptionBehaviour.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
 
-                    opt.size = new(5.0f, 0.68f);
+                    opt.size = new(5.0f * w, 0.68f * h);
                     //opt.enabled = false;
                     if (parent == null) opt.color = new Color32(200, 200, 200, 255);
                     if (option.Tab is TabGroup.MainSettings && (option.NameColor != Color.white || option.NameColorCode != "#ffffff"))
@@ -136,27 +136,27 @@ namespace TownOfHost
                         parent = parent.Parent;
                         opt.color = new Color32(40, 50, 80, 255);
 
-                        opt.size = new(4.6f, 0.68f);
-                        option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.8566f, 0f);
-                        option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.4f, 0.6f);
+                        opt.size = new(4.6f * w, 0.68f * h);
+                        option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.8566f * w, 0f);
+                        option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.4f * w, 0.6f * h);
                         if (option.Parent?.Parent != null)
                         {
                             opt.color = new Color32(20, 60, 40, 255);
-                            opt.size = new(4.4f, 0.68f);
-                            option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.7566f, 0f);
-                            option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.35f, 0.6f);
+                            opt.size = new(4.4f * w, 0.68f * h);
+                            option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.7566f * w, 0f);
+                            option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.35f * w, 0.6f * h);
                             if (option.Parent?.Parent?.Parent != null)
                             {
                                 opt.color = new Color32(60, 20, 40, 255);
-                                opt.size = new(4.2f, 0.68f);
-                                option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f, 0f);
-                                option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.3f, 0.6f);
+                                opt.size = new(4.2f * w, 0.68f * h);
+                                option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f * w, 0f);
+                                option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.3f * w, 0.6f * h);
                                 if (option.Parent?.Parent?.Parent?.Parent != null)
                                 {
                                     opt.color = new Color32(60, 40, 10, 255);
-                                    opt.size = new(4.0f, 0.68f);
-                                    option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f, 0f);
-                                    option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.25f, 0.6f);
+                                    opt.size = new(4.0f * w, 0.68f * h);
+                                    option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f * w, 0f);
+                                    option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.25f * w, 0.6f * h);
                                 }
                             }
                         }
@@ -165,16 +165,16 @@ namespace TownOfHost
                     option.OptionBehaviour.gameObject.SetActive(enabled);
                     if (enabled)
                     {
-                        offset -= option.IsHeader ? 0.68f : 0.45f;
+                        offset -= option.IsHeader ? (0.68f * h) : (0.45f * h);
                         option.OptionBehaviour.transform.localPosition = new Vector3(
                             option.OptionBehaviour.transform.localPosition.x,//0.952f,
-                            offset - 1.5f,//y,
+                            offset - (1.5f * h),//y,
                             option.OptionBehaviour.transform.localPosition.z);//-120f);
-                        y -= option.IsHeader ? 0.68f : 0.45f;
+                        y -= option.IsHeader ? (0.68f * h) : (0.45f * h);
 
                         if (option.IsHeader)
                         {
-                            numItems += 0.5f;
+                            numItems += (0.5f * h);
                         }
                     }
                     else
@@ -182,7 +182,7 @@ namespace TownOfHost
                         numItems--;
                     }
                 }
-                __instance.GetComponentInParent<Scroller>().ContentYBounds.max = -offset + 0.75f;
+                __instance.GetComponentInParent<Scroller>().ContentYBounds.max = -(offset * 3 - (h * offset * 2)) + 0.75f;
             }
         }
     }
@@ -433,6 +433,8 @@ namespace TownOfHost
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
     class GameSettingMenuStartPatch
     {
+        public static float w = 1;
+        public static float h = 1;
         public static bool dasu;
         public static PassiveButton ModSettingsButton;
         public static RolesSettingsMenu ModSettingsTab;
@@ -553,7 +555,9 @@ namespace TownOfHost
                 s.transform.localPosition = new Vector3(0.7789f, -0.5101f);
                 list.Add(tb, s.GetComponent<GameOptionsMenu>());
             }
-
+            var (width, height) = Hiritu(ResolutionManagerPatch.Width, ResolutionManagerPatch.Height);
+            w = 0.6f + (0.4f * (width / 16));
+            h = 0.6f + (0.4f * (height / 9));
             foreach (var option in OptionItem.AllOptions)
             {
                 if (option.OptionBehaviour == null)
@@ -569,18 +573,56 @@ namespace TownOfHost
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
-                    stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = GameSettingMenuChangeTabPatch.OptionLabelBackground(option.Name) ?? UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
+                    var x = 0f;
+                    var y = 0f;
+                    var z = 0f;
                     stringOption.transform.FindChild("LabelBackground").localScale = new Vector3(1.3f, 1.14f, 1f);
-                    stringOption.transform.FindChild("LabelBackground").SetLocalX(-2.2695f);
-                    stringOption.transform.FindChild("PlusButton").localPosition += new Vector3(option.HideValue ? 100f : 1.1434f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
-                    stringOption.transform.FindChild("MinusButton").localPosition += new Vector3(option.HideValue ? 100f : 0.3463f, option.HideValue ? 100f : 0f, option.HideValue ? 100f : 0f);
-                    stringOption.transform.FindChild("Value_TMP (1)").localPosition += new Vector3(0.7322f, 0f, 0f);
-                    stringOption.transform.FindChild("ValueBox").localScale += new Vector3(0.2f, 0f, 0f);
-                    stringOption.transform.FindChild("ValueBox").localPosition += new Vector3(0.7322f, 0f, 0f);
-                    stringOption.transform.FindChild("Title Text").localPosition += new Vector3(-1.096f, 0f, 0f);
+                    stringOption.transform.FindChild("LabelBackground").SetLocalX(-2.2695f * w);
+                    x = stringOption.transform.FindChild("PlusButton").localPosition.x;
+                    y = stringOption.transform.FindChild("PlusButton").localPosition.y;
+                    z = stringOption.transform.FindChild("PlusButton").localPosition.z;
+                    stringOption.transform.FindChild("PlusButton").localPosition = new Vector3(option.HideValue ? 100f : (x + 1.1434f) * w, option.HideValue ? 100f : y * h, option.HideValue ? 100f : z);
+                    x = stringOption.transform.FindChild("MinusButton").localPosition.x;
+                    y = stringOption.transform.FindChild("MinusButton").localPosition.y;
+                    z = stringOption.transform.FindChild("MinusButton").localPosition.z;
+                    stringOption.transform.FindChild("MinusButton").localPosition = new Vector3(option.HideValue ? 100f : (x + 0.3463f) * w, option.HideValue ? 100f : (y * h), option.HideValue ? 100f : z);
+                    x = stringOption.transform.FindChild("PlusButton").localScale.x;
+                    y = stringOption.transform.FindChild("PlusButton").localScale.y;
+                    z = stringOption.transform.FindChild("PlusButton").localScale.z;
+                    stringOption.transform.FindChild("PlusButton").localScale = new Vector3(x * w, y * h);
+                    x = stringOption.transform.FindChild("MinusButton").localScale.x;
+                    y = stringOption.transform.FindChild("MinusButton").localScale.y;
+                    z = stringOption.transform.FindChild("MinusButton").localScale.z;
+                    stringOption.transform.FindChild("MinusButton").localScale = new Vector3(x * w, y * h);
+                    x = stringOption.transform.FindChild("Value_TMP (1)").localPosition.x;
+                    y = stringOption.transform.FindChild("Value_TMP (1)").localPosition.y;
+                    z = stringOption.transform.FindChild("Value_TMP (1)").localPosition.z;
+                    stringOption.transform.FindChild("Value_TMP (1)").localPosition = new Vector3((x + 0.7322f) * w, y * h, z);
+                    x = stringOption.transform.FindChild("Value_TMP (1)").localScale.x;
+                    y = stringOption.transform.FindChild("Value_TMP (1)").localScale.y;
+                    z = stringOption.transform.FindChild("Value_TMP (1)").localScale.z;
+                    stringOption.transform.FindChild("Value_TMP (1)").localScale = new Vector3(x * w, y * h, z);
+                    x = stringOption.transform.FindChild("ValueBox").localScale.x;
+                    y = stringOption.transform.FindChild("ValueBox").localScale.y;
+                    z = stringOption.transform.FindChild("ValueBox").localScale.z;
+                    stringOption.transform.FindChild("ValueBox").localScale = new Vector3((x + 0.2f) * w, y * h, z);
+                    x = stringOption.transform.FindChild("ValueBox").localPosition.x;
+                    y = stringOption.transform.FindChild("ValueBox").localPosition.y;
+                    z = stringOption.transform.FindChild("ValueBox").localPosition.z;
+                    stringOption.transform.FindChild("ValueBox").localPosition = new Vector3((x + 0.7322f) * w, y * h, z);
+
+                    x = stringOption.transform.FindChild("Title Text").localPosition.x;
+                    y = stringOption.transform.FindChild("Title Text").localPosition.y;
+                    z = stringOption.transform.FindChild("Title Text").localPosition.z;
+                    stringOption.transform.FindChild("Title Text").localPosition = new Vector3((x + -1.096f) * w, y * h, z);
+                    x = stringOption.transform.FindChild("Title Text").localScale.x;
+                    y = stringOption.transform.FindChild("Title Text").localScale.y;
+                    z = stringOption.transform.FindChild("Title Text").localScale.z;
+                    stringOption.transform.FindChild("Title Text").localScale = new Vector3(x * w, y * h, z);
                     stringOption.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.5f, 0.37f);
                     stringOption.transform.FindChild("Title Text").GetComponent<TMPro.TextMeshPro>().alignment = TMPro.TextAlignmentOptions.MidlineLeft;
                     stringOption.SetClickMask(list[option.Tab].ButtonClickMask);
+                    stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = GameSettingMenuChangeTabPatch.OptionLabelBackground(option.Name) ?? UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
                     option.OptionBehaviour = stringOption;
                 }
                 option.OptionBehaviour.gameObject.SetActive(true);
@@ -607,7 +649,7 @@ namespace TownOfHost
 
                 var tabButton = Object.Instantiate(templateTabButton, templateTabButton.transform.parent);
                 tabButton.name = tab.ToString();
-                tabButton.transform.position = templateTabButton.transform.position + new Vector3(0.762f * i, 0f);
+                tabButton.transform.position = templateTabButton.transform.position + new Vector3(0.762f * i * w, 0f);
                 Object.Destroy(tabButton.buttonText.gameObject);
                 tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 60);
                 tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
@@ -773,7 +815,7 @@ namespace TownOfHost
             // ボタン生成
             CreateButton("OptionReset", Color.red, new Vector2(8.5f, 0f), new Action(() =>
             {
-                OptionItem.AllOptions.ToArray().Where(x => x.Id > 0).Do(x => x.SetValue(x.DefaultValue));
+                OptionItem.AllOptions.ToArray().Where(x => x.Id > 0 && x.CurrentValue != x.DefaultValue).Do(x => x.SetValue(x.DefaultValue));
                 var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
                 switch (pr.CurrentValue)
                 {
@@ -799,7 +841,7 @@ namespace TownOfHost
             {
                 var ToggleButton = Object.Instantiate(csize ? HudManager.Instance.Chat.chatButton : HudManager.Instance.SettingsButton.GetComponent<PassiveButton>(), GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)").transform);
                 ToggleButton.GetComponent<AspectPosition>().DistanceFromEdge += new Vector3(position.x, position.y, 0f);
-                ToggleButton.transform.localScale -= new Vector3(0.25f, 0.25f);
+                ToggleButton.transform.localScale -= new Vector3(0.25f * w, 0.25f * h);
                 ToggleButton.name = text;
                 if (sprite != null)
                 {
@@ -816,6 +858,23 @@ namespace TownOfHost
                 textTMP.fontSize = 10f;
                 ToggleButton.OnClick = new();
                 ToggleButton.OnClick.AddListener(action);
+            }
+            static (float, float) Hiritu(int w, int h)
+            {
+                float Width = w / GetMax(w, h);
+                float Height = h / GetMax(w, h);
+                return (Width, Height);
+            }
+            static int GetMax(int w, int h)
+            {
+                if (w < h) return GetMax(h, w);
+                while (h != 0)
+                {
+                    int remain = w % h;
+                    w = h;
+                    h = remain;
+                }
+                return w;
             }
         }
     }

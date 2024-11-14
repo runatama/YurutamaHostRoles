@@ -89,13 +89,17 @@ namespace TownOfHost
                 (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
             if (taskTypeIds.Count == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
-            if (NumCommonTasks + NumLongTasks + NumShortTasks >= 255)
+
+            if (GameStates.IsOnlineGame && !Main.IsCs())
             {
-                hasCommonTasks = false;
-                NumCommonTasks = 85;
-                NumLongTasks = 84;
-                NumShortTasks = 85;
-                Logger.Error($"{pc?.name ?? "ｼｭﾄｸﾑﾘﾀﾞｯﾀ!"}のタスクが255を超えています", "TaskAssignPatch");
+                if (NumCommonTasks + NumLongTasks + NumShortTasks >= 255)
+                {
+                    hasCommonTasks = false;
+                    NumCommonTasks = 85;
+                    NumLongTasks = 84;
+                    NumShortTasks = 85;
+                    Logger.Error($"{pc?.name ?? "ｼｭﾄｸﾑﾘﾀﾞｯﾀ!"}のタスクが255を超えています", "TaskAssignPatch");
+                }
             }
             if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0 && NumCommonTasks == 0)
             {

@@ -52,7 +52,13 @@ public sealed class Staff : RoleBase
         if (IsTaskFinished && Player.IsAlive()) EndedTaskInAlive = true;
 
         //これはFinの外にしないとタスク数での覚醒上手くいないゼ。
-        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= ta) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(ta))
+        {
+            if (kakusei == false)
+                if (!Utils.RoleSendList.Contains(Player.PlayerId))
+                    Utils.RoleSendList.Add(Player.PlayerId);
+            kakusei = true;
+        }
 
         return true;
     }

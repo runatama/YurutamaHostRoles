@@ -41,7 +41,7 @@ namespace TownOfHost
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
                 sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
 
-                if (Options.NoGameEnd.GetBool() && (GameStates.IsLobby || Main.DontGameSet)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+                if ((Options.NoGameEnd.GetBool() && GameStates.IsLobby) || Main.DontGameSet) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) sb.Append($"\r\n").Append(Utils.ColorString(Color.cyan, GetString("TaskBattle")));

@@ -33,6 +33,7 @@ namespace TownOfHost
                 Ghostbuttoner.UseAbility(__instance);
                 GhostNoiseSender.UseAbility(__instance, target);
                 GhostReseter.UseAbility(__instance, target);
+                GuardianAngel.UseAbility(__instance, target);
                 DemonicTracker.UseAbility(__instance, target);
                 DemonicCrusher.UseAbility(__instance);
                 DemonicVenter.UseAbility(__instance, target);
@@ -349,6 +350,12 @@ namespace TownOfHost
                 return false;
             }
 
+            if (GameStates.IsMeeting && !GameStates.Tuihou && __instance.Is(CustomRoles.EvilSatellite))
+            {
+                (__instance.GetRoleClass() as EvilSatellite)?.SendPlayerKeiro(target.PlayerId);
+                __instance.RpcRejectShapeshift();
+                return false;
+            }
             // 無効な変身を弾く．これより前に役職等の処理をしてはいけない
             if ((!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) || !CheckInvalidShapeshifting(__instance, target, shouldAnimate))
             {
@@ -1707,6 +1714,7 @@ namespace TownOfHost
             if (pc.Is(CustomRoles.Amnesia))
                 if (Amnesia.TriggerTask.GetBool() && taskState.CompletedTasksCount >= Amnesia.Task.GetInt())
                 {
+                    if (!Utils.RoleSendList.Contains(pc.PlayerId)) Utils.RoleSendList.Add(pc.PlayerId);
                     Amnesia.Kesu(pc.PlayerId);
 
                     taskState.hasTasks = UtilsTask.HasTasks(pc.Data, false);
@@ -1935,12 +1943,11 @@ namespace TownOfHost
                 float cooldown = killcool - k;
                 if (cooldown <= 1) cooldown = 0.005f;
 
-                if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
-                if (fall == false) __instance.RpcResetAbilityCooldown(false, true);
+                if (fall == false) __instance.RpcResetAbilityCooldown(false);
                 if (!GameStates.Meeting)
                     _ = new LateTask(() =>
                     {
-                        __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
+                        if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
                         if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
                         if (fall == false) __instance.RpcResetAbilityCooldown(false, true);
                     }, Main.LagTime * 2, "", true);

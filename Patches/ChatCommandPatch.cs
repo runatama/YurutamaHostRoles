@@ -1084,7 +1084,6 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Scientist, "Sci");
                 roleCommands.Add(CustomRoles.Tracker, "Trac");
                 roleCommands.Add(CustomRoles.Noisemaker, "Nem");//アプデ対応用 仮
-                roleCommands.Add(CustomRoles.GuardianAngel, "Gan");
 
                 ConcatCommands(CustomRoleTypes.Crewmate);
 
@@ -1137,6 +1136,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Ghostbuttoner, "Bbu");
                 roleCommands.Add(CustomRoles.GhostNoiseSender, "NiS");
                 roleCommands.Add(CustomRoles.GhostReseter, "Res");
+                roleCommands.Add(CustomRoles.GuardianAngel, "Gan");
                 roleCommands.Add(CustomRoles.DemonicCrusher, "DCr");
                 roleCommands.Add(CustomRoles.DemonicTracker, "DTr");
                 roleCommands.Add(CustomRoles.DemonicVenter, "Dve");
@@ -1363,6 +1363,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
             string[] args = text.Split(' ');
             string subArgs = "";
+            if (text.RemoveHtmlTags() != text) return;//システムメッセージなら処理しない
             if (player.PlayerId != 0)
             {
                 ChatManager.SendMessage(player, text);

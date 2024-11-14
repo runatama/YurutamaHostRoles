@@ -84,6 +84,7 @@ namespace TownOfHost.Roles.Crewmate
             Cooltime = 0;
             Room = Translator.GetString($"{logdoor.Key.Room}");
 
+            var a = logdoor.Key.Room;
             if (AmongUsClient.Instance.AmHost)
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -141,10 +142,11 @@ namespace TownOfHost.Roles.Crewmate
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
-                        if (pc != PlayerControl.LocalPlayer)
-                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Shapeshifter : RoleTypes.Crewmate, pc.GetClientId());
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                            Player.StartCoroutine(Player.CoSetRole(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, true));
+                        if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, pc.GetClientId());
                     }
-                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Shapeshifter);
                     Taskmode = false;
                 }
         }

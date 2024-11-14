@@ -51,7 +51,7 @@ namespace TownOfHost
                 CustomRoles.Scientist or
                 CustomRoles.Noisemaker or
                 CustomRoles.Tracker or
-                CustomRoles.GuardianAngel or
+                //CustomRoles.GuardianAngel or幽霊役職でやったからちょっと不都合になる
                 CustomRoles.Impostor or
                 CustomRoles.Shapeshifter or
                 CustomRoles.Phantom;

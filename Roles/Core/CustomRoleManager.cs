@@ -104,6 +104,10 @@ public static class CustomRoleManager
                         }
                     }
                 }
+                //守護天使ちゃんの天使チェック
+                if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
+                    info.IsGuard = true;
+
                 //属性ガードがある場合はDokillのみ先にfalseで返す。
                 if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
                     if (Main.Guard[attemptTarget.PlayerId] > 0)
@@ -115,6 +119,22 @@ public static class CustomRoleManager
                     {
                         killer.OnCheckMurderAsKiller(info);
                     }
+
+                if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
+                {
+                    CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
+                    attemptKiller.RpcProtectedMurderPlayer(attemptTarget);
+                    //死んでる人にはパリーン見せる
+                    PlayerCatch.AllPlayerControls.Where(pc => pc is not null && !pc.IsAlive())
+                        .Do(pc => attemptKiller.RpcProtectedMurderPlayer(pc, attemptTarget));
+                    GuardianAngel.MeetingNotify |= true;
+                    UtilsGameLog.AddGameLog($"GuardianAngel", Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                    Logger.Info($"{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}守護天使ちゃんのガード!", "GuardianAngel");
+                    UtilsNotifyRoles.NotifyRoles();
+                    if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
+                        GuardianAngel.Guarng[attemptTarget.PlayerId] = 999f;//時間経過で削除させる(なんかこっちで削除したら下手すりゃバグりそう)
+                    return false;
+                }
 
                 if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
                 {
@@ -128,6 +148,51 @@ public static class CustomRoleManager
                         Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
                         UtilsNotifyRoles.NotifyRoles();
                         killer.OnCheckMurderDontKill(info);
+                        return false;
+                    }
+                }
+            }
+            //ほぼウルトラスター用
+            else if (info.CanKill && info.DoKill && !info.IsGuard && !kantu)
+            {
+                if (targetRole != null)
+                    if (Amnesia.CheckAbility(attemptTarget))
+                        if (!targetRole.OnCheckMurderAsTarget(info))
+                        {
+                            CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
+                            return false;
+                        }
+                if (AsistingAngel.Guard)
+                {
+                    if (attemptTarget == AsistingAngel.Asist)
+                    {
+                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
+                        attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
+
+                        UtilsGameLog.AddGameLog($"AsistingAngel", Utils.GetPlayerColor(PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
+                        + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+
+                        UtilsNotifyRoles.NotifyRoles();
+                        return false;
+                    }
+                }
+
+                //属性ガードがある場合はDokillのみ先にfalseで返す。
+                if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
+                    if (Main.Guard[attemptTarget.PlayerId] > 0)
+                        info.IsGuard = true;
+
+                if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
+                {
+                    if (Main.Guard[attemptTarget.PlayerId] > 0)
+                    {
+                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
+                        Main.Guard[attemptTarget.PlayerId]--;
+                        attemptKiller.SetKillCooldown(target: attemptTarget, kyousei: true, delay: true);
+
+                        UtilsGameLog.AddGameLog($"Guard", Utils.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
+                        UtilsNotifyRoles.NotifyRoles();
                         return false;
                     }
                 }
@@ -287,7 +352,7 @@ public static class CustomRoleManager
         //サブロールは表示めんどいしながいから省略★
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
-            UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false)}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
+            UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false).RemoveSizeTags()}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
         //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId) 
@@ -298,6 +363,7 @@ public static class CustomRoleManager
             {
                 if (Amnesia.KillCount.GetInt() <= Main.KillCount[appearanceKiller.PlayerId])
                 {
+                    if (!Utils.RoleSendList.Contains(appearanceKiller.PlayerId)) Utils.RoleSendList.Add(appearanceKiller.PlayerId);
                     Amnesia.Kesu(appearanceKiller.PlayerId);
 
                     if (appearanceKiller.PlayerId != PlayerControl.LocalPlayer.PlayerId)
@@ -442,6 +508,7 @@ public static class CustomRoleManager
                 case CustomRoles.Ghostbuttoner: Ghostbuttoner.Add(pc.PlayerId); break;
                 case CustomRoles.GhostNoiseSender: GhostNoiseSender.Add(pc.PlayerId); break;
                 case CustomRoles.GhostReseter: GhostReseter.Add(pc.PlayerId); break;
+                case CustomRoles.GuardianAngel: GuardianAngel.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicTracker: DemonicTracker.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicVenter: DemonicVenter.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicCrusher: DemonicCrusher.Add(pc.PlayerId); break;
@@ -662,6 +729,7 @@ public enum CustomRoles
     Amnesiac,
     Camouflager,
     ConnectSaver,
+    EvilSatellite,
     //Madmate
     MadGuardian,
     Madmate,
@@ -679,7 +747,6 @@ public enum CustomRoles
     MadSuicide,
     //Crewmate(Vanilla)
     Engineer,
-    GuardianAngel,
     Scientist,
     Tracker,
     Noisemaker,
@@ -809,6 +876,7 @@ public enum CustomRoles
     Ghostbuttoner,
     GhostNoiseSender,
     GhostReseter,
+    GuardianAngel,
     //NeutralGhost
     AsistingAngel,
 }

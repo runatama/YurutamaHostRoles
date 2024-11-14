@@ -58,6 +58,7 @@
 "EarnestWolf","EarnestWolf","一途な狼"
 "Amnesiac","Amnesiac","記憶喪失者"
 "Camouflager","Camouflager","カモフラージャー"
+"EvilSatellite","EvilSatellite","イビルサテライト"
 "#ImpostorName"
 
 "# マッドメイト系役職"
@@ -289,6 +290,7 @@
 "EarnestWolfInfo","","僕が頑張ったら...!"
 "AmnesiacInfo","","なにか忘れてるような..."
 "CamouflagerInfo","","イリュージョン!"
+"EvilSatelliteInfo","","君がいたのはどこなんだい?"
 "#ImpostorInfo"
 
 "# マッドメイト系役職"
@@ -407,6 +409,7 @@
 "GhostbuttonerInfo","","おっと。あぶないあぶない"
 "GhostNoiseSenderInfo","","ﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞﾋﾞ...ﾋﾟﾋﾟﾋﾟ!!"
 "GhostReseterInfo","","もうちょっとだけまってよ!!"
+"GuardianAngelInfo","","クルーを守ろう"
 "DemonicTrackerInfo","","君の居場所はお見通し"
 "DemonicVenterInfo","","こっそ～りこっそ～り"
 "DemonicCrusherInfo","","どっかーん！"
@@ -490,6 +493,7 @@
 "EarnestWolfInfoLong","","ワンクリックボタンを使用することで通常キルとオーバーキルを切り替えることができる。\nオーバーキルモード中はキルディスタンスが長い。\nオーバーキルモード中にキルをすると、キルターゲットの能力、ガードを貫通するが、キルクールが倍率で増加する。"
 "AmnesiacInfoLong","","自身の事をシェリフだと思い込んでいるインポスター。\nシェリフのように見えているが誤爆はしない。\n相方も分からない。\nベントとサボタージュが使用できない。"
 "CamouflagerInfoLong","","ワンクリックボタンを使用することで\nプレイヤー全員(ウルトラスターを除く)のスキンが一定時間グレーになり、識別できない状態にする。"
+"EvilSatelliteInfoLong","","会議中にシェイプシフトで対象を選択すると選択した対象の今回のターンの経路が表示される\nもう一度確認したい時も同様にシェイプシフトで選択することで経路が表示される。\n※再表示の場合、能力使用可能回数は減少しない"
 "#ImpostorInfoLong"
 
 "# マッドメイト系役職"
@@ -544,7 +548,7 @@
 "NiceLoggerInfoLong","","ワンクリックボタンを使用することで一番近くにあるドアにセンサーを設置することが出来る。\nセンサーを設置したドアの付近にいるプレイヤーを検知し、会議時に通知を受け取ることが可能。\n会議後、センサーは再設置する必要がある。\nセンサーがプレイヤーを検知すると、次の検知までに一定時間クールタイムが発生する"
 "AndroidInfoLong","","タスクを行うことでバッテリーをチャージすることが出来る。\nバッテリー残量によって、ベントクールダウン,ベント内での最大時間が変動する。\nサボタージュの発動中はベントに入ることが出来ない。\n100%以上に充電されることはない。"
 "PsychicInfoLong","","プレイヤーが死亡するごとに、サイキックはノイズメーカーのノイズを受け取ることが出来る。"
-"EfficientInfoLong","","他のクルー役職よりタスクが多いが、タスクを完了させると、一定確立でもう一つタスクが完了する。\n能力発動時に守護天使のバリアが見える。\n能力発動発動後、3秒間のクールタイムが発生する。"
+"EfficientInfoLong","","他のクルー役職よりタスクが多いが、タスクを完了させると、\n一定確率でもう一つタスクが完了する。\n効率化成功時、守護天使のバリアが見える。\n効率化成功後、3秒間の間タスクを完了させても効率化が出来ない"
 "KingInfoLong","","基本死亡しないが、死亡した時、クルー陣営に大きな損害をもたらす。\n通常キル、多くの特殊キルでも死亡しない。\nただし、会議で一定数票が集まってしまうと自身が追放されてしまう。\nクルー陣営には自身が君臨者であることが分かっているが人外には分からない。\n君臨者には天邪鬼,アムネシアは付与されない。"
 "AmateurTellerInfoLong","","既定のタスク数を完了した状態で会議で自投票すると占いモードに変更できる。\n占いモードの状態で自身以外の誰かに投票すると、投票先を占うことが出来る。\n占いには1ターンかかり、対象者が人外の場合、占われている事が分かってしまう。\n1会議で1人までしか占えない。"
 "CakeshopInfoLong","","< 一周年限定役職 > \n会議後、全員にケーキを配るケーキ屋さん！\nケーキの効果時間は次の会議が終わるまで！！\n(会議後、次の会議が終わるまで全員にランダムな属性が1つ付与される。)\n追放されると誰かを道連れにする。\n<color=#7857b9><size=0.8>ケーキを受け取ってくれなかったら<color=#d47700>イタズラ</color>だから..ね??</color></size>"
@@ -594,6 +598,7 @@
 "DemonicCrusherInfoLong","","(幽霊役職):\n死亡したマッドメイトにしか付与されない。\n守護能力を発動しようとすると\n一定時間生存者全員情報機器が使えなくなる。"
 "DemonicVenterInfoLong","","(幽霊役職):\n死亡したマッドメイトにしか付与されない。\n守護能力を発動しようとすると\n使用相手から一番近いベントが開く"
 "AsistingAngelInfoLong","","(幽霊役職):\n死亡したクルー/ニュートラルにしか付与されない。\n初めての守護能力を使用した相手が勝利すると自身も追加勝利する。\n\n二回目以降守護能力を使用すると、\n(守護能力の対象が1回目と同じなら)\n一定時間キルガードを付与する。\n(1回目と違うなら)\n発動した時の位置が1回目の能力の使用者に通知される。\n能力を使用した場合、次のクールダウンが増加する。\n\n幽霊,幽霊役職設定に関わらず他人の役職などが見えない。\n元の勝利条件は無くなり、タスクもなくなる。"
+"GuardianAngelInfoLong","","(幽霊役職):\n死亡したクルー陣営にしか付与されない。\n一定時間守護能力で守った人がキルされそうになった時、キルをバリアで防ぐ。"
 
 "# 属性"
 "LastImpostorInfoLong","(Add-ons):\nAn Add-on granted to the last Impostor remaining.\nKill cooldown is reduced according to this setting.\nNot granted to Bounty Hunters, Serial Killers, or Vampires.","(属性):\n最後のインポスターに付与される属性。\nキルクールが設定した時間まで短くなる。\n一部インポスター役職には付与されない。","（效果）:\n这个效果在内鬼仅剩一人时赋予该内鬼。\n使其击杀冷却缩短。\n该效果对赏金猎人、嗜血杀手以及吸血鬼不适用。","(附加效果):\n該效果給予在場上的最後一位偽裝者，擁有該效果的偽裝者刀人冷卻時間會變短，該效果不會給予:\n賞金獵人, 連環殺手或吸血鬼 (可以設定冷卻)","(Атрибут):\nАтрибут, присваивается последнему Предателю. \nВремя отката убийства становится меньше, чем обычно. \nНе назначается Охотнику за головами, Серийному убийце или Вампиру.","(Atributos): \nUm Atributo dado ao último Impostor. \nO tempo de recarga (abate) é reduzido segundo a configuração. \nNão é dado para Caçadores de Recompensas, Serial Killers ou Vampiros.",""
@@ -1074,7 +1079,7 @@
 "AmnesiacCanUseVent","","思い出すとベントが入れるようになる"
 "AmnesiacCanUseSabotage","","思い出すとサボタージュを起こせるようになる"
 "AmnesiacIamWolfboy","","<color=#727171>狼少年</color>だと思い込む"
-
+"EvilSatelliteRandom","","経路をランダムに表示する"
 
 "## MadMate Role Setting"
 "MadmateOption","MadMate Options","マッドメイト系役職の設定","","","","",""
@@ -1164,7 +1169,7 @@
 "AndroidRemoveBattery","remove battery","バッテリーが減少する"
 "AndroidRemove","remove","減少量"
 "AndroidRemoveTime","remove second","減少するまでの時間"
-"EfficientCollectRect","ability Chance,"能力が発動する確率"
+"EfficientCollectRect","ability Chance","能力が発動する確率"
 "SwitchSheriffCommsmode","commms mode","通信妨害発生時のモード"
 "KingExileVoteCount","vote num","追放される票数"
 "KingExileCrewDies","died FollowingSuicide player count","死亡時、後追いする人数"
@@ -1356,6 +1361,7 @@
 "GhostNoiseSenderTime","","効果時間"
 "GhostReseterResetAbilityCool","","アビリティもリセットされる"
 "GhostReseterCount","","能力を発動できる回数"
+"GuardianAngelGuardTime","","護衛持続時間"
 "DemonicCrusherAbilityTime","AbilityTime","効果時間"
 "AsistingAngelCoolDown","First CoolDown","最初のクールダウン"
 "AsistingAngelAddClowDown","Add CoolDown","追加されていくクールダウン"
@@ -1448,6 +1454,10 @@
 "Skill.WitchO","","が呪われているようだ..."
 "Skill.ConnectSaver","","選択を終了しました。"
 "MadAvengerMeeting","【=== RevolutionaryMeeting ===】","【=== 革命の時間だ ===】","","","","",""
+"EvilSateliteShepeInfo","","\n\n{0}が通った道はこうらしい...\n再度同じ人にシェイプをすれば回数を減らさずにチャットが再送信されます"
+"EvilSateliteShepeInfo2","","\n<size=30%>※経路の順番がランダムにシャッフルされました</size>"
+"EvilSateliteShepeInfo3","","\n残り{0}回使用可能です"
+"EvilSateliteShepeInfoTitle","","【===== {0}の経路情報 =====】"
 
 "OnePlayer","the first person","一人目","","","","",""
 "TowPlayer","second person","二人目","","","","",""

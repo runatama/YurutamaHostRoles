@@ -330,6 +330,17 @@ namespace TownOfHost
         static bool ORGetKeysDown(params KeyCode[] keys) => keys.Any(k => Input.GetKeyDown(k));
     }
 
+    [HarmonyPatch(typeof(ResolutionManager), nameof(ResolutionManager.SetResolution))]
+    class ResolutionManagerPatch
+    {
+        public static int Width = 1920;
+        public static int Height = 1080;
+        public static void Postfix([HarmonyArgument(0)] int width, [HarmonyArgument(1)] int height)
+        {
+            Width = width;
+            Height = height;
+        }
+    }
     [HarmonyPatch(typeof(ConsoleJoystick), nameof(ConsoleJoystick.HandleHUD))]
     class ConsoleJoystickHandleHUDPatch
     {
