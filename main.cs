@@ -310,6 +310,7 @@ namespace TownOfHost
                     {CustomRoles.Ghostbuttoner,"#d0af4c"},
                     {CustomRoles.GhostNoiseSender, "#5aa698"},
                     {CustomRoles.GhostReseter , "#a87a71"},
+                    {CustomRoles.GuardianAngel,"#7cc0fc"},
                     {CustomRoles.DemonicTracker,"#824880"},
                     {CustomRoles.DemonicCrusher,"#522886"},
                     {CustomRoles.DemonicVenter ,"#635963"},
