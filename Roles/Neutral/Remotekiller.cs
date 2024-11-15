@@ -68,8 +68,6 @@ namespace TownOfHost.Roles.Neutral
                 info.DoKill = false;
                 return;
             }
-            if (target.Is(CustomRoles.Bait)) return;
-            if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
             //登録
             killer.SetKillCooldown(KillCooldown);

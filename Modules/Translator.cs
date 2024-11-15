@@ -184,6 +184,12 @@ namespace TownOfHost
                 if (stringNames != null && stringNames.Any())
                     res = GetString(stringNames.FirstOrDefault());
             }
+            if (res == ch)
+            {
+                if (NotString.Contains(res)) return res;
+                NotString.Add(res);
+                Logger.Warn($"未翻訳の関数 : {str}", "Translator");
+            }
             return res;
         }
         public static string GetString(StringNames stringName)

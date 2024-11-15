@@ -474,7 +474,7 @@ namespace TownOfHost
                         canceled = true;
                         if (Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.GetCustomRole().IsImpostor())
                         {
-                            canceled = true;
+                            if ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita == false) break;
                             var send = "";
                             foreach (var ag in args)
                             {
@@ -484,6 +484,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "impostorsChat");
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
+                                if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
                                 if (imp && (imp?.GetCustomRole().IsImpostor() ?? false))
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
@@ -1553,6 +1554,11 @@ namespace TownOfHost
                 case "/ic":
                     if (Options.ImpostorHideChat.GetBool() && player.IsAlive() && player.GetCustomRole().IsImpostor())
                     {
+                        if ((player.GetRoleClass() as Amnesiac)?.omoidasita == false)
+                        {
+                            canceled = true;
+                            break;
+                        }
                         if (GameStates.Tuihou)
                         {
                             canceled = true;
@@ -1567,6 +1573,7 @@ namespace TownOfHost
                         Logger.Info($"{player.Data.PlayerName} : {send}", "ImpostorChat");
                         foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                         {
+                            if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
                             if (imp && imp.GetCustomRole().IsImpostor() && imp.PlayerId != player.PlayerId)
                             {
 

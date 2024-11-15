@@ -609,6 +609,28 @@ public class ModNewsHistory
                     Date = "2024-11-15T00:00:00Z"
                 };
                 AllModNews.Add(news);
+            }
+            {
+                var news = new ModNews
+                {
+                    Number = 100027,
+                    Title = "ぽんこつ of the year 受賞しそう",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.14</color>",
+                    ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.14</color>",
+                    Text = "<size=80%>of the year受賞しそうでいやー!!ってね。\n"
+                    + "<size=125%>【バグ修正/仕様変更】</size>\n"
+                    + "・サドンデスモードだとめちゃくちゃ重い問題の修正...?\n"
+                    + "・サイドキックされた時役職が次会議表示されるように変更\n"
+                    + "・記憶喪失者が秘匿チャットに参加できる問題の修正\n"
+                    + "・記憶喪失者がキル可能で透ける問題の修正\n"
+                    + "<size=125%>【新機能】</size>\n"
+                    + "・サドンデスモード中、残り人数を表示する設定を追加\n"
+                    + "・サドンデスモード中、キルフラッシュが見える設定を追加\n"
+                    + "\n\n次アプデとかでちょっと軽くできれば...\n\nbyぽんこつ"
+                    ,
+                    Date = "2024-11-16T00:00:00Z"
+                };
+                AllModNews.Add(news);
 
             }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;

@@ -133,6 +133,7 @@ namespace TownOfHost
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
             if (seer.Is(CustomRoles.GM)) return true;
+            if (Options.SuddenCanSeeKillflash.GetBool()) return true;
             if (seer.Data.IsDead && Options.GhostCanSeeKillflash.GetBool() && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 

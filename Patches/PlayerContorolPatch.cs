@@ -414,7 +414,7 @@ namespace TownOfHost
                             else
                                 targetm.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
                         }
-
+                        if (!Utils.RoleSendList.Contains(targetm.PlayerId)) Utils.RoleSendList.Add(targetm.PlayerId);
                         PlayerState.GetByPlayerId(targetm.PlayerId).SetCountType(CountTypes.Crew);
                         Main.LastLogRole[targetm.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(targetm.GetCustomRole()), Translator.GetString($"{targetm.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(targetm.PlayerId);
                         UtilsOption.MarkEveryoneDirtySettings();

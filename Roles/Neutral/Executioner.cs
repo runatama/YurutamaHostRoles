@@ -88,6 +88,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
 
             targetList.Add(target);
         }
+        if (targetList.Count == 0) return;
         var SelectedTarget = targetList[rand.Next(targetList.Count)];
         TargetId = SelectedTarget.PlayerId;
         SendRPC();

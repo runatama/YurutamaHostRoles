@@ -42,7 +42,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
     public static OptionItem KillCooldown;
     private static OptionItem MisfireKillsTarget;
     public static OptionItem ShotLimitOpt;
-    private static OptionItem CanKillAllAlive;
+    public static OptionItem CanKillAllAlive;
     public static OptionItem CanKillNeutrals;
     public static OptionItem CanKillLovers;
     enum OptionName

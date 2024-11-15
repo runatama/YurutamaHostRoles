@@ -145,7 +145,8 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
             Noroi[nr.Key] = nr.Value + 1;
         }
         if (DelList.Count != 0)
-            DelList.Do(x => Noroi.Remove(x));
+            DelList.Do(x =>
+            { Noroi.Remove(x); count--; });
     }
     public override string MeetingMeg()
     {

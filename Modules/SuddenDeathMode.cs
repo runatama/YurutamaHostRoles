@@ -21,6 +21,7 @@ namespace TownOfHost.Modules
         public static bool? nokori15s;
         public static bool? nokori10s;
         public static List<Vector3> pos = new();
+        static float opttime;
         public static void Reset()
         {
             SuddenDeathtime = 0;
@@ -35,21 +36,22 @@ namespace TownOfHost.Modules
             nokori15s = false;
             nokori10s = false;
 
+            opttime = Options.SuddenDeathTimeLimit.GetFloat();
             var time = Options.SuddenDeathTimeLimit.GetFloat();
             if (time <= 60) nokori60s = null;
             if (time <= 30) nokori30s = null;
             if (time <= 15) nokori15s = null;
             if (time <= 10) nokori10s = null;
             CustomRoleManager.LowerOthers.Add(GetLowerTextOthers);
+            CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         }
         public static void SuddenDeathReactor()
         {
-            var time = Options.SuddenDeathTimeLimit.GetFloat();
             if (sabotage) return;
 
             if (!GameStates.Intro) SuddenDeathtime += Time.fixedDeltaTime;
 
-            if (SuddenDeathtime > time)
+            if (SuddenDeathtime > opttime)
             {
                 sabotage = true;
 
@@ -59,25 +61,25 @@ namespace TownOfHost.Modules
                 UtilsNotifyRoles.NotifyRoles();
                 return;
             }
-            if (time - SuddenDeathtime < 10 && nokori10s != null)
+            if (opttime - SuddenDeathtime < 10 && nokori10s is false)
             {
                 nokori10s = true;
                 UtilsNotifyRoles.NotifyRoles();
                 return;
             }
-            if (time - SuddenDeathtime < 15 && nokori15s != null)
+            if (opttime - SuddenDeathtime < 15 && nokori15s is false)
             {
                 nokori15s = true;
                 UtilsNotifyRoles.NotifyRoles();
                 return;
             }
-            if (time - SuddenDeathtime < 30 && nokori30s != null)
+            if (opttime - SuddenDeathtime < 30 && nokori30s is false)
             {
                 nokori30s = true;
                 UtilsNotifyRoles.NotifyRoles();
                 return;
             }
-            if (time - SuddenDeathtime < 60 && nokori60s != null)
+            if (opttime - SuddenDeathtime < 60 && nokori60s is false)
             {
                 nokori60s = true;
                 UtilsNotifyRoles.NotifyRoles();
@@ -151,6 +153,13 @@ namespace TownOfHost.Modules
                 ar = Utils.ColorString(color, ar);
             }
             return ar;
+        }
+        public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+        {
+            seen ??= seer;
+            if (!Options.SuddenNokoriPlayerCount.GetBool()) return "";
+            if (seen == seer) return $"<color=#03fcb6> ({PlayerCatch.AllAlivePlayersCount})";
+            return "";
         }
     }
 }

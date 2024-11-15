@@ -3,6 +3,7 @@ using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
@@ -37,8 +38,9 @@ public sealed class Amnesiac : RoleBase, IImpostor
         CanUseVent = OptCanUseVent.GetBool();
         CanUseSabotage = OptCanUseSabotage.GetBool();
 
-        ShShotLimit = OptIamWolfBoy.GetBool() ? Crewmate.WolfBoy.ShotLimitOpt.GetInt() : Crewmate.Sheriff.ShotLimitOpt.GetInt();
-        ShKillCooldown = OptIamWolfBoy.GetBool() ? Crewmate.WolfBoy.KillCooldown.GetFloat() : Crewmate.Sheriff.KillCooldown.GetFloat();
+        ShShotLimit = OptIamWolfBoy.GetBool() ? WolfBoy.ShotLimitOpt.GetInt() : Sheriff.ShotLimitOpt.GetInt();
+        ShKillCooldown = OptIamWolfBoy.GetBool() ? WolfBoy.KillCooldown.GetFloat() : Sheriff.KillCooldown.GetFloat();
+        shCanKillAllAlive = OptIamWolfBoy.GetBool() ? WolfBoy.CanKillAllAlive.GetBool() : Sheriff.CanKillAllAlive.GetBool();
 
         omoidasita = false;
         KillCount = 0;
@@ -64,6 +66,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
     public static bool CanUseSabotage;
     public static int ShShotLimit;
     public static float ShKillCooldown;
+    public static bool shCanKillAllAlive;
 
     public bool omoidasita;
     public int KillCount;
@@ -97,6 +100,12 @@ public sealed class Amnesiac : RoleBase, IImpostor
     public float CalculateKillCooldown() => MatchSettingstoSheriff && !omoidasita ? ShKillCooldown : TownOfHost.Options.DefaultKillCooldown;
     public bool CanUseImpostorVentButton() => omoidasita && CanUseVent;
     public bool CanUseSabotageButton() => omoidasita && CanUseSabotage;
+    public bool CanUseKillButton()
+    {
+        if (!Player.IsAlive()) return false;
+        if (!MatchSettingstoSheriff || omoidasita) return true;
+        return shCanKillAllAlive || GameStates.AlreadyDied;
+    }
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(omoidasita || (MatchSettingstoSheriff && OptIamWolfBoy.GetBool() && Crewmate.WolfBoy.ImpostorVision.GetBool()));

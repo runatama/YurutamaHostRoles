@@ -34,6 +34,11 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         aname = false;
         speed = Main.AllPlayerSpeed[Player.PlayerId];
         PlayerColor = player.Data.DefaultOutfit.ColorId;
+        jampdis = Jampdis.GetFloat();
+        jampcount = Jampcount.GetInt();
+        onecooltime = Onecooltime.GetFloat();
+        jampcooltime = Jampcooltime.GetFloat();
+        killcool = OptionKillCoolDown.GetFloat();
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem Jampcount;
@@ -42,6 +47,11 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     static OptionItem Jampdis;
     Vector2 position;
     Vector2 nowposition;
+    static float killcool;
+    static float onecooltime;
+    static float jampcooltime;
+    static float jampdis;
+    static int jampcount;
     int PlayerColor;
     float x;
     float y;
@@ -68,10 +78,9 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.PhantomCooldown = position == new Vector2(999f, 999f) ? Onecooltime.GetFloat() : Jampcooltime.GetFloat();
+        AURoleOptions.PhantomCooldown = position == new Vector2(999f, 999f) ? onecooltime : jampcooltime;
     }
-    public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
-    public override bool CanDesyncShapeshift => true;
+    public float CalculateKillCooldown() => killcool;
     public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !ability;
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -80,7 +89,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
 
         timer += Time.fixedDeltaTime;
 
-        if (timer > Jampdis.GetFloat())
+        if (timer > jampdis)
         {
             if (count == 1) aname = true;
             int chance = IRandom.Instance.Next(0, 18);
@@ -117,8 +126,8 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                     aname = false;
                     _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
                 }
-            }, Jampdis.GetFloat() - 0.2f, "abo-n");
-            if (count == Jampcount.GetInt())
+            }, jampdis - 0.2f, "abo-n");
+            if (count == jampcount)
             {
                 ability = false;
                 x = 0;

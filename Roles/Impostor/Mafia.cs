@@ -80,6 +80,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         target.RpcProtectedMurderPlayer(target);
         UtilsGameLog.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
         target.RpcSetCustomRole(CustomRoles.SKMadmate);
+        if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
         foreach (var pl in PlayerCatch.AllPlayerControls)
         {
             if (pl == PlayerControl.LocalPlayer)

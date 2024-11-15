@@ -102,6 +102,7 @@ namespace TownOfHost
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
         public static OptionItem BlackOutwokesitobasu;
+        public static OptionItem UseCustomRpcSenderAtGameEnd;
         //public static OptionItem ExIntroSystem;
 
         //幽霊役職
@@ -135,6 +136,8 @@ namespace TownOfHost
         public static OptionItem SuddenItijohoSend;
         public static OptionItem SuddenItijohoSendstart;
         public static OptionItem SuddenItijohoSenddis;
+        public static OptionItem SuddenNokoriPlayerCount;
+        public static OptionItem SuddenCanSeeKillflash;
         //public static OptionItem CommRepo;
 
         // タスク無効化
@@ -566,9 +569,11 @@ namespace TownOfHost
             .SetGameMode(CustomGameMode.Standard);
             SuddenCannotSeeName = BooleanOptionItem.Create(200009, "SuddenCannotSeeName", false, TabGroup.MainSettings, false).SetParent(SuddenDeathMode)
             .SetGameMode(CustomGameMode.Standard);
+            SuddenNokoriPlayerCount = BooleanOptionItem.Create(200015, "SuddenNokoriPlayerCount", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode);
+            SuddenCanSeeKillflash = BooleanOptionItem.Create(200016, "SuddenCanSeeKillflash", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode);
             SuddenDeathTimeLimit = FloatOptionItem.Create(200010, "SuddenDeathTimeLimit", new(0, 300, 1f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
-            SuddenDeathReactortime = FloatOptionItem.Create(200011, "SuddenDeathReactortime", new(1, 30, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
+            SuddenDeathReactortime = FloatOptionItem.Create(200011, "SuddenDeathReactortime", new(1, 300, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
             SuddenItijohoSend = BooleanOptionItem.Create(200012, "SuddenItijohoSend", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode)
             .SetGameMode(CustomGameMode.Standard);
@@ -603,6 +608,13 @@ namespace TownOfHost
                 .SetColorcode("#ff0000")
                 .SetParent(ExperimentalMode)
                 .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
+            UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetParent(ExperimentalMode)
+                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));
+            /*ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetParent(ExperimentalMode);*/
             //9人以上部屋で落ちる現象の対策
             FixSpawnPacketSize = BooleanOptionItem.Create(300004, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)
                 .SetColor(new Color32(255, 255, 0, 255))

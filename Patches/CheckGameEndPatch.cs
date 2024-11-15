@@ -171,7 +171,72 @@ namespace TownOfHost
         }
         public static void StartEndGame(GameOverReason reason)
         {
-            AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
+            if (Options.UseCustomRpcSenderAtGameEnd.GetBool())
+            {
+                var sender = new CustomRpcSender("EndGameSender", SendOption.Reliable, true);
+                sender.StartMessage(-1); // 5: GameData
+                MessageWriter writer = sender.stream;
+
+                // バニラ画面でのアウトロを正しくするために色々
+                var winner = CustomWinnerHolder.WinnerTeam;
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (winner == CustomWinner.Draw)
+                    {
+                        SetGhostRole(ToGhostImpostor: true);
+                        continue;
+                    }
+                    bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) ||
+                            CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
+                    bool isCrewmateWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
+                    SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin);
+
+                    void SetGhostRole(bool ToGhostImpostor)
+                    {
+                        var isDead = pc.Data.IsDead;
+                        RoleTypes role = ToGhostImpostor ?
+                            isDead ? RoleTypes.ImpostorGhost : RoleTypes.Impostor :
+                            isDead ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
+
+                        sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                            .Write((ushort)role)
+                            .Write(true)
+                            .EndRpc();
+                        pc.StartCoroutine(pc.CoSetRole(role, true));
+                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: {role}に変更", "ResetRoleAndEndGame");
+                    }
+                }
+
+                // CustomWinnerHolderの情報の同期
+                sender.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame);
+                CustomWinnerHolder.WriteTo(sender.stream);
+                sender.EndRpc();
+
+                sender.EndMessage();
+
+                //Outroのテキストを名前に変換してバニラにも表示
+                sender.StartMessage(-1);
+                SetRoleSummaryText(sender);
+                sender.EndMessage();
+
+                // バニラ側のゲーム終了RPC
+                writer.StartMessage(8); //8: EndGame
+                {
+                    writer.Write(AmongUsClient.Instance.GameId); //GameId
+                    writer.Write((byte)reason); //GameoverReason
+                    writer.Write(false); //showAd
+                }
+                writer.EndMessage();
+
+                sender.SendMessage();
+                _ = new LateTask(() =>
+                {
+                    //3s経ってもアウトロに届いてないから強制終了()
+                    if (GameStates.InGame) GameManager.Instance.RpcEndGame(reason, false);
+                }, 3f, "", true);
+
+            }
+            else AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
         }
         private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)
         {

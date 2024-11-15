@@ -134,6 +134,7 @@ namespace TownOfHost.Roles.Neutral
             target.RpcProtectedMurderPlayer(target);
             UtilsGameLog.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
             target.RpcSetCustomRole(CustomRoles.Jackaldoll);
+            if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
             JackalDoll.Sidekick(target, Player);
             Main.FixTaskNoPlayer.Add(target);
             UtilsOption.MarkEveryoneDirtySettings();

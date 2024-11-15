@@ -673,7 +673,6 @@
 "NoGameEnd","No Game End","ゲームを終了しない","测试模式","遊戲不會結束模式","Игра Не Закончится","Jogo Sem Fim",""
 "HideGameSettings","Hide Game Settings","ゲーム設定を隠す","隐藏游戏设置","隱藏遊戲設定","Скрыть настройки Игры","Esconder Configurações",""
 "HideGameSettingsDuringGame","Hide Game Settings During Game","試合中はゲーム設定を隠す","","","","",""
-"AntiBlackOutSpawnVer","Anti BlackOut by keeping spawn timing same (AirShip only)","全員スポーンするまで待つ(暗転対策/AirShipのみ)","","","","",""
 "AutoDisplayLastResult","Auto Display Last Result","自動的に試合結果を表示","自动显示最终结果","自動顯示上一回合結果","Отображать результат последней игры в чате","Mostrar Ultimo Resultado",""
 "AutoDisplayKillLog","Auto Display Kill Log","自動的にキルログを表示","自动显示击杀日志","自動顯示擊殺紀錄","Отображать историю убийств в чате","Mostrar Log de Mortes Automaticamente",""
 "ChangeNameToRoleInfo","Show Role Descriptions to Unmodded Client","役職説明を非modクライアントにも表示する","对未安装本mod的玩家显示职业说明","對未安裝本模組的玩家顯示職業說明","Показать краткую информацию о роли в начале игры","Mostrar Descrição de Classe para Clientes Sem Mod",""
@@ -872,6 +871,8 @@
 "SuddenItijohoSend","","位置情報を矢印で受け取る"
 "SuddenItijohoSendstart","","位置情報共有までの時間"
 "SuddenItijohoSenddis","","位置情報更新間隔"
+"SuddenNokoriPlayerCount","","残り人数が見える"
+"SuddenCanSeeKillflash","","誰かが死亡した時キルフラッシュが見える"
 
 "## モード説明"
 "HideAndSeekInfo","Hide and Seek:\nNo emergency meetings. Crewmates (Blue) can only win by finishing tasks\nand impostors (Red) can only win by killing all crewmates.","<size=120%><color=#e478ff>かくれんぼ:</color><size=60%>\n会議を開くことはできず、クルーはタスク完了、インポスターは全クルー殺害でのみ勝利することができる。\nインポスターは赤、クルーは青に体の色が変更される。","躲猫猫:\n不能开会；船员只能通过完成任务获得胜利；\n内鬼需要杀死所有船员来获得胜利；\n内鬼的皮肤颜色将变为红色，船员变为蓝色，以示区分。","躲貓貓:\n不能拍桌或舉報，船員只能做任務\n偽裝者的勝利條件為殺光所有船員\n狼人的顏色會轉變為紅色，船員則會變為藍色。","Прятки:\nНикто не может созвать срочное собрание, Члены Экипажа могут победить, только выполняя задания. \nПредатели меняют цвет тела на красный, а экипажи на синий.","Esconde-Esconde:\nNão há reuniões de emergência. Tripulantes (Azul) podem ganhar apenas ao completar todas as tarefas,\ne Impostores (Vermelho) ganham apenas quando matarem todos os tripulantes.",""

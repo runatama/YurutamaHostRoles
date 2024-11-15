@@ -178,7 +178,7 @@ namespace TownOfHost.Roles
                 if (numImpostorsLeft <= 0 && numOthersLeft <= 0) break;
 
                 var targetRoles = role.GetAssignUnitRolesArray();
-                var numImpostorAssign = targetRoles.Count(role => role.IsImpostor());
+                var numImpostorAssign = targetRoles.Count(role => role.GetAssignRoleType() == CustomRoleTypes.Impostor);
                 var numOthersAssign = targetRoles.Length - numImpostorAssign;
                 //アサイン枠が足りてない場合
                 if ((numImpostorAssign > numImpostorsLeft || numOthersAssign > numOthersLeft) && !Options.SuddenDeathMode.GetBool()) continue;
@@ -348,7 +348,7 @@ namespace TownOfHost.Roles
         private static RoleAssignInfo GetRoleAssignInfo(this CustomRoles role) =>
             CustomRoleManager.GetRoleInfo(role)?.AssignInfo;
         private static CustomRoleTypes GetAssignRoleType(this CustomRoles role) =>
-role.GetRoleAssignInfo()?.AssignRoleType ?? role.GetCustomRoleTypes();
+            role.GetRoleAssignInfo()?.AssignRoleType ?? role.GetCustomRoleTypes();
         private static bool IsAssignable(this CustomRoles role)
             => role.GetRoleAssignInfo()?.IsInitiallyAssignable ?? true;
         /// <summary>
