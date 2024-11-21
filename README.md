@@ -23,7 +23,11 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 
 ## リリース
 
-AmongUsバージョン : **2024.8.13**<br>
+AmongUsバージョン : **2024.8.13 ~**<br>
+※11/21 21:00時点、バニラのオンラインサーバー(欧米、北米、アジア)<br>
+　で、TownOfHost-Kをプレイすることができません<br>
+　カスタムサーバーを使用して頂ければ大丈夫です・・・<br>
+　(身内で用意をお願いします...)<br>
 
 **最新版は[こちら](https://github.com/KYMario/TownOfHost-K/releases/latest)**
 
@@ -93,554 +97,245 @@ Modが使えなくなるよ!<br>
 その処罰に値する利用方法をしないよ！！<br>
 ってことです。
 
+## TownOfHost-Kってなんだい?
+他のAmongUsのModとはまた一味違った、斬新で独特な機能や役職が多いModです。<br>
+
+HostModなので部屋主のみModを導入すれば、<br>
+参加者はModを導入する必要もカスタムサーバー追加等の面倒な手間なしで<br>
+導入者が部屋を建て、その部屋に入ることでTownOfHost-Kを遊ぶことができます！<br>
+
+詳しい仕様などは[Wiki](https://github.com/KYMario/TownOfHost-K/wiki)やゲーム内確認できます<br>
+
 ## Mod役職について
-Modで追加されている役職については[Wiki](https://github.com/KYMario/TownOfHost-K/wiki)をご確認ください！<br>
-※段階的にやっております...インポスター/マッドメイト役職/クルーメイトは記載済みですが他陣営等はまだページが出来ておりませんorz<br>
-[Wiki](https://github.com/KYMario/TownOfHost-K/wiki)に記載がある役職はそちらでご確認ください...!<br>
-なければこちらでご確認ください。<br>
+※wikiページに飛びます<br>
+
+<details>
+<summary>インポスター役職</summary>
+
+- [エイリアン](https://github.com/KYMario/TownOfHost-K/wiki/エイリアン)
+- [ジャンパー](https://github.com/KYMario/TownOfHost-K/wiki/ジャンパー)
+- [イビルギャンブラー](https://github.com/KYMario/TownOfHost-K/wiki/イビルギャンブラー)
+- [イビルアドナー](https://github.com/KYMario/TownOfHost-K/wiki/イビルアドナー)
+- [イビルハッカー](https://github.com/KYMario/TownOfHost-K/wiki/イビルハッカー)
+- [イビルトラッカー](https://github.com/KYMario/TownOfHost-K/wiki/イビルトラッカー)
+- [イビルサテライト](https://github.com/KYMario/TownOfHost-K/wiki/イビルサテライト)
+- [アンチレポーター](https://github.com/KYMario/TownOfHost-K/wiki/アンチレポーター)
+- [爆弾魔](https://github.com/KYMario/TownOfHost-K/wiki/爆弾魔)
+- [モグラ](https://github.com/KYMario/TownOfHost-K/wiki/モグラ)
+- [ノーティファー](https://github.com/KYMario/TownOfHost-K/wiki/ノーティファー)
+- [プログレスキラー](https://github.com/KYMario/TownOfHost-K/wiki/プログレスキラー)
+- [リローダー](https://github.com/KYMario/TownOfHost-K/wiki/リローダー)
+- [大狼](https://github.com/KYMario/TownOfHost-K/wiki/大狼)
+- [テレポートキラー](https://github.com/KYMario/TownOfHost-K/wiki/テレポートキラー)
+- [一途な狼](https://github.com/KYMario/TownOfHost-K/wiki/一途な狼)
+- [デクレッシェンド](https://github.com/KYMario/TownOfHost-K/wiki/デクレッシェンド)
+- [コネクトセーバー](https://github.com/KYMario/TownOfHost-K/wiki/コネクトセーバー)
+- [リミッター](https://github.com/KYMario/TownOfHost-K/wiki/リミッター)
+- [マジシャン](https://github.com/KYMario/TownOfHost-K/wiki/マジシャン)
+- [カモフラージャー](https://github.com/KYMario/TownOfHost-K/wiki/カモフラージャー)
+- [記憶喪失者](https://github.com/KYMario/TownOfHost-K/wiki/記憶喪失者)
+- [シリアルキラー](https://github.com/KYMario/TownOfHost-K/wiki/シリアルキラー)
+- [バウンティハンター](https://github.com/KYMario/TownOfHost-K/wiki/バウンティハンター)
+- [インサイダー](https://github.com/KYMario/TownOfHost-K/wiki/インサイダー)
+- [メアー](https://github.com/KYMario/TownOfHost-K/wiki/メアー)
+- [ヴァンパイア](https://github.com/KYMario/TownOfHost-K/wiki/ヴァンパイア)
+- [パペッティア](https://github.com/KYMario/TownOfHost-K/wiki/パペッティア)
+- [マフィア](https://github.com/KYMario/TownOfHost-K/wiki/マフィア)
+- [ペンギン](https://github.com/KYMario/TownOfHost-K/wiki/ペンギン)
+- [ネコカボチャ](https://github.com/KYMario/TownOfHost-K/wiki/ネコカボチャ)
+- [シェイプマスター](https://github.com/KYMario/TownOfHost-K/wiki/シェイプマスター)
+- [スナイパー](https://github.com/KYMario/TownOfHost-K/wiki/スナイパー)
+- [タイムシーフ](https://github.com/KYMario/TownOfHost-K/wiki/タイムフシーフ)
+- [ウォーロック](https://github.com/KYMario/TownOfHost-K/wiki/ウォーロック)
+- [ウィッチ](https://github.com/KYMario/TownOfHost-K/wiki/ウィッチ)
+- [ステルス](https://github.com/KYMario/TownOfHost-K/wiki/ステルス)
+- [花火職人](https://github.com/KYMario/TownOfHost-K/wiki/花火職人)
+
+</details>
+
+<details>
+<summary>マッドメイト</summary>
+
+- [マッドメイト](https://github.com/KYMario/TownOfHost-K/wiki/マッドメイト)
+- [マッドスニッチ](https://github.com/KYMario/TownOfHost-K/wiki/マッドスニッチ)
+- [マッドガーディアン](https://github.com/KYMario/TownOfHost-K/wiki/マッドガーディアン)
+- [マッドベイト](https://github.com/KYMario/TownOfHost-K/wiki/マッドベイト)
+- [マッドチェンジャー](https://github.com/KYMario/TownOfHost-K/wiki/マッドチェンジャー)
+- [マッドトラッカー](https://github.com/KYMario/TownOfHost-K/wiki/マッドトラッカー)
+- [マッドスーサイド](https://github.com/KYMario/TownOfHost-K/wiki/マッドスーサイド)
+- [マッドテラー](https://github.com/KYMario/TownOfHost-K/wiki/マッドテラー)
+- [マッドリデュース](https://github.com/KYMario/TownOfHost-K/wiki/マッドリデュース)
+- [マッドアベンジャー](https://github.com/KYMario/TownOfHost-K/wiki/マッドアベンジャー)
+- [マッドジェスター](https://github.com/KYMario/TownOfHost-K/wiki/マッドジェスター)
+- [マッドワーカー](https://github.com/KYMario/TownOfHost-K/wiki/)
+- [サイドキックマッドメイト](https://github.com/KYMario/TownOfHost-K/wiki/)
+
+</details>
+
+<details>
+<summary>クルーメイト</summary>
+
+- [ナイスアドナー](https://github.com/KYMario/TownOfHost-K/wiki/ナイスアドナー)
+- [ナイスロガー](https://github.com/KYMario/TownOfHost-K/wiki/ナイスロガー)
+- [シェリフ](https://github.com/KYMario/TownOfHost-K/wiki/シェリフ)
+- [スイッチシェリフ](https://github.com/KYMario/TownOfHost-K/wiki/スイッチシェリフ)
+- [ミーティングシェリフ](https://github.com/KYMario/TownOfHost-K/wiki/ミーティングシェリフ)
+- [狼少年](https://github.com/KYMario/TownOfHost-K/wiki/狼少年)
+- [占い師](https://github.com/KYMario/TownOfHost-K/wiki/占い師)
+- [かけだし占い師](https://github.com/KYMario/TownOfHost-K/wiki/かけだし占い師)
+- [ぽんこつ占い師](https://github.com/KYMario/TownOfHost-K/wiki/ぽんこつ占い師)
+- [巫女](https://github.com/KYMario/TownOfHost-K/wiki/巫女)
+- [ホワイトハッカー](https://github.com/KYMario/TownOfHost-K/wiki/ホワイトハッカー)
+- [ディクテーター](https://github.com/KYMario/TownOfHost-K/wiki/ディクテーター)
+- [天秤](https://github.com/KYMario/TownOfHost-K/wiki/天秤)
+- [タスクスター](https://github.com/KYMario/TownOfHost-K/wiki/タスクスター)
+- [ウルトラスター](https://github.com/KYMario/TownOfHost-K/wiki/ウルトラスター)
+- [ベイト](https://github.com/KYMario/TownOfHost-K/wiki/ベイト)
+- [インセンダー](https://github.com/KYMario/TownOfHost-K/wiki/インセンダー)
+- [トラッパー](https://github.com/KYMario/TownOfHost-K/wiki/トラッパー)
+- [ドクター](https://github.com/KYMario/TownOfHost-K/wiki/ドクター)
+- [サイキック](https://github.com/KYMario/TownOfHost-K/wiki/サイキック)
+- [シーア](https://github.com/KYMario/TownOfHost-K/wiki/シーア)
+- [ライター](https://github.com/KYMario/TownOfHost-K/wiki/ライター)
+- [パン屋](https://github.com/KYMario/TownOfHost-K/wiki/パン屋)
+- [エフィシェンシー](https://github.com/KYMario/TownOfHost-K/wiki/エフィシェンシー)
+- [メイヤー](https://github.com/KYMario/TownOfHost-K/wiki/メイヤー)
+- [サボタージュマスター](https://github.com/KYMario/TownOfHost-K/wiki/サボタージュマスター)
+- [スピードブースター](https://github.com/KYMario/TownOfHost-K/wiki/スピードブースター)
+- [君臨者](https://github.com/KYMario/TownOfHost-K/wiki/君臨者)
+- [スニッチ](https://github.com/KYMario/TownOfHost-K/wiki/スニッチ)
+- [シャイボーイ](https://github.com/KYMario/TownOfHost-K/wiki/シャイボーイ)
+- [スタッフ](https://github.com/KYMario/TownOfHost-K/wiki/スタッフ)
+- [アンドロイド](https://github.com/KYMario/TownOfHost-K/wiki/アンドロイド)
+- [カムバッカー](https://github.com/KYMario/TownOfHost-K/wiki/カムバッカー)
+- [ベントマスター](https://github.com/KYMario/TownOfHost-K/wiki/ベントマスター)
+- [トイレファン](https://github.com/KYMario/TownOfHost-K/wiki/トイレファン)
+
+</details>
+
+<details>
+<summary>ニュートラル</summary>
+
+- [ジャッカル](https://github.com/KYMario/TownOfHost-K/wiki/ジャッカル)
+- [ジャッカルエイリアン](https://github.com/KYMario/TownOfHost-K/wiki/ジャッカルエイリアン)
+- [ジャッカルマフィア](https://github.com/KYMario/TownOfHost-K/wiki/ジャッカルマフィア)
+- [ジャッカルドール](https://github.com/KYMario/TownOfHost-K/wiki/ジャッカルドール)
+- [エゴイスト](https://github.com/KYMario/TownOfHost-K/wiki/エゴイスト)
+- [リモートキラー](https://github.com/KYMario/TownOfHost-K/wiki/リモートキラー)
+- [死神](https://github.com/KYMario/TownOfHost-K/wiki/死神)
+- [ドッペルゲンガー](https://github.com/KYMario/TownOfHost-K/wiki/ドッペルゲンガー)
+- [カウントキラー](https://github.com/KYMario/TownOfHost-K/wiki/カウントキラー)
+- [バンカー](https://github.com/KYMario/TownOfHost-K/wiki/バンカー)
+- [アーソニスト](https://github.com/KYMario/TownOfHost-K/wiki/アーソニスト)
+- [シェフ](https://github.com/KYMario/TownOfHost-K/wiki/シェフ)
+- [ペスト医師](https://github.com/KYMario/TownOfHost-K/wiki/ペスト医師)
+- [カースメーカー](https://github.com/KYMario/TownOfHost-K/wiki/カースメーカー)
+- [エクスキューショナー](https://github.com/KYMario/TownOfHost-K/wiki/エクスキューショナー)
+- [ジェスター](https://github.com/KYMario/TownOfHost-K/wiki/ジェスター)
+- [マドンナ](https://github.com/KYMario/TownOfHost-K/wiki/マドンナ)
+- [マスメディア](https://github.com/KYMario/TownOfHost-K/wiki/マスメディア)
+- [モノクラー](https://github.com/KYMario/TownOfHost-K/wiki/モノクラー)
+- [怪盗](https://github.com/KYMario/TownOfHost-K/wiki/怪盗)
+- [テロリスト](https://github.com/KYMario/TownOfHost-K/wiki/テロリスト)
+- [ワーカホリック](https://github.com/KYMario/TownOfHost-K/wiki/ワーカホリック)
+- [妖狐](https://github.com/KYMario/TownOfHost-K/wiki/妖狐)
+- [シュレディンガーの猫](https://github.com/KYMario/TownOfHost-K/wiki/シュレディンガーの猫)
+- [バケネコ](https://github.com/KYMario/TownOfHost-K/wiki/バケネコ)
+- [オポチュニスト](https://github.com/KYMario/TownOfHost-K/wiki/オポチュニスト)
+
+</details>
+
+<details>
+<summary>コンビネーション</summary>
+
+- [ドライバーとブレイド](https://github.com/KYMario/TownOfHost-K/wiki/ドライバーとブレイド)
+
+</details>
+
+<details>
+<summary>属性</summary>
+
+- [片思い](https://github.com/KYMario/TownOfHost-K/wiki/片思い)
+- [ラバーズ](https://github.com/KYMario/TownOfHost-K/wiki/ラバーズ)
+- [天邪鬼](https://github.com/KYMario/TownOfHost-K/wiki/天邪鬼)
+- [ラストインポスター](https://github.com/KYMario/TownOfHost-K/wiki/ラストインポスター)
+- [ラストニュートラル](https://github.com/KYMario/TownOfHost-K/wiki/ラストニュートラル)
+- [ワークホース](https://github.com/KYMario/TownOfHost-K/wiki/ワークホース)
+- [ゲッサー](https://github.com/KYMario/TownOfHost-K/wiki/ゲッサー)
+- [シリアル](https://github.com/KYMario/TownOfHost-K/wiki/シリアル)
+- [マジックハンド](https://github.com/KYMario/TownOfHost-K/wiki/マジックハンド)
+- [コネクティング](https://github.com/KYMario/TownOfHost-K/wiki/コネクティング)
+- [ウォッチング](https://github.com/KYMario/TownOfHost-K/wiki/ウォッチング)
+- [プラスポート](https://github.com/KYMario/TownOfHost-K/wiki/プラスポート)
+- [タイブレーカー](https://github.com/KYMario/TownOfHost-K/wiki/タイブレーカー)
+- [オートプシー](https://github.com/KYMario/TownOfHost-K/wiki/オートプシー)
+- [リベンジャー](https://github.com/KYMario/TownOfHost-K/wiki/リベンジャー)
+- [スピーディング](https://github.com/KYMario/TownOfHost-K/wiki/スピーディング)
+- [ガーディング](https://github.com/KYMario/TownOfHost-K/wiki/ガーディング)
+- [マネジメント](https://github.com/KYMario/TownOfHost-K/wiki/マネジメント)
+- [シーイング](https://github.com/KYMario/TownOfHost-K/wiki/シーイング)
+- [オープナー](https://github.com/KYMario/TownOfHost-K/wiki/オープナー)
+- [ライティング](https://github.com/KYMario/TownOfHost-K/wiki/ライティング)
+- [ムーン](https://github.com/KYMario/TownOfHost-K/wiki/ムーン)
+- [アムネシア](https://github.com/KYMario/TownOfHost-K/wiki/アムネシア)
+- [スロースターター](https://github.com/KYMario/TownOfHost-K/wiki/スロースターター)
+- [ノットヴォウター](https://github.com/KYMario/TownOfHost-K/wiki/ノットヴォウター)
+- [イレクター](https://github.com/KYMario/TownOfHost-K/wiki/イレクター)
+- [インフォプアー](https://github.com/KYMario/TownOfHost-K/wiki/インフォプアー)
+- [ノンレポート](https://github.com/KYMario/TownOfHost-K/wiki/ノンレポート)
+- [トランスパレント](https://github.com/KYMario/TownOfHost-K/wiki/トランスパレント)
+- [ウォーター](https://github.com/KYMario/TownOfHost-K/wiki/ウォーター)
+- [クラムシー](https://github.com/KYMario/TownOfHost-K/wiki/クラムシー)
+- [スラッカー](https://github.com/KYMario/TownOfHost-K/wiki/スラッカー)
+
+</details>
 
 <details>
 <summary>幽霊役職</summary>
 
-- [デーモントラッカー](#demonictrakerデーモントラッカー)
-- [デーモンクラッシャー](#demoniccrusherデーモンクラッシャー)
-- [デーモンベンター](#demonicventerデーモンベンター)
-- [アシスティングエンジェル](#asistingangelアシスティングエンジェル)
-- [ゴーストボタナー](#ghostbuttonerゴーストボタナー)
-- [ゴーストノイズメーカー](#ghostnoisesenderゴーストノイズセンダー)
-- [ゴーストリセッター](#ghostreseterゴーストリセッター)
+- [ゲームマスター](https://github.com/KYMario/TownOfHost-K/wiki/ゲームマスター)
+- [デーモントラッカー](https://github.com/KYMario/TownOfHost-K/wiki/デーモントラッカー)
+- [デーモンクラッシャー](https://github.com/KYMario/TownOfHost-K/wiki/デーモンクラッシャー)
+- [デーモンベンター](https://github.com/KYMario/TownOfHost-K/wiki/デーモンベンター)
+- [アシスティングエンジェル](https://github.com/KYMario/TownOfHost-K/wiki/アシスティングエンジェル)
+- [ゴーストボタナー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストボタナー)
+- [ゴーストノイズセンダー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストノイズセンダー)
+- [ゴーストリセッター](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストリセッター)
+- [守護天使](https://github.com/KYMario/TownOfHost-K/wiki/守護天使)
+
+</details>
+
+## 機能,モードについて
+
+<details>
+<summary>モード</summary>
+
+- [ゲームマスター](https://github.com/KYMario/TownOfHost-K/wiki/ゲームマスター)
+- [デーモントラッカー](https://github.com/KYMario/TownOfHost-K/wiki/デーモントラッカー)
+- [デーモンクラッシャー](https://github.com/KYMario/TownOfHost-K/wiki/デーモンクラッシャー)
+- [デーモンベンター](https://github.com/KYMario/TownOfHost-K/wiki/デーモンベンター)
+- [アシスティングエンジェル](https://github.com/KYMario/TownOfHost-K/wiki/アシスティングエンジェル)
+- [ゴーストボタナー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストボタナー)
+- [ゴーストノイズセンダー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストノイズセンダー)
+- [ゴーストリセッター](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストリセッター)
+- [守護天使](https://github.com/KYMario/TownOfHost-K/wiki/守護天使)
 
 </details>
 
 <details>
-<summary>追加機能</summary>
 
-- [タスクバトル](#タスクバトル) 
-- [サドンデスモード](#サドンデスモード)
-- [ホットキー](#ホットキー)
-- [チャットコマンド](#チャットコマンド)
-- [読み上げ機能](#読み上げ機能)
-- [ウェブフック](#ウェブフック)
-- [ワンクリック](#ワンクリックってなぁに)
+<summary>モード</summary>
 
-</details>
-
-<details>
-<summary>追加設定</summary>
-
-- [特殊モード](#特殊モード)
-- [試験的設定](#試験的設定)
-- [マップ改造](#マップ改造)
-- [サボタージュ設定](#サボタージュ設定)
-- [ランダムスポーン](#ランダムスポーン)
-- [カスタムスポーン](#カスタムスポーン)
-- [初手強制会議](#初手強制会議)
-- [幽霊設定](#幽霊設定)
-- [拡張設定](#拡張設定)
-- [秘匿チャット](#秘匿チャット)
-- [その他の仕様](#その他の仕様)
+- [スタンダード](https://github.com/KYMario/TownOfHost-K/wiki/スタンダード)
+- - [役職入りかくれんぼ](https://github.com/KYMario/TownOfHost-K/wiki/役職入りかくれんぼ)
+- - [サドンデスモード](https://github.com/KYMario/TownOfHost-K/wiki/サドンデスモード)
+- [かくれんぼ](https://github.com/KYMario/TownOfHost-K/wiki/かくれんぼ)
+- [タスクバトル](https://github.com/KYMario/TownOfHost-K/wiki/タスクバトル)
 
 </details>
 
-## 役職
-属性を付与するの先は長くなるので省略しています。<br>
-アムネシア、ラスト系、インポスターのみライティング/ムーン以外の属性付与設定があります。<br>
-
-大体のimp以外のキルボタン使用役職にキルディスタンス設定があります。<br>
-
-# コンビネーション役職
-
-## DriverandBraid/ドライバーとブレイド
-
-### Driver/ドライバー
-陣営：インポスター<br>
-判定：インポスター<br>
-
-最初は普通のインポスターと変わらない。<br>
-ブレイドが既定のタスク数を完了させると、ドライバーに様々な能力が付与される。<br>
-
-### Braid/ブレイド
-陣営：インポスター<br>
-判定：エンジニア<br>
-カウント：クルー<br>
-
-クルーだがインポスターの味方をする。<br>
-インポスターと互いに認識できない。<br>
-既定のタスク数を完了させることで、ドライバーに様々な能力を付与できる。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|キルクール　　　　　　　　　　　　　　　　　|
-|ブレイドが全タスク完了時のキルクール  　　　|
-|キルフラッシュが見える(ドライバー)　       |
-|┗ 効果を発動するタスク数(ブレイド)　　　　　　|
-|死因が分かる(ドライバー)             　　　|
-|┗ 効果を発動するタスク数(ブレイド)　　　　 　|
-|他人の投票先が分かる(ドライバー)      　　　|
-|┗ 効果を発動するタスク数(ブレイド)　　　　　　|
-|1度キルを防げる(ドライバー)     　　　　　　|
-|┗ 効果を発動するタスク数(ブレイド)　　　　　　|
-|ドライバーとブレイドがお互い視認できる   　　|
-|ブレイドのタスク数　　　　　　　　　　　　　　|
-
-# 幽霊役職
-死んだ人に付与される役職です。<br>
-守護天使置き換えになるので注意。<br>
-設定欄タブに幽霊役職の設定があります。<br>
-霊から役職が見えなかったり調整できます。<br>
-
-## マッドメイト幽霊役職
-
-### DemonicTraker/デーモントラッカー
-
-能力発動相手の位置がインポスターに通知されます。<br>
-
-### DemonicCrusher/デーモンクラッシャー
-
-能力発動後一定時間すべての使用機器が使えなくなります。<br>
-
-### DemonicVenter/デーモンベンター
-
-能力発動発動相手に一番近いベントを開けます<br>
-
-## ニュートラル幽霊役職
-
-### AsistingAngel/アシスティングエンジェル
-
-死亡したクルー/ニュートラルにしか付与されない。<br>
-初めての守護能力を使用した相手が勝利すると自身も追加勝利する。<br>
-二回目以降守護能力を使用すると、<br>
-<br>
-(守護能力の対象が1回目と同じなら)<br>
-一定時間キルガードを付与する。<br>
-<br>
-(1回目と違うなら)<br>
-発動した時の位置が1回目の能力の使用者に通知される。<br>
-能力を使用した場合、次のクールダウンが増加する。<br>
-<br>
-幽霊,幽霊役職設定に関わらず他人の役職などが見えない。<br>
-元の勝利条件は無くなり、タスクもなくなる。<br>
-
-## クルーメイト幽霊役職
-
-### Ghostbuttoner/ゴーストボタナー
-
-能力発動で会議招集が出来ます。<br>
-
-### GhostNoiseSender/ゴーストノイズセンダー
-
-能力発動相手が一定時間内にキルされた場合、<br>
-全員にノイズメーカーの通知が行きます。<br>
-
-### GhostReseter/ゴーストリセッター
-
-能力発動相手のキルクールやアビリティクールをリセットします。<br>
-
-# 属性
-
-## 第三属性
-### Amanojaku/天邪鬼
-
-一定日数が経過するとアサインされる。<br>
-クルー,ニュートラルに付与される。<br>
-勝利条件が"クルーメイト陣営の敗北で追加勝利"に変更される<br>
-ニュートラルの場合は自身の役職の勝利でも勝利できる<br>
-
-**設定**<br>
-| 設定名                 |
-| ---------------------- |
-| アサインされる日数 　　　|
-| 生存しないと勝利できない |
-
-### Lovers/ラバーズ
-
-通常の恋人に加え,○○ラバーズも追加されました。内容はラバーズと同様ですが<br>
-実質複数組設定出来るようになりました。<br>
-[役職の説明はこちら](https://github.com/tukasa0001/TownOfHost/blob/main/README.md#lovers%E6%81%8B%E4%BA%BA)
-
-**追加設定**<br>
-| 設定名                |
-| --------------------- |
-| 恋人同士役職見えるか |
-| 追加勝利にするか |
-
-### OneLove/片思い
-とある人に恋心を抱いている。<br>
-片思いと想い人がどちらも生き残っている状態で試合終了すれば、想い人との恋が実り、一緒に勝利できる。<br>
-想い人が死亡すると片想いは後追い死するが、片思いが死亡しても想い人は死亡しない。<br>
-想い人にラバーズは配役されない。<br>
-一定確率で片思いが2人に配役され、両片思いになる時がある。<br>
-
-**設定**<br>
-| 設定名                |
-| --------------------- |
-| 追加勝利にするか |
-| 両思いしている確率 |
-
-## バフ属性
-
-### LastImpostor/ラストインポスター
-
-[役職の説明はこちら](https://github.com/tukasa0001/TownOfHost?tab=readme-ov-file#lastimpostor%E3%83%A9%E3%82%B9%E3%83%88%E3%82%A4%E3%83%B3%E3%83%9D%E3%82%B9%E3%82%BF%E3%83%BC)
-
-一部属性を付与するかの設定を追加。
-
-**設定**<br>
-|設定名　　　　　　　　　　　　　　|
-|-------------------------------|
-|キルクールダウン　　　　　　　　　|
-|キルディスタンス　　　　　　　　　　　　　　|
-|[ゲッサー](#guesserゲッサー)を付与する　　　　　　　　|
-|[マネジメント](#managementマネジメント)を付与する　　　　　　|
-|ウォッチングを付与する　　　　　　|
-|[シーイング](#seeingシーイング)を付与する　　　　　　　|
-|[オートプシー](#autopsyオートプシー)を付与する　　　　　　|
-|[タイブレーカー](#tiebreakerタイブレーカー)を付与する　　　　　|
-
-### LastNeutral/ラストニュートラル
-
-最後のニュートラルに付与される属性。<br>
-もしキル能力があれば設定した時間になる。<br>
-また生存時追加勝利するかを設定で決めることが出来る。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|キルクール　　　　　　　　　　　　　　　　　|
-|キルディスタンス　　　　　　　　　　　　　　|
-|[ゲッサー](#guesserゲッサー)を付与する　　　　　　　　|
-|[マネジメント](#managementマネジメント)を付与する　　　　　　|
-|ウォッチングを付与する　　　　　　|
-|[シーイング](#seeingシーイング)を付与する　　　　　　　|
-|[オートプシー](#autopsyオートプシー)を付与する　　　　　　|
-|[タイブレーカー](#tiebreakerタイブレーカー)を付与する　　　　　|
-|試合終了時に生存していると追加勝利できる  　|
-|┣ タスク以外のクルー勝利でも勝利できる|
-|┗ タスク勝利でも勝利できる|
-
-### Guesser/ゲッサー
-
-会議中に誰かの役職を推測でき、的中すると対象をキルすることができる。<br>
-ただし、推測が外れると自殺する。<br><br>
-チャットに「/bt (ID) (役職名)」と送信することで推測ができる。<br>
-プレイヤー名の左側に表示されている数字が、そのプレイヤーのIDである。<br>
-ラストインポスター,ラストニュートラルでゲッサーを付与するがONの場合<br>
-設定はラストインポスター,ラストニュートラルが優先される。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|推測可能回数　　　　　　　　　　　　　　　　|
-|バニラ役職を推測できる　　　　　　　　　　　|
-|同陣営を推測できる(imp/crewのみ有効)　　　　|
-|タスクが完了した状態のスニッチを推測できる　　|
-|ゲッサーコマンドを隠す　　　　　　　　　　　　|
-|死因を変更する　　　　　　　　　　　　　　　　|
-|確白役職を推測できる　　　　　　　　　　　　　|
-
-### Serial/シリアル
-
-キル出来る役職のみに付与される。<br>
-キルクールが設定値になる。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|キルクール|
-
-### MagicHand/マジックハンド
-
-キルできる役職にのみ付与される<br>
-キルディスタンスが設定値になる<br>
-
-**設定**<br>
-|設定名|
-|-----|
-|キルディスタンス|
-
-### Connecting/コネクティング
-
-インポスター,マッドメイト系役職にしか付与されない。<br>
-又,2人以上でしか排出されない。<br>
-付与された人同士がインポスター陣営であるとわかる。<br>
-
-### PlusVote/プラスポート
-
-投票数が設定数増加する。<br>
-ノットヴォウターが付与されている場合、効果は発揮されない。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|追加投票の個数|
-
-### Tiebreaker/タイブレーカー
-
-投票結果が同数投票の場合,タイブレーカーのみの投票で再度投票が集計される。
-
-### Autopsy/オートプシー
-
-死亡した人の死因が見える。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|通信妨害中でも能力が発揮される|
-
-### Revenger/リベンジャー
-
-自身が追放された場合誰か一人を道連れにする<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|インポスターを道連れにする|
-|マッドメイトを道連れにする|
-|クルーを道連れにする|
-|ニュートラルを道連れにする|
-
-### Speeding/スピーディング
-
-他のプレイヤーよりも速度が速くなる。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|スピード　　　　　　　　　　　　　　　　　　|
-
-### Guarding/ガーディング
-
-キルを一定回数ガードする<br>
-
-**設定**<br>
-|設定名|
-|------|
-|キルを防ぐ回数|
-
-### Management/マネジメント
-
-プレイヤー全体でのタスク進捗が分かる。<br>
-設定によってパーセント表示にすることもできる。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|パーセント表示にする|
-|┗ 大まかな値にする|
-|通信妨害中でも能力が発揮される|
-|会議中のみタスク数が見える|
-
-### seeing/シーイング
-
-タスクターン中に誰かが死亡した時にキルフラッシュが見える(設定有)<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|通信妨害中でも能力が発揮される|
-
-### Opener/オープナー
-
-ドアを開けるとその部屋のドアをすべて開けることが出来る。<br>
-
-### Lighting/ライティング
-
-視界がインポスター視界になる。停電の影響は受ける。
-インポスターには付与されない。
-
-### Moon/ムーン
-
-停電による視界減少を無効化できる。<br>
-インポスターには付与されない。<br>
-
-## デバフ属性
-
-### Amnesia/アムネシア
-
-一定日数まで自身の役職が分からない。<br>
-置き換え役職,陣営は分かる。※マッドメイドはニュートラル判定<br>
-能力は使える。<br>
-
-**設定**<br>
-|設定名　　　　|内容|
-|-------------|----|
-|能力が使えない|ONで記憶を戻すまで能力が使用不可になります|
-|┗ 自覚するまでキルクールをデフォにする||
-|一定数タスク完了で記憶を戻す|タスク完了で記憶が戻る(インポスター陣営以外)|
-|一定数キルをすることで記憶を取り戻す|(インポスター陣営のみ)|
-|記憶を戻す日数|一定日数経過する事で記憶が戻る|
-
-### SlowStarter/スロースターター
-インポスター陣営にしか付与されない。<br>
-インポスター陣営の全体人数が一定数以下になるまでキルが行えない<br>
-[マフィア](#mafiaマフィア)の設定参照<br>
-
-### Notvoter/ノットヴォウタ―
-
-票数が0になる。投票で効果が発揮する役職は能力のみ使用可能。
-
-### Elector/イレクター
-
-投票スキップが出来ない。
-
-### NonReport/ノンレポート
-
-緊急会議ボタン・死体通報が使用できない。<br>
-設定でどちらか片方のみに変更が可能。<br>
-
-**設定**<br>
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|使用出来ない招集　　　　　　　　　　　　　　|
-|┣緊急会議ボタン　　　　　　　　　　　　　　　|
-|┣死体通報　　　　　　　　　　　　　　　　　|
-|┗緊急会議ボタン・死体通報　　　　　　　　　　|
-
-### Transparent/トランスパレント
-
-自分の死体が通報されない。
-
-### Water/ウォーター
-
-停電を修復することが出来ない。
-
-### Clumsy/クラムシー
-
-通信妨害を修復することが出来ない。
-
-### Slacker/スラッカー
-
-リアクター・O2を修復することが出来ない。
-
-## 属性を付与する
-**設定**
-|設定名　　　　     　　　　　　　　　　　|
-|----------------------------------------|
-|[ゲッサー](#guesserゲッサー)を付与する|
-|[ウォッチング](https://github.com/tukasa0001/TownOfHost#watcher%E3%82%A6%E3%82%A9%E3%83%83%E3%83%81%E3%83%A3%E3%83%BC)を付与する|
-|[プラスポート](#plusvoteプラスポート)を付与する|
-|[タイブレーカー](#tiebreakerタイブレーカー)を付与する|
-|[オートプシー](#autopsyオートプシー)を付与する|
-|[リベンジャー](#revengerリベンジャー)を付与する|
-|[スピーディング](#speedingスピーディング)を付与する|
-|[ガーディング](#ガーディング)を付与する|
-|[マネジメント](#managementマネジメント)を付与する|
-|[シーイング](#seeingシーイング)を付与する|
-|[オープナー](#openerオープナー)を付与する|
-|[ライティング](#lightingライティング)を付与する(imp以外)|
-|[ムーン](#moonムーン)を付与する(imp以外)|
-|[ノットヴォウター](#notvoterノットヴォウタ)を付与する|
-|[イレクター](#electorイレクター)を付与する|
-|[ノンレポート](#nonreportノンレポート)を付与する|
-|[トランスパレント](#transparentトランスパレント)を付与する|
-|[ウォーター](#waterウォーター)を付与する|
-|[クラムシー](#clumsyクラムシー)を付与する|
-|[スラッカー](#slackerスラッカー)を付与する|
-
-### 属性アサイン設定
-
-一部の属性は共通のアサイン設定を持っています。<br>
-属性によっては、アサインされない陣営があります。<br>
-
-#**設定**<br>
-**追加設定**<br>
-| 設定名                           |                                                           |
-| -------------------------------- | --------------------------------------------------------- |
-| 最大数                           | 全体でアサインされる最大人数                              |
-| クルー陣営の最大アサイン数       | 最大数のうち、クルー陣営にアサインされる人数の最大 (0-15) |
-| ┣ 役職を固定                     | クルー陣営のアサイン対象の役職を限定                      |
-| ┃ ┗ 役職                         | アサイン対象となる役職                                    |
-| インポスター陣営の最大アサイン数 | (0-3)                                                     |
-| ┣ 役職を固定                     |                                                           |
-| ┃ ┗ 役職                         |                                                           |
-|マッドメイトの最大アサイン数|　　　　|(0-15)                                                     |
-| ┣ 役職を固定                     |                                                           |
-| ┃ ┗ 役職                         |                                                           |
-| ニュートラルの最大アサイン数     | (0-15)                                                    |
-| ┣ 役職を固定                     |                                                           |
-| ┃ ┗ 役職                         |                                                           |
-
-## モード
-### タスクバトル
-
-インポスターがアサインせず、ボタンが押せないモード。<br>
-最初に全てのタスク終わらせた人が勝利になる。<br>
-
-チームモードの場合はチームでの勝利となる。<br>
-
-また**ゲーム終了条件をチームの合計タスク完了数にする**がONの場合<br>
-チームの合計タスク数が設定数完了するとそのチームの勝利へとなる。
-
-**設定**<br>
-|設定名|内容|
-|------|---|
-|ベントを使用できる|エンジニアのベントを所持してる状態か|
-|┗ ベントクールダウン|再度使用できるまでのクールダウン|
-|合計タスク数を表示する|全員が完了させたタスク数が分かります|
-|他プレイヤーのタスク数を表示する|他プレイヤーの名前にタスク数を表示します|
-|一番速い人のタスク数を表示する|自身の名前の横に表示されます|
-|チームモードを有効にする||
-|┣ チーム数||
-|┣ ゲーム終了条件をチームの合計タスク完了数にする|全員タスク完了の条件からチームの合計数に|
-|┃ ┗ 合計タスク数|チームの勝利に必要なタスク完了数|
-|全員のタスクを共通にする||
-
-### サドンデスモード
-
-勝利条件が**自身以外死亡**になる。<br>
-つまり、最後の一人になると勝利<br>
-
-設定によって全員の役職が共通されたり、他人の名前が見えなくなったり、一定時間経過で矢印が表示されたり、<br>
-タイムリミットを設けることが出来る。<br>
-
-ドア閉鎖を含むサボタージュを起こすことは出来ない。<br>
-
-サドンデスモード中は名前がその人の色に。<br>
-クルーメイトは基本排出されずインポスターに<br>
-バニラの色名称ONはOFFにして遊ぶことをお勧めします<br>
-
-**設定**<br>
-|設定名|内容|
-|------|----|
-|全員の役職を共通にする|ONで全員同じ役職になります。全員スナイパーとか|
-|他人の名前が見えない|ONで他人の名前が見えなくなります。|
-|リアクターが発動するまでの時間|解除不可能のリアクターが作動します|
-|リアクター制限時間|[サボタージュ設定](#サボタージュ設定)も上書きします|
-|位置情報を矢印で受け取る|一定時間置きに矢印で生存者の位置が分かります(感覚的にはかくれんぼのピン)|
-|┣ 位置情報共有までの時間||
-|┗ 位置情報更新間隔|位置の更新間隔を変更します|
 
 ## 機能
-### ホットキー
-
-#### ホストのみ
-| キー                | 機能                            | 使えるシーン               |
-| ------------------- | ------------------------------- | --------------------------- |
-| `Shift`+`N`+`Enter` | ミーティングを票を変えずに終了   | ゲーム内                    |
-| `左Control`+`K`+`L` | フラッシュが一瞬だけ鳴る　　　   | ゲーム内                    |
-
-### チャットコマンド
-チャットコマンドはチャットで入力して使用できるコマンドです。
-
-#### ホストのみ
-| コマンド                                 | 機能                                          | 使えるシーン    |
-| ---------------------------------------- | --------------------------------------------- | --------------- |
-| /w                                       | 勝利した陣営を表示                             | どこでも        |
-| /forceend<br>/fe                         | 廃村として終了する (エラー時でも大体廃村できる)   |  ゲーム内       |
-| /sw　勝利させたい陣営(役職名)       　　　　|  勝利させたい陣営,役職を勝利判定にする         |  ゲーム内       |
-| /allplayertp<br>/apt                     | 全てのプレイヤーをロビーの真ん中にテレポートする| ロビー内        |
-| /settask <br>/stt (common) (long) (short)| タスク数を設定する 　　　　　　　　　　　　　　 | ロビー内 |
-
-#### 全クライアント
-| コマンド　　　　　　　　　　　　　 　   | 機能                                          | 使えるシーン     |
-| -----------------------------------  | --------------------------------------------- | -------------- |
-| /timer<br>/tr                        | 部屋が落ちるまでのタイマーを表示                 | ロビー内        |
-| /voice<br>/vo                        | 読み上げの声設定 [詳細はこちら](#読み上げ機能)    | どこでも        |
-| /help roles <役職><br>/help r <役職>  | 現在の役職設定を表示                            | どこでも        |
-| /kf                                  | フラッシュが一瞬だけ鳴る 暗転用                  | ゲーム内        |
-| /meetinginfo <br>/mi　　　　　　　　   | ミーティングインフォを再表示する                 | ゲーム内(会議中) |
-| /now set <br>/n s                    | 現在のバニラ設定,アサイン設定が表示される         | どこでも　　　　 |
 
 ### テンプレート
 定型文を送信できる機能です。<br>
@@ -823,87 +518,66 @@ TOHK_DATAフォルダの中にあるoptions.txt<br>
 |ジャッカル秘匿チャット(/jc)|
 |ラバーズ秘匿チャット(/lc)|
 
-### その他の仕様
-**試合に関係する事**<br>
-・AirShipの展望で会議が始まった場合、非クライアントはちょっと上にテレポートするように。<br>
-・タスクを持たない人のタスクをゲーム開始後や一定間隔で完了させるように<br>
-・ベントが使えない役職だとベントボタンを出来るだけ光らせないように<br>
-・ボタンを押した瞬間に役職の影響で死亡した場合でも会議を発生させるように<br>
-・追加勝利条件を満たしている時、名前の横に印が付くように。<br>
-・mod処理によって通報が弾かれた場合、名前の横にマークを付けるように。<br>
-・クルー陣営以外の勝利でアウトロに勝利陣営 / 試合結果を表示するように<br>
-
-**設定関係**<br>
-・タスクを上書きする設定の通常タスクを個数設定に変更<br>
-・タスクが255以上にはならないように(サーバーの影響でハッキング判定食らってしまうため)<br>
-・バニラの視界設定,キルクール設定等の変化の割合を細かく<br>
-・アサインモードが固定でも属性は確率で排出されるように<br>
-
-**試合には関係しない事**<br>
-・フレンドコードが無いプレイヤーもBANListに追加できるように<br>
-・ロビーでModとバージョン表記するように<br>
-
-## ワンクリックってなぁに?
-
-ウィッチ,ジャッカルのサイドキック,マジシャン等よく聞くようになったワンクリックボタン。<br>
-始めて聞いた人は分からないと思います。<br>
-<br>
-ワンクリックボタンとは...<br>
-シェイプシフトボタンを押した時に効果発揮する物を指します。<br>
-花火職人で言うとワンクリックボタンを押した場所に花火を設置するみたいな。<br>
-
-ウィッチ,ジャッカルのサイドキックで言うとワンクリックボタンを押した時のキルターゲットに対して効果を発揮する～<br>
-見たいな感じです。<br>
 
 #### 外部リンク
 　TownOfHost-K<br>
 　　[Twitter(X)](https://x.com/Tohkserver_k)<br>
 
+**TownOfHost-Kの開発者**<br>
 　暇な人 KY/けーわい<br>
-　　TOHKの開発者(いちばんえらいひと)<br>
 　　[Youtube](https://www.youtube.com/@MTGC_KY)<br>
-　　[Twitter(X)](https://x.com/ky_mario_ky)<br>
-　　[Bluesky](https://bsky.app/profile/kymario.bsky.social)<br>
+　　[Twitter(X)](https://x.com/ky_mario_ky) ・ [Bluesky](https://bsky.app/profile/kymario.bsky.social)<br>
 
 　タイガー<br>
-　　TOHKの開発者<br>
 　　[Youtube](https://www.youtube.com/@torataiga-)<br>
-　　[Twitter(X)](https://x.com/TVppJ90s9G2sPkq)<br>
-　　[Bluesky](https://bsky.app/profile/taiga1.bsky.social)<br>
+　　[Twitter(X)](https://x.com/TVppJ90s9G2sPkq) ・ [Bluesky](https://bsky.app/profile/taiga1.bsky.social)<br>
 
 　夜藍<br>
-　　TOHKの開発者<br>
 　　[Youtube](https://www.youtube.com/@Yoran_Furan)<br>
-　　[Twitter(X)](https://x.com/Yoran_FuranOshi)<br>
-　　[Bluesky](https://bsky.app/profile/yoran-furanoshi.bsky.social)<br>
+　　[Twitter(X)](https://x.com/Yoran_FuranOshi) ・ [Bluesky](https://bsky.app/profile/yoran-furanoshi.bsky.social)<br>
 
 　ねむa<br>
-　　TOHKの開発者、TOH-KBotの開発者<br>
 　　[Twitter(X)](https://x.com/nemu_adatoomou)<br>
 
 　はろん<br>
-　　TOHKの開発者<br>
 　　[Twitter(X)](https://x.com/HellWeen11)<br>
 
+**TownOfHost-Kのサポーター**<br>
 　りぃりぃ<br>
-　　TOHKのサポーター<br>
 　　[Twitter(X)](https://x.com/rixirixi0202)<br>
 
+※本家TownOfHost様の開発者はここでは省略させていただきます
 #### クレジット
 [Town Of Host](https://github.com/tukasa0001/TownOfHost)<br>
-　偉大なる本家様！<br>
+　偉大なる本家様！<br>TownOfHost様にある機能はTownOfHost-Kでも大体実装されています<br>
 
 [Town Of Host_Y](https://github.com/Yumenopai/TownOfHost_Y)<br>
-　機能やワーカホリックなどの役職,属性を参考...?移植させて頂きました！<br>
+　会議時の役職表示、会議拡張、ワーカホリック,属性名を参考/移植させて頂きました！<br>
 
 [Town Of Host For E](https://github.com/AsumuAkaguma/TownOfHost_ForE) <br>
 　機能や一部処理の参考にさせて頂きました！<br>
 
-[RevolutionaryHostRoles](https://github.com/sansaaaaai/Revolutionary-host-roles)<br>
-　カスタムボタンの参考、一部役職を移行させて頂きました！<br>
+[Revolutionary Host Roles](https://github.com/sansaaaaai/Revolutionary-host-roles)<br>
+　カスタムボタンの参考、リローダー、スタッフ、インセンダーを移行させて頂きました！<br>
 
 [Town Of Host-H](https://github.com/Hyz-sui/TownOfHost-H) <br>
 　10.24アプデの対応で参考にさせていただきました！<br>
 
 [SuperNewRoles](https://github.com/ykundesu/SuperNewRoles) <br>
-　一部役職や機能,ブラックリスト,コード...様々な部分参考にさせて頂きました！<br>
+　天秤、ミーティングシェリフ、トイレファン、イビルギャンブラー、ペンギン、マッドスーサイドを移植/参考<br>
+　ブラックリスト等や様々な部分を参考にさせて頂きました！<br>
+
+[TheOtherRoles](https://github.com/TheOtherRolesAU/TheOtherRoles)<br>
+　カモフラージャー、ゲッサー等を参考/移植させていただきました<br>
+
+[TheOtherRole GM](https://github.com/yukinogatari/TheOtherRoles-GM)<br>
+　一部役職を参考/移植させていだたきました<br>
+
+TOR_GM_Haoming_Edition<br>
+　イビルトラッカー、シュレディンガーの猫等を参考/移植させていだたきました<br>
+
+[Nebula On The Ship](https://github.com/Dolly1016/Nebula/)<br>
+　ドクター、スナイパーを参考/移植させていだたきました<br>
+
+[au.libhalt.net](https://au.libhalt.net/)<br>
+　マッドジェスターの参考/移植させていだたきました<br>
