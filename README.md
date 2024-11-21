@@ -238,7 +238,6 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [怪盗](https://github.com/KYMario/TownOfHost-K/wiki/怪盗)
 - [テロリスト](https://github.com/KYMario/TownOfHost-K/wiki/テロリスト)
 - [ワーカホリック](https://github.com/KYMario/TownOfHost-K/wiki/ワーカホリック)
-- [妖狐](https://github.com/KYMario/TownOfHost-K/wiki/妖狐)
 - [シュレディンガーの猫](https://github.com/KYMario/TownOfHost-K/wiki/シュレディンガーの猫)
 - [バケネコ](https://github.com/KYMario/TownOfHost-K/wiki/バケネコ)
 - [オポチュニスト](https://github.com/KYMario/TownOfHost-K/wiki/オポチュニスト)
@@ -321,6 +320,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [守護天使](https://github.com/KYMario/TownOfHost-K/wiki/守護天使)
 
 </details>
+
 
 <details>
 
