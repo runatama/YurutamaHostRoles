@@ -304,22 +304,6 @@ HostModなので部屋主のみModを導入すれば、<br>
 ## 機能,モードについて
 
 <details>
-<summary>モード</summary>
-
-- [ゲームマスター](https://github.com/KYMario/TownOfHost-K/wiki/ゲームマスター)
-- [デーモントラッカー](https://github.com/KYMario/TownOfHost-K/wiki/デーモントラッカー)
-- [デーモンクラッシャー](https://github.com/KYMario/TownOfHost-K/wiki/デーモンクラッシャー)
-- [デーモンベンター](https://github.com/KYMario/TownOfHost-K/wiki/デーモンベンター)
-- [アシスティングエンジェル](https://github.com/KYMario/TownOfHost-K/wiki/アシスティングエンジェル)
-- [ゴーストボタナー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストボタナー)
-- [ゴーストノイズセンダー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストノイズセンダー)
-- [ゴーストリセッター](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストリセッター)
-- [守護天使](https://github.com/KYMario/TownOfHost-K/wiki/守護天使)
-
-</details>
-
-
-<details>
 
 <summary>モード</summary>
 
