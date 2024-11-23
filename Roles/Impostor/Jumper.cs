@@ -96,7 +96,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             PlayerCatch.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
             player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
-            player.RpcProtectedMurderPlayer();
+            //player.RpcProtectedMurderPlayer();
             _ = new LateTask(() =>
             {
                 if (!GameStates.Meeting && player.IsAlive())

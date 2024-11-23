@@ -61,8 +61,9 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             tien = ti * 0.1f;
             Logger.Info($"{tien}sの追加遅延発生!!", "Bait");
         }
+        var killerrole = killer.GetCustomRole();
 
-        if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && (!killer.GetCustomRole().IsImpostor() || killer.GetCustomRole() == CustomRoles.WolfBoy))
+        if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && (!killerrole.IsImpostor() || killerrole == CustomRoles.WolfBoy))
             _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f + Chien.GetFloat() + tien, "MadBait Self Report");
         else if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && RandomRepo.GetBool())
         {

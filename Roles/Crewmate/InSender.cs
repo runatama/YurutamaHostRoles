@@ -23,7 +23,7 @@ public sealed class InSender : RoleBase
         player
     )
     {
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
         ta = Task.GetInt();
     }
     enum OptionName
@@ -50,7 +50,7 @@ public sealed class InSender : RoleBase
         if (!kakusei) return;
         var tien = 0f;
         //小数対応
-        if (Saiaichien.GetFloat() != 0)
+        if (Saiaichien.GetFloat() > 0)
         {
             int ti = IRandom.Instance.Next(0, (int)Saiaichien.GetFloat() * 10);
             tien = ti * 0.1f;

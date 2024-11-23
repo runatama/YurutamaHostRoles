@@ -27,10 +27,8 @@ namespace TownOfHost
 
         public static void CountAlivePlayers(bool sendLog = false)
         {
-            if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) Utils.CanVent = true;
-            else Utils.CanVent = false;
-            int AliveImpostorCount = PlayerCatch.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
-            int AliveNeutalCount = PlayerCatch.AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Neutral));
+            int AliveImpostorCount = AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
+            int AliveNeutalCount = AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Neutral));
             if (Main.AliveImpostorCount != AliveImpostorCount)
             {
                 Logger.Info("生存しているインポスター:" + AliveImpostorCount + "人", "CountAliveImpostors");
@@ -46,6 +44,10 @@ namespace TownOfHost
 
             if (sendLog)
             {
+                if (Options.CuseVent.GetBool() && (AllAlivePlayerControls.Count() <= Options.CuseVentCount.GetFloat()))
+                    Utils.CanVent = true;
+                else Utils.CanVent = false;
+
                 CustomButtonHud.BottonHud();
                 var sb = new StringBuilder(100);
                 foreach (var countTypes in EnumHelper.GetAllValues<CountTypes>())

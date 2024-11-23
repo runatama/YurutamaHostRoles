@@ -193,6 +193,7 @@ namespace TownOfHost
             if (Options.CustomRoleSpawnChances.ContainsValue(intopiton)) return true;
             return false;
         }
+        /* オプションのgetboolの表示のやつ */
         public virtual bool OptionMeGetBool() => CurrentValue != 0;
         public virtual int GetInt() => CurrentValue;
         public virtual float GetFloat() => CurrentValue;

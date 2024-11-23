@@ -34,6 +34,7 @@ namespace TownOfHost.Roles.Ghost
         {
             if (pc.Is(CustomRoles.Ghostbuttoner))
             {
+                if (Main.NowSabotage) return;
                 if (!count.ContainsKey(pc.PlayerId))
                 {
                     count[pc.PlayerId] = Count.GetInt();

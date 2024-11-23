@@ -24,8 +24,9 @@ public sealed class Bait : RoleBase
         player
     )
     {
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
         ta = Task.GetInt();
+        optsaidaichien = Saiaichien.GetFloat();
     }
     enum OptionName
     {
@@ -36,6 +37,7 @@ public sealed class Bait : RoleBase
     static OptionItem Comms;
     static OptionItem Chien;
     static OptionItem Saiaichien;
+    static float optsaidaichien;
     bool kakusei;
     int ta;
     private static void SetupOptionItem()
@@ -51,9 +53,9 @@ public sealed class Bait : RoleBase
         if (!kakusei) return;
         var tien = 0f;
         //小数対応
-        if (Saiaichien.GetFloat() != 0)
+        if (optsaidaichien > 0)
         {
-            int ti = IRandom.Instance.Next(0, (int)Saiaichien.GetFloat() * 10);
+            int ti = IRandom.Instance.Next(0, (int)optsaidaichien * 10);
             tien = ti * 0.1f;
             Logger.Info($"{tien}sの追加遅延発生!!", "Bait");
         }

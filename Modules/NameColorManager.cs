@@ -16,14 +16,15 @@ namespace TownOfHost
                     colorCode = target.GetRoleColorCode();
             }
             string openTag = "", closeTag = "";
+            var roleClass = seer.GetRoleClass();
             if (seer.PlayerId == target.PlayerId && seer.Is(CustomRoles.Amnesia))
             {
                 colorCode = seer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate) : (seer.Is(CustomRoleTypes.Impostor) ?
                 UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : UtilsRoleText.GetRoleColorCode(CustomRoles.SchrodingerCat));
             }
-            if (seer.PlayerId == target.PlayerId && seer.GetRoleClass() != null && seer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+            if (seer.PlayerId == target.PlayerId && roleClass != null && roleClass?.Jikaku() != CustomRoles.NotAssigned)
             {
-                colorCode = UtilsRoleText.GetRoleColorCode(seer.GetRoleClass().Jikaku());
+                colorCode = UtilsRoleText.GetRoleColorCode(roleClass.Jikaku());
             }
 
             var seerRole = seer.GetCustomRole();
@@ -32,7 +33,7 @@ namespace TownOfHost
             {
                 if (targetRole.GetRoleInfo()?.IsCantSeeTeammates == true)
                     colorCode = Roles.Vanilla.Impostor.RoleInfo.RoleColorCode;
-                if (seerRole.GetRoleInfo()?.IsCantSeeTeammates == true && !(seer.GetRoleClass() as Amnesiac).omoidasita)
+                if (seerRole.GetRoleInfo()?.IsCantSeeTeammates == true && !(roleClass as Amnesiac).omoidasita)
                     colorCode = "#ffffff"; //white
             }
             if (colorCode != "")

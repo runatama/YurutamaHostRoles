@@ -43,13 +43,14 @@ public static class AbilityButtonDoClickPatch
 
         var role = PlayerControl.LocalPlayer.GetCustomRole();
         var roleInfo = role.GetRoleInfo();
+        var roleclas = PlayerControl.LocalPlayer.GetRoleClass();
 
         if (role.GetRoleTypes() is AmongUs.GameOptions.RoleTypes.Scientist)
         {
             CloseVitals.Ability = true;
             return true;
         }
-        if (PlayerControl.LocalPlayer.GetRoleClass() is IUseTheShButton sb && sb.UseOCButton)
+        if (roleclas is IUseTheShButton sb && sb.UseOCButton)
         {
             PlayerControl.LocalPlayer.Data.Role.SetCooldown();
             sb.OnClick();
@@ -58,7 +59,7 @@ public static class AbilityButtonDoClickPatch
         else
         if (roleInfo?.IsDesyncImpostor == true && roleInfo.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Shapeshifter)
         {
-            if (!(PlayerControl.LocalPlayer.GetRoleClass()?.CanUseAbilityButton() ?? false)) return false;
+            if (!(roleclas?.CanUseAbilityButton() ?? false)) return false;
             foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
@@ -73,7 +74,7 @@ public static class AbilityButtonDoClickPatch
         else
         if (roleInfo?.IsDesyncImpostor == true && roleInfo?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Phantom)
         {
-            if (!(PlayerControl.LocalPlayer.GetRoleClass()?.CanUseAbilityButton() ?? false)) return false;
+            if (!(roleclas?.CanUseAbilityButton() ?? false)) return false;
             foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;

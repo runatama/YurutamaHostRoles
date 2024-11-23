@@ -36,7 +36,7 @@ public sealed class WhiteHacker : RoleBase
         cont = 0;
         use = false;
         NowTracker = false;
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || cantaskcount < 1; ;
     }
 
     private static OptionItem Optioncantaskcount;
@@ -94,7 +94,7 @@ public sealed class WhiteHacker : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!SelfVoteManager.Canuseability()) return true;
-        if (Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && Max > cont)
+        if (Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Max > cont)
         {
             if (Player.PlayerId == votedForId || votedForId == 253)
             {
@@ -124,7 +124,7 @@ public sealed class WhiteHacker : RoleBase
     {
         if (P == 225) return "";
         seen ??= seer;
-        if (GameStates.Meeting && P == seen.PlayerId && MyTaskState.CompletedTasksCount >= cantaskcount)
+        if (GameStates.Meeting && P == seen.PlayerId && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             var roomName = GetLastRoom(seen);
             // 空のときにタグを付けると，suffixが空ではない判定となりなにもない3行目が表示される
@@ -132,7 +132,7 @@ public sealed class WhiteHacker : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
 
     public string GetLastRoom(PlayerControl seen)
     {

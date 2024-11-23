@@ -194,7 +194,7 @@ namespace TownOfHost
                     if (op.GiveAddons.GetBool() && op.GiveGuesser.GetBool()) return true;
             }
             if (CustomRoles.LastImpostor.IsPresent() && LastNeutral.GiveGuesser.GetBool()) return true;
-            if (CustomRoles.LastNeutral.IsPresent() && LastImpostor.GiveGuesser.GetBool()) return true;
+            if (CustomRoles.LastNeutral.IsPresent() && LastImpostor.giveguesser) return true;
 
             return false;
         }
@@ -294,5 +294,6 @@ namespace TownOfHost
         Remotekiller,
         TaskPlayer,
         GrimReaper,
+        Fox,
     }
 }

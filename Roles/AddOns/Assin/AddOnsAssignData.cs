@@ -96,7 +96,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 NeutralMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.AcceptedGreen, GetString("Neutral")) } };
                 NeutralFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(NeutralMaximum);
-                var neutralStringsArray = NeutralRoles.Select(role => role.ToString()).ToArray();
+                var neutralStringsArray = NeutralRoles.Where(r => r is not CustomRoles.Fox || role is not CustomRoles.Amnesia).Select(role => role.ToString()).ToArray();
                 NeutralAssignTarget = StringOptionItem.Create(idStart++, "Role", neutralStringsArray, 0, TabGroup.Addons, false)
                     .SetParent(NeutralFixedRole);
             }

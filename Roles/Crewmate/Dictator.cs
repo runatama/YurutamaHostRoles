@@ -41,10 +41,10 @@ public sealed class Dictator : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (!OptionSelfVote.GetBool()) return true;
 
         if (Is(voter))
         {
+            if (!OptionSelfVote.GetBool()) return true;
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
                 if (status is VoteStatus.Self)

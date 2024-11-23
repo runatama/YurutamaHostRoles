@@ -25,6 +25,7 @@ namespace TownOfHost
         private static ClientActionItem ViewPingDetails;
         private static ClientActionItem DebugChatopen;
         private static ClientActionItem DebugSendAmout;
+        private static ClientActionItem AutoSaveScreenShot;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
@@ -84,6 +85,10 @@ namespace TownOfHost
             if (HideSomeFriendCodes == null || HideSomeFriendCodes.ToggleButton == null)
             {
                 HideSomeFriendCodes = ClientOptionItem.Create("HideSomeFriendCodes", Main.HideSomeFriendCodes, __instance);
+            }
+            if (AutoSaveScreenShot == null || AutoSaveScreenShot.ToggleButton == null)
+            {
+                AutoSaveScreenShot = ClientOptionItem.Create("AutoSaveScreenShot", Main.AutoSaveScreenShot, __instance);
             }
 #if DEBUG
             if (ViewPingDetails == null || ViewPingDetails.ToggleButton == null)

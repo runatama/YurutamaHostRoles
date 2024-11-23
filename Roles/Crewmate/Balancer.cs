@@ -275,6 +275,7 @@ public sealed class Balancer : RoleBase
                         .OrderBy(x => Guid.NewGuid())
                         .FirstOrDefault();
         Exiled = GameData.Instance.GetPlayerById(exileId);
+        var ex = PlayerCatch.GetPlayerById(exileId);
         if (data.Values.Distinct().Count() == 1)
         {
             //追放画面が出てくるちょい前に名前を変える
@@ -287,12 +288,12 @@ public sealed class Balancer : RoleBase
                     Main.nickName = GetString("Balancer.Executad") + "<size=0>";
                 }
                 else
-                    PlayerCatch.GetPlayerById(exileId).RpcSetName(GetString("Balancer.Executad") + "<size=0>");
+                    ex.RpcSetName(GetString("Balancer.Executad") + "<size=0>");
             }, 4f, "dotiramotuihou☆");
             var toExile = data.Keys.ToArray();
             foreach (var playerId in toExile)
             {
-                PlayerCatch.GetPlayerById(playerId)?.SetRealKiller(null);
+                ex?.SetRealKiller(null);
             }
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
             Voteresult = GetString("Balancer.Executad");

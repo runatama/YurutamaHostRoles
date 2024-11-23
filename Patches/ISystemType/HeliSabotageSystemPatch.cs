@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Hazel;
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
@@ -16,7 +17,7 @@ public static class HeliSabotageSystemUpdateSystemPatch
             amount = newReader.ReadByte();
             newReader.Recycle();
         }
-        if (!AmongUsClient.Instance.AmHost)
+        if (!AmongUsClient.Instance.AmHost || Utils.NowKillFlash)
         {
             return true;
         }
@@ -48,10 +49,10 @@ public static class HeliSabotageSystemPatch
 {
     public static void Prefix(HeliSabotageSystem __instance)
     {
-        if (!__instance.IsActive || (!Options.SabotageTimeControl.GetBool() && !Options.SuddenDeathMode.GetBool()))
+        if (!__instance.IsActive || (!Options.SabotageTimeControl.GetBool() && !SuddenDeathMode.NowSuddenDeathMode))
             return;
         if (AirshipStatus.Instance != null)
-            if (Options.SuddenDeathMode.GetBool())
+            if (SuddenDeathMode.NowSuddenDeathMode)
             {
                 if (__instance.Countdown >= Options.SuddenDeathReactortime.GetFloat())
                     __instance.Countdown = Options.SuddenDeathReactortime.GetFloat();

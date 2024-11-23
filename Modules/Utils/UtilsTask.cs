@@ -51,7 +51,6 @@ namespace TownOfHost
                 {
                     case CustomRoles.GM:
                     case CustomRoles.SKMadmate:
-                    case CustomRoles.Jackaldoll:
                         hasTasks = false;
                         break;
                     default:
@@ -136,8 +135,7 @@ namespace TownOfHost
                         if (pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) continue;
 
                         if (Main.AllPlayerTask.TryGetValue(pc.PlayerId, out var tasks))
-                            foreach (var task in tasks)
-                                pc.RpcCompleteTask(task);
+                            tasks.Do(task => pc.RpcCompleteTask(task));
                     }
                 }
                 Main.FixTaskNoPlayer.Clear();

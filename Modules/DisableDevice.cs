@@ -5,13 +5,14 @@ using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Ghost;
+using static TownOfHost.DisableDevice;
 
 namespace TownOfHost
 {
     //参考元 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
     class DisableDevice
     {
-        public static bool DoDisable => Options.DisableDevices.GetBool() || Options.IsStandardHAS || Options.TimeLimitDevices.GetBool() || Options.TarnTimeLimitDevice.GetBool();
+        public static bool DoDisable => Options.DisableDevices.GetBool() || Options.IsStandardHAS || optTimeLimitDevices || optTarnTimeLimitDevice;
         private static List<byte> DesyncComms = new();
         private static int frame = 0;
 
@@ -30,8 +31,29 @@ namespace TownOfHost
         //カメラ検知用
         public static int UseCount;
 
+        //設定
+        public static bool optTimeLimitDevices;
+        public static bool optTarnTimeLimitDevice;
+        public static float optTimeLimitCamAndLog;
+        public static float optTarnTimeLimitCamAndLog;
+        public static float optTimeLimitAdmin;
+        public static bool DisableDevicesIgnoreImpostors;
+        public static bool DisableDevicesIgnoreMadmates;
+        public static bool DisableDevicesIgnoreNeutrals;
+        public static bool DisableDevicesIgnoreCrewmates;
+        public static bool DisableDevicesIgnoreAfterAnyoneDied;
         public static void Reset()
         {
+            optTimeLimitCamAndLog = Options.TimeLimitCamAndLog.GetFloat();
+            optTarnTimeLimitCamAndLog = Options.TarnTimeLimitCamAndLog.GetFloat();
+            optTimeLimitDevices = Options.TimeLimitDevices.GetBool();
+            optTarnTimeLimitDevice = Options.TarnTimeLimitDevice.GetBool();
+            optTimeLimitAdmin = Options.TimeLimitAdmin.GetFloat();
+            DisableDevicesIgnoreImpostors = Options.DisableDevicesIgnoreImpostors.GetBool();
+            DisableDevicesIgnoreMadmates = Options.DisableDevicesIgnoreMadmates.GetBool();
+            DisableDevicesIgnoreNeutrals = Options.DisableDevicesIgnoreNeutrals.GetBool();
+            DisableDevicesIgnoreCrewmates = Options.DisableDevicesIgnoreCrewmates.GetBool();
+            DisableDevicesIgnoreAfterAnyoneDied = Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool();
             CloseVitals.Ability = false;
             AdminPoss.Clear();
             LogPoss.Clear();
@@ -57,19 +79,19 @@ namespace TownOfHost
         }
         public static string GetAddminTimer()
         {
-            if (Options.TimeLimitAdmin.GetFloat() == 0) return "";
+            if (optTimeLimitAdmin == 0) return "";
             if ((MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
             var a = "<color=#00ff99>Ⓐ";
-            if (Options.TimeLimitAdmin.GetFloat() <= GameAdminTimer) return a + "×";
-            else return a + ":" + Math.Round(Options.TimeLimitAdmin.GetFloat() - GameAdminTimer) + "s";
+            if (optTimeLimitAdmin <= GameAdminTimer) return a + "×";
+            else return a + ":" + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
         }
         public static string GetCamTimr()
         {
-            if (Options.TimeLimitCamAndLog.GetFloat() == 0) return "";
+            if (optTimeLimitCamAndLog == 0) return "";
             if ((MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
             var a = (MapNames)Main.NormalOptions.MapId is MapNames.Mira ? "<color=#cccccc>Ⓛ" : "<color=#cccccc>Ⓒ";
-            if (Options.TimeLimitCamAndLog.GetFloat() <= GameLogAndCamTimer) return a + "×";
-            else return a + ":" + Math.Round(Options.TimeLimitCamAndLog.GetFloat() - GameLogAndCamTimer) + "s";
+            if (optTimeLimitCamAndLog <= GameLogAndCamTimer) return a + "×";
+            else return a + ":" + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
         }
         public static string GetVitalTimer()
         {
@@ -119,9 +141,9 @@ namespace TownOfHost
 
             if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitAdmin.GetFloat() != 0 && GameAdminTimer > Options.TimeLimitAdmin.GetFloat()) return i == null;
+            if (optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin) return i == null;
 
-            if (Options.TarnTimeLimitAdmin.GetFloat() != 0 && TarnAdminTimer > Options.TarnTimeLimitAdmin.GetFloat()) return i == null;
+            if (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                 (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
@@ -140,9 +162,9 @@ namespace TownOfHost
 
             if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitVital.GetFloat() != 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat()) return i == null;
+            if (Options.TimeLimitVital.GetFloat() > 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat()) return i == null;
 
-            if (Options.TarnTimeLimitVital.GetFloat() != 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
+            if (Options.TarnTimeLimitVital.GetFloat() > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                             (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
@@ -162,9 +184,9 @@ namespace TownOfHost
 
             if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitCamAndLog.GetFloat() != 0 && GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat()) return i == null;
+            if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog) return i == null;
 
-            if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat()) return i == null;
+            if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                             (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
@@ -182,8 +204,8 @@ namespace TownOfHost
             {
                 if (p == pos)
                 {
-                    if (Options.TimeLimitDevices.GetBool()) GameAdminTimer += Time.fixedDeltaTime;
-                    if (Options.TarnTimeLimitDevice.GetBool()) TarnAdminTimer += Time.fixedDeltaTime;
+                    if (optTimeLimitDevices) GameAdminTimer += Time.fixedDeltaTime;
+                    if (optTarnTimeLimitDevice) TarnAdminTimer += Time.fixedDeltaTime;
                 }
                 else AdminPoss[pc.PlayerId] = pos;
             }
@@ -195,8 +217,8 @@ namespace TownOfHost
             {
                 if (p == pos)
                 {
-                    if (Options.TimeLimitDevices.GetBool()) GameLogAndCamTimer += Time.fixedDeltaTime;
-                    if (Options.TarnTimeLimitDevice.GetBool()) TarnLogAndCamTimer += Time.fixedDeltaTime;
+                    if (optTimeLimitDevices) GameLogAndCamTimer += Time.fixedDeltaTime;
+                    if (optTarnTimeLimitDevice) TarnLogAndCamTimer += Time.fixedDeltaTime;
                 }
                 else LogPoss[pc.PlayerId] = pos;
             }
@@ -208,8 +230,8 @@ namespace TownOfHost
             {
                 if (p == pos)
                 {
-                    if (Options.TimeLimitDevices.GetBool()) GameVitalTimer += Time.fixedDeltaTime;
-                    if (Options.TarnTimeLimitDevice.GetBool()) TarnVitalTimer += Time.fixedDeltaTime;
+                    if (optTimeLimitDevices) GameVitalTimer += Time.fixedDeltaTime;
+                    if (optTarnTimeLimitDevice) TarnVitalTimer += Time.fixedDeltaTime;
                 }
                 else VitalPoss[pc.PlayerId] = pos;
             }
@@ -218,7 +240,7 @@ namespace TownOfHost
         public static void FixedUpdate()
         {
             frame = frame == 3 ? 0 : ++frame;
-            //if (frame != 0) return;
+            //if (frame > 0) return;
 
             //if (!DoDisable) return;
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -229,39 +251,41 @@ namespace TownOfHost
 
                     bool doComms = false;
                     bool RoleDisable = false;
+                    bool IsComms = Utils.IsActive(SystemTypes.Comms);
                     Vector2 PlayerPos = pc.GetTruePosition();
                     bool ignore = !DoDisable &&
-                            ((Options.DisableDevicesIgnoreImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) ||
-                            (Options.DisableDevicesIgnoreMadmates.GetBool() && pc.Is(CustomRoleTypes.Madmate)) ||
-                            (Options.DisableDevicesIgnoreNeutrals.GetBool() && pc.Is(CustomRoleTypes.Neutral)) ||
-                            (Options.DisableDevicesIgnoreCrewmates.GetBool() && pc.Is(CustomRoleTypes.Crewmate)) ||
-                            (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied));
+                            ((DisableDevicesIgnoreImpostors && pc.Is(CustomRoleTypes.Impostor)) ||
+                            (DisableDevicesIgnoreMadmates && pc.Is(CustomRoleTypes.Madmate)) ||
+                            (DisableDevicesIgnoreNeutrals && pc.Is(CustomRoleTypes.Neutral)) ||
+                            (DisableDevicesIgnoreCrewmates && pc.Is(CustomRoleTypes.Crewmate)) ||
+                            (DisableDevicesIgnoreAfterAnyoneDied && GameStates.AlreadyDied));
 
-                    if (pc.IsAlive() && !Utils.IsActive(SystemTypes.Comms))
+                    if (pc.IsAlive() && !IsComms)
                     {
+                        var usableDistance = UsableDistance();
                         switch (Main.NormalOptions.MapId)
                         {
                             case 0:
-                                if (Vector2.Distance(PlayerPos, DevicePos["SkeldAdmin"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["SkeldAdmin"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableSkeldAdmin.GetBool();
                                     RoleDisable |= AdminUsecheck(pc);
                                     if (!pc.inVent && pc.CanMove && !doComms && !RoleDisable) AdminTimer(pc, PlayerPos);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["SkeldCamera"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["SkeldCamera"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableSkeldCamera.GetBool();
                                     RoleDisable |= LogAndCamUsecheck(pc);
                                 }
                                 break;
                             case 1:
-                                if (Vector2.Distance(PlayerPos, DevicePos["MiraHQAdmin"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["MiraHQAdmin"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableMiraHQAdmin.GetBool();
                                     RoleDisable |= AdminUsecheck(pc);
                                     if (!pc.inVent && pc.CanMove && !doComms && !RoleDisable) AdminTimer(pc, PlayerPos);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["MiraHQDoorLog"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["MiraHQDoorLog"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableMiraHQDoorLog.GetBool();
                                     RoleDisable |= LogAndCamUsecheck(pc);
@@ -269,18 +293,18 @@ namespace TownOfHost
                                 }
                                 break;
                             case 2:
-                                if ((Vector2.Distance(PlayerPos, DevicePos["PolusLeftAdmin"]) <= UsableDistance() && (PlayerPos.y < -19.8f)) || (Vector2.Distance(PlayerPos, DevicePos["PolusRightAdmin"]) <= UsableDistance() && (PlayerPos.y < -19.8f)))
+                                if ((Vector2.Distance(PlayerPos, DevicePos["PolusLeftAdmin"]) <= usableDistance && (PlayerPos.y < -19.8f)) || (Vector2.Distance(PlayerPos, DevicePos["PolusRightAdmin"]) <= usableDistance && (PlayerPos.y < -19.8f)))
                                 {
                                     doComms |= Options.DisablePolusAdmin.GetBool();
                                     RoleDisable |= AdminUsecheck(pc);
                                     if (!pc.inVent && pc.CanMove && !doComms && !RoleDisable) AdminTimer(pc, PlayerPos);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisablePolusCamera.GetBool();
                                     RoleDisable |= LogAndCamUsecheck(pc);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["PolusVital"]) <= UsableDistance() && (PlayerPos.y < -15.8f))
+                                if (Vector2.Distance(PlayerPos, DevicePos["PolusVital"]) <= usableDistance && (PlayerPos.y < -15.8f))
                                 {
                                     doComms |= Options.DisablePolusVital.GetBool();
                                     RoleDisable |= VitealUsecheck(pc);
@@ -288,24 +312,24 @@ namespace TownOfHost
                                 }
                                 break;
                             case 4:
-                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipCockpitAdmin"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipCockpitAdmin"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableAirshipCockpitAdmin.GetBool();
                                     RoleDisable |= AdminUsecheck(pc);
                                     if (!pc.inVent && pc.CanMove && !doComms && !RoleDisable) AdminTimer(pc, PlayerPos);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipRecordsAdmin"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipRecordsAdmin"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableAirshipRecordsAdmin.GetBool();
                                     RoleDisable |= AdminUsecheck(pc);
                                     if (!pc.inVent && pc.CanMove && !doComms && !RoleDisable) AdminTimer(pc, PlayerPos);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipCamera"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipCamera"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableAirshipCamera.GetBool();
                                     RoleDisable |= LogAndCamUsecheck(pc);
                                 }
-                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipVital"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["AirshipVital"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableAirshipVital.GetBool();
                                     RoleDisable |= VitealUsecheck(pc);
@@ -313,7 +337,7 @@ namespace TownOfHost
                                 }
                                 break;
                             case 5:
-                                if (Vector2.Distance(PlayerPos, DevicePos["FungleVital"]) <= UsableDistance())
+                                if (Vector2.Distance(PlayerPos, DevicePos["FungleVital"]) <= usableDistance)
                                 {
                                     doComms |= Options.DisableFungleVital.GetBool();
                                     RoleDisable |= VitealUsecheck(pc);
@@ -330,7 +354,7 @@ namespace TownOfHost
 
                         pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
                     }
-                    else if (!Utils.IsActive(SystemTypes.Comms) && DesyncComms.Contains(pc.PlayerId))
+                    else if (!IsComms && DesyncComms.Contains(pc.PlayerId))
                     {
                         DesyncComms.Remove(pc.PlayerId);
                         pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 16);
@@ -363,52 +387,52 @@ namespace TownOfHost
             bool ignore = player.Is(CustomRoles.GM) ||
                 !player.IsAlive() ||
                 !Options.DisableDevices.GetBool() ||
-                (Options.DisableDevicesIgnoreImpostors.GetBool() && player.Is(CustomRoleTypes.Impostor)) ||
-                (Options.DisableDevicesIgnoreMadmates.GetBool() && player.Is(CustomRoleTypes.Madmate)) ||
-                (Options.DisableDevicesIgnoreNeutrals.GetBool() && player.Is(CustomRoleTypes.Neutral)) ||
-                (Options.DisableDevicesIgnoreCrewmates.GetBool() && player.Is(CustomRoleTypes.Crewmate)) ||
-                (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
+                (DisableDevicesIgnoreImpostors && player.Is(CustomRoleTypes.Impostor)) ||
+                (DisableDevicesIgnoreMadmates && player.Is(CustomRoleTypes.Madmate)) ||
+                (DisableDevicesIgnoreNeutrals && player.Is(CustomRoleTypes.Neutral)) ||
+                (DisableDevicesIgnoreCrewmates && player.Is(CustomRoleTypes.Crewmate)) ||
+                (DisableDevicesIgnoreAfterAnyoneDied && GameStates.AlreadyDied);
             var admins = GameObject.FindObjectsOfType<MapConsole>(true);
             var consoles = GameObject.FindObjectsOfType<SystemConsole>(true);
             if (admins == null || consoles == null) return;
             switch (Main.NormalOptions.MapId)
             {
                 case 0:
-                    if (Options.DisableSkeldAdmin.GetBool() || DisableDevice.AdminUsecheck(player) || kyouseikousin)
-                        admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = DisableDevice.AdminUsecheck(player, ignore);
-                    if (Options.DisableSkeldCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player) || kyouseikousin)
-                        consoles.DoIf(x => x.name == "SurvConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = DisableDevice.LogAndCamUsecheck(player, ignore));
+                    if (Options.DisableSkeldAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin)
+                        admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = AdminUsecheck(player, ignore);
+                    if (Options.DisableSkeldCamera.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                        consoles.DoIf(x => x.name == "SurvConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
                     break;
                 case 1:
-                    if (Options.DisableMiraHQAdmin.GetBool() || DisableDevice.AdminUsecheck(player) || kyouseikousin)
-                        admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = DisableDevice.AdminUsecheck(player, ignore);
-                    if (Options.DisableMiraHQDoorLog.GetBool() || DisableDevice.LogAndCamUsecheck(player) || kyouseikousin)
-                        consoles.DoIf(x => x.name == "SurvLogConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = DisableDevice.LogAndCamUsecheck(player, ignore));
+                    if (Options.DisableMiraHQAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin)
+                        admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = AdminUsecheck(player, ignore);
+                    if (Options.DisableMiraHQDoorLog.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                        consoles.DoIf(x => x.name == "SurvLogConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
                     break;
                 case 2:
-                    if (Options.DisablePolusAdmin.GetBool() || DisableDevice.AdminUsecheck(player) || kyouseikousin)
-                        admins.Do(x => x.gameObject.GetComponent<BoxCollider2D>().enabled = DisableDevice.AdminUsecheck(player, ignore));
-                    if (Options.DisablePolusCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player) || kyouseikousin)
-                        consoles.DoIf(x => x.name == "Surv_Panel", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = DisableDevice.LogAndCamUsecheck(player, ignore));
-                    if (Options.DisablePolusVital.GetBool() || DisableDevice.VitealUsecheck(player) || kyouseikousin)
-                        consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = DisableDevice.VitealUsecheck(player, ignore));
+                    if (Options.DisablePolusAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin)
+                        admins.Do(x => x.gameObject.GetComponent<BoxCollider2D>().enabled = AdminUsecheck(player, ignore));
+                    if (Options.DisablePolusCamera.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                        consoles.DoIf(x => x.name == "Surv_Panel", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
+                    if (Options.DisablePolusVital.GetBool() || VitealUsecheck(player) || kyouseikousin)
+                        consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = VitealUsecheck(player, ignore));
                     break;
                 case 4:
                     admins.Do(x =>
                     {
-                        if (((Options.DisableAirshipCockpitAdmin.GetBool() || DisableDevice.AdminUsecheck(player) || kyouseikousin) && x.name == "panel_cockpit_map") ||
-                            ((Options.DisableAirshipRecordsAdmin.GetBool() || DisableDevice.AdminUsecheck(player) || kyouseikousin) && x.name == "records_admin_map"))
-                            x.gameObject.GetComponent<BoxCollider2D>().enabled = DisableDevice.AdminUsecheck(player, ignore);
+                        if (((Options.DisableAirshipCockpitAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin) && x.name == "panel_cockpit_map") ||
+                            ((Options.DisableAirshipRecordsAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin) && x.name == "records_admin_map"))
+                            x.gameObject.GetComponent<BoxCollider2D>().enabled = AdminUsecheck(player, ignore);
                     });
-                    if (Options.DisableAirshipCamera.GetBool() || DisableDevice.LogAndCamUsecheck(player) || kyouseikousin)
-                        consoles.DoIf(x => x.name == "task_cams", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = DisableDevice.LogAndCamUsecheck(player, ignore));
-                    if (Options.DisableAirshipVital.GetBool() || DisableDevice.VitealUsecheck(player) || kyouseikousin)
-                        consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<CircleCollider2D>().enabled = DisableDevice.VitealUsecheck(player, ignore));
+                    if (Options.DisableAirshipCamera.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                        consoles.DoIf(x => x.name == "task_cams", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
+                    if (Options.DisableAirshipVital.GetBool() || VitealUsecheck(player) || kyouseikousin)
+                        consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<CircleCollider2D>().enabled = VitealUsecheck(player, ignore));
                     break;
                 case 5:
-                    if (Options.DisableFungleVital.GetBool() || DisableDevice.VitealUsecheck(player) || kyouseikousin)
+                    if (Options.DisableFungleVital.GetBool() || VitealUsecheck(player) || kyouseikousin)
                     {
-                        consoles.DoIf(x => x.name == "VitalsConsole", x => x.GetComponent<Collider2D>().enabled = DisableDevice.VitealUsecheck(player, ignore));
+                        consoles.DoIf(x => x.name == "VitalsConsole", x => x.GetComponent<Collider2D>().enabled = VitealUsecheck(player, ignore));
                     }
                     break;
             }
@@ -436,21 +460,21 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive())
                 {
                     var ch = true;
-                    if (Options.TimeLimitVital.GetFloat() != 0 && DisableDevice.GameVitalTimer > Options.TimeLimitVital.GetFloat())
+                    if (Options.TimeLimitVital.GetFloat() > 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat())
                     {
                         __instance.Close();
                         ch = false;
                     }
 
-                    if (Options.TarnTimeLimitVital.GetFloat() != 0 && DisableDevice.TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat())
+                    if (Options.TarnTimeLimitVital.GetFloat() > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat())
                     {
                         __instance.Close();
                         ch = false;
                     }
                     if (ch)
                     {
-                        if (Options.TimeLimitDevices.GetBool()) DisableDevice.GameVitalTimer += Time.fixedDeltaTime;
-                        if (Options.TarnTimeLimitDevice.GetBool()) DisableDevice.TarnVitalTimer += Time.fixedDeltaTime;
+                        if (optTimeLimitDevices) GameVitalTimer += Time.fixedDeltaTime;
+                        if (optTarnTimeLimitDevice) TarnVitalTimer += Time.fixedDeltaTime;
                     }
                 }
             }
@@ -467,12 +491,12 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && DemonicCrusher.DemUseAbility) __instance.Close();
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
-                    if (Options.TimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat())
+                    if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
                     {
                         __instance.Close();
                     }
 
-                    if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat())
+                    if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog)
                     {
                         __instance.Close();
                     }
@@ -491,10 +515,10 @@ namespace TownOfHost
 
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
-                    if (Options.TimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat())
+                    if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
                         __instance.Close();
 
-                    if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat())
+                    if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog)
                         __instance.Close();
                 }
             }
@@ -513,21 +537,21 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
                     var ch = true;
-                    if (Options.TimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.GameLogAndCamTimer > Options.TimeLimitCamAndLog.GetFloat())
+                    if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
                     {
                         __instance.Close();
                         ch = false;
                     }
 
-                    if (Options.TarnTimeLimitCamAndLog.GetFloat() != 0 && DisableDevice.TarnLogAndCamTimer > Options.TarnTimeLimitCamAndLog.GetFloat())
+                    if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog)
                     {
                         __instance.Close();
                         ch = false;
                     }
                     if (ch)
                     {
-                        if (Options.TimeLimitDevices.GetBool()) DisableDevice.GameLogAndCamTimer += Time.fixedDeltaTime;
-                        if (Options.TarnTimeLimitDevice.GetBool()) DisableDevice.TarnLogAndCamTimer += Time.fixedDeltaTime;
+                        if (optTimeLimitDevices) GameLogAndCamTimer += Time.fixedDeltaTime;
+                        if (optTarnTimeLimitDevice) TarnLogAndCamTimer += Time.fixedDeltaTime;
                     }
                 }
             }
@@ -551,21 +575,21 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
                 {
                     var ch = true;
-                    if (Options.TimeLimitAdmin.GetFloat() != 0 && DisableDevice.GameAdminTimer > Options.TimeLimitAdmin.GetFloat())
+                    if (optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin)
                     {
                         MapBehaviour.Instance.Close();
                         ch = false;
                     }
 
-                    if (Options.TarnTimeLimitAdmin.GetFloat() != 0 && DisableDevice.TarnAdminTimer > Options.TarnTimeLimitAdmin.GetFloat())
+                    if (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin)
                     {
                         MapBehaviour.Instance.Close();
                         ch = false;
                     }
                     if (ch)
                     {
-                        if (Options.TimeLimitDevices.GetBool()) DisableDevice.GameAdminTimer += Time.fixedDeltaTime;
-                        if (Options.TarnTimeLimitDevice.GetBool()) DisableDevice.TarnAdminTimer += Time.fixedDeltaTime;
+                        if (optTimeLimitDevices) GameAdminTimer += Time.fixedDeltaTime;
+                        if (optTarnTimeLimitDevice) TarnAdminTimer += Time.fixedDeltaTime;
                     }
                 }
             }

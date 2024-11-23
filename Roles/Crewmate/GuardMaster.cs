@@ -26,7 +26,7 @@ public sealed class GuardMaster : RoleBase
         AddGuardCount = OptionAddGuardCount.GetInt();
         Guard = 0;
         ta = Task.GetInt();
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
     }
     private static OptionItem OptionAddGuardCount;
     private static OptionItem OptoonCheck;

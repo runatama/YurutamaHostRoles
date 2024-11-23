@@ -55,7 +55,8 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         DriverGado,
         DriverVote,
         Driverseen, DriverTaskTrigger,
-        BraidCanVent
+        BraidCanVent,
+        Driverseer
     }
     public static float BraidKillCooldown;
     public static float KillCooldown;
@@ -75,7 +76,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         OptionGado = BooleanOptionItem.Create(RoleInfo, 17, OptionName.DriverGado, false, false);
         OptionGtaskTrigger = FloatOptionItem.Create(RoleInfo, 18, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGado);
         OptionBseeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.Driverseen, false, false);
-        OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.DriverTaskTrigger, false, false);
+        OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.Driverseer, false, false);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BraidCanVent, true, false);
         Braid.Tasks = Options.OverrideTasksData.Create(RoleInfo, 50, CustomRoles.Braid);
     }

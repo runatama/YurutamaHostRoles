@@ -39,7 +39,7 @@ public sealed class PonkotuTeller : RoleBase
         cantaskcount = Optioncantaskcount.GetFloat();
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || cantaskcount < 1; ;
         if (!FTOption.GetBool())
         {
             rolename = FortuneTeller.Optionrolename.GetBool();
@@ -116,12 +116,12 @@ public sealed class PonkotuTeller : RoleBase
         count = reader.ReadInt32();
     }
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
 
         if (!Canuseability()) return true;
-        if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks((int)cantaskcount) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
             {
@@ -168,7 +168,7 @@ public sealed class PonkotuTeller : RoleBase
             var tage = new List<PlayerControl>(PlayerCatch.AllPlayerControls);
             var rand = IRandom.Instance;
             var P = tage[rand.Next(0, tage.Count)];
-            var FtR = target.GetRoleClass()?.GetFtResults(P); //結果を変更するかチェック
+            var FtR = target.GetRoleClass()?.GetFtResults(null); //結果を変更するかチェック
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : P.GetCustomRole();
             Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(失敗)", "PonkotuTeller");
             var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");

@@ -21,8 +21,10 @@ namespace TownOfHost.Roles.AddOns.Common
             CanKill = FloatOptionItem.Create(Id + 50, "MafiaCankill", new(1, 3, 1), 2, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.SlowStarter]);
             CanKillDay = FloatOptionItem.Create(Id + 51, "MafiaCanKillDay", new(0, 30, 1), 0, TabGroup.Addons, false, infinity: null).SetParent(CustomRoleSpawnChances[CustomRoles.SlowStarter]).SetValueFormat(OptionFormat.day);
         }
+        static int cankillcount;
         public static void Init()
         {
+            cankillcount = CanKill.GetInt();
             cankill = false;
             playerIdList = new();
         }
@@ -30,19 +32,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool CanUseKill()
-        {
-            if (PlayerState.AllPlayerStates == null) return false;
-            int livingImpostorsNum = 0;
-            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-            {
-                if (pc == null) continue;
-                var role = pc.GetCustomRole();
-                if (role.IsImpostor()) livingImpostorsNum++;
-            }
-
-            return livingImpostorsNum <= CanKill.GetFloat() || cankill;
-        }
+        public static bool CanUseKill() => Main.AliveImpostorCount <= cankillcount || cankill;
         public static void OnStartMeeting()
         {
             if (CanKillDay.GetFloat() == 0) return;

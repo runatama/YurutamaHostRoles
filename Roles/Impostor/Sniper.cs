@@ -7,6 +7,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Sniper : RoleBase, IImpostor
@@ -38,7 +39,7 @@ public sealed class Sniper : RoleBase, IImpostor
         Cool = OpMadac.GetFloat();
         Jizoku = OpMadaj.GetFloat();
 
-        CustomRoleManager.MarkOthers.Add(GetMarkOthers);
+        CustomRoleManager.SuffixOthers.Add(GetMarkOthers);
     }
 
     public override void OnDestroy()
@@ -187,7 +188,7 @@ public sealed class Sniper : RoleBase, IImpostor
             //君臨者には当たらん！
             if (target.Is(CustomRoles.King)) continue;
             //FriendlyFireがOFFかつサドンデスモードならImpostorを除外
-            if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor() && !Options.SuddenDeathMode.GetBool()) continue;
+            if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode) continue;
             //死んでいない対象の方角ベクトル作成
             var target_pos = target.transform.position - snipePos;
             //自分より後ろの場合はあたらない
@@ -394,7 +395,7 @@ public sealed class Sniper : RoleBase, IImpostor
         foreach (var sniper in Snipers)
         {
             if (sniper.HyoujiTime > 0 && OpHyoujitime.GetFloat() != 0)
-                Y += "\n <size=90%><color=red>" + GetArrow.GetArrows(seer, sniper.SnipeBasePosition) + "</color></size>";
+                Y += "<size=90%><color=red>" + GetArrow.GetArrows(seer, sniper.SnipeBasePosition) + "</color></size>";
 
             //射撃音が聞こえるプレイヤー
             var snList = sniper.ShotNotify;

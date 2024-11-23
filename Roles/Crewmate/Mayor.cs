@@ -101,7 +101,7 @@ public sealed class Mayor : RoleBase
         // 既定値
         var (votedForId, numVotes, doVote) = base.ModifyVote(voterId, sourceVotedForId, isIntentional);
 
-        if (Options.FirstTurnMeeting.GetBool() && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return (votedForId, numVotes, doVote);
+        if (Options.firstturnmeeting && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return (votedForId, numVotes, doVote);
         if (voterId == Player.PlayerId && Count >= PlayerCatch.AllAlivePlayersCount && Kakusei)
         {
             numVotes = AdditionalVote + KadditionaVote + 1;

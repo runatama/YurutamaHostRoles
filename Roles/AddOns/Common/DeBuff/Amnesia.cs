@@ -17,6 +17,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static OptionItem defaultKillCool;
         public static OptionItem TriggerKill;
         public static OptionItem KillCount;
+        public static bool dontcanUseability;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Amnesia);
@@ -34,6 +35,7 @@ namespace TownOfHost.Roles.AddOns.Common
         public static void Init()
         {
             playerIdList = new();
+            dontcanUseability = DontCanUseAbility.GetBool();
         }
         public static void Add(byte playerId)
         {
@@ -49,7 +51,7 @@ namespace TownOfHost.Roles.AddOns.Common
             var a = langId == SupportedLangs.English ? "Loss of memory" : "Amnesia";
             UtilsGameLog.AddGameLog($"{a}", string.Format(Translator.GetString("Am.log"), Utils.GetPlayerColor(playerId)));
         }
-        public static bool CheckAbilityreturn(PlayerControl player) => player.Is(CustomRoles.Amnesia) && DontCanUseAbility.GetBool();
-        public static bool CheckAbility(PlayerControl player) => !player.Is(CustomRoles.Amnesia) || !DontCanUseAbility.GetBool() || (CustomRoles.Amnesia.GetRealCount() == 0);
+        public static bool CheckAbilityreturn(PlayerControl player) => player == null || playerIdList.Contains(player?.PlayerId ?? byte.MaxValue) && dontcanUseability;
+        public static bool CheckAbility(PlayerControl player) => player == null || !playerIdList.Contains(player?.PlayerId ?? byte.MaxValue) || !dontcanUseability || playerIdList.Count == 0;
     }
 }

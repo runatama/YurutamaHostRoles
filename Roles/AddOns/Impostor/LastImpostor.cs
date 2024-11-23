@@ -15,7 +15,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
             "ColoredOff","GiveKillcoolShort","AllGiveKillCoolShort","ColoredOn"
         };
         //ゲッサー
-        public static OptionItem GiveGuesser;
+        public static OptionItem GiveGuesser; public static bool giveguesser;
         public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
         public static OptionItem ICanGuessVanilla; public static OptionItem ICanGuessNakama; public static OptionItem ICanGuessTaskDoneSnitch;
         public static OptionItem ICanWhiteCrew; public static OptionItem AddTama;
@@ -62,16 +62,21 @@ namespace TownOfHost.Roles.AddOns.Impostor
             ACanSeeComms = BooleanOptionItem.Create(Id + 28, "CanseeComms", true, TabGroup.Addons, false).SetParent(GiveAutopsy);
             GiveTiebreaker = BooleanOptionItem.Create(Id + 29, "GiveTiebreaker", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
         }
-        public static void Init() => currentId = byte.MaxValue;
+        public static void Init()
+        {
+            giveguesser = GiveGuesser.GetBool();
+            currentId = byte.MaxValue;
+        }
         public static void Add(byte id) => currentId = id;
         public static void SetKillCooldown(PlayerControl player)
         {
             if (currentId == byte.MaxValue) return;
+            var roleClass = player.GetRoleClass();
             switch (Givekillcooldownmode[GiveKillCooldown.GetValue()])
             {
                 case "GiveKillcoolShort"://短くなる場合のみ
                     if (KillCooldown.GetFloat() < Main.AllPlayerKillCooldown[currentId] &&
-                        ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true))//かつラスポスキルク受け取る
+                        ((roleClass as IImpostor)?.CanBeLastImpostor ?? true))//かつラスポスキルク受け取る
                         Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
                     break;
                 case "AllGiveKillCoolShort"://ラスポルでキルク恩恵受け取るかに関わらず短くなるなら貰う
@@ -79,7 +84,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
                         Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
                     break;
                 case "ColoredOn":
-                    if ((player.GetRoleClass() as IImpostor)?.CanBeLastImpostor ?? true)
+                    if ((roleClass as IImpostor)?.CanBeLastImpostor ?? true)
                         Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
                     break;
             }

@@ -18,7 +18,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
             newReader.Recycle();
         }
         __state = amount;
-        if (!AmongUsClient.Instance.AmHost)
+        if (!AmongUsClient.Instance.AmHost || Utils.NowKillFlash)
         {
             return true;
         }
@@ -31,7 +31,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
         {
             return false;
         }
-        if (Options.SuddenDeathMode.GetBool()) return false;
+        if (Modules.SuddenDeathMode.NowSuddenDeathMode) return false;
         if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) && data.GiveAddons.GetBool() && data.GiveSlacker.GetBool()) return false;
 
         if (Amnesia.CheckAbility(player))
@@ -46,7 +46,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
         // サボタージュ発動時
         if (__state == ReactorSystemType.StartCountdown)
         {
-            if (Options.SuddenDeathMode.GetBool())
+            if (Modules.SuddenDeathMode.NowSuddenDeathMode)
             {
                 __instance.Countdown = Options.SuddenDeathReactortime.GetFloat();
                 return;

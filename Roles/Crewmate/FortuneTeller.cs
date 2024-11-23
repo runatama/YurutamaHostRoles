@@ -34,7 +34,7 @@ public sealed class FortuneTeller : RoleBase
         Divination.Clear();
         count = 0;
         mcount = 0;
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || OptionCanTaskcount.GetInt() < 1; ;
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         rolename = Optionrolename.GetBool();
         srole = OptionRole.GetBool();
@@ -112,12 +112,12 @@ public sealed class FortuneTeller : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override void OnStartMeeting() => mcount = 0;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks((int)cantaskcount) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             var target = PlayerCatch.GetPlayerById(votedForId);
             if (Votemode == VoteMode.uvote)
@@ -160,7 +160,7 @@ public sealed class FortuneTeller : RoleBase
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptionCanTaskcount.GetInt()))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             if (kakusei == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))

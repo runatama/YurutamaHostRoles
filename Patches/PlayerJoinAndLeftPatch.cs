@@ -9,6 +9,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Neutral;
+using UnityEngine;
 using static TownOfHost.Translator;
 
 namespace TownOfHost
@@ -21,6 +22,8 @@ namespace TownOfHost
             while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
             if (Main.NormalOptions.NumImpostors == 0 && GameStates.IsOnlineGame)
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumImpostors, 1);
+
+            ResolutionManager.SetResolution(Screen.width, Screen.height, Screen.fullScreen);
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
             CheckPingPatch.Check = false;
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();
@@ -74,7 +77,7 @@ namespace TownOfHost
                 Main.EditMode = false;
             }
 
-            if (AmongUsClient.Instance.AmHost && GameStates.InGame)
+            if (AmongUsClient.Instance.AmHost && GameStates.InGame && reason is not DisconnectReasons.Destroy)
             {
                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
                 LastGameSave.CreateIfNotExists(oti: true);//落ちでも保存

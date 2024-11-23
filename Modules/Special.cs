@@ -6,7 +6,6 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
 using UnityEngine;
 using TownOfHost.Attributes;
-using HarmonyLib;
 
 namespace TownOfHost;
 static class Event
@@ -72,11 +71,19 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
     )
     {
         allplayerspeed.Clear();
+        speed = optSpeed.GetFloat();
+        abilitytime = optabilitytime.GetFloat();
+        cooldown = optcooldown.GetFloat();
+        killcooldown = optkillcooldown.GetFloat();
     }
-    static OptionItem abilitytime;
-    static OptionItem cooldown;
-    static OptionItem killcooldown;
-    static OptionItem Speed;
+    static OptionItem optabilitytime;
+    static OptionItem optcooldown;
+    static OptionItem optkillcooldown;
+    static OptionItem optSpeed;
+    static float speed;
+    static float abilitytime;
+    static float cooldown;
+    static float killcooldown;
     Dictionary<byte, float> allplayerspeed = new();
     public override void StartGameTasks()
     {
@@ -87,20 +94,20 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
     }
     static void SetUpOptionItem()
     {
-        killcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
-        cooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
-        abilitytime = FloatOptionItem.Create(RoleInfo, 12, "GhostNoiseSenderTime", new(1, 300, 1f), 10f, false).SetValueFormat(OptionFormat.Seconds);
-        Speed = FloatOptionItem.Create(RoleInfo, 13, "SpeedStarSpeed", new(0, 10, 0.05f), 3f, false).SetValueFormat(OptionFormat.Multiplier);
+        optkillcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        optcooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        optabilitytime = FloatOptionItem.Create(RoleInfo, 12, "GhostNoiseSenderTime", new(1, 300, 1f), 10f, false).SetValueFormat(OptionFormat.Seconds);
+        optSpeed = FloatOptionItem.Create(RoleInfo, 13, "SpeedStarSpeed", new(0, 10, 0.05f), 3f, false).SetValueFormat(OptionFormat.Multiplier);
     }
-    public float CalculateKillCooldown() => killcooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown.GetFloat();
+    public float CalculateKillCooldown() => killcooldown;
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         fall = false;
         resetkillcooldown = false;
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
-            Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
+            Main.AllPlayerSpeed[pc.PlayerId] = speed;
         }
         UtilsOption.MarkEveryoneDirtySettings();
         _ = new LateTask(() =>
@@ -114,7 +121,7 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
                 _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 0.2f, "", true);
                 Player.RpcResetAbilityCooldown();
             }
-        }, abilitytime.GetFloat(), "", true);
+        }, abilitytime, "", true);
     }
     public override void OnStartMeeting()
     {
@@ -152,14 +159,28 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         seentarget.Clear();
         nowuse = false;
         fall = false;
+        usekillcool = optusekillcoool.GetBool();
+        cooldown = optcooldown.GetFloat();
+        killcooldown = optkillcooldown.GetFloat();
+        telltime = opttelltime.GetFloat();
+        distance = optDistance.GetFloat();
+        tellroleteam = opttellroleteam.GetBool();
+        tellrole = opttellrole.GetBool();
     }
-    static OptionItem cooldown;
-    static OptionItem killcooldown;
-    static OptionItem telltime;
-    static OptionItem Distance;
-    static OptionItem tellroleteam;
-    static OptionItem tellrole;
-    static OptionItem usekillcoool;
+    static OptionItem optcooldown;
+    static OptionItem optkillcooldown;
+    static OptionItem opttelltime;
+    static OptionItem optDistance;
+    static OptionItem opttellroleteam;
+    static OptionItem opttellrole;
+    static OptionItem optusekillcoool;
+    static float cooldown;
+    static float killcooldown;
+    static float telltime;
+    static float distance;
+    static bool tellroleteam;
+    static bool tellrole;
+    static bool usekillcool;
     static Dictionary<byte, float> Tellnow = new();
     bool nowuse;
     bool fall;
@@ -167,16 +188,16 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
     enum OptionName { EvilTellerTellTime, EvilTellerDistance, EvilTellertellrole }
     static void SetUpOptionItem()
     {
-        killcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
-        cooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
-        telltime = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvilTellerTellTime, new(0, 100, 0.5f), 5, false).SetValueFormat(OptionFormat.Seconds);
-        Distance = FloatOptionItem.Create(RoleInfo, 13, OptionName.EvilTellerDistance, new(1f, 30f, 0.25f), 1.75f, false);
-        tellroleteam = BooleanOptionItem.Create(RoleInfo, 14, "tRole", false, false);
-        tellrole = BooleanOptionItem.Create(RoleInfo, 15, OptionName.EvilTellertellrole, false, false);
-        usekillcoool = BooleanOptionItem.Create(RoleInfo, 16, "OptionSetKillcooldown", false, false);
+        optkillcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        optcooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        opttelltime = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvilTellerTellTime, new(0, 100, 0.5f), 5, false).SetValueFormat(OptionFormat.Seconds);
+        optDistance = FloatOptionItem.Create(RoleInfo, 13, OptionName.EvilTellerDistance, new(1f, 30f, 0.25f), 1.75f, false);
+        opttellroleteam = BooleanOptionItem.Create(RoleInfo, 14, "tRole", false, false);
+        opttellrole = BooleanOptionItem.Create(RoleInfo, 15, OptionName.EvilTellertellrole, false, false);
+        optusekillcoool = BooleanOptionItem.Create(RoleInfo, 16, "OptionSetKillcooldown", false, false);
     }
-    public float CalculateKillCooldown() => killcooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = fall ? 1 : (nowuse ? telltime.GetFloat() : cooldown.GetFloat());
+    public float CalculateKillCooldown() => killcooldown;
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = fall ? 1 : (nowuse ? telltime : cooldown);
     public void OnClick(ref bool resetkillcooldown, ref bool falla)
     {
         resetkillcooldown = true;
@@ -220,8 +241,8 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         {
             enabled = true;
             addon = false;
-            if (tellrole.GetBool()) role = seen.GetCustomRole();
-            if (!tellroleteam.GetBool())
+            if (tellrole) role = seen.GetCustomRole();
+            if (!tellroleteam)
             {
                 switch (seen.GetCustomRole().GetCustomRoleTypes())
                 {
@@ -267,7 +288,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
                     fall = true;
                     continue;
                 }
-                if (telltime.GetFloat() <= data.Value)//超えたなら消して追加
+                if (telltime <= data.Value)//超えたなら消して追加
                 {
                     fall = false;
                     seentarget.TryAdd(target.PlayerId, target.GetCustomRole());
@@ -277,7 +298,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
 
                 float dis;
                 dis = Vector2.Distance(Player.transform.position, target.transform.position);//距離を出す
-                if (dis <= Distance.GetFloat())//一定の距離にターゲットがいるならば時間をカウント
+                if (dis <= distance)//一定の距離にターゲットがいるならば時間をカウント
                     Tellnow[data.Key] += Time.fixedDeltaTime;
                 else//それ以外は削除
                 { del.Add(target.PlayerId); fall = true; }
@@ -285,12 +306,12 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
             if (del.Count != 0)
             {
                 nowuse = false;
-                del.Do(x => Tellnow.Remove(x));
+                del.ForEach(task => Tellnow.Remove(task));
                 _ = new LateTask(() =>
                 {
                     Player.RpcResetAbilityCooldown(kousin: true);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
-                    if (usekillcoool.GetBool() && !fall) Player.SetKillCooldown();
+                    if (usekillcool && !fall) Player.SetKillCooldown();
                 }, 0.2f, "", true);
             }
         }

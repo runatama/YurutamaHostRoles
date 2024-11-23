@@ -371,6 +371,7 @@ namespace TownOfHost
         public static OptionItem LowerLimitVotingTime;
         public static OptionItem MeetingTimeLimit;
         public static OptionItem FirstTurnMeeting;
+        public static bool firstturnmeeting;
         public static OptionItem FirstTurnMeetingCantability;
 
         //転落死
@@ -428,6 +429,7 @@ namespace TownOfHost
         public static OptionItem VRcanseemitidure;
         public static OptionItem Onlyseepet;
         public static OptionItem CommnTaskResetAssing;
+        public static OptionItem OutroCrewWinreasonchenge;
         public static OptionItem TeamHideChat;
         public static OptionItem ImpostorHideChat;
         public static OptionItem LoversHideChat;
@@ -1092,11 +1094,14 @@ namespace TownOfHost
             VRcanseemitidure = BooleanOptionItem.Create(900_003, "CanseeMeetingAfterMitidure", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(CanseeVoteresult);
-            Onlyseepet = BooleanOptionItem.Create(900_004, "Onlyseepet", false, TabGroup.MainSettings, false)
+            Onlyseepet = BooleanOptionItem.Create(900_004, "Onlyseepet", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
             CommnTaskResetAssing = BooleanOptionItem.Create(900_005, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#cc3366");
+            OutroCrewWinreasonchenge = BooleanOptionItem.Create(900_010, "OutroCrewWinreasonchenge", true, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#cc3366");
             /*いい感じの秘匿方法を思いつくまで...
             TeamHideChat = BooleanOptionItem.Create(900_006, "TeamHideChat", false, TabGroup.MainSettings, false)

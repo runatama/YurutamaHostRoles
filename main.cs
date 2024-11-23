@@ -55,9 +55,10 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.22.14";
-        public const string PluginShowVersion = "519.22<sub>.14</sub>";
-        public const string ModVersion = ".22";//リリースver用バージョン変更
+        public const string PluginVersion = "519.23";
+        public const string PluginShowVersion = "519.23"/*<sub>.11</sub>"*/;
+        public const string ModVersion = ".23";//リリースver用バージョン変更
+
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
         // サポートされている最低のAmongUsバージョン
@@ -89,6 +90,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> ShowGameSettingsTMP { get; private set; }
         public static ConfigEntry<bool> CustomSprite { get; private set; }
         public static ConfigEntry<bool> HideSomeFriendCodes { get; private set; }
+        public static ConfigEntry<bool> AutoSaveScreenShot { get; private set; }
         public static ConfigEntry<float> MapTheme { get; private set; }
         public static ConfigEntry<bool> ViewPingDetails { get; private set; }
         public static ConfigEntry<bool> DebugChatopen { get; private set; }
@@ -194,6 +196,7 @@ namespace TownOfHost
             ShowGameSettingsTMP = Config.Bind("Client Options", "Show GameSettings", true);
             CustomSprite = Config.Bind("Client Options", "CustomSprite", true);
             HideSomeFriendCodes = Config.Bind("Client Options", "Hide Some Friend Codes", false);
+            AutoSaveScreenShot = Config.Bind("Client Options", "Auto Save Autro ScreenShot", false);
             MapTheme = Config.Bind("Client Options", "MapTheme", AmongUs.Data.Settings.AudioSettingsData.DEFAULT_MUSIC_VOLUME);
             ViewPingDetails = Config.Bind("Client Options", "View Ping Details", false);
             DebugChatopen = Config.Bind("Client Options", "Debug Chat open", false);
@@ -251,7 +254,6 @@ namespace TownOfHost
                     {CustomRoles.SKMadmate, "#ff1919"},
                     //特殊クルー役職
                     //ニュートラル役職
-                    {CustomRoles.Jackaldoll,"#00b4eb"},
                     {CustomRoles.Emptiness ,"#221d26"},
                     //HideAndSeek
                     {CustomRoles.HASFox, "#e478ff"},

@@ -17,7 +17,7 @@ public static class LifeSuppSystemUpdateSystemPatch
             newReader.Recycle();
         }
         __state = amount;
-        if (!AmongUsClient.Instance.AmHost)
+        if (!AmongUsClient.Instance.AmHost || Utils.NowKillFlash)
         {
             return true;
         }

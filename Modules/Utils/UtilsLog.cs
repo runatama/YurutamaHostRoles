@@ -13,6 +13,7 @@ using static TownOfHost.Translator;
 using static TownOfHost.Utils;
 using static TownOfHost.UtilsRoleText;
 using static TownOfHost.PlayerCatch;
+using TownOfHost.Modules;
 
 namespace TownOfHost
 {
@@ -166,7 +167,7 @@ namespace TownOfHost
                     break;
             }
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
-                if (Options.SuddenDeathMode.GetBool())
+                if (SuddenDeathMode.NowSuddenDeathMode)
                 {
                     var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     var color = Color.white;
@@ -178,7 +179,7 @@ namespace TownOfHost
             {
                 AdditionalWinnerText.Append('＆').Append(ColorString(GetRoleColor(role), GetRoleName(role)));
             }
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.OneLove && !Options.SuddenDeathMode.GetBool())
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.OneLove && !SuddenDeathMode.NowSuddenDeathMode)
             {
                 CustomWinnerText = $"<color={CustomWinnerColor}>{CustomWinnerText}{AdditionalWinnerText}{GetString("Win")}</color>";
             }

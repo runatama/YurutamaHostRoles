@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 namespace TownOfHost
 {
     class LateTask
@@ -19,14 +20,14 @@ namespace TownOfHost
             }
             return false;
         }
-        public LateTask(Action action, float time, string name = "No Name Task", bool? NoLog = false)
+        public LateTask(Action action, float time, [CallerMemberName] string name = "", bool? NoLog = false)
         {
             this.action = action;
             this.timer = time;
             this.name = name;
             this.NoLog = NoLog;
             Tasks.Add(this);
-            if (name != "" && NoLog == false && name != "No Name Task")
+            if (name != "" && NoLog == false)
                 Logger.Info("\"" + name + "\" is created", "LateTask");
         }
         public static void Update(float deltaTime)

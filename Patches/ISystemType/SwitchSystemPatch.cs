@@ -28,10 +28,11 @@ public static class SwitchSystemUpdateSystemPatch
         {
             return true;
         }
+        var roleclass = player.GetRoleClass();
         var isMadmate =
             player.Is(CustomRoleTypes.Madmate) ||
             // マッド属性化時に削除
-            (player.GetRoleClass() is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
+            (roleclass is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
         if (isMadmate && !Options.MadmateCanFixLightsOut.GetBool())
         {
             return false;
@@ -77,7 +78,7 @@ public static class SwitchSystemUpdateSystemPatch
 
         // ロールの処理
         if (Roles.AddOns.Common.Amnesia.CheckAbility(player))
-            if (player.GetRoleClass() is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateSwitchSystem(__instance, amount))
+            if (roleclass is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateSwitchSystem(__instance, amount))
             {
                 return false;
             }

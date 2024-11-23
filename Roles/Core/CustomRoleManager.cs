@@ -271,10 +271,11 @@ public static class CustomRoleManager
         Logger.Info($"Real Killer={attemptKiller.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
         //キラーの処理
+        var killerrole = attemptKiller.GetRoleClass();
         if (roleability is false or null)
         {
             if (Amnesia.CheckAbility(attemptKiller))
-                (attemptKiller.GetRoleClass() as IKiller)?.OnMurderPlayerAsKiller(info);
+                (killerrole as IKiller)?.OnMurderPlayerAsKiller(info);
         }
 
         //ターゲットの処理
@@ -356,7 +357,8 @@ public static class CustomRoleManager
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
         //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId) 
-            (appearanceKiller.GetRoleClass() as IUsePhantomButton)?.Init(appearanceKiller);
+        (killerrole as IUsePhantomButton)?.Init(appearanceKiller);
+        var roleinfo = appearanceKiller.GetCustomRole().GetRoleInfo();
 
         if (Main.KillCount.ContainsKey(appearanceKiller.PlayerId))
             if (appearanceKiller.Is(CustomRoles.Amnesia) && Amnesia.TriggerKill.GetBool())
@@ -367,13 +369,13 @@ public static class CustomRoleManager
                     Amnesia.Kesu(appearanceKiller.PlayerId);
 
                     if (appearanceKiller.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-                        appearanceKiller.RpcSetRoleDesync(appearanceKiller.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke(), appearanceKiller.GetClientId());
+                        appearanceKiller.RpcSetRoleDesync(roleinfo.BaseRoleType.Invoke(), appearanceKiller.GetClientId());
                     else
                     if (appearanceKiller.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                     {
-                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
-                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
-                        else if (appearanceKiller.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
+                        if (roleinfo?.IsDesyncImpostor == true && roleinfo?.BaseRoleType?.Invoke() != RoleTypes.Impostor)
+                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleinfo.BaseRoleType.Invoke());
+                        else if (roleinfo?.BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
                         {
                             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Shapeshifter);
                         }
@@ -393,13 +395,11 @@ public static class CustomRoleManager
     /// 初期化時にOnMurderPlayerOthers+=で登録
     /// </summary>
     public static HashSet<Action<MurderInfo>> OnMurderPlayerOthers = new();
-
     public static void OnFixedUpdate(PlayerControl player)
     {
-        if (GameStates.IsInTask && !GameStates.Meeting && (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.FirstMeeting))
+        if (GameStates.IsInTask && !GameStates.Meeting && (!Options.firstturnmeeting || !MeetingStates.FirstMeeting))
         {
-            if (Amnesia.CheckAbility(player))
-                player.GetRoleClass()?.OnFixedUpdate(player);
+            if (Amnesia.CheckAbility(player)) player.GetRoleClass()?.OnFixedUpdate(player);
             //その他視点処理があれば実行
             foreach (var onFixedUpdate in OnFixedUpdateOthers)
             {
@@ -459,14 +459,15 @@ public static class CustomRoleManager
         {
             OtherRolesAdd(player);
         }
-        if (player.Data.Role.Role == RoleTypes.Shapeshifter || player.GetCustomRole().GetRoleInfo()?.BaseRoleType?.Invoke() == RoleTypes.Shapeshifter)
+        var roleclass = player.GetRoleClass();
+        if (player.Data.Role.Role == RoleTypes.Shapeshifter || role.GetRoleInfo()?.BaseRoleType?.Invoke() == RoleTypes.Shapeshifter)
         {
             Main.CheckShapeshift.TryAdd(player.PlayerId, false);
-            (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
+            (roleclass as IUseTheShButton)?.Shape(player);
         }
-        if (player.Data.Role.Role == RoleTypes.Phantom || player.GetCustomRole().GetRoleTypes() == RoleTypes.Phantom)
+        if (player.Data.Role.Role == RoleTypes.Phantom || role.GetRoleTypes() == RoleTypes.Phantom)
         {
-            (player.GetRoleClass() as IUsePhantomButton)?.Init(player);
+            (roleclass as IUsePhantomButton)?.Init(player);
         }
     }
 
@@ -819,6 +820,10 @@ public enum CustomRoles
     CurseMaker,
     PhantomThief,
     TaskPlayerB,
+    //DEBUG only Crewmate
+    //DEBUG only Impostor
+    //DEBUG only Nuetral.
+    Fox,
     //HideAndSeek
     HASFox,
     HASTroll,

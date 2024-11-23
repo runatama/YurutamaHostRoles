@@ -49,7 +49,7 @@ namespace TownOfHost.Roles.Ghost
                 }
                 Guarng[guardingpc.Key] += Time.fixedDeltaTime;
             }
-            if (dellist.Count > 0) dellist.Do(id => Guarng.Remove(id));
+            dellist.ForEach(task => Guarng.Remove(task));
         }
         public static void UseAbility(PlayerControl pc, PlayerControl target)
         {

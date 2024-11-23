@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using TownOfHost.Modules;
 using UnityEngine;
 
 namespace TownOfHost
@@ -92,7 +93,7 @@ namespace TownOfHost
         public static bool Prefix(ShipStatus __instance)
         {
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
-            if (Options.CurrentGameMode != CustomGameMode.Standard || Options.SuddenDeathMode.GetBool()) return false;
+            if (Options.CurrentGameMode != CustomGameMode.Standard || SuddenDeathMode.NowSuddenDeathMode) return false;
 
             return !Options.AllowCloseDoors.GetBool();
         }

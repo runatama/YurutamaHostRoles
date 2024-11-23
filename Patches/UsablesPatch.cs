@@ -1,5 +1,6 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using UnityEngine;
 
@@ -11,11 +12,12 @@ namespace TownOfHost
         public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
         {
             canUse = couldUse = false;
+            var hastask = UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
             //こいつをfalseでreturnしても、タスク(サボ含む)以外の使用可能な物は使えるまま(ボタンなど)
             if (!GameStates.InGame)
-                return __instance.AllowImpostor || UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
+                return __instance.AllowImpostor || hastask;
             else
-                return __instance.AllowImpostor || (UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false) && ((PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true) || (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))));
+                return __instance.AllowImpostor || (hastask && ((PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true) || (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))));
         }
     }
     [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]
@@ -23,7 +25,8 @@ namespace TownOfHost
     {
         public static void Postfix(EmergencyMinigame __instance)
         {
-            if (Options.CurrentGameMode is CustomGameMode.HideAndSeek or CustomGameMode.TaskBattle) __instance.Close();
+            if (Options.CurrentGameMode is CustomGameMode.HideAndSeek or CustomGameMode.TaskBattle || SuddenDeathMode.NowSuddenDeathMode)
+                __instance.Close();
         }
     }
     [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]

@@ -18,6 +18,7 @@ namespace TownOfHost
 
                 if (Input.mouseScrollDelta.y < 0) size += (int)1.5;
                 if (Input.mouseScrollDelta.y > 0 && size > 1.5) size -= (int)1.5;
+                if (Input.GetKeyDown(KeyCode.LeftShift)) size = 3;
             }
             else
                 size = 3;

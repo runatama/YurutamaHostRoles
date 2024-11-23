@@ -206,21 +206,10 @@ namespace TownOfHost
             Logger.Info($"Spawn: {player.GetRealName()}", "RandomSpawn");
             if (AmongUsClient.Instance.AmHost)
             {
-                if (player.Is(CustomRoles.Penguin))
-                {
-                    var penguin = player.GetRoleClass() as Penguin;
-                    penguin?.OnSpawnAirship();
-                }
-                if (player.Is(CustomRoles.Alien))
-                {
-                    var alien = player.GetRoleClass() as Alien;
-                    alien?.OnSpawnAirship();
-                }
-                if (player.Is(CustomRoles.JackalAlien))
-                {
-                    var alien = player.GetRoleClass() as JackalAlien;
-                    alien?.OnSpawnAirship();
-                }
+                var roleClass = player.GetRoleClass();
+                (roleClass as Penguin)?.OnSpawnAirship();
+                (roleClass as Alien)?.OnSpawnAirship();
+                (roleClass as JackalAlien)?.OnSpawnAirship();
                 player.RpcResetAbilityCooldown();
                 if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
                     Options.CurrentGameMode != CustomGameMode.TaskBattle

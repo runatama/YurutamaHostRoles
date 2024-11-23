@@ -30,10 +30,16 @@ public sealed class AmateurTeller : RoleBase
         Divination.Clear();
         count = 0;
         Use = false;
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || OptionCanTaskcount.GetInt() < 1;
         UseTarget = byte.MaxValue;
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         CustomRoleManager.MarkOthers.Add(OtherArrow);
+        maximum = OptionMaximum.GetInt();
+        cantaskcount = OptionCanTaskcount.GetInt();
+        targetcanseearrow = TargetCanseeArrow.GetBool();
+        targetcanseeplayer = TargetCanseePlayer.GetBool();
+        canseerole = OptionRole.GetBool();
+        canusebutton = AbilityUseTarnCanButton.GetBool();
     }
 
     static OptionItem OptionMaximum;
@@ -45,6 +51,12 @@ public sealed class AmateurTeller : RoleBase
     static OptionItem TargetCanseePlayer;
     static OptionItem AbilityUseTarnCanButton;
     public VoteMode Votemode;
+    static bool canusebutton;
+    static bool canseerole;
+    static int maximum;
+    static int cantaskcount;
+    static bool targetcanseearrow;
+    static bool targetcanseeplayer;
     int count;
     bool kakusei;
     bool Use;
@@ -90,7 +102,7 @@ public sealed class AmateurTeller : RoleBase
         Kakusei = BooleanOptionItem.Create(RoleInfo, 17, GeneralOption.UKakusei, true, false);
     }
     public override bool NotifyRolesCheckOtherName => true;
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < OptionCanTaskcount.GetInt() && !IsTaskFinished ? Color.gray : OptionMaximum.GetInt() <= count ? Color.gray : Color.cyan, $"({OptionMaximum.GetInt() - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : maximum <= count ? Color.gray : Color.cyan, $"({maximum - count})");
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         Use = false;
@@ -100,7 +112,7 @@ public sealed class AmateurTeller : RoleBase
     }
     public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, ref DontReportreson reportreson)
     {
-        if (UseTarget != byte.MaxValue && reporter.PlayerId == Player.PlayerId && target == null && !AbilityUseTarnCanButton.GetBool())
+        if (UseTarget != byte.MaxValue && reporter.PlayerId == Player.PlayerId && target == null && !canusebutton)
         {
             reportreson = DontReportreson.CantUseButton;
             return true;
@@ -110,7 +122,7 @@ public sealed class AmateurTeller : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (OptionMaximum.GetInt() > count && Is(voter) && (MyTaskState.CompletedTasksCount >= OptionCanTaskcount.GetInt() || IsTaskFinished) && (!Use))
+        if (maximum > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (!Use))
         {
             var target = PlayerCatch.GetPlayerById(votedForId);
             if (Votemode == VoteMode.uvote)
@@ -149,7 +161,7 @@ public sealed class AmateurTeller : RoleBase
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptionCanTaskcount.GetInt()))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             if (kakusei == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
@@ -162,16 +174,16 @@ public sealed class AmateurTeller : RoleBase
     {
         seen ??= seer;
         if (isForMeeting) return "";
-        if (!TargetCanseePlayer.GetBool()) return "";
+        if (!targetcanseeplayer) return "";
 
         foreach (var tell in tellers)
         {
             if (seer.PlayerId == tell.UseTarget && seer == seen)
             {
                 var ar = "";
-                if (TargetCanseeArrow.GetBool()) ar = $"\n{TargetArrow.GetArrows(seer, tell.Player.PlayerId)}";
                 if (seer.GetCustomRole().GetCustomRoleTypes() != CustomRoleTypes.Crewmate)
-                    return $"<color=#6b3ec3>★{ar}</color>";
+                    if (targetcanseearrow) ar = $"\n{TargetArrow.GetArrows(seer, tell.Player.PlayerId)}";
+                return $"<color=#6b3ec3>★{ar}</color>";
             }
             else
             if (seer.PlayerId == tell.UseTarget && seen == tell.Player)
@@ -186,7 +198,7 @@ public sealed class AmateurTeller : RoleBase
         if (Targets.Contains(seen.PlayerId))
         {
             addon = false;
-            if (!OptionRole.GetBool())
+            if (!canseerole)
             {
                 enabled = true;
                 switch (seen.GetCustomRole().GetCustomRoleTypes())

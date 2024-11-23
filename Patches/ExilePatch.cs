@@ -1,6 +1,7 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using TownOfHost.Modules;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -106,26 +107,29 @@ namespace TownOfHost
                                 {
                                     pc.RpcSetRoleDesync(RoleTypes.Crewmate, Player.PlayerId);
                                 }
-                                var role = pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
-                                if (!pc.IsAlive())
-                                    if (pc.GetCustomRole().IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                                var customrole = pc.GetCustomRole();
+                                var roleinfo = customrole.GetRoleInfo();
+                                var role = roleinfo?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
+                                var isalive = pc.IsAlive();
+                                if (!isalive)
+                                    if (customrole.IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
                                     {
                                         role = RoleTypes.ImpostorGhost;
                                     }
                                     else role = RoleTypes.CrewmateGhost;
-                                if (Player != pc && (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false))
-                                    role = !pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
+                                if (Player != pc && (roleinfo?.IsDesyncImpostor ?? false))
+                                    role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
                                 if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
 
                                 var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
-                                if (Options.SuddenDeathMode.GetBool()) IDesycImpostor = true;
+                                if (SuddenDeathMode.NowSuddenDeathMode) IDesycImpostor = true;
 
                                 if (pc.Is(CustomRoles.Amnesia))
                                 {
-                                    if (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
+                                    if (roleinfo?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
                                         role = RoleTypes.Crewmate;
 
-                                    if (Amnesia.DontCanUseAbility.GetBool())
+                                    if (Amnesia.dontcanUseability)
                                     {
                                         if (pc.Is(CustomRoleTypes.Impostor))
                                             role = RoleTypes.Impostor;
@@ -133,7 +137,7 @@ namespace TownOfHost
                                     }
                                 }
 
-                                pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!pc.IsAlive() ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
+                                pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
                             }
 
                         if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) Player.RpcExileV2();
@@ -142,13 +146,14 @@ namespace TownOfHost
                         Player.SyncSettings();
                         _ = new LateTask(() =>
                             {
-                                if (!Player.IsAlive()) Player.RpcExileV2();
                                 Player.SetKillCooldown(kyousei: true, delay: true);
                                 if (Player.IsAlive())
                                 {
-                                    (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player);
-                                    (Player.GetRoleClass() as IUsePhantomButton)?.Init(Player);
+                                    var roleclass = Player.GetRoleClass();
+                                    (roleclass as IUseTheShButton)?.ResetS(Player);
+                                    (roleclass as IUsePhantomButton)?.Init(Player);
                                 }
+                                else Player.RpcExileV2();
                             }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>

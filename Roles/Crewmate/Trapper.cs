@@ -26,7 +26,7 @@ public sealed class Trapper : RoleBase
     {
         BlockMoveTime = OptionBlockMoveTime.GetFloat();
         ta = Task.GetInt();
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
     }
     static OptionItem Kakusei;
     static OptionItem Task;

@@ -22,8 +22,11 @@ namespace TownOfHost.Modules
         public static bool? nokori10s;
         public static List<Vector3> pos = new();
         static float opttime;
+        public static bool NowSuddenDeathMode;
+
         public static void Reset()
         {
+            NowSuddenDeathMode = Options.SuddenDeathMode.GetBool();
             SuddenDeathtime = 0;
             ItijohoSendTime = 0;
             sabotage = false;
@@ -107,7 +110,7 @@ namespace TownOfHost.Modules
                     var p = pc.transform.position;
                     foreach (var po in pos) if (po != p) GetArrow.Add(pc.PlayerId, po);
                 }
-                if (Options.SuddenItijohoSenddis.GetFloat() != 0)
+                if (Options.SuddenItijohoSenddis.GetFloat() > 0)
                     switch (colorint)
                     {
                         case -1:
@@ -158,7 +161,7 @@ namespace TownOfHost.Modules
         {
             seen ??= seer;
             if (!Options.SuddenNokoriPlayerCount.GetBool()) return "";
-            if (seen == seer) return $"<color=#03fcb6> ({PlayerCatch.AllAlivePlayersCount})";
+            if (seen == seer) return $"<color=#03fcb6> ({PlayerCatch.AllAlivePlayersCount})</color>";
             return "";
         }
     }

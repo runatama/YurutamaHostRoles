@@ -10,6 +10,7 @@ using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Common;
 using System.Collections.Generic;
 using TownOfHost.Roles.Impostor;
+using TownOfHost.Modules;
 //using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost
@@ -37,7 +38,7 @@ namespace TownOfHost
                     //Amnesiacだった場合シェリフと表示させる
                     if (role == CustomRoles.Amnesiac)
                     {
-                        __instance.RoleText.text = Amnesiac.OptIamWolfBoy.GetBool() ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        __instance.RoleText.text = Amnesiac.iamwolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
                         __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
                         __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
                         __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
@@ -60,7 +61,46 @@ namespace TownOfHost
 
             }, 0.01f, "Override Role Text", null);
 
-            //if (!Options.ExIntroSystem.GetBool()) SelectRolesPatch.SetRole();
+            /* wiki用
+                            if (PlayerControl.LocalPlayer.IsGorstRole())
+                    role = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).GhostRole;
+
+                if (!role.IsVanilla() && !PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
+                {
+                    __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                    __instance.RoleText.text = UtilsRoleText.GetRoleName(role);
+                    __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                    __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
+
+                    __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
+
+                    //Amnesiacだった場合シェリフと表示させる
+                    if (role == CustomRoles.Amnesiac)
+                    {
+                        __instance.RoleText.text = Amnesiac.iamwolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                        __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                        __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
+                    }
+                }
+                else
+                if (role.IsVanilla())
+                {
+                    __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                    __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                    __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
+                }
+
+                foreach (var subRole in PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SubRoles)
+                {
+                    __instance.RoleText.text = UtilsRoleText.GetRoleName(subRole);
+                    __instance.YouAreText.color = UtilsRoleText.GetRoleColor(subRole);
+                    __instance.RoleText.color = UtilsRoleText.GetRoleColor(subRole);
+                    __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(subRole);
+                    __instance.RoleBlurbText.text = GetString($"{subRole}Info");
+                }
+                //__instance.RoleText.text += UtilsRoleText.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, amkesu: true);
+            */
         }
     }
     [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
@@ -82,7 +122,7 @@ namespace TownOfHost
                         pc.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
                         continue;
                     }
-                    if (Amnesia.DontCanUseAbility.GetBool())
+                    if (Amnesia.dontcanUseability)
                     {
                         if (pc.Is(CustomRoleTypes.Impostor))
                         {
@@ -172,7 +212,7 @@ namespace TownOfHost
             CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
             var pc = PlayerControl.LocalPlayer;
             var ch = pc.GetRoleClass();
-            if (ch?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) role = ch.Jikaku();
+            if (ch?.Jikaku() != CustomRoles.NotAssigned && ch != null) role = ch.Jikaku();
 
             if (role.GetRoleInfo()?.IntroSound is AudioClip introSound)
             {
@@ -198,7 +238,7 @@ namespace TownOfHost
                     else __instance.BackgroundBar.material.color = Palette.DisabledGrey;
                     break;
             }
-            if (role is CustomRoles.Amnesiac) role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+            if (role is CustomRoles.Amnesiac) role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             switch (role)
             {
                 case CustomRoles.Sheriff:
@@ -235,7 +275,7 @@ namespace TownOfHost
                     if (PlayerCatch.AllPlayerControls.Count() == 1) __instance.ImpostorText.text = GetString("TaskRTAInfo");
                     break;
             }
-            if (Options.SuddenDeathMode.GetBool())
+            if (SuddenDeathMode.NowSuddenDeathMode)
             {
                 __instance.TeamTitle.text = GetString("SuddenDeath");
                 __instance.TeamTitle.color = StringHelper.CodeColor("#db5837");
@@ -261,9 +301,9 @@ namespace TownOfHost
                 StartFadeIntro(__instance, Color.magenta, Color.magenta);
             }*/
 
-            if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null)
+            if (ch?.Jikaku() != CustomRoles.NotAssigned && ch != null)
             {
-                role = pc.GetRoleClass().Jikaku();
+                role = ch.Jikaku();
                 if (role.GetRoleInfo()?.IntroSound is AudioClip intro)
                 {
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = intro;
@@ -271,7 +311,7 @@ namespace TownOfHost
             }
             if (pc.Is(CustomRoles.Amnesia))
             {
-                PlayerControl.LocalPlayer.Data.Role.IntroSound = Amnesia.DontCanUseAbility.GetBool() ?
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = Amnesia.dontcanUseability ?
                 (role.IsImpostor() ? RoleBase.GetIntrosound(RoleTypes.Impostor) : RoleBase.GetIntrosound(RoleTypes.Crewmate)) : RoleBase.GetIntrosound(role.GetRoleInfo().BaseRoleType.Invoke());
             }
         }
@@ -396,25 +436,25 @@ namespace TownOfHost
                 foreach (var kvp in PlayerState.AllPlayerStates)
                 {
                     kvp.Value.IsBlackOut = false;
-                    if (PlayerCatch.GetPlayerById(kvp.Key) != null)
-                        PlayerCatch.GetPlayerById(kvp.Key).MarkDirtySettings();
                 }
+                UtilsOption.MarkEveryoneDirtySettings();
                 //役職選定後に処理する奴。
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    if (Options.SuddenDeathMode.GetBool())
+                    var role = pc.GetCustomRole();
+                    if (SuddenDeathMode.NowSuddenDeathMode)
                     {
                         NameColorManager.RemoveAll(pc.PlayerId);
                         PlayerCatch.AllPlayerControls.DoIf(pl => pl != pc, pl => NameColorManager.Add(pc.PlayerId, pl.PlayerId, Main.PlayerColors[pl.PlayerId].ColorCode()));
                     }
                     if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
                     //RoleAddons
-                    if (RoleAddAddons.GetRoleAddon(pc.GetCustomRole(), out var d, pc) && d.GiveAddons.GetBool())
+                    if (RoleAddAddons.GetRoleAddon(role, out var d, pc) && d.GiveAddons.GetBool())
                     {
                         if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                     }
                     //マッドメイトの最初からの内通
-                    if (pc.GetCustomRole().IsMadmate() && Options.MadCanSeeImpostor.GetBool())
+                    if (role.IsMadmate() && Options.MadCanSeeImpostor.GetBool())
                     {
                         if (PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor).Any())
                             foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
@@ -437,8 +477,8 @@ namespace TownOfHost
                 GameStates.task = true;
 
                 //desyneインポかつ置き換えがimp以外ならそれにする。
-                if ((roleInfo?.IsDesyncImpostor == true || Options.SuddenDeathMode.GetBool()) && PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke() != RoleTypes.Impostor)
-                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().BaseRoleType.Invoke());
+                if ((roleInfo?.IsDesyncImpostor == true || SuddenDeathMode.NowSuddenDeathMode) && roleInfo.BaseRoleType.Invoke() != RoleTypes.Impostor)
+                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo.BaseRoleType.Invoke());
 
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool())
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
@@ -468,16 +508,15 @@ namespace TownOfHost
                     {
                         if (s.Value == null) continue;
                         s.Value.IsBlackOut = false;
-                        if (PlayerCatch.GetPlayerById(s.Key) == null) continue;
-                        PlayerCatch.GetPlayerById(s.Key).SyncSettings();
                     }
+                    UtilsOption.MarkEveryoneDirtySettings();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                 }, 1.2f, "", true);
 
                 if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                 if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
 
-                if (Options.FirstTurnMeeting.GetBool())
+                if (Options.firstturnmeeting)
                 {
                     _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, GetString("Firstmeetinginfo"), "#23dbc0"), 3f, "", true);
                 }

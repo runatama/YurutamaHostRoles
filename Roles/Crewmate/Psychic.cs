@@ -50,7 +50,7 @@ public sealed class Psychic : RoleBase
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override void Add()
     {
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
 
         Psychics.Add(this);
     }

@@ -138,6 +138,7 @@ namespace TownOfHost
         public static string LastWinsText = "";
         private static TextMeshPro roleSummary;
         private static SimpleButton showHideButton;
+        public static SimpleButton ScreenShotbutton;
 
         public static void Postfix(EndGameManager __instance)
         {
@@ -238,7 +239,7 @@ namespace TownOfHost
                     break;
             }
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
-                if (Options.SuddenDeathMode.GetBool())
+                if (SuddenDeathMode.NowSuddenDeathMode)
                 {
                     var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     var color = Color.white;
@@ -256,7 +257,7 @@ namespace TownOfHost
             {
                 AdditionalWinnerText.Append('＆').Append(Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role)));
             }
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.OneLove && !Options.SuddenDeathMode.GetBool())
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.OneLove && !SuddenDeathMode.NowSuddenDeathMode)
             {
                 WinnerText.text = $"<color={CustomWinnerColor}>{CustomWinnerText}{AdditionalWinnerText}{GetString("Win")}</color>";
             }
@@ -287,7 +288,22 @@ namespace TownOfHost
                 Scale = new(1.5f, 0.5f),
                 FontSize = 2f,
             };
-            showHideButton.Button.gameObject.SetActive(!Main.AssignSameRoles);
+
+            ScreenShotbutton = new SimpleButton(
+                __instance.transform,
+                "ScreenShotButton",
+                new(-3.5f, 2.6f, -14f),
+                new(0, 245, 185, byte.MaxValue),
+                new(66, 245, 185, byte.MaxValue),
+                () =>
+                {
+                    LastGameSave.SeveImage();
+                },
+                "保存")
+            {
+                Scale = new(0.5f, 0.5f),
+                FontSize = 2f,
+            };
 
             StringBuilder sb = new();
             if (Main.RTAMode && Options.CurrentGameMode == CustomGameMode.TaskBattle)
@@ -331,7 +347,18 @@ namespace TownOfHost
             roleSummary.gameObject.SetActive(!Main.AssignSameRoles);
 
             if (Main.UseWebHook.Value) UtilsWebHook.WH_ShowLastResult();
-
+            if (Main.AutoSaveScreenShot.Value)
+            {
+                var endGameNavigation = GameObject.Find("EndGameNavigation");
+                endGameNavigation.SetActive(false);
+                ScreenShotbutton.Button.transform.SetLocalY(-50);
+                _ = new LateTask(() => LastGameSave.SeveImage(true), 1.2f, "", true);
+                _ = new LateTask(() =>
+                {
+                    endGameNavigation.SetActive(true);
+                    ScreenShotbutton.Button.transform.SetLocalY(2.6f);
+                }, 1.7f, "", true);
+            }
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             //Utils.ApplySuffix();

@@ -186,7 +186,8 @@ namespace TownOfHost.Roles.Impostor
             {
                 fall = false;
                 var target = Player.GetKillTarget();
-                if (target.GetRoleClass() is SchrodingerCat schrodingerCat)
+                var targetroleclass = target.GetRoleClass();
+                if (targetroleclass is SchrodingerCat schrodingerCat)
                 {
                     if (schrodingerCat.Team == SchrodingerCat.TeamType.None)
                     {
@@ -195,7 +196,7 @@ namespace TownOfHost.Roles.Impostor
                         return;
                     }
                 }
-                if (target.GetRoleClass() is BakeCat bakeneko)
+                if (targetroleclass is BakeCat bakeneko)
                 {
                     if (bakeneko.Team == BakeCat.TeamType.None)
                     {

@@ -34,7 +34,6 @@ namespace TownOfHost
             if (!GameStates.IsModHost) return;
             var player = PlayerControl.LocalPlayer;
             if (player == null) return;
-            var TaskTextPrefix = "";
             //壁抜け
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
@@ -79,6 +78,7 @@ namespace TownOfHost
                 GameSettings.text = OptionShower.GetText();
                 GameSettings.SetOutlineColor(Color.black);
                 GameSettings.SetOutlineThickness(0.13f);
+                GameSettings.transform.localPosition = new(-3.325f * GameSettingMenuStartPatch.w, 2.78f);
                 GameSettings.fontSizeMin =
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
             }
@@ -95,6 +95,7 @@ namespace TownOfHost
                 __instance.SabotageButton.Hide();
                 __instance.AbilityButton.Show();
                 __instance.AbilityButton.OverrideText(GetString("EditCSp"));
+                return;
             }
             //ゲーム中でなければ以下は実行されない
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -115,10 +116,8 @@ namespace TownOfHost
                             {
                                 var killLabel = (roleClass as IKiller)?.OverrideKillButtonText(out string text) == true ? text : GetString(StringNames.KillLabel);
                                 __instance.KillButton.OverrideText(killLabel);
-                            }
-                            if (roleClass.HasAbility)
-                            {
-                                if (Amnesia.CheckAbility(player))
+
+                                if (roleClass.HasAbility)
                                 {
                                     __instance.AbilityButton.OverrideText(roleClass.GetAbilityButtonText());
                                     __instance.AbilityButton.ToggleVisible(roleClass.CanUseAbilityButton() && GameStates.IsInTask);
@@ -148,7 +147,7 @@ namespace TownOfHost
 
                     LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.Meeting, isForHud: true) ?? "";
                     if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
-                    if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) LowerInfoText.text = "";
+                    if (roleClass?.Jikaku() != CustomRoles.NotAssigned) LowerInfoText.text = "";
 
                     LowerInfoText.enabled = LowerInfoText.text != "";
 
@@ -167,22 +166,13 @@ namespace TownOfHost
 
                     if (player.CanUseKillButton())
                     {
-                        __instance.KillButton.ToggleVisible(player.IsAlive() && GameStates.IsInTask);
+                        __instance.KillButton.ToggleVisible(/*player.IsAlive() && */GameStates.IsInTask);
                         player.Data.Role.CanUseKillButton = true;
                     }
                     else
                     {
                         __instance.KillButton.SetDisabled();
                         __instance.KillButton.ToggleVisible(false);
-                    }
-                    switch (player.GetCustomRole())
-                    {
-                        case CustomRoles.Madmate:
-                        case CustomRoles.SKMadmate:
-                        case CustomRoles.Jackaldoll:
-                        case CustomRoles.Jester:
-                            TaskTextPrefix += GetString(StringNames.FakeTasks);
-                            break;
                     }
 
                     bool CanUseVent = player.CanUseImpostorVentButton();
@@ -213,26 +203,29 @@ namespace TownOfHost
                 }
             }
 
-            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame || !Main.DebugSendAmout.Value) RepairSender.enabled = false;
-            if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && DebugModeManager.IsDebugMode && Main.DebugSendAmout.Value)
+            if (AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && Main.DebugSendAmout.Value)
             {
-                RepairSender.enabled = !RepairSender.enabled;
-                RepairSender.Reset();
+                if (Input.GetKeyDown(KeyCode.RightShift) && DebugModeManager.IsDebugMode)
+                {
+                    RepairSender.enabled = !RepairSender.enabled;
+                    RepairSender.Reset();
+                }
+                if (RepairSender.enabled)
+                {
+                    if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
+                    if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
+                    if (Input.GetKeyDown(KeyCode.Alpha2)) RepairSender.Input(2);
+                    if (Input.GetKeyDown(KeyCode.Alpha3)) RepairSender.Input(3);
+                    if (Input.GetKeyDown(KeyCode.Alpha4)) RepairSender.Input(4);
+                    if (Input.GetKeyDown(KeyCode.Alpha5)) RepairSender.Input(5);
+                    if (Input.GetKeyDown(KeyCode.Alpha6)) RepairSender.Input(6);
+                    if (Input.GetKeyDown(KeyCode.Alpha7)) RepairSender.Input(7);
+                    if (Input.GetKeyDown(KeyCode.Alpha8)) RepairSender.Input(8);
+                    if (Input.GetKeyDown(KeyCode.Alpha9)) RepairSender.Input(9);
+                    if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
+                }
             }
-            if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame && Main.DebugSendAmout.Value)
-            {
-                if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
-                if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
-                if (Input.GetKeyDown(KeyCode.Alpha2)) RepairSender.Input(2);
-                if (Input.GetKeyDown(KeyCode.Alpha3)) RepairSender.Input(3);
-                if (Input.GetKeyDown(KeyCode.Alpha4)) RepairSender.Input(4);
-                if (Input.GetKeyDown(KeyCode.Alpha5)) RepairSender.Input(5);
-                if (Input.GetKeyDown(KeyCode.Alpha6)) RepairSender.Input(6);
-                if (Input.GetKeyDown(KeyCode.Alpha7)) RepairSender.Input(7);
-                if (Input.GetKeyDown(KeyCode.Alpha8)) RepairSender.Input(8);
-                if (Input.GetKeyDown(KeyCode.Alpha9)) RepairSender.Input(9);
-                if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
-            }
+            else RepairSender.enabled = false;
         }
         public static string GetTaskBattleTimer()
         {
@@ -270,11 +263,13 @@ namespace TownOfHost
                     if (player == null) return;
                     var roleClass = player.GetRoleClass();
                     var __instance = DestroyableSingleton<HudManager>.Instance;
+                    var customrole = player.GetCustomRole();
+                    var isalive = player.IsAlive();
                     if (!__instance) return;
                     //定義
                     if (MotoKillButton == null && __instance.KillButton.graphic.sprite) MotoKillButton = __instance.KillButton.graphic.sprite;
                     if (ImpVentButton == null && __instance.ImpostorVentButton.graphic.sprite) ImpVentButton = __instance.ImpostorVentButton.graphic.sprite;
-                    if ((roleClass?.HasAbility ?? false) || !player.IsAlive())
+                    if ((roleClass?.HasAbility ?? false) || !isalive)
                     {
                         if (player?.Data?.Role?.Ability?.Image ?? false)
                         {
@@ -287,38 +282,40 @@ namespace TownOfHost
                     //リセット
                     if (__instance.KillButton.graphic.sprite && MotoKillButton) __instance.KillButton.graphic.sprite = MotoKillButton;
                     if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
-                    if ((roleClass?.HasAbility ?? false) || !player.IsAlive())
+                    if ((roleClass?.HasAbility ?? false) || !isalive)
                     {
                         if (EngButton && player.Data.Role.Role is RoleTypes.Engineer) player.Data.Role.Ability.Image = EngButton;
                         if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter) player.Data.Role.Ability.Image = ShepeButton;
-                        if (HyoiButton && !player.IsAlive() && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) player.Data.Role.Ability.Image = HyoiButton;
+                        if (HyoiButton && !isalive && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) player.Data.Role.Ability.Image = HyoiButton;
                     }
                     if (CustomRoles.Amnesia.IsPresent()) return;
                     if (ch == null)
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
-                            if (pc.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && pc.GetRoleClass() != null) ch = true;
+                            if (pc.GetRoleClass()?.Jikaku() is not null and not CustomRoles.NotAssigned) ch = true;
                         }
                     if (ch == true) return;
-                    if (player.GetCustomRole().IsVanilla()) return;
+                    if (customrole.IsVanilla()) return;
                     if (roleClass == null) return;
                     if (Main.CustomSprite.Value)
                     {
                         if (roleClass != null)
                         {
-                            if (player.IsAlive())
+                            if (isalive)
                                 if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
                                 {
                                     player.Data.Role.Ability.Image = CustomButton.Get(abname);
                                     if (reset && OldValue == Main.CustomSprite.Value)
                                     {
-                                        var role = PlayerControl.LocalPlayer.GetCustomRole().GetRoleTypes();
-                                        if (PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
+
+                                        var role = customrole.GetRoleTypes();
+                                        if (customrole.GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
                                         RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
                                     }
                                 }
 
                             // Memo
+                            // キルボタン非表示してから当てれば大丈夫
                             // キルボタンがバグってもなんかスイッチシェリフのキルボだけ大丈夫なことが多い。
                             if ((roleClass as IKiller)?.OverrideKillButton(out string name) == true && Main.CustomSprite.Value)
                                 __instance.KillButton.graphic.sprite = CustomButton.Get(name);
@@ -367,24 +364,17 @@ namespace TownOfHost
                 //seerに関わらず発動するMark
                 Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
+                var targetlover = target.GetRiaju();
                 //ハートマークを付ける(会議中MOD視点)
-                if (target.GetRiaju() == PlayerControl.LocalPlayer.GetRiaju() && target.GetRiaju() is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
+                if ((targetlover == seer.GetRiaju() && targetlover is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
+                || (seer.Data.IsDead && target.IsRiaju() && targetlover != CustomRoles.OneLove))
                 {
-                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetRiaju()), "♥"));
+                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(targetlover), "♥"));
                 }
-                else if (PlayerControl.LocalPlayer.Data.IsDead && target.IsRiaju() && target.GetRiaju() != CustomRoles.OneLove)
-                {
-                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetRiaju()), "♥"));
-                }
-                if (Lovers.OneLovePlayer.Ltarget == target.PlayerId && target.PlayerId != seer.PlayerId && PlayerControl.LocalPlayer.Is(CustomRoles.OneLove))
-                {
-                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
-                }
-                else if (target.Is(CustomRoles.OneLove) && target.PlayerId != PlayerControl.LocalPlayer.PlayerId && PlayerControl.LocalPlayer.Is(CustomRoles.OneLove))
-                {
-                    Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
-                }
-                else if (PlayerControl.LocalPlayer.Data.IsDead && Lovers.OneLovePlayer.Ltarget == target.PlayerId && !PlayerControl.LocalPlayer.Is(CustomRoles.OneLove))
+                else
+                if ((Lovers.OneLovePlayer.Ltarget == target.PlayerId && target.PlayerId != seer.PlayerId && seer.Is(CustomRoles.OneLove))
+                || (target.Is(CustomRoles.OneLove) && target.PlayerId != seer.PlayerId && seer.Is(CustomRoles.OneLove))
+                || (seer.Data.IsDead && target.Is(CustomRoles.OneLove) && !seer.Is(CustomRoles.OneLove)))
                 {
                     Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
                 }
@@ -398,43 +388,29 @@ namespace TownOfHost
                 {
                     Mark.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
-                //プログレスキラー
+                //seerに関わらず発動するLowerText
+                Suffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target));
                 if (Amnesia.CheckAbility(seer))
                 {
+                    //プログレスキラー
                     if (seer.Is(CustomRoles.ProgressKiller) && target.Is(CustomRoles.Workhorse) && ProgressKiller.ProgressWorkhorseseen)
                     {
                         Mark.Append($"<color=blue>♦</color>");
                     }
                     //エーリアン
-                    if (seer.Is(CustomRoles.Alien))
-                    {
-                        foreach (var al in Alien.Aliens)
+                    if ((seerRole as Alien)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
+                        if (target.Is(CustomRoles.Workhorse))
                         {
-                            if (al.Player == seer)
-                                if (target.Is(CustomRoles.Workhorse) && al.modeProgresskiller && Alien.ProgressWorkhorseseen)
-                                {
-                                    Mark.Append($"<color=blue>♦</color>");
-                                }
+                            Mark.Append($"<color=blue>♦</color>");
                         }
-                    }
-                    if (seer.Is(CustomRoles.JackalAlien))
-                    {
-                        foreach (var al in JackalAlien.Aliens)
+                    if ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
+                        if (target.Is(CustomRoles.Workhorse))
                         {
-                            if (al.Player == seer)
-                                if (target.Is(CustomRoles.Workhorse) && al.modeProgresskiller && JackalAlien.ProgressWorkhorseseen)
-                                {
-                                    Mark.Append($"<color=blue>♦</color>");
-                                }
+                            Mark.Append($"<color=blue>♦</color>");
                         }
-                    }
-                }
-
-                //seerに関わらず発動するLowerText
-                Suffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target));
-                //seer役職が対象のSuffix
-                if (Amnesia.CheckAbility(seer))
+                    //seer役職が対象のSuffix
                     Suffix.Append(seerRole?.GetSuffix(seer, target));
+                }
 
                 //seerに関わらず発動するSuffix
                 Suffix.Append(CustomRoleManager.GetSuffixOthers(seer, target));
@@ -442,8 +418,8 @@ namespace TownOfHost
                 if (Utils.IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
                     RealName = $"<size=0>{RealName}</size> ";
 
-                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
-                //Mark・Suffixの適用
+                bool? canseedeathreasoncolor = seer.PlayerId.CanDeathReasonKillerColor() == true ? true : null;
+                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})" : "";//Mark・Suffixの適用
                 if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
                     __instance.NameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
                 else
@@ -480,14 +456,15 @@ namespace TownOfHost
         public static void Postfix(Vent __instance, [HarmonyArgument(1)] ref bool mainTarget)
         {
             var player = PlayerControl.LocalPlayer;
+            var roleclass = player.GetRoleClass();
             Color color = PlayerControl.LocalPlayer.GetRoleColor();
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
                 UtilsRoleText.GetRoleColor(CustomRoles.Impostor) : UtilsRoleText.GetRoleColor(CustomRoles.SchrodingerCat));
-            if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null)
+            if (roleclass?.Jikaku() != CustomRoles.NotAssigned && roleclass != null)
             {
-                color = UtilsRoleText.GetRoleColor(player.GetRoleClass().Jikaku());
+                color = UtilsRoleText.GetRoleColor(roleclass.Jikaku());
             }
-        ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
+            ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
             ((Renderer)__instance.myRend).material.SetColor("_AddColor", mainTarget ? color : Color.clear);
         }
     }
@@ -518,8 +495,8 @@ namespace TownOfHost
 
             if (opts.Mode == MapOptions.Modes.CountOverlay && PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
             {
-                if (Options.TimeLimitAdmin.GetFloat() != 0 && DisableDevice.GameAdminTimer > Options.TimeLimitAdmin.GetFloat()) return false;
-                if (Options.TarnTimeLimitAdmin.GetFloat() != 0 && DisableDevice.TarnAdminTimer > Options.TarnTimeLimitAdmin.GetFloat()) return false;
+                if (DisableDevice.optTimeLimitAdmin != 0 && DisableDevice.GameAdminTimer > DisableDevice.optTimeLimitAdmin) return false;
+                if (DisableDevice.optTimeLimitAdmin != 0 && DisableDevice.TarnAdminTimer > DisableDevice.optTimeLimitAdmin) return false;
             }
 
             if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
@@ -542,13 +519,14 @@ namespace TownOfHost
             if (!GameStates.IsModHost || GameStates.IsLobby) return;
             PlayerControl player = PlayerControl.LocalPlayer;
             var role = player.GetCustomRole();
+            var roleClass = player.GetRoleClass();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-            if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
+            if (roleClass?.Jikaku() != CustomRoles.NotAssigned && roleClass != null) role = roleClass.Jikaku();
 
             if (role is CustomRoles.Amnesiac)
             {
-                if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                    role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                    role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
             // 役職説明表示
             if (!role.IsVanilla() || player.IsGorstRole())

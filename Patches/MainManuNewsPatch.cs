@@ -523,7 +523,7 @@ public class ModNewsHistory
                     Number = 100024,
                     Title = "やっぱりテストバージョン",
                     SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.11</color>",
-                    ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.11</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v519.22.11</color>",
                     Text = "<size=80%>"
                     + "<size=125%>【バグ修正】</size>\n"
                     + "・爆弾魔のクールダウンデフォルトが0だった問題の修正\n"
@@ -556,7 +556,7 @@ public class ModNewsHistory
                     Number = 100025,
                     Title = "予想通りのテストバージョン",
                     SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.12</color>",
-                    ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.12</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v519.22.12</color>",
                     Text = "<size=80%>"
                     + "<size=125%>【バグ修正/仕様変更】</size>\n"
                     + "・タスクバトルで参加者にベントが生えない問題の修正\n"
@@ -585,7 +585,7 @@ public class ModNewsHistory
                     Number = 100026,
                     Title = "色々してたら遅れちゃった",
                     SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.13</color>",
-                    ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.13</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v519.22.13</color>",
                     Text = "<size=80%>"
                     + "<size=125%>【バグ修正/仕様変更】</size>\n"
                     + "・秘匿チャットが透け透けな問題の修正\n"
@@ -616,7 +616,7 @@ public class ModNewsHistory
                     Number = 100027,
                     Title = "ぽんこつ of the year 受賞しそう",
                     SubTitle = "<color=#00c1ff>Town Of Host-K v519.22.14</color>",
-                    ShortTitle = "<color=#00c1ff>◆TOH-K v519.22.14</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v519.22.14</color>",
                     Text = "<size=80%>of the year受賞しそうでいやー!!ってね。\n"
                     + "<size=125%>【バグ修正/仕様変更】</size>\n"
                     + "・サドンデスモードだとめちゃくちゃ重い問題の修正...?\n"
@@ -629,6 +629,37 @@ public class ModNewsHistory
                     + "\n\n次アプデとかでちょっと軽くできれば...\n\nbyぽんこつ"
                     ,
                     Date = "2024-11-16T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            {
+                var news = new ModNews
+                {
+                    Number = 100028,
+                    Title = "11月もう後半だってぇ!?",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v519.23</color>",
+                    ShortTitle = "<color=#00c1ff>◆TOH-K v519.23</color>",
+                    Text = "<size=80%>前のニュースで寒くなった人ゴメンナサイ()\n"
+                    + "<size=125%>【バグ修正/仕様変更】</size>\n"
+                    + "・処理を結構変更しました軽くなるかもしれません。分かりません\n"
+                    + "・「役職を固定」設定でクラッシュ / 想定通りに動作しない問題の修正\n"
+                    + "・秘匿チャットがそんなに安定してなさそうなので処理を変更\n"
+                    + "・スナイパーの位置通知で導入者視点名前とかがちょっと見ずらい問題の修正\n"
+                    + "・緊急サボが修復できない場合、キルフラッシュが継続されちゃう問題の対応\n"
+                    + "・ジャッカルドールが一定条件下で生存カウントがおかしくなる問題の修正\n"
+                    + "・幽霊役職になっている時の/m処理をちょっと変更\n"
+                    + "<size=125%>【新機能】</size>\n"
+                    + "・ズーム使用中、左Shiftを押すとズームをリセットする機能の追加\n"
+                    + "・AmongUsの画面サイズの比率が16:9じゃない時、設定画面を小さくするように変更\n"
+                    + "・クライアントオプションにアウトロをスクショする設定を追加\n"
+                    + "・アウトロにスクショ機能を搭載してみたよっ!\n"
+                    + "・TOHK_DATAフォルダ内に保存されるぜ\n"
+                    + "<size=125%>【新役職】</size>\n"
+                    + "今回の新役職は「<b><u>妖狐</u></b>」だよ。\n"
+                    + "サボタージュが直せなかったり\nキルガードが付与されたりしてタスクやって生存すれば勝利って奴さ。\n詳しくはGitHubのwikiを見てくれよなっ!!\n"
+                    + "\n処理をめっちゃ変更して疲れちゃったパンダより"
+                    ,
+                    Date = "2024-11-21T00:00:00Z"
                 };
                 AllModNews.Add(news);
 

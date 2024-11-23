@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
+using UnityEngine;
 using static TownOfHost.Translator;
 
 namespace TownOfHost.Modules;
@@ -11,11 +12,16 @@ namespace TownOfHost.Modules;
 public static class LastGameSave
 {
     private static readonly string PATH = new("./TOHK_DATA/LastGameResult.txt");
+    private static readonly DirectoryInfo ScreenShotFolder = new("./TOHK_DATA/ScreenShots/");
 
     [PluginModuleInitializer]
     public static void Init()
     {
         CreateIfNotExists(true);
+        if (!ScreenShotFolder.Exists)
+        {
+            ScreenShotFolder.Create();
+        }
     }
 
     public static void CreateIfNotExists(bool sakujo = false, bool oti = false)
@@ -115,5 +121,26 @@ public static class LastGameSave
             sb.Append(string.Format(GetString("Result.Task"), Main.Alltask));
             return "\n\n" + sb.ToString().RemoveHtmlTags();
         }
+    }
+    public static void SeveImage(bool autosave = false)
+    {
+        var endGameNavigation = GameObject.Find("EndGameNavigation");
+        if (!autosave)
+        {
+            if (endGameNavigation == null) return;
+            endGameNavigation.SetActive(false);
+        }
+        SetEverythingUpPatch.ScreenShotbutton.Button.transform.SetLocalY(-50);
+        var now = DateTime.Now;
+        var path = $"{ScreenShotFolder.FullName}TOH-Kv{Main.PluginVersion}-{now.Year}-{now.Month}-{now.Day}-{now.Hour}.{now.Minute}.png";
+
+        _ = new LateTask(() => ScreenCapture.CaptureScreenshot(path), 0.5f, "SecreenShot");
+
+        if (!autosave)
+            _ = new LateTask(() =>
+            {
+                endGameNavigation.SetActive(true);
+                SetEverythingUpPatch.ScreenShotbutton.Button.transform.SetLocalY(2.6f);
+            }, 1f, "", true);
     }
 }

@@ -25,7 +25,7 @@ public sealed class Staff : RoleBase
     )
     {
         EndedTaskInAlive = false;
-        kakusei = !Kakusei.GetBool();
+        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
         ta = Task.GetInt();
     }
     enum OptionName

@@ -151,7 +151,7 @@ namespace TownOfHost.Roles
                         if (!AssignRoleList.Contains(addon)) AssignRoleList.Add(addon);
             }
             else
-            if (Options.SuddenDeathMode.GetBool())
+            if (Modules.SuddenDeathMode.NowSuddenDeathMode)
             {
                 var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
 

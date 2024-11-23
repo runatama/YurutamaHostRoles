@@ -108,15 +108,10 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
             ShotLimit--;
             SendRPC();
             var AlienTairo = false;
-            foreach (var al in Alien.Aliens)
-            {
-                AlienTairo = al.CheckSheriffKill(target);
-            }
-            if (target.Is(CustomRoles.JackalAlien))
-                foreach (var al in Neutral.JackalAlien.Aliens)
-                {
-                    AlienTairo = al.CheckSheriffKill(target);
-                }
+            var targetroleclass = target.GetRoleClass();
+            if ((targetroleclass as Alien)?.CheckSheriffKill(target) == true) AlienTairo = true;
+            if ((targetroleclass as JackalAlien)?.CheckSheriffKill(target) == true) AlienTairo = true;
+
             if (!CanBeKilledBy(target) || AlienTairo)
             {
                 //ターゲットが大狼かつ死因を変える設定なら死因を変える、それ以外はMisfire

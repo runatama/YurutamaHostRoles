@@ -91,7 +91,6 @@ namespace TownOfHost.Modules
                 return opt;
             }
 
-            AURoleOptions.ShapeshifterLeaveSkin = false;//スキンはデフォではOFFにする
 
             AURoleOptions.SetOpt(opt);
 
@@ -138,6 +137,15 @@ namespace TownOfHost.Modules
                 //    return opt;
             }
 
+            AURoleOptions.ShapeshifterLeaveSkin = roleClass?.CanDesyncShapeshift ?? false;
+
+            if (player.Is(CustomRoles.MagicHand))
+                opt.SetInt(Int32OptionNames.KillDistance, MagicHand.KillDistance.GetInt());
+
+            //キルレンジ
+            if (OverrideKilldistance.AllData.TryGetValue(role, out var killdistance))
+                opt.SetInt(Int32OptionNames.KillDistance, killdistance.Killdistance.GetInt());
+
             if (Amnesia.CheckAbility(player))
                 roleClass?.ApplyGameOptions(opt);
 
@@ -147,9 +155,14 @@ namespace TownOfHost.Modules
                 {
                     case CustomRoles.LastImpostor:
                         if (LastImpostor.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+                        if (OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastImpostor, out var kd))
+                            opt.SetInt(Int32OptionNames.KillDistance, kd.Killdistance.GetInt());
                         break;
                     case CustomRoles.LastNeutral:
                         if (LastNeutral.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+                        if ((roleClass is ILNKiller || LastNeutral.ChKilldis.GetBool()) && OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastNeutral, out var killd))
+                            opt.SetInt(Int32OptionNames.KillDistance, killd.Killdistance.GetInt());
+
                         break;
                     case CustomRoles.watching:
                         opt.SetBool(BoolOptionNames.AnonymousVotes, false);
@@ -169,16 +182,17 @@ namespace TownOfHost.Modules
                 }
             }
 
+            var isElectrical = Utils.IsActive(SystemTypes.Electrical);
             //Moon
             if (HasMoon)
-                if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 5f); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision * 5f); }
+                if (isElectrical) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 5f); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision * 5f); }
 
             //Lighting
             if (HasLithing)
             {
-                if (Utils.IsActive(SystemTypes.Electrical) && HasMoon) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 5f); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision * 5f); }
+                if (isElectrical && HasMoon) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 5f); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision * 5f); }
                 else//停電時はクルー視界
-                if (Utils.IsActive(SystemTypes.Electrical)) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision); }
+                if (isElectrical) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision); }
                 else { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision); };
             }
 
@@ -232,19 +246,6 @@ namespace TownOfHost.Modules
             AURoleOptions.ProtectionDurationSeconds = 0f;
             AURoleOptions.ImpostorsCanSeeProtect = false;
 
-            if (player.Is(CustomRoles.MagicHand))
-                opt.SetInt(Int32OptionNames.KillDistance, MagicHand.KillDistance.GetInt());
-
-            //キルレンジ
-            if (OverrideKilldistance.AllData.TryGetValue(role, out var killdistance))
-                opt.SetInt(Int32OptionNames.KillDistance, killdistance.Killdistance.GetInt());
-
-            if (player.Is(CustomRoles.LastImpostor) && OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastImpostor, out var kd))
-                opt.SetInt(Int32OptionNames.KillDistance, kd.Killdistance.GetInt());
-
-            if (player.Is(CustomRoles.LastNeutral))
-                if ((player.GetRoleClass() is ILNKiller || LastNeutral.ChKilldis.GetBool()) && OverrideKilldistance.AllData.TryGetValue(CustomRoles.LastNeutral, out var killd))
-                    opt.SetInt(Int32OptionNames.KillDistance, killd.Killdistance.GetInt());
 
             //幽霊役職用の奴
             if (player.IsGorstRole())

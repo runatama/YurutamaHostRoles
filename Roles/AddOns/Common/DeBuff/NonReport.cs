@@ -34,8 +34,5 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-
     }
 }

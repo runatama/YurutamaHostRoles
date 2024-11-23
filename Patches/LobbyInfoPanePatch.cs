@@ -125,7 +125,8 @@ namespace TownOfHost
                     for (int index2 = 0; index2 < Options.CustomRoleSpawnChances.Count; ++index2)
                     {
                         CustomRoles role = Options.CustomRoleSpawnChances.Keys.ToList()[index2];
-                        if ((role.GetRoleInfo()?.Tab != null) && (TabGroup)index1 + 1 == role.GetRoleInfo().Tab)
+                        var info = role.GetRoleInfo();
+                        if ((info?.Tab != null) && (TabGroup)index1 + 1 == info.Tab)
                         {
                             int chancePerGame = Options.GetRoleChance(role);
                             int numPerGame = Options.GetRoleCount(role);

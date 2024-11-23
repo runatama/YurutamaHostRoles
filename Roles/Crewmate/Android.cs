@@ -30,6 +30,11 @@ public sealed class Android : RoleBase
         Battery = 0;
         NowVent = 999;
         bat = zero;
+        optrmovebattery = RemoveBattery.GetBool();
+        optremove = Remove.GetFloat();
+        optremovetime = RemoveTime.GetFloat();
+        maxcooltime = CoolTime.GetFloat();
+        addbattery = TaskAddBattery.GetFloat() * 0.01f;
     }
     static OptionItem TaskAddBattery;
     static OptionItem CoolTime;
@@ -37,6 +42,11 @@ public sealed class Android : RoleBase
     static OptionItem RemoveBattery;
     static OptionItem Remove;//減る値
     static OptionItem RemoveTime;//減る時間
+    static float addbattery;
+    static float maxcooltime;
+    static bool optrmovebattery;
+    static float optremove;
+    static float optremovetime;
     string bat;
     float Battery;
     float time;
@@ -61,14 +71,14 @@ public sealed class Android : RoleBase
         var InMax = Battery * InVentTime.GetFloat();
         if (InMax <= 1f) InMax = 1f;
 
-        AURoleOptions.EngineerCooldown = Battery == 0 ? 200f : ((CoolTime.GetFloat() * 3) - (Battery * CoolTime.GetFloat() * 2));
+        AURoleOptions.EngineerCooldown = Battery == 0 ? 200f : ((maxcooltime * 3) - (Battery * maxcooltime * 2));
         AURoleOptions.EngineerInVentMaxTime = Battery == 0 ? 1f : InMax;
     }
     public override bool OnCompleteTask(uint taskid)
     {
         var lastbatt = Battery;
 
-        Battery += TaskAddBattery.GetFloat() * 0.01f;
+        Battery += addbattery;
 
         //0なら更新入れる
         if (lastbatt <= 0)
@@ -105,15 +115,15 @@ public sealed class Android : RoleBase
         //もうすでに充電切れなら
         if (Battery <= 0) return;
         //減らさないなら
-        if (!RemoveBattery.GetBool()) return;
+        if (!optrmovebattery) return;
         //タスクターンじゃないなら
         if (GameStates.Intro || GameStates.Meeting) return;
 
         time += Time.fixedDeltaTime;
 
-        if (time >= RemoveTime.GetFloat())
+        if (optremovetime <= time)
         {
-            Battery -= Remove.GetFloat() * 0.01f;//1/100にして小数に対応させる
+            Battery -= optremove * 0.01f;//1/100にして小数に対応させる
             time = 0;
             if (Battery < 0) Battery = 0;
 

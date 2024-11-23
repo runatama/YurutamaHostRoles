@@ -48,7 +48,8 @@ namespace TownOfHost.Modules.ChatManager
             string msg = message;
             string playername = player.GetNameWithRole();
             message = message.ToLower().TrimStart().TrimEnd();
-            if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return;
+            var isalive = player.IsAlive();
+            if (!isalive || !AmongUsClient.Instance.AmHost) return;
             if (GameStates.IsInGame) operate = 3;
             if (!GameStates.IsInGame) operate = 6;
             if (msg.StartsWith("<size=0>.</size>")) operate = 3;//投票の記録
@@ -79,11 +80,11 @@ namespace TownOfHost.Modules.ChatManager
             }
             else if (operate == 6)
             {
-                if (Main.UseYomiage.Value && player.IsAlive()) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
+                if (Main.UseYomiage.Value && isalive) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
             }
             else if (operate == 3)
             {
-                if (Main.UseYomiage.Value && player.IsAlive()) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
+                if (Main.UseYomiage.Value && isalive) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
                 message = msg;
                 string chatEntry = $"{player.PlayerId}: {message}";
                 chatHistory.Add(chatEntry);

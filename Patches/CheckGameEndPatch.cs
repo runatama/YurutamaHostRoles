@@ -16,6 +16,7 @@ using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles;
 using System.Text;
 using System.Text.RegularExpressions;
+using TownOfHost.Modules;
 
 namespace TownOfHost
 {
@@ -45,7 +46,7 @@ namespace TownOfHost
                 //カモフラージュ強制解除
                 PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true));
 
-                if (Options.CurrentGameMode != CustomGameMode.Standard || !Options.SuddenDeathMode.GetBool())
+                if (Options.CurrentGameMode != CustomGameMode.Standard || !SuddenDeathMode.NowSuddenDeathMode)
                     switch (CustomWinnerHolder.WinnerTeam)
                     {
                         case CustomWinner.Crewmate:
@@ -58,8 +59,7 @@ namespace TownOfHost
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
-                                if (pc.Is(CustomRoles.SKMadmate)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-                                if (pc.Is(CustomRoles.Jackaldoll)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                if (pc.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.Jackaldoll) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
                                 if (pc.IsRiaju()) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
                             }
                             break;
@@ -71,7 +71,7 @@ namespace TownOfHost
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
-                                if (pc.Is(CustomRoles.Jackaldoll)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                if (pc.GetCustomRole() is CustomRoles.Jackaldoll) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
                                 if (pc.IsRiaju()) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
                             }
                             break;
@@ -92,6 +92,7 @@ namespace TownOfHost
                     //追加勝利陣営
                     foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.Is(CustomRoles.PhantomThief)))
                     {
+                        var isAlive = pc.IsAlive();
                         if (Amnesia.CheckAbility(pc))
                             if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && !pc.Is(CustomRoles.PhantomThief) && !pc.IsRiaju())
                             {
@@ -103,7 +104,7 @@ namespace TownOfHost
                                     continue;
                                 }
                             }
-                        if (!pc.Is(CustomRoles.Terrorist) && !pc.Is(CustomRoles.Madonna) && pc.Is(CustomRoles.LastNeutral) && pc.IsAlive() && LastNeutral.GiveOpportunist.GetBool() && !pc.IsRiaju())
+                        if (!pc.Is(CustomRoles.Terrorist) && !pc.Is(CustomRoles.Madonna) && pc.Is(CustomRoles.LastNeutral) && isAlive && LastNeutral.GiveOpportunist.GetBool() && !pc.IsRiaju())
                         {
                             if (reason.Equals(GameOverReason.HumansByTask) && !LastNeutral.CanNotTaskWin.GetBool()) continue;
                             if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate && reason.Equals(GameOverReason.HumansByVote) && !reason.Equals(GameOverReason.HumansByTask) && !LastNeutral.CanNotCrewWin.GetBool()) continue;
@@ -112,7 +113,7 @@ namespace TownOfHost
                             continue;
                         }
                         if (pc.Is(CustomRoles.Amanojaku) && !reason.Equals(GameOverReason.HumansByTask) && !reason.Equals(GameOverReason.HumansByVote)
-                        && (!pc.Is(CustomRoles.LastNeutral) || !LastNeutral.GiveOpportunist.GetBool()) && (pc.IsAlive() || !Amanojaku.Seizon.GetBool()) && !pc.IsRiaju())
+                        && (!pc.Is(CustomRoles.LastNeutral) || !LastNeutral.GiveOpportunist.GetBool()) && (isAlive || !Amanojaku.Seizon.GetBool()) && !pc.IsRiaju())
                         {
                             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
@@ -151,7 +152,9 @@ namespace TownOfHost
                     }
                 }
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Draw)
+                {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
                         if (pc.Is(CustomRoles.CurseMaker))
                             foreach (var cm in CurseMaker.curseMakers)
                             {
@@ -161,9 +164,17 @@ namespace TownOfHost
                                     CustomWinnerHolder.WinnerIds.Add(cm.Player.PlayerId);
                                 }
                             }
+                        if (pc.GetRoleClass() is Fox fox)
+                        {
+                            if (fox.FoxCheckWin(ref reason)) break;
+                        }
+                    }
+                }
                 ShipStatus.Instance.enabled = false;
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate && (reason.Equals(GameOverReason.HumansByTask) || reason.Equals(GameOverReason.HumansByVote)))
                     reason = GameOverReason.ImpostorByKill;
+                if (Options.OutroCrewWinreasonchenge.GetBool() && (reason.Equals(GameOverReason.HumansByTask) || reason.Equals(GameOverReason.HumansByVote)))
+                    reason = GameOverReason.ImpostorByVote;
                 StartEndGame(reason);
                 predicate = null;
             }
@@ -300,6 +311,7 @@ namespace TownOfHost
                 // ゲーム終了を確実に最後に届けるための遅延
                 yield return new WaitForSeconds(EndGameDelay);
             }
+            yield return new WaitForSeconds(EndGameDelay);
             //ちゃんとバニラに試合結果表示させるための遅延
             SetRoleSummaryText();
             yield return new WaitForSeconds(EndGameDelay);
@@ -316,7 +328,7 @@ namespace TownOfHost
             var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
             if (winnerRole >= 0)
                 CustomWinnerColor = UtilsRoleText.GetRoleColorCode(winnerRole);
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw && Options.SuddenDeathMode.GetBool())
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw && SuddenDeathMode.NowSuddenDeathMode)
             {
                 var color = Color.white;
                 var wr = CustomWinnerHolder.WinnerIds.FirstOrDefault();
@@ -500,7 +512,8 @@ namespace TownOfHost
             {
                 reason = GameOverReason.ImpostorByKill;
 
-                int Imp = PlayerCatch.AlivePlayersCount(CountTypes.Impostor);
+
+                /* int Imp = PlayerCatch.AlivePlayersCount(CountTypes.Impostor);
                 int Jackal = PlayerCatch.AlivePlayersCount(CountTypes.Jackal);
 
                 //ジャッカルカウントが0でカウントが増える前に終わってしまわないように
@@ -513,8 +526,46 @@ namespace TownOfHost
                 int Remotekiller = PlayerCatch.AlivePlayersCount(CountTypes.Remotekiller);
                 int GrimReaper = PlayerCatch.AlivePlayersCount(CountTypes.GrimReaper);
                 int Crew = PlayerCatch.AlivePlayersCount(CountTypes.Crew);
+*/
+                int Imp = 0;
+                int Jackal = 0;
+                int Crew = 0;
+                int Remotekiller = 0;
+                int GrimReaper = 0;
+                int Fox = 0;
+                int FoxAndCrew = 0;
 
-                if (Imp == 0 && Crew == 0 && Jackal == 0 && Remotekiller == 0) //全滅
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                {
+                    switch (pc.GetCountTypes())
+                    {
+                        case CountTypes.Crew: Crew++; FoxAndCrew++; break;
+                        case CountTypes.Impostor: Imp++; break;
+                        case CountTypes.Jackal: Jackal++; break;
+                        case CountTypes.Remotekiller: Remotekiller++; break;
+                        case CountTypes.GrimReaper: GrimReaper++; break;
+                        case CountTypes.Fox:
+                            if (pc.GetRoleClass() is Fox fox)
+                            {
+                                Fox++;
+                                FoxAndCrew += fox.FoxCount();
+                            }
+                            break;
+                    }
+                }
+                if (Jackal == 0 && (CustomRoles.Jackal.IsPresent() || CustomRoles.JackalMafia.IsPresent() || CustomRoles.JackalAlien.IsPresent()))
+                    foreach (var player in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        if (player.Is(CustomRoles.Jackaldoll) && JackalDoll.Oyabun.ContainsKey(player.PlayerId))
+                        {
+                            Jackal++;
+                            Crew--;
+                            FoxAndCrew--;
+                            break;
+                        }
+                    }
+
+                if (Imp == 0 && FoxAndCrew == 0 && Jackal == 0 && Remotekiller == 0) //全滅
                 {
                     reason = GameOverReason.ImpostorByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
@@ -581,12 +632,12 @@ namespace TownOfHost
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
-                else if (Jackal == 0 && Remotekiller == 0 && Crew <= Imp) //インポスター勝利
+                else if (Jackal == 0 && Remotekiller == 0 && FoxAndCrew <= Imp) //インポスター勝利
                 {
                     reason = GameOverReason.ImpostorByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
                 }
-                else if (Imp == 0 && Remotekiller == 0 && Crew <= Jackal) //ジャッカル勝利
+                else if (Imp == 0 && Remotekiller == 0 && FoxAndCrew <= Jackal) //ジャッカル勝利
                 {
                     reason = GameOverReason.ImpostorByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jackal);
@@ -595,7 +646,7 @@ namespace TownOfHost
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalAlien);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackaldoll);
                 }
-                else if (Imp == 0 && Jackal == 0 && Crew <= Remotekiller)
+                else if (Imp == 0 && Jackal == 0 && FoxAndCrew <= Remotekiller)
                 {
                     reason = GameOverReason.ImpostorByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Remotekiller);
@@ -816,7 +867,7 @@ namespace TownOfHost
                 (critical = sys.TryCast<ICriticalSabotage>()) != null && // キャスト可能確認
                 critical.Countdown < 0f) // タイムアップ確認
             {
-                if (Options.SuddenDeathMode.GetBool())
+                if (SuddenDeathMode.NowSuddenDeathMode)
                 {
                     PlayerCatch.AllAlivePlayerControls.Do(p => p.RpcMurderPlayerV2(p));
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);

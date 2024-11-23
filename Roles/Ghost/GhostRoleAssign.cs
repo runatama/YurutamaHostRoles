@@ -60,6 +60,9 @@ namespace TownOfHost.Roles.Ghost
                     if (GhostAssingCount[data.Role] >= data.Role.GetRealCount()) continue;
                     GhostAssingCount[data.Role]++;
 
+                    if (!Utils.RoleSendList.Contains(pc.PlayerId))
+                        Utils.RoleSendList.Add(pc.PlayerId);
+
                     PlayerState.GetByPlayerId(pc.PlayerId).SetGhostRole(role);
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
 

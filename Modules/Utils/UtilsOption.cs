@@ -53,7 +53,6 @@ namespace TownOfHost
                         if (role.GetRoleInfo()?.Description is { } description)
                         {
                             SendMessage(description.FullFormatHelp, PlayerId);
-                            if (role is CustomRoles.Driver) SendMessage(CustomRoles.Braid.GetRoleInfo()?.Description.FullFormatHelp ?? "", PlayerId);
                         }
                         // RoleInfoがない役職は従来処理
                         else
@@ -533,15 +532,16 @@ namespace TownOfHost
         }
         public static void SendRoleInfo(PlayerControl player)
         {
+            var roleclas = player.GetRoleClass();
             var role = player.GetCustomRole();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-            if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null)
-                role = player.GetRoleClass().Jikaku();
+            if (roleclas?.Jikaku() != CustomRoles.NotAssigned && roleclas != null)
+                role = roleclas.Jikaku();
 
             if (role is CustomRoles.Amnesiac)
             {
-                if (player.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                    role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                if (roleclas is Amnesiac amnesiac && !amnesiac.omoidasita)
+                    role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
 
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
@@ -582,10 +582,11 @@ namespace TownOfHost
         }
         public static void GetAddonsHelp(PlayerControl player)
         {
+            var roleclas = player.GetRoleClass();
             var AddRoleTextData = GetRoleColorCode(player.GetCustomRole());
             if (player.Is(CustomRoles.Amnesia)) AddRoleTextData = player.Is(CustomRoleTypes.Crewmate) ? "#8cffff" : (player.Is(CustomRoleTypes.Neutral) ? "#cccccc" : "#ff1919");
-            if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null)
-                AddRoleTextData = GetRoleColorCode(player.GetRoleClass().Jikaku());
+            if (roleclas?.Jikaku() != CustomRoles.NotAssigned && roleclas != null)
+                AddRoleTextData = GetRoleColorCode(roleclas.Jikaku());
 
             var AddRoleInfoTitleString = $"{GetString("AddonInfoTitle")}";
             var AddRoleInfoTitle = $"<color={AddRoleTextData}>{AddRoleInfoTitleString}";
@@ -639,6 +640,16 @@ namespace TownOfHost
 
             if (s.ToString().RemoveHtmlTags() != "" && s.Length != 0)
                 SendMessage(s.ToString(), player.PlayerId, AddRoleInfoTitle);
+
+            GetGhostRolesInfo(player);
+        }
+        public static void GetGhostRolesInfo(PlayerControl player)
+        {
+            if (player.IsAlive()) return;
+            if (player == null) return;
+            if (!player.IsGorstRole()) return;
+
+            SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId, $"<color=#8989d9>{GetString("GhostRolesIntoTitle")}</color>");
         }
         public static string GetAddonsHelp(CustomRoles role)
         {

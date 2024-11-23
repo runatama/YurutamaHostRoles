@@ -64,7 +64,7 @@ namespace TownOfHost.Modules
         public static bool Canuseability()
         {
             if (MadAvenger.Skill) return false;
-            if (Options.FirstTurnMeeting.GetBool() && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return false;
+            if (Options.firstturnmeeting && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return false;
             return true;
         }
     }

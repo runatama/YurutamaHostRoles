@@ -75,74 +75,60 @@ public class MeetingVoteManager
         }
 
         bool doVote = true;
+        //定義
+        var player = PlayerCatch.GetPlayerById(voter);
+        var votetarget = PlayerCatch.GetPlayerById(voteFor);
+        RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player);
+        var giveaddon = data.GiveAddons.GetBool();
+
+        if (!votetarget.IsAlive() && voteFor != Skip && voteFor != NoVote)
+        {
+            logger.Info($"{votetarget.GetNameWithRole().RemoveHtmlTags()} 相手が死んでいるので投票は取り消されます");
+            doVote = false;
+            return;
+        }
+
+        if ((player.Is(CustomRoles.Elector) || (giveaddon && data.GiveElector.GetBool())) && voteFor == Skip)
+        {
+            logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} スキップ投票は取り消されます");
+            doVote = false;
+            return;
+        }
+
         foreach (var role in CustomRoleManager.AllActiveRoles.Values)
         {
             var (roleVoteFor, roleNumVotes, roleDoVote) = ((byte?)voteFor, (int?)numVotes, isIntentional);
-            var player = PlayerCatch.GetPlayerById(voter);
-            if (Amnesia.CheckAbility(player))
+            if (Amnesia.CheckAbility(role.Player))
                 (roleVoteFor, roleNumVotes, roleDoVote) = role.ModifyVote(voter, voteFor, isIntentional);
 
             if (roleVoteFor.HasValue)
             {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
+                logger.Info($"{role.Player.GetNameWithRole()} が {player.GetNameWithRole().RemoveHtmlTags()} の投票先を {GetVoteName(roleVoteFor.Value)} に変更します");
                 voteFor = roleVoteFor.Value;
             }
-            var pc = PlayerCatch.GetPlayerById(voteFor);
-            if (!pc.IsAlive() && voteFor != Skip && voteFor != NoVote)
+            if (roleNumVotes.HasValue)
             {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} 相手が死んでいるので投票は取り消されます");
-                doVote = false;
+                logger.Info($"{role.Player.GetNameWithRole()} が {player.GetNameWithRole().RemoveHtmlTags()} の投票数を {roleNumVotes.Value} に変更します");
+                numVotes = roleNumVotes.Value;
             }
+            if (!roleDoVote)
+            {
+                logger.Info($"{role.Player.GetNameWithRole()} によって投票は取り消されます");
+                doVote = roleDoVote;
+            }
+        }
 
-            //追加投票
-            if (roleNumVotes.HasValue)//追加投票訳
-            {
-                if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, pc) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
-                {
-                    if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + data.AdditionalVote.GetInt() + PlusVote.AdditionalVote.GetInt();
-                    else numVotes = roleNumVotes.Value + data.AdditionalVote.GetInt();
-                }
-                else if (player.Is(CustomRoles.PlusVote)) numVotes = roleNumVotes.Value + PlusVote.AdditionalVote.GetInt();
-                else numVotes = roleNumVotes.Value;
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} が {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes} に変更します");
-            }
-            else if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, pc) && data.GiveAddons.GetBool() && data.GivePlusVote.GetBool())
-            {
-                if (player.Is(CustomRoles.PlusVote)) numVotes = data.AdditionalVote.GetInt() + PlusVote.AdditionalVote.GetInt() + 1;
-                else numVotes = data.AdditionalVote.GetInt() + 1;
-            }
-            else if (player.Is(CustomRoles.PlusVote))//プラスポート
-            {
-                logger.Info($"プラスポート:{role.Player.GetNameWithRole().RemoveHtmlTags()} が {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を {numVotes}+{PlusVote.AdditionalVote.GetInt()}  に変更します");
-                numVotes = PlusVote.AdditionalVote.GetInt();
-            }
+        //プラスポート
+        if (giveaddon && data.GivePlusVote.GetBool())
+            numVotes += data.AdditionalVote.GetInt();
+        if (player.Is(CustomRoles.PlusVote))
+            numVotes += PlusVote.AdditionalVote.GetInt();
 
-            if (player.Is(CustomRoles.Notvoter))
-            {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
-                numVotes = 0;
-            }
-            else
-            if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, pc) && data.GiveAddons.GetBool() && data.GiveNotvoter.GetBool())
-            {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} の {PlayerCatch.GetPlayerById(voter).GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
-                numVotes = 0;
-            }
-
-            if (player.Is(CustomRoles.Elector) && voteFor == Skip)
-            {
-                logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} スキップ投票は取り消されます");
-                doVote = false;
-            }
-            else
-            if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var da, pc))
-            {
-                if (da.GiveElector.GetBool() && voteFor == Skip)
-                {
-                    logger.Info($"{role.Player.GetNameWithRole().RemoveHtmlTags()} スキップ投票は取り消されます");
-                    doVote = false;
-                }
-            }
+        //ノットヴォウター
+        if (player.Is(CustomRoles.Notvoter) || (giveaddon && data.GiveNotvoter.GetBool()))
+        {
+            logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} の {player.GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
+            numVotes = 0;
         }
 
         if (doVote)
@@ -300,16 +286,17 @@ public class MeetingVoteManager
                 continue;
             }
 
-            if (PlayerCatch.GetPlayerById(vote.Voter) == null) continue;
+            var voter = PlayerCatch.GetPlayerById(vote.Voter);
+            if (voter == null) continue;
 
             votes[vote.VotedFor] += vote.NumVotes;
 
             if (vote.NumVotes != 0)
             {
-                if (PlayerCatch.GetPlayerById(vote.Voter).Is(CustomRoles.Tiebreaker)
-                || (PlayerCatch.GetPlayerById(vote.Voter).Is(CustomRoles.LastImpostor) && LastImpostor.GiveTiebreaker.GetBool())
-                || (PlayerCatch.GetPlayerById(vote.Voter).Is(CustomRoles.LastNeutral) && LastNeutral.GiveTiebreaker.GetBool())
-                || (RoleAddAddons.GetRoleAddon(PlayerCatch.GetPlayerById(vote.Voter).GetCustomRole(), out var data, PlayerCatch.GetPlayerById(vote.Voter)) && data.GiveAddons.GetBool() && data.GiveTiebreaker.GetBool())
+                if (voter.Is(CustomRoles.Tiebreaker)
+                || (voter.Is(CustomRoles.LastImpostor) && LastImpostor.GiveTiebreaker.GetBool())
+                || (voter.Is(CustomRoles.LastNeutral) && LastNeutral.GiveTiebreaker.GetBool())
+                || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var data, voter) && data.GiveAddons.GetBool() && data.GiveTiebreaker.GetBool())
                 )//タイブレ投票は1固定
                 { Tie[vote.VotedFor] += 1; }
             }
@@ -418,10 +405,11 @@ public class MeetingVoteManager
 
         public void DoVote(byte voteTo, int numVotes)
         {
-            logger.Info($"投票: {PlayerCatch.GetPlayerById(Voter).GetNameWithRole().RemoveHtmlTags()} => {GetVoteName(voteTo)} x {numVotes}");
+            var pc = PlayerCatch.GetPlayerById(Voter);
+            logger.Info($"投票: {pc.GetNameWithRole().RemoveHtmlTags()} => {GetVoteName(voteTo)} x {numVotes}");
             VotedFor = voteTo;
             NumVotes = numVotes;
-            ChatManager.ChatManager.SendMessage(PlayerCatch.GetPlayerById(Voter), "<size=0>.</size>");
+            ChatManager.ChatManager.SendMessage(pc, "<size=0>.</size>");
         }
     }
 

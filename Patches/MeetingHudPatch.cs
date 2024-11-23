@@ -171,7 +171,7 @@ public static class MeetingHudPatch
             Send = "";
             Title = "";
 
-            if (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.FirstMeeting) Title += "<b>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</b>\n";
+            if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting) Title += "<b>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</b>\n";
             else Title += "<b>" + GetString("Message.first").Color(Palette.Orange) + "</b>\n";
 
             foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
@@ -315,7 +315,7 @@ public static class MeetingHudPatch
                                 fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             continue;
                         case CustomRoles.LastImpostor:
-                            if (!LastImpostor.GiveGuesser.GetBool()) continue;
+                            if (!LastImpostor.giveguesser) continue;
                             if (!seer.Data.IsDead && target == seer)
                                 fsb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
@@ -364,7 +364,7 @@ public static class MeetingHudPatch
                     if (p.ToArray().AddRangeToArray(a.ToArray()).LastOrDefault() == target)
                     {
                         var team = seer.GetCustomRole().GetCustomRoleTypes();
-                        if (Options.CanSeeTimeLimit.GetBool() && Options.TimeLimitDevices.GetBool())
+                        if (Options.CanSeeTimeLimit.GetBool() && DisableDevice.optTimeLimitDevices)
                         {
                             var info = "<size=60%>" + DisableDevice.GetAddminTimer() + "</color>　" + DisableDevice.GetCamTimr() + "</color>　" + DisableDevice.GetVitalTimer() + "</color></size>";
                             if ((team == CustomRoleTypes.Impostor && Options.CanseeImpTimeLimit.GetBool()) || (team == CustomRoleTypes.Crewmate && Options.CanseeCrewTimeLimit.GetBool())
@@ -533,18 +533,19 @@ public static class MeetingHudPatch
             }
             else
             {
+                var role = exiledplayer.GetCustomRole();
                 var isMadmate =
-                    exiledplayer.Is(CustomRoleTypes.Madmate) ||
+                    role.IsMadmate() ||
                     // マッド属性化時に削除
                     (exiledplayer.GetRoleClass() is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
                 foreach (var candidate in PlayerCatch.AllAlivePlayerControls)
                 {
                     if (candidate == exiledplayer || Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)) continue;
-                    switch (exiledplayer.GetCustomRole())
+                    switch (role)
                     {
                         // ここにINekomata未適用の道連れ役職を追加
                         default:
-                            if (RoleAddAddons.GetRoleAddon(exiledplayer.GetCustomRole(), out var data, exiledplayer) && data.GiveAddons.GetBool())
+                            if (RoleAddAddons.GetRoleAddon(role, out var data, exiledplayer) && data.GiveAddons.GetBool())
                             {
                                 if (deathReason == CustomDeathReason.Vote && data.GiveRevenger.GetBool())
 

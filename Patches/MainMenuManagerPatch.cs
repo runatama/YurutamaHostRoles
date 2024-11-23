@@ -7,6 +7,7 @@ using AmongUs.Data;
 using Assets.InnerNet;
 using System.Text.RegularExpressions;
 using TMPro;
+using static TownOfHost.GameSettingMenuStartPatch;
 
 namespace TownOfHost
 {
@@ -34,7 +35,7 @@ namespace TownOfHost
             {
                 discordButton = CreateButton(
                     "DiscordButton",
-                    new(-2.5f, -1f, 1f),
+                    new(-2.5f * w, -1f, 1f),
                     new(88, 101, 242, byte.MaxValue),
                     new(148, 161, byte.MaxValue, byte.MaxValue),
                     () => Application.OpenURL(Main.DiscordInviteUrl),
@@ -47,7 +48,7 @@ namespace TownOfHost
             {
                 gitHubButton = CreateButton(
                     "GitHubButton",
-                    new(-0.8f, -1f, 1f),//-1f
+                    new(-0.8f * w, -1f, 1f),//-1f
                     new(153, 153, 153, byte.MaxValue),
                     new(209, 209, 209, byte.MaxValue),
                     () => Application.OpenURL("https://github.com/KYMario/TownOfHost-K"),
@@ -59,7 +60,7 @@ namespace TownOfHost
             {
                 TwitterXButton = CreateButton(
                     "TwitterXButton",
-                    new(0.9f, -1f, 1f),
+                    new(0.9f * w, -1f, 1f),
                     new(0, 202, 255, byte.MaxValue),
                     new(60, 255, 255, byte.MaxValue),
                     () => Application.OpenURL("https://twitter.com/Tohkserver_k"),
@@ -70,7 +71,7 @@ namespace TownOfHost
             {
                 TOHkBOTButton = CreateButton(
                     "TOHkBOTButton",
-                    new(2.6f, -1f, 1f),
+                    new(2.6f * w, -1f, 1f),
                     new(0, 201, 87, byte.MaxValue),
                     new(60, 201, 87, byte.MaxValue),
                     () => Application.OpenURL("https://discord.com/api/oauth2/authorize?client_id=1198276538563567716&permissions=8&scope=bot"),
@@ -134,7 +135,7 @@ namespace TownOfHost
             {
                 betaversionchange = CreateButton(
                     "betaversionchange",
-                    new(-2.3f, -2.6963f, 1f),
+                    new(-2.3f * w, -2.6963f, 1f),
                     new(0, 255, 183, byte.MaxValue),
                     new(60, 255, 183, byte.MaxValue),
                     () =>
@@ -214,7 +215,7 @@ namespace TownOfHost
                 {
                     VersionChangeButton = CreateButton(
                         "VersionChangeButton",
-                        new(2.4036f, -2.6963f, 1f),
+                        new(2.4036f * w, -2.6963f, 1f),
                         new(0, 202, 255, byte.MaxValue),
                         new(60, 255, 255, byte.MaxValue),
                         () =>

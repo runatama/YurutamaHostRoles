@@ -103,8 +103,9 @@ namespace TownOfHost
         /// <param name="borudo">trueの場合ボールドで返します。</param>
         public static string GetPlayerColor(byte player, bool borudo = false)
         {
-            if (PlayerCatch.GetPlayerById(player) == null) return "";
-            var name = Main.AllPlayerNames.TryGetValue(player, out var N) ? N : PlayerCatch.GetPlayerById(player).Data.PlayerName;
+            var pc = PlayerCatch.GetPlayerById(player);
+            if (pc == null) return "";
+            var name = Main.AllPlayerNames.TryGetValue(player, out var N) ? N : pc.Data.PlayerName;
             if (borudo) return "<b>" + ColorString(Main.PlayerColors[player], $"{name}</b>");
             else return ColorString(Main.PlayerColors[player], $"{name}");
         }
@@ -156,6 +157,7 @@ namespace TownOfHost
                 || (seer.Is(CustomRoles.seeing) && (!IsActive(SystemTypes.Comms) || seeing.CanSeeComms.GetBool()))
             };
         }
+        public static bool NowKillFlash = false;
         public static void KillFlash(this PlayerControl player, bool sound = true, bool kiai = false)
         {
             //キルフラッシュ(ブラックアウト+リアクターフラッシュ)の処理
@@ -182,11 +184,12 @@ namespace TownOfHost
         }
         public static void AllPlayerKillFlash()
         {
-            if (Options.SuddenDeathMode.GetBool()) return;
+            if (SuddenDeathMode.NowSuddenDeathMode) return;
 
             var systemtypes = GetCriticalSabotageSystemType();
             ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
 
+            NowKillFlash = true;
             _ = new LateTask(() =>
             {
                 ShipStatus.Instance.RpcUpdateSystem(systemtypes, 16);
@@ -194,6 +197,7 @@ namespace TownOfHost
                 if (Main.NormalOptions.MapId == 4) //Airship用            
                     ShipStatus.Instance.RpcUpdateSystem(systemtypes, 17);
             }, Options.KillFlashDuration.GetFloat(), "Fix Reactor");
+            _ = new LateTask(() => NowKillFlash = false, Options.KillFlashDuration.GetFloat() * 2, "", true);
         }
         public static void BlackOut(this IGameOptions opt, bool IsBlackOut)
         {
@@ -210,22 +214,31 @@ namespace TownOfHost
         {
             var pc = PlayerCatch.GetPlayerById(playerId);
             if (pc == null) return false;
-            if (!pc.IsAlive() && pc.IsGorstRole()) return Options.GRCanSeeKillerColor.GetBool();
-            if (!pc.IsAlive() && !pc.IsGorstRole()) return Options.GhostCanSeeKillerColor.GetBool();
+            var isAlive = pc.IsAlive();
+            var IsGorstRole = pc.IsGorstRole();
+            if (!isAlive && IsGorstRole) return Options.GRCanSeeKillerColor.GetBool();
+            if (!isAlive && !IsGorstRole) return Options.GhostCanSeeKillerColor.GetBool();
             return false;
         }
-        public static string GetVitalText(byte playerId, bool RealKillerColor = false)
+        public static string GetVitalText(byte playerId, bool? RealKillerColor = false)
         {
             var state = PlayerState.GetByPlayerId(playerId);
 
             if (state == null) return GetString("DeathReason.Disconnected");
 
             string deathReason = state.IsDead ? GetString("DeathReason." + state.DeathReason) : GetString("Alive");
-            if (RealKillerColor)
+            switch (RealKillerColor)
             {
-                var KillerId = state.GetRealKiller();
-                Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : new Color32(162, 194, 230, 255);
-                deathReason = ColorString(color, deathReason);
+                case true:
+                    {
+                        var KillerId = state.GetRealKiller();
+                        Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : new Color32(162, 194, 230, 255);
+                        deathReason = ColorString(color, deathReason);
+                    }
+                    break;
+                case null:
+                    deathReason = $"<color=#80ffdd>{deathReason}</color>";
+                    break;
             }
             return deathReason;
         }
@@ -295,13 +308,9 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
             if (text.RemoveHtmlTags() == "") return;
             if (title == "") title = $"<color={Main.ModColor}>" + GetString($"DefaultSystemMessageTitle") + "</color>";
-            var Text = new StringBuilder();
             //すぐ</align>すると最終行もあれなので。
-            var fin = "";//rob ? "" : "<line-height=0%>\n<size=0>-</align>-</size></line-height>";
             var fir = rob ? "" : "<align=\"left\">";
-            Text.Append($"{fir}{text}{fin}");//システムメッセ検知のために～
-            var Send = Text.ToString();
-            Main.MessagesToSend.Add((Send, sendTo, $"{fir}{title}{fin}"));
+            Main.MessagesToSend.Add(($"{fir}{text}", sendTo, $"{fir}{title}"));
         }
         public static void ApplySuffix(PlayerControl pc)
         {
@@ -385,14 +394,14 @@ namespace TownOfHost
         {
             GameStates.Meeting = false;
             //天秤会議だと送らない
-            if (Balancer.Id == 255 && Balancer.target1 != 255 && Balancer.target2 != 255 && (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.First))
+            if (Balancer.Id == 255 && Balancer.target1 != 255 && Balancer.target2 != 255 && (!Options.firstturnmeeting || !MeetingStates.First))
             {
                 foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
                     roleClass.BalancerAfterMeetingTasks();
             }
             else
             {
-                if (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.First)
+                if (!Options.firstturnmeeting || !MeetingStates.First)
                 {
                     if (Amanojaku.Amaday.GetFloat() == Main.day) AmanojakuAssing.AssignAddOnsFromList();
                     if (Amnesia.Modoru.GetFloat() <= Main.day && Amnesia.TriggerDay.GetBool())
@@ -410,10 +419,10 @@ namespace TownOfHost
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     var roleClass = pc.GetRoleClass();
-                    if (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.First) roleClass?.AfterMeetingTasks();
+                    if (!Options.firstturnmeeting || !MeetingStates.First) roleClass?.AfterMeetingTasks();
                     roleClass?.Colorchnge();
                 }
-                if (!Options.FirstTurnMeeting.GetBool() || !MeetingStates.First)
+                if (!Options.firstturnmeeting || !MeetingStates.First)
                 {
                     if (AsistingAngel.ch())
                         AsistingAngel.Limit++;

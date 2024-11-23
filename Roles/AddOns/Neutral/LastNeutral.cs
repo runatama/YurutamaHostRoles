@@ -74,11 +74,12 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static void SetKillCooldown(PlayerControl player)
         {
             if (currentId == byte.MaxValue) return;
+            var roleclass = player.GetRoleClass();
             switch (Givekillcooldownmode[GiveKillCooldown.GetValue()])
             {
                 case "GiveKillcoolShort"://短くなる場合のみ
                     if (KillCooldown.GetFloat() < Main.AllPlayerKillCooldown[currentId] &&
-                        (player.GetRoleClass() is ILNKiller))//かつラスポスキルク受け取る
+                        (roleclass is ILNKiller))//かつラスポスキルク受け取る
                         Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
                     break;
                 case "AllGiveKillCoolShort"://ラスポルでキルク恩恵受け取るかに関わらず短くなるなら貰う
@@ -86,7 +87,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
                         Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
                     break;
                 case "ColoredOn":
-                    if (player.GetRoleClass() is ILNKiller)
+                    if (roleclass is ILNKiller)
                         Main.AllPlayerKillCooldown[currentId] = KillCooldown.GetFloat();
                     break;
             }

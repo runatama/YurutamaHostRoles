@@ -32,8 +32,8 @@ public sealed class ShrineMaiden : RoleBase
         Repo = false;
         count = 0;
         mcount = 0;
-        kakusei = !Kakusei.GetBool();
         cantaskcount = Optioncantaskcount.GetFloat();
+        kakusei = !Kakusei.GetBool() || cantaskcount < 1;
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
         Oniku = 111;
@@ -107,11 +107,11 @@ public sealed class ShrineMaiden : RoleBase
         Oniku = 111;
     }
     public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount && !IsTaskFinished ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (Repo && Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Repo && Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (Votemode == VoteMode.uvote)
             {
@@ -168,7 +168,7 @@ public sealed class ShrineMaiden : RoleBase
     public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished || MyTaskState.CompletedTasksCount >= cantaskcount) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount)) kakusei = true;
         return true;
     }
 }

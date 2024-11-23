@@ -89,7 +89,7 @@ namespace TownOfHost
                         StringBuilder sb = new();
                         foreach (var r in GetvoiceListAsync(true).Result)
                             sb.Append($"{r.Key}: {r.Value}\n");
-                        HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, sb.ToString());
+                        SendMessage(sb.ToString(), PlayerControl.LocalPlayer.PlayerId);
                     }
                     else if (subArgs != "" && subArgs2 != "" && subArgs3 != "" && subArgs4 != "")
                     {
@@ -99,17 +99,18 @@ namespace TownOfHost
                             var vopc = GetPlayerById(vo0id);
                             YomiageS[vopc.Data.DefaultOutfit.ColorId] = $"{subArgs} {subArgs2} {subArgs3} {subArgs4}";
                             if (AmongUsClient.Instance.AmHost) RPC.SyncYomiage();
-                            if (vo0id != PlayerControl.LocalPlayer.PlayerId) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, $"{vopc.name}の声設定を変更しました。");
+                            if (vo0id != PlayerControl.LocalPlayer.PlayerId)
+                                SendMessage($"{vopc.name}の声設定を変更しました。", PlayerControl.LocalPlayer.PlayerId);
                         }
                         else
                         {
                             StringBuilder sb = new();
                             foreach (var r in GetvoiceListAsync().Result)
                                 sb.Append($"{r.Key}: {r.Value}\n");
-                            HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, sb.ToString());
+                            SendMessage(sb.ToString(), PlayerControl.LocalPlayer.PlayerId);
                         }
                     }
-                    else HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, "使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g");
+                    else SendMessage("使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", PlayerControl.LocalPlayer.PlayerId);
                     break;
                 case "/devban":
                     canceled = true;
@@ -393,30 +394,26 @@ namespace TownOfHost
                         if (GameStates.IsInGame)
                         {
                             var role = PlayerControl.LocalPlayer.GetCustomRole();
+                            var roleClass = PlayerControl.LocalPlayer.GetRoleClass();
                             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                                 role = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                            if (PlayerControl.LocalPlayer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && PlayerControl.LocalPlayer.GetRoleClass() != null) role = PlayerControl.LocalPlayer.GetRoleClass().Jikaku();
+                            if (roleClass?.Jikaku() != CustomRoles.NotAssigned && roleClass != null) role = roleClass.Jikaku();
 
                             if (role is CustomRoles.Amnesiac)
                             {
-                                if (PlayerControl.LocalPlayer.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                                    role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                                if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                    role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                             }
+                            var hRoleTextData = GetRoleColorCode(role);
+                            string hRoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
+                            string hRoleInfoTitle = $"<color={hRoleTextData}>{hRoleInfoTitleString}";
                             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)//バーニラならこっちで
                             {
-                                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer,
-                                    $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
+                                SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
                             }
                             else
-                                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer,
-                                role.GetRoleInfo()?.Description?.FullFormatHelp ?? $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}");
+                                SendMessage(role.GetRoleInfo()?.Description?.FullFormatHelp ?? $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
                             GetAddonsHelp(PlayerControl.LocalPlayer);
-
-                            if (PlayerControl.LocalPlayer.IsGorstRole())
-                            {
-                                var gr = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).GhostRole;
-                                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, GetAddonsHelp(gr));
-                            }
 
                             subArgs = args.Length < 2 ? "" : args[1];
                             switch (subArgs)
@@ -428,13 +425,14 @@ namespace TownOfHost
                                     foreach (var player in PlayerCatch.AllPlayerControls.Where(p => p.PlayerId != PlayerControl.LocalPlayer.PlayerId))
                                     {
                                         role = player.GetCustomRole();
+                                        roleClass = player.GetRoleClass();
                                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                                        if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
+                                        if (roleClass?.Jikaku() != CustomRoles.NotAssigned && roleClass != null) role = roleClass.Jikaku();
 
                                         if (role is CustomRoles.Amnesiac)
                                         {
-                                            if (player.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                                                role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                                            if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                                role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                                         }
 
                                         var RoleTextData = GetRoleColorCode(role);
@@ -1191,7 +1189,7 @@ namespace TownOfHost
                 case "第三":
                 case "第三陣営":
                 case "ニュートラル":
-                    rolemsg = $"{GetString("h_r_Neutral").Color(Palette.DisabledGrey)}</u>";
+                    rolemsg = $"{GetString("h_r_Neutral").Color(Palette.DisabledGrey)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsNeutral()))
                     {
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
@@ -1320,6 +1318,7 @@ namespace TownOfHost
                 "Eシュレディンガーの猫" or "Eシュレ猫" => GetString("EgoSchrodingerCat"),
                 "Jシュレディンガーの猫" or "Jシュレ猫" => GetString("JSchrodingerCat"),
                 "ジャッカルドール" => GetString("Jackaldoll"),
+                "きつね" or "ようこ" or "妖狐" => GetString("Fox"),
                 _ => text,
             };
         }
@@ -1434,13 +1433,14 @@ namespace TownOfHost
                     {
                         canceled = true;
                         var role = player.GetCustomRole();
+                        var roleclass = player.GetRoleClass();
                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                        if (player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && player.GetRoleClass() != null) role = player.GetRoleClass().Jikaku();
+                        if (roleclass?.Jikaku() != CustomRoles.NotAssigned && roleclass != null) role = roleclass.Jikaku();
 
                         if (role is CustomRoles.Amnesiac)
                         {
-                            if (player.GetRoleClass() is Amnesiac amnesiac && !amnesiac.omoidasita)
-                                role = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                            if (roleclass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                         }
 
                         var RoleTextData = GetRoleColorCode(role);
@@ -1463,9 +1463,6 @@ namespace TownOfHost
                             SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleInfo(true)}", player.PlayerId, RoleInfoTitle);
                         }
                         GetAddonsHelp(player);
-
-                        if (player.IsGorstRole())
-                            SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId);
                     }
                     break;
 
@@ -1576,62 +1573,23 @@ namespace TownOfHost
                             if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
                             if (imp && imp.GetCustomRole().IsImpostor() && imp.PlayerId != player.PlayerId)
                             {
-
                                 if (AmongUsClient.Instance.AmHost)
                                 {
-                                    player.Data.IsDead = false;
-
-                                    MeetingHudPatch.StartPatch.Serialize = true;
-                                    RPC.RpcSyncAllNetworkedPlayer(imp.GetClientId());
-                                    _ = new LateTask(() =>
-                                    {
-                                        var writer = CustomRpcSender.Create("ImpostorChatSend", SendOption.Reliable);
-                                        writer.StartMessage(imp.GetClientId());
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                        .Write(player.Data.NetId)
-                                        .Write($"<line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
-                                        .EndRpc();
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                                        .Write(send.Mark(Palette.ImpostorRed))
-                                        .EndRpc();
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                        .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
-                                        .EndRpc();
-                                        writer.EndMessage();
-                                        writer.SendMessage();
-                                        Dictionary<byte, bool> State = new();
-                                        foreach (var pl in PlayerCatch.AllAlivePlayerControls) State.TryAdd(pl.PlayerId, pl.Data.IsDead);
-                                        _ = new LateTask(() =>
-                                        {
-                                            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                                            {
-                                                if (!State.ContainsKey(pc.PlayerId)) continue;
-                                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                                if (pc.IsModClient()) continue;
-                                                foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
-                                                {
-                                                    if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                                    if (tg.IsModClient()) continue;
-                                                    tg.Data.IsDead = true;
-                                                }
-                                                pc.Data.IsDead = false;
-                                                MeetingHudPatch.StartPatch.Serialize = true;
-                                                RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                                MeetingHudPatch.StartPatch.Serialize = false;
-                                            }
-                                            foreach (PlayerControl pl in PlayerCatch.AllAlivePlayerControls)
-                                            {
-                                                pl.Data.IsDead = State.TryGetValue(pl.PlayerId, out var data) && data;
-                                                RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                            }
-                                        }, Main.LagTime, "", true);
-                                        foreach (PlayerControl pl in PlayerCatch.AllAlivePlayerControls)
-                                        {
-                                            pl.Data.IsDead = State.TryGetValue(pl.PlayerId, out var data) && data;
-                                            RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                        }
-                                    }, Main.LagTime, "Setdie", true);
+                                    var writer = CustomRpcSender.Create("ImpostorChatSend", SendOption.Reliable);
+                                    writer.StartMessage(imp.GetClientId());
+                                    writer.StartRpc(imp.NetId, (byte)RpcCalls.SetName)
+                                    .Write(imp.Data.NetId)
+                                    .Write($"<align=\"left\"><line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
+                                    .EndRpc();
+                                    writer.StartRpc(imp.NetId, (byte)RpcCalls.SendChat)
+                                    .Write($"<align=\"left\">{send.Mark(Palette.ImpostorRed)}")
+                                    .EndRpc();
+                                    writer.StartRpc(imp.NetId, (byte)RpcCalls.SetName)
+                                    .Write(imp.Data.NetId)
+                                    .Write(imp.Data.PlayerName)
+                                    .EndRpc();
+                                    writer.EndMessage();
+                                    writer.SendMessage();
                                 }
                             }
                         }
@@ -1662,59 +1620,21 @@ namespace TownOfHost
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
-                                    player.Data.IsDead = false;
-
-                                    MeetingHudPatch.StartPatch.Serialize = true;
-                                    RPC.RpcSyncAllNetworkedPlayer(jac.GetClientId());
-                                    _ = new LateTask(() =>
-                                    {
-                                        var writer = CustomRpcSender.Create("JackalChatSend", SendOption.Reliable);
-                                        writer.StartMessage(jac.GetClientId());
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                        .Write(player.Data.NetId)
-                                        .Write($"<line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
-                                        .EndRpc();
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                                        .Write(send.Mark(ModColors.JackalColor))
-                                        .EndRpc();
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                        .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
-                                        .EndRpc();
-                                        writer.EndMessage();
-                                        writer.SendMessage();
-                                        Dictionary<byte, bool> State = new();
-                                        foreach (var pl in PlayerCatch.AllAlivePlayerControls) State.TryAdd(pl.PlayerId, pl.Data.IsDead);
-                                        _ = new LateTask(() =>
-                                        {
-                                            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                                            {
-                                                if (!State.ContainsKey(pc.PlayerId)) continue;
-                                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                                if (pc.IsModClient()) continue;
-                                                foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
-                                                {
-                                                    if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                                    if (tg.IsModClient()) continue;
-                                                    tg.Data.IsDead = true;
-                                                }
-                                                pc.Data.IsDead = false;
-                                                MeetingHudPatch.StartPatch.Serialize = true;
-                                                RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                                MeetingHudPatch.StartPatch.Serialize = false;
-                                            }
-                                            foreach (PlayerControl pl in PlayerCatch.AllAlivePlayerControls)
-                                            {
-                                                pl.Data.IsDead = State.TryGetValue(pl.PlayerId, out var data) && data;
-                                                RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                            }
-                                        }, Main.LagTime, "", true);
-                                        foreach (PlayerControl pl in PlayerCatch.AllAlivePlayerControls)
-                                        {
-                                            pl.Data.IsDead = State.TryGetValue(pl.PlayerId, out var data) && data;
-                                            RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                        }
-                                    }, Main.LagTime, "Setdie", true);
+                                    var writer = CustomRpcSender.Create("JacalSendChat", SendOption.Reliable);
+                                    writer.StartMessage(jac.GetClientId());
+                                    writer.StartRpc(jac.NetId, (byte)RpcCalls.SetName)
+                                    .Write(jac.Data.NetId)
+                                    .Write($"<align=\"left\"><line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
+                                    .EndRpc();
+                                    writer.StartRpc(jac.NetId, (byte)RpcCalls.SendChat)
+                                    .Write($"<align=\"left\">{send.Mark(ModColors.JackalColor)}")
+                                    .EndRpc();
+                                    writer.StartRpc(jac.NetId, (byte)RpcCalls.SetName)
+                                    .Write(jac.Data.NetId)
+                                    .Write(jac.Data.PlayerName)
+                                    .EndRpc();
+                                    writer.EndMessage();
+                                    writer.SendMessage();
                                 }
                             }
                         }
@@ -1748,65 +1668,21 @@ namespace TownOfHost
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
-                                    player.Data.IsDead = false;
-
-                                    MeetingHudPatch.StartPatch.Serialize = true;
-                                    RPC.RpcSyncAllNetworkedPlayer(lover.GetClientId());
-                                    _ = new LateTask(() =>
-                                    {
-                                        {
-                                            var writer = CustomRpcSender.Create("LoverChatSend", SendOption.Reliable);
-                                            writer.StartMessage(lover.GetClientId());
-                                            writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                            .Write(player.Data.NetId)
-                                            .Write(ColorString(GetRoleColor(l), $"<line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>"))
-                                            .EndRpc();
-                                            writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                                            .Write(send.Mark(GetRoleColor(l)))
-                                            .EndRpc();
-                                            writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                            .Write(player.Data.NetId)
-                                            .Write(player.Data.PlayerName)
-                                            .EndRpc();
-                                            writer.EndMessage();
-                                            writer.SendMessage();
-                                        }
-                                        Dictionary<byte, bool> State = new();
-                                        foreach (var pl in PlayerCatch.AllAlivePlayerControls)
-                                        {
-                                            State.TryAdd(pl.PlayerId, pl.Data.IsDead);
-                                        }
-                                        _ = new LateTask(() =>
-                                        {
-                                            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                                            {
-                                                if (!State.ContainsKey(pc.PlayerId)) continue;
-                                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                                if (pc.IsModClient()) continue;
-                                                foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
-                                                {
-                                                    if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                                    if (tg.IsModClient()) continue;
-                                                    tg.Data.IsDead = true;
-                                                }
-                                                pc.Data.IsDead = false;
-                                                MeetingHudPatch.StartPatch.Serialize = true;
-                                                RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                                MeetingHudPatch.StartPatch.Serialize = false;
-                                            }
-                                            foreach (PlayerControl pl in PlayerCatch.AllAlivePlayerControls)
-                                            {
-                                                pl.Data.IsDead = State.TryGetValue(pl.PlayerId, out var data) && data;
-                                                RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                            }
-                                        }, Main.LagTime, "", true);
-                                        foreach (PlayerControl pl in PlayerCatch.AllAlivePlayerControls)
-                                        {
-                                            pl.Data.IsDead = State.TryGetValue(pl.PlayerId, out var data) && data;
-
-                                            RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                        }
-                                    }, Main.LagTime, "Setdie", true);
+                                    var writer = CustomRpcSender.Create("LoverChatSend", SendOption.Reliable);
+                                    writer.StartMessage(lover.GetClientId());
+                                    writer.StartRpc(lover.NetId, (byte)RpcCalls.SetName)
+                                    .Write(lover.Data.NetId)
+                                    .Write(ColorString(GetRoleColor(l), $"<align=\"left\"><line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>"))
+                                    .EndRpc();
+                                    writer.StartRpc(lover.NetId, (byte)RpcCalls.SendChat)
+                                    .Write($"<align=\"left\">{send.Mark(GetRoleColor(l))}")
+                                    .EndRpc();
+                                    writer.StartRpc(lover.NetId, (byte)RpcCalls.SetName)
+                                    .Write(lover.Data.NetId)
+                                    .Write(lover.Data.PlayerName)
+                                    .EndRpc();
+                                    writer.EndMessage();
+                                    writer.SendMessage();
                                 }
                             }
                         }
@@ -1927,8 +1803,9 @@ namespace TownOfHost
             if (player == null) return;
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
             Main.MessagesToSend.RemoveAt(0);
-            int clientId = sendTo == byte.MaxValue ? -1 : GetPlayerById(sendTo).GetClientId();
-            if (sendTo != byte.MaxValue && GetPlayerById(sendTo) == null)
+            var sendtopc = GetPlayerById(sendTo);
+            int clientId = sendTo == byte.MaxValue ? -1 : sendtopc.GetClientId();
+            if (sendTo != byte.MaxValue && sendtopc == null)
             {
                 Logger.Info($"{sendTo}がnullだから弾いたぞ!", "ChatUpdatePatch");
                 return;
@@ -1973,20 +1850,20 @@ namespace TownOfHost
                 }
                 if (player.PlayerId != 0 && clientId != byte.MaxValue)
                 {
-                    var pc = GetPlayerById(sendTo);
-                    clientId = pc.GetClientId();
+
+                    clientId = sendtopc.GetClientId();
                     var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                     Nwriter.StartMessage(clientId);
-                    Nwriter.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                    .Write(pc.Data.NetId)
+                    Nwriter.StartRpc(sendtopc.NetId, (byte)RpcCalls.SetName)
+                    .Write(sendtopc.Data.NetId)
                     .Write(title)
                     .EndRpc();
-                    Nwriter.StartRpc(pc.NetId, (byte)RpcCalls.SendChat)
+                    Nwriter.StartRpc(sendtopc.NetId, (byte)RpcCalls.SendChat)
                     .Write(msg)
                     .EndRpc();
-                    Nwriter.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                    .Write(pc.Data.NetId)
-                    .Write(pc.Data.PlayerName)
+                    Nwriter.StartRpc(sendtopc.NetId, (byte)RpcCalls.SetName)
+                    .Write(sendtopc.Data.NetId)
+                    .Write(sendtopc.Data.PlayerName)
                     .EndRpc();
                     Nwriter.EndMessage();
                     Nwriter.SendMessage();

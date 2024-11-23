@@ -151,7 +151,7 @@ namespace TownOfHost
     {
         public static int InitialTotalTasks;
         public int AllTasksCount;
-        public int NeedTaskCount;
+        public int NeedTaskCount;//必要なタスク数。マッドスニッチ等
         public int CompletedTasksCount;
         public bool hasTasks;
         public int RemainingTasksCount => AllTasksCount - CompletedTasksCount;
@@ -201,6 +201,7 @@ namespace TownOfHost
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Update");
         }
         public int GetNeedCountOrAll() => NeedTaskCount < 0 ? AllTasksCount : NeedTaskCount;
+        public bool HasCompletedEnoughCountOfTasks(float count) => HasCompletedEnoughCountOfTasks((int)count);
         public bool HasCompletedEnoughCountOfTasks(int count) => IsTaskFinished || CompletedTasksCount >= count;
     }
     public class PlayerVersion

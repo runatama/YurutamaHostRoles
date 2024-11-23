@@ -157,11 +157,3 @@ namespace TownOfHost
         }
     }
 }
-/*
-            var pc = PlayerCatch.GetPlayerById(playerId);
-            CustomRoles? RoleNullable = pc?.GetCustomRole();
-            if (RoleNullable == null) return;
-            CustomRoles role = RoleNullable.Value;
-
-            if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
-*/

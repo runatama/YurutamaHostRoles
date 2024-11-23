@@ -339,6 +339,27 @@ namespace TownOfHost
         {
             Width = width;
             Height = height;
+            var (wh, he) = Hiritu(Width, Height);
+            GameSettingMenuStartPatch.w = wh == 16 ? 1 : Mathf.Clamp(0.6f + (0.4f * (wh / 16)), 0.6f, 0.9f);
+            GameSettingMenuStartPatch.h = he == 9 ? 1 : Mathf.Clamp(0.6f + (0.4f * (he / 9)), 0.6f, 0.9f);
+
+            static (float, float) Hiritu(float w, float h)
+            {
+                float Width = w / GetMax(w, h);
+                float Height = h / GetMax(w, h);
+                return (Width, Height);
+            }
+            static float GetMax(float w, float h)
+            {
+                if (w < h) return GetMax(h, w);
+                while (h != 0)
+                {
+                    float remain = w % h;
+                    w = h;
+                    h = remain;
+                }
+                return w;
+            }
         }
     }
     [HarmonyPatch(typeof(ConsoleJoystick), nameof(ConsoleJoystick.HandleHUD))]

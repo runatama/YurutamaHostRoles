@@ -107,7 +107,6 @@ public sealed class King : RoleBase
 
             if (player.Data.Disconnected && MyState.DeathReason is CustomDeathReason.Disconnected) return;
         }
-        if (player.IsAlive()) return;
         if (!player.IsAlive())
         {
             CrewMateAbooooon();

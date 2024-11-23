@@ -192,7 +192,8 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         if (roletarget == byte.MaxValue || !Player.IsAlive()) return false;
         if (CustomWinnerHolder.WinnerIds.Contains(roletarget))
         {
-            if (Target.GetCustomRole() != tagerole && Target.GetCustomRole() != CustomRoles.NotAssigned) tagerole = Target.GetCustomRole();
+            var Targetrole = Target.GetCustomRole();
+            if (Targetrole != tagerole && Targetrole != CustomRoles.NotAssigned) tagerole = Targetrole;
             Player.RpcSetCustomRole(tagerole, log: null);
             Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
             CustomWinnerHolder.WinnerIds.Remove(roletarget);

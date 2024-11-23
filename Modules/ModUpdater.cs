@@ -138,7 +138,7 @@ namespace TownOfHost
                         }
                         release.OpenURL = $"https://github.com/KYMario/TownOfHost-K/releases/tag/{tag}";
                     }
-                    if (del != null) del.Do(r => snapshots.Remove(r));
+                    del.ForEach(task => snapshots.Remove(task));
                 }
                 else if (all)
                 {

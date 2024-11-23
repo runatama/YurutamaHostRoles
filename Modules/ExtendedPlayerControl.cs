@@ -32,11 +32,12 @@ namespace TownOfHost
         public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool setRole = true, bool? log = false)
         {
             if (player.GetCustomRole() == role) return;
-
+            var roleClass = player.GetRoleClass();
+            var roleInfo = role.GetRoleInfo();
             if (role < CustomRoles.NotAssigned)
             {
                 if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro) Main.showkillbutton = false;
-                var roleClass = player.GetRoleClass();
+
                 if (roleClass != null)
                 {
                     roleClass.Dispose();
@@ -57,7 +58,7 @@ namespace TownOfHost
                 {
                     if (setRole)
                     {
-                        if (role.GetRoleInfo()?.IsDesyncImpostor ?? false)
+                        if (roleInfo?.IsDesyncImpostor ?? false)
                         {
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
@@ -74,7 +75,6 @@ namespace TownOfHost
                             }
                             if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                             {
-                                var roleInfo = role.GetRoleInfo();
                                 if ((roleInfo?.IsDesyncImpostor ?? false) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
                                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate);
                             }
@@ -82,7 +82,7 @@ namespace TownOfHost
                         else
                             player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
 
-                        if (role.GetRoleInfo()?.IsCantSeeTeammates == true && role.IsImpostor())
+                        if (roleInfo?.IsCantSeeTeammates == true && role.IsImpostor())
                         {
                             var clientId = player.GetClientId();
                             foreach (var killer in PlayerCatch.AllPlayerControls)
@@ -106,8 +106,8 @@ namespace TownOfHost
                 if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro)
                 {
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-                    (player.GetRoleClass() as IUseTheShButton)?.Shape(player);
-                    (player.GetRoleClass() as IUsePhantomButton)?.Init(player);
+                    (roleClass as IUseTheShButton)?.Shape(player);
+                    (roleClass as IUsePhantomButton)?.Init(player);
                     if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                     foreach (var r in CustomRoleManager.AllActiveRoles.Values)
                     {
@@ -521,18 +521,24 @@ namespace TownOfHost
         }
         public static Color GetRoleColor(this PlayerControl player)
         {
-            if (player.Is(CustomRoles.Amnesiac) && Amnesiac.OptIamWolfBoy.GetBool()) return UtilsRoleText.GetRoleColor(CustomRoles.WolfBoy);
-            if (player.GetRoleClass() != null && player.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned)
+            var roleClass = player.GetRoleClass();
+            var role = player.GetCustomRole();
+            if (role is CustomRoles.Amnesiac && Amnesiac.iamwolf) return UtilsRoleText.GetRoleColor(CustomRoles.WolfBoy);
+            if (roleClass?.Jikaku() is not null and not CustomRoles.NotAssigned)
             {
-                return UtilsRoleText.GetRoleColor(player.GetRoleClass().Jikaku());
+                return UtilsRoleText.GetRoleColor(roleClass.Jikaku());
             }
             if (player.Is(CustomRoles.Amnesia))
             {
-                if (player.Is(CustomRoleTypes.Impostor)) return Palette.ImpostorRed;
-                if (player.Is(CustomRoleTypes.Neutral) || player.Is(CustomRoleTypes.Madmate)) return Palette.DisabledGrey;
-                else return Palette.CrewmateBlue;
+                switch (role.GetCustomRoleTypes())
+                {
+                    case CustomRoleTypes.Impostor: return Palette.ImpostorRed;
+                    case CustomRoleTypes.Neutral:
+                    case CustomRoleTypes.Madmate: return Palette.DisabledGrey;
+                    case CustomRoleTypes.Crewmate: return Palette.CrewmateBlue;
+                }
             }
-            return UtilsRoleText.GetRoleColor(player.GetCustomRole());
+            return UtilsRoleText.GetRoleColor(role);
         }
         public static void ResetPlayerCam(this PlayerControl pc, float delay = 0f)
         {
@@ -564,6 +570,7 @@ namespace TownOfHost
             var systemtypes = Utils.GetCriticalSabotageSystemType();
             float FlashDuration = Options.KillFlashDuration.GetFloat();
 
+            Utils.NowKillFlash = true;
             pc.RpcDesyncUpdateSystem(systemtypes, 128);
 
             _ = new LateTask(() =>
@@ -573,6 +580,8 @@ namespace TownOfHost
                 if (Main.NormalOptions.MapId == 4) //Airship用
                     pc.RpcDesyncUpdateSystem(systemtypes, 17);
             }, FlashDuration + delay, "Fix Desync Reactor");
+            _ = new LateTask(() => Utils.NowKillFlash = false, (FlashDuration + delay) * 2, "", true);
+
         }
 
         public static string GetRealName(this PlayerControl player, bool isMeeting = false)
@@ -608,7 +617,7 @@ namespace TownOfHost
         }
         public static bool CanUseSabotageButton(this PlayerControl pc)
         {
-            if (Options.SuddenDeathMode.GetBool()) return false;
+            if (SuddenDeathMode.NowSuddenDeathMode) return false;
             if (pc.Is(CustomRoles.Amnesia) && !pc.Is(CustomRoleTypes.Impostor)) return false;
 
             var roleCanUse = (pc.GetRoleClass() as IKiller)?.CanUseSabotageButton();
@@ -631,11 +640,12 @@ namespace TownOfHost
         public static bool CanMakeMadmate(this PlayerControl player)
         {
             if (Amnesia.CheckAbilityreturn(player)) return false;
+            var role = player.GetCustomRole();
 
             if (
             Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount ||
             player == null ||
-            (player.Data.Role.Role != RoleTypes.Shapeshifter) || player.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter)
+            (player.Data.Role.Role != RoleTypes.Shapeshifter) || role.GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter)
             {
                 return false;
             }
@@ -643,7 +653,7 @@ namespace TownOfHost
             var isSidekickableCustomRole = player.GetRoleClass() is ISidekickable sidekickable && sidekickable.CanMakeSidekick();
 
             return isSidekickableCustomRole ||
-                player.GetCustomRole().CanMakeMadmate(); // ISideKickable対応前の役職はこちら
+               role.CanMakeMadmate(); // ISideKickable対応前の役職はこちら
         }
         public static void RpcExileV2(this PlayerControl player)
         {
@@ -828,7 +838,7 @@ namespace TownOfHost
             var roleClass = player.GetRoleClass();
             var role = player.GetCustomRole();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-            if (roleClass != null && roleClass?.Jikaku() != CustomRoles.NotAssigned)
+            if (roleClass?.Jikaku() is not null and not CustomRoles.NotAssigned)
             {
                 role = roleClass.Jikaku();
             }
@@ -857,7 +867,7 @@ namespace TownOfHost
             {
                 if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
                 {
-                    text = Amnesiac.OptIamWolfBoy.GetBool() ? CustomRoles.WolfBoy.ToString() : CustomRoles.Sheriff.ToString();
+                    text = Amnesiac.iamwolf ? CustomRoles.WolfBoy.ToString() : CustomRoles.Sheriff.ToString();
                 }
             }
 
@@ -870,7 +880,7 @@ namespace TownOfHost
                     return Utils.ColorString(UtilsRoleText.GetRoleColor(state.GhostRole), GetString($"{state.GhostRole}Info"));
                 }
             }
-            if (Options.SuddenDeathMode.GetBool())
+            if (SuddenDeathMode.NowSuddenDeathMode)
             {
                 var r = "<size=60%>" + GetString($"{Prefix}{text}{Info}") + "\n</size>";
                 r += "<size=80%>" + GetString("SuddenDeathModeInfo") + "</size>";
@@ -1032,7 +1042,8 @@ namespace TownOfHost
 
         public static PlayerControl GetKillTarget(this PlayerControl player)
         {
-            if (player.AmOwner && GameStates.IsInTask && !GameStates.Intro && !(player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.Egoist)) && (player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false) && !player.Data.IsDead)
+            var playerrole = player.GetCustomRole();
+            if (player.AmOwner && GameStates.IsInTask && !GameStates.Intro && !(playerrole.IsImpostor() || playerrole is CustomRoles.Egoist) && (playerrole.GetRoleInfo()?.IsDesyncImpostor ?? false) && !player.Data.IsDead)
                 return player.killtarget();
 
             var players = player.GetPlayersInAbilityRangeSorted(false);

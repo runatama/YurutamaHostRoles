@@ -156,6 +156,7 @@
 "PhantomThief","PhantomThief","怪盗"
 "Emptiness","Emptiness","空虚者"
 "CurseMaker","CurseMaker","カースメーカー"
+"Fox","Fox","妖狐"
 "#NeutralName"
 
 "#コンビネーション役職"
@@ -393,6 +394,7 @@
 "EmptinessInfo","","..............."
 "CurseMakerInfo","","全てを呪え"
 "JackalAlienInfo","A-lien you is A-lien...","高鳴る気持ちが抑えられない"
+"FoxInfo","","タスクをこなしつつ最後まで生き残れ"
 "#NeutralInfo"
 
 "# HideAndSeek"
@@ -581,6 +583,7 @@
 "EmptinessInfoLong","","君は空箱のように何もない。\n役職も。陣営も。勿論味方も。\n役職も陣営もないので勝利条件もない。\nだからといって出来ることもない。"
 "CurseMakerInfoLong","","キルボタンを押し、対象に一定時間近づく事で呪うことができる。\nワンクリックボタンを押した時、自身と呪っている相手全員を殺す。\n能力発動後、試合が終了すれば単独勝利になる。\n呪いは一定ターンが経過すると解除される。"
 "JackalAlienInfoLong","","ターン毎に設定された確率に応じて、様々な役職や能力に変化するジャッカル。\nターン毎の役職や能力は会議時に知ることができる。"
+"FoxInfoLong","","規定タスクを完了させ、ゲーム終了時まで生存していると単独勝利\n\nサボタージュが修復できない\n設定タスク完了毎にキルガードが1枚付与される\n\n初手ターン以降、名前の下に表示される部屋に行かないと\n次会議、自身が生存していることが通知されてしまう\n\n生存人数が3人以下又は勝利に必要なタスク数を完了させていないと、妖狐は生存カウントに含まれない"
 "#NeutralInfoLong"
 
 "# HideAndSeek"
@@ -612,7 +615,7 @@
 "GuesserInfoLong","(Add-ons):\n","(属性):\n会議中に誰かの役職を推測でき、的中すると対象をキルすることができる。\nただし、推測が外れると自殺する。\n\nチャットに「/bt (ID) (役職名)」と送信することで推測ができる。\nプレイヤー名の左側に表示されている数字が、そのプレイヤーのIDである。","","","","",""
 "LightingInfoLong","","(属性):\nインポスター視界になる。\nただし、停電の影響は受ける。","","","","",""
 "ManagementInfoLong","","(属性):\nプレイヤー全体でのタスク進捗が分かる。\nパーセント表示に設定で変更が可能。","","","","",""
-"ConnectingInfoLong","","(属性):\n2人以上でしか排出されない。\nインポスター、マッドメイト系役職、狼少年にのみ付与される属性。\nコネクティング同士でΨのマークがついており、お互いが同陣営であることを確認できる。\ただし、狼少年はコネクティングが付与されていることを自覚できず、他のコネクティングのプレイヤーから一方的に確認できる。"
+"ConnectingInfoLong","","(属性):\n2人以上でしか排出されない。\nインポスター、マッドメイト系役職、狼少年にのみ付与される属性。\nコネクティング同士でΨのマークがついており、お互いが同陣営であることを確認できる。\nただし、狼少年はコネクティングが付与されていることを自覚できず、他のコネクティングのプレイヤーから一方的に確認できる。"
 "SerialInfoLong","","(属性):\nキル可能役職にのみ付与される属性。\nキルクールが設定した時間まで短くなる。","","","","",""
 "PlusVoteInfoLong","","(属性):\n会議の票を複数持ち、まとめて一人または\nスキップに入れることができる。(設定有)\nノットヴォウターが付与されている場合は機能しない。","","","","",""
 "OpenerInfoLong","","(属性):\nドアを開けるとその部屋の全てのドアが開く。\nマップがSkeld,MiraHQの時は効果が発揮されない。","","","","",""
@@ -858,6 +861,7 @@
 "ImpostorHideChat","","インポスター秘匿チャット(/ic)"
 "JackalHideChat","","ジャッカル秘匿チャット(/jc)"
 "LoversHideChat","","ラバーズ秘匿チャット(/lc)"
+"OutroCrewWinreasonchenge","","非クライアントのアウトロで試合結果を表示する"
 
 "### サドンデスモード"
 "SuddenDeathMode","SuddenDeathMode","サドンデスモード"
@@ -1246,6 +1250,12 @@
 "CueseMakerDelTarn","","呪いが解除されるまでのターン数"
 "CueseMakerNoroiTime","","呪うのに必要な時間"
 "CueseMakerDicstance","","呪える範囲"
+"FoxGiveGuardTaskcount","","何タスク完了毎にキルガードが1枚付与されるか"
+"FoxGiveGuardMax","","キルガード所持上限数"
+"FoxCanseeGuardCount","","残りキルガード数が見える"
+"FoxTellDie","","占われた時に死亡する"
+"Foxwintaskcount","","勝利に必要なタスク完了数"
+"Fox3playersCanwin","","生存人数が3人以下の時でも勝利できるか"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール","","","","",""
@@ -1254,6 +1264,7 @@
 "DriverGado","Driver has own time Guard.","1度キルを防げる(ドライバー)","","","","",""
 "DriverVote","Driver can see Vote","他人の投票先が分かる(ドライバー)","","","","",""
 "Driverseen","We can see each other.","ドライバーがブレイドを視認できる","","","","",""
+"Driverseer","","ブレイドがドライバーを視認できる"
 "Driverseeing","","ブレイドがドライバーを視認できる","","","","",""
 "DriverTaskTrigger","TaskTrigger","効果を発動するタスク数(ブレイド)","","","","",""
 "BraidCanVent","","ベントを使える(ブレイド)","","","","",""
@@ -1459,6 +1470,10 @@
 "EvilSateliteShepeInfo2","","\n<size=30%>※経路の順番がランダムにシャッフルされました</size>"
 "EvilSateliteShepeInfo3","","\n残り{0}回使用可能です"
 "EvilSateliteShepeInfoTitle","","【===== {0}の経路情報 =====】"
+"FoxAliveMeg","","妖狐の気配を感じる..."
+"FoxAliveMeg1","","寒気がする。妖狐が生存していそうだ。"
+"FoxAliveMeg2","","きつねうどんが食べたくなってきた。妖狐が生存しているに違いない。"
+"FoxAliveMeg3","","妖狐の気配を感じる。そんな気がする。"
 
 "OnePlayer","the first person","一人目","","","","",""
 "TowPlayer","second person","二人目","","","","",""
@@ -1575,6 +1590,7 @@
 "Jumper_setti","","ジャンプ位置を設定しよう"
 "Jumper_Jamp","","準備は整った"
 "NiceLoggerLower","","センサーを設置しよう"
+"FoxRoomMission","","に行け"
 
 "## かくれんぼ設定"
 "HideAndSeekOptions","Hide and Seek Settings","かくれんぼの設定","躲猫猫设置","躲貓貓設定","Настройки Пряток","Configurações do Esconde-Esconde",""
@@ -1669,6 +1685,7 @@
 "ViewPingDetails","ViewPingDetails","ViewPingDetails","","","","",""
 "DebugChatopen","Use Chat","常にチャットを開放する"
 "DebugSendAmout","right shift Send Amout","Amout"
+"AutoSaveScreenShot","Auto Save ScreenShot","試合結果のスクショを自動保存する"
 
 "## ヘルプテキスト"
 
@@ -1908,6 +1925,7 @@
 "Message.AnnounceTOH-K","This room uses TownOfHost-K v{0}.","この部屋はTownOfHost-K v{0}を使用しています。","这个房间使用 TownOfHost-K v{0}.","這個房間使用 TownOfHost-K v{0}.","В этой комнате используется TownOfHost-K v{0}.","Esta sala usa TownOfHost-K v{0}.",""
 "RoleInfoTitle","【Your role】","【あなたの役職】","【你的角色】","【你的角色】","【ваша роль】","【Seu papel】",""
 "AddonInfoTitle","【Your Addons】","【あなたの属性】","【你的角色】","【你的角色】","【ваша роль】","【Seu papel】",""
+"GhostRolesIntoTitle","【Your GhostRole】","【あなたの幽霊役職】"
 "Message.first","","【===== 準備の時間だ =====】"
 "spring","spring","春","","","","",""
 "summer","summer","夏","","","","",""

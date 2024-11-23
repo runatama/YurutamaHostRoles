@@ -38,6 +38,7 @@ public sealed class Shyboy : RoleBase
     bool tuuti;
     float Last;
     private static float Notshy;
+    float Shydeathdi;
     enum OptionName
     {
         ShyboyShytime,
@@ -56,14 +57,17 @@ public sealed class Shyboy : RoleBase
         AURoleOptions.EngineerCooldown = (float)Coold;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
+    public override void StartGameTasks() => Shydeathdi = Player.Is(CustomRoles.Lighting) ? 5 * Main.DefaultImpostorVision : 5 * Main.DefaultCrewmateVision;
+    public override void OnStartMeeting() => StartGameTasks();
     public override bool AllEnabledColor => true;
     public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (GameStates.Meeting || GameStates.Tuihou) return;
-        Cool += Time.fixedDeltaTime;
-        if (Player.IsAlive() && Cool >= 0.25)
+        if (!Player.IsAlive()) return;
+        Cool -= Time.fixedDeltaTime;
+        if (0.25 < Cool)
         {
             Cool = 0;
             //シャイのクールｳﾙｾｪからログださない()()バグ起こったらここtrueか削除して探そう!!((((
@@ -78,10 +82,7 @@ public sealed class Shyboy : RoleBase
         }
         AfterMeeting += Time.fixedDeltaTime;
 
-        var Shydeathdi = 5 * Main.DefaultCrewmateVision;
-        if (player.Is(CustomRoles.Lighting)) Shydeathdi = 5 * Main.DefaultImpostorVision;
-
-        if (GameStates.IsInTask && Player.IsAlive() && Notshy <= AfterMeeting - 5)
+        if (GameStates.IsInTask && Notshy <= AfterMeeting - 5)
         {
             if (tuuti)
             {

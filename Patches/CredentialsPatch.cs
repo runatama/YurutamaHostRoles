@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Text;
 using HarmonyLib;
@@ -26,11 +25,11 @@ namespace TownOfHost
             {
                 if (!credentialsText)
                 {
-                    credentialsText = UnityEngine.Object.Instantiate(__instance.text, __instance.transform.parent);
+                    credentialsText = Object.Instantiate(__instance.text, __instance.transform.parent);
                     credentialsText.name = "credentialsText";
                     credentialsText.transform.parent = __instance.transform.parent;
-                    UnityEngine.Object.Destroy(credentialsText.GetComponent<PingTracker>());
-                    UnityEngine.Object.Destroy(credentialsText.GetComponent<AspectPosition>());
+                    Object.Destroy(credentialsText.GetComponent<PingTracker>());
+                    Object.Destroy(credentialsText.GetComponent<AspectPosition>());
                 }
 
                 credentialsText.alignment = TextAlignmentOptions.TopRight;
@@ -41,7 +40,7 @@ namespace TownOfHost
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
                 sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
 
-                if ((Options.NoGameEnd.GetBool() && GameStates.IsLobby) || Main.DontGameSet) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+                if ((Options.NoGameEnd.GetBool() && GameStates.IsLobby) || (Main.DontGameSet && !GameStates.IsLobby)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) sb.Append($"\r\n").Append(Utils.ColorString(Color.cyan, GetString("TaskBattle")));
@@ -56,7 +55,7 @@ namespace TownOfHost
 
                 var offset_x = 2.5f; //右端からのオフセット
                 if (HudManager.InstanceExists && HudManager._instance.Chat.gameObject.active) offset_x += 0.6f; //チャットがある場合の追加オフセット
-                credentialsText.transform.localPosition = new Vector3(5.6779f - offset_x, 3.0745f, 0f);
+                credentialsText.transform.localPosition = new Vector3((5.6779f * GameSettingMenuStartPatch.h) - offset_x, 3.0745f, 0f);
 
                 if (GameStates.IsLobby)
                 {

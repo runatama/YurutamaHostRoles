@@ -23,11 +23,7 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 
 ## リリース
 
-AmongUsバージョン : **2024.8.13 ~**<br>
-※11/21 21:00時点、バニラのオンラインサーバー(欧米、北米、アジア)<br>
-　で、TownOfHost-Kをプレイすることができません<br>
-　カスタムサーバーを使用して頂ければ大丈夫です・・・<br>
-　(身内で用意をお願いします...)<br>
+AmongUsバージョン : **2024.8.13**~<br>
 
 **最新版は[こちら](https://github.com/KYMario/TownOfHost-K/releases/latest)**
 
@@ -238,6 +234,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [怪盗](https://github.com/KYMario/TownOfHost-K/wiki/怪盗)
 - [テロリスト](https://github.com/KYMario/TownOfHost-K/wiki/テロリスト)
 - [ワーカホリック](https://github.com/KYMario/TownOfHost-K/wiki/ワーカホリック)
+- [妖狐](https://github.com/KYMario/TownOfHost-K/wiki/妖狐)
 - [シュレディンガーの猫](https://github.com/KYMario/TownOfHost-K/wiki/シュレディンガーの猫)
 - [バケネコ](https://github.com/KYMario/TownOfHost-K/wiki/バケネコ)
 - [オポチュニスト](https://github.com/KYMario/TownOfHost-K/wiki/オポチュニスト)

@@ -22,7 +22,6 @@ public interface IUsePhantomButton
     //キルクールを...
     public void FixedUpdate(PlayerControl player)
     {
-        if (player == null) return;
         if (!player.IsAlive()) return;
         if (player.GetRoleClass() is IUsePhantomButton)
             if (!GameStates.Intro && GameStates.InGame && GameStates.IsInTask && !GameStates.IsMeeting)

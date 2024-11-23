@@ -9,6 +9,7 @@ using TownOfHost.Modules.ChatManager;
 
 using static TownOfHost.Translator;
 using static TownOfHost.Modules.SelfVoteManager;
+using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class MeetingSheriff : RoleBase
@@ -124,16 +125,10 @@ public sealed class MeetingSheriff : RoleBase
             ChatManager.SendPreviousMessagesToAll();
 
         var AlienTairo = false;
-        if (target.Is(CustomRoles.Alien))
-            foreach (var al in Alien.Aliens)
-            {
-                AlienTairo = al.CheckSheriffKill(target);
-            }
-        if (target.Is(CustomRoles.JackalAlien))
-            foreach (var al in Neutral.JackalAlien.Aliens)
-            {
-                AlienTairo = al.CheckSheriffKill(target);
-            }
+        var targetroleclass = target.GetRoleClass();
+        if ((targetroleclass as Alien)?.CheckSheriffKill(target) == true) AlienTairo = true;
+        if ((targetroleclass as JackalAlien)?.CheckSheriffKill(target) == true) AlienTairo = true;
+
         if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsRiaju() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);

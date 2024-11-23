@@ -164,6 +164,7 @@ class Lovers
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
 
             for (var i = 0; i < count; i++)
             {
@@ -176,18 +177,12 @@ class Lovers
         }
         if (CustomRoles.RedLovers.IsPresent())
         {
-            foreach (var player in PlayerCatch.AllPlayerControls)
-            {
-                if (player.Is(CustomRoles.GM)) continue; if (player.Is(CustomRoles.Madonna)) continue;
-                if (player.Is(CustomRoles.Limiter)) continue; if (player.Is(CustomRoles.Lovers)) continue;
-                if (player.Is(CustomRoles.King)) continue;
-                allPlayers.Add(player);
-            }
             var loversRole = CustomRoles.RedLovers;
             var count = Math.Clamp(RawCount, 0, allPlayers.Count);
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
@@ -204,6 +199,7 @@ class Lovers
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
@@ -220,6 +216,7 @@ class Lovers
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
@@ -236,6 +233,7 @@ class Lovers
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
@@ -252,6 +250,7 @@ class Lovers
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
@@ -268,6 +267,7 @@ class Lovers
             if (RawCount == -1) count = Math.Clamp(loversRole.GetRealCount(), 0, allPlayers.Count);
             if (count <= 0) return;
             if (count != 2) count = 2;
+            if (allPlayers.Count < 2) return;
             for (var i = 0; i < count; i++)
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
@@ -284,6 +284,7 @@ class Lovers
             var assind = false;
             if (allPlayers.Count < 2) return;//2人居ない時は返す。
             if (count <= 0) return;
+            if (allPlayers.Count < 2) return;
             var player = allPlayers[rand.Next(0, allPlayers.Count)];//片思いしてる人
             for (var i = 0; i < 2; i++)
             {
