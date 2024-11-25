@@ -210,7 +210,7 @@ public sealed class Arsonist : RoleBase, IKiller
             }
             CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist); //焼殺で勝利した人も勝利させる
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
-            return true;
+            return false;
         }
         return false;
     }

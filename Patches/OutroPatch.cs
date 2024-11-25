@@ -346,18 +346,22 @@ namespace TownOfHost
             roleSummary.transform.localScale = new Vector3(1.2f, 1.2f, 1f);
             roleSummary.gameObject.SetActive(!Main.AssignSameRoles);
 
-            if (Main.UseWebHook.Value) UtilsWebHook.WH_ShowLastResult();
-            if (Main.AutoSaveScreenShot.Value)
+            //if (Main.UseWebHook.Value) UtilsWebHook.WH_ShowLastResult();
+            if (Main.AutoSaveScreenShot.Value || Main.UseWebHook.Value)
             {
                 var endGameNavigation = GameObject.Find("EndGameNavigation");
                 endGameNavigation.SetActive(false);
                 ScreenShotbutton.Button.transform.SetLocalY(-50);
-                _ = new LateTask(() => LastGameSave.SeveImage(true), 1.2f, "", true);
+                _ = new LateTask(() =>
+                {
+                    LastGameSave.SeveImage(true);
+                    Webhook.SendResult(ScreenCapture.CaptureScreenshotAsTexture().EncodeToPNG());
+                }, 3f, "", true);
                 _ = new LateTask(() =>
                 {
                     endGameNavigation.SetActive(true);
                     ScreenShotbutton.Button.transform.SetLocalY(2.6f);
-                }, 1.7f, "", true);
+                }, 5f, "", true);
             }
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

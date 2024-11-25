@@ -356,7 +356,7 @@ public static class CustomRoleManager
             UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false).RemoveSizeTags()}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
             if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
-        //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId) 
+        //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId)
         (killerrole as IUsePhantomButton)?.Init(appearanceKiller);
         var roleinfo = appearanceKiller.GetCustomRole().GetRoleInfo();
 
@@ -717,6 +717,7 @@ public enum CustomRoles
     Notifier,
     Magician,
     Decrescendo,
+    Curser,
     Alien,
     SpeedStar,
     EvilTeller,

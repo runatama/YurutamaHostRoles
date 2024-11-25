@@ -70,7 +70,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
     {
         resetkillcooldown = false;
         fall = true;
-        if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount) return;
+        if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= PlayerCatch.SKMadmateNowCount) return;
         var target = Player.GetKillTarget();
         if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoleTypes.Impostor)) return;
 
@@ -88,7 +88,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
             else
                 target.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
         }
-        Main.SKMadmateNowCount++;
+        PlayerCatch.SKMadmateNowCount++;
         UtilsOption.MarkEveryoneDirtySettings();
         UtilsNotifyRoles.NotifyRoles();
         Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);

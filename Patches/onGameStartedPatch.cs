@@ -52,7 +52,7 @@ namespace TownOfHost
             Main.AllPlayerTask = new Dictionary<byte, List<uint>>();
             GhostRoleAssingData.GhostAssingCount = new Dictionary<CustomRoles, int>();
 
-            Main.SKMadmateNowCount = 0;
+            PlayerCatch.SKMadmateNowCount = 0;
 
             Main.AfterMeetingDeathPlayers = new();
             Main.clientIdList = new();
@@ -160,6 +160,7 @@ namespace TownOfHost
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
             ChatManager.ResetChat();
             SuddenDeathMode.Reset();
+            PlayerControlPhantomPatch.cantuse.Clear();
             Main.FixTaskNoPlayer.Clear();
             Camouflage.ventplayr.Clear();
             ReportDeadBodyPatch.DontReport.Clear();
@@ -187,6 +188,7 @@ namespace TownOfHost
             Main.NowSabotage = false;
             Main.FeColl = 0;
             Main.GameCount++;
+            Main.CanUseAbility = false;
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
             Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
             var c = string.Format(GetString("log.Start"), Main.GameCount);
@@ -309,7 +311,7 @@ namespace TownOfHost
                     Dictionary<(byte, byte), RoleTypes> rolesMap = new();
                     foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
                     {
-                        if (info.IsDesyncImpostor || role is CustomRoles.Amnesiac || role.IsMadmate() || role.IsNeutral() || Options.SuddenDeathMode.GetBool())
+                        if (info.IsDesyncImpostor || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || Options.SuddenDeathMode.GetBool())
                         {
                             AssignDesyncRole(role, AllPlayers, senders, rolesMap, BaseRole: info.BaseRoleType.Invoke());
                         }
@@ -448,7 +450,7 @@ namespace TownOfHost
                     if (role.IsVanilla()) continue;
                     if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor == true) continue;
                     if (role.IsMadmate()) continue;
-                    if (role.IsNeutral()) continue;
+                    if (role.IsNeutral() && role is not CustomRoles.Egoist) continue;
                     if (role is CustomRoles.Amnesiac) continue;
                     if (Options.SuddenDeathMode.GetBool()) continue;
                     var baseRoleTypes = role.GetRoleTypes() switch
@@ -492,7 +494,7 @@ namespace TownOfHost
                         foreach (var seer in PlayerCatch.AllPlayerControls)
                         {
                             if (seer == pc) continue;
-                            if (role.IsImpostor() || pc.IsNeutralKiller()) //変更対象がインポスター陣営orキル可能な第三陣営
+                            if (role.IsImpostor() || (seer.IsNeutralKiller() && role is not CustomRoles.Egoist)) //変更対象がインポスター陣営orキル可能な第三陣営
                                 NameColorManager.Add(seer.PlayerId, pc.PlayerId);
                         }
                     }
@@ -610,9 +612,9 @@ namespace TownOfHost
                 var role = pc.GetCustomRole();
                 var roleType = role.GetRoleTypes();
 
-                if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || role.IsNeutral() || SuddenDeathMode.NowSuddenDeathMode)
+                if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
                 {
-                    roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : (role.IsNeutral() ? RoleTypes.Impostor : roleType));
+                    roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
                     if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                 }
                 if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
@@ -665,9 +667,9 @@ namespace TownOfHost
                     if (pc.GetClientId() == -1) continue;
                     var role = pc.GetCustomRole();
                     var roleType = role.GetRoleTypes();
-                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || role.IsNeutral() || SuddenDeathMode.NowSuddenDeathMode)
+                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
                     {
-                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : (role.IsNeutral() ? RoleTypes.Crewmate : roleType));
+                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Crewmate : roleType));
                         if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                     }
 
@@ -817,7 +819,7 @@ namespace TownOfHost
                 AllPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
 
-                var selfRole = player.PlayerId == hostId ? hostBaseRole : (role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : (role.IsNeutral() && !BaseRole.IsCrewmate() ? RoleTypes.Crewmate : BaseRole)));
+                var selfRole = player.PlayerId == hostId ? hostBaseRole : (role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : (role.IsNeutral() && role is not CustomRoles.Egoist && !BaseRole.IsCrewmate() ? RoleTypes.Crewmate : BaseRole)));
                 var othersRole = player.PlayerId == hostId ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
                 if (role is CustomRoles.Amnesiac) selfRole = RoleTypes.Crewmate;
@@ -921,7 +923,7 @@ namespace TownOfHost
                 if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor == true) continue;
                 if (SuddenDeathMode.NowSuddenDeathMode) continue;
                 if (role.IsMadmate()) continue;
-                if (role.IsNeutral()) continue;
+                if (role.IsNeutral() && role is not CustomRoles.Egoist) continue;
                 if (role is CustomRoles.Amnesiac) continue;
                 if (role == CustomRoles.Egoist && Main.NormalOptions.GetInt(Int32OptionNames.NumImpostors) <= 1) continue;
                 if (role.GetRoleTypes() == roleTypes)

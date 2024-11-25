@@ -32,7 +32,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool CanUseKill() => Main.AliveImpostorCount <= cankillcount || cankill;
+        public static bool CanUseKill() => PlayerCatch.AliveImpostorCount <= cankillcount || cankill;
         public static void OnStartMeeting()
         {
             if (CanKillDay.GetFloat() == 0) return;

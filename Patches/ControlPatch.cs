@@ -112,6 +112,7 @@ namespace TownOfHost
             //ミーティングを強制終了
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)
             {
+                Main.CanUseAbility = false;
                 foreach (var Player in PlayerCatch.AllPlayerControls)
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -164,13 +165,11 @@ namespace TownOfHost
             //現在の有効な設定の説明を表示
             if (GetKeysDown(KeyCode.N, KeyCode.LeftShift, KeyCode.LeftControl))
             {
-                Main.isChatCommand = true;
                 UtilsShowOption.ShowActiveSettingsHelp();
             }
             //現在の有効な設定を表示
             if (GetKeysDown(KeyCode.N, KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
             {
-                Main.isChatCommand = true;
                 UtilsShowOption.ShowActiveSettings();
             }
             //キルフラッシュ

@@ -88,7 +88,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         {
             return OptionVent.GetBool();
         }
-        if (Main.AliveImpostorCount != 0)
+        if (PlayerCatch.AliveImpostorCount > 0)
         {
             MyState.DeathReason = CustomDeathReason.Suicide;
             Player.RpcMurderPlayer(Player);

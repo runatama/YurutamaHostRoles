@@ -59,6 +59,7 @@
 "Amnesiac","Amnesiac","記憶喪失者"
 "Camouflager","Camouflager","カモフラージャー"
 "EvilSatellite","EvilSatellite","イビルサテライト"
+"Curser","Curser","カーサー",
 "#ImpostorName"
 
 "# マッドメイト系役職"
@@ -292,6 +293,7 @@
 "AmnesiacInfo","","なにか忘れてるような..."
 "CamouflagerInfo","","イリュージョン!"
 "EvilSatelliteInfo","","君がいたのはどこなんだい?"
+"CurserInfo","","呪って呪って最後はトドメ！"
 "#ImpostorInfo"
 
 "# マッドメイト系役職"
@@ -496,6 +498,7 @@
 "AmnesiacInfoLong","","自身の事をシェリフだと思い込んでいるインポスター。\nシェリフのように見えているが誤爆はしない。\n相方も分からない。\nベントとサボタージュが使用できない。"
 "CamouflagerInfoLong","","ワンクリックボタンを使用することで\nプレイヤー全員(ウルトラスターを除く)のスキンが一定時間グレーになり、識別できない状態にする。"
 "EvilSatelliteInfoLong","","会議中にシェイプシフトで対象を選択すると選択した対象の今回のターンの経路が表示される\nもう一度確認したい時も同様にシェイプシフトで選択することで経路が表示される。\n※再表示の場合、能力使用可能回数は減少しない"
+"CurserInfoLong","","ターゲットをシェイプで選択が可能、\nその選択した相手にθが表示。\nただし、ターゲットを決めると呪える回数が減るぞ。\n\nθが表示されているターゲットをキルすると次のキルクールが短くなる。\nターゲット以外をキルしても、いつも通りのキルクールになる。"
 "#ImpostorInfoLong"
 
 "# マッドメイト系役職"
@@ -1085,6 +1088,8 @@
 "AmnesiacCanUseSabotage","","思い出すとサボタージュを起こせるようになる"
 "AmnesiacIamWolfboy","","<color=#727171>狼少年</color>だと思い込む"
 "EvilSatelliteRandom","","経路をランダムに表示する"
+"TKillCooldown","","ターゲット切った時のキルクール"
+"NroiCunt","","呪える回数"
 
 "## MadMate Role Setting"
 "MadmateOption","MadMate Options","マッドメイト系役職の設定","","","","",""

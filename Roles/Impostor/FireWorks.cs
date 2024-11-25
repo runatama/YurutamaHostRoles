@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Translator;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -109,7 +110,8 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
                 FireWorksPosition.Add(Player.transform.position);
                 NowFireWorksCount--;
                 if (NowFireWorksCount == 0)
-                    State = Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
+                    State = PlayerCatch.AliveImpostorCount <= 1 || SuddenDeathMode.NowSuddenDeathMode
+                        ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
                 else
                     State = FireWorksState.SettingFireWorks;
                 Player.RpcResetAbilityCooldown(kousin: true);
@@ -164,7 +166,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
     {
         string retText = "";
 
-        if (State == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
+        if (State == FireWorksState.WaitTime && (PlayerCatch.AliveImpostorCount <= 1 || SuddenDeathMode.NowSuddenDeathMode))
         {
             Logger.Info("爆破準備OK", "FireWorks");
             State = FireWorksState.ReadyFire;

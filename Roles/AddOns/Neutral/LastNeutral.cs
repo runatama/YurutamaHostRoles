@@ -104,7 +104,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
         {
             if (currentId != byte.MaxValue) return;
             if (CurrentGameMode == CustomGameMode.HideAndSeek
-            || !CustomRoles.LastNeutral.IsPresent() || Main.AliveNeutalCount != 1)
+            || !CustomRoles.LastNeutral.IsPresent() || PlayerCatch.AliveNeutalCount != 1)
                 return;
             foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {

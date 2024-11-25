@@ -29,16 +29,16 @@ namespace TownOfHost
         {
             int AliveImpostorCount = AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));
             int AliveNeutalCount = AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Neutral));
-            if (Main.AliveImpostorCount != AliveImpostorCount)
+            if (PlayerCatch.AliveImpostorCount != AliveImpostorCount)
             {
                 Logger.Info("生存しているインポスター:" + AliveImpostorCount + "人", "CountAliveImpostors");
-                Main.AliveImpostorCount = AliveImpostorCount;
+                PlayerCatch.AliveImpostorCount = AliveImpostorCount;
                 LastImpostor.SetSubRole();
             }
-            if (Main.AliveNeutalCount != AliveNeutalCount)
+            if (PlayerCatch.AliveNeutalCount != AliveNeutalCount)
             {
                 Logger.Info("生存しているニュートラル:" + AliveNeutalCount + "人", "CountAliveNeutral");
-                Main.AliveNeutalCount = AliveNeutalCount;
+                PlayerCatch.AliveNeutalCount = AliveNeutalCount;
                 LastNeutral.SetSubRole();
             }
 
@@ -60,6 +60,9 @@ namespace TownOfHost
                 Logger.Info(sb.ToString(), "CountAlivePlayers");
             }
         }
+        public static int AliveImpostorCount;
+        public static int AliveNeutalCount;
+        public static int SKMadmateNowCount;
         public static int AllPlayersCount => PlayerState.AllPlayerStates.Values.Count(state => state.CountType != CountTypes.OutOfGame);
         public static int AllAlivePlayersCount => AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
         public static bool IsAllAlive => PlayerState.AllPlayerStates.Values.All(state => state.CountType == CountTypes.OutOfGame || !state.IsDead);

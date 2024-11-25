@@ -90,7 +90,7 @@ namespace TownOfHost
                     }
                     Lovers.LoversAddWin();
                     //追加勝利陣営
-                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.Is(CustomRoles.PhantomThief)))
+                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.Is(CustomRoles.PhantomThief) || pc.Is(CustomRoles.AsistingAngel)))
                     {
                         var isAlive = pc.IsAlive();
                         if (Amnesia.CheckAbility(pc))
@@ -133,6 +133,7 @@ namespace TownOfHost
                                     continue;
                                 }
                             }
+
                         if (pc.Is(CustomRoles.AsistingAngel))
                         {
                             if (AsistingAngel.Asist != null)
@@ -182,7 +183,7 @@ namespace TownOfHost
         }
         public static void StartEndGame(GameOverReason reason)
         {
-            if (Options.UseCustomRpcSenderAtGameEnd.GetBool())
+            /*if (Options.UseCustomRpcSenderAtGameEnd.GetBool())
             {
                 var sender = new CustomRpcSender("EndGameSender", SendOption.Reliable, true);
                 sender.StartMessage(-1); // 5: GameData
@@ -247,7 +248,8 @@ namespace TownOfHost
                 }, 3f, "", true);
 
             }
-            else AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
+            else*/
+            AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
         }
         private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)
         {

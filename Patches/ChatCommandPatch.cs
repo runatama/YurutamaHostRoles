@@ -50,7 +50,6 @@ namespace TownOfHost
             string subArgs = "";
             var canceled = false;
             var cancelVal = "";
-            Main.isChatCommand = true;
             Logger.Info(text, "SendChat");
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
             if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) canceled = true;
@@ -120,12 +119,10 @@ namespace TownOfHost
                     AmongUsClient.Instance.FinishRpcImmediately(writerban);
                     break;
                 default:
-                    Main.isChatCommand = false;
                     break;
             }
             if (AmongUsClient.Instance.AmHost)
             {
-                Main.isChatCommand = true;
                 switch (args[0])
                 {
                     case "/win":
@@ -603,7 +600,7 @@ namespace TownOfHost
                     case "/say":
                         canceled = true;
                         if (args.Length > 1)
-                            SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>", rob: true);
+                            SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
                         break;
 
                     case "/settask":
@@ -947,7 +944,6 @@ namespace TownOfHost
                             canceled = true;
                             break;
                         }
-                        Main.isChatCommand = false;
                         break;
                 }
             }
@@ -1575,8 +1571,10 @@ namespace TownOfHost
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
+                                    var clientid = imp.GetClientId();
+                                    if (clientid == -1) continue;
                                     var writer = CustomRpcSender.Create("ImpostorChatSend", SendOption.Reliable);
-                                    writer.StartMessage(imp.GetClientId());
+                                    writer.StartMessage(clientid);
                                     writer.StartRpc(imp.NetId, (byte)RpcCalls.SetName)
                                     .Write(imp.Data.NetId)
                                     .Write($"<align=\"left\"><line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
@@ -1620,8 +1618,10 @@ namespace TownOfHost
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
+                                    var clientid = jac.GetClientId();
+                                    if (clientid == -1) continue;
                                     var writer = CustomRpcSender.Create("JacalSendChat", SendOption.Reliable);
-                                    writer.StartMessage(jac.GetClientId());
+                                    writer.StartMessage(clientid);
                                     writer.StartRpc(jac.NetId, (byte)RpcCalls.SetName)
                                     .Write(jac.Data.NetId)
                                     .Write($"<align=\"left\"><line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
@@ -1668,8 +1668,10 @@ namespace TownOfHost
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
+                                    var clientid = lover.GetClientId();
+                                    if (clientid == -1) continue;
                                     var writer = CustomRpcSender.Create("LoverChatSend", SendOption.Reliable);
-                                    writer.StartMessage(lover.GetClientId());
+                                    writer.StartMessage(clientid);
                                     writer.StartRpc(lover.NetId, (byte)RpcCalls.SetName)
                                     .Write(lover.Data.NetId)
                                     .Write(ColorString(GetRoleColor(l), $"<align=\"left\"><line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>"))
@@ -1710,7 +1712,7 @@ namespace TownOfHost
 
                     if (!Options.ExHideChatCommand.GetBool()) break;
 
-                    if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsCached)
+                    if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsCached && !canceled)
                     {
                         if (GameStates.Tuihou) break;
 

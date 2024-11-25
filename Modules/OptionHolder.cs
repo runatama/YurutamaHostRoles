@@ -102,7 +102,7 @@ namespace TownOfHost
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
         public static OptionItem BlackOutwokesitobasu;
-        public static OptionItem UseCustomRpcSenderAtGameEnd;
+        //public static OptionItem UseCustomRpcSenderAtGameEnd;
         //public static OptionItem ExIntroSystem;
 
         //幽霊役職
@@ -610,11 +610,11 @@ namespace TownOfHost
                 .SetColorcode("#ff0000")
                 .SetParent(ExperimentalMode)
                 .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
-            UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", false, TabGroup.MainSettings, false)
+            /*UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode)
                 .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));
-            /*ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
+            ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode);*/
             //9人以上部屋で落ちる現象の対策

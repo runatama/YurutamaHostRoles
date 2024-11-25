@@ -229,7 +229,6 @@ namespace TownOfHost
                     {
                         if (!AmongUsClient.Instance.IsGameStarted && client.Character != null && !Main.AssignSameRoles)
                         {
-                            Main.isChatCommand = true;
                             UtilsGameLog.ShowLastResult(client.Character.PlayerId);
                         }
                     }
@@ -237,7 +236,6 @@ namespace TownOfHost
                     {
                         if (!GameStates.IsInGame && client.Character != null)
                         {
-                            Main.isChatCommand = true;
                             UtilsGameLog.ShowKillLog(client.Character.PlayerId);
                         }
                     }

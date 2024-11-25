@@ -244,32 +244,51 @@ namespace TownOfHost
             StringBuilder sb;
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                sb = new StringBuilder(GetString("Roles")).Append(':');
-                sb.AppendFormat("\n {0}:{1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString().RemoveHtmlTags());
-                var rr = CustomRoleTypes.Neutral;//☆インポスターも表示させるため
+
+                sb = new StringBuilder("```cs\n").Append(GetString("Roles")).Append(':');
+                sb.AppendFormat("\n# {0}:{1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString().RemoveHtmlTags());
+                CustomRoleTypes? rr = null;//☆インポスターも表示させるため
                 foreach (CustomRoles role in CustomRolesHelper.AllRoles)
                 {
-                    if (rr != role.GetCustomRoleTypes() && role.IsEnable())
+                    if (role is CustomRoles.GM or CustomRoles.NotAssigned) continue;
+                    if (rr == null && rr != role.GetCustomRoleTypes() && role.IsEnable())
                     {
                         rr = role.GetCustomRoleTypes();
                         if (role.IsSubRole())
-                            sb.AppendFormat($"\n ☆{GetString("Addons")}");
+                            sb.AppendFormat($"\n☆{GetString("Addons")}");
                         else
                         {
-                            sb.AppendFormat($"\n ☆{GetString($"{rr}")}");
+                            sb.AppendFormat($"\n☆{GetString($"{rr}")}");
                         }
                     }
                     if (role is CustomRoles.HASFox or CustomRoles.HASTroll) continue;
-                    if (role.IsEnable()) sb.AppendFormat("\n　{0}:{1}x{2}", role.GetCombinationCName(false), $"{role.GetChance()}%", role.GetCount());
+                    var mark = "〇";
+                    switch (role.GetCustomRoleTypes())
+                    {
+                        case CustomRoleTypes.Impostor: mark = "Ⓘ"; break;
+                        case CustomRoleTypes.Crewmate: mark = "Ⓒ"; break;
+                        case CustomRoleTypes.Madmate: mark = "Ⓜ"; break;
+                        case CustomRoleTypes.Neutral: mark = "Ⓝ"; break;
+                    }
+                    if (role.IsSubRole())
+                    {
+                        if (role.IsBuffAddon()) mark = "Ⓐ";
+                        else if (role.IsDebuffAddon()) mark = "Ⓓ";
+                        else if (role.IsRiaju()) mark = "Ⓛ";
+                        else if (role.IsGorstRole()) mark = "Ⓖ";
+                        else mark = "〇";
+                    }
+                    if (role.IsEnable()) sb.AppendFormat($"\n {mark}" + "\"{0}\"   {1}×{2}", role.GetCombinationCName(false), $"{role.GetChance()}%", role.GetCount());
                 }
             }
             else
             {
-                sb = new StringBuilder(GetString(Options.CurrentGameMode.ToString()))
-                .Append("\n\n").Append(GetString("TaskPlayerB") + ":");
+                sb = new StringBuilder("``` cs\n").Append(GetString(Options.CurrentGameMode.ToString()));
+                sb.Append("\n\n").Append(GetString("TaskPlayerB") + ":");
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                     sb.Append("\n  " + pc.name);
             }
+            sb.Append("\n```");
             Webhook.Send(sb.ToString());
         }
         public static void WH_ShowLastResult(byte PlayerId = byte.MaxValue)
@@ -314,7 +333,7 @@ namespace TownOfHost
                     sb.Append('　').Append(GetProgressText(id, gamelog: true).RemoveColorTags());
             }
             Webhook.Send(sb.ToString());
-            Webhook.Send(EndGamePatch.KillLog.RemoveHtmlTags());
+            Webhook.Send($"```\n{EndGamePatch.KillLog.RemoveHtmlTags()}\n```");
         }
     }
 }

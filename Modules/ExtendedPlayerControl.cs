@@ -145,6 +145,7 @@ namespace TownOfHost
         public static int GetClientId(this PlayerControl player)
         {
             var client = player?.GetClient();
+            if (client == null) Logger.Error($"{player?.Data?.PlayerName ?? "null"}のclientがnull", "GetClientId");
             return client == null ? -1 : client.Id;
         }
         public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
@@ -377,6 +378,7 @@ namespace TownOfHost
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                     }
                 }
+                Main.CanUseAbility = true;
             }
             , 0.2f, "AllPlayerResetAbilityCoolDown", null);
         }
@@ -643,7 +645,7 @@ namespace TownOfHost
             var role = player.GetCustomRole();
 
             if (
-            Options.CanMakeMadmateCount.GetInt() <= Main.SKMadmateNowCount ||
+            Options.CanMakeMadmateCount.GetInt() <= PlayerCatch.SKMadmateNowCount ||
             player == null ||
             (player.Data.Role.Role != RoleTypes.Shapeshifter) || role.GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter)
             {

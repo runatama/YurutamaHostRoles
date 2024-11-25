@@ -124,6 +124,7 @@ public static class LastGameSave
     }
     public static void SeveImage(bool autosave = false)
     {
+        if (autosave && !Main.AutoSaveScreenShot.Value) return;
         var endGameNavigation = GameObject.Find("EndGameNavigation");
         if (!autosave)
         {

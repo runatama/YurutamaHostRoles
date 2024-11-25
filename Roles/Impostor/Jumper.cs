@@ -126,7 +126,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                     aname = false;
                     _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
                 }
-            }, jampdis - 0.2f, "abo-n");
+            }, jampdis - 0.2f, "abo-n", null);
             if (count == jampcount)
             {
                 ability = false;

@@ -25,7 +25,8 @@ namespace TownOfHost
     {
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
         {
-            if (!AmongUsClient.Instance.AmHost) return false;
+            if (!AmongUsClient.Instance.AmHost || !Main.CanUseAbility) return false;
+
             Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
 
             if (__instance.IsGorstRole())
@@ -38,7 +39,7 @@ namespace TownOfHost
                 DemonicCrusher.UseAbility(__instance);
                 DemonicVenter.UseAbility(__instance, target);
                 AsistingAngel.UseAbility(__instance, target);
-                return true;
+                return false;
             }
 
             if (__instance.Is(CustomRoles.Sheriff))
@@ -404,7 +405,7 @@ namespace TownOfHost
                         UtilsGameLog.AddGameLog("SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(targetm, true) + $"({UtilsRoleText.GetTrueRoleName(targetm.PlayerId)})", Utils.GetPlayerColor(shapeshifter, true) + $"({UtilsRoleText.GetTrueRoleName(shapeshifter.PlayerId)})"));
                         targetm.RpcSetCustomRole(targetRole);
                         Logger.Info($"Make SKMadmate:{targetm.name}", "Shapeshift");
-                        Main.SKMadmateNowCount++;
+                        PlayerCatch.SKMadmateNowCount++;
                         shapeshifter.RpcProtectedMurderPlayer(targetm);
                         targetm.RpcProtectedMurderPlayer(shapeshifter);
                         targetm.RpcProtectedMurderPlayer(targetm);
@@ -482,6 +483,11 @@ namespace TownOfHost
             if (MeetingHud.Instance && animate)
             {
                 logger.Info("会議中のため変身をキャンセルします");
+                return false;
+            }
+            if (!Main.CanUseAbility)
+            {
+                logger.Info("CanUseAbilityがfalseなのでりたーん");
                 return false;
             }
             return true;
@@ -1884,6 +1890,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerControl))]
     class PlayerControlPhantomPatch
     {
+        public static List<byte> cantuse = new();
         [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
         [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
         [HarmonyPrefix]
@@ -1893,7 +1900,9 @@ namespace TownOfHost
             var resetkillcooldown = false;
             bool? fall = false;
 
-            if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton) iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
+            if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton && Main.CanUseAbility && !cantuse.Contains(__instance.PlayerId))
+                iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
+            cantuse.Add(__instance.PlayerId);
 
             if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Impostor, __instance.GetClientId());
             _ = new LateTask(() =>
@@ -1916,6 +1925,7 @@ namespace TownOfHost
                         if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
                         if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
                         if (fall == false) __instance.RpcResetAbilityCooldown(false, true);
+                        _ = new LateTask(() => cantuse.Remove(__instance.PlayerId), Main.LagTime * 3, "", true);
                     }, Main.LagTime * 2, "", true);
             }, Main.LagTime, "", true);
 

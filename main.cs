@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.23";
-        public const string PluginShowVersion = "519.23"/*<sub>.11</sub>"*/;
+        public const string PluginVersion = "519.23.11";
+        public const string PluginShowVersion = "519.23<sub>.11</sub>";
         public const string ModVersion = ".23";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -119,7 +119,6 @@ namespace TownOfHost
         public static List<byte> winnerList;
         public static List<int> clientIdList;
         public static List<(string, byte, string)> MessagesToSend;
-        public static bool isChatCommand = false;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
         public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
@@ -154,6 +153,7 @@ namespace TownOfHost
         public static int FeColl;
         public static bool IntroHyoji;
         public static bool DontGameSet;
+        public static bool CanUseAbility;
         public static CustomRoles HostRole = CustomRoles.NotAssigned;
 
         /// <summary>
@@ -161,9 +161,6 @@ namespace TownOfHost
         /// </summary>
         public static Dictionary<byte, float> AllPlayerSpeed = new();
         public const float MinSpeed = 0.0001f;
-        public static int AliveImpostorCount;
-        public static int AliveNeutalCount;
-        public static int SKMadmateNowCount;
         public static Dictionary<byte, bool> CheckShapeshift = new();
         public static Dictionary<byte, byte> ShapeshiftTarget = new();
         public static bool VisibleTasksCount;

@@ -331,7 +331,7 @@ namespace TownOfHost
             {
                 ProgressText.Append(roleClass.GetProgressText(comms, gamelog));
             }
-            if (player.CanMakeMadmate()) ProgressText.Append(ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"[{Options.CanMakeMadmateCount.GetInt() - Main.SKMadmateNowCount}]"));
+            if (player.CanMakeMadmate()) ProgressText.Append(ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"[{Options.CanMakeMadmateCount.GetInt() - PlayerCatch.SKMadmateNowCount}]"));
             return ProgressText.ToString();
         }
         public static string GetProgressText(PlayerControl seer, PlayerControl seen = null, bool Mane = true)

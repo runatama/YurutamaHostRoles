@@ -30,8 +30,8 @@ namespace TownOfHost
             return false;
         }
 
-        private static bool ModClientOnly//全員ModClient
-            => PlayerCatch.AllPlayerControls.Where(pc => pc.IsModClient()).Count() == PlayerCatch.AllPlayerControls.Count();
+        private static bool ModClientOnly//全員ModClient ↓これじゃダメなの?()
+            => PlayerCatch.AllPlayerControls.All(pc => pc.IsModClient());
 
         public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
         {
@@ -42,9 +42,11 @@ namespace TownOfHost
                 return;
             }
             isDeadCache.Clear();
+            var nowcount = PlayerCatch.AllPlayerControls.Count();
             foreach (var info in GameData.Instance.AllPlayers)
             {
-                if (info == null) continue;
+                //情報が無い　　　   4人以上正常者がいる場合は役職変えるので回線切断者を生存擬装する必要が多分ない。
+                if (info == null || ((info?.Disconnected == true) && 4 <= nowcount)) continue;
                 isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
                 info.IsDead = false;
                 info.Disconnected = false;

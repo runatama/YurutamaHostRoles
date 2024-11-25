@@ -11,7 +11,7 @@ namespace TownOfHost
 {
     class Webhook
     {
-        public static void Send(string text, string name = "TownOfHost-K", string avatar = "https://cdn.discordapp.com/attachments/1219855613752774657/1254725875535183933/TabIcon_MainSettings.png?ex=667a8a08&is=66793888&hm=dc20a50c7cadab0a15a215c19abcde6006fbef9911299ab82e452b7cf5242f57&")
+        public static void Send(string text)
         {
             ClientOptionsManager.CheckOptions();
             if (ClientOptionsManager.WebhookUrl == "none" || !Main.UseWebHook.Value) return;
@@ -19,12 +19,29 @@ namespace TownOfHost
             Dictionary<string, string> strs = new()
             {
                 { "content", text },
-                { "username", name },
-                { "avatar_url", avatar }
             };
             TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
                 ClientOptionsManager.WebhookUrl, new FormUrlEncodedContent(strs)).GetAwaiter();
             awaiter.GetResult();
+        }
+        //参考元→https://github.com/Dolly1016/Nebula-Public/
+        public static void SendResult(byte[] pngImage)
+        {
+            ClientOptionsManager.CheckOptions();
+            if (ClientOptionsManager.WebhookUrl == "none" || !Main.UseWebHook.Value) return;
+            try
+            {
+                HttpClient httpClient = new();
+                using MultipartFormDataContent content = new();
+                content.Add(new ByteArrayContent(pngImage), "file", "image.png");
+                var awaiter = httpClient.PostAsync(ClientOptionsManager.WebhookUrl, content).GetAwaiter();
+                awaiter.GetResult();
+                return;
+            }
+            catch (Exception e)
+            {
+                Logger.Info($"{e}", "SendResult");
+            }
         }
     }
 

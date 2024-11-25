@@ -480,7 +480,7 @@ namespace TownOfHost
                 if ((roleInfo?.IsDesyncImpostor == true || SuddenDeathMode.NowSuddenDeathMode) && roleInfo.BaseRoleType.Invoke() != RoleTypes.Impostor)
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo.BaseRoleType.Invoke());
 
-                if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool())
+                if (!Options.EnableGM.GetBool() && Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool())
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
 
                 _ = new LateTask(() =>
