@@ -1721,66 +1721,49 @@ namespace TownOfHost
                         {
                             if (AmongUsClient.Instance.AmHost)
                             {
+                                List<PlayerControl> sendplayers = new();
                                 foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                                 {
-                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                    if (pc.IsModClient()) continue;
-                                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                    if (player.IsModClient()) continue;
-                                    if (pc.PlayerId == player.PlayerId) continue;
+                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId || pc.IsModClient() ||
+                                    player.PlayerId == PlayerControl.LocalPlayer.PlayerId || player.IsModClient() ||
+                                    pc.PlayerId == player.PlayerId) continue;
                                     player.Data.IsDead = false;
 
+                                    var sender = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                    sender.StartMessage(pc.GetClientId());
+
                                     MeetingHudPatch.StartPatch.Serialize = true;
-                                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                    MeetingHudPatch.StartPatch.Serialize = false;
-                                    //send
-                                    _ = new LateTask(() =>
+
+                                    sender.Write((wit) =>
                                     {
-                                        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-                                        writer.StartMessage(pc.GetClientId());
-                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        wit.StartMessage(1); //0x01 Data
+                                        {
+                                            wit.WritePacked(player.Data.NetId);
+                                            player.Data.Serialize(wit, false);
+                                        }
+                                        wit.EndMessage();
+                                    }, true);
+                                    MeetingHudPatch.StartPatch.Serialize = false;
+                                    sender.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                                             .Write(text)
                                             .EndRpc();
-                                        writer.EndMessage();
-                                        writer.SendMessage();
-                                    }, Main.LagTime, "", true);
-                                }
-                                Dictionary<byte, bool> State = new();
-                                foreach (var player in PlayerCatch.AllAlivePlayerControls)
-                                {
-                                    State.TryAdd(player.PlayerId, player.Data.IsDead);
-                                }
-                                _ = new LateTask(() =>
-                                {
-                                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                                    player.Data.IsDead = true;
+                                    MeetingHudPatch.StartPatch.Serialize = true;
+
+                                    sender.Write((wit) =>
                                     {
-                                        if (!State.ContainsKey(pc.PlayerId)) continue;
-                                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                        if (pc.IsModClient()) continue;
-                                        foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
+                                        wit.StartMessage(1); //0x01 Data
                                         {
-                                            if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                            if (tg.IsModClient()) continue;
-                                            tg.Data.IsDead = true;
+                                            wit.WritePacked(player.Data.NetId);
+                                            player.Data.Serialize(wit, false);
                                         }
-                                        pc.Data.IsDead = false;
-                                        MeetingHudPatch.StartPatch.Serialize = true;
-                                        RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                        MeetingHudPatch.StartPatch.Serialize = false;
-                                    }
-                                    foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
-                                    {
-                                        player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
-
-                                        RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
-                                    }
-                                }, Main.LagTime * 2, "SetDie", true);
-                                foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
-                                {
-                                    player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
-
-                                    RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
+                                        wit.EndMessage();
+                                    }, true);
+                                    sender.EndMessage();
+                                    sender.SendMessage();
+                                    MeetingHudPatch.StartPatch.Serialize = false;
                                 }
+                                player.Data.IsDead = false;
                             }
                         }, Main.LagTime, "", true);
                     }
@@ -1801,7 +1784,7 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count < 1 || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
             if (DoBlockChat) return;
-            var player = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
+            var player = AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
             if (player == null) return;
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
             Main.MessagesToSend.RemoveAt(0);
@@ -1812,6 +1795,10 @@ namespace TownOfHost
                 Logger.Info($"{sendTo}がnullだから弾いたぞ!", "ChatUpdatePatch");
                 return;
             }
+            if (GameStates.IsLobby)
+            {
+                _ = new LateTask(() => aftersystemmeg = true, 0.24f, "", true);
+            }
             var name = player.Data.PlayerName;
             if (Options.ExHideChatCommand.GetBool())
             {
@@ -1819,10 +1806,11 @@ namespace TownOfHost
                 {
                     if (player.PlayerId != 0)
                     {
-                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                        foreach (var pc in AllPlayerControls)
                         {
                             var sender = pc;
                             if (!pc.IsAlive()) sender = player;
+
                             clientId = pc.GetClientId();
                             var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                             Nwriter.StartMessage(clientId);
@@ -1839,8 +1827,20 @@ namespace TownOfHost
                             .EndRpc();
                             Nwriter.EndMessage();
                             Nwriter.SendMessage();
+                            if (GameStates.Meeting)
+                                _ = new LateTask(() =>
+                                    {
+                                        foreach (var seer in AllPlayerControls)
+                                        {
+                                            var seenName = sendtopc.GetRealName(isMeeting: true);
+                                            seenName = seenName.ApplyNameColorData(seer, sendtopc, true);
+
+                                            sendtopc.RpcSetNamePrivate(seenName, true, seer, true);
+                                        }
+                                    }, Main.LagTime, "Setname", true);
                         }
                         __instance.timeSinceLastMessage = 0f;
+
                         return;
                     }
                     else
@@ -1852,7 +1852,6 @@ namespace TownOfHost
                 }
                 if (player.PlayerId != 0 && clientId != byte.MaxValue)
                 {
-
                     clientId = sendtopc.GetClientId();
                     var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                     Nwriter.StartMessage(clientId);
@@ -1895,6 +1894,18 @@ namespace TownOfHost
             .EndRpc();
             writer.EndMessage();
             writer.SendMessage();
+            if (GameStates.Meeting)
+                _ = new LateTask(() =>
+                    {
+                        foreach (var seer in AllPlayerControls)
+                        {
+                            var seenName = player.GetRealName(isMeeting: true);
+                            seenName = seenName.ApplyNameColorData(seer, player, true);
+
+                            player.RpcSetNamePrivate(seenName, true, seer, true);
+                        }
+                        DoBlockChat = false;
+                    }, Main.LagTime, "Setname", true);
             __instance.timeSinceLastMessage = 0f;
         }
     }

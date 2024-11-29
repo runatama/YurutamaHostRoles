@@ -55,12 +55,44 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.23.11";
-        public const string PluginShowVersion = "519.23<sub>.11</sub>";
+        public const string PluginVersion = "519.23.12";
+        public const string PluginShowVersion = "519.23<sub>.12</sub>";
         public const string ModVersion = ".23";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
+        /* Debugversion
+        //デバッグ有効期限
+        public static int DebugvalidityYear = 0;//年
+        public static int DebugvalidityMonth = 0;//月
+        public static int DebugvalidityDay = 0;//日
+        //デバッグ版リリース日
+        public static int ReleaseYear = 0;
+        public static int ReleaseMonth = 0;
+        public static int ReleaseDay = 0;
+        public static bool DebugCheck()
+        {
+            if (!NotKigenDebug && DebugVersion)
+            {
+                var client = PlayerControl.LocalPlayer.GetClient();
+                var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
+                int Re = ReleaseYear * 10000 + ReleaseMonth * 100 + ReleaseDay;
+                int Rem = DebugvalidityYear * 10000 + DebugvalidityMonth * 100 + DebugvalidityDay;
+                if (!(Re <= now && now <= Rem))
+                {
+                    AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
+                    if (client != null)
+                        //Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.GetHashedPuid()}");
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        //開発版なのかのch。↑が000ならtrue。
+        public static bool NotKigenDebug => (DebugvalidityYear == 0 && DebugvalidityMonth == 0 && DebugvalidityDay == 0)
+                                            || (ReleaseYear == 0 && ReleaseMonth == 0 && ReleaseDay == 0);
+        */
         // サポートされている最低のAmongUsバージョン
         public static readonly string LowestSupportedVersion = "2024.8.13";
         // このバージョンのみで公開ルームを無効にする場合
@@ -128,14 +160,7 @@ namespace TownOfHost
         public static byte RTAPlayer = 0;
         public static bool EditMode = false;
         public static int page = 0;
-        public static int day;
-        public static string gamelog;
         public static bool AssignSameRoles = false;
-        public static Dictionary<string, CustomRoles> RoleatForcedEnd = new();
-        public static Dictionary<byte, string> LastLog = new();
-        public static Dictionary<byte, string> LastLogRole = new();
-        public static Dictionary<byte, string> LastLogPro = new();
-        public static Dictionary<byte, string> LastLogSubRole = new();
         public static Dictionary<byte, int> KillCount = new();
         public static string Alltask;
         public static Dictionary<int, List<Vector2>> CustomSpawnPosition = new();

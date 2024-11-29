@@ -37,7 +37,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             if (CanKillDay.GetFloat() == 0) return;
 
-            if (CanKillDay.GetFloat() <= Main.day) cankill = true;
+            if (CanKillDay.GetFloat() <= UtilsGameLog.day) cankill = true;
         }
     }
 }

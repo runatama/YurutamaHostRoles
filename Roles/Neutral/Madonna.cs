@@ -169,7 +169,7 @@ public sealed class Madonna : RoleBase
             Player.RpcSetCustomRole(LoverChenge, true);
         }
         else
-        if (limit <= Main.day && Limitd && Player.IsAlive())
+        if (limit <= UtilsGameLog.day && Limitd && Player.IsAlive())
         {
             Player.RpcExileV2();
             MyState.SetDead();

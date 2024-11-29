@@ -32,30 +32,18 @@ namespace TownOfHost
                 SummaryText[id] = UtilsGameLog.SummaryTexts(id);
             if (!AmongUsClient.Instance.AmHost) return;
 
-            /*
-            var sb = new StringBuilder(GetString("KillLog"));
-            sb.Append("<size=70%>");
-
-            foreach (var kvp in PlayerState.AllPlayerStates.OrderBy(x => x.Value.RealKiller.Item1.Ticks))
-            {
-                var date = kvp.Value.RealKiller.Item1;
-                if (date == DateTime.MinValue) continue;
-                var killerId = kvp.Value.GetRealKiller();
-                var targetId = kvp.Key;
-                sb.Append($"\n{date:T} {Utils.GetPlayerColor(PlayerCatch.GetPlayerById(targetId), true)}(<b>{UtilsRoleText.GetTrueRoleName(targetId, false)}</b>{Utils.GetSubRolesText(targetId)}) [{Utils.GetVitalText(kvp.Key)}]");
-                if (killerId != byte.MaxValue && killerId != targetId)
-                    sb.Append($"\n\t\t⇐ {Utils.GetPlayerColor(PlayerCatch.GetPlayerById(killerId), true)}(<b>{UtilsRoleText.GetTrueRoleName(killerId, false)}</b>{Utils.GetSubRolesText(killerId)})");
-            }
-            KillLog = sb.ToString();*/
-
             var meg = GetString($"{(CustomRoles)CustomWinnerHolder.WinnerTeam}") + GetString("Team") + GetString("Win");
-            if (CustomWinnerHolder.WinnerTeam == CustomWinner.Draw) meg = GetString("ForceEnd");
-            if (CustomWinnerHolder.WinnerTeam == CustomWinner.None) meg = GetString("EveryoneDied");
+
+            switch (CustomWinnerHolder.WinnerTeam)
+            {
+                case CustomWinner.Draw: meg = GetString("ForceEnd"); break;
+                case CustomWinner.None: meg = GetString("EveryoneDied"); break;
+            }
 
             var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? UtilsRoleText.GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
             var s = "★".Color(winnerColor);
-            KillLog = $"{GetString("GameLog")}\n" + Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
-            outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + Main.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+            KillLog = $"{GetString("GameLog")}\n" + UtilsGameLog.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+            outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + UtilsGameLog.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
 
             LastGameSave.CreateIfNotExists();
             Main.Alltask = UtilsTask.AllTaskstext(false, false, false, false, false).RemoveHtmlTags();

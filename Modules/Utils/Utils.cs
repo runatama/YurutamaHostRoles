@@ -312,6 +312,7 @@ namespace TownOfHost
             var fir = rob ? "" : "<align=\"left\">";
             Main.MessagesToSend.Add(($"{fir}{text}", sendTo, $"{fir}{title}"));
         }
+        public static bool aftersystemmeg;
         public static void ApplySuffix(PlayerControl pc)
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -363,29 +364,32 @@ namespace TownOfHost
                             name += $"</size><size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size><size=150%>";
                             break;
                     }
-                    if (GameStates.IsLobby && !GameStates.IsCountDown) name = $"<b>{name}</b>";
-
-                    var info = "<size=120%>";
-                    var at = "";
-                    if (Options.NoGameEnd.GetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
-                    if (Options.IsStandardHAS) info += $"\r\n" + ColorString(Color.yellow, GetString("StandardHAS")); else at += "\r\n";
-                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) info += $"\r\n" + ColorString(Color.red, GetString("HideAndSeek")); else at += "\r\n";
-                    if (Options.CurrentGameMode == CustomGameMode.TaskBattle) info += $"\r\n" + ColorString(Color.cyan, GetString("TaskBattle")); else at += "\r\n";
-                    if (Options.SuddenDeathMode.GetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
-                    if (Options.EnableGM.GetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
-                    if (DebugModeManager.IsDebugMode)
-                        info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
-                    else at += "\r\n";
-
-                    info += "</size>";
-                    n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginShowVersion}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
-                    PlayerControl.LocalPlayer.Data.PlayerName = n;
                 }
             }
+            //Dataのほう変えるのはなぁっておもいました。うん。
+            if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
+                PlayerControl.LocalPlayer.RpcSetName(name);
 
-            Main.lobbyname = name;
+            if (GameStates.IsLobby && !GameStates.IsCountDown && pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())
+            {
+                name = $"<b>{name}</b>";
 
-            if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default) PlayerControl.LocalPlayer.RpcSetName(name);
+                var info = "<size=120%>";
+                var at = "";
+                if (Options.NoGameEnd.GetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
+                if (Options.IsStandardHAS) info += $"\r\n" + ColorString(Color.yellow, GetString("StandardHAS")); else at += "\r\n";
+                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) info += $"\r\n" + ColorString(Color.red, GetString("HideAndSeek")); else at += "\r\n";
+                if (Options.CurrentGameMode == CustomGameMode.TaskBattle) info += $"\r\n" + ColorString(Color.cyan, GetString("TaskBattle")); else at += "\r\n";
+                if (Options.SuddenDeathMode.GetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
+                if (Options.EnableGM.GetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
+                if (DebugModeManager.IsDebugMode)
+                    info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
+                else at += "\r\n";
+
+                info += "</size>";
+                n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginShowVersion}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
+                PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc, aftersystemmeg);
+            }
         }
         #region AfterMeetingTasks
         public static bool CanVent;
@@ -403,8 +407,8 @@ namespace TownOfHost
             {
                 if (!Options.firstturnmeeting || !MeetingStates.First)
                 {
-                    if (Amanojaku.Amaday.GetFloat() == Main.day) AmanojakuAssing.AssignAddOnsFromList();
-                    if (Amnesia.Modoru.GetFloat() <= Main.day && Amnesia.TriggerDay.GetBool())
+                    if (Amanojaku.Amaday.GetFloat() == UtilsGameLog.day) AmanojakuAssing.AssignAddOnsFromList();
+                    if (Amnesia.Modoru.GetFloat() <= UtilsGameLog.day && Amnesia.TriggerDay.GetBool())
                     {
                         foreach (var p in PlayerCatch.AllPlayerControls)
                         {
@@ -427,8 +431,8 @@ namespace TownOfHost
                     if (AsistingAngel.ch())
                         AsistingAngel.Limit++;
                     UtilsTask.DelTask();
-                    Main.day++;
-                    Main.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
+                    UtilsGameLog.day++;
+                    UtilsGameLog.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</size><size=60%>";
                 }
             }
             if (Options.AirShipVariableElectrical.GetBool()) AirShipElectricalDoors.Initialize();

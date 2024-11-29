@@ -64,7 +64,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         if (CanKillDay.GetFloat() == 0) return;
         if (!Player.IsAlive()) return;
 
-        if (CanKillDay.GetFloat() <= Main.day) canusekill = true;
+        if (CanKillDay.GetFloat() <= UtilsGameLog.day) canusekill = true;
     }
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
@@ -91,6 +91,6 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         PlayerCatch.SKMadmateNowCount++;
         UtilsOption.MarkEveryoneDirtySettings();
         UtilsNotifyRoles.NotifyRoles();
-        Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
+        UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
     }
 }

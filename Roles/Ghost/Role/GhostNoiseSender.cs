@@ -41,6 +41,7 @@ namespace TownOfHost.Roles.Ghost
                 {
                     Nois[pc.PlayerId] = target.PlayerId;
                     _ = new LateTask(() => Nois.Remove(pc.PlayerId), Time.GetFloat(), "GhostNoiseSender");
+                    pc.RpcResetAbilityCooldown();
                 }
             }
         }

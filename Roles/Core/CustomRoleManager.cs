@@ -354,7 +354,7 @@ public static class CustomRoleManager
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
             UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false).RemoveSizeTags()}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
-            if (appearanceKiller != appearanceTarget) Main.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
+            if (appearanceKiller != appearanceTarget) UtilsGameLog.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
         }
         //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId)
         (killerrole as IUsePhantomButton)?.Init(appearanceKiller);

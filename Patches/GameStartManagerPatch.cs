@@ -140,6 +140,20 @@ namespace TownOfHost
                         if (dummyComponent != null && dummyComponent.enabled)
                             continue;
 
+                        /* Debugversion
+                        if (!Main.NotKigenDebug && Main.DebugVersion)
+                        {
+                            var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
+                            int Re = Main.ReleaseYear * 10000 + Main.ReleaseMonth * 100 + Main.ReleaseDay;
+                            int Rem = Main.DebugvalidityYear * 10000 + Main.DebugvalidityMonth * 100 + Main.DebugvalidityDay;
+
+                            if (!(Re <= now && now <= Rem))
+                            {
+                                __instance.StartButton.gameObject.SetActive(false);
+                                warningMessage = " <color=red>このデバッグ版は期限切れのため利用できません...(´・ω・｀)</color>";
+                            }
+                        }*/
+
                         /*if (Options.KickModClient.GetBool() && Client(client.Character.PlayerId) && client.Character.PlayerId != 0)
                         {
                             canStartGame = false;

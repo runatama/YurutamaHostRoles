@@ -110,22 +110,6 @@ namespace TownOfHost
             {
                 RPC.RpcSyncRoomTimer();
                 RPC.SyncYomiage();
-                //_ = new LateTask(() => client.Character.RpcSetNamePrivate($"<line-height=1000%><pos=30><size=2.8><color=green>host:<{Main.ModColor}>{Main.ModName} v{Main.PluginVersion}</color>\n</color><size=2.5>{client.PlayerName}\n</line-height>\n<line-height=30%>", true, force: true), 1.5f);
-                string name = DataManager.player.Customization.Name;
-                var playerName = client.PlayerName;
-                if (playerName == name || playerName == Main.nickName)
-                {
-                    List<string> names = new() { name, Main.nickName };
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
-                        if (pc != PlayerControl.LocalPlayer && pc != __instance) names.Add(pc.Data.PlayerName);
-                    for (int index1 = 1; index1 < 100; ++index1)
-                    {
-                        playerName = client.PlayerName + " " + index1.ToString();
-                        if (!names.Contains(playerName))
-                            break;
-                    }
-                    _ = new LateTask(() => client.Character.RpcSetName(playerName), 1.5f, "Fix Name");
-                }
             }
         }
     }
@@ -217,7 +201,6 @@ namespace TownOfHost
                     if (client.Character == null) return;
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
 
-                    if (client.Character == null) return;
                     var varsion = Main.PluginShowVersion;
                     var text = $"<size=80%>この部屋では\n<color={Main.ModColor}><size=180%><u><b>{Main.ModName}</color></b></size> v.{varsion}</u>\nを導入しております。<size=40%>\n\n</size>現在AmongUsでは、<color=#fc8803>公開ルームでのMod利用はできません</color><size=40%>\n\n";
                     var text2 = "</size><color=red>公開ルームからMod部屋へ勧誘/誘導をするのは<b>禁止</b>です</color>。<size=40%>\n<color=red>勧誘/誘導行為</color>にあった場合はスクリーンショット等と一緒に開発者にお知らせください。<color=red>Mod使えなくします</color>。";
@@ -238,6 +221,15 @@ namespace TownOfHost
                         {
                             UtilsGameLog.ShowKillLog(client.Character.PlayerId);
                         }
+                    }
+                    if (Main.DebugVersion)
+                    {
+                        var kigen = "";
+                        /* Debugversion
+                        if (!Main.NotKigenDebug)
+                            kigen = $"\n\n・このデバッグ版の有効期限⇒{Main.DebugvalidityYear}年{Main.DebugvalidityMonth}月{Main.DebugvalidityDay}日";
+                        */
+                        Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。\nバグが発生した場合はDiscordで報告すること!{kigen}", client.Character.PlayerId, "<color=red>【=====　これはデバッグ版です　=====】</color>");
                     }
                 }, 3.0f, "Welcome Meg");
             }

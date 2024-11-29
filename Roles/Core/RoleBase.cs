@@ -199,6 +199,10 @@ public abstract class RoleBase : IDisposable
     /// <param name="target">通報されたプレイヤー</param>
     public virtual void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     { }
+    /// <summary>
+    /// ベントボタンがそもそも押せるか
+    /// </summary>
+    public virtual bool CanClickUseVentButton => true;
 
     /// <summary>
     /// <para>ベントに入ったときに呼ばれる関数</para>

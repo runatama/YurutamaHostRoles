@@ -115,7 +115,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
                     SetKillCooldown(pc);
                     pc.SyncSettings();
                     UtilsNotifyRoles.NotifyRoles();
-                    Main.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(UtilsRoleText.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + Main.LastLogRole[pc.PlayerId] + "</b>";
+                    UtilsGameLog.LastLogRole[pc.PlayerId] = "<b>" + Utils.ColorString(UtilsRoleText.GetRoleColor(pc.GetCustomRole()), Translator.GetString("Last-")) + UtilsGameLog.LastLogRole[pc.PlayerId] + "</b>";
                     break;
                 }
             }

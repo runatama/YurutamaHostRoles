@@ -134,7 +134,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
                 ChatManager.SendPreviousMessagesToAll();
 
             UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
-            Main.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(player, true)}(<b>{UtilsRoleText.GetTrueRoleName(player.PlayerId, false)}</b>)";
+            UtilsGameLog.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(player, true)}(<b>{UtilsRoleText.GetTrueRoleName(player.PlayerId, false)}</b>)";
 
             var meetingHud = MeetingHud.Instance;
             var hudManager = DestroyableSingleton<HudManager>.Instance.KillOverlay;

@@ -96,7 +96,7 @@ public sealed class Bakery : RoleBase
                     else Ripo -= 25;
                     //26を足したり引いたりしてるのはいいね,リポが0の場合を多くするため。
 
-                    if (sns is 9) return string.Format(GetString($"Message.Bakery1.9"), $"{IRandom.Instance.Next((Main.day - 1) * 5, Main.day * 5) * 10}") + string.Format("\n　<color=#ff69b4>♥</color>{0}　<color=#7cfc00>Θ</color>{1}", Like, Ripo); ;
+                    if (sns is 9) return string.Format(GetString($"Message.Bakery1.9"), $"{IRandom.Instance.Next((UtilsGameLog.day - 1) * 5, UtilsGameLog.day * 5) * 10}") + string.Format("\n　<color=#ff69b4>♥</color>{0}　<color=#7cfc00>Θ</color>{1}", Like, Ripo); ;
                     if (sns is 8) return GetString("Message.Bakery1.8");
                     return GetString($"Message.Bakery1.{sns}") + string.Format("\n　<color=#ff69b4>♥</color>{0}　<color=#7cfc00>Θ</color>{1}", Like, Ripo);
                 case 2:

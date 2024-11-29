@@ -473,7 +473,6 @@ namespace TownOfHost
                 {
                     PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
                 }
-                _ = new LateTask(() => UtilsTask.DelTask(), 1.25f, "Fix all task", true);
                 GameStates.task = true;
 
                 //desyneインポかつ置き換えがimp以外ならそれにする。
@@ -482,6 +481,9 @@ namespace TownOfHost
 
                 if (!Options.EnableGM.GetBool() && Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool())
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
+
+                if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                RemoveDisableDevicesPatch.UpdateDisableDevices();
 
                 _ = new LateTask(() =>
                 {
@@ -500,25 +502,14 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
-                }, 0.15f, "Color and Black", true);
-
-                _ = new LateTask(() =>
-                {
-                    foreach (var s in PlayerState.AllPlayerStates)
-                    {
-                        if (s.Value == null) continue;
-                        s.Value.IsBlackOut = false;
-                    }
-                    UtilsOption.MarkEveryoneDirtySettings();
+                    UtilsTask.DelTask();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-                }, 1.2f, "", true);
-
-                if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
-                if (AmongUsClient.Instance.AmHost) RemoveDisableDevicesPatch.UpdateDisableDevices();
+                }, 1.25f, "", true);
 
                 if (Options.firstturnmeeting)
                 {
-                    _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, GetString("Firstmeetinginfo"), "#23dbc0"), 3f, "", true);
+                    _ = new LateTask(() =>
+                        ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, GetString("Firstmeetinginfo"), "#23dbc0"), 3f, "", true);
                 }
                 else
                 {
@@ -526,7 +517,7 @@ namespace TownOfHost
                     {
                         Main.IntroHyoji = false;
                         if (GameStates.InGame && !GameStates.Meeting)
-                            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.2f, "Introkesu", true);
+                            UtilsNotifyRoles.NotifyRoles();
                     }, 15f, "Intro", true);
 
                     UtilsNotifyRoles.NotifyRoles(NoCache: true);

@@ -41,14 +41,15 @@ namespace TownOfHost
                 {
                     var str = GetProgressText(pp.PlayerId, Mane: false, gamelog: true);
                     str = Regex.Replace(str, "ffffff", "000000");
-                    if (Main.LastLogPro.ContainsKey(pp.PlayerId))
-                        Main.LastLogPro[pp.PlayerId] = str;
-                    else Main.LastLogPro.Add(pp.PlayerId, str);
+                    if (!UtilsGameLog.LastLogPro.TryAdd(pp.PlayerId, str))
+                        UtilsGameLog.LastLogPro[pp.PlayerId] = str;
 
-                    var mark = GetSubRolesText(pp.PlayerId, mark: true);
-                    if (Main.LastLogSubRole.ContainsKey(pp.PlayerId))
-                        Main.LastLogSubRole[pp.PlayerId] = mark;
-                    else Main.LastLogSubRole.Add(pp.PlayerId, mark);
+                    if (Options.CurrentGameMode == CustomGameMode.Standard)
+                    {
+                        var mark = GetSubRolesText(pp.PlayerId, mark: true);
+                        if (!UtilsGameLog.LastLogSubRole.TryAdd(pp.PlayerId, mark))
+                            UtilsGameLog.LastLogSubRole[pp.PlayerId] = mark;
+                    }
                 }
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
             var caller = new StackFrame(1, false);
@@ -61,7 +62,7 @@ namespace TownOfHost
             HudManagerPatch.LastSetNameDesyncCount = 0;
             var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
             Info += $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
-            Info += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
+            Info += $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
 
             var seerList = PlayerControl.AllPlayerControls;
             if (SpecifySeer != null)
@@ -425,7 +426,7 @@ namespace TownOfHost
                                 var TInfo = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
 
                                 var IInfo = $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
-                                IInfo += $"Day.{Main.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
+                                IInfo += $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
 
                                 TInfo += IInfo;
                                 var Finfo = $" <size=0.9f>\n</size><color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";

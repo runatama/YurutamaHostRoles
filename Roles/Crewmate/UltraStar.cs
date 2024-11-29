@@ -10,7 +10,7 @@ public sealed class UltraStar : RoleBase
             typeof(UltraStar),
             player => new UltraStar(player),
             CustomRoles.UltraStar,
-            () => RoleTypes.Crewmate,
+            () => OptionCanseeKillcooltime.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             19600,
             SetupOptionItem,
@@ -27,20 +27,26 @@ public sealed class UltraStar : RoleBase
         cankill = Optioncankill.GetBool();
         KillCool = Optionkillcool.GetFloat();
         PlayerColor = player.Data.DefaultOutfit.ColorId;
+        CanseeAllplayer = OptionCanseeAllplayer.GetBool();
     }
     private static OptionItem OptionSpeed;
     private static OptionItem Optioncankill;
     private static OptionItem Optionkillcool;
     static OptionItem OptionCheckKill;
+    static OptionItem OptionCanseeKillcooltime;
+    static OptionItem OptionCanseeAllplayer;
     enum OptionName
     {
         Speed,
         UltraStarCankill,
-        UltraStarcheckkill
+        UltraStarcheckkill,
+        UltraStarVentCanseekillcool,
+        UltraStarCanseeallplayer
     }
     float colorchange;
     float outkill;
     int PlayerColor;
+    static bool CanseeAllplayer;
     private static float Speed;
     private static bool cankill;
     private static float KillCool;
@@ -49,10 +55,12 @@ public sealed class UltraStar : RoleBase
     {
         OptionSpeed = FloatOptionItem.Create(RoleInfo, 9, OptionName.Speed, new(0f, 5f, 0.25f), 2.0f, false)
             .SetValueFormat(OptionFormat.Multiplier);
+        OptionCanseeAllplayer = BooleanOptionItem.Create(RoleInfo, 14, OptionName.UltraStarCanseeallplayer, false, false);
         Optioncankill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.UltraStarCankill, false, false);
         Optionkillcool = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false, Optioncankill)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCheckKill = BooleanOptionItem.Create(RoleInfo, 11, OptionName.UltraStarcheckkill, false, false, Optioncankill);
+        OptionCanseeKillcooltime = BooleanOptionItem.Create(RoleInfo, 12, OptionName.UltraStarVentCanseekillcool, false, false, Optioncankill);
     }
 
     public override void OnFixedUpdate(PlayerControl player)
@@ -109,21 +117,35 @@ public sealed class UltraStar : RoleBase
                     CustomRoleManager.OnCheckMurder(Player, target, Player, target);
                     UtilsOption.MarkEveryoneDirtySettings();
                     KillCoolCheck(player.PlayerId);
+                    Player.RpcResetAbilityCooldown(kousin: true);
                     return;
                 }
                 target.SetRealKiller(player);
                 player.RpcMurderPlayer(target);
                 UtilsOption.MarkEveryoneDirtySettings();
                 KillCoolCheck(player.PlayerId);
+                Player.RpcResetAbilityCooldown(kousin: true);
             }
         }
+    }
+    public override bool CanClickUseVentButton => false;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
+    public override void ApplyGameOptions(IGameOptions opt)
+    {
+        AURoleOptions.EngineerCooldown = (KillCool + 5) - outkill;
     }
     public override void AfterMeetingTasks()//あのままじゃホストだけキルクール回復するバグあったから
     {
         if (cankill) outkill = 0;
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
-
+    public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
+    {
+        seer ??= Player;
+        enabled |= CanseeAllplayer;
+        roleText = $"{roleText}";
+        addon |= false;
+    }
     public override void StartGameTasks() => Main.AllPlayerSpeed[Player.PlayerId] += Speed;
 
     public static void KillCoolCheck(byte playerId)

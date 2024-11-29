@@ -51,6 +51,8 @@ namespace TownOfHost.Roles.Ghost
 
         public static bool ch()
         {
+            //アシスト先が決まってるなら～
+            if (Asist != null) return false;
             foreach (var pc in PlayerCatch.AllPlayerControls.Where(x => x.IsGorstRole()))
             {
                 if (pc.Is(CustomRoles.AsistingAngel)) return true;
@@ -62,7 +64,8 @@ namespace TownOfHost.Roles.Ghost
         {
             if (pc.Is(CustomRoles.AsistingAngel))
             {
-                if (Limit > LimitDay.GetFloat()) return;//経過日数が設定を超えたらもう負け。
+                //アシスト先が決まってない場合
+                if (Limit > LimitDay.GetFloat() && Asist == null) return;//経過日数が設定を超えたらもう負け。
 
                 if (Asist == null)
                 {
@@ -95,6 +98,7 @@ namespace TownOfHost.Roles.Ghost
                         pos = target.transform.position;
                         GetArrow.Add(Asist.PlayerId, target.transform.position);
                         UtilsNotifyRoles.NotifyRoles();
+                        pc.RpcResetAbilityCooldown(kousin: true);
                     }
                 }
             }
@@ -104,7 +108,7 @@ namespace TownOfHost.Roles.Ghost
             seen ??= seer;
 
             //タゲ未設定時
-            if (Limit > LimitDay.GetFloat()) return "";//過ぎたなら後は後悔しなっ。
+            if (Limit > LimitDay.GetFloat() && Asist == null) return "";//過ぎたなら後は後悔しなっ。
             if (Asist == null && seer == seen && seer.Is(CustomRoles.AsistingAngel)) return $"<color=#8da0d6> ({Limit}/{LimitDay.GetFloat()})</color>";
             if (Asist == null) return "";
 

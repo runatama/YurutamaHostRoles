@@ -44,6 +44,7 @@ namespace TownOfHost
             // カスタムロールを元にベントを使えるか判定
             // エンジニアベースの役職は常にtrue
             couldUse = playerControl.CanUseImpostorVentButton() || pc.Role.Role == RoleTypes.Engineer;
+            if (playerControl.GetRoleClass()?.CanClickUseVentButton == false) couldUse = false;
 
             canUse = couldUse;
             // カスタムロールが使えなかったら使用不可

@@ -65,13 +65,13 @@ public sealed class Curser : RoleBase, IImpostor
     }
     public override bool CheckShapeshift(PlayerControl target, ref bool animate)
     {
-        if (target.Is(CustomRoleTypes.Impostor) || NroiCunt == 0) return false;
+        if (target.Is(CustomRoleTypes.Impostor) || NroiCunt == 0 || target.PlayerId == TargetId) return false;
 
         SetTarget(target.PlayerId);
         Logger.Info($"{Player.GetNameWithRole()}のターゲットを{target.GetNameWithRole()}に設定", "CurserTarget");
         Player.MarkDirtySettings();
         Player.RpcResetAbilityCooldown();
-        UtilsNotifyRoles.NotifyRoles();
+        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         NroiCunt--; // ターゲット設定したらNroiCuntを1減らす
         return false;
     }
@@ -85,6 +85,7 @@ public sealed class Curser : RoleBase, IImpostor
             {
                 Logger.Info($"{Player.GetNameWithRole()}が呪い殺しました", "CurserShapeshift");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = TKillCooldown;
+                TargetId = byte.MaxValue;
                 Player.SyncSettings(); // キルクールダウンを同期
             }
             else
@@ -97,8 +98,8 @@ public sealed class Curser : RoleBase, IImpostor
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
-        if (GameStates.Meeting) return "";
         seen ??= seer;
+        if (isForMeeting || !Player.IsAlive()) return "";
         if (!Is(seer) || !Is(seen)) return "";
 
         var target = PlayerCatch.GetPlayerById(TargetId);
@@ -110,9 +111,6 @@ public sealed class Curser : RoleBase, IImpostor
         return TargetId == seen.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "θ") : "";
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(RoleInfo.RoleColor, $"({NroiCunt})");
-    public override void ApplyGameOptions(IGameOptions opt)
-    {
-        AURoleOptions.ShapeshifterCooldown = Cooldown;
-    }
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = Cooldown;
     public float CalculateKillCooldown() => KillCooldown;
 }

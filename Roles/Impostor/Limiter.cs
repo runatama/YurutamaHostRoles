@@ -153,7 +153,7 @@ namespace TownOfHost.Roles.Impostor
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
             if (LimiterTarnLimit == 0) return;
 
-            if (Main.day >= LimiterTarnLimit && Player.IsAlive())
+            if (UtilsGameLog.day >= LimiterTarnLimit && Player.IsAlive())
             {
                 Limit = true;
                 _ = new LateTask(() => Player.SetKillCooldown(OptionLastTarnKillcool.GetFloat()), 5f, "Limiter Limit Kill cool");
@@ -190,7 +190,7 @@ namespace TownOfHost.Roles.Impostor
                     Limittext += $"(Ⓣ{nokori}s)";
                 }
                 if (LimiterTarnLimit != 0)
-                    Limittext += $"(Ⓓ{Main.day}/{LimiterTarnLimit})";
+                    Limittext += $"(Ⓓ{UtilsGameLog.day}/{LimiterTarnLimit})";
                 if (OptionLimitKill.GetInt() != 0)
                     Limittext += $"(Ⓚ{killcount}/{OptionLimitKill.GetInt()})";
                 return $"<size=60%>{Utils.ColorString(ModColors.MadMateOrenge, Limittext)}</size>";

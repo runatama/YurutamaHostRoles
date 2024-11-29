@@ -68,6 +68,12 @@ namespace TownOfHost
     #region  GameLog
     public static class UtilsGameLog
     {
+        public static int day;
+        public static string gamelog;
+        public static Dictionary<byte, string> LastLog = new();
+        public static Dictionary<byte, string> LastLogRole = new();
+        public static Dictionary<byte, string> LastLogPro = new();
+        public static Dictionary<byte, string> LastLogSubRole = new();
         public static string GetLogtext(byte pc)
         {
             var longestNameByteCount = Main.AllPlayerNames?.Values?.Select(name => name.GetByteCount())?.OrderByDescending(byteCount => byteCount)?.FirstOrDefault() ?? 10;
@@ -76,16 +82,16 @@ namespace TownOfHost
             var pos2 = pos + 4f + (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8f : 4.5f);
 
             var name = "('ω')";
-            if (Main.LastLog.ContainsKey(pc))
-                name = Main.LastLog[pc];
+            if (LastLog.ContainsKey(pc))
+                name = LastLog[pc];
             var pro = "(;;)";
-            if (Main.LastLogPro.ContainsKey(pc))
-                pro = Main.LastLogPro[pc];
+            if (LastLogPro.ContainsKey(pc))
+                pro = LastLogPro[pc];
             var role = "_(:3 」∠)_";
-            if (Main.LastLogRole.ContainsKey(pc))
-                role = Main.LastLogRole[pc];
+            if (LastLogRole.ContainsKey(pc))
+                role = LastLogRole[pc];
             var addon = "(´-ω-`)";
-            addon = Main.LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
+            addon = LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
 
             return name + $"<pos={pos}em>" + pro + $"<pos={pos1}em>" + " : " + GetVitalText(pc, true) + " " + $"<pos={pos2}em>" + role + addon;
         }
@@ -102,19 +108,19 @@ namespace TownOfHost
             builder.Append(ColorString(Main.PlayerColors[id], Main.AllPlayerNames[id]));
             builder.AppendFormat("<pos={0}em>", pos).Append(GetProgressText(id, Mane: false, gamelog: true)).Append("</pos>");
             // "(00/00) " = 4em
-            pos += 4f;
+            pos += 6f;
             builder.AppendFormat("<pos={0}em>", pos).Append(GetVitalText(id, true)).Append("</pos>");
             // "Lover's Suicide " = 8em
             // "回線切断 " = 4.5em
-            pos += DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8f : 4.5f;
+            pos += DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8.5f : 5f;
             builder.AppendFormat("<pos={0}em>", pos);
             var role = GetTrueRoleName(id);
-            if (Main.LastLogRole.ContainsKey(id))
-                role = Main.LastLogRole[id];
+            if (LastLogRole.ContainsKey(id))
+                role = LastLogRole[id];
             role = Regex.Replace(role, "<b>", "");
             role = Regex.Replace(role, "</b>", "");
             builder.Append(role);
-            builder.Append(Main.LastLogSubRole.TryGetValue(id, out var m) ? m : GetSubRolesText(id, mark: true));
+            builder.Append(LastLogSubRole.TryGetValue(id, out var m) ? m : GetSubRolesText(id, mark: true));
             builder.Append("</pos>");
             return builder.ToString();
         }
@@ -233,7 +239,7 @@ namespace TownOfHost
             SendMessage(EndGamePatch.KillLog, PlayerId);
         }
 
-        public static void AddGameLog(string Name, string Meg) => Main.gamelog += $"\n{DateTime.Now:HH.mm.ss} [{Name}]　" + Meg;
+        public static void AddGameLog(string Name, string Meg) => gamelog += $"\n{DateTime.Now:HH.mm.ss} [{Name}]　" + Meg;
     }
     #endregion
     #region WebHook

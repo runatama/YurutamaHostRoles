@@ -2,7 +2,6 @@ using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using TMPro;
 using TownOfHost.Roles.Core;
 using TownOfHost.Attributes;
@@ -220,7 +219,6 @@ public static class GuessManager
                         RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
                         MeetingHudPatch.StartPatch.Serialize = false;
                     }
-                    //Main.LastLogVitel[dp.PlayerId] = GetString("DeathReason.Guess");
                     _ = new LateTask(() =>
                     {
                         foreach (var pl in PlayerCatch.AllPlayerControls)
@@ -390,23 +388,161 @@ public static class GuessManager
     {
         if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
 
-        Regex r = new("\\d+");
-        MatchCollection mc = r.Matches(msg);
-        string result = string.Empty;
-        for (int i = 0; i < mc.Count; i++)
-        {
-            result += mc[i];//匹配结果是完整的数字，此处可以不做拼接的
-        }
+        id = byte.MaxValue;
+        string[] args = msg.Split(' ');
+        var result = args.Length < 2 ? "" : args[1];
+        msg = args.Length < 3 ? "" : args[2];
 
         if (int.TryParse(result, out int num))
         {
             id = Convert.ToByte(num);
         }
+        else if (result.Contains("レッド") || result.Contains("赤") || result.Contains("red"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Red)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ブルー") || result.Contains("青") || result.Contains("blue"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Blue)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("グリーン") || result.Contains("緑") || result.Contains("Green"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Green)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ピンク") || result.Contains("桃") || result.Contains("pink"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Pink)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("オレンジ") || result.Contains("橙") || result.Contains("orange"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Orange)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ライム") || result.Contains("黄緑") || result.Contains("lime"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Lime)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("イエロー") || result.Contains("黄") || result.Contains("yellow"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Yellow)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ブラック") || result.Contains("黒") || result.Contains("black"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Black)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ホワイト") || result.Contains("白") || result.Contains("white"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.white)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("紫") || result.Contains("Purple") || result.Contains("パープル"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Purple)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ブラウン") || result.Contains("茶") || result.Contains("brown"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Brown)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("シアン") || result.Contains("水") || result.Contains("cyan"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Cyan)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("小豆") || result.Contains("マルーン") || result.Contains("maroon"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Maroon)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("薄桃") || result.Contains("ローズ") || result.Contains("Rose"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Rose)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("ばなーぬ") || result.Contains("banana") || result.Contains("バナナ"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Banana)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("灰") || result.Contains("グレ－") || result.Contains("gray"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Gray)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("tan") || result.Contains("タン"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Tan)
+                    id = pc.PlayerId;
+            }
+        }
+        else if (result.Contains("coral") || result.Contains("珊瑚") || result.Contains("コーラル"))
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                if (pc.cosmetics.ColorId == (int)ModColors.PlayerColor.Coral)
+                    id = pc.PlayerId;
+            }
+        }
         else
         {
-            //并不是玩家编号，判断是否颜色
-            //byte color = GetColorFromMsg(msg);
-            //好吧我不知道怎么取某位玩家的颜色，等会了的时候再来把这里补上
             id = byte.MaxValue;
             error = GetString("GuessError1");
             role = new();

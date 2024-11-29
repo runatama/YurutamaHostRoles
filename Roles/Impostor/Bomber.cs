@@ -74,11 +74,11 @@ namespace TownOfHost.Roles.Impostor
         }
         public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
-            resetkillcooldown = true;
             fall = true;
             var target = Player.GetKillTarget();
-            if (0 >= BomberExplosion || target == null) return;
+            if (BomberExplosion <= 0 || target == null || BomberExplosionPlayers.ContainsKey(target.PlayerId)) return;
 
+            resetkillcooldown = true;
             if (target.Is(CustomRoles.King)) return;
             BomberExplosion--;
             SendRPC();

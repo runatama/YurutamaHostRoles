@@ -363,14 +363,14 @@ namespace TownOfHost
                 foreach (var id in winnerList)
                 {
                     sb.Replace("<ktag-voffset>", "");
-                    sb.Append($"\n<pos=-44><ktag-voffset><color={CustomWinnerColor}>★</color> </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 44}em>") + "</voffset>");
+                    sb.Append($"\n<pos=-44><ktag-voffset><color={CustomWinnerColor}>★</color> </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 41}em>") + "</voffset>");
                     cloneRoles.Remove(id);
                 }
             if (cloneRoles.Count != 0)
                 foreach (var id in cloneRoles)
                 {
                     sb.Replace("<ktag-voffset>", "");
-                    sb.Append($"\n<pos=-44><ktag-voffset>　 </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 44}em>") + "</voffset>");
+                    sb.Append($"\n<pos=-44><ktag-voffset>　 </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 41}em>") + "</voffset>");
                 }
             sb.Replace("<ktag-voffset>", $"<voffset={13 - (1.5 * sb.ToString().Split('\n').Length)}>");
             foreach (var pc in PlayerCatch.AllPlayerControls)

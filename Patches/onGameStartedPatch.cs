@@ -43,10 +43,10 @@ namespace TownOfHost
             Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
             PlayerCatch.AllPlayerFirstTypes = new Dictionary<byte, CustomRoleTypes>();
             Main.AllPlayerSpeed = new Dictionary<byte, float>();
-            Main.LastLog = new Dictionary<byte, string>();
-            Main.LastLogRole = new Dictionary<byte, string>();
-            Main.LastLogPro = new Dictionary<byte, string>();
-            Main.LastLogSubRole = new Dictionary<byte, string>();
+            UtilsGameLog.LastLog = new Dictionary<byte, string>();
+            UtilsGameLog.LastLogRole = new Dictionary<byte, string>();
+            UtilsGameLog.LastLogPro = new Dictionary<byte, string>();
+            UtilsGameLog.LastLogSubRole = new Dictionary<byte, string>();
             Main.KillCount = new Dictionary<byte, int>();
             Main.Guard = new Dictionary<byte, int>();
             Main.AllPlayerTask = new Dictionary<byte, List<uint>>();
@@ -183,7 +183,7 @@ namespace TownOfHost
             Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool();
 
             Main.showkillbutton = false;
-            Main.day = 1;
+            UtilsGameLog.day = 1;
             Main.IntroHyoji = true;
             Main.NowSabotage = false;
             Main.FeColl = 0;
@@ -192,7 +192,7 @@ namespace TownOfHost
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
             Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
             var c = string.Format(GetString("log.Start"), Main.GameCount);
-            Main.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</size><size=60%>";
+            UtilsGameLog.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</size><size=60%>";
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) Utils.CanVent = true;
             else Utils.CanVent = false;
 
@@ -563,20 +563,24 @@ namespace TownOfHost
             {
                 var role = pc.GetCustomRole();
                 var roletype = role.GetCustomRoleTypes();
-                //Log
+                var lov = pc.Is(CustomRoles.OneLove) ? Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), GetString("OneLove") + " ") : "";
                 var color = Palette.CrewmateBlue;
-                if (roletype is CustomRoleTypes.Impostor or CustomRoleTypes.Madmate) color = Palette.ImpostorRed;
-                if (roletype is CustomRoleTypes.Neutral) color = UtilsRoleText.GetRoleColor(role);
-                var lov = "";
-                if (pc.Is(CustomRoles.OneLove)) lov = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), GetString("OneLove") + " ");
-                Main.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
-                Main.LastLogRole[pc.PlayerId] = $"<b>{lov}" + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
-                PlayerCatch.AllPlayerFirstTypes.Add(pc.PlayerId, role.GetCustomRoleTypes());
-                //FixTask
                 var roleClass = CustomRoleManager.GetByPlayerId(pc.PlayerId);
-                if (roleClass != null)
-                    if (roleClass.HasTasks == HasTask.False)
-                        Main.FixTaskNoPlayer.Add(pc);
+                switch (roletype)
+                {
+                    case CustomRoleTypes.Impostor or CustomRoleTypes.Madmate:
+                        color = Palette.ImpostorRed;
+                        break;
+                    case CustomRoleTypes.Neutral:
+                        color = UtilsRoleText.GetRoleColor(role);
+                        break;
+                }
+                UtilsGameLog.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
+                UtilsGameLog.LastLogRole[pc.PlayerId] = $"<b>{lov}" + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
+                PlayerCatch.AllPlayerFirstTypes.Add(pc.PlayerId, roletype);
+                //FixTask
+                if (roleClass?.HasTasks == HasTask.False) Main.FixTaskNoPlayer.Add(pc);
+
                 //Addons
                 Main.Guard.Add(pc.PlayerId, 0);
                 if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.Guard;
@@ -586,18 +590,17 @@ namespace TownOfHost
                     if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
                     if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                 }
-                if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId)) Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);
+                if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId))
+                    Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);
             }
-            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue && Options.CurrentGameMode == CustomGameMode.Standard)
+
+            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue)
             {
-                Main.LastLogRole[Lovers.OneLovePlayer.Ltarget] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
-                if (Lovers.OneLovePlayer.doublelove) Main.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
+                UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.Ltarget] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
+                if (Lovers.OneLovePlayer.doublelove) UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
             }
-            if (Options.CurrentGameMode is CustomGameMode.Standard && Main.SetRoleOverride)
-            //if (!Options.ExIntroSystem.GetBool())
-            //{ AmongUsClient.Instance.StartCoroutine(CoReSetRole(AmongUsClient.Instance).WrapToIl2Cpp()); }
-            //else 
-            { CoResetRoleY(); }
+
+            CoResetRoleY();
 
             PlayerCatch.CountAlivePlayers(true);
             UtilsOption.SyncAllSettings();

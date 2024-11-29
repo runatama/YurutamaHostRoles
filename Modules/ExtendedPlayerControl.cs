@@ -45,8 +45,8 @@ namespace TownOfHost
                 }
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
 
-                if (log == true) Main.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
-                else if (log == null) Main.LastLogRole[player.PlayerId] = $"<size=40%>{Main.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
+                if (log == true) UtilsGameLog.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
+                else if (log == null) UtilsGameLog.LastLogRole[player.PlayerId] = $"<size=40%>{UtilsGameLog.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
@@ -222,15 +222,13 @@ namespace TownOfHost
 
             if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
             {
+                Utils.aftersystemmeg = false;
                 //Logger.info($"Cancel:{player.name}:{name} for {seer.name}", "RpcSetNamePrivate");
                 return;
             }
-            if (!GameStates.IsLobby)
             {
                 Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-                HudManagerPatch.LastSetNameDesyncCount++;
-                //最近うるさくて見辛くなってるから...
-                //Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for {seer.GetNameWithRole()}", "RpcSetNamePrivate");
+                if (!GameStates.IsLobby) HudManagerPatch.LastSetNameDesyncCount++;
             }
 
             var clientId = seer.GetClientId();

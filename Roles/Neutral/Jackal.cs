@@ -131,7 +131,7 @@ namespace TownOfHost.Roles.Neutral
             UtilsOption.MarkEveryoneDirtySettings();
             UtilsTask.DelTask();
             JackalDoll.side++;
-            Main.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
+            UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
         }
         public override string GetAbilityButtonText() => Translator.GetString("Sidekick");
         public override bool OverrideAbilityButton(out string text)

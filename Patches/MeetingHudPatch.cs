@@ -74,7 +74,7 @@ public static class MeetingHudPatch
         public static bool Serialize = false;
         public static void Prefix()
         {
-            Logger.Info($"------------会議開始　day:{Main.day}------------", "Phase");
+            Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             PlayerCatch.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
@@ -171,7 +171,7 @@ public static class MeetingHudPatch
             Send = "";
             Title = "";
 
-            if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting) Title += "<b>" + string.Format(GetString("Message.Day"), Main.day).Color(Palette.Orange) + "</b>\n";
+            if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting) Title += "<b>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</b>\n";
             else Title += "<b>" + GetString("Message.first").Color(Palette.Orange) + "</b>\n";
 
             foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
@@ -227,7 +227,21 @@ public static class MeetingHudPatch
                         if (poji.y <= -13.6f) p.RpcSnapToForced(new Vector2(poji.x, -13f));
                         if (poji.x >= 4.3f && poji.y <= -13.6f) p.RpcSnapToForced(new Vector2(7.6f, -10.6f));
                     }
-                }//名前のなんかの処理
+                }
+                _ = new LateTask(() =>
+                {
+                    foreach (var seen in PlayerCatch.AllPlayerControls)
+                    {
+                        foreach (var seer in PlayerCatch.AllPlayerControls)
+                        {
+                            var seenName = seen.GetRealName(isMeeting: true);
+                            seenName = seenName.ApplyNameColorData(seer, seen, true);
+
+                            seen.RpcSetNamePrivate(seenName, true, seer, true);
+                        }
+                        ChatUpdatePatch.DoBlockChat = false;
+                    }
+                }, 3f, "SetName To Chat", true);
                 _ = new LateTask(() =>
                 {
                     foreach (var seen in PlayerCatch.AllPlayerControls)
@@ -240,22 +254,6 @@ public static class MeetingHudPatch
                             seen.RpcSetNamePrivate(seenName, true, seer, true);
                         }
                     }
-                    ChatUpdatePatch.DoBlockChat = false;
-                }, 3f, "SetName To Chat");
-
-                _ = new LateTask(() =>
-                {
-                    foreach (var seen in PlayerCatch.AllPlayerControls)
-                    {
-                        foreach (var seer in PlayerCatch.AllPlayerControls)
-                        {
-                            var seenName = seen.GetRealName(isMeeting: true);
-                            seenName = seenName.ApplyNameColorData(seer, seen, true);
-
-                            seen.RpcSetNamePrivate(seenName, true, seer, true);
-                        }
-                    }
-                    ChatUpdatePatch.DoBlockChat = false;
                 }, 10f, "SetName To Chat", true);
             }
 
@@ -352,16 +350,17 @@ public static class MeetingHudPatch
                 var Info = "";
                 var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
                 var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+                var list = p.ToArray().AddRangeToArray(a.ToArray());
 
-                if (p.ToArray().AddRangeToArray(a.ToArray())[0] != null)
-                    if (p.ToArray().AddRangeToArray(a.ToArray())[0] == target)
+                if (list[0] != null)
+                    if (list[0] == target)
                     {
-                        Info = $"<color=#ffffff><line-height=95%>" + $"Day.{Main.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
+                        Info = $"<color=#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
                     }
                 pva.NameText.text = sb.ToString().RemoveText() + (Info == "" ? "" : "\n") + Info + fsb.ToString() + pva.NameText.text + sb.ToString() + fsb.ToString().RemoveText() + Info.RemoveText() + ((Info.RemoveText() != "" && seer != target) ? "\n " : "");
 
-                if (p.ToArray().AddRangeToArray(a.ToArray()).LastOrDefault() != null)
-                    if (p.ToArray().AddRangeToArray(a.ToArray()).LastOrDefault() == target)
+                if (list.LastOrDefault() != null)
+                    if (list.LastOrDefault() == target)
                     {
                         var team = seer.GetCustomRole().GetCustomRoleTypes();
                         if (Options.CanSeeTimeLimit.GetBool() && DisableDevice.optTimeLimitDevices)

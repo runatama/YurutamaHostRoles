@@ -67,7 +67,7 @@ namespace TownOfHost.Roles.Ghost
                     Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
 
                     UtilsGameLog.AddGameLog($"{role}", string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))));
-                    Main.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))}</size>";
+                    UtilsGameLog.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))}</size>";
 
                     if (!d)
                     {
@@ -114,6 +114,12 @@ namespace TownOfHost.Roles.Ghost
                 if (AP.Count == 0) continue;
                 var pc = AP[rnd.Next(AP.Count)];
 
+                //ラバーで、ニュートラルに付与されない
+                if (pc.IsRiaju() && !(data.RoleType == CustomRoleTypes.Neutral || data.kottinimofuyo == CustomRoleTypes.Neutral))
+                {
+                    AP.Remove(pc);
+                    continue;
+                }
                 //配布対象外ならサヨナラ...
                 if (pc == null || pc.IsGorstRole() || pc.Is(CustomRoles.GM) || pc.IsAlive() || PlayerState.GetByPlayerId(pc.PlayerId) == null)
                 {

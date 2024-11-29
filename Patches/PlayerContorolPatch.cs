@@ -419,7 +419,7 @@ namespace TownOfHost
                         }
                         if (!Utils.RoleSendList.Contains(targetm.PlayerId)) Utils.RoleSendList.Add(targetm.PlayerId);
                         PlayerState.GetByPlayerId(targetm.PlayerId).SetCountType(CountTypes.Crew);
-                        Main.LastLogRole[targetm.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(targetm.GetCustomRole()), Translator.GetString($"{targetm.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(targetm.PlayerId);
+                        UtilsGameLog.LastLogRole[targetm.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(targetm.GetCustomRole()), Translator.GetString($"{targetm.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(targetm.PlayerId);
                         UtilsOption.MarkEveryoneDirtySettings();
                         UtilsNotifyRoles.NotifyRoles();
                         //shapeshifter.RpcRejectShapeshift();
@@ -1169,7 +1169,7 @@ namespace TownOfHost
                         VentDuringDisabling.Remove(player.PlayerId);
                         Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId = num;
                     }
-                    else if (first.Value <= 2 && !VentDuringDisabling.ContainsKey(player.PlayerId) && (!(roleclass as IKiller)?.CanUseImpostorVentButton() ?? false))
+                    else if (first.Value <= 2 && !VentDuringDisabling.ContainsKey(player.PlayerId) && (((roleclass as IKiller)?.CanUseImpostorVentButton() is false or null) || (roleclass?.CanClickUseVentButton == false)))
                     {
                         ushort num = (ushort)(Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId + 1U);
                         MessageWriter msgWriter = MessageWriter.Get(SendOption.Reliable);
@@ -1902,32 +1902,52 @@ namespace TownOfHost
 
             if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton && Main.CanUseAbility && !cantuse.Contains(__instance.PlayerId))
                 iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
-            cantuse.Add(__instance.PlayerId);
 
-            if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Impostor, __instance.GetClientId());
-            _ = new LateTask(() =>
+            float k = 0;
+            IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out k);
+            Main.AllPlayerKillCooldown.TryGetValue(__instance.PlayerId, out var killcool);
+            /* 初手で、キルク修正がオフでキルクが10s以上で、キルが0回*/
+            if (MeetingStates.FirstMeeting && !Options.FixFirstKillCooldown.GetBool() && killcool > 10 && PlayerState.GetByPlayerId(__instance.PlayerId)?.GetKillCount() is 0 or null)
+                killcool = 10;
+            float cooldown = killcool - k;
+            if (cooldown <= 1) cooldown = 0.005f;
+
+            if (!resetkillcooldown)
             {
-                if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
+                Main.AllPlayerKillCooldown[__instance.PlayerId] = cooldown * 2;
+                __instance.SyncSettings();
+            }
+            var writer = CustomRpcSender.Create("Phantom OneClick", SendOption.None);
+            writer.StartMessage(__instance.GetClientId());
 
-                float k = 0;
-                IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out k);
-                Main.AllPlayerKillCooldown.TryGetValue(__instance.PlayerId, out var killcool);
-                /* 初手で、キルク修正がオフでキルクが10s以上で、キルが0回*/
-                if (MeetingStates.FirstMeeting && !Options.FixFirstKillCooldown.GetBool() && killcool > 10 && PlayerState.GetByPlayerId(__instance.PlayerId)?.GetKillCount() is 0 or null)
-                    killcool = 10;
-                float cooldown = killcool - k;
-                if (cooldown <= 1) cooldown = 0.005f;
-
-                if (fall == false) __instance.RpcResetAbilityCooldown(false);
-                if (!GameStates.Meeting)
-                    _ = new LateTask(() =>
-                    {
-                        if (fall is not null) __instance.RpcSetRoleDesync(RoleTypes.Phantom, __instance.GetClientId());
-                        if (!resetkillcooldown) __instance.SetKillCooldown(cooldown, delay: true, kousin: true, PB: true);
-                        if (fall == false) __instance.RpcResetAbilityCooldown(false, true);
-                        _ = new LateTask(() => cantuse.Remove(__instance.PlayerId), Main.LagTime * 3, "", true);
-                    }, Main.LagTime * 2, "", true);
-            }, Main.LagTime, "", true);
+            if (fall is not null)
+            {
+                writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
+                .Write((ushort)RoleTypes.Impostor)
+                .Write(true)
+                .EndRpc();
+                writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
+                    .Write((ushort)RoleTypes.Phantom)
+                    .Write(true)
+                    .EndRpc();
+            }
+            if (!resetkillcooldown)
+            {
+                writer.StartRpc(__instance.NetId, (byte)RpcCalls.MurderPlayer)
+                    .WriteNetObject(__instance)
+                    .Write((int)MurderResultFlags.FailedProtected)
+                    .EndRpc();
+            }
+            if (fall == false)
+            {
+                writer.StartRpc(__instance.NetId, (byte)RpcCalls.ProtectPlayer)
+                    .WriteNetObject(__instance)
+                    .Write(0)
+                    .EndRpc();
+            }
+            writer.EndMessage();
+            writer.SendMessage();
+            __instance.ResetKillCooldown();
 
             return false;
         }

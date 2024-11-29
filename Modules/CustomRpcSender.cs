@@ -222,9 +222,9 @@ namespace TownOfHost
         public CustomRpcSender WriteNetObject(InnerNetObject obj) => Write(w => w.WriteNetObject(obj));
         #endregion
 
-        private CustomRpcSender Write(Action<MessageWriter> action)
+        public CustomRpcSender Write(Action<MessageWriter> action, bool check = false)
         {
-            if (currentState != State.InRpc)
+            if (currentState != State.InRpc && (!check || currentState != State.InRootMessage))
             {
                 string errorMsg = $"RPCを書き込もうとしましたが、StateがWrite(書き込み中)ではありません (in: \"{name}\")";
                 if (isUnsafe)

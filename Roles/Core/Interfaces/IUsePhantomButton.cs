@@ -53,7 +53,7 @@ public interface IUsePhantomButton
     /// ↑ ジャッカルのサイドキック失敗ですぐ使えるようになったりラジバンダリ<br/><br/>
     ///  </summary>
     /// <param name="resetkillcooldown">trueで使用後キルクールダウンの調整処理を行わない</param>
-    /// <param name="fall">trueでアビリティリセット処理を入れない</param>
+    /// <param name="fall">trueでアビリティリセット処理を入れない nullで役職処理もいれない</param>
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     { }
     /// <summary>ワンクリックボタンが使えるか</summary>

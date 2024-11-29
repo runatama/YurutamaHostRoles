@@ -45,6 +45,7 @@ public sealed class Shyboy : RoleBase
         ShyboyAfterMeetingNotShytime
     }
     private static float Shytime;
+    public override bool CanClickUseVentButton => false;
     private static void SetupOptionItem()
     {
         OptionShytime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ShyboyShytime, new(0f, 15f, 0.5f), 5f, false);
@@ -66,7 +67,7 @@ public sealed class Shyboy : RoleBase
         if (!AmongUsClient.Instance.AmHost) return;
         if (GameStates.Meeting || GameStates.Tuihou) return;
         if (!Player.IsAlive()) return;
-        Cool -= Time.fixedDeltaTime;
+        Cool += Time.fixedDeltaTime;
         if (0.25 < Cool)
         {
             Cool = 0;
