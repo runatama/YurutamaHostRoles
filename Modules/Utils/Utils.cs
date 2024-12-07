@@ -135,7 +135,7 @@ namespace TownOfHost
 
             if (seer.Is(CustomRoles.GM)) return true;
             if (Options.SuddenCanSeeKillflash.GetBool()) return true;
-            if (seer.Data.IsDead && Options.GhostCanSeeKillflash.GetBool() && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
+            if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
             if (seer.GetRoleClass() is IKillFlashSeeable killFlashSeeable)
@@ -147,7 +147,7 @@ namespace TownOfHost
             if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.Giveseeing.GetBool()) return !IsActive(SystemTypes.Comms) || LastImpostor.SCanSeeComms.GetBool();
             if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.Giveseeing.GetBool()) return !IsActive(SystemTypes.Comms) || LastNeutral.SCanSeeComms.GetBool();
 
-            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer) && data.GiveAddons.GetBool())
+            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.seeing))
                 if (data.Giveseeing.GetBool()) return !IsActive(SystemTypes.Comms) || data.SCanSeeComms.GetBool();
 
             return seer.GetCustomRole() switch
@@ -217,7 +217,7 @@ namespace TownOfHost
             var isAlive = pc.IsAlive();
             var IsGorstRole = pc.IsGorstRole();
             if (!isAlive && IsGorstRole) return Options.GRCanSeeKillerColor.GetBool();
-            if (!isAlive && !IsGorstRole) return Options.GhostCanSeeKillerColor.GetBool();
+            if (!isAlive && !IsGorstRole) return Options.GhostCanSeeKillerColor.GetBool() || !Options.GhostOptions.GetBool();
             return false;
         }
         public static string GetVitalText(byte playerId, bool? RealKillerColor = false)

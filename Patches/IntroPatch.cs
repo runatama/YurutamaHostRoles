@@ -359,7 +359,11 @@ namespace TownOfHost
                 {
                     if (pc == null) continue;
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (pc.Is(CustomRoles.Amnesiac)) yourTeam.Add(pc);
+                    if (pc.Is(CustomRoles.Amnesiac))
+                    {
+                        RoleManager.Instance.SetRole(pc, RoleTypes.Impostor);
+                        yourTeam.Add(pc);
+                    }
                 }
             return true;
         }
@@ -442,14 +446,14 @@ namespace TownOfHost
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     var role = pc.GetCustomRole();
-                    if (SuddenDeathMode.NowSuddenDeathMode)
+                    if (SuddenDeathMode.NowSuddenDeathMode && !SuddenDeathMode.NowSuddenDeathTemeMode)
                     {
                         NameColorManager.RemoveAll(pc.PlayerId);
                         PlayerCatch.AllPlayerControls.DoIf(pl => pl != pc, pl => NameColorManager.Add(pc.PlayerId, pl.PlayerId, Main.PlayerColors[pl.PlayerId].ColorCode()));
                     }
                     if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
                     //RoleAddons
-                    if (RoleAddAddons.GetRoleAddon(role, out var d, pc) && d.GiveAddons.GetBool())
+                    if (RoleAddAddons.GetRoleAddon(role, out var d, pc, subrole: [CustomRoles.Speeding]))
                     {
                         if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
                     }
@@ -490,6 +494,8 @@ namespace TownOfHost
                     CustomRoleManager.AllActiveRoles.Values.Do(role => role.StartGameTasks());
                     foreach (var pl in PlayerCatch.AllPlayerControls)
                     {
+                        if (pl.Is(CustomRoles.Amnesiac))
+                            pl.Data.Role.NameColor = Palette.White;
                         List<uint> TaskList = new();
                         if (pl.Data.Tasks != null)
                             foreach (var task in pl.Data.Tasks) TaskList.Add(task.Id);
@@ -504,6 +510,7 @@ namespace TownOfHost
                     CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
                     UtilsTask.DelTask();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
+                    SuddenDeathMode.NotTeamKill();
                 }, 1.25f, "", true);
 
                 if (Options.firstturnmeeting)

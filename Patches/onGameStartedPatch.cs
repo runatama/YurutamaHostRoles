@@ -75,6 +75,7 @@ namespace TownOfHost
             Main.LastNotifyNames = new();
 
             Main.PlayerColors = new();
+            Main.AllPlayerLastkillpos = new();
             //名前の記録
             Main.AllPlayerNames = new();
 
@@ -167,6 +168,7 @@ namespace TownOfHost
             RandomSpawn.SpawnMap.NextSporn.Clear();
             RandomSpawn.SpawnMap.NextSpornName.Clear();
             CustomRoleManager.MarkOthers.Add(ReportDeadBodyPatch.Dontrepomark);
+            PlayerControlRpcUseZiplinePatch.reset();
             GameStates.Reset();
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
@@ -180,7 +182,8 @@ namespace TownOfHost
             Roles.Madmate.MadAvenger.Skill = false;
             JackalDoll.side = 0;
             Balancer.Id = 255;
-            Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool();
+            Stolener.Killers.Clear();
+            Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !Options.SuddenDeathMode.GetBool();
 
             Main.showkillbutton = false;
             UtilsGameLog.day = 1;
@@ -307,6 +310,11 @@ namespace TownOfHost
                             PlayerControl.LocalPlayer.RpcSetRole(Main.HostRole.GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                             PlayerControl.LocalPlayer.Data.IsDead = true;
                         }
+                    }
+                    if (SuddenDeathMode.NowSuddenDeathMode)
+                    {
+                        if (Options.SuddenTeamRole.GetBool()) AllPlayers.Clear();
+                        SuddenDeathMode.TeamSet();
                     }
                     Dictionary<(byte, byte), RoleTypes> rolesMap = new();
                     foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
@@ -499,7 +507,7 @@ namespace TownOfHost
                         }
                     }
 
-                    if (role.GetRoleInfo()?.IsCantSeeTeammates == true && role.IsImpostor())
+                    if (role.GetRoleInfo()?.IsCantSeeTeammates == true && role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode)
                     {
                         var clientId = pc.GetClientId();
                         foreach (var killer in PlayerCatch.AllPlayerControls)
@@ -509,7 +517,7 @@ namespace TownOfHost
                             killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
                         }
                     }
-                    if (pc.Is(CustomRoles.Amnesiac))
+                    if (pc.Is(CustomRoles.Amnesiac) && !SuddenDeathMode.NowSuddenDeathMode)
                     {
                         foreach (var killer in PlayerCatch.AllPlayerControls)
                         {
@@ -585,7 +593,7 @@ namespace TownOfHost
                 Main.Guard.Add(pc.PlayerId, 0);
                 if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.Guard;
                 //RoleAddons
-                if (RoleAddAddons.GetRoleAddon(role, out var d, pc) && d.GiveAddons.GetBool())
+                if (RoleAddAddons.GetRoleAddon(role, out var d, pc, subrole: [CustomRoles.Speeding, CustomRoles.Guarding]))
                 {
                     if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
                     if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
@@ -682,6 +690,7 @@ namespace TownOfHost
                     }
                     pc.RpcSetRoleDesync(roleType, pc.GetClientId());
                 }
+                SuddenDeathMode.ColorSetAndRoleset();
                 senders2 = null;
             }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
             _ = new LateTask(() => SetRole(), 5.5f, "", true);
@@ -747,7 +756,7 @@ namespace TownOfHost
                                         }
                                     }
                                 }
-                                if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && !Options.SuddenAllRoleonaji.GetBool()) continue;
+                                if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && (!Options.SuddenAllRoleonaji.GetBool() || !Options.SuddenTeamRole.GetBool())) continue;
                                 pc.RpcSetRoleDesync(roleinfo.BaseRoleType.Invoke(), pc.GetClientId());
                             }
 
@@ -821,11 +830,16 @@ namespace TownOfHost
                 var player = AllPlayers[rand.Next(0, AllPlayers.Count)];
                 AllPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetMainRole(role);
+                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + role.ToString(), "AssignRolesDesync");
 
                 var selfRole = player.PlayerId == hostId ? hostBaseRole : (role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : (role.IsNeutral() && role is not CustomRoles.Egoist && !BaseRole.IsCrewmate() ? RoleTypes.Crewmate : BaseRole)));
                 var othersRole = player.PlayerId == hostId ? RoleTypes.Crewmate : RoleTypes.Scientist;
 
-                if (role is CustomRoles.Amnesiac) selfRole = RoleTypes.Crewmate;
+                if (role is CustomRoles.Amnesiac)
+                {
+                    selfRole = RoleTypes.Crewmate;
+                    Main.NormalOptions.SetInt(Int32OptionNames.NumImpostors, Main.NormalOptions.GetInt(Int32OptionNames.NumImpostors) - 1);
+                }
                 //Desync役職視点
                 foreach (var target in PlayerCatch.AllPlayerControls)
                 {
@@ -904,7 +918,7 @@ namespace TownOfHost
                         player.RpcSetColor(3);
                 }
 
-                if (role.GetRoleInfo().IsCantSeeTeammates && player != PlayerControl.LocalPlayer)
+                if (role.GetRoleInfo().IsCantSeeTeammates && player != PlayerControl.LocalPlayer && !SuddenDeathMode.NowSuddenDeathMode)
                 {
                     player.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
 

@@ -507,7 +507,8 @@ public abstract class RoleBase : IDisposable
         Kakuseitask,
         UKakusei,
         OptionCount,
-        EngineerInVentMaxTime
+        EngineerInVentMaxTime,
+        TaskTrigger
     }
     public enum DontReportreson
     {

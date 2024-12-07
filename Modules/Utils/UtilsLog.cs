@@ -160,9 +160,14 @@ namespace TownOfHost
                             if (t.Contains(Main.winnerList[0]))
                                 break;
                         }
-                        CustomWinnerText = string.Format(GetString("Team2"), n);
+                        CustomWinnerText = "Game Over";
                     }
                     break;
+                case CustomWinner.SuddenDeathRed: CustomWinnerText = GetString("SuddenDeathRed").Color(ModColors.Red); break;
+                case CustomWinner.SuddenDeathBlue: CustomWinnerText = GetString("SuddenDeathBlue").Color(ModColors.Blue); break;
+                case CustomWinner.SuddenDeathYellow: CustomWinnerText = GetString("SuddenDeathYellow").Color(ModColors.Yellow); break;
+                case CustomWinner.SuddenDeathGreen: CustomWinnerText = GetString("SuddenDeathGreen").Color(ModColors.Green); break;
+                case CustomWinner.SuddenDeathPurple: CustomWinnerText = GetString("SuddenDeathPurple").Color(ModColors.Purple); break;
                 //引き分け処理
                 case CustomWinner.Draw:
                     CustomWinnerText = GetString("ForceEnd").Color(ModColors.Gray);
@@ -173,7 +178,7 @@ namespace TownOfHost
                     break;
             }
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
-                if (SuddenDeathMode.NowSuddenDeathMode)
+                if (SuddenDeathMode.NowSuddenDeathMode && !SuddenDeathMode.NowSuddenDeathTemeMode)
                 {
                     var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     var color = Color.white;

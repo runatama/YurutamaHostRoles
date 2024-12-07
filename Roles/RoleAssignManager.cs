@@ -61,7 +61,8 @@ namespace TownOfHost.Roles
         public static void SetupOptionItem()
         {
             OptionAssignMode = StringOptionItem.Create(idStart, "AssignMode", AssignModeSelections, 0, TabGroup.MainSettings, false)
-                .SetHeader(true);
+                .SetHeader(true)
+                .SetColorcode("#48a630");
 
             assignMode = () => (AssignAlgorithm)OptionAssignMode.GetInt();
             RandomAssignOptionsCollection.Clear();

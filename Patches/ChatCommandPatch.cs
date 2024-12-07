@@ -1832,11 +1832,12 @@ namespace TownOfHost
                                     {
                                         foreach (var seer in AllPlayerControls)
                                         {
-                                            var seenName = sendtopc.GetRealName(isMeeting: true);
-                                            seenName = seenName.ApplyNameColorData(seer, sendtopc, true);
+                                            var seenName = player.GetRealName(isMeeting: true);
+                                            seenName = seenName.ApplyNameColorData(seer, player, true);
 
-                                            sendtopc.RpcSetNamePrivate(seenName, true, seer, true);
+                                            player.RpcSetNamePrivate(seenName, true, seer, true);
                                         }
+                                        DoBlockChat = false;
                                     }, Main.LagTime, "Setname", true);
                         }
                         __instance.timeSinceLastMessage = 0f;

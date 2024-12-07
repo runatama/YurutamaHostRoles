@@ -11,6 +11,7 @@ using Object = UnityEngine.Object;
 using static TownOfHost.Translator;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
+using TownOfHost.Modules;
 
 namespace TownOfHost
 {
@@ -348,8 +349,20 @@ namespace TownOfHost
             public static void Postfix(HostInfoPanel __instance)
             {
                 if (!__instance) return;
-                if (!AmongUsClient.Instance || (AmongUsClient.Instance?.GetHost()?.PlayerName == null)) return;
-                __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(ModColors.GetPlayerColor32((ModColors.PlayerColor)AmongUsClient.Instance.GetHost().ColorId))}</b>";
+                var host = AmongUsClient.Instance?.GetHost();
+                var mark = "";
+                if (!AmongUsClient.Instance || (host?.PlayerName == null)) return;
+                if (Options.SuddenTeamOption.GetBool())
+                {
+                    var color = "#ffffff";
+                    if (SuddenDeathMode.TeamRed.Contains(host.Character.PlayerId)) color = ModColors.codered;
+                    if (SuddenDeathMode.TeamBlue.Contains(host.Character.PlayerId)) color = ModColors.codeblue;
+                    if (SuddenDeathMode.TeamYellow.Contains(host.Character.PlayerId)) color = ModColors.codeyellow;
+                    if (SuddenDeathMode.TeamGreen.Contains(host.Character.PlayerId)) color = ModColors.codegreen;
+                    if (SuddenDeathMode.TeamPurple.Contains(host.Character.PlayerId)) color = ModColors.codepurple;
+                    mark = $"  <color={color}>★</color>";
+                }
+                __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(Palette.PlayerColors[AmongUsClient.Instance.GetHost().ColorId])}{mark}</b>";
             }
         }
     }

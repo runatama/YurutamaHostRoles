@@ -53,7 +53,7 @@ public static class MeetingHudPatch
                     return false;
                 }
                 else
-                if (voter.Is(CustomRoles.Elector) && suspectPlayerId == 253 || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var da, voter) && da.GiveAddons.GetBool() && da.GiveElector.GetBool() && suspectPlayerId == 253))
+                if (voter.Is(CustomRoles.Elector) && suspectPlayerId == 253 || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var da, voter, subrole: CustomRoles.Elector) && da.GiveElector.GetBool() && suspectPlayerId == 253))
                 {
                     Utils.SendMessage("君はイレクターなんだよ。\nスキップできない属性でね。\n誰かに投票してね。", voter.PlayerId);
                     __instance.RpcClearVote(voter.GetClientId());
@@ -139,20 +139,40 @@ public static class MeetingHudPatch
             if (!GameStates.IsModHost) return;
 
             var myRole = PlayerControl.LocalPlayer.GetRoleClass();
+            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+            var list = p.ToArray().AddRangeToArray(a.ToArray());
             foreach (var pva in __instance.playerStates)
             {
                 var pc = PlayerCatch.GetPlayerById(pva.TargetPlayerId);
                 if (pc == null) continue;
+
                 var roleTextMeeting = UnityEngine.Object.Instantiate(pva.NameText);
-                roleTextMeeting.transform.SetParent(pva.NameText.transform);
-                roleTextMeeting.transform.localPosition = new Vector3(0f, -0.18f, 0f);
+                roleTextMeeting.transform.SetParent(pva.PlayerIcon.transform);
+                roleTextMeeting.transform.localPosition = new Vector3(3.25f, 1.02f, -50f);
                 roleTextMeeting.fontSize = 1.5f;
                 (roleTextMeeting.enabled, roleTextMeeting.text)
                     = UtilsRoleText.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, pc, PlayerControl.LocalPlayer == pc);
                 roleTextMeeting.gameObject.name = "RoleTextMeeting";
                 roleTextMeeting.enableWordWrapping = false;
 
-                // 役職とサフィックスを同時に表示する必要が出たら要改修
+                var suffixTextMeeting = UnityEngine.Object.Instantiate(pva.NameText);
+                suffixTextMeeting.transform.SetParent(pva.PlayerIcon.transform);
+                suffixTextMeeting.transform.localPosition = new Vector3(3.25f, 0.02f, -50f);
+                suffixTextMeeting.fontSize = 1.5f;
+                suffixTextMeeting.gameObject.name = "suffixTextMeeting";
+                suffixTextMeeting.enableWordWrapping = false;
+                suffixTextMeeting.enabled = false;
+
+                // NameTextにSetParentすると後に作ったのにも付いてきちゃうからこっちに
+                var MeetingInfo = UnityEngine.Object.Instantiate(pva.NameText);
+                MeetingInfo.transform.SetParent(pva.PlayerIcon.transform);
+                MeetingInfo.transform.localPosition = new Vector3(3.13f, 1.71f, -50f);
+                MeetingInfo.fontSize = 1.8f;
+                MeetingInfo.gameObject.name = "MeetingInfo";
+                MeetingInfo.enableWordWrapping = false;
+                MeetingInfo.enabled = false;
+
                 var suffixBuilder = new StringBuilder(32);
                 if (myRole != null)
                 {
@@ -160,11 +180,26 @@ public static class MeetingHudPatch
                         suffixBuilder.Append(myRole.GetSuffix(PlayerControl.LocalPlayer, pc, isForMeeting: true));
                 }
                 suffixBuilder.Append(CustomRoleManager.GetSuffixOthers(PlayerControl.LocalPlayer, pc, isForMeeting: true));
-                if (suffixBuilder.Length > 0)
+                // suffixが0文字じゃなくて　　　　タグ、空白をきったら空にならない時は
+                if (suffixBuilder.Length > 0 && suffixBuilder.ToString().RemoveHtmlTags().Trim(' ').Trim('　') != "")
                 {
-                    roleTextMeeting.text = suffixBuilder.ToString();
-                    roleTextMeeting.enabled = true;
+                    //下にSuffixを表示
+                    suffixTextMeeting.text = suffixBuilder.ToString();
+                    suffixTextMeeting.enabled = true;
                 }
+                else
+                {
+                    //そうじゃない時、上側ロールはなんか好まないので下に
+                    roleTextMeeting.enabled = false;
+                    suffixTextMeeting.text = roleTextMeeting.text;
+                    suffixTextMeeting.enabled = true;
+                }
+                if (list[0] != null)
+                    if (list[0].PlayerId == pc.PlayerId)
+                    {
+                        MeetingInfo.enabled = true;
+                        MeetingInfo.text = $"<color=#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
+                    }
             }
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.OnStartMeeting());
             SlowStarter.OnStartMeeting();
@@ -209,7 +244,7 @@ public static class MeetingHudPatch
             {
                 var pc = PlayerCatch.GetPlayerById(pva.TargetPlayerId);
                 if (pc == null) continue;
-                if (Options.ShowRoleAtFirstMeeting.GetBool() && MeetingStates.FirstMeeting) UtilsShowOption.SendRoleInfo(pc);
+                if (MeetingStates.FirstMeeting) UtilsShowOption.SendRoleInfo(pc);
                 if (Utils.RoleSendList.Contains(pva.TargetPlayerId)) UtilsShowOption.SendRoleInfo(pc);
             }
             MeetingVoteManager.Voteresult = "";
@@ -220,12 +255,12 @@ public static class MeetingHudPatch
                 //エアシなら始まった瞬間に展望いるならうるさいからワープさせる
                 if (Main.NormalOptions.MapId == 4)
                 {
-                    foreach (var p in PlayerCatch.AllPlayerControls)
+                    foreach (var pl in PlayerCatch.AllPlayerControls)
                     {
-                        if (p.IsModClient()) continue;
-                        Vector2 poji = p.transform.position;
-                        if (poji.y <= -13.6f) p.RpcSnapToForced(new Vector2(poji.x, -13f));
-                        if (poji.x >= 4.3f && poji.y <= -13.6f) p.RpcSnapToForced(new Vector2(7.6f, -10.6f));
+                        if (pl.IsModClient()) continue;
+                        Vector2 poji = pl.transform.position;
+                        if (poji.y <= -13.6f) pl.RpcSnapToForced(new Vector2(poji.x, -13f));
+                        if (poji.x >= 4.3f && poji.y <= -13.6f) pl.RpcSnapToForced(new Vector2(7.6f, -10.6f));
                     }
                 }
                 _ = new LateTask(() =>
@@ -346,18 +381,6 @@ public static class MeetingHudPatch
                     if (RandomSpawn.SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
                         pva.NameText.text += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
                 }
-
-                var Info = "";
-                var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-                var list = p.ToArray().AddRangeToArray(a.ToArray());
-
-                if (list[0] != null)
-                    if (list[0] == target)
-                    {
-                        Info = $"<color=#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
-                    }
-                pva.NameText.text = sb.ToString().RemoveText() + (Info == "" ? "" : "\n") + Info + fsb.ToString() + pva.NameText.text + sb.ToString() + fsb.ToString().RemoveText() + Info.RemoveText() + ((Info.RemoveText() != "" && seer != target) ? "\n " : "");
 
                 if (list.LastOrDefault() != null)
                     if (list.LastOrDefault() == target)
@@ -544,7 +567,7 @@ public static class MeetingHudPatch
                     {
                         // ここにINekomata未適用の道連れ役職を追加
                         default:
-                            if (RoleAddAddons.GetRoleAddon(role, out var data, exiledplayer) && data.GiveAddons.GetBool())
+                            if (RoleAddAddons.GetRoleAddon(role, out var data, exiledplayer, subrole: CustomRoles.Revenger))
                             {
                                 if (deathReason == CustomDeathReason.Vote && data.GiveRevenger.GetBool())
 

@@ -26,9 +26,11 @@ public sealed class Lighter : RoleBase
         MaxVision = OptionMaxVision.GetFloat();
         TaskCompletedDisableLightOut = OptionTaskCompletedDisableLightOut.GetBool();
         TaskTrigger = OptionLighterTaskTrigger.GetInt();
-        CurrentVision = Main.DefaultCrewmateVision;
+        CurrentVision = OptionStartVision.GetFloat();
         LighterTriggerType = (TriggerType)OptionLighterTriggerType.GetValue();
     }
+    /// <summary>開始時の視野</summary>
+    private static OptionItem OptionStartVision;
     /// <summary>最大視野</summary>
     private static OptionItem OptionMaxVision;
     /// <summary>タスク完了時に停電の影響を受けなくする</summary>
@@ -39,6 +41,7 @@ public sealed class Lighter : RoleBase
     private static OptionItem OptionLighterTaskTrigger;
     enum OptionName
     {
+        LighterStartVision,
         LighterMaxVision,
         LighterTaskCompletedDisableLightOut,
         LighterTriggerType,
@@ -60,6 +63,8 @@ public sealed class Lighter : RoleBase
 
     private static void SetupOptionItem()
     {
+        OptionStartVision = FloatOptionItem.Create(RoleInfo, 14, OptionName.LighterStartVision, new(0.0f, 3.0f, 0.05f), 0.5f, false)
+            .SetValueFormat(OptionFormat.Multiplier);
         OptionMaxVision = FloatOptionItem.Create(RoleInfo, 10, OptionName.LighterMaxVision, new(0.0f, 3.0f, 0.05f), 1.0f, false)
             .SetValueFormat(OptionFormat.Multiplier);
         OptionTaskCompletedDisableLightOut = BooleanOptionItem.Create(RoleInfo, 11, OptionName.LighterTaskCompletedDisableLightOut, true, false);
@@ -69,7 +74,8 @@ public sealed class Lighter : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        if (!Player.IsAlive() || MyTaskState.CompletedTasksCount == 0) return;//死んでる or タスク数0
+        if (!Player.IsAlive()) return;//死んでる or タスク数0
+        opt.SetFloat(FloatOptionNames.CrewLightMod, CurrentVision);
         //タスクトリガーの場合 トリガータスク数を下回っている or タスク完了していない
         if (LighterTriggerType == TriggerType.TaskCount && !MyTaskState.HasCompletedEnoughCountOfTasks(TaskTrigger)) return;
         Logger.Info("ApplyGameOptions Trigger", "Lighter");

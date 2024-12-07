@@ -124,6 +124,7 @@ namespace TownOfHost
         public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData data, [HarmonyArgument(1)] DisconnectReasons reason)
         {
             var isFailure = false;
+            if (GameStates.IsLobby) SuddenDeathMode.TeamReset();
 
             try
             {

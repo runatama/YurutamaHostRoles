@@ -153,7 +153,11 @@ namespace TownOfHost
                                     (roleclass as IUseTheShButton)?.ResetS(Player);
                                     (roleclass as IUsePhantomButton)?.Init(Player);
                                 }
-                                else Player.RpcExileV2();
+                                else
+                                {
+                                    Player.RpcExileV2();
+                                    if (Player.IsGorstRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
+                                }
                             }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>

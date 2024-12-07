@@ -51,7 +51,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         BountyShowTargetArrow,
     }
 
-    private static float TargetChangeTime;
+    public static float TargetChangeTime;
     private static float SuccessKillCooldown;
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;

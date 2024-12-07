@@ -86,6 +86,7 @@ namespace TownOfHost
             {
                 res = $"*{dic[0]}";
             }
+            if (str == "Chameleon") res = "カメレオン";
             if (langId == SupportedLangs.Japanese && Main.CustomName.Value)
             {
                 //このソースコ―ドを見た人へ。口外しないでもらえると嬉しいです...

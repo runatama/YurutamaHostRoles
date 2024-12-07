@@ -33,14 +33,19 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
 
             var meg = GetString($"{(CustomRoles)CustomWinnerHolder.WinnerTeam}") + GetString("Team") + GetString("Win");
+            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? UtilsRoleText.GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
 
             switch (CustomWinnerHolder.WinnerTeam)
             {
                 case CustomWinner.Draw: meg = GetString("ForceEnd"); break;
                 case CustomWinner.None: meg = GetString("EveryoneDied"); break;
+                case CustomWinner.SuddenDeathRed: meg = GetString("SuddenDeathRed"); winnerColor = ModColors.Red; break;
+                case CustomWinner.SuddenDeathBlue: meg = GetString("SuddenDeathBlue"); winnerColor = ModColors.Blue; break;
+                case CustomWinner.SuddenDeathYellow: meg = GetString("SuddenDeathYellow"); winnerColor = ModColors.Yellow; break;
+                case CustomWinner.SuddenDeathGreen: meg = GetString("SuddenDeathGreen"); winnerColor = ModColors.Green; break;
+                case CustomWinner.SuddenDeathPurple: meg = GetString("SuddenDeathPurple"); winnerColor = ModColors.Purple; break;
             }
 
-            var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? UtilsRoleText.GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
             var s = "★".Color(winnerColor);
             KillLog = $"{GetString("GameLog")}\n" + UtilsGameLog.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
             outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + UtilsGameLog.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
@@ -200,6 +205,50 @@ namespace TownOfHost
                         CustomWinnerText = string.Format(GetString("Team2"), n);
                     }
                     break;
+                case CustomWinner.SuddenDeathRed:
+                    __instance.WinText.text = "Game Over";
+                    __instance.WinText.color = ModColors.Red;
+                    __instance.BackgroundBar.material.color = ModColors.Red;
+                    WinnerText.text = GetString("SuddenDeathRed");
+                    WinnerText.color = ModColors.Red;
+                    CustomWinnerColor = ModColors.codered;
+                    break;
+
+                case CustomWinner.SuddenDeathBlue:
+                    __instance.WinText.text = "Game Over";
+                    __instance.WinText.color = ModColors.Blue;
+                    __instance.BackgroundBar.material.color = ModColors.Blue;
+                    WinnerText.text = GetString("SuddenDeathBlue");
+                    WinnerText.color = ModColors.Blue;
+                    CustomWinnerColor = ModColors.codeblue;
+                    break;
+
+                case CustomWinner.SuddenDeathYellow:
+                    __instance.WinText.text = "Game Over";
+                    __instance.WinText.color = ModColors.Yellow;
+                    __instance.BackgroundBar.material.color = ModColors.Yellow;
+                    WinnerText.text = GetString("SuddenDeathYellow");
+                    WinnerText.color = ModColors.Yellow;
+                    CustomWinnerColor = ModColors.codeyellow;
+                    break;
+
+                case CustomWinner.SuddenDeathGreen:
+                    __instance.WinText.text = "Game Over";
+                    __instance.WinText.color = ModColors.Green;
+                    __instance.BackgroundBar.material.color = ModColors.Green;
+                    WinnerText.text = GetString("SuddenDeathGreen");
+                    WinnerText.color = ModColors.Green;
+                    CustomWinnerColor = ModColors.codegreen;
+                    break;
+
+                case CustomWinner.SuddenDeathPurple:
+                    __instance.WinText.text = "Game Over";
+                    __instance.WinText.color = ModColors.Purple;
+                    __instance.BackgroundBar.material.color = ModColors.Purple;
+                    WinnerText.text = GetString("SuddenDeathPurple");
+                    WinnerText.color = ModColors.Purple;
+                    CustomWinnerColor = ModColors.codepurple;
+                    break;
                 //引き分け処理
                 case CustomWinner.Draw:
                     __instance.WinText.text = GetString("ForceEnd");
@@ -227,7 +276,7 @@ namespace TownOfHost
                     break;
             }
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
-                if (SuddenDeathMode.NowSuddenDeathMode)
+                if (SuddenDeathMode.NowSuddenDeathMode && !SuddenDeathMode.NowSuddenDeathTemeMode)
                 {
                     var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     var color = Color.white;

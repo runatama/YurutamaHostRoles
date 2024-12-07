@@ -294,7 +294,7 @@ namespace TownOfHost
             if (option == null) return true;
             //if (option.Id == 1 && option.CurrentValue == 1 && !Main.TaskBattleOptionv) option.CurrentValue++;
             if (option.Name == "KickModClient") Main.LastKickModClient.Value = true;
-            if (option.Name == "Role")
+            if (option.Name is "Role" or "SuddenRedTeamRole" or "SuddenBlueTeamRole" or "SuddenYellowTeamRole" or "SuddenGreenTeamRole" or "SuddenPurpleTeamRole")
             {
                 var ch = true;
                 var v = option.CurrentValue;
@@ -380,11 +380,10 @@ namespace TownOfHost
             //if (option.Id == 1 && option.CurrentValue == 0 && !Main.TaskBattleOptionv) option.CurrentValue--;
             if (option.Name == "KickModClient") Main.LastKickModClient.Value = false;
 
-            if (option.Name == "Role")
+            if (option.Name is "Role" or "SuddenRedTeamRole" or "SuddenBlueTeamRole" or "SuddenYellowTeamRole" or "SuddenGreenTeamRole" or "SuddenPurpleTeamRole")
             {
                 var ch = true;
                 var v = option.CurrentValue;
-                Logger.Info($"{v}", "ast");
                 while (ch)
                 {
                     v--;
@@ -431,6 +430,27 @@ namespace TownOfHost
             prisettext = null;
             search = null;
             searchtext = null;
+        }
+    }
+
+    [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.FixedUpdate))]
+    class NumberOptionFixUpdataPatch
+    {
+        public static void Postfix(NumberOption __instance)
+        {
+            if (__instance?.PlusBtn == null || __instance?.MinusBtn == null) return;
+            __instance.PlusBtn.isInteractable = true;
+            __instance.MinusBtn.isInteractable = true;
+        }
+    }
+    [HarmonyPatch(typeof(StringOption), nameof(StringOption.FixedUpdate))]
+    class StringOptionFixUpdataPatch
+    {
+        public static void Postfix(StringOption __instance)
+        {
+            if (__instance?.PlusBtn == null || __instance?.MinusBtn == null) return;
+            __instance.PlusBtn.isInteractable = true;
+            __instance.MinusBtn.isInteractable = true;
         }
     }
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
@@ -545,6 +565,8 @@ namespace TownOfHost
             GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(true);
 
             var template = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB/Scroller/SliderInner/GameOption_String(Clone)").GetComponent<StringOption>();
+
+            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(false);
             if (template == null) return;
 
             Dictionary<TabGroup, GameOptionsMenu> list = new();
@@ -649,7 +671,7 @@ namespace TownOfHost
 
                 var tabButton = Object.Instantiate(templateTabButton, templateTabButton.transform.parent);
                 tabButton.name = tab.ToString();
-                tabButton.transform.position = templateTabButton.transform.position + new Vector3(0.762f * i * w, 0f);
+                tabButton.transform.position = templateTabButton.transform.position + new Vector3((0.762f * i * 0.8f) + (0.762f * i * w * 0.2f), 0f);
                 Object.Destroy(tabButton.buttonText.gameObject);
                 tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 60);
                 tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
@@ -810,12 +832,11 @@ namespace TownOfHost
                 }
             }));
 
-            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(false);
 
             // ボタン生成
             CreateButton("OptionReset", Color.red, new Vector2(8.5f, 0f), new Action(() =>
             {
-                OptionItem.AllOptions.ToArray().Where(x => x.Id > 0 && x.CurrentValue != x.DefaultValue).Do(x => x.SetValue(x.DefaultValue));
+                OptionItem.AllOptions.ToArray().Where(x => x.Id > 0 && x.Id is not 2 and not 3 && 1_000_000 > x.Id && x.CurrentValue != x.DefaultValue).Do(x => x.SetValue(x.DefaultValue));
                 var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
                 switch (pr.CurrentValue)
                 {
@@ -827,20 +848,28 @@ namespace TownOfHost
                     case 5: Main.Preset6.Value = GetString("Preset_6"); break;
                     case 6: Main.Preset7.Value = GetString("Preset_7"); break;
                 }
+                GameSettingMenuChangeTabPatch.meg = GetString("OptionResetMeg");
+                reset();
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.RESET-STG.png", 150f));
             CreateButton("OptionCopy", Color.green, new Vector2(7.3f, -0.035f), new Action(() =>
             {
                 OptionSerializer.SaveToClipboard();
+                GameSettingMenuChangeTabPatch.meg = GetString("OptionCopyMeg");
+                reset();
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.COPY-STG.png", 180f), true);
             CreateButton("OptionLoad", Color.green, new Vector2(7.3f + 0.125f, 0), new Action(() =>
             {
                 OptionSerializer.LoadFromClipboard();
+                GameSettingMenuChangeTabPatch.meg = GetString("OptionLoadMeg");
+                reset();
+
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.LOAD-STG.png", 180f));
 
             static void CreateButton(string text, Color color, Vector2 position, Action action, Sprite sprite = null, bool csize = false)
             {
                 var ToggleButton = Object.Instantiate(csize ? HudManager.Instance.Chat.chatButton : HudManager.Instance.SettingsButton.GetComponent<PassiveButton>(), GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)").transform);
                 ToggleButton.GetComponent<AspectPosition>().DistanceFromEdge += new Vector3(position.x, position.y, 0f);
+
                 ToggleButton.transform.localScale -= new Vector3(0.25f * w, 0.25f * h);
                 ToggleButton.name = text;
                 if (sprite != null)
@@ -858,6 +887,32 @@ namespace TownOfHost
                 textTMP.fontSize = 10f;
                 ToggleButton.OnClick = new();
                 ToggleButton.OnClick.AddListener(action);
+            }
+            static void reset()
+            {
+                _ = new LateTask(() =>
+                {
+                    var rand = IRandom.Instance;
+                    int rect = IRandom.Instance.Next(1, 101);
+                    if (rect < 40)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo0");
+                    else if (rect < 50)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo10");
+                    else if (rect < 60)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo1");
+                    else if (rect < 70)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo2");
+                    else if (rect < 80)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo3");
+                    else if (rect < 90)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo4");
+                    else if (rect < 95)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo5");
+                    else if (rect < 99)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo6");
+                    else
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo7");
+                }, 3, "SetModSettingInfo", true);
             }
         }
     }
@@ -886,6 +941,19 @@ namespace TownOfHost
         }
     }
 
+    [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Update))]
+    class GameSettingMenuUpdataPatch
+    {
+        public static void Postfix(GameSettingMenu __instance)
+        {
+            __instance.MenuDescriptionText.text = GameSettingMenuChangeTabPatch.meg;
+            if (ModSettingsButton?.selected ?? false && __instance?.GameSettingsTab is not null)
+            {
+                GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB")?.SetActive(false);
+            }
+            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/HeaderButtons/AllButton")?.SetActive(false);
+        }
+    }
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.ChangeTab))]
     class GameSettingMenuChangeTabPatch
     {
@@ -995,85 +1063,6 @@ namespace TownOfHost
                     GameOptionsSender.RpcSendOptions();
                 }, 0.02f, "", true);
             }
-            if (tabNum == 2)
-            {
-                _ = new LateTask(() =>
-                {
-                    foreach (var ob in __instance.RoleSettingsTab.advancedSettingChildren)
-                    {
-                        switch (ob.Title)
-                        {
-                            case StringNames.GuardianAngelRole:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 0);
-                                ob.enabled = false;
-                                break;
-                            case StringNames.EngineerCooldown:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.ShapeshifterCooldown:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.ScientistCooldown:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.ScientistBatteryCharge:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.TrackerCooldown:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.TrackerDelay:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.TrackerDuration:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.PhantomCooldown:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.PhantomDuration:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            case StringNames.NoisemakerAlertDuration:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }, 0.02f, "", true);
-            }
-
-            if (tabNum != 3 || l == tabNum) return;
-            //var length = ModSettingsTab.roleChances.ToArray().Length;
-            /*_ = new LateTask(() =>
-            {*/
-            //Logger.Info("!", "!");
-            if (!ModSettingsTab) return;
-            var dd = ModSettingsTab.AllButton.transform.parent.GetComponentsInChildren<RoleSettingsTabButton>();
-            //Logger.Info("2!", "!");
-            if (dd != null)
-                foreach (Component aaa in dd)
-                {
-                    if (aaa && (aaa?.gameObject ?? false))
-                        Object.Destroy(aaa.gameObject);
-                }
-            //Logger.Info("3!", "!");
-            if (ModSettingsTab.roleChances != null)
-                foreach (var option in ModSettingsTab.roleChances?.ToArray())
-                    Object.Destroy(option?.gameObject);
-            //Logger.Info("4!", "!");
-            ModSettingsTab.roleChances = new();
-            //Logger.Info("5!", "!");
-            Object.Destroy(ModSettingsTab?.AllButton?.gameObject);
-            //}, 0.02f, "", true);
-            /*_ = new LateTask(() =>
-            {
-                if (length != 0) //動かない
-                {
-                    ModSettingsTab.transform.FindChild("HeaderButtons/MainSettings").GetComponent<PassiveButton>().OnClick.Invoke();
-                }
-            }, 0.02f,"",true);*/
         }
 
         public static Sprite OptionLabelBackground(string OptionName)
@@ -1097,6 +1086,11 @@ namespace TownOfHost
                 "EvilAddoer" => UtilsSprite.LoadSprite($"{path}EvilAddoer{la}"),
                 "Alien" => UtilsSprite.LoadSprite($"{path}Alien{la}"),
                 "JackalAlien" => UtilsSprite.LoadSprite($"{path}JackalAlien{la}"),
+                "DevicesOption" => UtilsSprite.LoadSprite($"{path}Device{la}"),
+                "Jumper" => UtilsSprite.LoadSprite($"{path}Jumper{la}"),
+                "LadderDeath" => UtilsSprite.LoadSprite($"{path}LadderDeath{la}"),
+                "ONspecialMode" => UtilsSprite.LoadSprite($"{path}ONspecialMode{la}"),
+                "UltraStar" => UtilsSprite.LoadSprite($"{path}UltraStar{la}"),
                 _ => null,
             };
         }

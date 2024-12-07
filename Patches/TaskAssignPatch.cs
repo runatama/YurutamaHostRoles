@@ -38,6 +38,7 @@ namespace TownOfHost
                 if (task.TaskType == TaskTypes.CalibrateDistributor && Options.disableCalibrateDistributor.GetBool()) disabledTasks.Add(task);//アスタリスク
                 if (task.TaskType == TaskTypes.VentCleaning && Options.disableVentCleaning.GetBool()) disabledTasks.Add(task);//ベント掃除
                 if (task.TaskType == TaskTypes.HelpCritter && Options.disableHelpCritter.GetBool()) disabledTasks.Add(task);//卵
+                if (task.TaskType == TaskTypes.FixWiring && Options.disablefixwiring.GetBool()) disabledTasks.Add(task);//配線タスク
             }
             disabledTasks.ForEach(task => unusedTasks.Remove(task));
         }
@@ -104,7 +105,8 @@ namespace TownOfHost
             }
             //変更点がない場合
             if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskSoroeru.GetBool()) &&
-                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks)
+                !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks
+                && !Options.UploadDataIsLongTask.GetBool())
             {
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                     if (!Main.IsroleAssigned)
@@ -160,7 +162,13 @@ namespace TownOfHost
             //割り当て可能なショートタスクのリスト
             Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
             foreach (var task in ShipStatus.Instance.ShortTasks)
-                ShortTasks.Add(task);
+            {
+                switch (task.TaskType)
+                {
+                    case TaskTypes.UploadData: if (Options.UploadDataIsLongTask.GetBool()) LongTasks.Add(task); else ShortTasks.Add(task); break;
+                    default: ShortTasks.Add(task); break;
+                }
+            }
             Shuffle<NormalPlayerTask>(ShortTasks);
 
             //実際にAmong Us側で使われているタスクを割り当てる関数を使う。

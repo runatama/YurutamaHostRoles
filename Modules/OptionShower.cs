@@ -213,6 +213,8 @@ namespace TownOfHost
                 if (opt.Value.Name == "FungleReactorTimeLimit" && !Options.IsActiveFungle) continue;
                 if (opt.Value.Name == "FungleMushroomMixupDuration" && !Options.IsActiveFungle) continue;
                 if (opt.Value.Name == "DisableFungleSporeTrigger" && !Options.IsActiveFungle) continue;
+                if (opt.Value.Name == "CantUseZipLineTotop" && !Options.IsActiveFungle) continue;
+                if (opt.Value.Name == "CantUseZipLineTodown" && !Options.IsActiveFungle) continue;
                 if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) continue;
                 if (opt.Value.Name == "AirShipVariableElectrical" && !Options.IsActiveAirship) continue;
                 if (opt.Value.Name == "DisableAirshipMovingPlatform" && !Options.IsActiveAirship) continue;
@@ -262,6 +264,8 @@ namespace TownOfHost
             if (opt.Name == "AirshipReactorTimeLimit" && !Options.IsActiveAirship) return null;
             if (opt.Name == "DisableFungleDevices" && !Options.IsActiveFungle) return null;
             if (opt.Name == "FungleReactorTimeLimit" && !Options.IsActiveFungle) return null;
+            if (opt.Name == "CantUseZipLineTotop" && !Options.IsActiveFungle) return null;
+            if (opt.Name == "CantUseZipLineTodown" && !Options.IsActiveFungle) return null;
             if (opt.Name == "SkeldReactorTimeLimit" && !Options.IsActiveSkeld) return null;
             if (opt.Name == "SkeldO2TimeLimit" && !Options.IsActiveSkeld) return null;
             if (opt.Name == "MiraReactorTimeLimit" && !Options.IsActiveMiraHQ) return null;

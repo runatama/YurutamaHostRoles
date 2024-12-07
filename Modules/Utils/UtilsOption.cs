@@ -195,7 +195,7 @@ namespace TownOfHost
                         if (opt.Name is "KickModClient" or "KickPlayerFriendCodeNotExist" or "ApplyDenyNameList" or "ApplyBanList")
                             sb.Append($"\n<size=65%>◆{opt.GetName(true)}\n</size>");
                         else if (opt.Name is "TaskBattleSet" or "ONspecialMode" or "ExperimentalMode" or "MadmateOption" or "GRRoleOptions"
-                                or "MapModification" or "Sabotage" or "RandomMapsMode")
+                                or "MapModification" or "Sabotage" or "RandomMapsMode" or "GhostOptions" or "MeetingAndVoteOpt" or "DevicesOption" or "ConvenientOptions")
                             sb.Append($"\n<size=85%><b>■{opt.GetName(false)}</b>\n</size>");
                         else sb.Append($"\n<size=65%><b>・{opt.GetName(false)}</b>\n</size>");
                         ShowChildrenSettings(opt, ref sb, 1, getbool: true);
@@ -459,6 +459,8 @@ namespace TownOfHost
                 if (opt.Value.Name == "MiraO2TimeLimit" && !Options.IsActiveMiraHQ) continue;
                 if (opt.Value.Name == "FungleMushroomMixupDuration" && !Options.IsActiveFungle) continue;
                 if (opt.Value.Name == "DisableFungleSporeTrigger" && !Options.IsActiveFungle) continue;
+                if (opt.Value.Name == "CantUseZipLineTotop" && !Options.IsActiveFungle) continue;
+                if (opt.Value.Name == "CantUseZipLineTodown" && !Options.IsActiveFungle) continue;
                 if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) continue;
                 if (opt.Value.Name == "AirShipVariableElectrical" && !Options.IsActiveAirship) continue;
                 if (opt.Value.Name == "DisableAirshipMovingPlatform" && !Options.IsActiveAirship) continue;

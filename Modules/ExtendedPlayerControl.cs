@@ -50,7 +50,8 @@ namespace TownOfHost
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
-                PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(role);
+                if (role.IsGorstRole()) PlayerState.GetByPlayerId(player.PlayerId).SetGhostRole(role);
+                else PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(role);
             }
             if (AmongUsClient.Instance.AmHost)
             {
@@ -58,31 +59,32 @@ namespace TownOfHost
                 {
                     if (setRole)
                     {
-                        if (roleInfo?.IsDesyncImpostor ?? false)
+                        if (roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode)
                         {
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
-                                if (pc == PlayerControl.LocalPlayer)
+                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                                 {
                                     player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
                                     if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
                                 }
                                 else
                                 {
-                                    player.RpcSetRoleDesync(pc == player ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
+                                    player.RpcSetRoleDesync(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
                                     if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
                                 }
                             }
                             if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                             {
-                                if ((roleInfo?.IsDesyncImpostor ?? false) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
+                                if ((roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
                                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate);
                             }
                         }
                         else
+                        {
                             player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
-
-                        if (roleInfo?.IsCantSeeTeammates == true && role.IsImpostor())
+                        }
+                        if (roleInfo?.IsCantSeeTeammates == true && role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode)
                         {
                             var clientId = player.GetClientId();
                             foreach (var killer in PlayerCatch.AllPlayerControls)
@@ -100,11 +102,11 @@ namespace TownOfHost
                 writer.WritePacked((int)role);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 player.SyncSettings();
-                player.SetKillCooldown(delay: true, kyousei: true, kousin: true);
-                player.RpcResetAbilityCooldown();
 
                 if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro)
                 {
+                    player.SetKillCooldown(delay: true, kyousei: true, kousin: true);
+                    player.RpcResetAbilityCooldown();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     (roleClass as IUseTheShButton)?.Shape(player);
                     (roleClass as IUsePhantomButton)?.Init(player);
@@ -138,12 +140,14 @@ namespace TownOfHost
         }
         public static InnerNet.ClientData GetClient(this PlayerControl player)
         {
+            if (player.isDummy) return null;
             if (!player) return null;
             var client = AmongUsClient.Instance?.allClients?.ToArray()?.Where(cd => cd?.Character?.PlayerId == player?.PlayerId)?.FirstOrDefault() ?? null;
             return client;
         }
         public static int GetClientId(this PlayerControl player)
         {
+            if (player.isDummy) return -1;
             var client = player?.GetClient();
             if (client == null) Logger.Error($"{player?.Data?.PlayerName ?? "null"}のclientがnull", "GetClientId");
             return client == null ? -1 : client.Id;
@@ -811,7 +815,7 @@ namespace TownOfHost
                 return false;
             }
             // seerが死亡済で，霊界から死因が見える設定がON
-            if (!seer.IsAlive() && Options.GhostCanSeeDeathReason.GetBool() && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeDeathReason.GetBool()))
+            if (!seer.IsAlive() && (Options.GhostCanSeeDeathReason.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeDeathReason.GetBool()))
             {
                 return true;
             }
@@ -819,8 +823,8 @@ namespace TownOfHost
             if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || LastImpostor.ACanSeeComms.GetBool();
             if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || LastNeutral.ACanSeeComms.GetBool();
 
-            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer))
-                if (data.GiveAutopsy.GetBool() && data.GiveAddons.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || data.ACanSeeComms.GetBool();
+            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.Autopsy))
+                if (data.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || data.ACanSeeComms.GetBool();
 
             // 役職による仕分け
             if (seer.GetRoleClass() is IDeathReasonSeeable deathReasonSeeable)

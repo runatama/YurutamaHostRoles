@@ -262,6 +262,9 @@ public static class CustomRoleManager
             info = new MurderInfo(appearanceKiller, appearanceTarget, appearanceKiller, appearanceTarget);
         }
 
+        if (!Main.AllPlayerLastkillpos.TryAdd(appearanceKiller.PlayerId, info.killerpos))
+            Main.AllPlayerLastkillpos[appearanceKiller.PlayerId] = info.killerpos;
+
         Main.KillCount[appearanceKiller.PlayerId]++;
 
         (var attemptKiller, var attemptTarget) = info.AttemptTuple;
@@ -660,6 +663,7 @@ public class MurderInfo
     ///転落死など事故の場合(キラー不在)
     /// </summary>
     public bool IsAccident = false;
+    public Vector2 killerpos;
 
     // 分解用 (killer, target) = info.AttemptTuple; のような記述でkillerとtargetをまとめて取り出せる
     public (PlayerControl killer, PlayerControl target) AttemptTuple => (AttemptKiller, AttemptTarget);
@@ -679,6 +683,7 @@ public class MurderInfo
         AppearanceKiller = appearanceKiller;
         AppearanceTarget = appearancetarget;
         RoleAbility = roleability;
+        killerpos = appearanceKiller.transform.position;
     }
 }
 
@@ -766,6 +771,7 @@ public enum CustomRoles
     Seer,
     TimeManager,
     //TOH-K
+    Gasp,
     VentMaster,
     ToiletFan,
     Bakery,
@@ -792,6 +798,8 @@ public enum CustomRoles
     King,
     AmateurTeller,
     Cakeshop,
+    Snowman,
+    Stolener,
     //Neutral
     Arsonist,
     Egoist,
@@ -814,17 +822,19 @@ public enum CustomRoles
     Monochromer,
     DoppelGanger,
     MassMedia,
+    Chameleon,
     Banker,
     BakeCat,
     Emptiness,
     JackalAlien,
     CurseMaker,
     PhantomThief,
+    Fox,
+    SantaClaus,
     TaskPlayerB,
     //DEBUG only Crewmate
     //DEBUG only Impostor
     //DEBUG only Nuetral.
-    Fox,
     //HideAndSeek
     HASFox,
     HASTroll,

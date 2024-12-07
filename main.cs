@@ -55,9 +55,9 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.23.12";
-        public const string PluginShowVersion = "519.23<sub>.12</sub>";
-        public const string ModVersion = ".23";//リリースver用バージョン変更
+        public const string PluginVersion = "519.24";
+        public const string PluginShowVersion = "519.24";
+        public const string ModVersion = ".24";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
@@ -142,6 +142,7 @@ namespace TownOfHost
         public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
         public static ConfigEntry<bool> LastKickModClient { get; private set; }
         public static OptionBackupData RealOptionsData;
+        public static Dictionary<byte, Vector2> AllPlayerLastkillpos = new();
         public static Dictionary<byte, string> AllPlayerNames;
         public static Dictionary<(byte, byte), string> LastNotifyNames;
         public static Dictionary<byte, Color32> PlayerColors = new();
@@ -454,8 +455,11 @@ namespace TownOfHost
         CountKiller = CustomRoles.CountKiller,
         Workaholic = CustomRoles.Workaholic,
         MassMedia = CustomRoles.MassMedia,
+        SantaClaus = CustomRoles.SantaClaus,
+
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
+        SuddenDeathRed, SuddenDeathBlue, SuddenDeathYellow, SuddenDeathGreen, SuddenDeathPurple
     }
     /*public enum CustomRoles : byte
     {

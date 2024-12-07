@@ -157,7 +157,7 @@ namespace TownOfHost.Roles.Impostor
 
                 if (target.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[target.PlayerId] = AddOns.Common.Speeding.Speed;
                 //RoleAddons
-                if (RoleAddAddons.GetRoleAddon(target.GetCustomRole(), out var d, target) && d.GiveAddons.GetBool())
+                if (RoleAddAddons.GetRoleAddon(target.GetCustomRole(), out var d, target, subrole: CustomRoles.Speeding))
                 {
                     if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[target.PlayerId] = d.Speed.GetFloat();
                 }

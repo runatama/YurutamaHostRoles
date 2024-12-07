@@ -78,7 +78,7 @@ public class MeetingVoteManager
         //定義
         var player = PlayerCatch.GetPlayerById(voter);
         var votetarget = PlayerCatch.GetPlayerById(voteFor);
-        RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player);
+        RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: [CustomRoles.Elector, CustomRoles.PlusVote, CustomRoles.Notvoter]);
         var giveaddon = data.GiveAddons.GetBool();
 
         if (!votetarget.IsAlive() && voteFor != Skip && voteFor != NoVote)
@@ -297,7 +297,7 @@ public class MeetingVoteManager
                 if (voter.Is(CustomRoles.Tiebreaker)
                 || (voter.Is(CustomRoles.LastImpostor) && LastImpostor.GiveTiebreaker.GetBool())
                 || (voter.Is(CustomRoles.LastNeutral) && LastNeutral.GiveTiebreaker.GetBool())
-                || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var data, voter) && data.GiveAddons.GetBool() && data.GiveTiebreaker.GetBool())
+                || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var data, voter, subrole: CustomRoles.Tiebreaker) && data.GiveTiebreaker.GetBool())
                 )//タイブレ投票は1固定
                 { Tie[vote.VotedFor] += 1; }
             }

@@ -46,7 +46,7 @@ public static class HudOverrideSystemTypeUpdateSystemPatch
                 return false;
             }
 
-        if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) && data.GiveAddons.GetBool() && data.GiveClumsy.GetBool()) return false;
+        if (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.Clumsy) && data.GiveClumsy.GetBool()) return false;
 
         if (Amnesia.CheckAbility(player))
             if (playerRole is ISystemTypeUpdateHook systemTypeUpdateHook && !systemTypeUpdateHook.UpdateHudOverrideSystem(__instance, amount))

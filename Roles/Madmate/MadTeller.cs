@@ -66,8 +66,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         Ucount,
         tRole,
         Votemode,
-        meetingmc,
-        MadSnitchTaskTrigger
+        meetingmc
     }
     public enum VoteMode
     {
@@ -85,7 +84,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.tRole, true, false);
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
-        OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 15, Option.MadSnitchTaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
+        OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 15, GeneralOption.TaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
         Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
     }
 

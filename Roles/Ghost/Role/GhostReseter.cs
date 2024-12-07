@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Impostor;
 using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Ghost
@@ -46,7 +47,13 @@ namespace TownOfHost.Roles.Ghost
                 Counts[pc.PlayerId]--;
 
                 target.SetKillCooldown(kyousei: true);
-                if (ResetAbilityCool.GetBool()) target.RpcResetAbilityCooldown(kousin: true);
+                if (ResetAbilityCool.GetBool())
+                {
+                    target.RpcResetAbilityCooldown(kousin: true);
+                    var roleclass = target.GetRoleClass();
+                    if (roleclass is SerialKiller serialKiller && serialKiller?.SuicideTimer is not null) serialKiller.SuicideTimer = SerialKiller.TimeLimit;
+                    if (roleclass is BountyHunter bountyHunter && bountyHunter?.ChangeTimer is not null) bountyHunter.ChangeTimer = BountyHunter.TargetChangeTime;
+                }
 
                 UtilsNotifyRoles.NotifyRoles(SpecifySeer: pc);
                 pc.RpcResetAbilityCooldown();

@@ -309,7 +309,10 @@ namespace TownOfHost
                 CustomRoleManager.CreateInstance(role, PlayerCatch.GetPlayerById(targetId));
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
-                PlayerState.GetByPlayerId(targetId).SetSubRole(role);
+            {
+                if (role.IsGorstRole()) PlayerState.GetByPlayerId(targetId).SetGhostRole(role);
+                else PlayerState.GetByPlayerId(targetId).SetSubRole(role);
+            }
 
             HudManager.Instance.SetHudActive(true);
             if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();

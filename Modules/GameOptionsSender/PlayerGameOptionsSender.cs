@@ -171,7 +171,7 @@ namespace TownOfHost.Modules
             }
 
             //書く役職の処
-            if (RoleAddAddons.GetRoleAddon(role, out var data, player) && data.GiveAddons.GetBool())
+            if (RoleAddAddons.GetRoleAddon(role, out var data, player, subrole: [CustomRoles.Lighting, CustomRoles.Moon, CustomRoles.watching]))
             {
                 //Wac
                 if (data.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
@@ -212,7 +212,7 @@ namespace TownOfHost.Modules
             }
 
             state.taskState.hasTasks = UtilsTask.HasTasks(player.Data, false);
-            if (GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
+            if ((GhostCanSeeOtherVotes.GetBool() || !Options.GhostOptions.GetBool()) && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
             if (AdditionalEmergencyCooldown.GetBool() && AdditionalEmergencyCooldownThreshold.GetInt() <= PlayerCatch.AllAlivePlayersCount)
             {

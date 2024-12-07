@@ -39,6 +39,18 @@ public static class MovingPlatformBehaviourPatch
         }
         if (!isDisabled)
         {
+            if (!GameStates.Meeting && !player.Data.IsDead && Options.LadderDeathNuuun.GetBool())
+            {
+                int chance = IRandom.Instance.Next(1, 101);
+                if (chance <= FallFromLadder.Chance)
+                {
+                    var state = PlayerState.GetByPlayerId(player.PlayerId);
+                    state.DeathReason = CustomDeathReason.Fall;
+                    state.SetDead();
+                    player.RpcMurderPlayerV2(player);
+                    return false;
+                }
+            }
             MovingPlatformPlayerId = player.PlayerId;
             _ = new LateTask(() => MovingPlatformPlayerId = 0, 5);
         }

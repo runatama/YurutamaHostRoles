@@ -44,7 +44,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         Engventcool = OptEngVentCoolDown.GetFloat();
         Engventinmax = OptEngVentInmaxtime.GetFloat();
         TellDie = OptTellDie.GetBool();
-        canseeguardcount = OptCanWin3players.GetBool();
+        canseeguardcount = OptCanseeGuardCount.GetBool();
         canwin3player = OptCanWin3players.GetBool();
 
         Guard = 0;

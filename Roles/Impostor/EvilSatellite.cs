@@ -107,9 +107,7 @@ public sealed class EvilSatellite : RoleBase, IImpostor
                 //設定回数と同じor多いともう使えない
                 if (usecount <= 0) return;
                 usecount--;
-                List<SystemTypes> spk = new();
-                foreach (var add in !OptionRandom.GetBool() ? keirolist.ToArray() : keirolist.OrderBy(x => Guid.NewGuid()).ToArray())
-                    spk.Add(add);
+                List<SystemTypes> spk = new(!OptionRandom.GetBool() ? keirolist.ToArray() : keirolist.OrderBy(x => Guid.NewGuid()).ToArray());
                 if (!SendPlayerkeiro.TryAdd(playerid, spk)) SendPlayerkeiro[playerid] = spk;
                 sendlist = spk;
             }

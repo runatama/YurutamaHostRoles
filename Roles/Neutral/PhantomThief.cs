@@ -165,7 +165,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
                 break;
             case Notice.NoticePlayer:
                 var colorid = Target.Data.DefaultOutfit.ColorId;
-                var playername = Utils.ColorString(ModColors.GetPlayerColor32((ModColors.PlayerColor)colorid), $"<u>{GetString($"PhantomThiefmeg{colorid}")}</u>");
+                var playername = Utils.ColorString(Palette.PlayerColors[colorid], $"<u>{GetString($"PhantomThiefmeg{colorid}")}</u>");
                 sendmeg = string.Format(GetString("PhantomThiefNoticePlayer0"), playername);
                 break;
         }

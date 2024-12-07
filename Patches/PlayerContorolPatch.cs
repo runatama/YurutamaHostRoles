@@ -534,6 +534,8 @@ namespace TownOfHost
             //ホスト以外はこの先処理しない
             if (!AmongUsClient.Instance.AmHost) return true;
 
+            PlayerControlRpcUseZiplinePatch.OnMeeting(__instance, target);
+
             if (!CheckMeeting(__instance, target)) return false;
 
             //=============================================
@@ -672,10 +674,16 @@ namespace TownOfHost
         public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool? ch = true, string Meetinginfo = "", string colorcode = "#000000")
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            if (repo == null)
+            {
+                Logger.Error($"{repo?.Data.PlayerName ?? "???"} がnull!", "DieCheckReport");
+            }
             if (GameStates.IsMeeting) return;
 
             var State = PlayerState.GetByPlayerId(repo.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null) return;
+
+            PlayerControlRpcUseZiplinePatch.OnMeeting(repo, target);
 
             if (ch is null or true)
                 if (!CheckMeeting(repo, target, checkdie: ch is true)) return;
@@ -848,23 +856,24 @@ namespace TownOfHost
                 Logger.Info("コミュサボ中はレポート出来なくするため、レポートをキャンセルします。", "ReportDeadBody");
                 return false;
             }*/
-            if (RoleAddAddons.GetRoleAddon(repoter.GetCustomRole(), out var da, repoter) && da.GiveAddons.GetBool() && da.GiveNonReport.GetBool())
+            if (RoleAddAddons.GetRoleAddon(repoter.GetCustomRole(), out var da, repoter, subrole: CustomRoles.NonReport) && da.GiveNonReport.GetBool())
             {
-                if (RoleAddAddons.Mode == RoleAddAddons.Convener.ConvenerAll && !c)
+                var val = da.mode;
+                if (val == RoleAddAddons.Convener.ConvenerAll && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NonReportの設定がALLだから通報を全てキャンセルする。", "ReportDeadBody");
                     AddDontrepo(repoter.PlayerId, DontReportreson.NonReport);
                     return false;
                 }
-                if (target == null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotButton)
+                if (target == null && val == RoleAddAddons.Convener.NotButton)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NonReportの設定がボタンのみだからこれはキャンセルする。", "ReportDeadBody");
                     AddDontrepo(repoter.PlayerId, DontReportreson.NonReport);
                     return false;
                 }
-                if (target != null && RoleAddAddons.Mode == RoleAddAddons.Convener.NotReport && !c)
+                if (target != null && val == RoleAddAddons.Convener.NotReport && !c)
                 {
                     GameStates.Meeting = false;
                     Logger.Info($"NonReportの設定がレポートのみだから通報をキャンセルする。", "ReportDeadBody");
@@ -916,7 +925,7 @@ namespace TownOfHost
                     return false;
                 }
                 if (tage != null)
-                    if (RoleAddAddons.GetRoleAddon(tage.GetCustomRole(), out var d, tage) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
+                    if (RoleAddAddons.GetRoleAddon(tage.GetCustomRole(), out var d, tage, subrole: CustomRoles.Transparent) && d.GiveAddons.GetBool() && d.GiveTransparent.GetBool() && !c)
                     {
                         GameStates.Meeting = false;
                         Logger.Info($"ターゲットがトランスパレントだから通報をキャンセルする。", "ReportDeadBody");
@@ -1098,7 +1107,42 @@ namespace TownOfHost
                                 ReportDeadBodyPatch.DontReport[__instance.PlayerId] = (time, data.reason);
                         }
                         catch { Logger.Error($"{__instance.PlayerId}でエラー！", "DontReport"); }
+                    }
+                    //梯子ぼーんの奴
+                    //Q.ジップラインどうするの？
+                    //A.しらん。
+                    if (isAlive)
+                    {
+                        var nowpos = __instance.GetTruePosition();
+                        if (!Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
+                            tppos = new Vector2(0, 0);
 
+                        if (!__instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+                        {
+                            switch ((MapNames)Main.NormalOptions.MapId)
+                            {
+                                case MapNames.Airship:
+                                    if ((4.0 <= nowpos.x && nowpos.x <= 5.2 && 10.1 <= nowpos.y && nowpos.y <= 12.9)
+                                    || (10.2 <= nowpos.x && nowpos.x <= 11.7 && 6.9 <= nowpos.y && nowpos.y <= 7.2)
+                                    || (12.4 <= nowpos.x && nowpos.x <= 13.4 && -5.4 <= nowpos.y && nowpos.y <= -4.6)
+                                    )
+                                        __instance.RpcSnapToForced(tppos);
+                                    break;
+                                case MapNames.Fungle:
+                                    if ((10.8 <= nowpos.x && nowpos.x <= 12.4 && -5.3 <= nowpos.y && nowpos.y <= -2.1)
+                                    || (17.3 <= nowpos.x && nowpos.x <= 18.9 && -5.0 <= nowpos.y && nowpos.y <= -1.9)
+                                    || (18.5 <= nowpos.x && nowpos.x <= 19.8 && 4.8 <= nowpos.y && nowpos.y <= 5.7)
+                                    || (21.0 <= nowpos.x && nowpos.x <= 22.1 && 8.1 <= nowpos.y && nowpos.y <= 9.4)
+                                    )
+                                        __instance.RpcSnapToForced(tppos);
+                                    break;
+                            }
+                        }
+                        if (!__instance.inMovingPlat && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                        {
+                            if (6.3 <= nowpos.x && nowpos.x <= 9.3 && 7.8 <= nowpos.y && nowpos.y <= 9.1)
+                                __instance.RpcSnapToForced(tppos);
+                        }
                     }
                 }
 
@@ -1188,6 +1232,97 @@ namespace TownOfHost
             //LocalPlayer専用
             if (__instance.AmOwner)
             {
+                if (GameStates.IsLobby && (Options.SuddenTeamOption.GetBool() || SuddenDeathMode.CheckTeamDoreka))
+                {
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        if (SuddenDeathMode.CheckTeamDoreka && !Options.SuddenTeamOption.GetBool())
+                        {
+                            SuddenDeathMode.TeamReset();
+                            break;
+                        }
+                        var pos = pc.GetTruePosition();
+
+                        if (-3 <= pos.x && pos.x <= -1.1 && -1 <= pos.y && pos.y <= 0.4)
+                        {
+                            if (!SuddenDeathMode.TeamRed.Contains(pc.PlayerId))
+                                SuddenDeathMode.TeamRed.Add(pc.PlayerId);
+                            SuddenDeathMode.TeamBlue.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamYellow.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamGreen.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamPurple.Remove(pc.PlayerId);
+                        }
+                        else
+                        if (-0.2 <= pos.x && pos.x <= 0.7 && -1.1 <= pos.y && pos.y <= 0.4)
+                        {
+                            SuddenDeathMode.TeamRed.Remove(pc.PlayerId);
+                            if (!SuddenDeathMode.TeamBlue.Contains(pc.PlayerId))
+                                SuddenDeathMode.TeamBlue.Add(pc.PlayerId);
+                            SuddenDeathMode.TeamYellow.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamGreen.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamPurple.Remove(pc.PlayerId);
+                        }
+                        else
+                        if (1.7 <= pos.x && pos.x <= 3 && -1.1 <= pos.y && pos.y <= 0.7 && Options.SuddenTeamYellow.GetBool())
+                        {
+                            SuddenDeathMode.TeamRed.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamBlue.Remove(pc.PlayerId);
+                            if (!SuddenDeathMode.TeamYellow.Contains(pc.PlayerId))
+                                SuddenDeathMode.TeamYellow.Add(pc.PlayerId);
+                            SuddenDeathMode.TeamGreen.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamPurple.Remove(pc.PlayerId);
+                        }
+                        else
+                        if (0.5f <= pos.x && pos.x <= 2.1 && 2.1 <= pos.y && pos.y <= 3.2 && Options.SuddenTeamGreen.GetBool())
+                        {
+                            SuddenDeathMode.TeamRed.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamBlue.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamYellow.Remove(pc.PlayerId);
+                            if (!SuddenDeathMode.TeamGreen.Contains(pc.PlayerId))
+                                SuddenDeathMode.TeamGreen.Add(pc.PlayerId);
+                            SuddenDeathMode.TeamPurple.Remove(pc.PlayerId);
+                        }
+                        else
+                        if (-2.9 <= pos.x && pos.x <= -1.2 && 2.2 <= pos.y && pos.y <= 3.0 && Options.SuddenTeamPurple.GetBool())
+                        {
+                            SuddenDeathMode.TeamRed.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamBlue.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamYellow.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamGreen.Remove(pc.PlayerId);
+                            if (!SuddenDeathMode.TeamPurple.Contains(pc.PlayerId))
+                                SuddenDeathMode.TeamPurple.Add(pc.PlayerId);
+                        }
+                        else if (!GameStates.IsCountDown && !GameStates.Intro)
+                        {
+                            SuddenDeathMode.TeamRed.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamBlue.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamYellow.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamGreen.Remove(pc.PlayerId);
+                            SuddenDeathMode.TeamPurple.Remove(pc.PlayerId);
+                        }
+                    }
+
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        var color = "#ffffff";
+                        if (SuddenDeathMode.TeamRed.Contains(pc.PlayerId)) color = ModColors.codered;
+                        if (SuddenDeathMode.TeamBlue.Contains(pc.PlayerId)) color = ModColors.codeblue;
+                        if (SuddenDeathMode.TeamYellow.Contains(pc.PlayerId)) color = ModColors.codeyellow;
+                        if (SuddenDeathMode.TeamGreen.Contains(pc.PlayerId)) color = ModColors.codegreen;
+                        if (SuddenDeathMode.TeamPurple.Contains(pc.PlayerId)) color = ModColors.codepurple;
+                        foreach (var seer in PlayerCatch.AllPlayerControls)
+                        {
+                            if (pc.name != "Player(Clone)" && seer.name != "Player(Clone)" && seer.PlayerId != PlayerControl.LocalPlayer.PlayerId && !seer.IsModClient())
+                                pc.RpcSetNamePrivate($"<color={color}>{pc.Data.PlayerName}", true, seer, true);
+                        }
+                    }
+                    if (!SuddenDeathMode.CheckTeam && GameStates.IsCountDown)
+                    {
+                        GameStartManager.Instance.ResetStartState();
+                        Utils.SendMessage(Translator.GetString("SuddendeathLobbyError"));
+                    }
+                }
                 if (GameStates.InGame)
                 {
                     DisableDevice.FixedUpdate();
@@ -1328,6 +1463,18 @@ namespace TownOfHost
                         else __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
                     }
                     else __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
+
+                    if (Options.SuddenTeamOption.GetBool())
+                    {
+                        var color = "#ffffff";
+                        if (SuddenDeathMode.TeamRed.Contains(__instance.PlayerId)) color = ModColors.codered;
+                        if (SuddenDeathMode.TeamBlue.Contains(__instance.PlayerId)) color = ModColors.codeblue;
+                        if (SuddenDeathMode.TeamYellow.Contains(__instance.PlayerId)) color = ModColors.codeyellow;
+                        if (SuddenDeathMode.TeamGreen.Contains(__instance.PlayerId)) color = ModColors.codegreen;
+                        if (SuddenDeathMode.TeamPurple.Contains(__instance.PlayerId)) color = ModColors.codepurple;
+
+                        __instance.cosmetics.nameText.text = $"{__instance.cosmetics.nameText.text}<color={color}>★</color>";
+                    }
                 }
                 if (GameStates.IsInGame)
                 {
@@ -1784,6 +1931,11 @@ namespace TownOfHost
             var target = __instance;
             var targetName = __instance.GetNameWithRole().RemoveHtmlTags();
             Logger.Info($"{targetName} =>{roleType}", "PlayerControl.RpcSetRole");
+            if (GameStates.IsFreePlay && Main.EditMode)
+            {
+                roleType = RoleTypes.Shapeshifter;
+                return true;
+            }
             if (!ShipStatus.Instance.enabled) return true;
             if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
             {
@@ -1849,8 +2001,7 @@ namespace TownOfHost
                                         }
                                 }, 1.4f, "Fix sabotage", true);
 
-                    if (!GameStates.Meeting)
-                        _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage", true);
+                    _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage", true);
                 }
             }
         }

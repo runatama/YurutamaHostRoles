@@ -76,6 +76,43 @@ namespace TownOfHost
                             }
                             break;
                     }
+                //チーム戦で勝者がチームじゃない時(単独勝利とかね)
+                if (SuddenDeathMode.NowSuddenDeathTemeMode && !(CustomWinnerHolder.WinnerTeam is CustomWinner.SuddenDeathRed or CustomWinner.SuddenDeathBlue or CustomWinner.SuddenDeathGreen or CustomWinner.SuddenDeathYellow or CustomWinner.PurpleLovers))
+                {
+                    foreach (var wi in CustomWinnerHolder.WinnerIds)
+                    {
+                        if (SuddenDeathMode.TeamRed.Contains(wi))
+                        {
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathRed);
+                            SuddenDeathMode.TeamRed.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                            break;
+                        }
+                        if (SuddenDeathMode.TeamBlue.Contains(wi))
+                        {
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathBlue);
+                            SuddenDeathMode.TeamBlue.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                            break;
+                        }
+                        if (SuddenDeathMode.TeamYellow.Contains(wi))
+                        {
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathYellow);
+                            SuddenDeathMode.TeamYellow.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                            break;
+                        }
+                        if (SuddenDeathMode.TeamGreen.Contains(wi))
+                        {
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathGreen);
+                            SuddenDeathMode.TeamGreen.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                            break;
+                        }
+                        if (SuddenDeathMode.TeamPurple.Contains(wi))
+                        {
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathPurple);
+                            SuddenDeathMode.TeamPurple.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                            break;
+                        }
+                    }
+                }
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None)
                 {
                     if (!reason.Equals(GameOverReason.HumansByTask))
@@ -413,18 +450,57 @@ namespace TownOfHost
             {
                 reason = GameOverReason.ImpostorByKill;
 
-                if (PlayerCatch.AllAlivePlayerControls.Count() == 1)
+
+                if (!PlayerCatch.AllAlivePlayerControls.Any())
+                {
+                    reason = GameOverReason.ImpostorByKill;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                    return true;
+                }
+                else if (SuddenDeathMode.NowSuddenDeathTemeMode)
+                {
+                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamRed.Contains(pc.PlayerId)))
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathRed);
+                        SuddenDeathMode.TeamRed.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                        return true;
+                    }
+                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamBlue.Contains(pc.PlayerId)))
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathBlue);
+                        SuddenDeathMode.TeamBlue.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                        return true;
+                    }
+                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamYellow.Contains(pc.PlayerId)))
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathYellow);
+                        SuddenDeathMode.TeamYellow.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                        return true;
+                    }
+                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamGreen.Contains(pc.PlayerId)))
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathGreen);
+                        SuddenDeathMode.TeamGreen.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                        return true;
+                    }
+                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamPurple.Contains(pc.PlayerId)))
+                    {
+                        reason = GameOverReason.ImpostorByKill;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathPurple);
+                        SuddenDeathMode.TeamPurple.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                        return true;
+                    }
+                }
+                else if (PlayerCatch.AllAlivePlayerControls.Count() == 1)
                 {
                     var winner = PlayerCatch.AllAlivePlayerControls.FirstOrDefault();
 
                     CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner.GetCustomRole());
                     CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
-                    return true;
-                }
-                if (!PlayerCatch.AllAlivePlayerControls.Any())
-                {
-                    reason = GameOverReason.ImpostorByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                     return true;
                 }
                 else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)) ||

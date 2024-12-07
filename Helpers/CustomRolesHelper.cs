@@ -190,8 +190,8 @@ namespace TownOfHost
         {
             foreach (var role in AllStandardRoles.Where(r => r.IsEnable()))
             {
-                if (RoleAddAddons.GetRoleAddon(role, out var op))
-                    if (op.GiveAddons.GetBool() && op.GiveGuesser.GetBool()) return true;
+                if (RoleAddAddons.GetRoleAddon(role, out var op, subrole: CustomRoles.Guesser))
+                    if (op.GiveGuesser.GetBool()) return true;
             }
             if (CustomRoles.LastImpostor.IsPresent() && LastNeutral.GiveGuesser.GetBool()) return true;
             if (CustomRoles.LastNeutral.IsPresent() && LastImpostor.giveguesser) return true;
@@ -279,6 +279,7 @@ namespace TownOfHost
             return role switch
             {
                 CustomRoles.GM => RoleTypes.GuardianAngel,
+                CustomRoles.Emptiness => RoleTypes.CrewmateGhost,
 
                 _ => role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate,
             };

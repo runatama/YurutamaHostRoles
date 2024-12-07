@@ -15,7 +15,14 @@ namespace TownOfHost
             timer -= deltaTime;
             if (timer <= 0)
             {
-                action();
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"{ex}", name == "" ? $"LateTaskRun" : $"Run{name}");
+                }
                 return true;
             }
             return false;

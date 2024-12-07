@@ -48,7 +48,7 @@ namespace TownOfHost
             //デフォルト値
             bool enabled = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
                         || (Lovers.LoversRole.GetBool() && seer.Is(CustomRoles.Lovers) && seen.Is(CustomRoles.Lovers))
                         || (Lovers.RedLoversRole.GetBool() && seer.Is(CustomRoles.RedLovers) && seen.Is(CustomRoles.RedLovers))
                         || (Lovers.YellowLoversRole.GetBool() && seer.Is(CustomRoles.YellowLovers) && seen.Is(CustomRoles.YellowLovers))
@@ -62,7 +62,7 @@ namespace TownOfHost
             //属性が見れるか
             bool addon = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && Options.GhostCanSeeOtherRoles.GetBool())
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
                         || (Options.InsiderMode.GetBool() && seerrole.IsImpostor());
 
             var (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId, addon);
@@ -190,36 +190,35 @@ namespace TownOfHost
             var Subrole = new List<CustomRoles>(state.SubRoles);
             if (Subrole == null) Subrole.Add(CustomRoles.NotAssigned);
             if (state.MainRole != CustomRoles.NotAssigned && state != null && player != null)
-                if (RoleAddAddons.GetRoleAddon(state.MainRole, out var data, player))
+                if (RoleAddAddons.GetRoleAddon(state.MainRole, out var data, player, subrole: CustomRoles.NotAssigned))
                 {
                     if (data != null)
-                        if (data.GiveAddons.GetBool())
+                    {
+                        if (data.GiveGuesser.GetBool()) Subrole.Add(CustomRoles.Guesser);
+                        if (data.GiveWatching.GetBool()) Subrole.Add(CustomRoles.watching);
+                        if (data.GivePlusVote.GetBool()) Subrole.Add(CustomRoles.PlusVote);
+                        if (data.GiveTiebreaker.GetBool()) Subrole.Add(CustomRoles.Tiebreaker);
+                        if (data.GiveAutopsy.GetBool()) Subrole.Add(CustomRoles.Autopsy);
+                        if (data.GiveRevenger.GetBool()) Subrole.Add(CustomRoles.Revenger);
+                        if (data.GiveSpeeding.GetBool()) Subrole.Add(CustomRoles.Speeding);
+                        if (data.GiveGuarding.GetBool()) Subrole.Add(CustomRoles.Guarding);
+                        if (data.GiveManagement.GetBool()) Subrole.Add(CustomRoles.Management);
+                        if (data.Giveseeing.GetBool()) Subrole.Add(CustomRoles.seeing);
+                        if (data.GiveOpener.GetBool()) Subrole.Add(CustomRoles.Opener);
+                        if (!data.IsImpostor)
                         {
-                            if (data.GiveGuesser.GetBool()) Subrole.Add(CustomRoles.Guesser);
-                            if (data.GiveWatching.GetBool()) Subrole.Add(CustomRoles.watching);
-                            if (data.GivePlusVote.GetBool()) Subrole.Add(CustomRoles.PlusVote);
-                            if (data.GiveTiebreaker.GetBool()) Subrole.Add(CustomRoles.Tiebreaker);
-                            if (data.GiveAutopsy.GetBool()) Subrole.Add(CustomRoles.Autopsy);
-                            if (data.GiveRevenger.GetBool()) Subrole.Add(CustomRoles.Revenger);
-                            if (data.GiveSpeeding.GetBool()) Subrole.Add(CustomRoles.Speeding);
-                            if (data.GiveGuarding.GetBool()) Subrole.Add(CustomRoles.Guarding);
-                            if (data.GiveManagement.GetBool()) Subrole.Add(CustomRoles.Management);
-                            if (data.Giveseeing.GetBool()) Subrole.Add(CustomRoles.seeing);
-                            if (data.GiveOpener.GetBool()) Subrole.Add(CustomRoles.Opener);
-                            if (!data.IsImpostor)
-                            {
-                                if (data.GiveLighting.GetBool()) Subrole.Add(CustomRoles.Lighting);
-                                if (data.GiveMoon.GetBool()) Subrole.Add(CustomRoles.Moon);
-                            }
-                            if (data.GiveNotvoter.GetBool()) Subrole.Add(CustomRoles.Notvoter);
-                            if (data.GiveElector.GetBool()) Subrole.Add(CustomRoles.Elector);
-                            if (data.GiveInfoPoor.GetBool()) Subrole.Add(CustomRoles.InfoPoor);
-                            if (data.GiveNonReport.GetBool()) Subrole.Add(CustomRoles.NonReport);
-                            if (data.GiveTransparent.GetBool()) Subrole.Add(CustomRoles.Transparent);
-                            if (data.GiveWater.GetBool()) Subrole.Add(CustomRoles.Water);
-                            if (data.GiveClumsy.GetBool()) Subrole.Add(CustomRoles.Clumsy);
-                            if (data.GiveSlacker.GetBool()) Subrole.Add(CustomRoles.Slacker);
+                            if (data.GiveLighting.GetBool()) Subrole.Add(CustomRoles.Lighting);
+                            if (data.GiveMoon.GetBool()) Subrole.Add(CustomRoles.Moon);
                         }
+                        if (data.GiveNotvoter.GetBool()) Subrole.Add(CustomRoles.Notvoter);
+                        if (data.GiveElector.GetBool()) Subrole.Add(CustomRoles.Elector);
+                        if (data.GiveInfoPoor.GetBool()) Subrole.Add(CustomRoles.InfoPoor);
+                        if (data.GiveNonReport.GetBool()) Subrole.Add(CustomRoles.NonReport);
+                        if (data.GiveTransparent.GetBool()) Subrole.Add(CustomRoles.Transparent);
+                        if (data.GiveWater.GetBool()) Subrole.Add(CustomRoles.Water);
+                        if (data.GiveClumsy.GetBool()) Subrole.Add(CustomRoles.Clumsy);
+                        if (data.GiveSlacker.GetBool()) Subrole.Add(CustomRoles.Slacker);
+                    }
                     if (state.SubRoles.Any(x => x is CustomRoles.LastImpostor))
                     {
                         if (LastImpostor.GiveAutopsy.GetBool()) Subrole.Add(CustomRoles.Autopsy);
@@ -340,10 +339,11 @@ namespace TownOfHost
             var comms = IsActive(SystemTypes.Comms);
             var seerisAlive = seer.IsAlive();
             bool enabled = seer == seen
-                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seerisAlive && (!seer.IsGorstRole() || Options.GRCanSeeOtherTasks.GetBool()) && Options.GhostCanSeeOtherTasks.GetBool());
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seerisAlive && (!seer.IsGorstRole() || Options.GRCanSeeOtherTasks.GetBool()) && (Options.GhostCanSeeOtherTasks.GetBool() || !Options.GhostOptions.GetBool()));
             string text = GetProgressText(seen.PlayerId, comms, Mane, hide: seer != seen && seen.Is(CustomRoles.Fox));
 
-            if (Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool())) text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";
+            if ((Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() || !Options.GhostOptions.GetBool()) && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool()))
+                text += $"<color=#ffff00>[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]</color>";
 
             //seer側による変更
             if (Amnesia.CheckAbility(seer))
@@ -430,7 +430,7 @@ namespace TownOfHost
                 //ラスニュの処理
                 else if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveManagement.GetBool()) return AllTaskstext(LastNeutral.PercentGage.GetBool(), LastNeutral.PonkotuPercernt.GetBool(), LastNeutral.Meeting.GetBool(), comms, LastNeutral.comms.GetBool());
                 else//書く役職の処理
-                if (RoleAddAddons.GetRoleAddon(cr, out var data, pc) && data.GiveAddons.GetBool() && data.GiveManagement.GetBool())
+                if (RoleAddAddons.GetRoleAddon(cr, out var data, pc, subrole: CustomRoles.Management) && data.GiveManagement.GetBool())
                 {
                     if (isjingai) return AllTaskstext(data.PercentGage.GetBool(), data.PonkotuPercernt.GetBool(), data.Meeting.GetBool(), comms, data.comms.GetBool());
                     else return ColorString(TextColor, $"({Completed}/{state.taskState.GetNeedCountOrAll()})") + AllTaskstext(data.PercentGage.GetBool(), data.PonkotuPercernt.GetBool(), data.Meeting.GetBool(), comms, data.comms.GetBool());
@@ -515,36 +515,35 @@ namespace TownOfHost
                 var Subrole = new List<CustomRoles>(state.SubRoles);
                 if (Subrole == null) Subrole.Add(CustomRoles.NotAssigned);
                 if (state.MainRole != CustomRoles.NotAssigned && state != null && player != null)
-                    if (RoleAddAddons.GetRoleAddon(state.MainRole, out var data, player))
+                    if (RoleAddAddons.GetRoleAddon(state.MainRole, out var data, player, subrole: CustomRoles.NotAssigned))
                     {
                         if (data != null)
-                            if (data.GiveAddons.GetBool())
+                        {
+                            if (data.GiveGuesser.GetBool()) Subrole.Add(CustomRoles.Guesser);
+                            if (data.GiveWatching.GetBool()) Subrole.Add(CustomRoles.watching);
+                            if (data.GivePlusVote.GetBool()) Subrole.Add(CustomRoles.PlusVote);
+                            if (data.GiveTiebreaker.GetBool()) Subrole.Add(CustomRoles.Tiebreaker);
+                            if (data.GiveAutopsy.GetBool()) Subrole.Add(CustomRoles.Autopsy);
+                            if (data.GiveRevenger.GetBool()) Subrole.Add(CustomRoles.Revenger);
+                            if (data.GiveSpeeding.GetBool()) Subrole.Add(CustomRoles.Speeding);
+                            if (data.GiveGuarding.GetBool()) Subrole.Add(CustomRoles.Guarding);
+                            if (data.GiveManagement.GetBool()) Subrole.Add(CustomRoles.Management);
+                            if (data.Giveseeing.GetBool()) Subrole.Add(CustomRoles.seeing);
+                            if (data.GiveOpener.GetBool()) Subrole.Add(CustomRoles.Opener);
+                            if (!data.IsImpostor)
                             {
-                                if (data.GiveGuesser.GetBool()) Subrole.Add(CustomRoles.Guesser);
-                                if (data.GiveWatching.GetBool()) Subrole.Add(CustomRoles.watching);
-                                if (data.GivePlusVote.GetBool()) Subrole.Add(CustomRoles.PlusVote);
-                                if (data.GiveTiebreaker.GetBool()) Subrole.Add(CustomRoles.Tiebreaker);
-                                if (data.GiveAutopsy.GetBool()) Subrole.Add(CustomRoles.Autopsy);
-                                if (data.GiveRevenger.GetBool()) Subrole.Add(CustomRoles.Revenger);
-                                if (data.GiveSpeeding.GetBool()) Subrole.Add(CustomRoles.Speeding);
-                                if (data.GiveGuarding.GetBool()) Subrole.Add(CustomRoles.Guarding);
-                                if (data.GiveManagement.GetBool()) Subrole.Add(CustomRoles.Management);
-                                if (data.Giveseeing.GetBool()) Subrole.Add(CustomRoles.seeing);
-                                if (data.GiveOpener.GetBool()) Subrole.Add(CustomRoles.Opener);
-                                if (!data.IsImpostor)
-                                {
-                                    if (data.GiveLighting.GetBool()) Subrole.Add(CustomRoles.Lighting);
-                                    if (data.GiveMoon.GetBool()) Subrole.Add(CustomRoles.Moon);
-                                }
-                                if (data.GiveNotvoter.GetBool()) Subrole.Add(CustomRoles.Notvoter);
-                                if (data.GiveElector.GetBool()) Subrole.Add(CustomRoles.Elector);
-                                if (data.GiveInfoPoor.GetBool()) Subrole.Add(CustomRoles.InfoPoor);
-                                if (data.GiveNonReport.GetBool()) Subrole.Add(CustomRoles.NonReport);
-                                if (data.GiveTransparent.GetBool()) Subrole.Add(CustomRoles.Transparent);
-                                if (data.GiveWater.GetBool()) Subrole.Add(CustomRoles.Water);
-                                if (data.GiveClumsy.GetBool()) Subrole.Add(CustomRoles.Clumsy);
-                                if (data.GiveSlacker.GetBool()) Subrole.Add(CustomRoles.Slacker);
+                                if (data.GiveLighting.GetBool()) Subrole.Add(CustomRoles.Lighting);
+                                if (data.GiveMoon.GetBool()) Subrole.Add(CustomRoles.Moon);
                             }
+                            if (data.GiveNotvoter.GetBool()) Subrole.Add(CustomRoles.Notvoter);
+                            if (data.GiveElector.GetBool()) Subrole.Add(CustomRoles.Elector);
+                            if (data.GiveInfoPoor.GetBool()) Subrole.Add(CustomRoles.InfoPoor);
+                            if (data.GiveNonReport.GetBool()) Subrole.Add(CustomRoles.NonReport);
+                            if (data.GiveTransparent.GetBool()) Subrole.Add(CustomRoles.Transparent);
+                            if (data.GiveWater.GetBool()) Subrole.Add(CustomRoles.Water);
+                            if (data.GiveClumsy.GetBool()) Subrole.Add(CustomRoles.Clumsy);
+                            if (data.GiveSlacker.GetBool()) Subrole.Add(CustomRoles.Slacker);
+                        }
                         if (state.SubRoles.Any(x => x is CustomRoles.LastImpostor))
                         {
                             if (LastImpostor.GiveAutopsy.GetBool()) Subrole.Add(CustomRoles.Autopsy);

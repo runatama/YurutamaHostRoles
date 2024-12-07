@@ -146,8 +146,8 @@ namespace TownOfHost
             if (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
-                (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
-                data.GiveAddons.GetBool() && data.GiveInfoPoor.GetBool()))
+                (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
+                data.GiveInfoPoor.GetBool()))
                 return i == null;
 
             if (player.Is(CustomRoles.MassMedia)) return i == null;
@@ -167,8 +167,8 @@ namespace TownOfHost
             if (Options.TarnTimeLimitVital.GetFloat() > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
-                            (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
-                            data.GiveAddons.GetBool() && data.GiveInfoPoor.GetBool()))
+                            (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
+                            data.GiveInfoPoor.GetBool()))
                 return i == null;
 
             if (player.Is(CustomRoles.MassMedia)) return i == null;
@@ -189,8 +189,8 @@ namespace TownOfHost
             if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
-                            (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player) &&
-                            data.GiveAddons.GetBool() && data.GiveInfoPoor.GetBool()))
+                            (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
+                            data.GiveInfoPoor.GetBool()))
                 return i == null;
 
             //ここから

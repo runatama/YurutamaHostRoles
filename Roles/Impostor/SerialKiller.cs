@@ -40,7 +40,7 @@ namespace TownOfHost.Roles.Impostor
             SerialKillerLimit
         }
         private static float KillCooldown;
-        private static float TimeLimit;
+        public static float TimeLimit;
 
         public bool CanBeLastImpostor { get; } = false;
         public float? SuicideTimer;

@@ -91,7 +91,7 @@ namespace TownOfHost
                 var Amnesiacheck = Amnesia.CheckAbility(seer);
                 var seercone = seer.Is(CustomRoles.Connecting);
                 var jikaku = seerRole?.Jikaku() is CustomRoles.NotAssigned;
-                RoleAddAddons.GetRoleAddon(role, out var data, seer);
+                RoleAddAddons.GetRoleAddon(role, out var data, seer, subrole: [CustomRoles.Guesser]);
                 // 会議じゃなくて，キノコカオス中で，seerが生きていてdesyncインポスターの場合に自身の名前を消す
                 if (!isForMeeting && isMushroomMixupActive && seerisAlive && !role.IsImpostor() && seerRoleInfo?.IsDesyncImpostor == true)
                 {
@@ -215,12 +215,13 @@ namespace TownOfHost
                         if (SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
                             next += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
                     }
+                    var colorName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
                     var (enabled, text) = GetRoleNameAndProgressTextData(seer);
                     string SelfRoleName = enabled ? $"<size={fontSize}>{text}</size>" : "";
                     string SelfDeathReason = ((TemporaryName ?? false) && nomarker) ? "" : seer.KnowDeathReason(seer) ? $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})" : "";
-                    string SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{(((TemporaryName ?? false) && nomarker) ? "" : SelfMark)}";
+                    string SelfName = $"{colorName}{SelfDeathReason}{(((TemporaryName ?? false) && nomarker) ? "" : SelfMark)}";
                     SelfName = SelfRoleName + "\r\n" + SelfName + next;
                     var g = "<line-height=85%>";
                     SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString() + "</line-height>");

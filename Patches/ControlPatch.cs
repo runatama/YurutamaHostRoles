@@ -258,6 +258,13 @@ namespace TownOfHost
                 Main.NormalOptions.NumImpostors = 0;
             }
 
+            //現在の座標を取得
+            if (GetKeysDown(KeyCode.I, KeyCode.LeftShift))
+            {
+                Logger.seeingame(PlayerControl.LocalPlayer.GetTruePosition().ToString());
+                Logger.Info(PlayerControl.LocalPlayer.GetTruePosition().ToString(), "GetLocalPlayerPos");
+            }
+
             //--以下フリープレイ用コマンド--//
             if (!GameStates.IsFreePlay) return;
             //キルクールを0秒に設定
@@ -285,9 +292,6 @@ namespace TownOfHost
                 ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 81);
                 ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
             }
-            //現在の座標を取得
-            if (Input.GetKeyDown(KeyCode.I))
-                Logger.Info(PlayerControl.LocalPlayer.GetTruePosition().ToString(), "GetLocalPlayerPos");
             //マスゲーム用コード
             /*if (Input.GetKeyDown(KeyCode.C))
             {

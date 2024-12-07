@@ -110,6 +110,20 @@ namespace TownOfHost
                 Main.CustomSpawnPosition.TryAdd(AmongUsClient.Instance.TutorialMapId, new List<Vector2>());
                 _ = new LateTask(() =>
                 {
+                    try
+                    {
+                        SetCustomSporns();
+                    }
+                    finally
+                    {
+                        Logger.Error("0.2f後でErrorが発生したため5秒後に再度実行", "SetCustomSporn");
+                        _ = new LateTask(() => SetCustomSporns(), 5f, "SetCustomSporn");
+                    }
+                }, 0.2f, "SetCustomSporn");
+                return;
+
+                void SetCustomSporns()
+                {
                     PlayerControl.LocalPlayer.StartCoroutine(PlayerControl.LocalPlayer.CoSetRole(AmongUs.GameOptions.RoleTypes.Shapeshifter, false));
                     if (PlayerControl.AllPlayerControls.Count < 10)
                     {
@@ -149,8 +163,7 @@ namespace TownOfHost
                         Mark.name = "Mark";
                         Mark.gameObject.SetActive(true);
                     }
-                }, 0.2f);
-                return;
+                }
             }
             if (GameStates.IsModHost && Main.UseWebHook.Value) UtilsWebHook.WH_ShowActiveRoles();
             PlayerCatch.CountAlivePlayers(true);

@@ -159,7 +159,9 @@ public static class OptionSerializer
             {
                 continue;
             }
-            option.SetValue(parsedModOptions.TryGetValue(option.Id, out var value) ? value : 0, false);
+            var optionvalue = parsedModOptions.TryGetValue(option.Id, out var value) ? value : 0;
+            if (option.GetValue() == optionvalue) continue;
+            option.SetValue(optionvalue, false);
         }
         OptionItem.SyncAllOptions();
     }
