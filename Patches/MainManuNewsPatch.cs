@@ -786,11 +786,51 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            if (DateTime.Now.Year == 2025)
             {
                 var news = new ModNews
                 {
                     Number = 100032,
+                    Title = "...やぁ!!またあったネ",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.24.11</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.24.11</color>",
+                    Text = "<size=80%>大型はないと思うけどちょくちょくこういうのは...()()()\n"
+                    + "というか新年直ぐに.25にしたら新年と一緒じゃん。やったね。1/ 4~8にしようかしら?\n"
+                    + "<size=125%>【バグ修正/仕様変更】</size>\n"
+                    + "・イビルテラーがそもそもﾋﾟｸﾘとも動かない問題の修正\n"
+                    + "・クライアント視点LowerTextが正常に動作しなかった問題の修正\n"
+                    + "・設定タブを切り替える時なんか-+ボタンが反応しちゃう問題の修正\n"
+                    + "・オプションのコピー/ロードがチャットより前に出てくる問題の修正\n"
+                    + "\n・処理をちょっと変更\n"
+                    + "ケーキ屋復刻したラまたニュースに追記するネ。\n\nよらんより"
+                    ,
+                    Date = "2024-12-08T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            if (DateTime.Now.Month is 12 && 20 <= DateTime.Now.Day)
+            {
+                var news = new ModNews
+                {
+                    Number = 100033,
+                    Title = "このメッセージは自動的に送信(?)されている",
+                    SubTitle = "<color=#00c1ff>ケーキ屋の再登場だョ!!</color>",
+                    ShortTitle = "<color=#00c1ff>ケーキ屋復刻！ ~ 1/8</color>",
+                    Text = "<size=80%>ケーキ屋が復刻したよ！\n"
+                    + "やったね!期間は来月8日まで！\n"
+                    + "なんで来月8日までって?ﾌﾌﾌ...\n"
+                    + "新年あけたら更に楽しくなるさ。\n"
+                    + "\nそれじゃ。クリスマスケーキを頂こうか。"
+                    + "\n\n\nby Yooooran"
+                    ,
+                    Date = "2024-12-20T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            if (DateTime.Now.Year == 2025)
+            {
+                var news = new ModNews
+                {
+                    Number = 100035,
                     Title = "謹賀新年",
                     SubTitle = "<color=#00c1ff>Town Of Host-K</color>",
                     ShortTitle = "<color=#00c1ff>TOH-Kからの御挨拶</color>",

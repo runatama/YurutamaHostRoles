@@ -27,7 +27,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         player
     )
     {
-        Tellnow.Clear();
+        TargetInfo = null;
         seentarget.Clear();
         nowuse = false;
         fall = false;
@@ -38,6 +38,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         distance = optDistance.GetFloat();
         tellroleteam = opttellroleteam.GetBool();
         tellrole = opttellrole.GetBool();
+        maxtellcount = optCanTellCount.GetInt();
     }
     static OptionItem optcooldown;
     static OptionItem optkillcooldown;
@@ -46,6 +47,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
     static OptionItem opttellroleteam;
     static OptionItem opttellrole;
     static OptionItem optusekillcoool;
+    static OptionItem optCanTellCount;
     static float cooldown;
     static float killcooldown;
     static float telltime;
@@ -53,15 +55,28 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
     static bool tellroleteam;
     static bool tellrole;
     static bool usekillcool;
-    static Dictionary<byte, float> Tellnow = new();
+    static int maxtellcount;
     bool nowuse;
     bool fall;
     static Dictionary<byte, CustomRoles> seentarget = new();
-    enum OptionName { EvilTellerTellTime, EvilTellerDistance, EvilTellertellrole }
+    enum OptionName { EvilTellerTellTime, EvilTellerDistance, EvilTellertellrole, EvilTellerCanTellCount }
+
+    private TimerInfo TargetInfo;
+    public class TimerInfo
+    {
+        public byte TargetId;
+        public float Timer;
+        public TimerInfo(byte targetId, float timer)
+        {
+            TargetId = targetId;
+            Timer = timer;
+        }
+    }
     static void SetUpOptionItem()
     {
         optkillcooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
         optcooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false).SetValueFormat(OptionFormat.Seconds);
+        optCanTellCount = IntegerOptionItem.Create(RoleInfo, 17, OptionName.EvilTellerCanTellCount, new(1, 99, 1), 3, false);
         opttelltime = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvilTellerTellTime, new(0, 100, 0.5f), 5, false).SetValueFormat(OptionFormat.Seconds);
         optDistance = FloatOptionItem.Create(RoleInfo, 13, OptionName.EvilTellerDistance, new(1f, 30f, 0.25f), 1.75f, false);
         opttellroleteam = BooleanOptionItem.Create(RoleInfo, 14, "tRole", false, false);
@@ -70,16 +85,18 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
     }
     public float CalculateKillCooldown() => killcooldown;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = fall ? 1 : (nowuse ? telltime : cooldown);
-    public void OnClick(ref bool resetkillcooldown, ref bool falla)
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
-        resetkillcooldown = true;
-        falla = true;
+        resetkillcooldown = false;
+        if (maxtellcount <= seentarget.Count) return;
+        fall = true;
         var target = Player.GetKillTarget();
         if (target == null) { fall = true; return; }
         if (target.Is(CustomRoleTypes.Impostor)) { fall = true; return; }
 
-        if (seentarget.ContainsKey(target.PlayerId)) { fall = true; return; }
-        Tellnow.TryAdd(target.PlayerId, 0);
+        if (seentarget.ContainsKey(target.PlayerId) || TargetInfo != null) { fall = true; return; }
+
+        TargetInfo = new(target.PlayerId, 0f);
         nowuse = true;
         fall = false;
         _ = new LateTask(() =>
@@ -94,10 +111,10 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         if (isForMeeting) return "";
         if (!seer.IsAlive()) return "";
 
-        if (Tellnow.ContainsKey(seen.PlayerId)) return "<color=#ff1919>◆</color>";
+        if (seen.PlayerId == (TargetInfo?.TargetId ?? byte.MaxValue)) return "<color=#ff1919>◆</color>";
         return "";
     }
-    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) { fall = false; Tellnow.Clear(); nowuse = false; }
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) { fall = false; TargetInfo = null; nowuse = false; }
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         if (!seen) return;
@@ -131,54 +148,51 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
             roleColor = UtilsRoleText.GetRoleColor(role);
         }
     }
+    public override string GetProgressText(bool comms = false, bool GameLog = false) => maxtellcount <= seentarget.Count ? $"<color=#cccccc>({maxtellcount - seentarget.Count})</color>" : $"<color=#ff1919>({maxtellcount - seentarget.Count})</color>";
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (GameStates.IsInTask)
-        {
-            if (Tellnow.Count == 0) return;
-            List<byte> del = new();
-            foreach (var data in Tellnow)
-            {
-                var target = PlayerCatch.GetPlayerById(data.Key);
-                if (!target)
-                {
-                    del.Add(target.PlayerId);
-                    fall = true;
-                    continue;
-                }
-                if (!target.IsAlive())
-                {
-                    del.Add(target.PlayerId);
-                    fall = true;
-                    continue;
-                }
-                if (telltime <= data.Value)//超えたなら消して追加
-                {
-                    fall = false;
-                    seentarget.TryAdd(target.PlayerId, target.GetCustomRole());
-                    del.Add(target.PlayerId);
-                    continue;
-                }
+        if (maxtellcount <= seentarget.Count) return;
 
-                float dis;
-                dis = Vector2.Distance(Player.transform.position, target.transform.position);//距離を出す
-                if (dis <= distance)//一定の距離にターゲットがいるならば時間をカウント
-                    Tellnow[data.Key] += Time.fixedDeltaTime;
-                else//それ以外は削除
-                { del.Add(target.PlayerId); fall = true; }
-            }
-            if (del.Count != 0)
+        if (GameStates.IsInTask && TargetInfo != null)
+        {
+            var et_target = PlayerCatch.GetPlayerById(TargetInfo.TargetId);
+            var et_time = TargetInfo.Timer;
+            if (!et_target.IsAlive())
             {
                 nowuse = false;
-                del.ForEach(task => Tellnow.Remove(task));
-                _ = new LateTask(() =>
+                fall = true;
+                TargetInfo = null;
+            }
+            else if (telltime <= et_time)
+            {
+                nowuse = false;
+                fall = false;
+                TargetInfo = null;
+                Player.RpcResetAbilityCooldown(kousin: true);
+                if (usekillcool && !fall) Player.SetKillCooldown();
+                seentarget.TryAdd(et_target.PlayerId, et_target.GetCustomRole());
+
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player, ForceLoop: true);
+            }
+            else
+            {
+                float dis;
+                dis = Vector2.Distance(Player.transform.position, et_target.transform.position);
+                if (dis <= distance)
                 {
-                    Player.RpcResetAbilityCooldown(kousin: true);
+                    TargetInfo.Timer += Time.fixedDeltaTime;
+                }
+                else
+                {
+                    nowuse = false;
+                    TargetInfo = null;
+                    fall = true;
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
-                    if (usekillcool && !fall) Player.SetKillCooldown();
-                }, 0.2f, "", true);
+
+                    Logger.Info($"Canceled: {Player.GetNameWithRole().RemoveHtmlTags()}", "CurseMaker");
+                }
             }
         }
     }

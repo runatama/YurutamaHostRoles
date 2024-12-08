@@ -164,6 +164,7 @@ namespace TownOfHost
             PlayerControlPhantomPatch.cantuse.Clear();
             Main.FixTaskNoPlayer.Clear();
             Camouflage.ventplayr.Clear();
+            PlayerCatch.OldAlivePlayerControles.Clear();
             ReportDeadBodyPatch.DontReport.Clear();
             RandomSpawn.SpawnMap.NextSporn.Clear();
             RandomSpawn.SpawnMap.NextSpornName.Clear();
@@ -356,6 +357,7 @@ namespace TownOfHost
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                if (!pc.Is(CustomRoles.GM)) PlayerCatch.OldAlivePlayerControles.Add(pc);
                 pc.Data.IsDead = false; //プレイヤーの死を解除する
                 var state = PlayerState.GetByPlayerId(pc.PlayerId);
                 if (state.MainRole != CustomRoles.NotAssigned) continue; //既にカスタム役職が割り当てられていればスキップ

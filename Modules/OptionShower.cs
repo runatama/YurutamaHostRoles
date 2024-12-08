@@ -175,53 +175,89 @@ namespace TownOfHost
         {
             foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
             {
-                if (opt.Value.Name == "GiveGuesser" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveWatching" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveManagement" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "Giveseeing" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveAutopsy" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveTiebreaker" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveMagicHand" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GivePlusVote" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveRevenger" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveOpener" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveLighting" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveMoon" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveElector" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveInfoPoor" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveNonReport" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveTransparent" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveNotvoter" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveWater" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveSpeeding" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveGuarding" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveClumsy" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveSlacker" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "Maximum") continue; //Maximumの項目は飛ばす
-                if (opt.Value.Name == "FixedRole") continue;
-                if (opt.Value.Name == "DisableSkeldDevices" && !Options.IsActiveSkeld) continue;
-                if (opt.Value.Name == "SkeldReactorTimeLimit" && !Options.IsActiveSkeld) continue;
-                if (opt.Value.Name == "SkeldO2TimeLimit" && !Options.IsActiveSkeld) continue;
-                if (opt.Value.Name == "MiraReactorTimeLimit" && !Options.IsActiveMiraHQ) continue;
-                if (opt.Value.Name == "MiraO2TimeLimit" && !Options.IsActiveMiraHQ) continue;
-                if (opt.Value.Name == "DisableMiraHQDevices" && !Options.IsActiveMiraHQ) continue;
-                if (opt.Value.Name == "DisablePolusDevices" && !Options.IsActivePolus) continue;
-                if (opt.Value.Name == "PolusReactorTimeLimit" && !Options.IsActivePolus) continue;
-                if (opt.Value.Name == "DisableAirshipDevices" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "AirshipReactorTimeLimit" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableFungleDevices" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "FungleReactorTimeLimit" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "FungleMushroomMixupDuration" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "DisableFungleSporeTrigger" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "CantUseZipLineTotop" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "CantUseZipLineTodown" && !Options.IsActiveFungle) continue;
+                if (!opt.Value.GetBool())
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "GiveGuesser": continue;
+                        case "GiveWatching": continue;
+                        case "GiveManagement": continue;
+                        case "Giveseeing": continue;
+                        case "GiveAutopsy": continue;
+                        case "GiveTiebreaker": continue;
+                        case "GiveMagicHand": continue;
+                        case "GivePlusVote": continue;
+                        case "GiveRevenger": continue;
+                        case "GiveOpener": continue;
+                        case "GiveLighting": continue;
+                        case "GiveMoon": continue;
+                        case "GiveElector": continue;
+                        case "GiveInfoPoor": continue;
+                        case "GiveNonReport": continue;
+                        case "GiveTransparent": continue;
+                        case "GiveNotvoter": continue;
+                        case "GiveWater": continue;
+                        case "GiveSpeeding": continue;
+                        case "GiveGuarding": continue;
+                        case "GiveClumsy": continue;
+                        case "GiveSlacker": continue;
+                    }
+                }
+                if (!Options.IsActiveSkeld)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisableSkeldDevices": continue;
+                        case "SkeldReactorTimeLimit": continue;
+                        case "SkeldO2TimeLimit": continue;
+                    }
+                }
+                if (!Options.IsActiveMiraHQ)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "MiraReactorTimeLimit": continue;
+                        case "MiraO2TimeLimit": continue;
+                        case "DisableMiraHQDevices": continue;
+                    }
+                }
+                if (!Options.IsActivePolus)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisablePolusDevices": continue;
+                        case "PolusReactorTimeLimit": continue;
+                    }
+                }
+                if (!Options.IsActiveAirship)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisableAirshipDevices": continue;
+                        case "AirshipReactorTimeLimit": continue;
+                        case "AirShipVariableElectrical": continue;
+                        case "DisableAirshipMovingPlatform": continue;
+                        case "DisableAirshipViewingDeckLightsPanel": continue;
+                        case "DisableAirshipCargoLightsPanel": continue;
+                        case "DisableAirshipGapRoomLightsPanel": continue;
+                    }
+                }
+                if (!Options.IsActiveFungle)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisableFungleDevices": continue;
+                        case "FungleReactorTimeLimit": continue;
+                        case "FungleMushroomMixupDuration": continue;
+                        case "DisableFungleSporeTrigger": continue;
+                        case "CantUseZipLineTotop": continue;
+                        case "CantUseZipLineTodown": continue;
+                    }
+                }
+                if (opt.Value.Name is "Maximum" or "FixedRole") continue;
                 if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) continue;
-                if (opt.Value.Name == "AirShipVariableElectrical" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipMovingPlatform" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipViewingDeckLightsPanel" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipCargoLightsPanel" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipGapRoomLightsPanel" && !Options.IsActiveAirship) continue;
                 if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveSkeld || Options.IsActiveMiraHQ || Options.IsActiveAirship || Options.IsActivePolus)) continue;
+
                 sb.Append("<line-height=80%><size=70%>");
                 if (deep > 0)
                 {
@@ -234,50 +270,86 @@ namespace TownOfHost
         }
         public static bool? Checkenabled(OptionItem opt)
         {
-            if (opt.Name == "GiveGuesser" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveWatching" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveManagement" && !opt.GetBool()) return false;
-            if (opt.Name == "Giveseeing" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveAutopsy" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveTiebreaker" && !opt.GetBool()) return false;
-            if (opt.Name == "GivePlusVote" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveRevenger" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveOpener" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveLighting" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveMoon" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveElector" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveInfoPoor" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveNonReport" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveTransparent" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveNotvoter" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveWater" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveSpeeding" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveGuarding" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveClumsy" && !opt.GetBool()) return false;
-            if (opt.Name == "GiveSlacker" && !opt.GetBool()) return false;
-
-            if (opt.Name == "DisableSkeldDevices" && !Options.IsActiveSkeld) return null;
-            if (opt.Name == "DisableMiraHQDevices" && !Options.IsActiveMiraHQ) return null;
-            if (opt.Name == "DisablePolusDevices" && !Options.IsActivePolus) return null;
-            if (opt.Name == "PolusReactorTimeLimit" && !Options.IsActivePolus) return null;
-            if (opt.Name == "DisableAirshipDevices" && !Options.IsActiveAirship) return null;
-            if (opt.Name == "AirshipReactorTimeLimit" && !Options.IsActiveAirship) return null;
-            if (opt.Name == "DisableFungleDevices" && !Options.IsActiveFungle) return null;
-            if (opt.Name == "FungleReactorTimeLimit" && !Options.IsActiveFungle) return null;
-            if (opt.Name == "CantUseZipLineTotop" && !Options.IsActiveFungle) return null;
-            if (opt.Name == "CantUseZipLineTodown" && !Options.IsActiveFungle) return null;
-            if (opt.Name == "SkeldReactorTimeLimit" && !Options.IsActiveSkeld) return null;
-            if (opt.Name == "SkeldO2TimeLimit" && !Options.IsActiveSkeld) return null;
-            if (opt.Name == "MiraReactorTimeLimit" && !Options.IsActiveMiraHQ) return null;
-            if (opt.Name == "MiraO2TimeLimit" && !Options.IsActiveMiraHQ) return null;
-            if (opt.Name == "FungleMushroomMixupDuration" && !Options.IsActiveFungle) return null;
-            if (opt.Name == "DisableFungleSporeTrigger" && !Options.IsActiveFungle) return null;
+            if (!opt.GetBool())
+            {
+                switch (opt.Name)
+                {
+                    case "GiveGuesser": return false;
+                    case "GiveWatching": return false;
+                    case "GiveManagement": return false;
+                    case "Giveseeing": return false;
+                    case "GiveAutopsy": return false;
+                    case "GiveTiebreaker": return false;
+                    case "GiveMagicHand": return false;
+                    case "GivePlusVote": return false;
+                    case "GiveRevenger": return false;
+                    case "GiveOpener": return false;
+                    case "GiveLighting": return false;
+                    case "GiveMoon": return false;
+                    case "GiveElector": return false;
+                    case "GiveInfoPoor": return false;
+                    case "GiveNonReport": return false;
+                    case "GiveTransparent": return false;
+                    case "GiveNotvoter": return false;
+                    case "GiveWater": return false;
+                    case "GiveSpeeding": return false;
+                    case "GiveGuarding": return false;
+                    case "GiveClumsy": return false;
+                    case "GiveSlacker": return false;
+                }
+            }
+            if (!Options.IsActiveSkeld)
+            {
+                switch (opt.Name)
+                {
+                    case "DisableSkeldDevices": return null;
+                    case "SkeldReactorTimeLimit": return null;
+                    case "SkeldO2TimeLimit": return null;
+                }
+            }
+            if (!Options.IsActiveMiraHQ)
+            {
+                switch (opt.Name)
+                {
+                    case "MiraReactorTimeLimit": return null;
+                    case "MiraO2TimeLimit": return null;
+                    case "DisableMiraHQDevices": return null;
+                }
+            }
+            if (!Options.IsActivePolus)
+            {
+                switch (opt.Name)
+                {
+                    case "DisablePolusDevices": return null;
+                    case "PolusReactorTimeLimit": return null;
+                }
+            }
+            if (!Options.IsActiveAirship)
+            {
+                switch (opt.Name)
+                {
+                    case "DisableAirshipDevices": return null;
+                    case "AirshipReactorTimeLimit": return null;
+                    case "AirShipVariableElectrical": return null;
+                    case "DisableAirshipMovingPlatform": return null;
+                    case "DisableAirshipViewingDeckLightsPanel": return null;
+                    case "DisableAirshipCargoLightsPanel": return null;
+                    case "DisableAirshipGapRoomLightsPanel": return null;
+                }
+            }
+            if (!Options.IsActiveFungle)
+            {
+                switch (opt.Name)
+                {
+                    case "DisableFungleDevices": return null;
+                    case "FungleReactorTimeLimit": return null;
+                    case "FungleMushroomMixupDuration": return null;
+                    case "DisableFungleSporeTrigger": return null;
+                    case "CantUseZipLineTotop": return null;
+                    case "CantUseZipLineTodown": return null;
+                }
+            }
             if (opt.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) return null;
-            if (opt.Name == "AirShipVariableElectrical" && !Options.IsActiveAirship) return null;
-            if (opt.Name == "DisableAirshipMovingPlatform" && !Options.IsActiveAirship) return null;
-            if (opt.Name == "DisableAirshipViewingDeckLightsPanel" && !Options.IsActiveAirship) return null;
-            if (opt.Name == "DisableAirshipCargoLightsPanel" && !Options.IsActiveAirship) return null;
-            if (opt.Name == "DisableAirshipGapRoomLightsPanel" && !Options.IsActiveAirship) return null;
             if (opt.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveSkeld || Options.IsActiveMiraHQ || Options.IsActiveAirship || Options.IsActivePolus)) return null;
             return true;
         }

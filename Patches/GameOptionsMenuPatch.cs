@@ -567,6 +567,7 @@ namespace TownOfHost
             var template = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB/Scroller/SliderInner/GameOption_String(Clone)").GetComponent<StringOption>();
 
             GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(false);
+            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/Gradient").SetActive(false);
             if (template == null) return;
 
             Dictionary<TabGroup, GameOptionsMenu> list = new();
@@ -671,7 +672,7 @@ namespace TownOfHost
 
                 var tabButton = Object.Instantiate(templateTabButton, templateTabButton.transform.parent);
                 tabButton.name = tab.ToString();
-                tabButton.transform.position = templateTabButton.transform.position + new Vector3((0.762f * i * 0.8f) + (0.762f * i * w * 0.2f), 0f);
+                tabButton.transform.position = templateTabButton.transform.position + new Vector3((0.762f * i * 0.8f) + (0.762f * i * w * 0.2f), 0, -300f);
                 Object.Destroy(tabButton.buttonText.gameObject);
                 tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 60);
                 tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
@@ -851,13 +852,13 @@ namespace TownOfHost
                 GameSettingMenuChangeTabPatch.meg = GetString("OptionResetMeg");
                 reset();
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.RESET-STG.png", 150f));
-            CreateButton("OptionCopy", Color.green, new Vector2(7.3f, -0.035f), new Action(() =>
+            CreateButton("OptionCopy", Color.green, new Vector2(7.89f, 0), new Action(() =>
             {
                 OptionSerializer.SaveToClipboard();
                 GameSettingMenuChangeTabPatch.meg = GetString("OptionCopyMeg");
                 reset();
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.COPY-STG.png", 180f), true);
-            CreateButton("OptionLoad", Color.green, new Vector2(7.3f + 0.125f, 0), new Action(() =>
+            CreateButton("OptionLoad", Color.green, new Vector2(7.28f, 0), new Action(() =>
             {
                 OptionSerializer.LoadFromClipboard();
                 GameSettingMenuChangeTabPatch.meg = GetString("OptionLoadMeg");
@@ -867,8 +868,8 @@ namespace TownOfHost
 
             static void CreateButton(string text, Color color, Vector2 position, Action action, Sprite sprite = null, bool csize = false)
             {
-                var ToggleButton = Object.Instantiate(csize ? HudManager.Instance.Chat.chatButton : HudManager.Instance.SettingsButton.GetComponent<PassiveButton>(), GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)").transform);
-                ToggleButton.GetComponent<AspectPosition>().DistanceFromEdge += new Vector3(position.x, position.y, 0f);
+                var ToggleButton = Object.Instantiate(HudManager.Instance.SettingsButton.GetComponent<PassiveButton>(), GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)").transform);
+                ToggleButton.GetComponent<AspectPosition>().DistanceFromEdge += new Vector3(position.x, 0, 200f);
 
                 ToggleButton.transform.localScale -= new Vector3(0.25f * w, 0.25f * h);
                 ToggleButton.name = text;

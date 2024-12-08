@@ -57,43 +57,39 @@ namespace TownOfHost.Modules.ChatManager
             else if (CommandCheck(message)) operate = 1;
             else if (message.RemoveHtmlTags() != message) operate = 5;//tagが含まれてるならシステムメッセ
 
-            if (operate == 1)
+            switch (operate)
             {
-                message = msg;
-                cancel = true;
-            }
-            else if (operate == 2)
-            {
-                message = msg;
-                cancel = false;
-            }
-            else if (operate == 5)
-            {
-                message = msg;
-                cancel = false;
-            }
-            else if (operate == 4)//特定の人物が喋ったら消すなどに。
-            {
-                message = msg;
-                cancel = false;
-                SendPreviousMessagesToAll();
-            }
-            else if (operate == 6)
-            {
-                if (Main.UseYomiage.Value && isalive) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
-            }
-            else if (operate == 3)
-            {
-                if (Main.UseYomiage.Value && isalive) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
-                message = msg;
-                string chatEntry = $"{player.PlayerId}: {message}";
-                chatHistory.Add(chatEntry);
-
-                if (chatHistory.Count > maxHistorySize)
-                {
-                    chatHistory.RemoveAt(0);
-                }
-                cancel = false;
+                case 1://その他コマンド
+                    message = msg;
+                    cancel = true;
+                    break;
+                case 2://ゲッサーコマンド
+                    message = msg;
+                    cancel = false;
+                    break;
+                case 3: //投票の記録、通常のチャット
+                    if (Main.UseYomiage.Value && isalive) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
+                    message = msg;
+                    string chatEntry = $"{player.PlayerId}: {message}";
+                    chatHistory.Add(chatEntry);
+                    if (chatHistory.Count > maxHistorySize)
+                    {
+                        chatHistory.RemoveAt(0);
+                    }
+                    cancel = false;
+                    break;
+                case 4: //特定の人物が喋ったら消す等
+                    message = msg;
+                    cancel = false;
+                    SendPreviousMessagesToAll();
+                    break;
+                case 5://システムメッセージ
+                    message = msg;
+                    cancel = false;
+                    break;
+                case 6://ロビーの処理
+                    if (Main.UseYomiage.Value && isalive) ChatCommands.Yomiage(player.Data.DefaultOutfit.ColorId, message).Wait();
+                    break;
             }
         }
 

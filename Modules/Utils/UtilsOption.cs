@@ -422,54 +422,91 @@ namespace TownOfHost
         {
             foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
             {
-                if (opt.Value.Name == "GiveGuesser" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveWatching" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveManagement" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "Giveseeing" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveAutopsy" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveTiebreaker" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GivePlusVote" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveRevenger" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveOpener" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveLighting" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveMoon" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveElector" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveInfoPoor" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveNonReport" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveTransparent" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveNotvoter" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveWater" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveSpeeding" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveGuarding" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveClumsy" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "GiveSlacker" && !opt.Value.GetBool()) continue;
-                if (opt.Value.Name == "Maximum") continue; //Maximumの項目は飛ばす
-                if (opt.Value.Name == "FixedRole") continue;
-                if (opt.Value.Name == "DisableSkeldDevices" && !Options.IsActiveSkeld) continue;
-                if (opt.Value.Name == "DisableMiraHQDevices" && !Options.IsActiveMiraHQ) continue;
-                if (opt.Value.Name == "DisablePolusDevices" && !Options.IsActivePolus) continue;
-                if (opt.Value.Name == "PolusReactorTimeLimit" && !Options.IsActivePolus) continue;
-                if (opt.Value.Name == "DisableAirshipDevices" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "AirshipReactorTimeLimit" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableFungleDevices" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "FungleReactorTimeLimit" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "SkeldReactorTimeLimit" && !Options.IsActiveSkeld) continue;
-                if (opt.Value.Name == "SkeldO2TimeLimit" && !Options.IsActiveSkeld) continue;
-                if (opt.Value.Name == "MiraReactorTimeLimit" && !Options.IsActiveMiraHQ) continue;
-                if (opt.Value.Name == "MiraO2TimeLimit" && !Options.IsActiveMiraHQ) continue;
-                if (opt.Value.Name == "FungleMushroomMixupDuration" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "DisableFungleSporeTrigger" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "CantUseZipLineTotop" && !Options.IsActiveFungle) continue;
-                if (opt.Value.Name == "CantUseZipLineTodown" && !Options.IsActiveFungle) continue;
+                if (!opt.Value.GetBool())
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "GiveGuesser": continue;
+                        case "GiveWatching": continue;
+                        case "GiveManagement": continue;
+                        case "Giveseeing": continue;
+                        case "GiveAutopsy": continue;
+                        case "GiveTiebreaker": continue;
+                        case "GiveMagicHand": continue;
+                        case "GivePlusVote": continue;
+                        case "GiveRevenger": continue;
+                        case "GiveOpener": continue;
+                        case "GiveLighting": continue;
+                        case "GiveMoon": continue;
+                        case "GiveElector": continue;
+                        case "GiveInfoPoor": continue;
+                        case "GiveNonReport": continue;
+                        case "GiveTransparent": continue;
+                        case "GiveNotvoter": continue;
+                        case "GiveWater": continue;
+                        case "GiveSpeeding": continue;
+                        case "GiveGuarding": continue;
+                        case "GiveClumsy": continue;
+                        case "GiveSlacker": continue;
+                        default: if (getbool) continue; break;
+                    }
+                }
+                if (!Options.IsActiveSkeld)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisableSkeldDevices": continue;
+                        case "SkeldReactorTimeLimit": continue;
+                        case "SkeldO2TimeLimit": continue;
+                    }
+                }
+                if (!Options.IsActiveMiraHQ)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "MiraReactorTimeLimit": continue;
+                        case "MiraO2TimeLimit": continue;
+                        case "DisableMiraHQDevices": continue;
+                    }
+                }
+                if (!Options.IsActivePolus)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisablePolusDevices": continue;
+                        case "PolusReactorTimeLimit": continue;
+                    }
+                }
+                if (!Options.IsActiveAirship)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisableAirshipDevices": continue;
+                        case "AirshipReactorTimeLimit": continue;
+                        case "AirShipVariableElectrical": continue;
+                        case "DisableAirshipMovingPlatform": continue;
+                        case "DisableAirshipViewingDeckLightsPanel": continue;
+                        case "DisableAirshipCargoLightsPanel": continue;
+                        case "DisableAirshipGapRoomLightsPanel": continue;
+                    }
+                }
+                if (!Options.IsActiveFungle)
+                {
+                    switch (opt.Value.Name)
+                    {
+                        case "DisableFungleDevices": continue;
+                        case "FungleReactorTimeLimit": continue;
+                        case "FungleMushroomMixupDuration": continue;
+                        case "DisableFungleSporeTrigger": continue;
+                        case "CantUseZipLineTotop": continue;
+                        case "CantUseZipLineTodown": continue;
+                    }
+                }
+                if (opt.Value.Name is "Maximum" or "FixedRole") continue;
                 if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) continue;
-                if (opt.Value.Name == "AirShipVariableElectrical" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipMovingPlatform" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipViewingDeckLightsPanel" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipCargoLightsPanel" && !Options.IsActiveAirship) continue;
-                if (opt.Value.Name == "DisableAirshipGapRoomLightsPanel" && !Options.IsActiveAirship) continue;
                 if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveSkeld || Options.IsActiveMiraHQ || Options.IsActiveAirship || Options.IsActivePolus)) continue;
-                if (Askesu) if (opt.Value.Name == "%roleTypes%Maximum") continue;
-                if (getbool && !opt.Value.GetBool()) continue;
+                if (Askesu && opt.Value.Name == "%roleTypes%Maximum") continue;
+
                 if (pc != null)
                 {
                     if (!pc.Is(CustomRoleTypes.Crewmate))
@@ -655,57 +692,60 @@ namespace TownOfHost
         }
         public static string GetAddonsHelp(CustomRoles role)
         {
+            if (!(role.IsAddOn() || role.IsGorstRole() || role.IsRiaju() || role is CustomRoles.Amanojaku)) return "";
             var s = "";
             var k = "<line-height=2.0pic><size=150%>";
             //バフ
-            if (role == CustomRoles.Guesser) s += k + AddonInfo(role, "∮", From.TheOtherRoles);
-            if (role == CustomRoles.Serial) s += k + AddonInfo(role, "∂");
-            if (role == CustomRoles.MagicHand) s += k + AddonInfo(role, "ж");
-            if (role == CustomRoles.Connecting) s += k + AddonInfo(role, "Ψ");
-            if (role == CustomRoles.watching) s += k + AddonInfo(role, "∑", From.TOR_GM_Edition);
-            if (role == CustomRoles.PlusVote) s += k + AddonInfo(role, "р", From.TownOfHost_Y);
-            if (role == CustomRoles.Tiebreaker) s += k + AddonInfo(role, "т", From.TheOtherRoles);
-            if (role == CustomRoles.Autopsy) s += k + AddonInfo(role, "Å", From.TownOfHost_Y);
-            if (role == CustomRoles.Revenger) s += k + AddonInfo(role, "Я", From.TownOfHost_Y);
-            if (role == CustomRoles.Speeding) s += k + AddonInfo(role, "∈");
-            if (role == CustomRoles.Guarding) s += k + AddonInfo(role, "ζ", From.TownOfHost_Y);
-            if (role == CustomRoles.Management) s += k + AddonInfo(role, "θ", From.TownOfHost_Y);
-            if (role == CustomRoles.Opener) s += k + AddonInfo(role, "п");
-            if (role == CustomRoles.seeing) s += k + AddonInfo(role, "☯", From.TownOfHost_Y);
-            if (role == CustomRoles.Lighting) s += k + AddonInfo(role, "＊", From.TownOfHost_Y);
-            if (role == CustomRoles.Moon) s += k + AddonInfo(role, "э");
+            return (s += k) + (role switch
+            {
+                //バフ
+                CustomRoles.Guesser => AddonInfo(role, "∮", From.TheOtherRoles),
+                CustomRoles.Serial => AddonInfo(role, "∂"),
+                CustomRoles.MagicHand => AddonInfo(role, "ж"),
+                CustomRoles.Connecting => AddonInfo(role, "Ψ"),
+                CustomRoles.watching => AddonInfo(role, "∑", From.TOR_GM_Edition),
+                CustomRoles.PlusVote => AddonInfo(role, "р", From.TownOfHost_Y),
+                CustomRoles.Tiebreaker => AddonInfo(role, "т", From.TheOtherRoles),
+                CustomRoles.Autopsy => AddonInfo(role, "Å", From.TownOfHost_Y),
+                CustomRoles.Revenger => AddonInfo(role, "Я", From.TownOfHost_Y),
+                CustomRoles.Speeding => AddonInfo(role, "∈"),
+                CustomRoles.Guarding => AddonInfo(role, "ζ", From.TownOfHost_Y),
+                CustomRoles.Management => AddonInfo(role, "θ", From.TownOfHost_Y),
+                CustomRoles.Opener => AddonInfo(role, "п"),
+                CustomRoles.seeing => AddonInfo(role, "☯", From.TownOfHost_Y),
+                CustomRoles.Lighting => AddonInfo(role, "＊", From.TownOfHost_Y),
+                CustomRoles.Moon => AddonInfo(role, "э"),
+                //デバフ
+                CustomRoles.Amnesia => AddonInfo(role),
+                CustomRoles.SlowStarter => AddonInfo(role, "Ｓs"),
+                CustomRoles.Notvoter => AddonInfo(role, "Ｖ"),
+                CustomRoles.Elector => AddonInfo(role, "Ｅ"),
+                CustomRoles.InfoPoor => AddonInfo(role, "Ｉ", From.TownOfHost_Y),
+                CustomRoles.NonReport => AddonInfo(role, "Ｒ", From.TownOfHost_Y),
+                CustomRoles.Transparent => AddonInfo(role, "Ｔ"),
+                CustomRoles.Water => AddonInfo(role, "Ｗ"),
+                CustomRoles.Clumsy => AddonInfo(role, "Ｃ", From.TownOfHost_Y),
+                CustomRoles.Slacker => AddonInfo(role, "ＳＬ"),
+                //第三属性
+                CustomRoles.Amanojaku => AddonInfo(role),
+                CustomRoles.Lovers or CustomRoles.RedLovers or CustomRoles.BlueLovers or CustomRoles.YellowLovers or CustomRoles.GreenLovers
+                or CustomRoles.WhiteLovers or CustomRoles.PurpleLovers => AddonInfo(role, "♥", role != CustomRoles.Lovers ? From.None : From.Love_Couple_Mod),
+                //ラスト系
+                CustomRoles.LastImpostor => AddonInfo(role, from: From.TownOfHost),
+                CustomRoles.LastNeutral => AddonInfo(role),
+                CustomRoles.Workhorse => AddonInfo(role, from: From.TownOfHost),
+                //幽霊役職
+                CustomRoles.Ghostbuttoner => AddonInfo(role),
+                CustomRoles.GhostNoiseSender => AddonInfo(role),
+                CustomRoles.GhostReseter => AddonInfo(role),
+                CustomRoles.GuardianAngel => AddonInfo(role),
+                CustomRoles.DemonicTracker => AddonInfo(role),
+                CustomRoles.DemonicCrusher => AddonInfo(role),
+                CustomRoles.DemonicVenter => AddonInfo(role),
+                CustomRoles.AsistingAngel => AddonInfo(role),
 
-            //デバフ
-            if (role == CustomRoles.Amnesia) s += k + AddonInfo(role);
-            if (role == CustomRoles.SlowStarter) s += k + AddonInfo(role, "Ｓs");
-            if (role == CustomRoles.Notvoter) s += k + AddonInfo(role, "Ｖ");
-            if (role == CustomRoles.Elector) s += k + AddonInfo(role, "Ｅ");
-            if (role == CustomRoles.InfoPoor) s += k + AddonInfo(role, "Ｉ", From.TownOfHost_Y);
-            if (role == CustomRoles.NonReport) s += k + AddonInfo(role, "Ｒ", From.TownOfHost_Y);
-            if (role == CustomRoles.Transparent) s += k + AddonInfo(role, "Ｔ");
-            if (role == CustomRoles.Water) s += k + AddonInfo(role, "Ｗ");
-            if (role == CustomRoles.Clumsy) s += k + AddonInfo(role, "Ｃ", From.TownOfHost_Y);
-            if (role == CustomRoles.Slacker) s += k + AddonInfo(role, "ＳＬ");
-
-            //第三
-            if (role.IsRiaju()) s += k + AddonInfo(role, "♥", role != CustomRoles.Lovers ? From.None : From.Love_Couple_Mod);
-
-            //ラスト
-            if (role == CustomRoles.LastImpostor) s += k + AddonInfo(role, from: From.TownOfHost);
-            if (role == CustomRoles.LastNeutral) s += k + AddonInfo(role);
-            if (role == CustomRoles.Workhorse) s += k + AddonInfo(role, from: From.TownOfHost);
-            if (role == CustomRoles.Amanojaku) s += k + AddonInfo(role);
-            //幽霊役職
-
-            if (role == CustomRoles.Ghostbuttoner) s += k + AddonInfo(role);
-            if (role == CustomRoles.GhostNoiseSender) s += k + AddonInfo(role);
-            if (role == CustomRoles.GhostReseter) s += k + AddonInfo(role);
-            if (role == CustomRoles.GuardianAngel) s += k + AddonInfo(role);
-            if (role == CustomRoles.DemonicTracker) s += k + AddonInfo(role);
-            if (role == CustomRoles.DemonicCrusher) s += k + AddonInfo(role);
-            if (role == CustomRoles.DemonicVenter) s += k + AddonInfo(role);
-            if (role == CustomRoles.AsistingAngel) s += k + AddonInfo(role);
-            return s;
+                _ => "...?"
+            });
         }
         public static string AddonInfo(CustomRoles role, string Mark = "", From from = From.None, PlayerControl pc = null)
         {

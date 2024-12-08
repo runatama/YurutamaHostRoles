@@ -145,7 +145,7 @@ namespace TownOfHost
                         LowerInfoText.fontSizeMax = 2.0f;
                     }
 
-                    LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.Meeting, isForHud: true) ?? "";
+                    LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
                     if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
                     if (roleClass?.Jikaku() != CustomRoles.NotAssigned) LowerInfoText.text = "";
 

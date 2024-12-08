@@ -71,6 +71,7 @@ namespace TownOfHost
         public static Dictionary<byte, CustomRoleTypes> AllPlayerFirstTypes = new();
         public static IEnumerable<PlayerControl> AllPlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.PlayerId <= 15);
         public static IEnumerable<PlayerControl> AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive() && p.PlayerId <= 15);
-
+        //1ターン前に生きてた人達のリスト
+        public static List<PlayerControl> OldAlivePlayerControles = new();
     }
 }

@@ -133,8 +133,9 @@ namespace TownOfHost
         {
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
-            if (seer.Is(CustomRoles.GM)) return true;
-            if (Options.SuddenCanSeeKillflash.GetBool()) return true;
+            if (seer.Is(CustomRoles.GM) ||
+                Options.SuddenCanSeeKillflash.GetBool()) return true;
+
             if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
@@ -349,8 +350,8 @@ namespace TownOfHost
                             name += $"</size>\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color><size=150%>";
                             break;
                         case SuffixModes.Timer:
-                            if (GameStates.IsLocalGame) break;
-                            if (GameStates.IsCountDown) break;
+                            if (GameStates.IsLocalGame
+                            || GameStates.IsCountDown) break;
                             float timerValue = GameStartManagerPatch.GetTimer();
                             if (timerValue < GameStartManagerPatch.Timer2 - 2 || GameStartManagerPatch.Timer2 < 25)
                                 GameStartManagerPatch.Timer2 = timerValue;
@@ -376,14 +377,14 @@ namespace TownOfHost
 
                 var info = "<size=120%>";
                 var at = "";
-                if (Options.NoGameEnd.GetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
+                if (Options.NoGameEnd.OptionMeGetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
                 if (Options.IsStandardHAS) info += $"\r\n" + ColorString(Color.yellow, GetString("StandardHAS")); else at += "\r\n";
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) info += $"\r\n" + ColorString(Color.red, GetString("HideAndSeek")); else at += "\r\n";
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) info += $"\r\n" + ColorString(Color.cyan, GetString("TaskBattle")); else at += "\r\n";
-                if (Options.SuddenDeathMode.GetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
-                if (Options.EnableGM.GetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
+                if (Options.SuddenDeathMode.OptionMeGetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
+                if (Options.EnableGM.OptionMeGetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
                 if (DebugModeManager.IsDebugMode)
-                    info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
+                    info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<color=#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
                 else at += "\r\n";
 
                 info += "</size>";

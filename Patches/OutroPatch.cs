@@ -171,7 +171,10 @@ namespace TownOfHost
             switch (CustomWinnerHolder.WinnerTeam)
             {
                 //通常勝利
-                case CustomWinner.Crewmate: CustomWinnerColor = UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate); break;
+                case CustomWinner.Crewmate:
+                    __instance.Foreground.material.color = Palette.CrewmateBlue;
+                    CustomWinnerColor = UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate);
+                    break;
                 //特殊勝利
                 case CustomWinner.Terrorist: __instance.Foreground.material.color = Color.red; break;
                 case CustomWinner.Lovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.Lovers); break;

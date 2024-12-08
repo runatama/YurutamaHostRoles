@@ -10,9 +10,9 @@ namespace TownOfHost
         {
             if (GameStates.IsLobby) return false;
             //Tasksがnullの場合があるのでその場合タスク無しとする
-            if (p.Tasks == null) return false;
-            if (p.Role == null) return false;
-            if (p.Disconnected) return false;
+            if (p.Tasks == null
+            || p.Role == null
+            || p.Disconnected) return false;
 
             var hasTasks = true;
             var States = PlayerState.GetByPlayerId(p.PlayerId);
@@ -132,8 +132,6 @@ namespace TownOfHost
                 {
                     if (pc != null)
                     {
-                        if (pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) continue;
-
                         if (Main.AllPlayerTask.TryGetValue(pc.PlayerId, out var tasks))
                             tasks.Do(task => pc.RpcCompleteTask(task));
                     }

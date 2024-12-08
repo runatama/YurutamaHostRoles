@@ -526,8 +526,6 @@ namespace TownOfHost
                         if (GameStates.InGame && !GameStates.Meeting)
                             UtilsNotifyRoles.NotifyRoles();
                     }, 15f, "Intro", true);
-
-                    UtilsNotifyRoles.NotifyRoles(NoCache: true);
                 }
             }
             _ = new LateTask(() => Main.showkillbutton = true, 0.5f, "", true);

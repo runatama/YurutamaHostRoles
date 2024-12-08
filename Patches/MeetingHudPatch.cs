@@ -77,26 +77,23 @@ public static class MeetingHudPatch
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
-            PlayerCatch.AllPlayerControls.Do(x => ReportDeadBodyPatch.WaitReport[x.PlayerId].Clear());
+            PlayerCatch.OldAlivePlayerControles.Clear();
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
+
+                if (!pc.IsAlive())
+                {
+                    if (AntiBlackout.OverrideExiledPlayer) continue;
+                    pc.RpcExileV2();
+                    pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride);
+                }//  会議時に生きてたぜリスト追加
+                else PlayerCatch.OldAlivePlayerControles.Add(pc);
+            }
             ReportDeadBodyPatch.DontReport.Clear();
             MeetingStates.MeetingCalled = true;
             GameStates.Tuihou = false;
 
-            if (!AntiBlackout.OverrideExiledPlayer)
-            {
-                if (AmongUsClient.Instance.AmHost)
-                {
-                    foreach (var Player in PlayerCatch.AllPlayerControls)
-                    {
-                        if (!Player.IsAlive() && (Player.GetCustomRole().IsImpostor() || (Player?.CanUseSabotageButton() ?? false)))
-                            foreach (var pc in PlayerCatch.AllPlayerControls)
-                            {
-                                if (pc == PlayerControl.LocalPlayer) continue;
-                                Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
-                            }
-                    }
-                }
-            }
             if (Options.ExHideChatCommand.GetBool())
             {
                 _ = new LateTask(() =>
@@ -142,6 +139,13 @@ public static class MeetingHudPatch
             var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
             var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
             var list = p.ToArray().AddRangeToArray(a.ToArray());
+
+            HudManagerPatch.LowerInfoText.text = myRole?.GetLowerText(PlayerControl.LocalPlayer, isForMeeting: true, isForHud: true) ?? "";
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) HudManagerPatch.LowerInfoText.text = "";
+            if (myRole?.Jikaku() != CustomRoles.NotAssigned) HudManagerPatch.LowerInfoText.text = "";
+
+            HudManagerPatch.LowerInfoText.enabled = HudManagerPatch.LowerInfoText.text != "";
+
             foreach (var pva in __instance.playerStates)
             {
                 var pc = PlayerCatch.GetPlayerById(pva.TargetPlayerId);
@@ -149,7 +153,7 @@ public static class MeetingHudPatch
 
                 var roleTextMeeting = UnityEngine.Object.Instantiate(pva.NameText);
                 roleTextMeeting.transform.SetParent(pva.PlayerIcon.transform);
-                roleTextMeeting.transform.localPosition = new Vector3(3.25f, 1.02f, -50f);
+                roleTextMeeting.transform.localPosition = new Vector3(3.25f, 1.02f, -5f);
                 roleTextMeeting.fontSize = 1.5f;
                 (roleTextMeeting.enabled, roleTextMeeting.text)
                     = UtilsRoleText.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, pc, PlayerControl.LocalPlayer == pc);
@@ -158,7 +162,7 @@ public static class MeetingHudPatch
 
                 var suffixTextMeeting = UnityEngine.Object.Instantiate(pva.NameText);
                 suffixTextMeeting.transform.SetParent(pva.PlayerIcon.transform);
-                suffixTextMeeting.transform.localPosition = new Vector3(3.25f, 0.02f, -50f);
+                suffixTextMeeting.transform.localPosition = new Vector3(3.25f, 0.02f, 0f);
                 suffixTextMeeting.fontSize = 1.5f;
                 suffixTextMeeting.gameObject.name = "suffixTextMeeting";
                 suffixTextMeeting.enableWordWrapping = false;
@@ -167,7 +171,7 @@ public static class MeetingHudPatch
                 // NameTextにSetParentすると後に作ったのにも付いてきちゃうからこっちに
                 var MeetingInfo = UnityEngine.Object.Instantiate(pva.NameText);
                 MeetingInfo.transform.SetParent(pva.PlayerIcon.transform);
-                MeetingInfo.transform.localPosition = new Vector3(3.13f, 1.71f, -50f);
+                MeetingInfo.transform.localPosition = new Vector3(3.13f, 1.71f, 0f);
                 MeetingInfo.fontSize = 1.8f;
                 MeetingInfo.gameObject.name = "MeetingInfo";
                 MeetingInfo.enableWordWrapping = false;
@@ -368,7 +372,7 @@ public static class MeetingHudPatch
                             continue;
                     }
                 }
-                if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer) && data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
+                if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer) && data.GiveGuesser.GetBool())
                 {
                     if (!seer.Data.IsDead && target == seer)
                         fsb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));

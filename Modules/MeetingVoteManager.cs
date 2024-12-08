@@ -79,7 +79,6 @@ public class MeetingVoteManager
         var player = PlayerCatch.GetPlayerById(voter);
         var votetarget = PlayerCatch.GetPlayerById(voteFor);
         RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: [CustomRoles.Elector, CustomRoles.PlusVote, CustomRoles.Notvoter]);
-        var giveaddon = data.GiveAddons.GetBool();
 
         if (!votetarget.IsAlive() && voteFor != Skip && voteFor != NoVote)
         {
@@ -88,7 +87,7 @@ public class MeetingVoteManager
             return;
         }
 
-        if ((player.Is(CustomRoles.Elector) || (giveaddon && data.GiveElector.GetBool())) && voteFor == Skip)
+        if ((player.Is(CustomRoles.Elector) || data.GiveElector.GetBool()) && voteFor == Skip)
         {
             logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} スキップ投票は取り消されます");
             doVote = false;
@@ -119,13 +118,13 @@ public class MeetingVoteManager
         }
 
         //プラスポート
-        if (giveaddon && data.GivePlusVote.GetBool())
+        if (data.GivePlusVote.GetBool())
             numVotes += data.AdditionalVote.GetInt();
         if (player.Is(CustomRoles.PlusVote))
             numVotes += PlusVote.AdditionalVote.GetInt();
 
         //ノットヴォウター
-        if (player.Is(CustomRoles.Notvoter) || (giveaddon && data.GiveNotvoter.GetBool()))
+        if (player.Is(CustomRoles.Notvoter) || data.GiveNotvoter.GetBool())
         {
             logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} の {player.GetNameWithRole().RemoveHtmlTags()} の投票数を 0 に変更します");
             numVotes = 0;

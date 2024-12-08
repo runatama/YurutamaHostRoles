@@ -37,6 +37,7 @@ namespace TownOfHost
         public static float optTimeLimitCamAndLog;
         public static float optTarnTimeLimitCamAndLog;
         public static float optTimeLimitAdmin;
+        public static float optTimeLimitVital;
         public static bool DisableDevicesIgnoreImpostors;
         public static bool DisableDevicesIgnoreMadmates;
         public static bool DisableDevicesIgnoreNeutrals;
@@ -49,6 +50,7 @@ namespace TownOfHost
             optTimeLimitDevices = Options.TimeLimitDevices.GetBool();
             optTarnTimeLimitDevice = Options.TarnTimeLimitDevice.GetBool();
             optTimeLimitAdmin = Options.TimeLimitAdmin.GetFloat();
+            optTimeLimitVital = Options.TimeLimitVital.GetFloat();
             DisableDevicesIgnoreImpostors = Options.DisableDevicesIgnoreImpostors.GetBool();
             DisableDevicesIgnoreMadmates = Options.DisableDevicesIgnoreMadmates.GetBool();
             DisableDevicesIgnoreNeutrals = Options.DisableDevicesIgnoreNeutrals.GetBool();
@@ -79,27 +81,27 @@ namespace TownOfHost
         }
         public static string GetAddminTimer()
         {
-            if (optTimeLimitAdmin == 0) return "";
-            if ((MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
+            if (optTimeLimitAdmin == 0
+            || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
             var a = "<color=#00ff99>Ⓐ";
             if (optTimeLimitAdmin <= GameAdminTimer) return a + "×";
             else return a + ":" + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
         }
         public static string GetCamTimr()
         {
-            if (optTimeLimitCamAndLog == 0) return "";
-            if ((MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
+            if (optTimeLimitCamAndLog == 0
+            || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
             var a = (MapNames)Main.NormalOptions.MapId is MapNames.Mira ? "<color=#cccccc>Ⓛ" : "<color=#cccccc>Ⓒ";
             if (optTimeLimitCamAndLog <= GameLogAndCamTimer) return a + "×";
             else return a + ":" + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
         }
         public static string GetVitalTimer()
         {
-            if (Options.TimeLimitVital.GetFloat() == 0) return "";
-            if ((MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.Mira) return "";
+            if (optTimeLimitVital == 0
+            || (MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.Mira) return "";
             var a = "<color=#33ccff>Ⓥ";
-            if (Options.TimeLimitVital.GetFloat() <= GameVitalTimer) return a + "×";
-            else return a + ":" + Math.Round(Options.TimeLimitVital.GetFloat() - GameVitalTimer) + "s";
+            if (optTimeLimitVital <= GameVitalTimer) return a + "×";
+            else return a + ":" + Math.Round(optTimeLimitVital - GameVitalTimer) + "s";
         }
         public static readonly Dictionary<string, Vector2> DevicePos = new()
         {
@@ -162,9 +164,9 @@ namespace TownOfHost
 
             if (DemonicCrusher.DemUseAbility) return i == null;
 
-            if (Options.TimeLimitVital.GetFloat() > 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat()) return i == null;
+            if (optTimeLimitVital > 0 && GameVitalTimer > optTimeLimitVital) return i == null;
 
-            if (Options.TarnTimeLimitVital.GetFloat() > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
+            if (optTimeLimitVital > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                             (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
@@ -459,19 +461,12 @@ namespace TownOfHost
 
                 if (PlayerControl.LocalPlayer.IsAlive())
                 {
-                    var ch = true;
-                    if (Options.TimeLimitVital.GetFloat() > 0 && GameVitalTimer > Options.TimeLimitVital.GetFloat())
+                    if ((optTimeLimitVital > 0 && GameVitalTimer > optTimeLimitVital)
+                    || (optTimeLimitVital > 0 && TarnVitalTimer > optTimeLimitVital))
                     {
                         __instance.Close();
-                        ch = false;
                     }
-
-                    if (Options.TarnTimeLimitVital.GetFloat() > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat())
-                    {
-                        __instance.Close();
-                        ch = false;
-                    }
-                    if (ch)
+                    else
                     {
                         if (optTimeLimitDevices) GameVitalTimer += Time.fixedDeltaTime;
                         if (optTarnTimeLimitDevice) TarnVitalTimer += Time.fixedDeltaTime;
@@ -491,12 +486,8 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && DemonicCrusher.DemUseAbility) __instance.Close();
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
-                    if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
-                    {
-                        __instance.Close();
-                    }
-
-                    if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog)
+                    if ((optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
+                    || (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog))
                     {
                         __instance.Close();
                     }
@@ -515,10 +506,8 @@ namespace TownOfHost
 
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
-                    if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
-                        __instance.Close();
-
-                    if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog)
+                    if ((optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
+                    || (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog))
                         __instance.Close();
                 }
             }
@@ -536,19 +525,12 @@ namespace TownOfHost
 
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
-                    var ch = true;
-                    if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
+                    if ((optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
+                    || (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog))
                     {
                         __instance.Close();
-                        ch = false;
                     }
-
-                    if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog)
-                    {
-                        __instance.Close();
-                        ch = false;
-                    }
-                    if (ch)
+                    else
                     {
                         if (optTimeLimitDevices) GameLogAndCamTimer += Time.fixedDeltaTime;
                         if (optTarnTimeLimitDevice) TarnLogAndCamTimer += Time.fixedDeltaTime;
@@ -574,19 +556,12 @@ namespace TownOfHost
                 }
                 if (PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
                 {
-                    var ch = true;
-                    if (optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin)
+                    if ((optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin)
+                    || (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin))
                     {
                         MapBehaviour.Instance.Close();
-                        ch = false;
                     }
-
-                    if (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin)
-                    {
-                        MapBehaviour.Instance.Close();
-                        ch = false;
-                    }
-                    if (ch)
+                    else
                     {
                         if (optTimeLimitDevices) GameAdminTimer += Time.fixedDeltaTime;
                         if (optTarnTimeLimitDevice) TarnAdminTimer += Time.fixedDeltaTime;

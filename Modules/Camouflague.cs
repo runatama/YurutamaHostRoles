@@ -75,9 +75,10 @@ namespace TownOfHost
         public static List<byte> ventplayr = new();
         public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool? kyousei = false)
         {
-            if (!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (kyousei is null or true))) return;
-            if (GameStates.IsLobby) return;
-            if (target == null) return;
+            if ((!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (kyousei is null or true)))
+            || (GameStates.IsLobby)
+            || (target == null)) return;
+
             var id = target.PlayerId;
 
             if (IsCamouflage && kyousei is true)
@@ -94,7 +95,7 @@ namespace TownOfHost
             {
                 //コミュサボ解除または強制解除
 
-                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && target.GetRoleClass() is not IUseTheShButton && shapeshifting && !RevertToDefault && kyousei is not null)
+                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) /*&& target.GetRoleClass() is not IUseTheShButton */ && shapeshifting && !RevertToDefault && kyousei is not null)
                 {
                     //シェイプシフターなら今の姿のidに変更
                     id = Main.ShapeshiftTarget[id];

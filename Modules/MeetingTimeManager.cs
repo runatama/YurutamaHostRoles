@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Modules
 {
@@ -57,8 +56,6 @@ namespace TownOfHost.Modules
             {
                 if (role is IMeetingTimeAlterable meetingTimeAlterable)
                 {
-                    // Hyz-sui: 会議時間をいじる役職が増えたら上限&下限設定の置き場所要検討
-
                     if (!role.Player.IsAlive() && meetingTimeAlterable.RevertOnDie)
                     {
                         continue;

@@ -39,6 +39,7 @@ public sealed class TaskStar : RoleBase
         if (IsTaskFinished)
         {
             Player.MarkDirtySettings();
+            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
         }
 
         return true;

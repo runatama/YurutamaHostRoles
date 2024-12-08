@@ -26,6 +26,7 @@ namespace TownOfHost.Modules
         static float opttime;
         public static bool NowSuddenDeathMode;
         public static bool NowSuddenDeathTemeMode;
+        public static bool SuddenCannotSeeName;
         public static List<byte> TeamRed = new();
         public static List<byte> TeamBlue = new();
         public static List<byte> TeamYellow = new();
@@ -50,6 +51,7 @@ namespace TownOfHost.Modules
         {
             NowSuddenDeathTemeMode = Options.SuddenTeam.GetBool();
             NowSuddenDeathMode = Options.SuddenDeathMode.GetBool();
+            SuddenCannotSeeName = Options.SuddenCannotSeeName.GetBool();
             SuddenDeathtime = 0;
             ItijohoSendTime = 0;
             sabotage = false;

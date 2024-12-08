@@ -28,22 +28,38 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         player
     )
     {
-        count = 0;
+        distance = Distance.GetFloat();
+        noroitime = NoroiTime.GetFloat();
+        deltarn = OptionDelTarn.GetInt();
+        KillCooldown = OptionKillCoolDown.GetFloat();
+        shapcool = OptionShepeCooldown.GetFloat();
+
         Noroi.Clear();
-        Norotteruto.Clear();
         CanWin = false;
         fall = false;
-    }
-    static OptionItem Distance;
-    static OptionItem NoroiTime;
-    static OptionItem OptionDelTarn;
-    static OptionItem OptionKillCoolDown;
-    static OptionItem OptionShepeCooldown;
 
-    static Dictionary<byte, float> Norotteruto = new();//呪おうとしてる人達。
+        TargetInfo = null;
+    }
+    static OptionItem Distance; static float distance;
+    static OptionItem NoroiTime; static float noroitime;
+    static OptionItem OptionDelTarn; static int deltarn;
+    static OptionItem OptionKillCoolDown; static float KillCooldown;
+    static OptionItem OptionShepeCooldown; static float shapcool;
+
     static Dictionary<byte, int> Noroi = new();
+    public class TimerInfo
+    {
+        public byte TargetId;
+        public float Timer;
+        public TimerInfo(byte targetId, float timer)
+        {
+            TargetId = targetId;
+            Timer = timer;
+        }
+    }
+    public bool CanKill { get; private set; } = false;
+    private TimerInfo TargetInfo;
     public bool CanWin;
-    float count;
     bool fall;
     public static HashSet<CurseMaker> curseMakers = new();
     enum OptionName
@@ -77,9 +93,9 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         fall = false;
         var (killer, target) = info.AttemptTuple;
         info.DoKill = false;
-        if (Noroi.ContainsKey(target.PlayerId)) return;
+        if (Noroi.ContainsKey(target.PlayerId) || TargetInfo != null) return;
 
-        Norotteruto.TryAdd(target.PlayerId, 0);
+        TargetInfo = new(target.PlayerId, 0f);
         Player.SetKillCooldown(target: target, delay: true);
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.4f, "CueseMaker");
     }
@@ -88,50 +104,47 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (GameStates.IsInTask)
+        if (GameStates.IsInTask && TargetInfo != null)
         {
-            if (Norotteruto.Count == 0) return;
-            List<byte> del = new();
-            foreach (var NR in Norotteruto)
+            var cu_target = PlayerCatch.GetPlayerById(TargetInfo.TargetId);
+            var cu_time = TargetInfo.Timer;
+            if (!cu_target.IsAlive())
             {
-                var np = PlayerCatch.GetPlayerById(NR.Key);
-                if (!np)
-                {
-                    del.Add(np.PlayerId);
-                    fall = true;
-                    continue;
-                }
-                if (!np.IsAlive())
-                {
-                    del.Add(np.PlayerId);
-                    fall = true;
-                    continue;
-                }
-                if (NoroiTime.GetFloat() <= NR.Value)//超えたなら消して追加
-                {
-                    Noroi.TryAdd(np.PlayerId, 0);
-                    del.Add(np.PlayerId);
-                    count++;
-                    continue;
-                }
-
-                float dis;
-                dis = Vector2.Distance(Player.transform.position, np.transform.position);//距離を出す
-                if (dis <= Distance.GetFloat())//一定の距離にターゲットがいるならば時間をカウント
-                    Norotteruto[NR.Key] += Time.fixedDeltaTime;
-                else//それ以外は削除
-                { del.Add(np.PlayerId); fall = true; }
+                fall = true;
+                Player.SetKillCooldown();
+                TargetInfo = null;
             }
-            if (del.Count != 0)
+            else if (noroitime <= cu_time)
             {
-                del.Do(x => Norotteruto.Remove(x));
-                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.4f, "CueseMaker");
-                Player.SetKillCooldown(delay: true);
+                fall = false;
+                Player.SetKillCooldown();
+                TargetInfo = null;
+                Noroi.Add(cu_target.PlayerId, 0);
+                UtilsNotifyRoles.NotifyRoles();
+            }
+            else
+            {
+                float dis;
+                dis = Vector2.Distance(Player.transform.position, cu_target.transform.position);
+                if (dis <= distance)
+                {
+                    TargetInfo.Timer += Time.fixedDeltaTime;
+                }
+                else
+                {
+                    TargetInfo = null;
+                    fall = true;
+                    Player.SetKillCooldown();
+                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+
+                    Logger.Info($"Canceled: {Player.GetNameWithRole().RemoveHtmlTags()}", "CurseMaker");
+                }
             }
         }
     }
     public override void OnReportDeadBody(PlayerControl a, NetworkedPlayerInfo target)
     {
+        TargetInfo = null;
         CanWin = false;
         if (Noroi.Count == 0) return;
         List<byte> DelList = new();
@@ -140,18 +153,18 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
             var np = PlayerCatch.GetPlayerById(nr.Key);
             if (!np) DelList.Add(nr.Key);
             if (!np.IsAlive()) DelList.Add(nr.Key);
-            if (OptionDelTarn.GetInt() <= nr.Value + 1) DelList.Add(nr.Key);
+            if (deltarn <= nr.Value + 1) DelList.Add(nr.Key);
 
             Noroi[nr.Key] = nr.Value + 1;
         }
-        DelList.ForEach(task => { Noroi.Remove(task); count--; });
+        DelList.ForEach(task => { Noroi.Remove(task); });
     }
     public override string MeetingMeg()
     {
-        if (count == 0) return "";
+        if (Noroi.Count == 0) return "";
         if (!Player.IsAlive()) return "";
 
-        return string.Format(Translator.GetString("CurseMakerMeetingMeg"), count);
+        return string.Format(Translator.GetString("CurseMakerMeetingMeg"), Noroi.Count);
     }
     public override bool NotifyRolesCheckOtherName => true;
     public bool CanUseKillButton() => true;
@@ -159,10 +172,10 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     public bool CanUseSabotageButton() => false;
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.PhantomCooldown = OptionShepeCooldown.GetFloat();
+        AURoleOptions.PhantomCooldown = shapcool;
         opt.SetVision(false);
     }
-    public float CalculateKillCooldown() => fall ? 0.00000000001f : OptionKillCoolDown.GetFloat();
+    public float CalculateKillCooldown() => fall ? 0.00000000001f : KillCooldown;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         fall = true;
@@ -188,7 +201,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         seen ??= seer;
         if (Noroi.ContainsKey(seen.PlayerId))
             return "<color=#554d59>†</color>";
-        if (Norotteruto.ContainsKey(seen.PlayerId))
+        if (seen.PlayerId == (TargetInfo?.TargetId ?? byte.MaxValue))
             return "<color=#554d59>◇</color>";
         return "";
     }

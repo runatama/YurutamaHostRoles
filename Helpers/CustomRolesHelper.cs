@@ -150,20 +150,29 @@ namespace TownOfHost
         }
         public static bool IsRiaju(this PlayerControl pc, bool checkonelover = true)
         {
-            return pc.Is(CustomRoles.Lovers) || pc.Is(CustomRoles.RedLovers) || pc.Is(CustomRoles.YellowLovers) || pc.Is(CustomRoles.BlueLovers) || pc.Is(CustomRoles.GreenLovers) || pc.Is(CustomRoles.WhiteLovers) || pc.Is(CustomRoles.PurpleLovers) || pc.Is(CustomRoles.MadonnaLovers) || (pc.Is(CustomRoles.OneLove) && checkonelover);
+            return pc.Is(CustomRoles.Lovers) || pc.Is(CustomRoles.RedLovers) ||
+            pc.Is(CustomRoles.YellowLovers) || pc.Is(CustomRoles.BlueLovers) ||
+            pc.Is(CustomRoles.GreenLovers) || pc.Is(CustomRoles.WhiteLovers) ||
+            pc.Is(CustomRoles.PurpleLovers) || pc.Is(CustomRoles.MadonnaLovers) ||
+            (pc.Is(CustomRoles.OneLove) && checkonelover);
         }
         public static CustomRoles GetRiaju(this PlayerControl pc)
         {
             if (pc == null) return CustomRoles.NotAssigned;
-            if (pc.Is(CustomRoles.Lovers)) return CustomRoles.Lovers;
-            if (pc.Is(CustomRoles.RedLovers)) return CustomRoles.RedLovers;
-            if (pc.Is(CustomRoles.YellowLovers)) return CustomRoles.YellowLovers;
-            if (pc.Is(CustomRoles.BlueLovers)) return CustomRoles.BlueLovers;
-            if (pc.Is(CustomRoles.GreenLovers)) return CustomRoles.GreenLovers;
-            if (pc.Is(CustomRoles.WhiteLovers)) return CustomRoles.WhiteLovers;
-            if (pc.Is(CustomRoles.PurpleLovers)) return CustomRoles.PurpleLovers;
-            if (pc.Is(CustomRoles.MadonnaLovers)) return CustomRoles.MadonnaLovers;
-            if (pc.Is(CustomRoles.OneLove)) return CustomRoles.OneLove;
+            var state = PlayerState.GetByPlayerId(pc.PlayerId);
+            foreach (var sub in state.SubRoles)
+                switch (sub)
+                {
+                    case CustomRoles.Lovers: return CustomRoles.Lovers;
+                    case CustomRoles.RedLovers: return CustomRoles.RedLovers;
+                    case CustomRoles.YellowLovers: return CustomRoles.YellowLovers;
+                    case CustomRoles.BlueLovers: return CustomRoles.BlueLovers;
+                    case CustomRoles.GreenLovers: return CustomRoles.GreenLovers;
+                    case CustomRoles.WhiteLovers: return CustomRoles.WhiteLovers;
+                    case CustomRoles.PurpleLovers: return CustomRoles.PurpleLovers;
+                    case CustomRoles.OneLove: return CustomRoles.OneLove;
+                    case CustomRoles.MadonnaLovers: return CustomRoles.MadonnaLovers;
+                }
             return CustomRoles.NotAssigned;
         }
         public static bool IsWhiteCrew(this CustomRoles roles)
@@ -193,8 +202,8 @@ namespace TownOfHost
                 if (RoleAddAddons.GetRoleAddon(role, out var op, subrole: CustomRoles.Guesser))
                     if (op.GiveGuesser.GetBool()) return true;
             }
-            if (CustomRoles.LastImpostor.IsPresent() && LastNeutral.GiveGuesser.GetBool()) return true;
-            if (CustomRoles.LastNeutral.IsPresent() && LastImpostor.giveguesser) return true;
+            if (CustomRoles.LastImpostor.IsPresent() && LastImpostor.giveguesser) return true;
+            if (CustomRoles.LastNeutral.IsPresent() && LastNeutral.GiveGuesser.GetBool()) return true;
 
             return false;
         }

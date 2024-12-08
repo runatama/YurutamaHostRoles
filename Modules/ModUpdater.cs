@@ -195,19 +195,29 @@ namespace TownOfHost
                 }
                 isChecked = true;
                 isBroken = false;
-                body = data["body"].ToString();
+                var ages = data["body"].ToString().Split("## ");
+                for (var i = 0; i < ages.Length - 1; i++)
+                {
+                    if (i == 0)
+                    {
+                        body = ages[0] + "<size=80%>";
+                        continue;
+                    }
+                    if (i == 1) continue;
+                    var ages2 = ages[i].Split("\n");
+                    for (var i2 = 0; i2 < ages2.Length; i2++)
+                    {
+                        if (i2 == 0)
+                        {
+                            body += $"<b><size=120%>{ages2[i2]}";
+                            body += "</b></size>\n";
+                            continue;
+                        }
+                        body += ages2[i2] + "\n";
+                    }
+                }
                 /*body = data["body"].ToString();
                 
-                // Subverのチェック。
-                // バージョンが同一で、　　　　　　　　　　　　　　　　現在のサブバージョンがGitHubに記載されてなくて、　　　　　　　　サブバージョンの記載がある時～
-                if (latestVersion.CompareTo(Main.version) == 0 && !body.Contains($"PluginSubVersion:{Main.PluginSubVersion}") && body.Contains($"PluginSubVersion:"))
-                {
-                    hasUpdate = true;
-                    isSubUpdata = true;
-                    var entryParts = body.Split("luginSubVersion:");
-                    var subvarsion = 1 <= entryParts.Length ? entryParts[1].Trim() : "?";
-                    latestTitle += $"<sub>{subvarsion.RemoveText(true)}</sub>";
-                }
                 else isSubUpdata = false;
                 *///if (body.Contains("📢公開ルーム○")) publicok = true;
                 //else if (body.Contains("📢公開ルーム×")) publicok = false;

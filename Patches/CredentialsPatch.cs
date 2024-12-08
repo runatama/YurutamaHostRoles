@@ -40,17 +40,17 @@ namespace TownOfHost
                 if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
                 sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
 
-                if ((Options.NoGameEnd.GetBool() && GameStates.IsLobby) || (Main.DontGameSet && !GameStates.IsLobby)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+                if ((Options.NoGameEnd.OptionMeGetBool() && GameStates.IsLobby) || (Main.DontGameSet && !GameStates.IsLobby)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) sb.Append($"\r\n").Append(Utils.ColorString(Color.cyan, GetString("TaskBattle")));
-                if (Options.SuddenDeathMode.GetBool()) sb.Append("\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
-                if (Options.EnableGM.GetBool()) sb.Append($"\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GM), GetString("GM")));
+                if (Options.SuddenDeathMode.OptionMeGetBool()) sb.Append("\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
+                if (Options.EnableGM.OptionMeGetBool()) sb.Append($"\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GM), GetString("GM")));
                 if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
                 if (DebugModeManager.IsDebugMode)
                 {
                     sb.Append("\r\n");
-                    sb.Append(DebugModeManager.EnableTOHkDebugMode.GetBool() ? "<color=#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
+                    sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<color=#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
                 }
 
                 var offset_x = 2.5f; //右端からのオフセット

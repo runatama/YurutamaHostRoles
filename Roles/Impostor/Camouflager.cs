@@ -52,14 +52,11 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!NowUse) return;
-        if (GameStates.Meeting) return;
-        if (Limit <= -50) return;
+        if (!AmongUsClient.Instance.AmHost || !NowUse || GameStates.Meeting || Limit <= -50) return;
 
         Limit -= Time.fixedDeltaTime;
 
-        if (VentPlayers.Count != 0)
+        if (VentPlayers.Count > 0)
         {
             var remove = new List<byte>();
             foreach (var id in VentPlayers)
@@ -95,12 +92,11 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                         .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                         .EndRpc();
                     sender.SendMessage();
-                    if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
                 }
                 else Camouflage.RpcSetSkin(target);
-
                 remove.Add(id);
             }
+            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
 
             if (remove.Count != 0) remove.Do(id => VentPlayers.Remove(id));
         }
@@ -165,9 +161,8 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
             sender.SendMessage();
-            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
-
         }
+        if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
         Limit = OptionAblitytime.GetFloat();
         NowUse = true;
         _ = new LateTask(() =>

@@ -97,7 +97,6 @@ namespace TownOfHost
 
         //試験的機能
         public static OptionItem ExperimentalMode;
-        public static OptionItem ExMeetingblackout;
         public static OptionItem ExAftermeetingflash;
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
@@ -636,8 +635,6 @@ namespace TownOfHost
             // 試験的機能
             ExperimentalMode = BooleanOptionItem.Create(300000, "ExperimentalMode", false, TabGroup.MainSettings, false).SetColor(Palette.CrewmateSettingChangeText)
                 .SetGameMode(CustomGameMode.Standard);
-            ExMeetingblackout = BooleanOptionItem.Create(300001, "ExMeetingblackout", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
-                .SetGameMode(CustomGameMode.Standard);
             ExAftermeetingflash = BooleanOptionItem.Create(300002, "ExAftermeetingflash", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
                             .SetGameMode(CustomGameMode.Standard);
             ExHideChatCommand = BooleanOptionItem.Create(300003, "ExHideChatCommand", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode)
@@ -687,9 +684,9 @@ namespace TownOfHost
             // Madmate, Crewmate, Neutral
             sortedRoleInfo.Where(role => role.CustomRoleType != CustomRoleTypes.Impostor).Do(info =>
             {
-#if RELEASE
-                if (info.RoleName == CustomRoles.Cakeshop && !(((DateTime.Now.Month == 10 && DateTime.Now.Day is 31 ) || DateTime.Now.Month == 11 && DateTime.Now.Day < 4)&& DateTime.Now.Year == 2024)) return;
-#endif
+                //#if RELEASE
+                if (info.RoleName == CustomRoles.Cakeshop && !((DateTime.Now.Month == 12 && 20 <= DateTime.Now.Day) || (DateTime.Now.Month == 1 && DateTime.Now.Day <= 8))) return;
+                //#endif
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
             });
@@ -802,7 +799,7 @@ namespace TownOfHost
             CuseVent = BooleanOptionItem.Create(101701, "Can'tUseVent", false, TabGroup.MainSettings, false).SetParent(MapModification);
             CuseVentCount = FloatOptionItem.Create(101702, "CuseVentCount", new(1f, 15f, 1f), 5f, TabGroup.MainSettings, false).SetValueFormat(OptionFormat.Players).SetParent(CuseVent);
             // タスク無効化
-            UploadDataIsLongTask = BooleanOptionItem.Create(101703, "UploadDataIsLongTask", false, TabGroup.MainSettings, false).SetParent(MapModification)
+            UploadDataIsLongTask = BooleanOptionItem.Create(101703, "UploadDataIsLongTask", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(MapModification);
             DisableTasks = BooleanOptionItem.Create(100300, "DisableTasks", false, TabGroup.MainSettings, false).SetParent(MapModification)

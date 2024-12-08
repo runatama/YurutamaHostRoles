@@ -212,7 +212,7 @@ namespace TownOfHost.Modules
             }
 
             state.taskState.hasTasks = UtilsTask.HasTasks(player.Data, false);
-            if ((GhostCanSeeOtherVotes.GetBool() || !Options.GhostOptions.GetBool()) && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
+            if ((GhostCanSeeOtherVotes.GetBool() || !GhostOptions.GetBool()) && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
             if (AdditionalEmergencyCooldown.GetBool() && AdditionalEmergencyCooldownThreshold.GetInt() <= PlayerCatch.AllAlivePlayersCount)
             {

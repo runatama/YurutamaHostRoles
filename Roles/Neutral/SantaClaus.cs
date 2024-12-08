@@ -67,7 +67,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     }
     public override bool OnCompleteTask(uint taskid)
     {
-        if (AmongUsClient.Instance.AmHost && MyTaskState.IsTaskFinished)
+        if (AmongUsClient.Instance.AmHost && MyTaskState.IsTaskFinished && Player.IsAlive())
         {
             havepresent++;
             UtilsNotifyRoles.NotifyRoles();

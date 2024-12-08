@@ -87,6 +87,7 @@ namespace TownOfHost
                 var role = seer.GetCustomRole();
                 var seerRole = seer.GetRoleClass();
                 var seerRoleInfo = seer.GetCustomRole().GetRoleInfo();
+                var seerSubrole = seer.GetCustomSubRoles();
                 var seerisAlive = seer.IsAlive();
                 var Amnesiacheck = Amnesia.CheckAbility(seer);
                 var seercone = seer.Is(CustomRoles.Connecting);
@@ -179,14 +180,14 @@ namespace TownOfHost
                         if (SelfSuffix.ToString() != "") SelfSuffix.Append('\n');
                         SelfSuffix.Append("<color=#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
                     }
-                    if ((seer.Is(CustomRoles.Guesser) ||
-                    (LastNeutral.GiveGuesser.GetBool() && seer.Is(CustomRoles.LastNeutral)) ||
-                    (LastImpostor.giveguesser && seer.Is(CustomRoles.LastImpostor)) ||
-                    (data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
+                    if ((seerSubrole.Contains(CustomRoles.Guesser) ||
+                    (LastNeutral.GiveGuesser.GetBool() && seerSubrole.Contains(CustomRoles.LastNeutral)) ||
+                    (LastImpostor.giveguesser && seerSubrole.Contains(CustomRoles.LastImpostor)) ||
+                    data.GiveGuesser.GetBool()
                     ) && isForMeeting
                     )
                     {
-                        var gi = $" <line-height=10%>\n<color={GetRoleColorCode(CustomRoles.Guesser)}><size=50%>{GetString("GuessInfo")}</color></size></line-height>";
+                        var gi = $" <line-height=10%>\n<color=#999900><size=50%>{GetString("GuessInfo")}</color></size></line-height>";
                         SelfSuffix.Append(gi);
                     }
                     //seer役職が対象のSuffix
@@ -198,7 +199,7 @@ namespace TownOfHost
                     //RealNameを取得 なければ現在の名前をRealNamesに書き込む
                     string SeerRealName = (seerRole is IUseTheShButton) ? Main.AllPlayerNames[seer.PlayerId] : seer.GetRealName(isForMeeting);
 
-                    if (Options.SuddenCannotSeeName.GetBool())
+                    if (SuddenDeathMode.SuddenCannotSeeName)
                     {
                         SeerRealName = "";
                     }
@@ -274,7 +275,6 @@ namespace TownOfHost
                     || seer.IsNeutralKiller() //seerがキル出来るニュートラル
                     || PlayerState.GetByPlayerId(seer.PlayerId).TargetColorData.Count > 0 //seer視点用の名前色データが一つ以上ある
                     || Witch.IsSpelled()
-                    || CustomRoles.TaskStar.IsEnable()
                     || seer.IsRiaju()
                     || seercone
                     || IsActive(SystemTypes.Electrical)
@@ -282,16 +282,18 @@ namespace TownOfHost
                     || isMushroomMixupActive
                     || rolech
                     || Options.CurrentGameMode == CustomGameMode.TaskBattle
-                    || (seerRole is IUseTheShButton) //ﾜﾝｸﾘｯｸシェイプボタン持ち
+                    //|| (seerRole is IUseTheShButton) //ﾜﾝｸﾘｯｸシェイプボタン持ち
                     || NoCache
                     || ForceLoop
                 )
                 {
-                    foreach (var target in PlayerCatch.AllPlayerControls)
+                    //死者じゃない場合タスクターン中、霊の名前を変更する必要がないので少しでも処理を減らす敵な感じで
+                    var ForeachList = isForMeeting || !seerisAlive ? PlayerCatch.AllPlayerControls : PlayerCatch.OldAlivePlayerControles;
+                    foreach (var target in ForeachList)
                     {
                         //targetがseer自身の場合は何もしない
-                        if (target == seer) continue;
-                        if (target == null) continue;
+                        if (target == seer || target == null) continue;
+
                         var targetisalive = target.IsAlive();
                         logger.Info("NotifyRoles-Loop2-" + target.GetNameWithRole().RemoveHtmlTags() + ":START");
 
@@ -316,8 +318,9 @@ namespace TownOfHost
                             //ハートマークを付ける(相手に)
                             var seerri = seer.GetRiaju();
                             var tageri = target.GetRiaju();
-                            var seerisone = seer.Is(CustomRoles.OneLove);
-                            var seenIsOne = target.Is(CustomRoles.OneLove);
+                            var seerisone = seerSubrole.Contains(CustomRoles.OneLove);
+                            var targetsubrole = target.GetCustomSubRoles();
+                            var seenIsOne = targetsubrole.Contains(CustomRoles.OneLove);
                             if (seerri == tageri && seer.IsRiaju() && !seerisone)
                                 TargetMark.Append(ColorString(GetRoleColor(seerri), "♥"));
                             else if (seer.Data.IsDead && !seer.Is(tageri) && tageri != CustomRoles.NotAssigned && !seerisone)
@@ -329,8 +332,8 @@ namespace TownOfHost
                             )
                                 TargetMark.Append("<color=#ff7961>♡</color>");
 
-                            if (seercone && target.Is(CustomRoles.Connecting) && (role is not CustomRoles.WolfBoy || !seerisAlive)
-                            || (seer.Data.IsDead && !seercone && target.Is(CustomRoles.Connecting))
+                            if (seercone && targetsubrole.Contains(CustomRoles.Connecting) && (role is not CustomRoles.WolfBoy || !seerisAlive)
+                            || (seer.Data.IsDead && !seercone && targetsubrole.Contains(CustomRoles.Connecting))
                             ) //狼少年じゃないか死亡なら処理
                                 TargetMark.Append($"<color=#96514d>Ψ</color>");
 
@@ -370,16 +373,13 @@ namespace TownOfHost
                                 TargetMark.Append(seerRole?.GetMark(seer, target, isForMeeting) ?? "");
                                 TargetSuffix.Append(seerRole?.GetSuffix(seer, target, isForMeeting: isForMeeting) ?? "");
 
-                                if (target.Is(CustomRoles.Workhorse))
+                                if (targetsubrole.Contains(CustomRoles.Workhorse))
                                 {
-                                    if (target.Is(CustomRoles.Workhorse))
+                                    if (((seerRole as Alien)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
+                                    || ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
+                                    || (role is CustomRoles.ProgressKiller && ProgressKiller.ProgressWorkhorseseen))
                                     {
-                                        if (((seerRole as Alien)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
-                                        || ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
-                                        || (seer.Is(CustomRoles.ProgressKiller) && ProgressKiller.ProgressWorkhorseseen))
-                                        {
-                                            TargetMark.Append($"<color=blue>♦</color>");
-                                        }
+                                        TargetMark.Append($"<color=blue>♦</color>");
                                     }
                                 }
                             }
@@ -391,10 +391,10 @@ namespace TownOfHost
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, isForMeeting);
                             if (isForMeeting)
                             {
-                                if (seer.Is(CustomRoles.Guesser)
-                                || (data.GiveAddons.GetBool() && data.GiveGuesser.GetBool())
-                                || (seer.Is(CustomRoles.LastImpostor) && LastImpostor.giveguesser)
-                                || (seer.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()))
+                                if (seerSubrole.Contains(CustomRoles.Guesser)
+                                || data.GiveGuesser.GetBool()
+                                || (seerSubrole.Contains(CustomRoles.LastImpostor) && LastImpostor.giveguesser)
+                                || (seerSubrole.Contains(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()))
                                 {
                                     if (seerisAlive && targetisalive && isForMeeting)
                                     {
@@ -405,12 +405,12 @@ namespace TownOfHost
 
                             string TargetDeathReason = "";
                             if (seer.KnowDeathReason(target))
-                                TargetDeathReason = $"({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})";
+                                TargetDeathReason = $"({GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor() == true ? true : null)})";
 
                             if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())
                             || (role is CustomRoles.Monochromer && seerisAlive)
                             || Camouflager.NowUse
-                            || (Options.SuddenCannotSeeName.GetBool() && !TemporaryName))
+                            || (SuddenDeathMode.SuddenCannotSeeName && !TemporaryName))
                             && (!((targetrole as Jumper)?.ability == true)))
                             {
                                 TargetPlayerName = $"<size=0>{TargetPlayerName}</size> ";

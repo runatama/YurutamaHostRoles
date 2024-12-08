@@ -190,8 +190,7 @@ namespace TownOfHost
             if (option == null) return false;
             var intopiton = option as IntegerOptionItem;
             if (intopiton == null) return false;
-            if (Options.CustomRoleSpawnChances.ContainsValue(intopiton)) return true;
-            return false;
+            return Options.CustomRoleSpawnChances.ContainsValue(intopiton);
         }
         /* オプションのgetboolの表示のやつ */
         public virtual bool OptionMeGetBool() => CurrentValue != 0;
@@ -211,8 +210,10 @@ namespace TownOfHost
 
         public string ApplyFormat(string value)
         {
-            if (value == "0" && Infinity == true) return "∞";
-            if (value == "0" && Infinity == null) return "<b>―</b>";
+            if (value == "0")
+            {
+                if (Infinity != false) return Infinity == true ? "∞" : "<b>―</b>";
+            }
             if (ValueFormat == OptionFormat.None) return value;
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }

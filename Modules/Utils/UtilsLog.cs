@@ -81,15 +81,9 @@ namespace TownOfHost
             var pos1 = pos + 4f;
             var pos2 = pos + 4f + (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8f : 4.5f);
 
-            var name = "('ω')";
-            if (LastLog.ContainsKey(pc))
-                name = LastLog[pc];
-            var pro = "(;;)";
-            if (LastLogPro.ContainsKey(pc))
-                pro = LastLogPro[pc];
-            var role = "_(:3 」∠)_";
-            if (LastLogRole.ContainsKey(pc))
-                role = LastLogRole[pc];
+            var name = LastLog.TryGetValue(pc, out var log) ? log : "('ω')";
+            var pro = LastLog.TryGetValue(pc, out var prog) ? prog : "(;;)";
+            var role = LastLog.TryGetValue(pc, out var rolelog) ? rolelog : "_(:3 」∠)_";
             var addon = "(´-ω-`)";
             addon = LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
 

@@ -58,7 +58,7 @@ public sealed class Stolener : RoleBase
         UtilsNotifyRoles.NotifyRoles();
 
         if (kier is not null)
-            if (RoleAddAddons.GetRoleAddon(CustomRoles.Stolener, out var d, null, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]) && d.GiveAddons.GetBool())
+            if (RoleAddAddons.GetRoleAddon(CustomRoles.Stolener, out var d, null, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
             {
                 if (d.GiveGuarding.GetBool()) Main.Guard[kier.PlayerId] += d.Guard.GetInt();
                 if (d.GiveSpeeding.GetBool() && !kier.Is(CustomRoles.UltraStar)) Main.AllPlayerSpeed[kier.PlayerId] = d.Speed.GetFloat();

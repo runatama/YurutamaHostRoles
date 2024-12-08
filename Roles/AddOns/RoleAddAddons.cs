@@ -75,7 +75,7 @@ namespace TownOfHost
             this.IsImpostor = role.IsImpostor();
             this.IdStart = idStart;
             this.Role = role;
-            GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn, tab, false).SetParent(Options.CustomRoleSpawnChances[role])
+            GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn || NeutralKiller, tab, false).SetParent(Options.CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
             GiveGuesser = BooleanOptionItem.Create(idStart++, "GiveGuesser", false, tab, false).SetParent(GiveAddons);
             CanGuessTime = FloatOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser)
@@ -140,6 +140,16 @@ namespace TownOfHost
         {
             return new RoleAddAddons(idStart, tab, role);
         }
+        /// <summary>
+        /// 役職付与の属性<br/>
+        /// ストルナーとかが重いため必要な分だけ取り出す<br/>
+        /// GiveAddonがfalseの場合、全てデフォルト値になるのでチェックは基本不要
+        /// </summary>
+        /// <param name="role">役職</param>
+        /// <param name="data">返すデータ</param>
+        /// <param name="player">付与されているプレイヤー</param>
+        /// <param name="subrole">必要な役職</param>
+        /// <returns></returns>
         public static bool GetRoleAddon(CustomRoles role, out RoleAddAddons data, PlayerControl player = null, params CustomRoles[] subrole)
         {
             var haveaddon = false;
