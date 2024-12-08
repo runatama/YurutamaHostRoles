@@ -172,11 +172,11 @@ namespace TownOfHost
             {
                 //通常勝利
                 case CustomWinner.Crewmate:
-                    __instance.Foreground.material.color = Palette.CrewmateBlue;
+                    __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
                     CustomWinnerColor = UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate);
                     break;
                 //特殊勝利
-                case CustomWinner.Terrorist: __instance.Foreground.material.color = Color.red; break;
+                case CustomWinner.Terrorist: __instance.BackgroundBar.material.color = Color.red; break;
                 case CustomWinner.Lovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.Lovers); break;
                 case CustomWinner.RedLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.RedLovers); break;
                 case CustomWinner.YellowLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.YellowLovers); break;

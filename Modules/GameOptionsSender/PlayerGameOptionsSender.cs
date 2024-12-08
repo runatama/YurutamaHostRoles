@@ -137,8 +137,6 @@ namespace TownOfHost.Modules
                 //    return opt;
             }
 
-            AURoleOptions.ShapeshifterLeaveSkin = roleClass?.CanDesyncShapeshift ?? false;
-
             if (player.Is(CustomRoles.MagicHand))
                 opt.SetInt(Int32OptionNames.KillDistance, MagicHand.KillDistance.GetInt());
 
@@ -245,6 +243,7 @@ namespace TownOfHost.Modules
             AURoleOptions.PhantomCooldown = Mathf.Max(1f, AURoleOptions.PhantomCooldown);
             AURoleOptions.ProtectionDurationSeconds = 0f;
             AURoleOptions.ImpostorsCanSeeProtect = false;
+            AURoleOptions.ShapeshifterLeaveSkin = false;
 
 
             //幽霊役職用の奴

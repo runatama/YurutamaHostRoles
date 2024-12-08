@@ -807,11 +807,30 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            if (DateTime.Now.Month is 12 && 20 <= DateTime.Now.Day)
             {
                 var news = new ModNews
                 {
                     Number = 100033,
+                    Title = "...てへっ！",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.24.12</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.24.12</color>",
+                    Text = "<size=80%>処理を変えすぎるとミスに気付けないぽんこつ君。\n"
+                    + "<size=125%>【バグ修正】</size>\n"
+                    + "・アウトロの試合結果が正常ではない問題の修正\n"
+                    + "・ラバー等のマークが会議中つかない問題の修正\n"
+                    + "・シェイプシフターの殻残りが残る問題の修正...?\n"
+                    + "・クルー勝利のアウトロがおかしい問題の修正\n"
+                    + "\n色々やってたら忘れることだって...ｺﾞﾒﾝﾅｻｲ\n\nぽんこつより"
+                    ,
+                    Date = "2024-12-09T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            if (DateTime.Now.Month is 12 && 20 <= DateTime.Now.Day)
+            {
+                var news = new ModNews
+                {
+                    Number = 100034,
                     Title = "このメッセージは自動的に送信(?)されている",
                     SubTitle = "<color=#00c1ff>ケーキ屋の再登場だョ!!</color>",
                     ShortTitle = "<color=#00c1ff>ケーキ屋復刻！ ~ 1/8</color>",

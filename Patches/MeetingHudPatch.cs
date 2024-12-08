@@ -386,6 +386,9 @@ public static class MeetingHudPatch
                         pva.NameText.text += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
                 }
 
+                //名前の適応　　　　　ゲッサー番号等　　名前　　　　　　　　　ラバー等のマーク
+                pva.NameText.text = fsb.ToString() + pva.NameText.text + sb.ToString();
+
                 if (list.LastOrDefault() != null)
                     if (list.LastOrDefault() == target)
                     {
