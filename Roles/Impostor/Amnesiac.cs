@@ -4,7 +4,6 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Amnesiac : RoleBase, IImpostor
@@ -29,7 +28,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
         player
     )
     {
-        CantKillImposter = OptCantKillImposter.GetBool();
+        CantKillImpostor = OptCantKillImpostor.GetBool();
         MatchSettingstoSheriff = OptMatchSettingstoSheriff.GetBool();
         omoidaseru = Optomoidaseru.GetBool();
         ImpNeedtoKill = OptImpNeedtoKill.GetBool();
@@ -46,7 +45,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
         KillCount = 0;
     }
 
-    static OptionItem OptCantKillImposter;
+    static OptionItem OptCantKillImpostor;
     static OptionItem OptMatchSettingstoSheriff;
     static OptionItem Optomoidaseru;
     static OptionItem OptImpNeedtoKill;
@@ -56,7 +55,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
     static OptionItem OptCanUseSabotage;
     static OptionItem OptIamWolfBoy;
 
-    public static bool CantKillImposter;
+    public static bool CantKillImpostor;
     public static bool MatchSettingstoSheriff;
     public static bool omoidaseru;
     public static bool ImpNeedtoKill;
@@ -74,7 +73,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
 
     enum Options
     {
-        AmnesiacCantKillImposter,
+        AmnesiacCantKillImpostor,
         AmnesiacMatchSettingstoSheriff,
         Amnesiacomoidaseru,//←がONの状態での追加設定↓
         AmnesiacImpNeedtoKill,
@@ -87,7 +86,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
 
     public static void SetupCustomOption()
     {
-        OptCantKillImposter = BooleanOptionItem.Create(RoleInfo, 10, Options.AmnesiacCantKillImposter, true, false);
+        OptCantKillImpostor = BooleanOptionItem.Create(RoleInfo, 10, Options.AmnesiacCantKillImpostor, true, false);
         OptMatchSettingstoSheriff = BooleanOptionItem.Create(RoleInfo, 11, Options.AmnesiacMatchSettingstoSheriff, true, false);
         Optomoidaseru = BooleanOptionItem.Create(RoleInfo, 12, Options.Amnesiacomoidaseru, false, false);
         OptImpNeedtoKill = BooleanOptionItem.Create(RoleInfo, 13, Options.AmnesiacImpNeedtoKill, false, false, Optomoidaseru);
@@ -117,7 +116,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
         var (killer, target) = info.AttemptTuple;
         if (!Is(killer)) return;
 
-        if (CantKillImposter && target.GetCustomRole().IsImpostor())
+        if (CantKillImpostor && target.GetCustomRole().IsImpostor())
             info.DoKill = false;
         if (omoidaseru && ImpNeedtoKill && !omoidasita)
             Omoidasu();

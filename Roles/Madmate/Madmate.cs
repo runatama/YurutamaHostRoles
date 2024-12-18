@@ -39,6 +39,6 @@ public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
     }
-    public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
 }

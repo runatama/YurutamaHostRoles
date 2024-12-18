@@ -8,7 +8,6 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
 using static TownOfHost.Modules.MeetingTimeManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Balancer : RoleBase
@@ -367,5 +366,15 @@ public sealed class Balancer : RoleBase
         target1 = 255;
         target2 = 255;
         return;
+    }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && (!GameStates.AlreadyDied || s) && seer.PlayerId == seen.PlayerId && Canuseability() && !used)
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
     }
 }

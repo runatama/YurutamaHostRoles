@@ -109,5 +109,5 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton
         MyState.DeathReason = deathReasons[OptionAbilityDeathreason.GetValue()];
         Player.RpcMurderPlayer(Player);
     }
-    public bool OverrideKillButtonText(out string text) { text = Translator.GetString("Suicide"); return true; }
+    public bool OverrideKillButtonText(out string text) { text = GetString("Suicide"); return true; }
 }

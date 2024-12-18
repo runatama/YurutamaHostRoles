@@ -203,9 +203,9 @@ public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
         }
         var addroom = "";
         adddarkenroom.Do(room => addroom += $",{DestroyableSingleton<TranslationController>.Instance.GetString(room)}");
-        return string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value) + addroom);
+        return string.Format(GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value) + addroom);
     }
-    public override string GetAbilityButtonText() => Translator.GetString("StealthAbility");
+    public override string GetAbilityButtonText() => GetString("StealthAbility");
     public override bool OverrideAbilityButton(out string text)
     {
         text = "Stealth_ability";

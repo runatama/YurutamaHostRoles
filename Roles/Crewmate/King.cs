@@ -122,7 +122,7 @@ public sealed class King : RoleBase
         {
             enabled = true;
             roleColor = StringHelper.CodeColor("#FFD700");
-            roleText = Translator.GetString("King");
+            roleText = GetString("King");
             addon = false;
         }
     }

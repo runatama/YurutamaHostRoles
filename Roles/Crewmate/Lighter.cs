@@ -83,7 +83,7 @@ public sealed class Lighter : RoleBase
         opt.SetFloat(crewLightMod, CurrentVision);
         if (TaskCompletedDisableLightOut && Utils.IsActive(SystemTypes.Electrical) && MyTaskState.IsTaskFinished)
         {
-            opt.SetFloat(crewLightMod, CurrentVision * 5);
+            opt.SetFloat(crewLightMod, CurrentVision * AURoleOptions.ElectricalCrewVision);
         }
     }
     public override bool OnCompleteTask(uint taskid)

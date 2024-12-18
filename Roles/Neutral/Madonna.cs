@@ -1,7 +1,6 @@
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 using System.Linq;
 using TownOfHost.Attributes;
 
@@ -76,6 +75,16 @@ public sealed class Madonna : RoleBase
 
     public override void Add()
         => AddS(Player);
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Limitd)
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;

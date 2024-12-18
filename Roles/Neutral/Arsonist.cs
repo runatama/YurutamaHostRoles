@@ -4,7 +4,6 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 using Hazel;
 
 namespace TownOfHost.Roles.Neutral;

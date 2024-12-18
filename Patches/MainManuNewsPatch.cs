@@ -826,11 +826,48 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            if (DateTime.Now.Month is 12 && 20 <= DateTime.Now.Day)
             {
                 var news = new ModNews
                 {
                     Number = 100034,
+                    Title = "こたつぬくぬくしてチキンを",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.24.13</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.24.13</color>",
+                    Text = "<size=80%>おひさしぶり！...いうて1週間なんもなかっただけか...()\n"
+                    + "ケーキ屋はいつか復刻するよ。\n近いうちに。\nそう。きっと。\n"
+                    + "<size=125%>【バグ修正】</size>\n"
+                    + "・URLを送信できていた問題の修正\n"
+                    + "・ゲッサーの判定がおかしい問題の修正\n"
+                    + "・敗北したプレイヤーがなぜか勝利判定になっている問題の対応\n"
+                    + "・一部役職のボタン名が正常に動作しない問題の修正\n"
+                    + "・サボタージュのクールダウン制御が動作しない問題の修正\n"
+                    + "<size=125%>【仕様変更】</size>\n"
+                    + "・死因の表示サイズを少し小さく\n"
+                    + "・停電無効役職の挙動を少し変更\n"
+                    + "・キルボタン所持役職だがキルボ不使用状態の挙動を変更\n"
+                    + "・自投票、投票で効果発揮系役職に会議中補足を入れるように\n"
+                    + "・ラバーズ、天邪鬼のプレイヤーに幽霊役職をアサインしないように\n"
+                    + "<size=125%>【新設定】</size>\n"
+                    + "・イビルトラッカーに仲間がキルした時、現場が通知される設定の追加\n"
+                    + "・シーアに遅延を付け加える設定の追加\n"
+                    + "<size=125%>【補足説明を！】</size>\n"
+                    + "テンプレート機能を使用して\n/mとかに補足で説明を付け加えることができます\n"
+                    + "やりかたはtemplate.txtに役職名:追記するもの\n"
+                    + "って記載して保存！\n"
+                    + "例えば、\n"
+                    + "Shyboy:はずかしがりやさん。"
+                    + "\nとかね。"
+                    + "\n\nさむいっすねぇ\n暖房ついてたら眠いし...\nﾌﾕﾔﾊﾞｲﾅ...\nとりあえずあったかいきつねうどんを\nよーらんより"
+                    ,
+                    Date = "2024-12-18T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            if (DateTime.Now.Month is 12 && 20 <= DateTime.Now.Day)
+            {
+                var news = new ModNews
+                {
+                    Number = 100035,
                     Title = "このメッセージは自動的に送信(?)されている",
                     SubTitle = "<color=#00c1ff>ケーキ屋の再登場だョ!!</color>",
                     ShortTitle = "<color=#00c1ff>ケーキ屋復刻！ ~ 1/8</color>",
@@ -849,7 +886,7 @@ public class ModNewsHistory
             {
                 var news = new ModNews
                 {
-                    Number = 100035,
+                    Number = 100036,
                     Title = "謹賀新年",
                     SubTitle = "<color=#00c1ff>Town Of Host-K</color>",
                     ShortTitle = "<color=#00c1ff>TOH-Kからの御挨拶</color>",

@@ -233,10 +233,10 @@ namespace TownOfHost
         public static OptionItem CanseeCrewTimeLimit;
         public static OptionItem CanseeNeuTimeLimit;
 
-        public static OptionItem TarnTimeLimitDevice;
-        public static OptionItem TarnTimeLimitAdmin;
-        public static OptionItem TarnTimeLimitCamAndLog;
-        public static OptionItem TarnTimeLimitVital;
+        public static OptionItem TurnTimeLimitDevice;
+        public static OptionItem TurnTimeLimitAdmin;
+        public static OptionItem TurnTimeLimitCamAndLog;
+        public static OptionItem TurnTimeLimitVital;
 
         // ランダムマップ
         public static OptionItem RandomMapsMode;
@@ -931,16 +931,16 @@ namespace TownOfHost
             CanseeNeuTimeLimit = BooleanOptionItem.Create(109054, "CanseeNeuTimeLimit", false, TabGroup.MainSettings, false)
             .SetGameMode(CustomGameMode.Standard).SetColor(Palette.DisabledGrey).SetParent(CanSeeTimeLimit);
 
-            TarnTimeLimitDevice = BooleanOptionItem.Create(109100, "TarnTimeLimitDevice", false, TabGroup.MainSettings, false)
+            TurnTimeLimitDevice = BooleanOptionItem.Create(109100, "TurnTimeLimitDevice", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#b06927")
                 .SetParent(DevicesOption);
-            TarnTimeLimitAdmin = FloatOptionItem.Create(109101, "TimeLimitAdmin", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
-            .SetGameMode(CustomGameMode.Standard).SetColorcode("#00ff99").SetValueFormat(OptionFormat.Seconds).SetParent(TarnTimeLimitDevice);
-            TarnTimeLimitCamAndLog = FloatOptionItem.Create(109102, "TimeLimitCamAndLog", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
-                            .SetGameMode(CustomGameMode.Standard).SetColorcode("#cccccc").SetValueFormat(OptionFormat.Seconds).SetParent(TarnTimeLimitDevice);
-            TarnTimeLimitVital = FloatOptionItem.Create(109103, "TimeLimitVital", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
-                            .SetGameMode(CustomGameMode.Standard).SetColorcode("#33ccff").SetValueFormat(OptionFormat.Seconds).SetParent(TarnTimeLimitDevice);
+            TurnTimeLimitAdmin = FloatOptionItem.Create(109101, "TimeLimitAdmin", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+            .SetGameMode(CustomGameMode.Standard).SetColorcode("#00ff99").SetValueFormat(OptionFormat.Seconds).SetParent(TurnTimeLimitDevice);
+            TurnTimeLimitCamAndLog = FloatOptionItem.Create(109102, "TimeLimitCamAndLog", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                            .SetGameMode(CustomGameMode.Standard).SetColorcode("#cccccc").SetValueFormat(OptionFormat.Seconds).SetParent(TurnTimeLimitDevice);
+            TurnTimeLimitVital = FloatOptionItem.Create(109103, "TimeLimitVital", new(0f, 300f, 1), 20f, TabGroup.MainSettings, false, true)
+                            .SetGameMode(CustomGameMode.Standard).SetColorcode("#33ccff").SetValueFormat(OptionFormat.Seconds).SetParent(TurnTimeLimitDevice);
 
             //サボ
             Sabotage = BooleanOptionItem.Create(100800, "Sabotage", false, TabGroup.MainSettings, false)
@@ -988,15 +988,12 @@ namespace TownOfHost
             CommsSpecialSettings = BooleanOptionItem.Create(100812, "CommsSpecialSettings", false, TabGroup.MainSettings, false).SetParent(Sabotage)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#999999");
-            CommsCamouflage = BooleanOptionItem.Create(100816, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
-                .SetGameMode(CustomGameMode.Standard);
             CommsDonttouch = BooleanOptionItem.Create(100814, "CommsDonttouch", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
             CommsDonttouchTime = FloatOptionItem.Create(100815, "CommsDonttouchTime", new(0f, 180f, 0.5f), 3.0f, TabGroup.MainSettings, false).SetParent(CommsDonttouch)
-            .SetGameMode(CustomGameMode.Standard).SetValueFormat(OptionFormat.Seconds);
-            //CommRepo = BooleanOptionItem.Create(227, "CommRepo", false, TabGroup.MainSettings, false).SetParent(Sabotage)
-            //    .SetGameMode(CustomGameMode.Standard);
-
+                .SetGameMode(CustomGameMode.Standard).SetValueFormat(OptionFormat.Seconds);
+            CommsCamouflage = BooleanOptionItem.Create(100816, "CommsCamouflage", false, TabGroup.MainSettings, false).SetParent(CommsSpecialSettings)
+                .SetGameMode(CustomGameMode.Standard);
             // 停電の特殊設定
             LightsOutSpecialSettings = BooleanOptionItem.Create(101500, "LightsOutSpecialSettings", false, TabGroup.MainSettings, false).SetParent(Sabotage)
                 .SetGameMode(CustomGameMode.Standard)

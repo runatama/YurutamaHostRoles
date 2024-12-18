@@ -22,6 +22,10 @@ namespace TownOfHost
         // 単独勝利するニュートラルの処理に最適です。
         public static HashSet<byte> WinnerIds;
 
+        // 元役職に関わらず敗北するPlayerIdが格納され、
+        // このID持つプレイヤーは問答無用で負けます
+        public static HashSet<byte> IdRemoveLovers;
+
         [GameModuleInitializer, PluginModuleInitializer]
         public static void Reset()
         {
@@ -29,11 +33,12 @@ namespace TownOfHost
             AdditionalWinnerRoles = new();
             WinnerRoles = new();
             WinnerIds = new();
+            IdRemoveLovers = new();
             GameStates.Meeting = false;
         }
         public static void ClearWinners()
         {
-
+            IdRemoveLovers.Clear();
             WinnerRoles.Clear();
             WinnerIds.Clear();
         }
@@ -75,6 +80,10 @@ namespace TownOfHost
             foreach (var id in WinnerIds)
                 writer.Write(id);
 
+            writer.WritePacked(IdRemoveLovers.Count);
+            foreach (var lid in IdRemoveLovers)
+                writer.Write(lid);
+
             return writer;
         }
         public static void ReadFrom(MessageReader reader)
@@ -95,6 +104,11 @@ namespace TownOfHost
             int WinnerIdsCount = reader.ReadPackedInt32();
             for (int i = 0; i < WinnerIdsCount; i++)
                 WinnerIds.Add(reader.ReadByte());
+
+            IdRemoveLovers = new();
+            int IdRemoveLoversCount = reader.ReadPackedInt32();
+            for (int i = 0; i < IdRemoveLoversCount; i++)
+                IdRemoveLovers.Add(reader.ReadByte());
         }
     }
 }

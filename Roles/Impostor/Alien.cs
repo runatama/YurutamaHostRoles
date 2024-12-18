@@ -7,7 +7,6 @@ using UnityEngine;
 using TownOfHost.Modules;
 using Hazel;
 using System.Text;
-using static TownOfHost.Translator;
 using HarmonyLib;
 
 namespace TownOfHost.Roles.Impostor;
@@ -127,7 +126,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 builder.Append(entry.TotalPlayers);
                 if (entry.NumDeadBodies > 0)
                 {
-                    builder.Append('(').Append(Translator.GetString("Deadbody"));
+                    builder.Append('(').Append(GetString("Deadbody"));
                     builder.Append('×').Append(entry.NumDeadBodies).Append(')');
                 }
                 m.Append(builder);

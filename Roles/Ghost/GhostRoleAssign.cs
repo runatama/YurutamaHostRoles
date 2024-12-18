@@ -115,8 +115,8 @@ namespace TownOfHost.Roles.Ghost
                 if (AP.Count == 0) continue;
                 var pc = AP[rnd.Next(AP.Count)];
 
-                //ラバーで、ニュートラルに付与されない
-                if (pc.IsRiaju() && !(data.RoleType == CustomRoleTypes.Neutral || data.kottinimofuyo == CustomRoleTypes.Neutral))
+                //ラバー or 天邪鬼の場合、勝利条件がくっっっっっそややこしなるから付与しない
+                if (pc.IsRiaju() || pc.Is(CustomRoles.Amanojaku))
                 {
                     AP.Remove(pc);
                     continue;

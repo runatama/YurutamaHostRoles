@@ -7,7 +7,6 @@ using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton

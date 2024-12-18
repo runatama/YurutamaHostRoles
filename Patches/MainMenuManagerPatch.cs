@@ -171,7 +171,7 @@ namespace TownOfHost
                             () =>
                             {
                                 if (release.DownloadUrl != null)
-                                    ModUpdater.StartUpdate(release.DownloadUrl);
+                                    ModUpdater.StartUpdate(release.DownloadUrl, release.OpenURL);
                             },
                             "v" + release.TagName.TrimStart('v').Trim('S').Trim('s') + (release.DownloadUrl == null ? "(ERROR)" : ""));
                             i++;

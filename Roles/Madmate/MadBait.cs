@@ -40,8 +40,8 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         BaitChien, Baitsaidaichien,
         MadBaitRandomReport, MadBaitIgnoreImpostor
     }
-    public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
     public static void SetupOptionItem()
     {
         RandomRepo = BooleanOptionItem.Create(RoleInfo, 10, Option.MadBaitRandomReport, true, false);

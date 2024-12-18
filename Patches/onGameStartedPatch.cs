@@ -161,7 +161,6 @@ namespace TownOfHost
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
             ChatManager.ResetChat();
             SuddenDeathMode.Reset();
-            PlayerControlPhantomPatch.cantuse.Clear();
             Main.FixTaskNoPlayer.Clear();
             Camouflage.ventplayr.Clear();
             PlayerCatch.OldAlivePlayerControles.Clear();

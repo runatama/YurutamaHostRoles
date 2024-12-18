@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class AmateurTeller : RoleBase
@@ -39,7 +38,7 @@ public sealed class AmateurTeller : RoleBase
         targetcanseearrow = TargetCanseeArrow.GetBool();
         targetcanseeplayer = TargetCanseePlayer.GetBool();
         canseerole = OptionRole.GetBool();
-        canusebutton = AbilityUseTarnCanButton.GetBool();
+        canusebutton = AbilityUseTurnCanButton.GetBool();
     }
 
     static OptionItem OptionMaximum;
@@ -49,7 +48,7 @@ public sealed class AmateurTeller : RoleBase
     static OptionItem Kakusei;
     static OptionItem TargetCanseeArrow;
     static OptionItem TargetCanseePlayer;
-    static OptionItem AbilityUseTarnCanButton;
+    static OptionItem AbilityUseTurnCanButton;
     public VoteMode Votemode;
     static bool canusebutton;
     static bool canseerole;
@@ -71,7 +70,7 @@ public sealed class AmateurTeller : RoleBase
         Votemode,
         tRole,
         AmateurTellerTargetCanseeArrow,
-        AmateurTellerCanUseAbilityTarnButton,
+        AmateurTellerCanUseAbilityTurnButton,
         AmateurTellerTargetCanseePlayer
     }
     public enum VoteMode
@@ -97,7 +96,7 @@ public sealed class AmateurTeller : RoleBase
         OptionRole = BooleanOptionItem.Create(RoleInfo, 12, Option.tRole, true, false);
         TargetCanseePlayer = BooleanOptionItem.Create(RoleInfo, 13, Option.AmateurTellerTargetCanseePlayer, true, false);
         TargetCanseeArrow = BooleanOptionItem.Create(RoleInfo, 14, Option.AmateurTellerTargetCanseeArrow, true, false, TargetCanseePlayer);
-        AbilityUseTarnCanButton = BooleanOptionItem.Create(RoleInfo, 15, Option.AmateurTellerCanUseAbilityTarnButton, true, false);
+        AbilityUseTurnCanButton = BooleanOptionItem.Create(RoleInfo, 15, Option.AmateurTellerCanUseAbilityTurnButton, true, false);
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 16, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
         Kakusei = BooleanOptionItem.Create(RoleInfo, 17, GeneralOption.UKakusei, true, false);
     }
@@ -188,6 +187,16 @@ public sealed class AmateurTeller : RoleBase
             else
             if (seer.PlayerId == tell.UseTarget && seen == tell.Player)
                 return "<color=#6b3ec3>★</color>";
+        }
+        return "";
+    }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && kakusei && seer.PlayerId == seen.PlayerId && Canuseability() && maximum > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == VoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
         }
         return "";
     }

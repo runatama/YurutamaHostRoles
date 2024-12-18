@@ -136,7 +136,7 @@ public sealed class Shyboy : RoleBase
         AfterMeeting = 0;
     }
 
-    public override string GetAbilityButtonText() => Translator.GetString("ShyBoyText");
+    public override string GetAbilityButtonText() => GetString("ShyBoyText");
     public override bool OverrideAbilityButton(out string text)
     {
         text = "ShyBoy_Ability";

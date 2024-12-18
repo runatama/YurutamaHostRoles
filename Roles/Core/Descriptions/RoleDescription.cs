@@ -76,6 +76,12 @@ public abstract class RoleDescription
                 builder.AppendFormat("<size={0}>{1}\n", InfoSize, Translator.GetString("Settings"));
                 builder.AppendFormat("<line-height=1.0pic><size={0}>{1}", "50%", sb);
             }
+            var temp = TemplateManager.GetTemplate($"{RoleInfo.RoleName}");
+            if (temp != "")
+            {
+                builder.AppendFormat("</line-height><line-height=1.3pic>\n<size={0}>{1}</size>\n", InfoSize, Translator.GetString("RoleTemplate"));
+                builder.Append($"{temp}");
+            }
             return builder.ToString();
         }
     }

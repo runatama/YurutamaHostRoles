@@ -111,7 +111,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     public float CalculateKillCooldown() => KillCoolDown;
     public override bool OverrideAbilityButton(out string text)
     {
-        text = Translator.GetString("Modechenge");
+        text = GetString("Modechenge");
         return true;
     }
 }

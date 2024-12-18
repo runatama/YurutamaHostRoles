@@ -40,19 +40,18 @@ public sealed class Curser : RoleBase, IImpostor
     byte TargetId;
     enum OptionName
     {
-        TKillCooldown,
-        NroiCunt,
-        Cooldown
+        CurserTKillCooldown,
+        CurserNroiCunt
     }
     private static void SetupCustomOption()
     {
-        OptionTKillCooldown = FloatOptionItem.Create(RoleInfo, 9, OptionName.TKillCooldown, OptionBaseCoolTime, 20f, false)
+        OptionTKillCooldown = FloatOptionItem.Create(RoleInfo, 9, OptionName.CurserTKillCooldown, OptionBaseCoolTime, 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, OptionBaseCoolTime, 30f, false)
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionNroiCunt = FloatOptionItem.Create(RoleInfo, 12, OptionName.NroiCunt, new(1, 15, 1), 2, false);
+        OptionNroiCunt = FloatOptionItem.Create(RoleInfo, 12, OptionName.CurserNroiCunt, new(1, 15, 1), 2, false);
     }
     private void SetTarget(byte targetId)
     {
@@ -103,7 +102,7 @@ public sealed class Curser : RoleBase, IImpostor
         if (!Is(seer) || !Is(seen)) return "";
 
         var target = PlayerCatch.GetPlayerById(TargetId);
-        return target != null ? $"{(isForHud ? Translator.GetString("CurserCurrentTarget") : "Target")}:{Utils.GetPlayerColor(target.PlayerId)}" : "";
+        return target != null ? $"{(isForHud ? GetString("CurserCurrentTarget") : "Target")}:{Utils.GetPlayerColor(target.PlayerId)}" : "";
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool _ = false)
     {

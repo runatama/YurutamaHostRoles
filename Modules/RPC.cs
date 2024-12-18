@@ -25,8 +25,6 @@ namespace TownOfHost
         SetMadonnaLovers,
         SyncRoomTimer,
         SyncYomiage,
-        Guess,
-        GuessKill,
         DevExplosion,
         ModUnload,
         CustomRoleSync
@@ -157,12 +155,6 @@ namespace TownOfHost
                         _ = GameStartManagerPatch.SetTimer(timer - 0.5f);
                     else _ = GameStartManagerPatch.SetTimer(0);
                     Logger.Info($"{timer - 0.5f}", "settimer");
-                    break;
-                case CustomRPC.Guess:
-                    GuessManager.ReceiveRPC(reader, __instance);
-                    break;
-                case CustomRPC.GuessKill:
-                    GuessManager.RpcClientGuess(PlayerCatch.GetPlayerById(reader.ReadByte()));
                     break;
                 case CustomRPC.SyncYomiage:
                     if (Main.SyncYomiage.Value)

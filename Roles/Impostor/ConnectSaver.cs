@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 using static TownOfHost.Modules.SelfVoteManager;
 using UnityEngine;
 using System.Linq;
@@ -88,8 +87,20 @@ public sealed class ConnectSaver : RoleBase, IImpostor
         Player.SyncSettings();
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(Max <= cont ? Color.gray : Palette.ImpostorRed, $"({Max - cont})");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (PlayerCatch.AllAlivePlayerControls.Count() < OptionNinzu.GetInt()) return "";
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Max > cont)
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
+        if (!Canuseability()) return true;
         if (Madmate.MadAvenger.Skill) return true;
         if (PlayerCatch.AllAlivePlayerControls.Count() < OptionNinzu.GetInt()) return true;
         if (Is(voter) && Max > cont && (P1 == byte.MaxValue || P2 == byte.MaxValue))

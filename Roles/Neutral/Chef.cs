@@ -4,7 +4,6 @@ using Hazel;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Chef : RoleBase, IKiller, IAdditionalWinner

@@ -41,8 +41,8 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         MadReduecdVote
     }
 
-    public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
 
     public static void SetupOptionItem()
     {
@@ -98,7 +98,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         if (Skill)
         {
             var T = PlayerCatch.GetPlayerById(forvote);
-            Voteresult += string.Format(Translator.GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote}</b>");
+            Voteresult += string.Format(GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote}</b>");
         }
     }
 }

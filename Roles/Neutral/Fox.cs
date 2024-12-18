@@ -6,7 +6,6 @@ using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Fox : RoleBase, ISystemTypeUpdateHook
@@ -231,7 +230,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
     {
         seen ??= seer;
         if (isForMeeting || seer != seen || !Player.IsAlive() || FoxRoom == null) return "";
-        return $"<color=#d288ee><b>{GetString($"{FoxRoom}")}<b></color>{GetString("FoxRoomMission")}";
+        return $"<color=#d288ee>{string.Format(GetString("FoxRoomMission"), $"<b>{GetString($"{FoxRoom}")}<b>")}</color>";
     }
     public bool FoxCheckWin(ref GameOverReason reason)
     {

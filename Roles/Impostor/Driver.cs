@@ -81,8 +81,8 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         Braid.Tasks = Options.OverrideTasksData.Create(RoleInfo, 50, CustomRoles.Braid);
     }
 
-    public bool CheckKillFlash(MurderInfo info) => Braid.DriverseeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => Braid.Driverseedeathreason;
+    public bool? CheckKillFlash(MurderInfo info) => Braid.DriverseeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => Braid.Driverseedeathreason;
     public override void ApplyGameOptions(IGameOptions opt)
     {
         //匿名投票
@@ -106,7 +106,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             killer.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(target);
             info.CanKill = false;
-            UtilsGameLog.AddGameLog($"Driver", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+            UtilsGameLog.AddGameLog($"Driver", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Guard}回", "Driver");
             UtilsNotifyRoles.NotifyRoles();
         }

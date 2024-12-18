@@ -74,9 +74,11 @@ namespace TownOfHost.Roles.Impostor
         }
         public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
+            if (BomberExplosion <= 0) return;
             fall = true;
             var target = Player.GetKillTarget();
-            if (BomberExplosion <= 0 || target == null || BomberExplosionPlayers.ContainsKey(target.PlayerId)) return;
+            Logger.Info($"{Player?.Data?.PlayerName ?? "???"} => {target?.Data?.PlayerName ?? "失敗"}", "Bomber");
+            if (target == null || BomberExplosionPlayers.ContainsKey(target?.PlayerId ?? byte.MaxValue)) return;
 
             resetkillcooldown = true;
             if (target.Is(CustomRoles.King)) return;
@@ -134,6 +136,8 @@ namespace TownOfHost.Roles.Impostor
             text = "Bomber_Ability";
             return true;
         }
+        public override string GetAbilityButtonText()
+            => GetString("BomberAbilitytext");
         public override void ApplyGameOptions(IGameOptions opt)
         {
             AURoleOptions.PhantomCooldown = Cooldown;

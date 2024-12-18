@@ -17,7 +17,7 @@ namespace TownOfHost.Modules
         }
         public static void AddS(PlayerControl player)
         {
-            CheckVote.Add(player.PlayerId, false);
+            CheckVote.TryAdd(player.PlayerId, false);
         }
 
         public enum VoteStatus

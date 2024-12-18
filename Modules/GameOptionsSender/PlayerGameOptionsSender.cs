@@ -181,28 +181,42 @@ namespace TownOfHost.Modules
             }
 
             var isElectrical = Utils.IsActive(SystemTypes.Electrical);
+
             //Moon
             if (HasMoon)
-                if (isElectrical) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * 5f); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision * 5f); }
+                if (isElectrical)
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision * AURoleOptions.ElectricalCrewVision);
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
+                }
 
+            //ホストだとまだﾋﾟｯｶｰﾝしちゃうのどうにかしたい。
             //Lighting
             if (HasLithing)
             {
-                if (isElectrical && HasMoon) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * 5f); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision * 5f); }
+                if (isElectrical && HasMoon)
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision * (role.GetRoleTypes().IsCrewmate() ? AURoleOptions.ElectricalCrewVision : 5f));
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
+                }
                 else//停電時はクルー視界
-                if (isElectrical) { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision); }
-                else { opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision); opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision); };
+                if (isElectrical)
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision);
+                }
+                else
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision);
+                    opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
+                };
             }
 
             //キルクール0に設定+修正する設定をONにしたと気だけ呼び出す。
-            if (FixZeroKillCooldown.GetBool() && AURoleOptions.KillCooldown == 0 && Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var ZerokillCooldown))
-            {//0に限りなく近い小数にしてキルできない状態回避する
-                AURoleOptions.KillCooldown = Mathf.Max(0.00000000000000000000000000000000000000000001f, ZerokillCooldown);
-            }
-            else
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
             {
-                AURoleOptions.KillCooldown = Mathf.Max(0f, killCooldown);
+                //設定が有効で、キルボタンが使用可能の時は最小0.000...1　設定無効 or キルボタンが使用不可なら最小0
+                AURoleOptions.KillCooldown = Mathf.Max(FixZeroKillCooldown.GetBool() && ((roleClass as IKiller)?.CanUseKillButton() == true) ? 0.00000000000000000000000000000000000000000001f : 0f, killCooldown);
             }
             if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
             {

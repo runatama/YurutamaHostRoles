@@ -66,6 +66,6 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         }
         return true;
     }
-    public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
 }

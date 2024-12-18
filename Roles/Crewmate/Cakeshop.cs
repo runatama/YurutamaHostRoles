@@ -70,7 +70,7 @@ public sealed class Cakeshop : RoleBase, INekomata
         seen ??= seer;
         if (seen != seer) return "";
         if (isForMeeting) return "";
-        return Addedaddons.TryGetValue(seen.PlayerId, out var role) ? $"<size=50%>{Utils.ColorString(UtilsRoleText.GetRoleColor(role), Translator.GetString($"{role}Info"))}</size>" : "";
+        return Addedaddons.TryGetValue(seen.PlayerId, out var role) ? $"<size=50%>{Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}Info"))}</size>" : "";
     }
 
     public bool DoRevenge(CustomDeathReason deathReason)

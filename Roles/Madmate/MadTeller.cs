@@ -6,7 +6,6 @@ using System;
 using TownOfHost.Roles.Core;
 
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Madmate;
 public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
@@ -49,8 +48,8 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static OptionItem OptionRole;
     private static OptionItem OptionVoteMode;
     private static OptionItem Option1MeetingMaximum;
-    public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
     private static Options.OverrideTasksData Tasks;
     public float collect;
     public bool srole;
@@ -102,6 +101,16 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     bool Check() => MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt());
     public override void OnStartMeeting() => mcount = 0;
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!Check() ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && Check())
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == VoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;

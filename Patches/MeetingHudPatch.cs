@@ -202,7 +202,12 @@ public static class MeetingHudPatch
                     if (list[0].PlayerId == pc.PlayerId)
                     {
                         MeetingInfo.enabled = true;
-                        MeetingInfo.text = $"<color=#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
+                        MeetingInfo.text = $"<color=#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}";
+                        if (CustomRolesHelper.CheckGuesser() || PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Guesser)))
+                        {
+                            MeetingInfo.text = $"<size=50%>\n </size>{MeetingInfo.text}\n<size=50%><color=#999900>{GetString("GuessInfo")}</color></size>";
+                        }
+                        MeetingInfo.text += "<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
                     }
             }
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.OnStartMeeting());
@@ -316,7 +321,7 @@ public static class MeetingHudPatch
                 //とりあえずSnitchは会議中にもインポスターを確認することができる仕様にしていますが、変更する可能性があります。
 
                 if (seer.KnowDeathReason(target))
-                    sb.Append($"({Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})");
+                    sb.Append($"<size=75%>({Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})</size>");
 
                 if (Amnesia.CheckAbility(seer))
                     sb.Append(seerRole?.GetMark(seer, target, true));
@@ -345,23 +350,16 @@ public static class MeetingHudPatch
                     switch (subRole)
                     {
                         case CustomRoles.Guesser:
-                            if (!seer.Is(CustomRoles.Guesser)) continue;
-                            if (!seer.Data.IsDead && target == seer)
-                                fsb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                                 fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             continue;
                         case CustomRoles.LastImpostor:
                             if (!LastImpostor.giveguesser) continue;
-                            if (!seer.Data.IsDead && target == seer)
-                                fsb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                                 fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             continue;
                         case CustomRoles.LastNeutral:
                             if (!LastNeutral.GiveGuesser.GetBool()) continue;
-                            if (!seer.Data.IsDead && target == seer)
-                                fsb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                             if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                                 fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                             continue;
@@ -372,10 +370,8 @@ public static class MeetingHudPatch
                             continue;
                     }
                 }
-                if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer) && data.GiveGuesser.GetBool())
+                if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.Guesser) && data.GiveGuesser.GetBool())
                 {
-                    if (!seer.Data.IsDead && target == seer)
-                        fsb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Guesser), $"<line-height=100%><size=50%>{GetString("GuessInfo")}</size>\n"));
                     if (!seer.Data.IsDead && !target.Data.IsDead && target != seer)
                         fsb.Append(Utils.ColorString(Color.yellow, target.PlayerId.ToString()) + " ");
                 }
@@ -383,7 +379,7 @@ public static class MeetingHudPatch
                 if (Options.CanSeeNextRandomSpawn.GetBool() && seer == target)
                 {
                     if (RandomSpawn.SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
-                        pva.NameText.text += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
+                        pva.NameText.text += $"<size=40%><color=#9ae3bd>〔{r}〕</size></color>";
                 }
 
                 //名前の適応　　　　　ゲッサー番号等　　名前　　　　　　　　　ラバー等のマーク

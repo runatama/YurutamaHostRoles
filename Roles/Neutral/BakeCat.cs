@@ -216,7 +216,7 @@ namespace TownOfHost.Roles.Neutral
             NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
             NameColorManager.Add(Player.PlayerId, killer.PlayerId);
 
-            UtilsGameLog.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+            UtilsGameLog.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             UtilsGameLog.LastLogRole[Player.PlayerId] = UtilsGameLog.LastLogRole[Player.PlayerId].RemoveColorTags().Color(DisplayRoleColor);
         }
         public override CustomRoles Jikaku() => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;

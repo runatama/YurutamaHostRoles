@@ -820,20 +820,27 @@ namespace TownOfHost
                 return true;
             }
 
-            if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || LastImpostor.ACanSeeComms.GetBool();
-            if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || LastNeutral.ACanSeeComms.GetBool();
-
-            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.Autopsy))
-                if (data.GiveAutopsy.GetBool()) return !Utils.IsActive(SystemTypes.Comms) || data.ACanSeeComms.GetBool();
+            var check = false;
 
             // 役職による仕分け
             if (seer.GetRoleClass() is IDeathReasonSeeable deathReasonSeeable)
             {
                 if (Amnesia.CheckAbility(seer))
-                    return deathReasonSeeable.CheckSeeDeathReason(seen);
+                {
+                    var role = deathReasonSeeable.CheckSeeDeathReason(seen);
+                    if (role is null) return false;
+                    check |= role is true;
+                }
             }
+
+            if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.GiveAutopsy.GetBool()) check |= !Utils.IsActive(SystemTypes.Comms) || LastImpostor.ACanSeeComms.GetBool();
+            if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.GiveAutopsy.GetBool()) check |= !Utils.IsActive(SystemTypes.Comms) || LastNeutral.ACanSeeComms.GetBool();
+
+            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.Autopsy))
+                if (data.GiveAutopsy.GetBool()) check |= !Utils.IsActive(SystemTypes.Comms) || data.ACanSeeComms.GetBool();
+
             // IDeathReasonSeeable未対応役職はこちら
-            return
+            return check ||
             (seer.Is(CustomRoleTypes.Madmate) && Options.MadmateCanSeeDeathReason.GetBool())
             || (seer.Is(CustomRoles.Autopsy) && (!Utils.IsActive(SystemTypes.Comms) || Autopsy.CanSeeComms.GetBool()));
         }

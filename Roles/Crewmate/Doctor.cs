@@ -49,7 +49,7 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
         AURoleOptions.ScientistCooldown = 0.1f;
         AURoleOptions.ScientistBatteryCharge = TaskCompletedBatteryCharge;
     }
-    public bool CheckSeeDeathReason(PlayerControl seen)//IDeathReasonSeeable
+    public bool? CheckSeeDeathReason(PlayerControl seen)//IDeathReasonSeeable
     {
         return !Utils.IsActive(SystemTypes.Comms) || CanseeComms;
     }

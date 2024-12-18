@@ -6,7 +6,8 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
+using System;
+using System.Linq;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -32,6 +33,8 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         player
     )
     {
+        EvilTrackers.Clear();
+        canSeeMurderRoom = OptionCanSeeMurderRoom.GetBool();
         CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
         CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
         CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
@@ -51,9 +54,12 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
                 TargetArrow.Add(playerId, targetId);
             }
         }
+
+        CustomRoleManager.OnMurderPlayerOthers.Add(HandleMurderRoomNotify);
     }
 
     private static BooleanOptionItem OptionCanSeeKillFlash;
+    private static BooleanOptionItem OptionCanSeeMurderRoom;
     private static StringOptionItem OptionTargetMode;
     private static BooleanOptionItem OptionCanSeeLastRoomInMeeting;
     private static BooleanOptionItem OptionCanCreateSideKick;
@@ -63,8 +69,10 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         EvilTrackerCanSeeKillFlash,
         EvilTrackerTargetMode,
         EvilTrackerCanSeeLastRoomInMeeting,
+        EvilHackerCanSeeMurderRoom//イビハの設定流用だから...
     }
     public static bool CanSeeKillFlash;
+    static bool canSeeMurderRoom;
     private static TargetMode CurrentTargetMode;
     public static bool CanSeeLastRoomInMeeting;
     private static bool CanCreateSideKick;
@@ -72,7 +80,8 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     public byte TargetId;
     public bool CanSetTarget;
     private HashSet<byte> ImpostorsId = new(3);
-
+    static HashSet<EvilTracker> EvilTrackers = new();
+    private HashSet<EvilHacker.MurderNotify> activeNotifies = new(2);
     private enum TargetMode
     {
         Never,
@@ -101,16 +110,24 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         /// ターゲットを設定する
         /// </summary>
         SetTarget,
+        /// <summary>
+        /// インポスターがキルした時に受け取るRPC
+        /// </summary>
+        ImpostorKill
     }
 
     private static void SetupOptionItem()
     {
         OptionCanSeeKillFlash = BooleanOptionItem.Create(RoleInfo, 10, OptionName.EvilTrackerCanSeeKillFlash, true, false);
+        OptionCanSeeMurderRoom = BooleanOptionItem.Create(RoleInfo, 14, OptionName.EvilHackerCanSeeMurderRoom, false, false, OptionCanSeeKillFlash);
         OptionTargetMode = StringOptionItem.Create(RoleInfo, 11, OptionName.EvilTrackerTargetMode, TargetModeText, 2, false);
         OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, false, false, OptionTargetMode);
         OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.EvilTrackerCanSeeLastRoomInMeeting, false, false);
     }
-    public bool CheckKillFlash(MurderInfo info) // IKillFlashSeeable
+    public override void Add() => EvilTrackers.Add(this);
+    public override void OnDestroy() => EvilTrackers.Remove(this);
+
+    public bool? CheckKillFlash(MurderInfo info) // IKillFlashSeeable
     {
         if (!CanSeeKillFlash) return false;
 
@@ -131,6 +148,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
             case TargetOperation.ReEnableTargeting: ReEnableTargeting(); break;
             case TargetOperation.RemoveTarget: RemoveTarget(); break;
             case TargetOperation.SetTarget: SetTarget(reader.ReadByte()); break;
+            case TargetOperation.ImpostorKill: CreateMurderNotify((SystemTypes)reader.ReadByte()); break;
             default: Logger.Warn($"不明なオペレーション: {operation}", nameof(EvilTracker)); break;
         }
     }
@@ -230,7 +248,12 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         }
         else
         {
-            return GetArrows(seen);
+            if (!canSeeMurderRoom || seer != Player || seen != Player || activeNotifies.Count <= 0)
+            {
+                return GetArrows(seen);
+            }
+            var roomNames = activeNotifies.Select(notify => DestroyableSingleton<TranslationController>.Instance.GetString(notify.Room));
+            return GetArrows(seen) + "\n" + Utils.ColorString(Color.green, $"{GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
         }
     }
     private string GetArrows(PlayerControl seen)
@@ -271,5 +294,74 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         }
 
         return text;
+    }
+    /// <summary>相方がキルした部屋を通知する設定がオンなら各プレイヤーに通知を行う</summary>
+    private static void HandleMurderRoomNotify(MurderInfo info)
+    {
+        if (canSeeMurderRoom)
+        {
+            foreach (var evilTracker in EvilTrackers)
+            {
+                // 生きてる間に相方のキルでキルフラが鳴った場合に通知を出す
+                if (!evilTracker.Player.IsAlive() || !(CanSeeKillFlash && !info.IsSuicide && !info.IsAccident && info.AttemptKiller.Is(CustomRoleTypes.Impostor)) || info.AttemptKiller == evilTracker.Player)
+                    return;
+
+                evilTracker.RpcCreateMurderNotify(info.AttemptTarget.GetPlainShipRoom()?.RoomId ?? SystemTypes.Hallway);
+            }
+        }
+    }
+
+    private void RpcCreateMurderNotify(SystemTypes room)
+    {
+        CreateMurderNotify(room);
+        if (AmongUsClient.Instance.AmHost)
+        {
+            using var sender = CreateSender();
+            sender.Writer.Write((byte)TargetOperation.ImpostorKill);
+            sender.Writer.Write((byte)room);
+        }
+    }
+    /// <summary>
+    /// 名前の下にキル発生通知を出す
+    /// </summary>
+    /// <param name="room">キルが起きた部屋</param>
+    private void CreateMurderNotify(SystemTypes room)
+    {
+        activeNotifies.Add(new()
+        {
+            CreatedAt = DateTime.Now,
+            Room = room,
+        });
+        if (AmongUsClient.Instance.AmHost)
+        {
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        }
+    }
+    public override void OnFixedUpdate(PlayerControl player)
+    {
+        // 古い通知の削除処理 Mod入りは自分でやる
+        if (!AmongUsClient.Instance.AmHost && Player != PlayerControl.LocalPlayer)
+        {
+            return;
+        }
+        if (activeNotifies.Count <= 0)
+        {
+            return;
+        }
+        // NotifyRolesを実行するかどうかのフラグ
+        var doNotifyRoles = false;
+        // 古い通知があれば削除
+        foreach (var notify in activeNotifies)
+        {
+            if (DateTime.Now - notify.CreatedAt > TimeSpan.FromSeconds(10))
+            {
+                activeNotifies.Remove(notify);
+                doNotifyRoles = true;
+            }
+        }
+        if (doNotifyRoles && AmongUsClient.Instance.AmHost)
+        {
+            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        }
     }
 }

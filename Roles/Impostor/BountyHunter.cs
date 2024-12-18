@@ -7,7 +7,6 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
-using static TownOfHost.Translator;
 using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Impostor;

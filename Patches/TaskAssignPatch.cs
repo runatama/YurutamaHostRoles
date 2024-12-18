@@ -157,7 +157,6 @@ namespace TownOfHost
             Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
             foreach (var task in ShipStatus.Instance.LongTasks)
                 LongTasks.Add(task);
-            Shuffle<NormalPlayerTask>(LongTasks);
 
             //割り当て可能なショートタスクのリスト
             Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
@@ -169,6 +168,8 @@ namespace TownOfHost
                     default: ShortTasks.Add(task); break;
                 }
             }
+            // ↓ DLがAllLongの時にシャッフルされないから・・・
+            Shuffle<NormalPlayerTask>(LongTasks);
             Shuffle<NormalPlayerTask>(ShortTasks);
 
             //実際にAmong Us側で使われているタスクを割り当てる関数を使う。

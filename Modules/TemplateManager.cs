@@ -94,6 +94,37 @@ namespace TownOfHost
             }
             else for (int i = 0; i < sendList.Count; i++) Utils.SendMessage(ApplyReplaceDictionary(sendList[i]), playerId, str == "welcome" ? $"<color={Main.ModColor}>【This Room Use \"Town Of Host-K\"】" : "");
         }
+        public static string GetTemplate(string str = "")
+        {
+            CreateIfNotExists();
+            using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
+            string text;
+            string[] tmp = Array.Empty<string>();
+            List<string> sendList = new();
+            HashSet<string> tags = new();
+            while ((text = sr.ReadLine()) != null)
+            {
+                tmp = text.Split(":");
+                if (tmp.Length > 1 && tmp[1] != "")
+                {
+                    tags.Add(tmp[0]);
+                    if (tmp[0].ToLower() == str.ToLower()) sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
+                }
+            }
+            if (sendList.Count == 0)
+            {
+                return "";
+            }
+            else
+            {
+                var rtext = "";
+                for (int i = 0; i < sendList.Count; i++)
+                {
+                    rtext += ApplyReplaceDictionary(sendList[i]);
+                }
+                return rtext;
+            }
+        }
 
         private static string ApplyReplaceDictionary(string text)
         {

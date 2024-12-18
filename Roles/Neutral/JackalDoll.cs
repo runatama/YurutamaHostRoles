@@ -209,36 +209,13 @@ public sealed class JackalDoll : RoleBase
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
-                UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
+                UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
                 if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
                 Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
                 UtilsNotifyRoles.NotifyRoles();
             }
         }
     }
-    /*
-    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo t)
-    {
-        if (Oyabun.ContainsKey(Player.PlayerId)) return;
-        if (PlayerCatch.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien))) return;
-
-        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
-        {
-            if ((diemode)JackaldieMode.GetValue() == diemode.FollowingSuicide)
-            {
-                //ガードなどは無視
-                PlayerState.GetByPlayerId(Jd.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                Jd.RpcMurderPlayer(Jd, true);
-                if (_ == Jd) ReportDeadBodyPatch.DieCheckReport(_, t);
-            }
-            if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
-            {
-                UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(Translator.GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), Translator.GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
-                Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
-                UtilsNotifyRoles.NotifyRoles();
-            }
-        }
-    }*/
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!player.IsAlive()) return;
@@ -264,7 +241,7 @@ public sealed class JackalDoll : RoleBase
     {
         if (Oyabun.ContainsKey(Player.PlayerId))
         {
-            roleText = $"☆" + Translator.GetString("Jackaldoll");
+            roleText = $"☆" + GetString("Jackaldoll");
         }
     }
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)

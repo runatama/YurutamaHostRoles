@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 using System.Collections.Generic;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Neutral
 {

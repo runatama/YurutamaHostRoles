@@ -39,10 +39,10 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     static OptionItem TaskAddCoin;
     static OptionItem AddWinCoin;
     static OptionItem ChengeCoin;
-    static OptionItem TarnRemoveCoin;
+    static OptionItem TurnRemoveCoin;
     static OptionItem DieCanWin;
     static OptionItem DieRemoveCoin;
-    static OptionItem DieRemoveTarn;
+    static OptionItem DieRemoveTurn;
     enum Option
     {
         BankerFarstCoin,
@@ -52,7 +52,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         BankerTranRemoveCoin,
         BankerDieCanWin,
         BankerDieRemoveCoin,
-        BankerDieRemoveTarn,
+        BankerDieRemoveTurn,
         BankerWincoin,
     }
     bool TaskMode;
@@ -64,11 +64,11 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         TaskAddCoin = IntegerOptionItem.Create(RoleInfo, 10, Option.BankerTaskAddCoin, new(1, 100, 1), 5, false);
         KillAddCoin = IntegerOptionItem.Create(RoleInfo, 11, Option.BankerKillAddCoin, new(1, 100, 1), 15, false);
         ChengeCoin = IntegerOptionItem.Create(RoleInfo, 12, Option.BankerChengeCoin, new(0, 100, 1), 5, false);
-        TarnRemoveCoin = IntegerOptionItem.Create(RoleInfo, 13, Option.BankerTranRemoveCoin, new(0, 100, 1), 3, false);
+        TurnRemoveCoin = IntegerOptionItem.Create(RoleInfo, 13, Option.BankerTranRemoveCoin, new(0, 100, 1), 3, false);
         AddWinCoin = IntegerOptionItem.Create(RoleInfo, 14, Option.BankerWincoin, new(1, 100, 1), 60, false);
         DieCanWin = BooleanOptionItem.Create(RoleInfo, 15, Option.BankerDieCanWin, true, false);
         DieRemoveCoin = IntegerOptionItem.Create(RoleInfo, 16, Option.BankerDieRemoveCoin, new(1, 100, 1), 30, false, DieCanWin);
-        DieRemoveTarn = IntegerOptionItem.Create(RoleInfo, 17, Option.BankerDieRemoveTarn, new(1, 100, 1), 10, false, DieCanWin);
+        DieRemoveTurn = IntegerOptionItem.Create(RoleInfo, 17, Option.BankerDieRemoveTurn, new(1, 100, 1), 10, false, DieCanWin);
         KillCoolDown = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         Options.OverrideTasksData.Create(RoleInfo, 19);
         RoleAddAddons.Create(RoleInfo, 23);
@@ -128,8 +128,8 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
 
         if (Player.IsAlive())
-            Coin -= TarnRemoveCoin.GetInt();
-        else Coin -= DieRemoveTarn.GetInt();
+            Coin -= TurnRemoveCoin.GetInt();
+        else Coin -= DieRemoveTurn.GetInt();
 
         if (AmongUsClient.Instance.AmHost)
         {

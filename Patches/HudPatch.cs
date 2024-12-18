@@ -419,7 +419,7 @@ namespace TownOfHost
                     RealName = $"<size=0>{RealName}</size> ";
 
                 bool? canseedeathreasoncolor = seer.PlayerId.CanDeathReasonKillerColor() == true ? true : null;
-                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})" : "";//Mark・Suffixの適用
+                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"<size=75%>({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})</size>" : "";//Mark・Suffixの適用
                 if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
                     __instance.NameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
                 else
@@ -496,7 +496,7 @@ namespace TownOfHost
             if (opts.Mode == MapOptions.Modes.CountOverlay && PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
             {
                 if (DisableDevice.optTimeLimitAdmin != 0 && DisableDevice.GameAdminTimer > DisableDevice.optTimeLimitAdmin) return false;
-                if (DisableDevice.optTimeLimitAdmin != 0 && DisableDevice.TarnAdminTimer > DisableDevice.optTimeLimitAdmin) return false;
+                if (DisableDevice.optTimeLimitAdmin != 0 && DisableDevice.TurnAdminTimer > DisableDevice.optTimeLimitAdmin) return false;
             }
 
             if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)

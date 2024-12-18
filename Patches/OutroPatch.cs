@@ -65,6 +65,12 @@ namespace TownOfHost
             {
                 winner.AddRange(PlayerCatch.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
             }
+            foreach (var id in CustomWinnerHolder.IdRemoveLovers)
+            {
+                var pc = PlayerCatch.GetPlayerById(id);
+                if (pc == null) continue;
+                winner.Remove(pc);
+            }
 
             //HideAndSeek専用
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek &&
@@ -106,6 +112,7 @@ namespace TownOfHost
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
                 if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) && Main.winnerList.Contains(pc.PlayerId)) continue;
+                if (CustomWinnerHolder.IdRemoveLovers.Contains(pc.PlayerId)) continue;
 
                 EndGameResult.CachedWinners.Add(new CachedPlayerData(pc.Data));
                 Main.winnerList.Add(pc.PlayerId);

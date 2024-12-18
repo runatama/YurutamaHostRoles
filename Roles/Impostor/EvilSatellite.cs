@@ -116,15 +116,15 @@ public sealed class EvilSatellite : RoleBase, IImpostor
             var co = 0;
             foreach (var send in sendlist)
             {
-                sendtex += Translator.GetString($"{send}") + (sendlist.Count == (co + 1) ? "" : (OptionRandom.GetBool() ? "・" : " → ")) + (c > 3 ? "\n" : "");
+                sendtex += GetString($"{send}") + (sendlist.Count == (co + 1) ? "" : (OptionRandom.GetBool() ? "・" : " → ")) + (c > 3 ? "\n" : "");
                 if (c > 3) c = 0;
                 c++;
                 co++;
             }
-            sendtex += string.Format(Translator.GetString("EvilSateliteShepeInfo"), Utils.GetPlayerColor(playerid));
-            if (OptionRandom.GetBool()) sendtex += Translator.GetString("EvilSateliteShepeInfo2");
-            sendtex += string.Format(Translator.GetString("EvilSateliteShepeInfo3"), usecount);
-            Utils.SendMessage(sendtex, Player.PlayerId, string.Format($"<color=#ff1919>{Translator.GetString("EvilSateliteShepeInfoTitle")}</color>", Utils.GetPlayerColor(playerid)));
+            sendtex += string.Format(GetString("EvilSateliteShepeInfo"), Utils.GetPlayerColor(playerid));
+            if (OptionRandom.GetBool()) sendtex += GetString("EvilSateliteShepeInfo2");
+            sendtex += string.Format(GetString("EvilSateliteShepeInfo3"), usecount);
+            Utils.SendMessage(sendtex, Player.PlayerId, string.Format($"<color=#ff1919>{GetString("EvilSateliteShepeInfoTitle")}</color>", Utils.GetPlayerColor(playerid)));
         }
     }
     public override string GetProgressText(bool comms = false, bool GameLog = false) => $"<color=#ff1919>({usecount})</color>";

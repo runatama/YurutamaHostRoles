@@ -12,7 +12,7 @@ namespace TownOfHost
     //参考元 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
     class DisableDevice
     {
-        public static bool DoDisable => Options.DisableDevices.GetBool() || Options.IsStandardHAS || optTimeLimitDevices || optTarnTimeLimitDevice;
+        public static bool DoDisable => Options.DisableDevices.GetBool() || Options.IsStandardHAS || optTimeLimitDevices || optTurnTimeLimitDevice;
         private static List<byte> DesyncComms = new();
         private static int frame = 0;
 
@@ -25,17 +25,17 @@ namespace TownOfHost
         public static float GameLogAndCamTimer;
         public static float GameVitalTimer;
         //ターンでのタイマー
-        public static float TarnAdminTimer;
-        public static float TarnLogAndCamTimer;
-        public static float TarnVitalTimer;
+        public static float TurnAdminTimer;
+        public static float TurnLogAndCamTimer;
+        public static float TurnVitalTimer;
         //カメラ検知用
         public static int UseCount;
 
         //設定
         public static bool optTimeLimitDevices;
-        public static bool optTarnTimeLimitDevice;
+        public static bool optTurnTimeLimitDevice;
         public static float optTimeLimitCamAndLog;
-        public static float optTarnTimeLimitCamAndLog;
+        public static float optTurnTimeLimitCamAndLog;
         public static float optTimeLimitAdmin;
         public static float optTimeLimitVital;
         public static bool DisableDevicesIgnoreImpostors;
@@ -46,9 +46,9 @@ namespace TownOfHost
         public static void Reset()
         {
             optTimeLimitCamAndLog = Options.TimeLimitCamAndLog.GetFloat();
-            optTarnTimeLimitCamAndLog = Options.TarnTimeLimitCamAndLog.GetFloat();
+            optTurnTimeLimitCamAndLog = Options.TurnTimeLimitCamAndLog.GetFloat();
             optTimeLimitDevices = Options.TimeLimitDevices.GetBool();
-            optTarnTimeLimitDevice = Options.TarnTimeLimitDevice.GetBool();
+            optTurnTimeLimitDevice = Options.TurnTimeLimitDevice.GetBool();
             optTimeLimitAdmin = Options.TimeLimitAdmin.GetFloat();
             optTimeLimitVital = Options.TimeLimitVital.GetFloat();
             DisableDevicesIgnoreImpostors = Options.DisableDevicesIgnoreImpostors.GetBool();
@@ -63,9 +63,9 @@ namespace TownOfHost
             GameAdminTimer = 0;
             GameLogAndCamTimer = 0;
             GameVitalTimer = 0;
-            TarnAdminTimer = 0;
-            TarnLogAndCamTimer = 0;
-            TarnVitalTimer = 0;
+            TurnAdminTimer = 0;
+            TurnLogAndCamTimer = 0;
+            TurnVitalTimer = 0;
             UseCount = 0;
         }
         public static void StartMeeting()
@@ -74,9 +74,9 @@ namespace TownOfHost
             AdminPoss.Clear();
             LogPoss.Clear();
             VitalPoss.Clear();
-            TarnAdminTimer = 0;
-            TarnLogAndCamTimer = 0;
-            TarnVitalTimer = 0;
+            TurnAdminTimer = 0;
+            TurnLogAndCamTimer = 0;
+            TurnVitalTimer = 0;
             UseCount = 0;
         }
         public static string GetAddminTimer()
@@ -145,7 +145,7 @@ namespace TownOfHost
 
             if (optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin) return i == null;
 
-            if (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin) return i == null;
+            if (optTimeLimitAdmin > 0 && TurnAdminTimer > optTimeLimitAdmin) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                 (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
@@ -166,7 +166,7 @@ namespace TownOfHost
 
             if (optTimeLimitVital > 0 && GameVitalTimer > optTimeLimitVital) return i == null;
 
-            if (optTimeLimitVital > 0 && TarnVitalTimer > Options.TarnTimeLimitVital.GetFloat()) return i == null;
+            if (optTimeLimitVital > 0 && TurnVitalTimer > Options.TurnTimeLimitVital.GetFloat()) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                             (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
@@ -188,7 +188,7 @@ namespace TownOfHost
 
             if (optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog) return i == null;
 
-            if (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog) return i == null;
+            if (optTurnTimeLimitCamAndLog > 0 && TurnLogAndCamTimer > optTurnTimeLimitCamAndLog) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                             (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
@@ -207,7 +207,7 @@ namespace TownOfHost
                 if (p == pos)
                 {
                     if (optTimeLimitDevices) GameAdminTimer += Time.fixedDeltaTime;
-                    if (optTarnTimeLimitDevice) TarnAdminTimer += Time.fixedDeltaTime;
+                    if (optTurnTimeLimitDevice) TurnAdminTimer += Time.fixedDeltaTime;
                 }
                 else AdminPoss[pc.PlayerId] = pos;
             }
@@ -220,7 +220,7 @@ namespace TownOfHost
                 if (p == pos)
                 {
                     if (optTimeLimitDevices) GameLogAndCamTimer += Time.fixedDeltaTime;
-                    if (optTarnTimeLimitDevice) TarnLogAndCamTimer += Time.fixedDeltaTime;
+                    if (optTurnTimeLimitDevice) TurnLogAndCamTimer += Time.fixedDeltaTime;
                 }
                 else LogPoss[pc.PlayerId] = pos;
             }
@@ -233,7 +233,7 @@ namespace TownOfHost
                 if (p == pos)
                 {
                     if (optTimeLimitDevices) GameVitalTimer += Time.fixedDeltaTime;
-                    if (optTarnTimeLimitDevice) TarnVitalTimer += Time.fixedDeltaTime;
+                    if (optTurnTimeLimitDevice) TurnVitalTimer += Time.fixedDeltaTime;
                 }
                 else VitalPoss[pc.PlayerId] = pos;
             }
@@ -462,14 +462,14 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive())
                 {
                     if ((optTimeLimitVital > 0 && GameVitalTimer > optTimeLimitVital)
-                    || (optTimeLimitVital > 0 && TarnVitalTimer > optTimeLimitVital))
+                    || (optTimeLimitVital > 0 && TurnVitalTimer > optTimeLimitVital))
                     {
                         __instance.Close();
                     }
                     else
                     {
                         if (optTimeLimitDevices) GameVitalTimer += Time.fixedDeltaTime;
-                        if (optTarnTimeLimitDevice) TarnVitalTimer += Time.fixedDeltaTime;
+                        if (optTurnTimeLimitDevice) TurnVitalTimer += Time.fixedDeltaTime;
                     }
                 }
             }
@@ -487,7 +487,7 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
                     if ((optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
-                    || (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog))
+                    || (optTurnTimeLimitCamAndLog > 0 && TurnLogAndCamTimer > optTurnTimeLimitCamAndLog))
                     {
                         __instance.Close();
                     }
@@ -507,7 +507,7 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
                     if ((optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
-                    || (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog))
+                    || (optTurnTimeLimitCamAndLog > 0 && TurnLogAndCamTimer > optTurnTimeLimitCamAndLog))
                         __instance.Close();
                 }
             }
@@ -526,14 +526,14 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && __instance)
                 {
                     if ((optTimeLimitCamAndLog > 0 && GameLogAndCamTimer > optTimeLimitCamAndLog)
-                    || (optTarnTimeLimitCamAndLog > 0 && TarnLogAndCamTimer > optTarnTimeLimitCamAndLog))
+                    || (optTurnTimeLimitCamAndLog > 0 && TurnLogAndCamTimer > optTurnTimeLimitCamAndLog))
                     {
                         __instance.Close();
                     }
                     else
                     {
                         if (optTimeLimitDevices) GameLogAndCamTimer += Time.fixedDeltaTime;
-                        if (optTarnTimeLimitDevice) TarnLogAndCamTimer += Time.fixedDeltaTime;
+                        if (optTurnTimeLimitDevice) TurnLogAndCamTimer += Time.fixedDeltaTime;
                     }
                 }
             }
@@ -557,14 +557,14 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
                 {
                     if ((optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin)
-                    || (optTimeLimitAdmin > 0 && TarnAdminTimer > optTimeLimitAdmin))
+                    || (optTimeLimitAdmin > 0 && TurnAdminTimer > optTimeLimitAdmin))
                     {
                         MapBehaviour.Instance.Close();
                     }
                     else
                     {
                         if (optTimeLimitDevices) GameAdminTimer += Time.fixedDeltaTime;
-                        if (optTarnTimeLimitDevice) TarnAdminTimer += Time.fixedDeltaTime;
+                        if (optTurnTimeLimitDevice) TurnAdminTimer += Time.fixedDeltaTime;
                     }
                 }
             }

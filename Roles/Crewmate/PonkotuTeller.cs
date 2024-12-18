@@ -5,7 +5,6 @@ using Hazel;
 using TownOfHost.Roles.Core;
 using System;
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class PonkotuTeller : RoleBase
@@ -103,7 +102,7 @@ public sealed class PonkotuTeller : RoleBase
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.meetingmc, new(0f, 99f, 1f), 0f, false, FTOption, infinity: true)
             .SetValueFormat(OptionFormat.Times);
         Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false, FTOption);
-        MeisFT = BooleanOptionItem.Create(RoleInfo, 18, Option.PonkotuTellerMyisFT, true, false);
+        MeisFT = BooleanOptionItem.Create(RoleInfo, 18, Option.PonkotuTellerMyisFT, false, false);
     }
     public override void Add() => AddS(Player);
     private void SendRPC()
@@ -117,6 +116,16 @@ public sealed class PonkotuTeller : RoleBase
     }
     public override void OnStartMeeting() => mcount = 0;
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && kakusei && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == VoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
 

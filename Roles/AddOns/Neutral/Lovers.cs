@@ -740,42 +740,66 @@ class Lovers
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Lovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.Lovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.RedLovers && RedLoversRoleAddwin.GetBool() && RedLoversPlayers.Count > 0 && RedLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.RedLovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.RedLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.YellowLovers && YellowLoversRoleAddwin.GetBool() && YellowLoversPlayers.Count > 0 && YellowLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.YellowLovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.YellowLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.BlueLovers && BlueLoversRoleAddwin.GetBool() && BlueLoversPlayers.Count > 0 && BlueLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.BlueLovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.BlueLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.GreenLovers && GreenLoversRoleAddwin.GetBool() && GreenLoversPlayers.Count > 0 && GreenLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.GreenLovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.GreenLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.WhiteLovers && WhiteLoversRoleAddwin.GetBool() && WhiteLoversPlayers.Count > 0 && WhiteLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.WhiteLovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.WhiteLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomWinnerHolder.WinnerTeam != CustomWinner.PurpleLovers && PurpleLoversRoleAddwin.GetBool() && PurpleLoversPlayers.Count > 0 && PurpleLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -789,7 +813,11 @@ class Lovers
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.MadonnaLovers);
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.MadonnaLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
         }
         if (CustomRoles.OneLove.IsPresent())
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.OneLove && OneLoveRoleAddwin.GetBool() && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.Ltarget).IsAlive())
@@ -797,8 +825,16 @@ class Lovers
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.OneLove);
                 PlayerCatch.AllPlayerControls
                     .Where(p => p.Is(CustomRoles.OneLove) && p.IsAlive())
-                    .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-                if (!Lovers.OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(Lovers.OneLovePlayer.Ltarget);
+                .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                if (!OneLovePlayer.doublelove)
+                {
+                    CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(OneLovePlayer.Ltarget);
+                }
             }
     }
 }

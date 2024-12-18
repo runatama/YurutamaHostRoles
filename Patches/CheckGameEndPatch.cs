@@ -59,8 +59,9 @@ namespace TownOfHost
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
-                                if (pc.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.Jackaldoll) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-                                if (pc.IsRiaju()) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                if (pc.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.Jackaldoll ||
+                                    pc.IsRiaju())
+                                    CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
                             }
                             break;
                         case CustomWinner.Impostor:
@@ -71,9 +72,19 @@ namespace TownOfHost
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
-                                if (pc.GetCustomRole() is CustomRoles.Jackaldoll) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
-                                if (pc.IsRiaju()) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                if (pc.GetCustomRole() is CustomRoles.Jackaldoll ||
+                                    pc.IsRiaju())
+                                    CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
                             }
+                            break;
+                        default:
+                            //ラバー勝利以外の時にラバーをしめt...勝利を剥奪する処理。
+                            //どーせ追加なら追加勝利するやろし乗っ取りなら乗っ取りやし。
+                            if (CustomWinnerHolder.WinnerTeam is CustomWinner.Lovers or CustomWinner.RedLovers or CustomWinner.BlueLovers or CustomWinner.GreenLovers or CustomWinner.WhiteLovers or CustomWinner.PurpleLovers or CustomWinner.YellowLovers or CustomWinner.MadonnaLovers or CustomWinner.OneLove)
+                                break;
+                            PlayerCatch.AllPlayerControls
+                                .Where(p => p.IsRiaju())
+                                .Do(p => CustomWinnerHolder.IdRemoveLovers.Add(p.PlayerId));
                             break;
                     }
                 //チーム戦で勝者がチームじゃない時(単独勝利とかね)
@@ -123,7 +134,7 @@ namespace TownOfHost
                     {
                         PlayerCatch.AllPlayerControls
                             .Where(p => p.IsRiaju())
-                            .Do(p => CustomWinnerHolder.WinnerIds.Remove(p.PlayerId));
+                            .Do(p => CustomWinnerHolder.IdRemoveLovers.Add(p.PlayerId));
                     }
                     Lovers.LoversAddWin();
                     //追加勝利陣営
@@ -156,7 +167,7 @@ namespace TownOfHost
                             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
                             continue;
                         }
-                        else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                        else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
 
                         if (Amnesia.CheckAbility(pc))
                             if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && pc.Is(CustomRoles.PhantomThief))
@@ -182,10 +193,10 @@ namespace TownOfHost
                                     continue;
                                 }
                                 else
-                                    CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                    CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
                             }
                             else
-                                CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
+                                CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
                         }
                     }
                 }
@@ -304,6 +315,7 @@ namespace TownOfHost
                 }
                 bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) ||
                         CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
+                canWin &= !CustomWinnerHolder.IdRemoveLovers.Contains(pc.PlayerId);
                 bool isCrewmateWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
                 SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin);
 
@@ -384,6 +396,12 @@ namespace TownOfHost
             {
                 winners.AddRange(PlayerCatch.AllPlayerControls.Where(p => p.Is(team) && !winners.Contains(p)));
             }
+            foreach (var id in CustomWinnerHolder.IdRemoveLovers)
+            {
+                var pc = PlayerCatch.GetPlayerById(id);
+                if (pc == null) continue;
+                winners.Remove(pc);
+            }
 
             List<byte> winnerList = new();
             if (winners.Count != 0)
@@ -391,6 +409,7 @@ namespace TownOfHost
                 {
                     if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
                     if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) && winnerList.Contains(pc.PlayerId)) continue;
+                    if (CustomWinnerHolder.IdRemoveLovers.Contains(pc.PlayerId)) continue;
 
                     winnerList.Add(pc.PlayerId);
                 }

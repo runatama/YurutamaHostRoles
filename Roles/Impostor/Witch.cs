@@ -5,7 +5,6 @@ using Hazel;
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Impostor

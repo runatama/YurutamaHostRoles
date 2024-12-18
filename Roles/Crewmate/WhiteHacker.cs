@@ -4,7 +4,6 @@ using Hazel;
 using HarmonyLib;
 
 using TownOfHost.Roles.Core;
-using static TownOfHost.Translator;
 using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Crewmate;
@@ -90,7 +89,16 @@ public sealed class WhiteHacker : RoleBase
     }
     private bool IsTrackTarget(PlayerControl target)
     => (Player.IsAlive() && target.IsAlive() && !Is(target)) || P == target.PlayerId;
-
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && kakusei && seer.PlayerId == seen.PlayerId && SelfVoteManager.Canuseability() && Max > cont && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("NomalVoteRoleInfoMeg")}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!SelfVoteManager.Canuseability()) return true;

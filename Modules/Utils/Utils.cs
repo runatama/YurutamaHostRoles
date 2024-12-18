@@ -139,19 +139,26 @@ namespace TownOfHost
             if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
+            //ラスポスで付いてるのに！とかが一応ありえる。
+            var check = false;
+
             if (seer.GetRoleClass() is IKillFlashSeeable killFlashSeeable)
             {
                 if (Amnesia.CheckAbility(seer))
-                    return killFlashSeeable.CheckKillFlash(info);
+                {
+                    var role = killFlashSeeable.CheckKillFlash(info);
+                    if (role is null) return false;
+                }
             }
 
-            if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.Giveseeing.GetBool()) return !IsActive(SystemTypes.Comms) || LastImpostor.SCanSeeComms.GetBool();
-            if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.Giveseeing.GetBool()) return !IsActive(SystemTypes.Comms) || LastNeutral.SCanSeeComms.GetBool();
+
+            if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || LastImpostor.SCanSeeComms.GetBool();
+            if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || LastNeutral.SCanSeeComms.GetBool();
 
             if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.seeing))
-                if (data.Giveseeing.GetBool()) return !IsActive(SystemTypes.Comms) || data.SCanSeeComms.GetBool();
+                if (data.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || data.SCanSeeComms.GetBool();
 
-            return seer.GetCustomRole() switch
+            return check || seer.GetCustomRole() switch
             {
                 // IKillFlashSeeable未適用役職はここに書く
                 _ => (seer.Is(CustomRoleTypes.Madmate) && Options.MadmateCanSeeKillFlash.GetBool())

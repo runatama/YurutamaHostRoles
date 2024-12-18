@@ -4,7 +4,6 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor
 {

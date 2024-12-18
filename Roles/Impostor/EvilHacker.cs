@@ -124,7 +124,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             // 死体があったら死体の数を書く
             if (canSeeDeadMark && entry.NumDeadBodies > 0)
             {
-                builder.Append('(').Append(Translator.GetString("Deadbody"));
+                builder.Append('(').Append(GetString("Deadbody"));
                 builder.Append('×').Append(entry.NumDeadBodies).Append(')');
             }
             m.Append(builder);
@@ -139,7 +139,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
 
         // 送信
         var message = m.ToString();
-        var title = Utils.ColorString(Color.green, Translator.GetString("LastAdminInfo"));
+        var title = Utils.ColorString(Color.green, GetString("LastAdminInfo"));
 
         _ = new LateTask(() =>
         {
@@ -153,7 +153,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     private void OnMurderPlayer(MurderInfo info)
     {
         // 生きてる間に相方のキルでキルフラが鳴った場合に通知を出す
-        if (!Player.IsAlive() || !CheckKillFlash(info) || info.AttemptKiller == Player)
+        if (!Player.IsAlive() || !(CheckKillFlash(info) == true) || info.AttemptKiller == Player)
         {
             return;
         }
@@ -225,7 +225,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                     // 死体があったら死体の数を書く
                     if (canSeeDeadMark && entry.NumDeadBodies > 0)
                     {
-                        builder.Append('(').Append(Translator.GetString("Deadbody"));
+                        builder.Append('(').Append(GetString("Deadbody"));
                         builder.Append('×').Append(entry.NumDeadBodies).Append(')');
                     }
                     m.Append(builder);
@@ -285,9 +285,9 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             return text += base.GetSuffix(seer, seen, isForMeeting);
         }
         var roomNames = activeNotifies.Select(notify => DestroyableSingleton<TranslationController>.Instance.GetString(notify.Room));
-        return text += Utils.ColorString(Color.green, $"{Translator.GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
+        return text += Utils.ColorString(Color.green, $"{GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
     }
-    public bool CheckKillFlash(MurderInfo info) =>
+    public bool? CheckKillFlash(MurderInfo info) =>
         canSeeKillFlash && !info.IsSuicide && !info.IsAccident && info.AttemptKiller.Is(CustomRoleTypes.Impostor);
 
     public override void ApplyGameOptions(IGameOptions opt)
@@ -299,7 +299,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
         shouldAnimate = false;
         return false;
     }
-    public override string GetAbilityButtonText() => Translator.GetString("EvilHackerAbility");
+    public override string GetAbilityButtonText() => GetString("EvilHackerAbility");
     public override bool OverrideAbilityButton(out string text)
     {
         text = "EvilHacker_ability";
@@ -309,7 +309,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     /// <summary>相方がキルしたときに名前の下に通知を表示する長さ</summary>
     private static readonly TimeSpan NotifyDuration = TimeSpan.FromSeconds(10);
 
-    private readonly struct MurderNotify
+    public readonly struct MurderNotify
     {
         /// <summary>通知が作成された時間</summary>
         public DateTime CreatedAt { get; init; }

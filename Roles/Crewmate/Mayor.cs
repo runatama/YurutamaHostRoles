@@ -122,7 +122,7 @@ public sealed class Mayor : RoleBase
     public override string GetAbilityButtonText()
     {
         if (!HasPortableButton) return base.GetAbilityButtonText();
-        return Translator.GetString("Mayor_Abilitytext");
+        return GetString("MayorAbilitytext");
     }
     public override bool OverrideAbilityButton(out string text)
     {

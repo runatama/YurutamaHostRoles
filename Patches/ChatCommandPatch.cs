@@ -43,6 +43,13 @@ namespace TownOfHost
             {
                 return false;
             }
+            if (UrlFinder.TryFindUrl(__instance.freeChatField.textArea.text.ToCharArray(), out int _, out int _))
+            {
+                __instance.AddChatWarning(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.FreeChatLinkWarning));
+                __instance.timeSinceLastMessage = 3f;
+                __instance.freeChatField.textArea.Clear();
+                return false;
+            }
             var text = __instance.freeChatField.textArea.text;
             if (ChatHistory.Count == 0 || ChatHistory[^1] != text) ChatHistory.Add(text);
             ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;

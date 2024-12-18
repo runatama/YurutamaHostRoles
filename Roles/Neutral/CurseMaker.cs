@@ -30,7 +30,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     {
         distance = Distance.GetFloat();
         noroitime = NoroiTime.GetFloat();
-        deltarn = OptionDelTarn.GetInt();
+        delTurn = OptionDelTurn.GetInt();
         KillCooldown = OptionKillCoolDown.GetFloat();
         shapcool = OptionShepeCooldown.GetFloat();
 
@@ -42,7 +42,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     }
     static OptionItem Distance; static float distance;
     static OptionItem NoroiTime; static float noroitime;
-    static OptionItem OptionDelTarn; static int deltarn;
+    static OptionItem OptionDelTurn; static int delTurn;
     static OptionItem OptionKillCoolDown; static float KillCooldown;
     static OptionItem OptionShepeCooldown; static float shapcool;
 
@@ -64,7 +64,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     public static HashSet<CurseMaker> curseMakers = new();
     enum OptionName
     {
-        CueseMakerDelTarn,
+        CueseMakerDelTurn,
         CueseMakerNoroiTime,
         CueseMakerDicstance
     }
@@ -74,7 +74,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
                 .SetValueFormat(OptionFormat.Seconds);
         OptionShepeCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        OptionDelTarn = IntegerOptionItem.Create(RoleInfo, 12, OptionName.CueseMakerDelTarn, new(1, 30, 1), 4, false);
+        OptionDelTurn = IntegerOptionItem.Create(RoleInfo, 12, OptionName.CueseMakerDelTurn, new(1, 30, 1), 4, false);
         NoroiTime = FloatOptionItem.Create(RoleInfo, 13, OptionName.CueseMakerNoroiTime, new(0f, 30f, 0.5f), 3f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         Distance = FloatOptionItem.Create(RoleInfo, 14, OptionName.CueseMakerDicstance, new(1f, 30f, 0.25f), 1.75f, false);
@@ -153,7 +153,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
             var np = PlayerCatch.GetPlayerById(nr.Key);
             if (!np) DelList.Add(nr.Key);
             if (!np.IsAlive()) DelList.Add(nr.Key);
-            if (deltarn <= nr.Value + 1) DelList.Add(nr.Key);
+            if (delTurn <= nr.Value + 1) DelList.Add(nr.Key);
 
             Noroi[nr.Key] = nr.Value + 1;
         }
@@ -164,7 +164,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         if (Noroi.Count == 0) return "";
         if (!Player.IsAlive()) return "";
 
-        return string.Format(Translator.GetString("CurseMakerMeetingMeg"), Noroi.Count);
+        return string.Format(GetString("CurseMakerMeetingMeg"), Noroi.Count);
     }
     public override bool NotifyRolesCheckOtherName => true;
     public bool CanUseKillButton() => true;
@@ -207,10 +207,10 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     }
     public bool OverrideKillButtonText(out string text)
     {
-        text = Translator.GetString("WarlockCurseButtonText");
+        text = GetString("WarlockCurseButtonText");
         return true;
     }
-    public override string GetAbilityButtonText() => Translator.GetString("CurseMakerbooom");
+    public override string GetAbilityButtonText() => GetString("CurseMakerbooom");
     public bool OverrideKillButton(out string text)
     {
         text = "CurseMaker_Kill";

@@ -6,7 +6,6 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton

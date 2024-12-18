@@ -744,7 +744,7 @@ namespace TownOfHost
                 CustomRoles.DemonicVenter => AddonInfo(role),
                 CustomRoles.AsistingAngel => AddonInfo(role),
 
-                _ => "...?"
+                _ => $"{role.GetRoleInfo()?.ConfigId ?? -334}...?"
             });
         }
         public static string AddonInfo(CustomRoles role, string Mark = "", From from = From.None, PlayerControl pc = null)
@@ -885,7 +885,7 @@ namespace TownOfHost
                 {
                     opt.SetFloat(
                     FloatOptionNames.CrewLightMod,
-                    opt.GetFloat(FloatOptionNames.CrewLightMod) * 5);
+                    opt.GetFloat(FloatOptionNames.CrewLightMod) * AURoleOptions.ElectricalCrewVision);
                 }
                 return;
             }
@@ -898,7 +898,7 @@ namespace TownOfHost
                 {
                     opt.SetFloat(
                     FloatOptionNames.ImpostorLightMod,
-                    opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
+                    opt.GetFloat(FloatOptionNames.ImpostorLightMod) / AURoleOptions.ElectricalCrewVision);
                 }
                 return;
             }

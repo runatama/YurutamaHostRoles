@@ -6,7 +6,6 @@ using Hazel;
 
 using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class FortuneTeller : RoleBase
@@ -168,5 +167,15 @@ public sealed class FortuneTeller : RoleBase
             kakusei = true;
         }
         return true;
+    }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && kakusei && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == VoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
     }
 }

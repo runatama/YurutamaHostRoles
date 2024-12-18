@@ -74,7 +74,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
 
     public override string GetAbilityButtonText()
     {
-        return Translator.GetString("ReloaderAbilitytext");
+        return GetString("ReloaderAbilitytext");
     }
     public override bool OverrideAbilityButton(out string text)
     {

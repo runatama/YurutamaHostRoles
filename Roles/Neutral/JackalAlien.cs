@@ -7,7 +7,6 @@ using UnityEngine;
 using TownOfHost.Modules;
 using Hazel;
 using System.Text;
-using static TownOfHost.Translator;
 using HarmonyLib;
 
 namespace TownOfHost.Roles.Neutral;
@@ -137,7 +136,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 builder.Append(entry.TotalPlayers);
                 if (entry.NumDeadBodies > 0)
                 {
-                    builder.Append('(').Append(Translator.GetString("Deadbody"));
+                    builder.Append('(').Append(GetString("Deadbody"));
                     builder.Append('×').Append(entry.NumDeadBodies).Append(')');
                 }
                 m.Append(builder);
@@ -789,7 +788,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         Player.RpcProtectedMurderPlayer(target);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
-        UtilsGameLog.AddGameLog($"SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
+        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
         target.RpcSetCustomRole(CustomRoles.Jackaldoll);
         JackalDoll.Sidekick(target, Player);
         if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
@@ -797,7 +796,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         UtilsOption.MarkEveryoneDirtySettings();
         UtilsTask.DelTask();
         JackalDoll.side++;
-        UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), Translator.GetString($"{target.GetCustomRole()}")) + "</b>";
+        UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>";
     }
 
     public override bool OnCheckMurderAsTarget(MurderInfo info)
@@ -811,7 +810,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         }
         return true;
     }
-    public override string GetAbilityButtonText() => Translator.GetString("Sidekick");
+    public override string GetAbilityButtonText() => GetString("Sidekick");
     public override bool OverrideAbilityButton(out string text)
     {
         text = "SideKick";

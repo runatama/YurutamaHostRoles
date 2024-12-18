@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using UnityEngine;
 
 namespace TownOfHost
 {
@@ -6,6 +7,7 @@ namespace TownOfHost
     {
         private static IGameOptions Opt;
         public static void SetOpt(IGameOptions opt) => Opt = opt;
+        public static float ElectricalCrewVision => Mathf.Clamp(Main.sabotagetime, 1f, 5f);
         public static float KillCooldown
         {
             get => Opt.GetFloat(FloatOptionNames.KillCooldown);

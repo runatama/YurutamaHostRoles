@@ -82,7 +82,7 @@ namespace TownOfHost.Roles.Crewmate
 
             LogPos = logdoor.Key.transform.position;
             Cooltime = 0;
-            Room = Translator.GetString($"{logdoor.Key.Room}");
+            Room = GetString($"{logdoor.Key.Room}");
 
             var a = logdoor.Key.Room;
             if (AmongUsClient.Instance.AmHost)
@@ -110,7 +110,7 @@ namespace TownOfHost.Roles.Crewmate
 
             var s = "";
             if (!isForHud) s = "<size=50%>";
-            return s + Translator.GetString("NiceLoggerLower") + (s == "" ? "" : "</size>");
+            return s + GetString("NiceLoggerLower") + (s == "" ? "" : "</size>");
         }
         public override void OnStartMeeting()
         {
@@ -124,11 +124,11 @@ namespace TownOfHost.Roles.Crewmate
                 if (Log.Count != 0)
                     foreach (var log in Log.Values)
                     {
-                        Send += string.Format(Translator.GetString("NiceLoggerAbility"), Utils.GetPlayerColor(log), Room);
+                        Send += string.Format(GetString("NiceLoggerAbility"), Utils.GetPlayerColor(log), Room);
                     }
-                else Send += string.Format(Translator.GetString("NiceLoggerAbility2"), Room);
+                else Send += string.Format(GetString("NiceLoggerAbility2"), Room);
 
-                _ = new LateTask(() => Utils.SendMessage(Send, Player.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.NiceLogger), Translator.GetString("NiceLoggerTitle"))), 4f, "NiceLoggerSned");
+                _ = new LateTask(() => Utils.SendMessage(Send, Player.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.NiceLogger), GetString("NiceLoggerTitle"))), 4f, "NiceLoggerSned");
             }
         }
         public override void AfterMeetingTasks()
@@ -184,6 +184,6 @@ namespace TownOfHost.Roles.Crewmate
             text = "NiceLogger_Ability";
             return true;
         }
-        public override string GetAbilityButtonText() => Translator.GetString("NiceLogger_Ability");
+        public override string GetAbilityButtonText() => GetString("NiceLogger_Ability");
     }
 }

@@ -206,6 +206,7 @@ namespace TownOfHost
             if (data is null || !haveaddon)
             {
                 data = nulldata;
+                haveaddon = false;
             }
 
             return haveaddon;

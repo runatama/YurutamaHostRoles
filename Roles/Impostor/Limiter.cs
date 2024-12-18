@@ -4,7 +4,6 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 using System;
 
 namespace TownOfHost.Roles.Impostor
@@ -28,7 +27,7 @@ namespace TownOfHost.Roles.Impostor
             player
         )
         {
-            LimiterTarnLimit = OptionLimiterTarnLimit.GetFloat();
+            LimiterTurnLimit = OptionLimiterTurnLimit.GetFloat();
             blastrange = Optionblastrange.GetFloat();
             KillCooldown = OptionKillCooldown.GetFloat();
             LimitTimer = OptionLimitTimer.GetFloat() != 0;
@@ -36,8 +35,8 @@ namespace TownOfHost.Roles.Impostor
             killcount = 0;
         }
 
-        static OptionItem OptionLimiterTarnLimit;
-        static OptionItem OptionLastTarnKillcool;
+        static OptionItem OptionLimiterTurnLimit;
+        static OptionItem OptionLastTurnKillcool;
         static OptionItem Optionblastrange;
         static OptionItem OptionKillCooldown;
         static OptionItem OptionLimitTimer;
@@ -45,15 +44,15 @@ namespace TownOfHost.Roles.Impostor
         static OptionItem OptionLimitMeeting;
         enum OptionName
         {
-            LimiterTarnLimit,
-            LimiterLastTarnKillCool,
+            LimiterTurnLimit,
+            LimiterLastTurnKillCool,
             LimiterTimeLimit,
             LimiterKillLimit,
             LimiterLimitMeeting,
             blastrange,
         }
         static bool LimitTimer;
-        float LimiterTarnLimit;
+        float LimiterTurnLimit;
         float blastrange;
         float KillCooldown;
         bool Limit;
@@ -66,10 +65,10 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionLastTarnKillcool = FloatOptionItem.Create(RoleInfo, 10, OptionName.LimiterLastTarnKillCool, new(0f, 180f, 0.5f), 25f, false)
+            OptionLastTurnKillcool = FloatOptionItem.Create(RoleInfo, 10, OptionName.LimiterLastTurnKillCool, new(0f, 180f, 0.5f), 25f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionLimitMeeting = BooleanOptionItem.Create(RoleInfo, 15, OptionName.LimiterLimitMeeting, false, false);
-            OptionLimiterTarnLimit = FloatOptionItem.Create(RoleInfo, 11, OptionName.LimiterTarnLimit, new(0f, 15f, 1f), 3f, false, infinity: null).SetValueFormat(OptionFormat.day);
+            OptionLimiterTurnLimit = FloatOptionItem.Create(RoleInfo, 11, OptionName.LimiterTurnLimit, new(0f, 15f, 1f), 3f, false, infinity: null).SetValueFormat(OptionFormat.day);
             OptionLimitTimer = FloatOptionItem.Create(RoleInfo, 13, OptionName.LimiterTimeLimit, new(0f, 300f, 5f), 180f, false, infinity: true)
                 .SetValueFormat(OptionFormat.Seconds);
             OptionLimitKill = FloatOptionItem.Create(RoleInfo, 14, OptionName.LimiterKillLimit, new(0f, 15f, 1f), 4f, false, infinity: null);
@@ -94,7 +93,7 @@ namespace TownOfHost.Roles.Impostor
 
                 _ = new LateTask(() =>
                 {
-                    player.SetKillCooldown(OptionLastTarnKillcool.GetFloat(), delay: true);
+                    player.SetKillCooldown(OptionLastTurnKillcool.GetFloat(), delay: true);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }, 0.3f, "Limiter Time Limit");
             }
@@ -131,7 +130,7 @@ namespace TownOfHost.Roles.Impostor
 
                     _ = new LateTask(() =>
                     {
-                        Player.SetKillCooldown(OptionLastTarnKillcool.GetFloat(), delay: true);
+                        Player.SetKillCooldown(OptionLastTurnKillcool.GetFloat(), delay: true);
                         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                     }, 0.3f, "Limiter Kill Limit");
                 }
@@ -151,12 +150,12 @@ namespace TownOfHost.Roles.Impostor
         public override void AfterMeetingTasks()//一旦はアムネシア中なら回避してるけどリミッターは削除してあげてもいいかも
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-            if (LimiterTarnLimit == 0) return;
+            if (LimiterTurnLimit == 0) return;
 
-            if (UtilsGameLog.day >= LimiterTarnLimit && Player.IsAlive())
+            if (UtilsGameLog.day >= LimiterTurnLimit && Player.IsAlive())
             {
                 Limit = true;
-                _ = new LateTask(() => Player.SetKillCooldown(OptionLastTarnKillcool.GetFloat()), 5f, "Limiter Limit Kill cool");
+                _ = new LateTask(() => Player.SetKillCooldown(OptionLastTurnKillcool.GetFloat()), 5f, "Limiter Limit Kill cool");
             }
         }
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
@@ -189,8 +188,8 @@ namespace TownOfHost.Roles.Impostor
                     int nokori = (int)(OptionLimitTimer.GetFloat() - now);
                     Limittext += $"(Ⓣ{nokori}s)";
                 }
-                if (LimiterTarnLimit != 0)
-                    Limittext += $"(Ⓓ{UtilsGameLog.day}/{LimiterTarnLimit})";
+                if (LimiterTurnLimit != 0)
+                    Limittext += $"(Ⓓ{UtilsGameLog.day}/{LimiterTurnLimit})";
                 if (OptionLimitKill.GetInt() != 0)
                     Limittext += $"(Ⓚ{killcount}/{OptionLimitKill.GetInt()})";
                 return $"<size=60%>{Utils.ColorString(ModColors.MadMateOrenge, Limittext)}</size>";

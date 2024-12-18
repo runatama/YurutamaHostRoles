@@ -203,7 +203,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     {
         if (isForMeeting) return "";
         if (Player.IsAlive())
-            return position == new Vector2(999f, 999f) ? Translator.GetString("Jumper_setti") : Translator.GetString("Jumper_Jamp");
+            return position == new Vector2(999f, 999f) ? GetString("Jumper_setti") : GetString("Jumper_Jamp");
         return "";
     }
     public override bool OverrideAbilityButton(out string text)
@@ -213,6 +213,6 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     }
     public override string GetAbilityButtonText()
     {
-        return Translator.GetString("Jumper_text");
+        return GetString("Jumpertext");
     }
 }

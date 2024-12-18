@@ -56,7 +56,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
         //MadGuardianを切れるかの判定処理
         if (!MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt())) return true;
 
-        UtilsGameLog.AddGameLog($"MadGuardian", Utils.GetPlayerColor(Player) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+        UtilsGameLog.AddGameLog($"MadGuardian", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
         info.CanKill = false;
 
         killer.SetKillCooldown();
@@ -75,5 +75,5 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
 
         return false;
     }
-    public bool CheckKillFlash(MurderInfo info) => FieldCanSeeKillFlash;
+    public bool? CheckKillFlash(MurderInfo info) => FieldCanSeeKillFlash;
 }

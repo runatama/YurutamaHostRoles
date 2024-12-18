@@ -44,7 +44,6 @@ public sealed class Jester : RoleBase, IKiller
     }
     private static void SetupOptionItem()
     {
-
         CanUseShape = BooleanOptionItem.Create(RoleInfo, 3, Option.JesterCanUseShapeshift, false, false);
         Cooldown = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
         Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 0.5f), 5f, false, CanUseShape, infinity: true).SetValueFormat(OptionFormat.Seconds);
@@ -57,6 +56,7 @@ public sealed class Jester : RoleBase, IKiller
     public override bool OnInvokeSabotage(SystemTypes systemType) => false;
     public bool CanKill { get; private set; } = false;
     public bool CanUseKillButton() => false;
+    float IKiller.CalculateKillCooldown() => 0f;
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.ShapeshifterCooldown = Cooldown.GetFloat();

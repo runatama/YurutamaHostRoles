@@ -97,8 +97,8 @@ public sealed class MadChanger : RoleBase, IKiller
     }
     public bool OverrideKillButtonText(out string text)
     {
-        text = Translator.GetString("MadChanger_Targetset");
+        text = GetString("MadChanger_Targetset");
         return true;
     }
-    public override string GetAbilityButtonText() => Translator.GetString("MadChanger_Change");
+    public override string GetAbilityButtonText() => GetString("MadChanger_Change");
 }

@@ -618,7 +618,7 @@ namespace TownOfHost
             if (GameStates.IsMeeting) return;
 
             var State = PlayerState.GetByPlayerId(repo.PlayerId);
-            if (State.NumberOfRemainingButtons <= 0 && target is null) return;
+            if (State.NumberOfRemainingButtons <= 0 && target is null && ch is not false) return;
 
             PlayerControlRpcUseZiplinePatch.OnMeeting(repo, target);
 
@@ -1137,7 +1137,7 @@ namespace TownOfHost
                     if (DisableDevice.optTimeLimitCamAndLog > 0 && DisableDevice.GameLogAndCamTimer > DisableDevice.optTimeLimitCamAndLog)
                         nowuseing = false;
 
-                    if (DisableDevice.optTarnTimeLimitCamAndLog > 0 && DisableDevice.TarnLogAndCamTimer > DisableDevice.optTarnTimeLimitCamAndLog)
+                    if (DisableDevice.optTurnTimeLimitCamAndLog > 0 && DisableDevice.TurnLogAndCamTimer > DisableDevice.optTurnTimeLimitCamAndLog)
                         nowuseing = false;
 
                     if (DisableDevice.UseCount > 0)
@@ -1146,8 +1146,8 @@ namespace TownOfHost
                         {
                             if (DisableDevice.optTimeLimitDevices)
                                 DisableDevice.GameLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
-                            if (DisableDevice.optTarnTimeLimitDevice)
-                                DisableDevice.TarnLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
+                            if (DisableDevice.optTurnTimeLimitDevice)
+                                DisableDevice.TurnLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
                         }
                         else
                         {
@@ -1475,7 +1475,7 @@ namespace TownOfHost
                             RealName = $"<size=0>{RealName}</size> ";
                     }
                     bool? canseedeathreasoncolor = seer.PlayerId.CanDeathReasonKillerColor() == true ? true : null;
-                    string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})" : "";
+                    string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"<size=75%>({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})</size>" : "";
 
                     //Mark・Suffixの適用
                     if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
@@ -1887,9 +1887,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerControl))]
     class PlayerControlPhantomPatch
     {
-        public static List<byte> cantuse = new();
         [HarmonyPatch(nameof(PlayerControl.CheckVanish))]
-        [HarmonyPatch(nameof(PlayerControl.CheckAppear))]
         [HarmonyPrefix]
         public static bool Prefix(PlayerControl __instance)
         {
@@ -1897,7 +1895,7 @@ namespace TownOfHost
             var resetkillcooldown = false;
             bool? fall = false;
 
-            if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton && Main.CanUseAbility && !cantuse.Contains(__instance.PlayerId))
+            if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton && Main.CanUseAbility)
                 iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
 
             float k = 0;
@@ -1911,24 +1909,30 @@ namespace TownOfHost
 
             if (!resetkillcooldown)
             {
-                Main.AllPlayerKillCooldown[__instance.PlayerId] = cooldown * 2;
+                Main.AllPlayerKillCooldown[__instance.PlayerId] = cooldown < 10 ? cooldown : cooldown * 2;
                 __instance.SyncSettings();
             }
             var writer = CustomRpcSender.Create("Phantom OneClick", SendOption.None);
             writer.StartMessage(__instance.GetClientId());
 
+            /*モーションのせいで1.5秒位ベント、キル不可になるのが...
+            writer.StartRpc(__instance.NetId, (byte)RpcCalls.StartVanish)
+                .EndRpc();
+            writer.StartRpc(__instance.NetId, (byte)RpcCalls.StartAppear)
+                .Write(true)//falseにしたら動かない。多分ベント用
+                .EndRpc();*/
             if (fall is not null)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
-                .Write((ushort)RoleTypes.Impostor)
-                .Write(true)
-                .EndRpc();
+                    .Write((ushort)RoleTypes.Impostor)
+                    .Write(true)
+                    .EndRpc();
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
                     .Write((ushort)RoleTypes.Phantom)
                     .Write(true)
                     .EndRpc();
             }
-            if (!resetkillcooldown)
+            if (!resetkillcooldown && !(cooldown < 10))
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.MurderPlayer)
                     .WriteNetObject(__instance)

@@ -3,7 +3,6 @@ using AmongUs.GameOptions;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
-using static TownOfHost.Translator;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Dictator : RoleBase
@@ -65,6 +64,16 @@ public sealed class Dictator : RoleBase
 
         return true;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability())
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{(OptionSelfVote.GetBool() ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
     {
         var (votedForId, numVotes, doVote) = base.ModifyVote(voterId, sourceVotedForId, isIntentional);
@@ -78,7 +87,7 @@ public sealed class Dictator : RoleBase
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Suicide, Player.PlayerId);
             PlayerCatch.GetPlayerById(sourceVotedForId).SetRealKiller(Player);
             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, sourceVotedForId);
-            UtilsGameLog.AddGameLog($"Dictator", string.Format(Translator.GetString("Dictator.log"), Utils.GetPlayerColor(Player)));
+            UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), Utils.GetPlayerColor(Player)));
         }
         return (votedForId, numVotes, false);
     }

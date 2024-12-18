@@ -41,21 +41,6 @@ namespace TownOfHost
                 priset.gameObject.SetActive(active);
                 activeonly.gameObject.SetActive(active);
             }
-            //タイマー表示
-            /*if (GameOptionsMenuPatch.Timer != null)
-            {
-                var rtimer = GameStartManagerPatch.GetTimer();
-                rtimer = Mathf.Max(0f, rtimer -= Time.deltaTime);
-                int minutes = (int)rtimer / 60;
-                int seconds = (int)rtimer % 60;
-
-                string Color = "<color=#ffffff>";
-                if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
-                if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
-                if (minutes <= 0) Color = "<color=red>";//1分切ったら。
-                GameOptionsMenuPatch.Timer.text = $"{Color}{minutes:00}:{seconds:00}";
-            }
-            */
 
             if (__instance.transform.name == "GAME SETTINGS TAB") return;
             foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
@@ -114,7 +99,7 @@ namespace TownOfHost
                          ? UtilsRoleText.GetCombinationCName((CustomRoles)role, false).ToLower().Contains(find.ToLower())
                          : GetString(option.Name).ToLower().Contains(find.ToLower()));
                     }
-                    var opt = option.OptionBehaviour.transform.Find("LabelBackground").GetComponent<SpriteRenderer>();
+                    var opt = option.OptionBehaviour.LabelBackground;
 
                     opt.size = new(5.0f * w, 0.68f * h);
                     //opt.enabled = false;
@@ -129,6 +114,11 @@ namespace TownOfHost
                     {
                         opt.color = option.NameColor.ShadeColor(-5);
                     }
+
+                    Transform titleText = option.OptionBehaviour.transform.Find("Title Text");
+                    RectTransform titleTextRect = titleText.GetComponent<RectTransform>();
+
+
                     while (parent != null && enabled)
                     {
                         enabled = parent.GetBool();
@@ -136,26 +126,26 @@ namespace TownOfHost
                         opt.color = new Color32(40, 50, 80, 255);
 
                         opt.size = new(4.6f * w, 0.68f * h);
-                        option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.8566f * w, 0f);
-                        option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.4f, 0.6f);
+                        titleText.transform.localPosition = new Vector3(-1.8566f * w, 0f);
+                        titleTextRect.sizeDelta = new Vector2(6.4f, 0.6f);
                         if (option.Parent?.Parent != null)
                         {
                             opt.color = new Color32(20, 60, 40, 255);
                             opt.size = new(4.4f * w, 0.68f * h);
-                            option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.7566f * w, 0f);
-                            option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.35f, 0.6f);
+                            titleText.transform.localPosition = new Vector3(-1.7566f * w, 0f);
+                            titleTextRect.sizeDelta = new Vector2(6.35f, 0.6f);
                             if (option.Parent?.Parent?.Parent != null)
                             {
                                 opt.color = new Color32(60, 20, 40, 255);
                                 opt.size = new(4.2f * w, 0.68f * h);
-                                option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f * w, 0f);
-                                option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.3f, 0.6f);
+                                titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
+                                titleTextRect.sizeDelta = new Vector2(6.3f, 0.6f);
                                 if (option.Parent?.Parent?.Parent?.Parent != null)
                                 {
                                     opt.color = new Color32(60, 40, 10, 255);
                                     opt.size = new(4.0f * w, 0.68f * h);
-                                    option.OptionBehaviour.transform.Find("Title Text").transform.localPosition = new Vector3(-1.6566f * w, 0f);
-                                    option.OptionBehaviour.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.25f, 0.6f);
+                                    titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
+                                    titleTextRect.sizeDelta = new Vector2(6.25f, 0.6f);
                                 }
                             }
                         }
@@ -471,16 +461,13 @@ namespace TownOfHost
         public static void Postfix(GameSettingMenu __instance)
         {
             ActiveOnlyMode = false;
-            var GamePresetButton = GameObject.Find("LeftPanel/GamePresetButton");
-            var GameSettingsButton = GameObject.Find("LeftPanel/GameSettingsButton");
-            var RoleSettingsButton = GameObject.Find("LeftPanel/RoleSettingsButton");
+            var GamePresetButton = __instance.GamePresetsButton;
+            var GameSettingsButton = __instance.GameSettingsButton;
+            var RoleSettingsButton = __instance.RoleSettingsButton;
 
-            var GamePresetButtons = GamePresetButton.GetComponent<PassiveButton>();
+            ModSettingsButton = Object.Instantiate(RoleSettingsButton, RoleSettingsButton.transform.parent);
+            activeonly = Object.Instantiate(GamePresetButton, __instance.RoleSettingsTab.transform.parent);
 
-            var ModStgButton = GameObject.Instantiate(RoleSettingsButton, RoleSettingsButton.transform.parent);
-            var activeonlybutton = GameObject.Instantiate(GamePresetButton, __instance.RoleSettingsTab.transform.parent);
-
-            activeonly = activeonlybutton.GetComponent<PassiveButton>();
             activeonly.buttonText.text = "有効なMap設定/役職のみ表示する <size=5>(OFF)</size>";
 
             activeonly.inactiveSprites.GetComponent<SpriteRenderer>().color =
@@ -488,10 +475,9 @@ namespace TownOfHost
             activeonly.selectedSprites.GetComponent<SpriteRenderer>().color = ModColors.bluegreen;
             activeonly.buttonText.DestroyTranslator();
 
-            GamePresetButtons.gameObject.SetActive(false);
+            GamePresetButton.gameObject.SetActive(false);
             RoleSettingsButton.gameObject.SetActive(false);
 
-            ModSettingsButton = ModStgButton.GetComponent<PassiveButton>();
             ModSettingsButton.buttonText.text = "TownOfHost-Kの設定";
             var activeSprite = ModSettingsButton.activeSprites.GetComponent<SpriteRenderer>();
             var selectedSprite = ModSettingsButton.selectedSprites.GetComponent<SpriteRenderer>();
@@ -516,21 +502,21 @@ namespace TownOfHost
                     ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
                 }
             }));
+            activeonly.gameObject.SetActive(false);
 
-            var roleTab = GameObject.Find("ROLES TAB");
-            ModSettingsTab = GameObject.Instantiate(__instance.RoleSettingsTab, __instance.RoleSettingsTab.transform.parent).GetComponent<RolesSettingsMenu>();
+            ModSettingsTab = Object.Instantiate(__instance.RoleSettingsTab, __instance.RoleSettingsTab.transform.parent).GetComponent<RolesSettingsMenu>();
 
             if (priset == null)
             {
                 try
                 {
-                    priset = GameObject.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
-                    search = GameObject.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
+                    priset = Object.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
+                    search = Object.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
 
-                    prisettext = GameObject.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
+                    prisettext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
                     prisettext.text = "<size=120%><color=#cccccc><b>プリセット名編集</b></color></size>";
                     prisettext.transform.localPosition = new Vector3(-2f, -1.1f);
-                    searchtext = GameObject.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
+                    searchtext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
                     searchtext.text = "<size=120%><color=#ffa826><b>検索</b></color></size>";
                     searchtext.transform.localPosition = new Vector3(-2f, -0.3f);
                 }
@@ -562,12 +548,11 @@ namespace TownOfHost
             });
             Dictionary<TabGroup, GameObject> menus = new();
 
-            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(true);
+            __instance.GameSettingsTab.gameObject.SetActive(true);
+            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/Gradient").SetActive(false);
 
             var template = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB/Scroller/SliderInner/GameOption_String(Clone)").GetComponent<StringOption>();
 
-            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB").SetActive(false);
-            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/Gradient").SetActive(false);
             if (template == null) return;
 
             Dictionary<TabGroup, GameOptionsMenu> list = new();
@@ -575,11 +560,10 @@ namespace TownOfHost
 
             foreach (var tb in EnumHelper.GetAllValues<TabGroup>())
             {
-                var s = new GameObject($"{tb}-Stg");
-                s.AddComponent<GameOptionsMenu>();
+                var s = new GameObject($"{tb}-Stg").AddComponent<GameOptionsMenu>();
                 s.transform.SetParent(ModSettingsTab.AdvancedRolesSettings.transform.parent);
                 s.transform.localPosition = new Vector3(0.7789f, -0.5101f);
-                list.Add(tb, s.GetComponent<GameOptionsMenu>());
+                list.Add(tb, s);
             }
             foreach (var option in OptionItem.AllOptions)
             {
@@ -596,56 +580,61 @@ namespace TownOfHost
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
-                    var x = 0f;
-                    var y = 0f;
-                    var z = 0f;
-                    stringOption.transform.FindChild("LabelBackground").localScale = new Vector3(1.3f, 1.14f, 1f);
-                    stringOption.transform.FindChild("LabelBackground").SetLocalX(-2.2695f * w);
-                    x = stringOption.transform.FindChild("PlusButton").localPosition.x;
-                    y = stringOption.transform.FindChild("PlusButton").localPosition.y;
-                    z = stringOption.transform.FindChild("PlusButton").localPosition.z;
-                    stringOption.transform.FindChild("PlusButton").localPosition = new Vector3(option.HideValue ? 100f : (x + 1.1434f) * w, option.HideValue ? 100f : y * h, option.HideValue ? 100f : z);
-                    x = stringOption.transform.FindChild("MinusButton").localPosition.x;
-                    y = stringOption.transform.FindChild("MinusButton").localPosition.y;
-                    z = stringOption.transform.FindChild("MinusButton").localPosition.z;
-                    stringOption.transform.FindChild("MinusButton").localPosition = new Vector3(option.HideValue ? 100f : (x + 0.3463f) * w, option.HideValue ? 100f : (y * h), option.HideValue ? 100f : z);
-                    x = stringOption.transform.FindChild("PlusButton").localScale.x;
-                    y = stringOption.transform.FindChild("PlusButton").localScale.y;
-                    z = stringOption.transform.FindChild("PlusButton").localScale.z;
-                    stringOption.transform.FindChild("PlusButton").localScale = new Vector3(x * w, y * h);
-                    x = stringOption.transform.FindChild("MinusButton").localScale.x;
-                    y = stringOption.transform.FindChild("MinusButton").localScale.y;
-                    z = stringOption.transform.FindChild("MinusButton").localScale.z;
-                    stringOption.transform.FindChild("MinusButton").localScale = new Vector3(x * w, y * h);
-                    x = stringOption.transform.FindChild("Value_TMP (1)").localPosition.x;
-                    y = stringOption.transform.FindChild("Value_TMP (1)").localPosition.y;
-                    z = stringOption.transform.FindChild("Value_TMP (1)").localPosition.z;
-                    stringOption.transform.FindChild("Value_TMP (1)").localPosition = new Vector3((x + 0.7322f) * w, y * h, z);
-                    x = stringOption.transform.FindChild("Value_TMP (1)").localScale.x;
-                    y = stringOption.transform.FindChild("Value_TMP (1)").localScale.y;
-                    z = stringOption.transform.FindChild("Value_TMP (1)").localScale.z;
-                    stringOption.transform.FindChild("Value_TMP (1)").localScale = new Vector3(x * w, y * h, z);
-                    x = stringOption.transform.FindChild("ValueBox").localScale.x;
-                    y = stringOption.transform.FindChild("ValueBox").localScale.y;
-                    z = stringOption.transform.FindChild("ValueBox").localScale.z;
-                    stringOption.transform.FindChild("ValueBox").localScale = new Vector3((x + 0.2f) * w, y * h, z);
-                    x = stringOption.transform.FindChild("ValueBox").localPosition.x;
-                    y = stringOption.transform.FindChild("ValueBox").localPosition.y;
-                    z = stringOption.transform.FindChild("ValueBox").localPosition.z;
-                    stringOption.transform.FindChild("ValueBox").localPosition = new Vector3((x + 0.7322f) * w, y * h, z);
 
-                    x = stringOption.transform.FindChild("Title Text").localPosition.x;
-                    y = stringOption.transform.FindChild("Title Text").localPosition.y;
-                    z = stringOption.transform.FindChild("Title Text").localPosition.z;
-                    stringOption.transform.FindChild("Title Text").localPosition = new Vector3((x + -1.096f) * w, y * h, z);
-                    x = stringOption.transform.FindChild("Title Text").localScale.x;
-                    y = stringOption.transform.FindChild("Title Text").localScale.y;
-                    z = stringOption.transform.FindChild("Title Text").localScale.z;
-                    stringOption.transform.FindChild("Title Text").localScale = new Vector3(x * w, y * h, z);
-                    stringOption.transform.FindChild("Title Text").GetComponent<RectTransform>().sizeDelta = new Vector2(6.5f, 0.37f);
-                    stringOption.transform.FindChild("Title Text").GetComponent<TMPro.TextMeshPro>().alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+                    Vector3 pos = new();
+                    Vector3 scale = new();
+
+                    //Background
+                    var label = stringOption.LabelBackground;
+                    {
+                        label.transform.localScale = new Vector3(1.3f, 1.14f, 1f);
+                        label.transform.SetLocalX(-2.2695f * w);
+                        label.sprite = GameSettingMenuChangeTabPatch.OptionLabelBackground(option.Name) ?? UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
+                    }
+                    //プラスボタン
+                    var plusButton = stringOption.PlusBtn.transform;
+                    {
+                        pos = plusButton.localPosition;
+                        plusButton.localPosition = new Vector3(option.HideValue ? 100f : (pos.x + 1.1434f) * w, option.HideValue ? 100f : pos.y * h, option.HideValue ? 100f : pos.z);
+                        scale = plusButton.localScale;
+                        plusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+                    }
+                    //マイナスボタン
+                    var minusButton = stringOption.MinusBtn.transform;
+                    {
+                        pos = minusButton.localPosition;
+                        minusButton.localPosition = new Vector3(option.HideValue ? 100f : (pos.x + 0.3463f) * w, option.HideValue ? 100f : (pos.y * h), option.HideValue ? 100f : pos.z);
+                        scale = minusButton.localScale;
+                        minusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+                    }
+                    //値を表示するテキスト
+                    var valueTMP = stringOption.ValueText.transform;
+                    {
+                        pos = valueTMP.localPosition;
+                        valueTMP.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        scale = valueTMP.localScale;
+                        valueTMP.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                    }
+                    //上のテキストを囲む箱(ﾀﾌﾞﾝ)
+                    var valueBox = stringOption.transform.FindChild("ValueBox");
+                    {
+                        pos = valueBox.localScale;
+                        valueBox.localScale = new Vector3((pos.x + 0.2f) * w, pos.y * h, pos.z);
+                        scale = valueBox.localPosition;
+                        valueBox.localPosition = new Vector3((scale.x + 0.7322f) * w, scale.y * h, scale.z);
+                    }
+                    //タイトル(設定名)
+                    var titleText = stringOption.TitleText;
+                    {
+                        pos = titleText.transform.localPosition;
+                        titleText.transform.localPosition = new Vector3((pos.x + -1.096f) * w, pos.y * h, pos.z);
+                        scale = titleText.transform.localScale;
+                        titleText.transform.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                        titleText.rectTransform.sizeDelta = new Vector2(6.5f, 0.37f);
+                        titleText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+                    }
+
                     stringOption.SetClickMask(list[option.Tab].ButtonClickMask);
-                    stringOption.transform.FindChild("LabelBackground").GetComponent<SpriteRenderer>().sprite = GameSettingMenuChangeTabPatch.OptionLabelBackground(option.Name) ?? UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
                     option.OptionBehaviour = stringOption;
                 }
                 option.OptionBehaviour.gameObject.SetActive(true);
@@ -725,95 +714,59 @@ namespace TownOfHost
             search?.gameObject?.SetActive(true);
             search.submitButton.OnPressed = (Action)(() =>
             {
-                var ch = false;
+                bool ch = false;
                 foreach (var op in OptionItem.AllOptions)
-                    if (op.GetName().RemoveHtmlTags() == search.textArea.text)
+                {
+                    var name = op.GetName().RemoveHtmlTags();
+
+                    if (name == search.textArea.text)
                     {
-                        var opt = op;
-                        if (opt.Parent != null)
-                            if (!op.GetBool())
-                            {
-                                opt = op.Parent;
-                                if (op.Parent.Parent != null)
-                                    if (!op.Parent.GetBool())
-                                    {
-                                        opt = op.Parent.Parent;
-                                        if (op.Parent.Parent.Parent != null)
-                                            if (!op.Parent.Parent.GetBool())
-                                            {
-                                                opt = op.Parent.Parent.Parent;
-                                            }
-                                    }
-                            }
-                        switch (opt.Tab)
-                        {
-                            case TabGroup.MainSettings: if (hozon2[0] != null) hozon2[0].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.ImpostorRoles: if (hozon2[1] != null) hozon2[1].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.MadmateRoles: if (hozon2[2] != null) hozon2[2].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.CrewmateRoles: if (hozon2[3] != null) hozon2[3].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.NeutralRoles: if (hozon2[4] != null) hozon2[4].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.Combinations: if (hozon2[5] != null) hozon2[5].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.Addons: if (hozon2[6] != null) hozon2[6].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            case TabGroup.GhostRoles: if (hozon2[7] != null) hozon2[7].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                        }
-                        _ = new LateTask(() =>
-                        {
-                            if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
-                            ModSettingsTab.scrollBar.velocity = Vector2.zero;
-                            var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);// Scrollerのローカル空間における座標に変換
-                            var scrollAmount = 1 - relativePosition.y;
-                            ModSettingsTab.scrollBar.Inner.localPosition = ModSettingsTab.scrollBar.Inner.localPosition + Vector3.up * scrollAmount;  // 強制スクロール
-                            ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
-                        }, 0.1f, "", true);
+                        scroll(op);
                         ch = true;
                         break;
                     }
-                if (!ch)
+                }
+
+                if (!ch)//完全一致したものがないなら部分一致を検索
                 {
                     foreach (var op in OptionItem.AllOptions)
-                        if (op.GetName().RemoveHtmlTags().Contains(search.textArea.text))
+                    {
+                        var name = op.GetName().RemoveHtmlTags();
+                        if (name.Contains(search.textArea.text))
                         {
-                            var opt = op;
-                            if (opt.Parent != null)
-                                if (!op.GetBool())
-                                {
-                                    opt = op.Parent;
-                                    if (op.Parent.Parent != null)
-                                        if (!op.Parent.GetBool())
-                                        {
-                                            opt = op.Parent.Parent;
-                                            if (op.Parent.Parent.Parent != null)
-                                                if (!op.Parent.Parent.GetBool())
-                                                {
-                                                    opt = op.Parent.Parent.Parent;
-                                                }
-                                        }
-                                }
-                            switch (opt.Tab)
-                            {
-                                case TabGroup.MainSettings: if (hozon2[0] != null) hozon2[0].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.ImpostorRoles: if (hozon2[1] != null) hozon2[1].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.MadmateRoles: if (hozon2[2] != null) hozon2[2].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.CrewmateRoles: if (hozon2[3] != null) hozon2[3].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.NeutralRoles: if (hozon2[4] != null) hozon2[4].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.Combinations: if (hozon2[5] != null) hozon2[5].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.Addons: if (hozon2[6] != null) hozon2[6].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                                case TabGroup.GhostRoles: if (hozon2[7] != null) hozon2[7].GetComponent<PassiveButton>().OnClick.Invoke(); break;
-                            }
-                            _ = new LateTask(() =>
-                            {
-                                if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
-                                ModSettingsTab.scrollBar.velocity = Vector2.zero;
-                                var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);// Scrollerのローカル空間における座標に変換
-                                var scrollAmount = 1 - relativePosition.y;
-                                ModSettingsTab.scrollBar.Inner.localPosition = ModSettingsTab.scrollBar.Inner.localPosition + Vector3.up * scrollAmount;  // 強制スクロール
-                                ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
-                            }, 0.1f, "", true);
-                            ch = true;
+                            scroll(op);
                             break;
                         }
+                    }
                 }
                 search.textArea.Clear();
+
+                //スクロール処理
+                void scroll(OptionItem op)
+                {
+                    var opt = op;
+                    while (opt.Parent != null && !opt.GetBool())
+                    {
+                        opt = opt.Parent;
+                    }
+
+                    int tabIndex = (int)opt.Tab;
+
+                    if (tabIndex >= 0 && tabIndex < hozon2.Count && hozon2[tabIndex] != null)
+                    {
+                        hozon2[tabIndex].OnClick.Invoke();
+                    }
+
+                    _ = new LateTask(() =>
+                    {
+                        if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
+                        ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                        var relativePosition = ModSettingsTab.scrollBar.transform.InverseTransformPoint(opt.OptionBehaviour.transform.FindChild("Title Text").transform.position);// Scrollerのローカル空間における座標に変換
+                        var scrollAmount = 1 - relativePosition.y;
+                        ModSettingsTab.scrollBar.Inner.localPosition = ModSettingsTab.scrollBar.Inner.localPosition + Vector3.up * scrollAmount;  // 強制スクロール
+                        ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                    }, 0.1f, "", true);
+                }
             });
 
             ModSettingsButton.OnClick = new();
@@ -833,6 +786,7 @@ namespace TownOfHost
                 }
             }));
 
+            __instance.GameSettingsTab.gameObject.SetActive(false);
 
             // ボタン生成
             CreateButton("OptionReset", Color.red, new Vector2(8.5f, 0f), new Action(() =>
@@ -866,11 +820,10 @@ namespace TownOfHost
 
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.LOAD-STG.png", 180f));
 
-            static void CreateButton(string text, Color color, Vector2 position, Action action, Sprite sprite = null, bool csize = false)
+            void CreateButton(string text, Color color, Vector2 position, Action action, Sprite sprite = null, bool csize = false)
             {
                 var ToggleButton = Object.Instantiate(HudManager.Instance.SettingsButton.GetComponent<PassiveButton>(), GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)").transform);
                 ToggleButton.GetComponent<AspectPosition>().DistanceFromEdge += new Vector3(position.x, 0, 200f);
-
                 ToggleButton.transform.localScale -= new Vector3(0.25f * w, 0.25f * h);
                 ToggleButton.name = text;
                 if (sprite != null)
@@ -959,15 +912,15 @@ namespace TownOfHost
     class GameSettingMenuChangeTabPatch
     {
         public static string meg;
-        public static bool Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
+        public static void Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
             if (!previewOnly)
             {
                 var ModSettingsTab = GameSettingMenuStartPatch.ModSettingsTab;
-                if (!ModSettingsTab) return true;
+                if (!ModSettingsTab) return;
                 ModSettingsTab.gameObject.SetActive(false);
                 ModSettingsButton.SelectButton(false);
-                if (tabNum != 3) return true;
+                if (tabNum != 3) return;
                 ModSettingsTab.gameObject.SetActive(true);
 
                 __instance.MenuDescriptionText.text = meg;
@@ -977,7 +930,6 @@ namespace TownOfHost
                 ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
                 ModSettingsButton.SelectButton(true);
             }
-            return true;
         }
         static int Last = 0;
         public static int Hima = 0;

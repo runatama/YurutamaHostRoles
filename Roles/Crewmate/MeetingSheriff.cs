@@ -7,7 +7,6 @@ using System.Linq;
 
 using TownOfHost.Modules.ChatManager;
 
-using static TownOfHost.Translator;
 using static TownOfHost.Modules.SelfVoteManager;
 using TownOfHost.Roles.Neutral;
 
@@ -89,10 +88,20 @@ public sealed class MeetingSheriff : RoleBase
     }
     public override void OnStartMeeting() => mcount = 0;
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (Max > count && Is(voter) && (MyTaskState.CompletedTasksCount >= cantaskcount || IsTaskFinished) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
@@ -236,6 +245,7 @@ public sealed class MeetingSheriff : RoleBase
             _ => false
         };
     }// ↓改良したの作っちゃった☆ 動くかはわかんない byけーわい
-    //ｶｲﾘｮｳｼﾃﾓﾗｯﾀﾅﾗﾂｶﾜﾅｲﾜｹｶﾞﾅｲ!!(大狼の処理とマッドの処理が出来てたからニュートラルもできるはず!!)
+     //ｶｲﾘｮｳｼﾃﾓﾗｯﾀﾅﾗﾂｶﾜﾅｲﾜｹｶﾞﾅｲ!!(大狼の処理とマッドの処理が出来てたからニュートラルもできるはず!!)
+
 }
 //コード多分改良できるけど動いてるからヨシ。(´・ω・｀)

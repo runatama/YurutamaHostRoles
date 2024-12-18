@@ -35,8 +35,8 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static bool canSeeDeathReason;
     private static bool canVent;
 
-    public bool CheckKillFlash(MurderInfo info) => canSeeKillFlash;
-    public bool CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
+    public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
     private static Options.OverrideTasksData Tasks;
 
     public static void SetupOptionItem()

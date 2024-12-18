@@ -100,11 +100,11 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         if (chance > 18) mesnumber = 2;
         if (chance > 15) mesnumber = 1;
 
-        var msg = string.Format(Translator.GetString($"SantaClausMeetingMeg{mesnumber}"), MeetingNotifyRoom);
+        var msg = string.Format(GetString($"SantaClausMeetingMeg{mesnumber}"), MeetingNotifyRoom);
 
         MeetingNotifyRoom = "";
         MeetingNotify = false;
-        return $"<color=#e05050>{msg}</color>";
+        return $"<size=60%><color=#e05050>{msg}</color></size>";
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
@@ -134,11 +134,11 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
                 Distance.Add(r, Vector2.Distance(Player.GetTruePosition(), r.transform.position));
             }
 
-        var near = Translator.GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");
+        var near = GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");
 
         if (NowRoom != null)
         {
-            var now = Translator.GetString($"{NowRoom.RoomId}");
+            var now = GetString($"{NowRoom.RoomId}");
 
             if (NowRoom.RoomId == SystemTypes.Hallway)
             {
@@ -146,7 +146,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
             }
             MeetingNotifyRoom = now;
         }
-        else MeetingNotifyRoom = string.Format(Translator.GetString($"SantaClausnear"), $"{near}");
+        else MeetingNotifyRoom = string.Format(GetString($"SantaClausnear"), $"{near}");
 
         GetArrow.Remove(Player.PlayerId, (Vector3)EntotuVentPos);
         if (WinGivePresentCount <= giftpresent)
@@ -178,10 +178,10 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
 
         //配達先が決まっている時
         if (EntotuVentPos != null && EntotuVentId != null)
-            return $"<color=#e05050>{Translator.GetString("SantaClausLower1") + GetArrow.GetArrows(seer, (Vector3)EntotuVentPos)}</color>";
+            return $"<color=#e05050>{GetString("SantaClausLower1") + GetArrow.GetArrows(seer, (Vector3)EntotuVentPos)}</color>";
 
         // プレゼントの用意をするんだぜ
-        return $"<color=#e05050>{Translator.GetString("SantaClausLower2")}</color>";
+        return $"<color=#e05050>{GetString("SantaClausLower2")}</color>";
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {

@@ -1,6 +1,5 @@
 using HarmonyLib;
 using Hazel;
-using TownOfHost.Attributes;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -10,16 +9,8 @@ namespace TownOfHost.Patches.ISystemType;
 [HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.UpdateSystem))]
 public static class SabotageSystemTypeUpdateSystemPatch
 {
-    private static bool isCooldownModificationEnabled;
-    private static float modifiedCooldownSec;
     private static readonly LogHandler logger = Logger.Handler(nameof(SabotageSystemType));
 
-    [GameModuleInitializer]
-    public static void Initialize()
-    {
-        isCooldownModificationEnabled = Options.ModifySabotageCooldown.GetBool();
-        modifiedCooldownSec = Options.SabotageCooldown.GetFloat();
-    }
     static byte amount;
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
@@ -33,7 +24,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
         //HASモードではサボタージュ不可
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
 
-        if (Modules.SuddenDeathMode.NowSuddenDeathMode) return false;
+        if (SuddenDeathMode.NowSuddenDeathMode) return false;
         if (!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) return false;
 
         if (!CustomRoleManager.OnSabotage(player, nextSabotage))
@@ -88,12 +79,12 @@ public static class SabotageSystemTypeUpdateSystemPatch
     }
     public static void Postfix(SabotageSystemType __instance, bool __runOriginal /* Prefixの結果，本体処理が実行されたかどうか */ )
     {
-        if (!__runOriginal || !isCooldownModificationEnabled || !AmongUsClient.Instance.AmHost)
+        if (!__runOriginal || !Options.ModifySabotageCooldown.GetBool() || !AmongUsClient.Instance.AmHost)
         {
             return;
         }
         // サボタージュクールダウンを変更
-        __instance.Timer = modifiedCooldownSec;
+        __instance.Timer = Options.SabotageCooldown.GetFloat();
         __instance.IsDirty = true;
     }
 }
@@ -104,6 +95,12 @@ public static class ElectricTaskInitializePatch
     public static void Postfix()
     {
         UtilsOption.MarkEveryoneDirtySettings();
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 1f, "1Elec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 2f, "2Elec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 3f, "3Elec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 4f, "4eElec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 5f, "5Elec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 6f, "5Elec", true);
         if (!GameStates.IsMeeting)
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
     }

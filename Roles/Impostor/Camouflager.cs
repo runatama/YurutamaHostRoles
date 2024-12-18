@@ -177,5 +177,5 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         text = "Camouflager_Ability";
         return true;
     }
-    public override string GetAbilityButtonText() => Translator.GetString("CamouflagerText");
+    public override string GetAbilityButtonText() => GetString("CamouflagerText");
 }
