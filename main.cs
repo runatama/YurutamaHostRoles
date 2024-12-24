@@ -55,7 +55,7 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.25.14";
+        public const string PluginVersion = "519.24.14";
         public const string PluginShowVersion = "519.24<sub>.14</sub>";
         public const string ModVersion = ".24";//リリースver用バージョン変更
 
