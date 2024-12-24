@@ -25,9 +25,9 @@ public sealed class Engineer : RoleBase
     public static OptionItem EngineerInVentMaxTime;
     public static void SetUpCustomOption()
     {
-        EngineerCooldown = FloatOptionItem.Create(RoleInfo, 203, "EngineerCooldown", new(0f, 180f, 0.5f), 15f, false)
+        EngineerCooldown = FloatOptionItem.Create(RoleInfo, 203, StringNames.EngineerCooldown, new(0f, 180f, 0.5f), 15f, false)
         .SetValueFormat(OptionFormat.Seconds);
-        EngineerInVentMaxTime = FloatOptionItem.Create(RoleInfo, 204, "EngineerInVentMaxTime", new(0f, 180f, 0.5f), 5f, false, infinity: true)
+        EngineerInVentMaxTime = FloatOptionItem.Create(RoleInfo, 204, StringNames.EngineerInVentCooldown, new(0f, 180f, 0.5f), 5f, false, infinity: true)
                 .SetValueFormat(OptionFormat.Seconds);
     }
     public override void ApplyGameOptions(IGameOptions opt)

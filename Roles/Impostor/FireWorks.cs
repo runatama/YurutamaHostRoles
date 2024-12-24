@@ -93,8 +93,9 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.PhantomCooldown = (State is FireWorksState.ReadyFire or FireWorksState.WaitTime) ? OptionPaaaaaaaanCooldown.GetFloat() : Cool;
+        AURoleOptions.PhantomCooldown = State is FireWorksState.FireEnd ? 200f : (State is FireWorksState.ReadyFire or FireWorksState.WaitTime) ? OptionPaaaaaaaanCooldown.GetFloat() : Cool;
     }
+    public override bool CanUseAbilityButton() => State != FireWorksState.FireEnd || !Player.IsAlive();
     public bool UseOneclickButton => true;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
@@ -143,7 +144,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
                     }
                     if (suicide)
                     {
-                        var totalAlive = PlayerCatch.AllAlivePlayerControls.Count();
+                        var totalAlive = PlayerCatch.AllAlivePlayersCount;
                         //自分が最後の生き残りの場合は勝利のために死なない
                         if (totalAlive != 1)
                         {
@@ -151,14 +152,15 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
                             Player.RpcMurderPlayer(Player);
                         }
                     }
-                    Player.MarkDirtySettings();
                 }
                 State = FireWorksState.FireEnd;
+
+                Player.RpcResetAbilityCooldown(kousin: true);
                 break;
             default:
                 break;
         }
-        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
 
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
@@ -169,7 +171,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
         {
             Logger.Info("爆破準備OK", "FireWorks");
             State = FireWorksState.ReadyFire;
-            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
         }
         switch (State)
         {

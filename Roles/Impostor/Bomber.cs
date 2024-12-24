@@ -82,17 +82,17 @@ namespace TownOfHost.Roles.Impostor
 
             resetkillcooldown = true;
             if (target.Is(CustomRoles.King)) return;
+            if (!BomberExplosionPlayers.TryAdd(target.PlayerId, 0f)) return;
             BomberExplosion--;
             SendRPC();
-            Player.RpcResetAbilityCooldown();
+            Player.RpcResetAbilityCooldown(kousin: true);
             Player.SetKillCooldown(target: target);
-            BomberExplosionPlayers.Add(target.PlayerId, 0f);
             UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
         public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(0 < BomberExplosion ? Color.red : Color.gray, $"({BomberExplosion})");
         public override void OnFixedUpdate(PlayerControl _)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !Player.IsAlive()) return;
 
             foreach (var (targetId, timer) in BomberExplosionPlayers.ToArray())
             {
@@ -140,7 +140,7 @@ namespace TownOfHost.Roles.Impostor
             => GetString("BomberAbilitytext");
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.PhantomCooldown = Cooldown;
+            AURoleOptions.PhantomCooldown = BomberExplosion <= 0 ? 200f : Cooldown;
         }
     }
 }

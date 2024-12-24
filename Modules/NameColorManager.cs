@@ -45,6 +45,8 @@ namespace TownOfHost
                         colorCode = "#ffffff"; //white
                 }
             }
+            //会議中で決まってない場合は白
+            if (isMeeting && colorCode == "") colorCode = "#ffffff";
             if (colorCode != "")
             {
                 if (!colorCode.StartsWith('#'))

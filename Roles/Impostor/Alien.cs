@@ -555,7 +555,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                     UtilsOption.MarkEveryoneDirtySettings();
                     Puppets.Remove(puppet.PlayerId);
                     SendRPC(puppet.PlayerId, 2);
-                    UtilsNotifyRoles.NotifyRoles();
                 }
             }
         }
@@ -743,7 +742,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         }
         darkenTimer = StealthDarkenDuration;
         RpcDarken(null);
-        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
     void RemoveVictim()
     {

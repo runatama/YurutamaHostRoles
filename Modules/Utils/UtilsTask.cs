@@ -1,5 +1,6 @@
 using System;
 using AmongUs.GameOptions;
+using HarmonyLib;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost
@@ -132,6 +133,7 @@ namespace TownOfHost
                 {
                     if (pc != null)
                     {
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                         if (Main.AllPlayerTask.TryGetValue(pc.PlayerId, out var tasks))
                             tasks.Do(task => pc.RpcCompleteTask(task));
                     }

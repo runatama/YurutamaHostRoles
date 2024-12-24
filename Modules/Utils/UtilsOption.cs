@@ -400,20 +400,20 @@ namespace TownOfHost
             sb.Append("</line-height></size>" + GetString("Settings") + "\n<line-height=60%><size=70%>");
             sb.Append($"Mod:<color={Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginShowVersion} {(Main.DebugVersion ? $"☆{GetString("Debug")}☆" : "")}</color>\n");
             sb.Append($"Map:{Constants.MapNames[Main.NormalOptions.MapId]}\n");
-            sb.Append($"{GetString("Impostor")}:{Main.NormalOptions.NumImpostors.ToString()}\n");
-            sb.Append($"{GetString("NumEmergencyMeetings")}:{Main.NormalOptions.NumEmergencyMeetings.ToString()}\n");
-            sb.Append($"{GetString("EmergencyCooldown")}:{Main.NormalOptions.EmergencyCooldown.ToString()}s\n");
-            if (!GameStates.IsLobby) sb.Append($"{GetString("DiscussionTime")}:{Main.Time.Item1.ToString()}s\n");
-            if (Main.Time.Item1 != Main.NormalOptions.DiscussionTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString("DiscussionTime")}:{Main.NormalOptions.DiscussionTime.ToString()}s\n");
-            if (!GameStates.IsLobby) sb.Append($"{GetString("VotingTime")}:{Main.Time.Item2.ToString()}s\n");
-            if (Main.Time.Item2 != Main.NormalOptions.VotingTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString("VotingTime")}:{Main.NormalOptions.VotingTime.ToString()}s\n");
-            sb.Append($"{GetString("PlayerSpeedMod")}:{Main.NormalOptions.PlayerSpeedMod.ToString()}x\n");
-            sb.Append($"{GetString("CrewLightMod")}:{Main.NormalOptions.CrewLightMod.ToString()}x\n");
-            sb.Append($"{GetString("ImpostorLightMod")}:{Main.NormalOptions.ImpostorLightMod.ToString()}x\n");
-            sb.Append($"{GetString("KillCooldown")}:{Main.NormalOptions.KillCooldown.ToString()}s\n");
-            sb.Append($"{GetString("NumCommonTasks")}:{Main.NormalOptions.NumCommonTasks.ToString()}\n");
-            sb.Append($"{GetString("NumLongTasks")}:{Main.NormalOptions.NumLongTasks.ToString()}\n");
-            sb.Append($"{GetString("NumShortTasks")}:{Main.NormalOptions.NumShortTasks.ToString()}\n");
+            sb.Append($"{GetString(StringNames.GameNumImpostors)}:{Main.NormalOptions.NumImpostors.ToString()}\n");
+            sb.Append($"{GetString(StringNames.GameNumMeetings)}:{Main.NormalOptions.NumEmergencyMeetings.ToString()}\n");
+            sb.Append($"{GetString(StringNames.GameEmergencyCooldown)}:{Main.NormalOptions.EmergencyCooldown.ToString()}s\n");
+            if (!GameStates.IsLobby) sb.Append($"{GetString(StringNames.GameDiscussTime)}:{Main.Time.Item1.ToString()}s\n");
+            if (Main.Time.Item1 != Main.NormalOptions.DiscussionTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString(StringNames.GameDiscussTime)}:{Main.NormalOptions.DiscussionTime.ToString()}s\n");
+            if (!GameStates.IsLobby) sb.Append($"{GetString(StringNames.GameVotingTime)}:{Main.Time.Item2.ToString()}s\n");
+            if (Main.Time.Item2 != Main.NormalOptions.VotingTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString(StringNames.GameVotingTime)}:{Main.NormalOptions.VotingTime.ToString()}s\n");
+            sb.Append($"{GetString(StringNames.GamePlayerSpeed)}:{Main.NormalOptions.PlayerSpeedMod.ToString()}x\n");
+            sb.Append($"{GetString(StringNames.GameCrewLight)}:{Main.NormalOptions.CrewLightMod.ToString()}x\n");
+            sb.Append($"{GetString(StringNames.GameImpostorLight)}:{Main.NormalOptions.ImpostorLightMod.ToString()}x\n");
+            sb.Append($"{GetString(StringNames.GameKillCooldown)}:{Main.NormalOptions.KillCooldown.ToString()}s\n");
+            sb.Append($"{GetString(StringNames.GameCommonTasks)}:{Main.NormalOptions.NumCommonTasks.ToString()}\n");
+            sb.Append($"{GetString(StringNames.GameLongTasks)}:{Main.NormalOptions.NumLongTasks.ToString()}\n");
+            sb.Append($"{GetString(StringNames.GameShortTasks)}:{Main.NormalOptions.NumShortTasks.ToString()}\n");
 
             SendMessage(sb.ToString(), PlayerId);
         }

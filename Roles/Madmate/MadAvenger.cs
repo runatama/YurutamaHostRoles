@@ -81,9 +81,10 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         }
         return true;
     }
+    public override string GetAbilityButtonText() => MyTaskState.IsTaskFinished && !(PlayerCatch.AllAlivePlayersCount >= Count) ? GetString("MadAvengerAbility") : GetString(StringNames.VentAbility);
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
-        if ((!IsTaskFinished && PlayerCatch.AllAlivePlayerControls.Count() >= Count) || !can)
+        if ((!IsTaskFinished && PlayerCatch.AllAlivePlayersCount >= Count) || !can)
         {
             return OptionVent.GetBool();
         }
@@ -118,7 +119,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         //seeおよびseenが自分である場合以外は関係なし
         if (!Is(seer) || !Is(seen)) return "";
 
-        return Utils.ColorString(IsTaskFinished && PlayerCatch.AllAlivePlayerControls.Count() >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && PlayerCatch.AllAlivePlayerControls.Count() >= Count ? "\n" + GetString("MadAvengerchallengeMeeting") : "\n" + GetString("MadAvengerreserve"));
+        return Utils.ColorString(IsTaskFinished && PlayerCatch.AllAlivePlayersCount >= Count ? Palette.ImpostorRed : Palette.DisabledGrey, IsTaskFinished && PlayerCatch.AllAlivePlayersCount >= Count ? "\n" + GetString("MadAvengerchallengeMeeting") : "\n" + GetString("MadAvengerreserve"));
     }
     public override void OnReportDeadBody(PlayerControl ___, NetworkedPlayerInfo __)
     {

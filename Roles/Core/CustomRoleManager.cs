@@ -317,7 +317,7 @@ public static class CustomRoleManager
         }
         //あっ!死ぬ前にどこにいたかだけ教えてね!
         var room = "";
-        var KillRoom = PlayerCatch.GetPlayerById(appearanceTarget.PlayerId).GetPlainShipRoom();
+        var KillRoom = appearanceTarget.GetPlainShipRoom();
         if (KillRoom != null)
         {
             room = Translator.GetString($"{KillRoom.RoomId}");

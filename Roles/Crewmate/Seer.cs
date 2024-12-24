@@ -37,16 +37,16 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
     enum OptionName
     {
         CanseeComms,
-        BaitChien,
-        Baitsaidaichien,
-        SeerDelay
+        SeerDelayMode,
+        SeerMindelay,
+        SeerMaxdelay
     }
     private static void SetupOptionItem()
     {
         OptioACanSeeComms = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanseeComms, true, false);
-        OptionDelay = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SeerDelay, false, false);
-        OptionMindelay = FloatOptionItem.Create(RoleInfo, 12, OptionName.BaitChien, new(0, 60, 0.5f), 3f, false, OptionDelay).SetValueFormat(OptionFormat.Seconds);
-        OptionMaxdelay = FloatOptionItem.Create(RoleInfo, 13, OptionName.Baitsaidaichien, new(0, 60, 0.5f), 3f, false, OptionDelay).SetValueFormat(OptionFormat.Seconds);
+        OptionDelay = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SeerDelayMode, false, false);
+        OptionMindelay = FloatOptionItem.Create(RoleInfo, 12, OptionName.SeerMindelay, new(0, 60, 0.5f), 3f, false, OptionDelay).SetValueFormat(OptionFormat.Seconds);
+        OptionMaxdelay = FloatOptionItem.Create(RoleInfo, 13, OptionName.SeerMaxdelay, new(0, 60, 0.5f), 3f, false, OptionDelay).SetValueFormat(OptionFormat.Seconds);
     }
     public bool? CheckKillFlash(MurderInfo info) // IKillFlashSeeable
     {

@@ -6,6 +6,8 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
+using static TownOfHost.Modules.SelfVoteManager;
+
 namespace TownOfHost.Roles.Impostor;
 public sealed class EvilSatellite : RoleBase, IImpostor
 {
@@ -65,13 +67,6 @@ public sealed class EvilSatellite : RoleBase, IImpostor
         AllAlivePlayerKeiro.Clear();
         SendPlayerkeiro.Clear();
         AllAlivePlayerLast.Clear();
-        foreach (var pc in PlayerControl.AllPlayerControls)
-        {
-            List<SystemTypes> keiro = new();
-            if (!AllAlivePlayerKeiro.TryAdd(pc.PlayerId, keiro)) AllAlivePlayerKeiro[pc.PlayerId] = keiro;
-            if (pc.PlayerId == Player.PlayerId && PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)//導入者
-                Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
-        }
     }
     public static void OnFixedUpdateOthers(PlayerControl player)
     {
@@ -97,6 +92,36 @@ public sealed class EvilSatellite : RoleBase, IImpostor
         else Logger.Error($"{player.name} : AllAlivePlayerKeiroがぬる!", "EvilSatellite");
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
+    public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
+    {
+        if (!Canuseability()) return true;
+        if (Is(voter))
+        {
+            if (CheckSelfVoteMode(Player, votedForId, out var status))
+            {
+                if (status is VoteStatus.Self)
+                    Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Satellite"), GetString("Vote.Satellite")) + GetString("VoteSkillMode"), Player.PlayerId);
+                if (status is VoteStatus.Skip)
+                    Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
+                if (status is VoteStatus.Vote)
+                    SendPlayerKeiro(votedForId);
+                SetMode(Player, status is VoteStatus.Self);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability())
+        {
+            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
+            return isForHud ? mes : $"<size=40%>{mes}</size>";
+        }
+        return "";
+    }
     public void SendPlayerKeiro(byte playerid)
     {
         if (AllAlivePlayerKeiro.TryGetValue(playerid, out var keirolist))

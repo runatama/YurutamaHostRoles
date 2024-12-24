@@ -146,7 +146,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
                 if (ChangeTimer >= TargetChangeTime)//時間経過でターゲットをリセットする処理
                 {
                     ResetTarget();//ターゲットの選びなおし
-                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                    UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
                 }
                 if (ChangeTimer >= 0)
                     ChangeTimer += Time.fixedDeltaTime;
@@ -156,7 +156,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
                 {
                     ResetTarget();
                     Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
-                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                    UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
                 }
             }
         }

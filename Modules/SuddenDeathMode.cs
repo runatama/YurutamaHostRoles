@@ -248,31 +248,31 @@ namespace TownOfHost.Modules
                 var systemtypes = Utils.GetCriticalSabotageSystemType();
                 ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
                 Logger.Info("ｷﾐﾊﾓｳｼﾞｷｼﾇ...!!", "SuddenDeath");
-                UtilsNotifyRoles.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
             if (opttime - SuddenDeathtime < 10 && nokori10s is false)
             {
                 nokori10s = true;
-                UtilsNotifyRoles.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
             if (opttime - SuddenDeathtime < 15 && nokori15s is false)
             {
                 nokori15s = true;
-                UtilsNotifyRoles.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
             if (opttime - SuddenDeathtime < 30 && nokori30s is false)
             {
                 nokori30s = true;
-                UtilsNotifyRoles.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
             if (opttime - SuddenDeathtime < 60 && nokori60s is false)
             {
                 nokori60s = true;
-                UtilsNotifyRoles.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
         }

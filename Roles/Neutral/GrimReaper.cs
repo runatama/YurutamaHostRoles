@@ -76,7 +76,7 @@ namespace TownOfHost.Roles.Neutral
                     (var kille, var taret) = info.AttemptTuple;
                     {
                         Logger.Info($"{kille?.Data?.PlayerName}:キル", "GrimReaper");
-                        Main.AllPlayerKillCooldown[kille.PlayerId] = 999;
+                        Main.AllPlayerKillCooldown[kille.PlayerId] = 200f;
                         kille.SyncSettings();//もう君はキルできないよ...!
                     }
                 }

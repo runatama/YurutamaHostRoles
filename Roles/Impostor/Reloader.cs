@@ -54,7 +54,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
         OptionCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.ReloaderCount, new(1, 15, 1), 2, false);
     }
     public bool UseOneclickButton => true;
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = Cooldown;
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = Count > 0 ? Cooldown : 200f;
     public float CalculateKillCooldown() => KillCooldown;
     public override bool CanUseAbilityButton() => Count > 0;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
@@ -65,7 +65,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
 
         resetkillcooldown = true;
         Count--;
-        Player.SetKillCooldown(RKillCooldown);
+        Player.SetKillCooldown(RKillCooldown, delay: true);
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
         Player.SyncSettings();
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);

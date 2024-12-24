@@ -109,6 +109,16 @@ namespace TownOfHost
             if (borudo) return "<b>" + ColorString(Main.PlayerColors[player], $"{name}</b>");
             else return ColorString(Main.PlayerColors[player], $"{name}");
         }
+        /// <summary></summary>
+        /// <param name="player">色表示にするプレイヤー</param>
+        /// <param name="borudo">trueの場合ボールドで返します。</param>
+        public static string GetPlayerColor(NetworkedPlayerInfo player, bool borudo = false)
+        {
+            if (player == null) return "";
+            var name = player.PlayerName;
+            if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
+            else return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
+        }
         public static SystemTypes GetCriticalSabotageSystemType() => (MapNames)Main.NormalOptions.MapId switch
         {
             MapNames.Polus => SystemTypes.Laboratory,

@@ -190,4 +190,5 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         return "";
     }
     public bool CheckWin(ref CustomRoles winnerRole) => IWinflag;
+    public override string GetAbilityButtonText() => GetString("ChefButtonText");
 }

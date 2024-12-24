@@ -208,6 +208,7 @@ public sealed class Chameleon : RoleBase, IAdditionalWinner
     public override void StartGameTasks() => ChengeTeam();
     void ChengeTeam()
     {
+        var oldteam = NowTeam;
         if (!PlayerCatch.AllAlivePlayerControls.Any(p => p.GetCustomRole() is CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.JackalMafia))
             TeamList.Remove(CustomRoles.Jackal);
         if (!PlayerCatch.AllAlivePlayerControls.Any(p => p.GetCustomRole() is CustomRoles.Egoist))
@@ -230,7 +231,7 @@ public sealed class Chameleon : RoleBase, IAdditionalWinner
 
         Logger.Info($"Now : {NowTeam}", "Chameleon");
 
-        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        if (oldteam != NowTeam) UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
     public override void OverrideTrueRoleName(ref UnityEngine.Color roleColor, ref string roleText) => roleText = Translator.GetString($"{NowTeam}").Color(UtilsRoleText.GetRoleColor(NowTeam)) + Translator.GetString("Chameleon");
     public override void AfterMeetingTasks() => _ = new LateTask(() => { if (!GameStates.Meeting) ChengeTeam(); }, 5f, "", true);

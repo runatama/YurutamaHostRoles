@@ -185,27 +185,28 @@ namespace TownOfHost.Roles.Impostor
             {
                 fall = false;
                 var target = Player.GetKillTarget();
-                var targetroleclass = target.GetRoleClass();
-                if (targetroleclass is SchrodingerCat schrodingerCat)
-                {
-                    if (schrodingerCat.Team == SchrodingerCat.TeamType.None)
-                    {
-                        schrodingerCat.ChangeTeamOnKill(Player);
-                        Player.SetKillCooldown(target: schrodingerCat.Player);
-                        return;
-                    }
-                }
-                if (targetroleclass is BakeCat bakeneko)
-                {
-                    if (bakeneko.Team == BakeCat.TeamType.None)
-                    {
-                        bakeneko.ChangeTeamOnKill(Player);
-                        Player.SetKillCooldown(target: bakeneko.Player);
-                        return;
-                    }
-                }
                 if (target != null)
                 {
+                    var targetroleclass = target?.GetRoleClass();
+                    if (targetroleclass is SchrodingerCat schrodingerCat)
+                    {
+                        if (schrodingerCat.Team == SchrodingerCat.TeamType.None)
+                        {
+                            schrodingerCat.ChangeTeamOnKill(Player);
+                            Player.SetKillCooldown(target: schrodingerCat.Player);
+                            return;
+                        }
+                    }
+                    if (targetroleclass is BakeCat bakeneko)
+                    {
+                        if (bakeneko.Team == BakeCat.TeamType.None)
+                        {
+                            bakeneko.ChangeTeamOnKill(Player);
+                            Player.SetKillCooldown(target: bakeneko.Player);
+                            return;
+                        }
+                    }
+
                     SetSpelled(target);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
@@ -303,6 +304,10 @@ namespace TownOfHost.Roles.Impostor
             }
             text = default;
             return false;
+        }
+        public override string GetAbilityButtonText()
+        {
+            return GetString("WitchSpellButtonText");
         }
         public override bool OnEnterVent(PlayerPhysics physics, int ventId)
         {

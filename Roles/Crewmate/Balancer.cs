@@ -226,13 +226,13 @@ public sealed class Balancer : RoleBase
             if (!d1.IsAlive())
             {
                 Exiled = d2.Data;
-                vote[d2.PlayerId] = PlayerCatch.AllAlivePlayerControls.Count();
+                vote[d2.PlayerId] = PlayerCatch.AllAlivePlayersCount;
                 return true;
             }
             if (!d2.IsAlive())
             {
                 Exiled = d1.Data;
-                vote[d1.PlayerId] = PlayerCatch.AllAlivePlayerControls.Count();
+                vote[d1.PlayerId] = PlayerCatch.AllAlivePlayersCount;
                 return true;
             }
         }

@@ -112,4 +112,5 @@ public sealed class Curser : RoleBase, IImpostor
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(RoleInfo.RoleColor, $"({NroiCunt})");
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.ShapeshifterCooldown = Cooldown;
     public float CalculateKillCooldown() => KillCooldown;
+    public override string GetAbilityButtonText() => GetString("MadChanger_Targetset");
 }

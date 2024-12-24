@@ -33,12 +33,15 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         player
     )
     {
+        timer = 0;
+        disting = "";
         EvilTrackers.Clear();
         canSeeMurderRoom = OptionCanSeeMurderRoom.GetBool();
         CanSeeKillFlash = OptionCanSeeKillFlash.GetBool();
         CurrentTargetMode = (TargetMode)OptionTargetMode.GetValue();
         CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
         CanCreateSideKick = OptionCanCreateSideKick.GetBool() && CurrentTargetMode != TargetMode.Never;
+        CanSeeDistance = OptionCanSeeDistance.GetBool() && CurrentTargetMode != TargetMode.Never;
 
         TargetId = byte.MaxValue;
         CanSetTarget = CurrentTargetMode != TargetMode.Never;
@@ -61,6 +64,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     private static BooleanOptionItem OptionCanSeeKillFlash;
     private static BooleanOptionItem OptionCanSeeMurderRoom;
     private static StringOptionItem OptionTargetMode;
+    private static BooleanOptionItem OptionCanSeeDistance;
     private static BooleanOptionItem OptionCanSeeLastRoomInMeeting;
     private static BooleanOptionItem OptionCanCreateSideKick;
 
@@ -69,19 +73,23 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         EvilTrackerCanSeeKillFlash,
         EvilTrackerTargetMode,
         EvilTrackerCanSeeLastRoomInMeeting,
-        EvilHackerCanSeeMurderRoom//イビハの設定流用だから...
+        EvilHackerCanSeeMurderRoom,//イビハの設定流用だから...
+        EvilHackerCanSeeDistance
     }
-    public static bool CanSeeKillFlash;
+    static bool CanSeeKillFlash;
     static bool canSeeMurderRoom;
-    private static TargetMode CurrentTargetMode;
-    public static bool CanSeeLastRoomInMeeting;
-    private static bool CanCreateSideKick;
+    static TargetMode CurrentTargetMode;
+    static bool CanSeeDistance;
+    static bool CanSeeLastRoomInMeeting;
+    static bool CanCreateSideKick;
 
     public byte TargetId;
     public bool CanSetTarget;
-    private HashSet<byte> ImpostorsId = new(3);
+    HashSet<byte> ImpostorsId = new(3);
     static HashSet<EvilTracker> EvilTrackers = new();
-    private HashSet<EvilHacker.MurderNotify> activeNotifies = new(2);
+    HashSet<EvilHacker.MurderNotify> activeNotifies = new(2);
+    float timer;
+    string disting;
     private enum TargetMode
     {
         Never,
@@ -121,6 +129,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         OptionCanSeeKillFlash = BooleanOptionItem.Create(RoleInfo, 10, OptionName.EvilTrackerCanSeeKillFlash, true, false);
         OptionCanSeeMurderRoom = BooleanOptionItem.Create(RoleInfo, 14, OptionName.EvilHackerCanSeeMurderRoom, false, false, OptionCanSeeKillFlash);
         OptionTargetMode = StringOptionItem.Create(RoleInfo, 11, OptionName.EvilTrackerTargetMode, TargetModeText, 2, false);
+        OptionCanSeeDistance = BooleanOptionItem.Create(RoleInfo, 15, OptionName.EvilHackerCanSeeDistance, false, false, OptionTargetMode);
         OptionCanCreateSideKick = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, false, false, OptionTargetMode);
         OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.EvilTrackerCanSeeLastRoomInMeeting, false, false);
     }
@@ -207,6 +216,8 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         //※どちらにしろシェイプシフトは出来ない
         if (!CanTarget() || target.Is(CustomRoleTypes.Impostor)) return false;
 
+        var oldtarget = TargetId;
+        if (oldtarget == TargetId) return false;
         SetTarget(target.PlayerId);
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に設定", "EvilTrackerTarget");
         Player.MarkDirtySettings();
@@ -278,6 +289,10 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         if (TargetId != byte.MaxValue)
         {
             sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(Player, TargetId)));
+            if (PlayerCatch.GetPlayerById(TargetId).IsAlive())
+            {
+                sb.Append($"<color=#ffffff><size=60%>({disting})</color></size>");
+            }
         }
         return sb.ToString();
     }
@@ -287,7 +302,25 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
 
         string text = Utils.ColorString(Palette.ImpostorRed, TargetArrow.GetArrows(Player, seen.PlayerId));
         var room = PlayerState.GetByPlayerId(seen.PlayerId).LastRoom;
-        if (room == null) text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
+
+        if (room == null)
+            text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
+        else
+        if (room.RoomId == SystemTypes.Hallway)
+        {
+            var Rooms = ShipStatus.Instance.AllRooms;
+            Dictionary<PlainShipRoom, float> Distance = new();
+
+            if (Rooms != null)
+                foreach (var r in Rooms)
+                {
+                    if (r.RoomId == SystemTypes.Hallway) continue;
+                    Distance.Add(r, Vector2.Distance(seen.transform.position, r.transform.position));
+                }
+
+            var rooo = Distance.OrderByDescending(x => x.Value).Last().Key;
+            text += $"<color=#ff1919>@{Translator.GetString($"{rooo.RoomId}") + Translator.GetString($"{room.RoomId}")}</color>";
+        }
         else
         {
             text += Utils.ColorString(Palette.ImpostorRed, "@" + GetString(room.RoomId.ToString()));
@@ -339,6 +372,19 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
+        timer += Time.fixedDeltaTime;
+        if (timer > 0.5f && PlayerCatch.GetPlayerById(TargetId).IsAlive() && player.IsAlive())
+        {
+            timer = 0;
+            var oldtext = disting;
+            //クライアントの奴と揃える
+            var distance = Vector2.Distance(Player.transform.position, PlayerCatch.GetPlayerById(TargetId).transform.position);
+            distance = Mathf.Round(distance * 10);//小数第一までは表示させたい
+            disting = $"{distance * 0.1f}";
+            disting += disting.Contains(".") ? "000" : ".0";//整数の時おかしくなる奴
+            disting = disting.Substring(0, 10 <= distance * 0.1f ? 4 : 3);//xx.x / x.x
+            if (oldtext != disting) UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+        }
         // 古い通知の削除処理 Mod入りは自分でやる
         if (!AmongUsClient.Instance.AmHost && Player != PlayerControl.LocalPlayer)
         {

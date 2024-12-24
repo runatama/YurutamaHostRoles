@@ -514,7 +514,7 @@ namespace TownOfHost
                         return true;
                     }
                 }
-                else if (PlayerCatch.AllAlivePlayerControls.Count() == 1)
+                else if (PlayerCatch.AllAlivePlayersCount == 1)
                 {
                     var winner = PlayerCatch.AllAlivePlayerControls.FirstOrDefault();
 

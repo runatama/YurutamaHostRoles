@@ -44,7 +44,9 @@ public interface IKiller
     /// <br/>"※キル後の処理をここでしない"<br/><br/>
     /// 通常キルはブロックされることを考慮しなくてもよい。<br/>
     /// 通常キル以外の能力はinfo.CanKill=falseの場合は効果発揮しないよう実装する。<br/>
-    /// キルを行わない場合はinfo.DoKill=falseとする。
+    /// キルを行わない場合はinfo.DoKill=falseとする。<br/>
+    /// (CanKill = ターゲットをキル出来るか。ガード等で弾かれる)<br/>
+    /// (DoKill = キラーがキル出来るか。キルで塗るとかならfalse)
     /// </summary>
     /// <param name="info">キル関係者情報</param>
     public void OnCheckMurderAsKiller(MurderInfo info) { }

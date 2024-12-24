@@ -243,7 +243,6 @@ namespace TownOfHost
             PlayerCatch.CountAlivePlayers(true);
             Utils.AfterMeetingTasks();
             UtilsOption.SyncAllSettings();
-            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
         }
 
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)

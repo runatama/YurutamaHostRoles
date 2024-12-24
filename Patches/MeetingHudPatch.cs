@@ -407,7 +407,6 @@ public static class MeetingHudPatch
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Update))]
     class UpdatePatch
     {
-        public static float timer = 0;
         public static void Postfix(MeetingHud __instance)
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -444,25 +443,6 @@ public static class MeetingHudPatch
                     || !PlayerCatch.GetPlayerById(Balancer.target2).IsAlive())
                     MeetingVoteManager.Instance.EndMeeting(false);
             }
-            if (GameStates.IsMeeting && !GameStates.Tuihou && timer > 3)
-            {
-                timer = 0;
-                if (PlayerCatch.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.EvilSatellite)).Count() == 0) return;
-                foreach (var pc in PlayerCatch.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoles.EvilSatellite)))
-                {
-                    var clientId = pc.GetClientId();
-                    if (clientId == -1) continue;
-                    pc.RpcSetRoleDesync(RoleTypes.Impostor, clientId);
-                    _ = new LateTask(() =>
-                    {
-                        if (GameStates.Tuihou) return;
-                        var clientId = pc.GetClientId();
-                        if (clientId == -1) return;
-                        pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, clientId);
-                    }, 0.2f, "", true);
-                }
-            }
-            else timer += Time.fixedDeltaTime;
         }
     }
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]

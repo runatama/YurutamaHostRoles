@@ -76,7 +76,7 @@ public sealed class JackalDoll : RoleBase
         RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false);
         CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
         VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
-        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentMaxTime, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
+        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentCooldown, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
         RoleAddAddons.Create(RoleInfo, 20, MadMate: true);
     }
 

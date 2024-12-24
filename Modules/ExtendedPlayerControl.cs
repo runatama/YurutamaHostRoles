@@ -738,7 +738,7 @@ namespace TownOfHost
             UtilsNotifyRoles.MeetingMoji = GetString("MI.Kyousei");
             GameStates.Meeting = true;
             GameStates.task = false;
-            UtilsNotifyRoles.NotifyRoles(isForMeeting: true, ForceLoop: true, NoCache: true);
+            UtilsNotifyRoles.NotifyMeetingRoles();
             MeetingRoomManager.Instance.AssignSelf(reporter, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
             reporter.RpcStartMeeting(target);

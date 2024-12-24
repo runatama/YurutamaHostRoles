@@ -36,6 +36,8 @@ namespace TownOfHost
         public static bool optTurnTimeLimitDevice;
         public static float optTimeLimitCamAndLog;
         public static float optTurnTimeLimitCamAndLog;
+        public static float optTurnTimeLimitAdmin;
+        public static float optTurnTimeLimitVital;
         public static float optTimeLimitAdmin;
         public static float optTimeLimitVital;
         public static bool DisableDevicesIgnoreImpostors;
@@ -46,11 +48,13 @@ namespace TownOfHost
         public static void Reset()
         {
             optTimeLimitCamAndLog = Options.TimeLimitCamAndLog.GetFloat();
-            optTurnTimeLimitCamAndLog = Options.TurnTimeLimitCamAndLog.GetFloat();
             optTimeLimitDevices = Options.TimeLimitDevices.GetBool();
             optTurnTimeLimitDevice = Options.TurnTimeLimitDevice.GetBool();
             optTimeLimitAdmin = Options.TimeLimitAdmin.GetFloat();
             optTimeLimitVital = Options.TimeLimitVital.GetFloat();
+            optTurnTimeLimitCamAndLog = Options.TurnTimeLimitCamAndLog.GetFloat();
+            optTurnTimeLimitAdmin = Options.TurnTimeLimitAdmin.GetFloat();
+            optTurnTimeLimitVital = Options.TurnTimeLimitVital.GetFloat();
             DisableDevicesIgnoreImpostors = Options.DisableDevicesIgnoreImpostors.GetBool();
             DisableDevicesIgnoreMadmates = Options.DisableDevicesIgnoreMadmates.GetBool();
             DisableDevicesIgnoreNeutrals = Options.DisableDevicesIgnoreNeutrals.GetBool();
@@ -145,7 +149,7 @@ namespace TownOfHost
 
             if (optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin) return i == null;
 
-            if (optTimeLimitAdmin > 0 && TurnAdminTimer > optTimeLimitAdmin) return i == null;
+            if (optTurnTimeLimitAdmin > 0 && TurnAdminTimer > optTurnTimeLimitAdmin) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                 (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&
@@ -166,7 +170,7 @@ namespace TownOfHost
 
             if (optTimeLimitVital > 0 && GameVitalTimer > optTimeLimitVital) return i == null;
 
-            if (optTimeLimitVital > 0 && TurnVitalTimer > Options.TurnTimeLimitVital.GetFloat()) return i == null;
+            if (optTurnTimeLimitVital > 0 && TurnVitalTimer > optTurnTimeLimitVital) return i == null;
 
             if (player.Is(CustomRoles.InfoPoor) ||
                             (RoleAddAddons.GetRoleAddon(player.GetCustomRole(), out var data, player, subrole: CustomRoles.InfoPoor) &&

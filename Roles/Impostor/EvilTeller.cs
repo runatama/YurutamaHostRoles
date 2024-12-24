@@ -83,7 +83,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         optusekillcoool = BooleanOptionItem.Create(RoleInfo, 16, "OptionSetKillcooldown", false, false);
     }
     public float CalculateKillCooldown() => killcooldown;
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = fall ? 1 : (nowuse ? telltime : cooldown);
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = maxtellcount <= seentarget.Count ? 200f : (fall ? 1 : (nowuse ? telltime : cooldown));
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
@@ -195,4 +195,5 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
             }
         }
     }
+    public override string GetAbilityButtonText() => GetString("EvliTellerAbility");
 }

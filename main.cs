@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.24.13";
-        public const string PluginShowVersion = "519.24<sub>.13</sub>";
+        public const string PluginVersion = "519.25.14";
+        public const string PluginShowVersion = "519.24<sub>.14</sub>";
         public const string ModVersion = ".24";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -100,6 +100,7 @@ namespace TownOfHost
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
         public static Version version = Version.Parse(PluginVersion);
         public static BepInEx.Logging.ManualLogSource Logger;
+        public static bool CanModClients => false;//参加者もMod導入していいか
         public static bool hasArgumentException = false;
         public static string ExceptionMessage;
         public static bool ExceptionMessageIsShown = false;
@@ -229,7 +230,7 @@ namespace TownOfHost
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost-K");
             TownOfHost.Logger.Enable();
-            TownOfHost.Logger.Disable("NotifyRoles");
+            //TownOfHost.Logger.Disable("NotifyRoles");
             TownOfHost.Logger.Disable("SendRPC");
             TownOfHost.Logger.Disable("ReceiveRPC");
             TownOfHost.Logger.Disable("SwitchSystem");

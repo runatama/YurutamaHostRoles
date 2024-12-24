@@ -62,4 +62,5 @@ public sealed class Comebacker : RoleBase
         Logger.Info("ベントを設定するよ!", "Comebacker");
         return true;
     }
+    public override string GetAbilityButtonText() => GetString("CamebackerAbility");
 }

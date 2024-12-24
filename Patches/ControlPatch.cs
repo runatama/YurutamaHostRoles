@@ -113,20 +113,9 @@ namespace TownOfHost
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)
             {
                 Main.CanUseAbility = false;
-                foreach (var Player in PlayerCatch.AllPlayerControls)
-                {
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
-                    {
-                        if (pc == PlayerControl.LocalPlayer) continue;
-                        var taishou = PlayerControl.LocalPlayer;
-                        if (!PlayerControl.LocalPlayer.IsAlive())
-                        {
-                            var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
-                            taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
-                        }
-                        Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                    }
-                }
+
+                var Dummy = new Dictionary<byte, int>();
+                AntiBlackout.SetRole();
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
                 UtilsGameLog.AddGameLog("Vote", Translator.GetString("voteskip") + "※Host");
                 GameStates.Meeting = false;

@@ -286,7 +286,7 @@ public sealed class Sniper : RoleBase, IImpostor
             foreach (var otherPc in targets.Keys)
             {
                 snList.Add(otherPc.PlayerId);
-                UtilsNotifyRoles.NotifyRoles(SpecifySeer: otherPc);
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: otherPc);
             }
             SendRPC();
             _ = new LateTask(
@@ -297,7 +297,7 @@ public sealed class Sniper : RoleBase, IImpostor
                     {
                         foreach (var otherPc in targets.Keys)
                         {
-                            UtilsNotifyRoles.NotifyRoles(SpecifySeer: otherPc);
+                            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: otherPc);
                         }
                         SendRPC();
                     }

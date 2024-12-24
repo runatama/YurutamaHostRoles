@@ -108,8 +108,8 @@ namespace TownOfHost.Modules.ChatManager
                 CustomRoles role = roles[rd.Next(0, roles.Count)];
                 msg += UtilsRoleText.GetRoleName(role) + " ";
 
-                if (PlayerCatch.AllAlivePlayerControls.Count() == 0) break;
-                var player = PlayerCatch.AllAlivePlayerControls.ToArray()[rd.Next(0, PlayerCatch.AllAlivePlayerControls.Count())];
+                if (PlayerCatch.AllAlivePlayersCount == 0) break;
+                var player = PlayerCatch.AllAlivePlayerControls.ToArray()[rd.Next(0, PlayerCatch.AllAlivePlayersCount)];
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
                 var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                 writer.StartMessage(-1);

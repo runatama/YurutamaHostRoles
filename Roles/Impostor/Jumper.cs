@@ -167,7 +167,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             resetkillcooldown = false;
             Player.RpcSpecificRejectShapeshift(Player, false);
             Player.RpcResetAbilityCooldown(kousin: true);
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "Jamperset");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "Jamperset");
             return;
         }
         timer = 0;

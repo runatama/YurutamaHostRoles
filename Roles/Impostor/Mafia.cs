@@ -46,7 +46,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         CanmakeSidekickMadMate = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanCreateSideKick, false, false);
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = 1f;
+    public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = Options.CanMakeMadmateCount.GetInt() <= PlayerCatch.SKMadmateNowCount ? 200f : 1f;
     public bool CanUseKillButton()
     {
         if (PlayerState.AllPlayerStates == null) return false;
@@ -93,4 +93,5 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         UtilsNotifyRoles.NotifyRoles();
         UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
     }
+    public override string GetAbilityButtonText() => GetString("Sidekick");
 }

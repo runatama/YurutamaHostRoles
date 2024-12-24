@@ -492,7 +492,9 @@ public abstract class RoleBase : IDisposable
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
     public static FloatValueRule OptionBaseCoolTime => new(0, 180, 0.5f);
 
-    //一々Translator参照戦でいいから多分楽
+    //一々Translator参照戦でいいから多分楽 
+    public static string GetString(StringNames stringName)
+            => DestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Il2CppSystem.Object>(0));
     public static string GetString(string str, Dictionary<string, string> replacementDic = null) => Translator.GetString(str);
     protected enum GeneralOption
     {
@@ -510,7 +512,7 @@ public abstract class RoleBase : IDisposable
         Kakuseitask,
         UKakusei,
         OptionCount,
-        EngineerInVentMaxTime,
+        EngineerInVentCooldown,
         TaskTrigger
     }
     public enum DontReportreson

@@ -71,7 +71,7 @@ namespace TownOfHost.Roles.Ghost
                 {
                     Asist = target;
                     pc.RpcResetAbilityCooldown();
-                    UtilsNotifyRoles.NotifyRoles();
+                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: [target, pc]);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ namespace TownOfHost.Roles.Ghost
                         Track = target.PlayerId;
                         pos = target.transform.position;
                         GetArrow.Add(Asist.PlayerId, target.transform.position);
-                        UtilsNotifyRoles.NotifyRoles();
+                        UtilsNotifyRoles.NotifyRoles(SpecifySeer: [target, pc]);
                         pc.RpcResetAbilityCooldown(kousin: true);
                     }
                 }

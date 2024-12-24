@@ -312,7 +312,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             if (now <= 0) player.SetKillCooldown(0.5f);//相互性が取れないので～
             last = now;
             if (player != PlayerControl.LocalPlayer)
-                UtilsNotifyRoles.NotifyRoles(SpecifySeer: player);
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: player);
         }
     }
     public override bool OnSabotage(PlayerControl _, SystemTypes sabotage)

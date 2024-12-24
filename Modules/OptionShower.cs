@@ -21,6 +21,7 @@ namespace TownOfHost
         public static string GetText()
         {
             //初期化
+            var flug = false;
             StringBuilder sb = new();
             pages = new()
             {
@@ -129,20 +130,26 @@ namespace TownOfHost
                 //有効な役職と詳細設定一覧
                 pages.Add("");
                 nameAndValue(Options.EnableGM);
-                foreach (var kvp in Options.CustomRoleSpawnChances)
+                //いっくらなんでもこれが重すぎる！
+                //30役職を上回ったらこの処理をスキップ
+                if (Options.CustomRoleSpawnChances.Where(op => op.Value.GetBool()).Count() < 30)
                 {
-                    if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
-                    sb.Append('\n');
-                    sb.Append($"</size><size=100%>{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
-                    ShowChildren(kvp.Value, ref sb, UtilsRoleText.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
-                    string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
-                    string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");
-
-                    if (kvp.Key.CanMakeMadmate()) //シェイプシフター役職の時に追加する詳細設定
+                    foreach (var kvp in Options.CustomRoleSpawnChances)
                     {
-                        sb.Append($"{ruleFooter}{Options.CanMakeMadmateCount.GetName()}: {Options.CanMakeMadmateCount.GetString()}\n");
+                        if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
+                        sb.Append('\n');
+                        sb.Append($"</size><size=100%>{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
+                        ShowChildren(kvp.Value, ref sb, UtilsRoleText.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
+                        string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
+                        string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");
+
+                        if (kvp.Key.CanMakeMadmate()) //シェイプシフター役職の時に追加する詳細設定
+                        {
+                            sb.Append($"{ruleFooter}{Options.CanMakeMadmateCount.GetName()}: {Options.CanMakeMadmateCount.GetString()}\n");
+                        }
                     }
                 }
+                else flug = true;
                 sb.Append("</size><size=90%>");
                 foreach (var opt in OptionItem.AllOptions.Where(x => x.Id >= 90000 && !x.IsHiddenOn(Options.CurrentGameMode) && x.Parent == null))
                 {
@@ -154,6 +161,7 @@ namespace TownOfHost
                 //Onの時に子要素まで表示するメソッド
                 void nameAndValue(OptionItem o) => sb.Append($"{o.GetName()}: {o.GetString().RemoveSN()}\n");
             }
+            if (flug) sb.Append($"\n{GetString("Warning.OverRole")}");
             //1ページにつき35行までにする処理
             List<string> tmp = new(sb.ToString().Split("\n\n"));
             for (var i = 0; i < tmp.Count; i++)
@@ -175,6 +183,9 @@ namespace TownOfHost
         {
             foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
             {
+                if (opt.Value.Name is "Maximum" or "FixedRole") continue;
+                if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) continue;
+
                 if (!opt.Value.GetBool())
                 {
                     switch (opt.Value.Name)
@@ -254,9 +265,6 @@ namespace TownOfHost
                         case "CantUseZipLineTodown": continue;
                     }
                 }
-                if (opt.Value.Name is "Maximum" or "FixedRole") continue;
-                if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveFungle || Options.IsActiveAirship || Options.IsActivePolus)) continue;
-                if (opt.Value.Name == "ResetDoorsEveryTurns" && !(Options.IsActiveSkeld || Options.IsActiveMiraHQ || Options.IsActiveAirship || Options.IsActivePolus)) continue;
 
                 sb.Append("<line-height=80%><size=70%>");
                 if (deep > 0)

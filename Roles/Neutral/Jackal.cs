@@ -37,7 +37,7 @@ namespace TownOfHost.Roles.Neutral
             CanVent = OptionCanVent.GetBool();
             Cooldown = OptionCooldown.GetFloat();
             CanUseSabotage = OptionCanUseSabotage.GetBool();
-            SK = CanmakeSK.GetBool();
+            SK = CanmakeSK.GetBool() && JackalDoll.sidekick.GetInt() <= JackalDoll.side;
             Fall = false;
         }
 
@@ -83,8 +83,7 @@ namespace TownOfHost.Roles.Neutral
         public bool CanUseImpostorVentButton() => CanVent;
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.PhantomCooldown = Fall ? 0f : Cooldown;
-            AURoleOptions.ShapeshifterDuration = 1f;
+            AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : Cooldown);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOneclickButton => SK;

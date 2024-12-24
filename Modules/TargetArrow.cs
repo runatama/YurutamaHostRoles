@@ -147,7 +147,7 @@ namespace TownOfHost
             }
             if (update)
             {
-                UtilsNotifyRoles.NotifyRoles(SpecifySeer: seer);
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: seer);
             }
         }
     }
@@ -287,7 +287,7 @@ namespace TownOfHost
             }
             if (update)
             {
-                UtilsNotifyRoles.NotifyRoles(SpecifySeer: seer);
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: seer);
             }
         }
     }

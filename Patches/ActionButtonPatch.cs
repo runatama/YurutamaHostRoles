@@ -1,4 +1,5 @@
 using HarmonyLib;
+using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
@@ -37,34 +38,62 @@ public static class SabotageButtonRefreshPatch
 [HarmonyPatch(typeof(AbilityButton), nameof(AbilityButton.DoClick))]
 public static class AbilityButtonDoClickPatch
 {
-    public static bool Prefix()
+    public static bool Prefix(AbilityButton __instance)
     {
-        if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown || !PlayerControl.LocalPlayer.CanMove || Utils.IsActive(SystemTypes.MushroomMixupSabotage) || !PlayerControl.LocalPlayer.IsAlive()) return true;
+        var player = PlayerControl.LocalPlayer;
 
-        var role = PlayerControl.LocalPlayer.GetCustomRole();
+        if (!AmongUsClient.Instance.AmHost || HudManager._instance.AbilityButton.isCoolingDown
+        || !player.CanMove || !player.IsAlive()
+        || (Utils.IsActive(SystemTypes.MushroomMixupSabotage) && player.Data.RoleType == RoleTypes.Shapeshifter)) return true;
+
+        var role = player.GetCustomRole();
         var roleInfo = role.GetRoleInfo();
-        var roleclas = PlayerControl.LocalPlayer.GetRoleClass();
+        var roleclas = player.GetRoleClass();
 
-        if (role.GetRoleTypes() is AmongUs.GameOptions.RoleTypes.Scientist)
+        if (role.GetRoleTypes() is RoleTypes.Scientist)
         {
             CloseVitals.Ability = true;
             return true;
         }
         if (roleclas is IUseTheShButton sb && sb.UseOCButton)
         {
-            PlayerControl.LocalPlayer.Data.Role.SetCooldown();
+            player.Data.Role.SetCooldown();
             sb.OnClick();
             return false;
         }
+        if (roleclas is IUsePhantomButton pb && pb.UseOneclickButton)
+        {
+            //Shと違い、クリックしたときクールが発生しないことがあるため、
+            //クリックしたってのを最低限可視化させる。
+            __instance.OverrideColor(Palette.DisabledGrey);
+            _ = new LateTask(() =>
+            {
+                __instance.OverrideColor(Palette.EnabledColor);
+            }, 0.07f, "", true);
+            //非クライアントの場合、役職調整の影響でキルクール弄らないとキルクールが正常の値にならないが、
+            //クライアントの場合、別に役職変えてファントム状態解除をしなくていいので関係ない関数になる★
+
+            var resetKillCooldown = false;
+            bool? fall = false;
+
+            pb.OnClick(ref resetKillCooldown, ref fall);
+
+            if (fall == false)
+            {
+                player.Data.Role.SetCooldown();
+            }
+
+            return false;
+        }
         else
-        if (roleInfo?.IsDesyncImpostor == true && roleInfo.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Shapeshifter)
+        if (roleInfo?.IsDesyncImpostor == true && roleInfo.BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
         {
             if (!(roleclas?.CanUseAbilityButton() ?? false)) return false;
             foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }
-            PlayerControl.LocalPlayer.Data.Role.Cast<ShapeshifterRole>().UseAbility();
+            player.Data.Role.Cast<ShapeshifterRole>().UseAbility();
             foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
@@ -72,14 +101,14 @@ public static class AbilityButtonDoClickPatch
             return true;
         }
         else
-        if (roleInfo?.IsDesyncImpostor == true && roleInfo?.BaseRoleType.Invoke() == AmongUs.GameOptions.RoleTypes.Phantom)
+        if (roleInfo?.IsDesyncImpostor == true && roleInfo?.BaseRoleType.Invoke() == RoleTypes.Phantom)
         {
             if (!(roleclas?.CanUseAbilityButton() ?? false)) return false;
             foreach (var p in PlayerCatch.AllPlayerControls)
             {
                 p.Data.Role.NameColor = Color.white;
             }
-            PlayerControl.LocalPlayer.Data.Role.Cast<PhantomRole>().UseAbility();
+            player.Data.Role.Cast<PhantomRole>().UseAbility();
             return true;
         }
         return true;

@@ -75,7 +75,7 @@ namespace TownOfHost
                     GameSettings.transform.localPosition = new(-3.325f, 2.78f);
                 }
 
-                GameSettings.text = OptionShower.GetText();
+                GameSettings.text = Main.ShowGameSettingsTMP.Value ? OptionShower.GetText() : "";
                 GameSettings.SetOutlineColor(Color.black);
                 GameSettings.SetOutlineThickness(0.13f);
                 GameSettings.transform.localPosition = new(-3.325f * GameSettingMenuStartPatch.w, 2.78f);

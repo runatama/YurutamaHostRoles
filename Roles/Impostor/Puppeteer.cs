@@ -144,7 +144,6 @@ public sealed class Puppeteer : RoleBase, IImpostor
                 UtilsOption.MarkEveryoneDirtySettings();
                 Puppets.Remove(puppet.PlayerId);
                 SendRPC(puppet.PlayerId, 2);
-                UtilsNotifyRoles.NotifyRoles();
             }
         }
     }

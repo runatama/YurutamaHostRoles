@@ -124,7 +124,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.PhantomCooldown = Cooldown;
+        AURoleOptions.PhantomCooldown = Use > 0 ? Cooldown : 200f;
     }
     public override bool OverrideAbilityButton(out string text)
     {

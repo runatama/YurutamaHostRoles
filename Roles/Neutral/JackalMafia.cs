@@ -101,7 +101,7 @@ namespace TownOfHost.Roles.Neutral
         public override bool OnInvokeSabotage(SystemTypes systemType) => CanUseSabotage;
         public override void ApplyGameOptions(IGameOptions opt)
         {
-            AURoleOptions.PhantomCooldown = Fall ? 0f : Cooldown;
+            AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : Cooldown);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOneclickButton => SK;

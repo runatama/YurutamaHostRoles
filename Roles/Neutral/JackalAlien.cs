@@ -58,7 +58,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     {
         AbductTimer = 255f;
         stopCount = false;
-        SK = CanmakeSK.GetBool();
+        SK = CanmakeSK.GetBool() && JackalDoll.sidekick.GetInt() <= JackalDoll.side;
         Fall = false;
         Init();
         PuppetCooltime.Clear();
@@ -755,7 +755,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override bool OnInvokeSabotage(SystemTypes systemType) => OptionCanUseSabotage.GetBool();
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.PhantomCooldown = Fall ? 0f : OptionCooldown.GetFloat();
+        AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : OptionCooldown.GetFloat());
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
     public bool UseOneclickButton => SK;

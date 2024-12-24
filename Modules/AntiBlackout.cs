@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using AmongUs.GameOptions;
 using Hazel;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
+using static TownOfHost.Modules.MeetingVoteManager;
 
 namespace TownOfHost
 {
@@ -101,6 +103,31 @@ namespace TownOfHost
             isDeadCache[player.PlayerId] = (true, true);
             player.IsDead = player.Disconnected = false;
             SendGameData();
+        }
+        public static void SetRole(VoteResult? result = null)
+        {
+            if (AmongUsClient.Instance.AmHost)
+            {
+                var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
+                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId || !PlayerControl.LocalPlayer.IsAlive())
+                {
+                    byte[] DontImpostrTargetIds = [PlayerControl.LocalPlayer.PlayerId, (result?.Exiled?.PlayerId ?? byte.MaxValue)];
+                    var impostortarget = PlayerCatch.AllAlivePlayerControls.Where(pc => !DontImpostrTargetIds.Contains(pc.PlayerId)).FirstOrDefault();
+                    ImpostorId = impostortarget == null ?
+                                PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
+                }
+                foreach (var target in PlayerCatch.AllPlayerControls)
+                {
+                    if (target == null) continue;
+                    foreach (var seer in PlayerCatch.AllPlayerControls)
+                    {
+                        if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        target.RpcSetRoleDesync(target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId());
+                        Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName} ({(target.PlayerId == ImpostorId ? "Impostor" : "Crewmate")})", "AntiSetRole");
+                    }
+                }
+
+            }
         }
 
         ///<summary>

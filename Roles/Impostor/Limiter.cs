@@ -94,7 +94,7 @@ namespace TownOfHost.Roles.Impostor
                 _ = new LateTask(() =>
                 {
                     player.SetKillCooldown(OptionLastTurnKillcool.GetFloat(), delay: true);
-                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                    UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
                 }, 0.3f, "Limiter Time Limit");
             }
         }
@@ -131,7 +131,7 @@ namespace TownOfHost.Roles.Impostor
                     _ = new LateTask(() =>
                     {
                         Player.SetKillCooldown(OptionLastTurnKillcool.GetFloat(), delay: true);
-                        UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                        UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
                     }, 0.3f, "Limiter Kill Limit");
                 }
             }

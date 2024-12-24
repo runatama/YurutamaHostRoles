@@ -90,7 +90,7 @@ public sealed class ConnectSaver : RoleBase, IImpostor
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (PlayerCatch.AllAlivePlayerControls.Count() < OptionNinzu.GetInt()) return "";
+        if (PlayerCatch.AllAlivePlayersCount < OptionNinzu.GetInt()) return "";
         if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Max > cont)
         {
             var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
@@ -102,7 +102,7 @@ public sealed class ConnectSaver : RoleBase, IImpostor
     {
         if (!Canuseability()) return true;
         if (Madmate.MadAvenger.Skill) return true;
-        if (PlayerCatch.AllAlivePlayerControls.Count() < OptionNinzu.GetInt()) return true;
+        if (PlayerCatch.AllAlivePlayersCount < OptionNinzu.GetInt()) return true;
         if (Is(voter) && Max > cont && (P1 == byte.MaxValue || P2 == byte.MaxValue))
         {
             if (CheckSelfVoteMode(Player, votedForId, out var status))

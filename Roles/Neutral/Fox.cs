@@ -202,7 +202,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
                 player.RpcProtectedMurderPlayer();
                 Logger.Info($"{FoxRoom}に{player.name}が来たよ", "Fox");
                 FoxRoom = null;
-                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.3f, "FoxChengeRoom", null);
+                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.3f, "FoxChengeRoom", null);
                 return;
             }
             //スポーンがもうすぐそこならぬるいので変えてやる!!
@@ -212,7 +212,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             var rand = IRandom.Instance;
             FoxRoom = rooms[rand.Next(0, rooms.Count)];
             Logger.Info($"NextTask : {FoxRoom}", "Fox");
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.3f, "FoxChengeRoom", null);
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.3f, "FoxChengeRoom", null);
         }
     }
     public override string MeetingMeg()

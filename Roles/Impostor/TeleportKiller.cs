@@ -298,4 +298,5 @@ public sealed class TeleportKiller : RoleBase, IImpostor
                 Ladder[__instance.myPlayer.PlayerId] = sourcePos;
         }
     }
+    public override string GetAbilityButtonText() => GetString(StringNames.ShapeshiftAbility);
 }

@@ -119,7 +119,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             {
                 Die = true;
                 Coin -= DieRemoveCoin.GetInt();
-                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), Main.LagTime, "Bankerdie");
+                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), Main.LagTime, "Bankerdie");
             }
         }
     }
@@ -145,7 +145,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         _ = new LateTask(() =>
         {
             Player.SetKillCooldown();
-            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
         }, Main.LagTime, "Bankerchenge");
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
@@ -169,7 +169,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             _ = new LateTask(() =>
             {
                 Player.SetKillCooldown();
-                UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
             }, Main.LagTime, "Bankerchenge");
         }
         return false;

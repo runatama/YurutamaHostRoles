@@ -148,6 +148,7 @@ public sealed class UltraStar : RoleBase
     }
     public override void StartGameTasks() => Main.AllPlayerSpeed[Player.PlayerId] += Speed;
 
+    public override string GetAbilityButtonText() => GetString(StringNames.KillLabel);
     public static void KillCoolCheck(byte playerId)
     {
         cankill = true;

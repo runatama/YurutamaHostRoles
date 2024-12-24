@@ -66,7 +66,7 @@ public interface IUseTheShButton
             sender.SendMessage();
             if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(false, NoCache: true), 0.2f, "", true);
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(NoCache: true), 0.2f, "", true);
         }, 0.23f);
     }
     public void ResetS(PlayerControl Player)
@@ -109,7 +109,7 @@ public interface IUseTheShButton
             sender.SendMessage();
             if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(false, NoCache: true), 0.2f, "", true);
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(NoCache: true), 0.2f, "", true);
         }, 0.23f);
     }
 

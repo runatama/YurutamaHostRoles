@@ -189,7 +189,6 @@ namespace TownOfHost
             GameData.Instance.RecomputeTaskCounts();
             TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
 
-            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
             GameStates.InGame = true;
         }
     }
@@ -524,7 +523,7 @@ namespace TownOfHost
                     {
                         Main.IntroHyoji = false;
                         if (GameStates.InGame && !GameStates.Meeting)
-                            UtilsNotifyRoles.NotifyRoles();
+                            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                     }, 15f, "Intro", true);
                 }
             }

@@ -76,7 +76,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         Player.KillFlash();
         MeetingNotice = false;
         Player.SetKillCooldown();
-        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "PhantomThief Target");
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "PhantomThief Target");
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
@@ -91,7 +91,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
 
         info.DoKill = false;
 
-        if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayerControls.Count()) return;
+        if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayersCount) return;
         if (roletarget != byte.MaxValue) return;
 
         killer.ResetKillCooldown();
@@ -99,11 +99,11 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         Target = target;
         tagerole = target.GetCustomRole();
         MeetingNotice = true;
-        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "PhantomThief Target");
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "PhantomThief Target");
         killer.SetKillCooldown(target: target, delay: true);
         return;
     }
-    public bool CanUseKillButton() => true;
+    public bool CanUseKillButton() => !(OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayersCount);
     public bool CanUseImpostorVentButton() => false;
     public bool CanUseSabotageButton() => false;
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
@@ -115,7 +115,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
             var notage = "<size=60%>" + GetString("PhantomThieftarget") + "</size>";
             var akiramero = "<size=60%>" + GetString("PhantomThiefakiarmero") + "</size>";
             if (roletarget == byte.MaxValue)
-                if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayerControls.Count())
+                if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayersCount)
                 {
                     return isForHud ? akiramero.RemoveSizeTags() : akiramero;
                 }
@@ -186,6 +186,15 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         var (killer, target) = info.AppearanceTuple;
         return target.PlayerId == roletarget;
     }
+    public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+    {
+        seen ??= seer;
+        if (!Player.IsAlive() || !Target.IsAlive()) return "";
+
+        if (seen.PlayerId == roletarget) return $"<color={RoleInfo.RoleColor}>◆</color>";
+
+        return "";
+    }
     public bool CheckWin(ref CustomRoles winnerRole)
     {
         if (roletarget == byte.MaxValue || !Player.IsAlive()) return false;
@@ -193,16 +202,20 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         {
             var Targetrole = Target.GetCustomRole();
             if (Targetrole != tagerole && Targetrole != CustomRoles.NotAssigned) tagerole = Targetrole;
-            Player.RpcSetCustomRole(tagerole, log: null);
-            Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
-            CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
-            UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
             if (OptionTandokuWin.GetBool())
             {
                 CustomWinnerHolder.ResetAndSetWinner((CustomWinner)CustomRoles.PhantomThief);
                 CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+                Player.RpcSetCustomRole(tagerole, log: null);
+                Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
+                CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
+                UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
                 return false;
             }
+            Player.RpcSetCustomRole(tagerole, log: null);
+            Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
+            CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
+            UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
             return true;
         }
         return false;

@@ -38,12 +38,12 @@ namespace TownOfHost.Roles.Ghost
                 if (DemUseAbility) return;//能力使用中に能力使えない。
                 DemUseAbility = true;
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
-                UtilsNotifyRoles.NotifyRoles();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 _ = new LateTask(() =>
                 {
                     DemUseAbility = false;
                     RemoveDisableDevicesPatch.UpdateDisableDevices(true);
-                    UtilsNotifyRoles.NotifyRoles();
+                    UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                     pc.RpcResetAbilityCooldown();
                 }, AbilityTime.GetFloat(), "DemonicCrusher");
             }

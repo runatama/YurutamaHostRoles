@@ -22,6 +22,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Modules;
 using static TownOfHost.PlayerCatch;
 using TownOfHost.Roles.Impostor;
+using Rewired;
 
 namespace TownOfHost
 {
@@ -474,7 +475,7 @@ namespace TownOfHost
                     case "/impct":
                     case "/ic":
                         canceled = true;
-                        if (Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.GetCustomRole().IsImpostor())
+                        if (Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && (PlayerControl.LocalPlayer.GetCustomRole().IsImpostor() || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Egoist))
                         {
                             if ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita == false) break;
                             var send = "";
@@ -487,7 +488,7 @@ namespace TownOfHost
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
                                 if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
-                                if (imp && (imp?.GetCustomRole().IsImpostor() ?? false))
+                                if (imp && ((imp?.GetCustomRole().IsImpostor() ?? false) || imp?.GetCustomRole() is CustomRoles.Egoist))
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
                                     writer.StartMessage(imp.GetClientId());
@@ -1552,7 +1553,7 @@ namespace TownOfHost
                 case "/impstorchat":
                 case "/impct":
                 case "/ic":
-                    if (Options.ImpostorHideChat.GetBool() && player.IsAlive() && player.GetCustomRole().IsImpostor())
+                    if (Options.ImpostorHideChat.GetBool() && player.IsAlive() && (player.GetCustomRole().IsImpostor() || player.GetCustomRole() is CustomRoles.Egoist))
                     {
                         if ((player.GetRoleClass() as Amnesiac)?.omoidasita == false)
                         {
@@ -1571,10 +1572,10 @@ namespace TownOfHost
                             send += ag;
                         }
                         Logger.Info($"{player.Data.PlayerName} : {send}", "ImpostorChat");
-                        foreach (var imp in PlayerCatch.AllAlivePlayerControls)
+                        foreach (var imp in AllPlayerControls)
                         {
-                            if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
-                            if (imp && imp.GetCustomRole().IsImpostor() && imp.PlayerId != player.PlayerId)
+                            if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false && imp.IsAlive()) continue;
+                            if (imp && ((imp.GetCustomRole().IsImpostor() || imp.GetCustomRole() is CustomRoles.Egoist) || (!imp.IsAlive() && PlayerControl.LocalPlayer.PlayerId == imp?.PlayerId)) && imp.PlayerId != player.PlayerId)
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
@@ -1619,9 +1620,9 @@ namespace TownOfHost
                             send += ag;
                         }
                         Logger.Info($"{player.Data.PlayerName} : {send}", "JackalChat");
-                        foreach (var jac in PlayerCatch.AllAlivePlayerControls)
+                        foreach (var jac in AllPlayerControls)
                         {
-                            if (jac && (jac.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien) && jac.PlayerId != player.PlayerId)
+                            if (jac && ((jac.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien) || (PlayerControl.LocalPlayer.PlayerId == jac?.PlayerId && !jac.IsAlive())) && jac.PlayerId != player.PlayerId)
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
@@ -1669,9 +1670,9 @@ namespace TownOfHost
                             send += ag;
                         }
                         Logger.Info($"{player.Data.PlayerName} : {send}", "LoversChat");
-                        foreach (var lover in PlayerCatch.AllPlayerControls)
+                        foreach (var lover in AllPlayerControls)
                         {
-                            if (lover && lover.GetRiaju() == l && lover.PlayerId != player.PlayerId)
+                            if (lover && (lover.GetRiaju() == l || (PlayerControl.LocalPlayer.PlayerId == lover?.PlayerId && !lover.IsAlive())) && lover.PlayerId != player.PlayerId)
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
@@ -1776,11 +1777,7 @@ namespace TownOfHost
                     }
                     break;
             }
-            if (canceled)
-            {
-                if (GameStates.Tuihou)
-                    ChatManager.SendPreviousMessagesToAll();
-            }
+            canceled &= Options.ExHideChatCommand.GetBool();
         }
     }
     [HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]

@@ -609,7 +609,8 @@ namespace TownOfHost
                 if (Lovers.OneLovePlayer.doublelove) UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
             }
 
-            CoResetRoleY();
+            if (Options.CurrentGameMode != CustomGameMode.TaskBattle)
+                CoResetRoleY();
 
             PlayerCatch.CountAlivePlayers(true);
             UtilsOption.SyncAllSettings();

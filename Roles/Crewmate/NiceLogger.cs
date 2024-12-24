@@ -96,7 +96,7 @@ namespace TownOfHost.Roles.Crewmate
                 }
                 Taskmode = true;
             }
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");
         }
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {

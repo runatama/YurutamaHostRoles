@@ -184,7 +184,7 @@ namespace TownOfHost
         }
         public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool() || CheckRoleOption(Parent))
                                         && (GameMode == CustomGameMode.All || GameMode == Options.CurrentGameMode);
-        public bool InfoGetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
+        public bool InfoGetBool() => CurrentValue != 0 && (Parent == null || Parent.InfoGetBool());
         bool CheckRoleOption(OptionItem option)
         {
             if (option == null) return false;

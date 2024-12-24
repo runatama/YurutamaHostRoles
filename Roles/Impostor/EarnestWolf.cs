@@ -104,14 +104,10 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         OverKillMode = !OverKillMode;
         _ = new LateTask(() =>
         {
-            UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
             Player.SyncSettings();
         }, 0.2f, "EarnestWolf OnClick");
     }
     public float CalculateKillCooldown() => KillCoolDown;
-    public override bool OverrideAbilityButton(out string text)
-    {
-        text = GetString("Modechenge");
-        return true;
-    }
+    public override string GetAbilityButtonText() => GetString("Modechenge");
 }

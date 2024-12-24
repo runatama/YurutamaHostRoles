@@ -6,7 +6,6 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
-using AmongUs.GameOptions;
 
 namespace TownOfHost.Modules;
 
@@ -184,59 +183,7 @@ public class MeetingVoteManager
         Main.CanUseAbility = false;
         if (!AntiBlackout.OverrideExiledPlayer && !Options.BlackOutwokesitobasu.GetBool())
         {
-            var ch = true;
-            if (AmongUsClient.Instance.AmHost)
-            {
-                if (result.Exiled != null)
-                    if (result.Exiled.PlayerId == PlayerControl.LocalPlayer.Data.PlayerId)
-                    {
-                        foreach (var Player in PlayerCatch.AllPlayerControls)
-                        {
-                            var a = false;
-                            var taishou = Player;
-                            foreach (var pc in PlayerCatch.AllPlayerControls)
-                            {
-                                taishou = pc;
-                                var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x.PlayerId != pc.PlayerId && !x.Data.Disconnected && x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
-                                if (List?.Count is null or 0)
-                                {
-                                    Logger.Error($"{Player.Data.PlayerName} : 変更対象が存在しません", "DontBlackout ch = false");
-                                }
-                                else taishou = List.OrderBy(x => x.PlayerId).LastOrDefault();
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                Player.RpcSetRoleDesync(Player.PlayerId == taishou.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                                a = true;
-                            }
-                            if (a) Logger.Info($"{Player.name} => {taishou.name} , Ch = false!", "NotAntenEx");
-                        }
-                        ch = false;
-                    }
-
-                if (ch)
-                    foreach (var Player in PlayerCatch.AllPlayerControls)
-                    {
-                        var a = false;
-                        var taishou = PlayerControl.LocalPlayer;
-                        foreach (var pc in PlayerCatch.AllPlayerControls)
-                        {
-                            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                            var t = byte.MaxValue;
-                            if (!PlayerControl.LocalPlayer.IsAlive())
-                            {
-                                if (result.Exiled != null) t = result.Exiled.PlayerId;
-                                var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x.PlayerId != pc.PlayerId && !x.Data.Disconnected && x.PlayerId != t && x.PlayerId != PlayerControl.LocalPlayer.PlayerId && x.PlayerId != 0));
-                                if (List?.Count is null or 0)
-                                {
-                                    Logger.Error($"{Player.Data.PlayerName} : 変更対象が存在しません", "DontBlackout ch = true");
-                                }
-                                else taishou = List.OrderBy(x => x.PlayerId).LastOrDefault();
-                            }
-                            Player?.RpcSetRoleDesync(Player.PlayerId == taishou.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                            a = true;
-                        }
-                        if (a) Logger.Info($"{Player.name} => {taishou.name} , Ch = true!", "NotAntenEx");
-                    }
-            }
+            AntiBlackout.SetRole(result);
         }
 
         if (AntiBlackout.OverrideExiledPlayer)

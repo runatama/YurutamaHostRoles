@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
@@ -47,7 +48,6 @@ public sealed class Efficient : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!player.IsAlive()) return;
 
         Cooldown -= Time.fixedDeltaTime;
     }
@@ -60,9 +60,9 @@ public sealed class Efficient : RoleBase
 
         if (CollectRect.GetFloat() > chance)
         {
-            if (Task.Count == 0) return true;
+            if (Task.Where(id => id != 0).ToArray().Count() == 0) return true;
             var rand = IRandom.Instance;
-            var FinTask = Task[rand.Next(0, Task.Count)];
+            var FinTask = Task.Where(id => id != 0).ToArray()[rand.Next(0, Task.Count)];
 
             if (Cooldown > 0f) return true;
 
