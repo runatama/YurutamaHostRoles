@@ -211,7 +211,7 @@ public sealed class JackalDoll : RoleBase
             {
                 UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
                 if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
-                Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()]);
+                Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()], log: null);
                 UtilsNotifyRoles.NotifyRoles();
             }
         }

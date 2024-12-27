@@ -915,7 +915,7 @@ namespace TownOfHost
                                     break;
                                 case "gettbteam":
                                     var tbstring = "";
-                                    foreach (var t in Main.TaskBattleTeams)
+                                    foreach (var t in TaskBattle.TaskBattleTeams)
                                     {
                                         foreach (var idt in t)
                                             tbstring += idt + "\n";

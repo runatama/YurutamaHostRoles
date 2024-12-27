@@ -188,11 +188,11 @@ namespace TownOfHost
         public static OptionItem TaskBattleSet;
         public static OptionItem TaskBattleCanVent;
         public static OptionItem TaskBattleVentCooldown;
-        public static OptionItem TaskBattletaskc;
-        public static OptionItem TaskBattletaska;
-        public static OptionItem TaskBattletasko;
+        public static OptionItem TaskBattelCanSeeOtherPlayer;
+        public static OptionItem TaskBattelShowAllTask;
+        public static OptionItem TaskBattleShowFastestPlayer;
         public static OptionItem TaskBattleTeamMode;
-        public static OptionItem TaskBattleTeamC;
+        public static OptionItem TaskBattleTeamCount;
         public static OptionItem TaskBattleTeamWinType;
         public static OptionItem TaskBattleTeamWinTaskc;
         public static OptionItem TaskSoroeru;
@@ -445,6 +445,8 @@ namespace TownOfHost
         public static OptionItem DisableAirshipMovingPlatform;
         public static OptionItem CuseVent;
         public static OptionItem CuseVentCount;
+        public static OptionItem MaxInVentMode;
+        public static OptionItem MaxInVentTime;
         public static OptionItem ResetDoorsEveryTurns;
         public static OptionItem DoorsResetMode;
         public static OptionItem DisableFungleSporeTrigger;
@@ -569,14 +571,14 @@ namespace TownOfHost
             TaskBattleVentCooldown = FloatOptionItem.Create(200308, "TaskBattleVentCooldown", new(0f, 99f, 1f), 5f, TabGroup.MainSettings, false).SetParent(TaskBattleCanVent)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattletaska = BooleanOptionItem.Create(200309, "TaskBattleTaska", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
-            TaskBattletaskc = BooleanOptionItem.Create(200311, "TaskBattleTaskc", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
-            TaskBattletasko = BooleanOptionItem.Create(200312, "TaskBattleTasko", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
+            TaskBattelShowAllTask = BooleanOptionItem.Create(200309, "TaskBattelShowAllTask", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
+            TaskBattelCanSeeOtherPlayer = BooleanOptionItem.Create(200311, "TaskBattelCanSeeOtherPlayer", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
+            TaskBattleShowFastestPlayer = BooleanOptionItem.Create(200312, "TaskBattleShowFastestPlayer", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
             TaskBattleTeamMode = BooleanOptionItem.Create(200313, "TaskBattleTeamMode", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattleTeamC = FloatOptionItem.Create(200314, "TaskBattleTeamC", new(1f, 15f, 1f), 2f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
+            TaskBattleTeamCount = FloatOptionItem.Create(200314, "TaskBattleTeamCount", new(1f, 15f, 1f), 2f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
                 .SetGameMode(CustomGameMode.TaskBattle);
-            TaskBattleTeamWinType = BooleanOptionItem.Create(200315, "TaskBattleTeamWT", false, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
+            TaskBattleTeamWinType = BooleanOptionItem.Create(200315, "TaskBattleTeamGameTaskComp", false, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
                 .SetGameMode(CustomGameMode.TaskBattle);
             TaskBattleTeamWinTaskc = FloatOptionItem.Create(200316, "TaskBattleTeamWinTaskc", new(1f, 999f, 1f), 20f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamWinType)
                 .SetGameMode(CustomGameMode.TaskBattle);
@@ -798,6 +800,9 @@ namespace TownOfHost
             DoorsResetMode = StringOptionItem.Create(101810, "DoorsResetMode", EnumHelper.GetAllNames<DoorsReset.ResetMode>(), 0, TabGroup.MainSettings, false).SetParent(ResetDoorsEveryTurns);
             CuseVent = BooleanOptionItem.Create(101701, "Can'tUseVent", false, TabGroup.MainSettings, false).SetParent(MapModification);
             CuseVentCount = FloatOptionItem.Create(101702, "CuseVentCount", new(1f, 15f, 1f), 5f, TabGroup.MainSettings, false).SetValueFormat(OptionFormat.Players).SetParent(CuseVent);
+            MaxInVentMode = BooleanOptionItem.Create(101704, "MaxInVentMode", false, TabGroup.MainSettings, false).SetParent(MapModification);
+            MaxInVentTime = FloatOptionItem.Create(101705, "MaxInVentTime", new(3f, 300, 0.5f), 30f, TabGroup.MainSettings, false).SetValueFormat(OptionFormat.Seconds).SetParent(MaxInVentMode);
+
             // タスク無効化
             UploadDataIsLongTask = BooleanOptionItem.Create(101703, "UploadDataIsLongTask", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)

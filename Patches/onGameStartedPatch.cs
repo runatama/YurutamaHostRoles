@@ -15,6 +15,7 @@ using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Patches.ISystemType;
 
 namespace TownOfHost
 {
@@ -62,6 +63,7 @@ namespace TownOfHost
 
             ReportDeadBodyPatch.CanReport = new();
             ReportDeadBodyPatch.Musisuruoniku = new();
+            ReportDeadBodyPatch.ChengeMeetingInfo = new();
 
             Options.UsedButtonCount = 0;
             Main.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
@@ -168,6 +170,8 @@ namespace TownOfHost
             RandomSpawn.SpawnMap.NextSporn.Clear();
             RandomSpawn.SpawnMap.NextSpornName.Clear();
             CustomRoleManager.MarkOthers.Add(ReportDeadBodyPatch.Dontrepomark);
+            VentilationSystemUpdateSystemPatch.NowVentId.Clear();
+            CoEnterVentPatch.VentPlayers.Clear();
             PlayerControlRpcUseZiplinePatch.reset();
             GameStates.Reset();
             MeetingHudPatch.Oniku = "";
@@ -234,12 +238,12 @@ namespace TownOfHost
             {
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                 {
-                    Main.TaskBattleTeams.Clear();
+                    TaskBattle.TaskBattleTeams.Clear();
                     if (Options.TaskBattleTeamMode.GetBool())
                     {
                         var rand = new Random();
                         var AllPlayerCount = Options.EnableGM.GetBool() ? PlayerCatch.AllPlayerControls.Count() - 1 : PlayerCatch.AllPlayerControls.Count();
-                        var teamc = Math.Min(Options.TaskBattleTeamC.GetFloat(), AllPlayerCount);
+                        var teamc = Math.Min(Options.TaskBattleTeamCount.GetFloat(), AllPlayerCount);
                         var c = AllPlayerCount / teamc;//1チームのプレイヤー数 ↑チーム数
                         List<PlayerControl> ap = new();
                         List<byte> playerlist = new();
@@ -260,7 +264,7 @@ namespace TownOfHost
                                 Logger.Info($"{player.PlayerId}", "TB");
                                 ap.Remove(player);
                             }
-                            Main.TaskBattleTeams.Add(new List<byte>(playerlist));
+                            TaskBattle.TaskBattleTeams.Add(new List<byte>(playerlist));
                         }
                     }
                     foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -439,10 +443,10 @@ namespace TownOfHost
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
                 }
 
-                if (Options.TaskBattleTeamMode.GetBool())
+                if (TaskBattle.IsTaskBattleTeamMode)
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
-                        foreach (var t in Main.TaskBattleTeams)
+                        foreach (var t in TaskBattle.TaskBattleTeams)
                         {
                             if (!t.Contains(pc.PlayerId)) continue;
                             foreach (var id in t.Where(id => id != pc.PlayerId))
@@ -603,7 +607,7 @@ namespace TownOfHost
                     Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);
             }
 
-            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue)
+            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue && Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.Ltarget] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
                 if (Lovers.OneLovePlayer.doublelove) UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");

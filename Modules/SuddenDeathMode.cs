@@ -136,23 +136,23 @@ namespace TownOfHost.Modules
             {
                 foreach (var id in TeamRed.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenRedTeamRole.GetValue()]);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenRedTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamBlue.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenBlueTeamRole.GetValue()]);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenBlueTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamYellow.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenYellowTeamRole.GetValue()]);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenYellowTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamGreen.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenGreenTeamRole.GetValue()]);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenGreenTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamPurple.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenPurpleTeamRole.GetValue()]);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenPurpleTeamRole.GetValue()], log: true);
                 }
             }
             ColorSetAndRoleset();
@@ -228,7 +228,7 @@ namespace TownOfHost.Modules
                     if (p.Is(CustomRoles.GM) || TeamRed.Contains(p.PlayerId) || TeamBlue.Contains(p.PlayerId)
                     || TeamYellow.Contains(p.PlayerId) || TeamGreen.Contains(p.PlayerId) || TeamPurple.Contains(p.PlayerId)) continue;
 
-                    p.RpcSetCustomRole(CustomRoles.Emptiness, true);
+                    p.RpcSetCustomRole(CustomRoles.Emptiness, true, true);
                     p.RpcMurderPlayerV2(p);
                     PlayerState.GetByPlayerId(p.PlayerId).DeathReason = CustomDeathReason.etc;
                     Logger.Warn($"{p?.Data?.name} => チームアサインで余ったゾ", "SuddenDesthMode");

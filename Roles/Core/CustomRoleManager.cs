@@ -12,6 +12,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Core;
 
@@ -264,6 +265,11 @@ public static class CustomRoleManager
 
         if (!Main.AllPlayerLastkillpos.TryAdd(appearanceKiller.PlayerId, info.killerpos))
             Main.AllPlayerLastkillpos[appearanceKiller.PlayerId] = info.killerpos;
+
+        if (Camouflage.IsCamouflage || Camouflager.NowUse)
+        {
+            ReportDeadBodyPatch.ChengeMeetingInfo.TryAdd(appearanceTarget.PlayerId, Translator.GetString("CamouflagerMeetingInfo"));
+        }
 
         Main.KillCount[appearanceKiller.PlayerId]++;
 

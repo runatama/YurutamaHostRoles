@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using Hazel;
+using Rewired;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Patches.ISystemType;
@@ -8,6 +10,7 @@ namespace TownOfHost.Patches.ISystemType;
 class VentilationSystemUpdateSystemPatch
 {
     public static ushort last_opId = 0;
+    public static Dictionary<byte, byte> NowVentId = new();
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
     {
         ushort opId;
@@ -21,6 +24,11 @@ class VentilationSystemUpdateSystemPatch
             newReader.Recycle();
         }
         last_opId = opId;
+
+        if (!NowVentId.TryAdd(player.PlayerId, ventId))
+        {
+            NowVentId[player.PlayerId] = ventId;
+        }
 
         foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
         {

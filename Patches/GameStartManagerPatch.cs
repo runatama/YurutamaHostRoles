@@ -269,11 +269,11 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleTeamMode.GetBool())
                 {
                     //チェック
-                    var teamc = Math.Min(Options.TaskBattleTeamC.GetFloat(), PlayerCatch.AllPlayerControls.Count());
+                    var teamc = Math.Min(Options.TaskBattleTeamCount.GetFloat(), PlayerCatch.AllPlayerControls.Count());
                     var playerc = PlayerCatch.AllPlayerControls.Count() / teamc;
 
                     //チーム数でプレイヤーが足りない場合
-                    if (Options.TaskBattleTeamC.GetFloat() > PlayerCatch.AllPlayerControls.Count())
+                    if (Options.TaskBattleTeamCount.GetFloat() > PlayerCatch.AllPlayerControls.Count())
                     {
                         var msg = GetString("Warning.MoreTeamsThanPlayers");
                         Logger.seeingame(msg);

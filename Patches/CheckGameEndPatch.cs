@@ -841,7 +841,7 @@ namespace TownOfHost
             {
                 int TaskPlayerB = PlayerCatch.AlivePlayersCount(CountTypes.TaskPlayer);
                 bool win = TaskPlayerB <= 1;
-                if (Options.TaskBattleTeamMode.GetBool())
+                if (TaskBattle.IsTaskBattleTeamMode)
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
@@ -861,7 +861,7 @@ namespace TownOfHost
             }
             else
             {
-                foreach (var t in Main.TaskBattleTeams)
+                foreach (var t in TaskBattle.TaskBattleTeams)
                 {
                     if (t == null) continue;
                     var task = 0;

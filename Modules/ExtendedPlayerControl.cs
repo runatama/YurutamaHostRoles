@@ -23,7 +23,7 @@ namespace TownOfHost
     static class ExtendedPlayerControl
     {
         /// <summary>
-        /// 
+        /// 役職変える奴。
         /// </summary>
         /// <param name="player">対象者</param>
         /// <param name="role">変更する役職</param>
@@ -103,7 +103,7 @@ namespace TownOfHost
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 player.SyncSettings();
 
-                if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro)
+                if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro && (role.IsGorstRole() || role < CustomRoles.NotAssigned))
                 {
                     player.SetKillCooldown(delay: true, kyousei: true, kousin: true);
                     player.RpcResetAbilityCooldown();
@@ -117,7 +117,7 @@ namespace TownOfHost
                     }
                 }
             }
-            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro)
+            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.AfterIntro && role < CustomRoles.NotAssigned)
             {
                 CustomButtonHud.BottonHud(true);
                 _ = new LateTask(() => Main.showkillbutton = true, 0.02f, "", true);
@@ -782,6 +782,14 @@ namespace TownOfHost
                 var tage = playerInfo.Object;
 
                 if (tage == null || tage.inVent) continue;
+                if (SuddenDeathMode.NowSuddenDeathTemeMode)
+                {
+                    if (SuddenDeathMode.TeamRed.Contains(pc.PlayerId) && SuddenDeathMode.TeamRed.Contains(tage.PlayerId)) continue;
+                    if (SuddenDeathMode.TeamBlue.Contains(pc.PlayerId) && SuddenDeathMode.TeamBlue.Contains(tage.PlayerId)) continue;
+                    if (SuddenDeathMode.TeamYellow.Contains(pc.PlayerId) && SuddenDeathMode.TeamYellow.Contains(tage.PlayerId)) continue;
+                    if (SuddenDeathMode.TeamGreen.Contains(pc.PlayerId) && SuddenDeathMode.TeamGreen.Contains(tage.PlayerId)) continue;
+                    if (SuddenDeathMode.TeamPurple.Contains(pc.PlayerId) && SuddenDeathMode.TeamPurple.Contains(tage.PlayerId)) continue;
+                }
 
                 var vector = tage.GetTruePosition() - psi;
                 float dis = vector.magnitude;

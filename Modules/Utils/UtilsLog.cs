@@ -148,7 +148,7 @@ namespace TownOfHost
                     else
                     {
                         var n = 0;
-                        foreach (var t in Main.TaskBattleTeams)
+                        foreach (var t in TaskBattle.TaskBattleTeams)
                         {
                             n++;
                             if (t.Contains(Main.winnerList[0]))
@@ -288,7 +288,7 @@ namespace TownOfHost
             }
             else
             {
-                sb = new StringBuilder("``` cs\n").Append(GetString(Options.CurrentGameMode.ToString()));
+                sb = new StringBuilder("```cs\n").Append(GetString(Options.CurrentGameMode.ToString()));
                 sb.Append("\n\n").Append(GetString("TaskPlayerB") + ":");
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                     sb.Append("\n  " + pc.name);

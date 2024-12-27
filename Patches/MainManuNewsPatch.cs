@@ -915,8 +915,28 @@ public class ModNewsHistory
                     + "・アビリティボタンのクールを調整\n"
                     + "\n<size=125%>【新設定】</size>\n"
                     + "・イビルトラッカーにトラック対象との距離を表示する設定の追加\n"
-                    + "\n\n多分きっとこれでリリースはことしおわり。\n今年はありがとうございました！\nよいお年を！\nYr",
+                    + "\n\n多分きっとこれでリリースはことしおわり。\n今年はありがとうございました！\nよいお年を！\nYr"
+                    ,
                     Date = "2024-12-24T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            {
+                var news = new ModNews
+                {
+                    Number = 100037,
+                    Title = "マタアイマシタネ",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.24.15</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.24.15</color>",
+                    Text = "<size=80%>\n期間限定役職のバグやから速く直さないと！\n"
+                    + "<size=125%>【バグ修正】</size>\n"
+                    + "・アウトロ表示がたまに見切れる問題の対応\n"
+                    + "・タスクバトル中、ベントに入れない問題の修正\n"
+                    + "・ケーキ屋がいるとキルクールがおかしくなるも問題の修正\n"
+                    + "\n<size=125%>【新設定】</size>\n"
+                    + "・ベントに入れる最大時間の設定を追加(マップ改造)\n"
+                    + "\n\nコンドコソ、コトシノリリースオワリ\n\nヨラン",
+                    Date = "2024-12-27T22:10:00Z"
                 };
                 AllModNews.Add(news);
             }
@@ -924,7 +944,7 @@ public class ModNewsHistory
             {
                 var news = new ModNews
                 {
-                    Number = 100037,
+                    Number = 100038,
                     Title = "謹賀新年",
                     SubTitle = "<color=#00c1ff>Town Of Host-K</color>",
                     ShortTitle = "<color=#00c1ff>TOH-Kからの御挨拶</color>",

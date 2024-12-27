@@ -18,6 +18,7 @@ using TownOfHost.Roles.Neutral;
 using AmongUs.Data;
 using static TownOfHost.Roles.Core.RoleBase;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Patches.ISystemType;
 
 namespace TownOfHost
 {
@@ -477,6 +478,7 @@ namespace TownOfHost
     {
         public static Dictionary<byte, bool> CanReport;
         public static Dictionary<byte, bool> Musisuruoniku;
+        public static Dictionary<byte, string> ChengeMeetingInfo;
         public static Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = new();
         //public static Dictionary<byte, Vector2> Pos = new();
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
@@ -548,8 +550,18 @@ namespace TownOfHost
             if (target != null)
             {
                 UtilsGameLog.AddGameLog("Meeting", Utils.GetPlayerColor(target, true) + Translator.GetString("Meeting.Report") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true)));
-                MeetingHudPatch.Oniku = Utils.GetPlayerColor(target, true) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
-                UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), Palette.GetColorName(Camouflage.PlayerSkins[target.PlayerId].ColorId).Color(Palette.PlayerColors[Camouflage.PlayerSkins[target.PlayerId].ColorId])) + "</i></u></color>";
+                var colorid = Camouflage.PlayerSkins[target.PlayerId].ColorId;
+                var DieName = Palette.GetColorName(colorid);
+                var check = false;
+                var color = Palette.PlayerColors[colorid];
+                if (ChengeMeetingInfo.TryGetValue(target.PlayerId, out var output))
+                {
+                    color = ModColors.NeutralGray;
+                    check = true;
+                    DieName = output;
+                }
+                MeetingHudPatch.Oniku = (check ? DieName : Utils.GetPlayerColor(target, true)) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
+                UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</i></u></color>";
             }
             else
             {
@@ -652,8 +664,18 @@ namespace TownOfHost
                 if (target != null)
                 {
                     UtilsGameLog.AddGameLog("Meeting", Utils.GetPlayerColor(target, true) + Translator.GetString("Meeting.Report") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true)));
-                    MeetingHudPatch.Oniku = Utils.GetPlayerColor(target, true) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
-                    UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), Palette.GetColorName(Camouflage.PlayerSkins[target.PlayerId].ColorId).Color(Palette.PlayerColors[Camouflage.PlayerSkins[target.PlayerId].ColorId])) + "</i></u></color>";
+                    var colorid = Camouflage.PlayerSkins[target.PlayerId].ColorId;
+                    var DieName = Palette.GetColorName(colorid);
+                    var check = false;
+                    var color = Palette.PlayerColors[colorid];
+                    if (ChengeMeetingInfo.TryGetValue(target.PlayerId, out var output))
+                    {
+                        color = ModColors.NeutralGray;
+                        check = true;
+                        DieName = output;
+                    }
+                    MeetingHudPatch.Oniku = (check ? DieName : Utils.GetPlayerColor(target, true)) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
+                    UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</i></u></color>";
                 }
                 else
                 {
@@ -719,8 +741,6 @@ namespace TownOfHost
         }
         public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target, bool checkdie = true)
         {
-            if (!AmongUsClient.Instance.AmHost) return true;
-
             var c = false;
             if (target != null)
                 if (repoter.GetRoleClass() is MassMedia massMedia)
@@ -798,6 +818,8 @@ namespace TownOfHost
                     return false;
                 }
             }
+
+            if (!AmongUsClient.Instance.AmHost) return true;
 
             //通報者が死んでいる場合、本処理で会議がキャンセルされるのでここで止める
             if (repoter?.Data?.IsDead ?? false && checkdie)
@@ -1009,7 +1031,7 @@ namespace TownOfHost
                 {
                     FallFromLadder.FixedUpdate(player);
                 }
-                if (Options.CurrentGameMode != CustomGameMode.Standard && GameStates.IsInTask && Main.introDestroyed && isAlive && !player.IsModClient())
+                if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && Main.introDestroyed && isAlive && !player.IsModClient())
                 {
                     Dictionary<int, float> Distance = new();
                     Vector2 position = player.transform.position;
@@ -1141,6 +1163,25 @@ namespace TownOfHost
                 }
                 if (GameStates.InGame)
                 {
+                    List<byte> del = new();
+                    foreach (var ventpc in CoEnterVentPatch.VentPlayers)
+                    {
+                        var pc = PlayerCatch.GetPlayerById(ventpc.Key);
+                        if (pc == null) continue;
+
+                        if (ventpc.Value > Options.MaxInVentTime.GetFloat())
+                        {
+                            if (!CoEnterVentPatch.VentPlayers.TryGetValue(ventpc.Key, out var a))
+                            {
+                                del.Add(ventpc.Key);
+                                continue;
+                            }
+                            pc.MyPhysics.RpcBootFromVent(VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(ventpc.Key, out var r) ? r : 0);
+                            del.Add(ventpc.Key);
+                        }
+                        CoEnterVentPatch.VentPlayers[ventpc.Key] += Time.fixedDeltaTime;
+                    }
+                    del.Do(id => CoEnterVentPatch.VentPlayers.Remove(id));
                     DisableDevice.FixedUpdate();
                     //情報機器制限
                     var nowuseing = true;
@@ -1332,11 +1373,6 @@ namespace TownOfHost
                 }
                 if (GameStates.IsInGame)
                 {
-                    //if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
-                    //{
-                    //    var hasRole = main.AllPlayerCustomRoles.TryGetValue(__instance.PlayerId, out var role);
-                    //    if (hasRole) RoleTextData = Utils.GetRoleTextHideAndSeek(__instance.Data.Role.Role, role);
-                    //}
 
                     (RoleText.enabled, RoleText.text) = UtilsRoleText.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, __instance, PlayerControl.LocalPlayer == __instance);
                     if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
@@ -1350,9 +1386,7 @@ namespace TownOfHost
                     var seerRole = seer.GetRoleClass();
                     var seerSubrole = seer.GetCustomSubRoles();
                     var target = __instance;
-                    string name = "";//$"<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 1.5) / 2}>暇な人 KYけーわい</voffset>\n<voffset={(((0 - seer.transform.position.y) * 28.5f) - test) / 2}><pos={(0 - seer.transform.position.x) * 28.5f}>■";
-                                     //if (seer.transform.position.y < -1)
-                                     //    name = $"<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 2.5) / 2}><pos={(0 - seer.transform.position.x) * 28.5f}>■</voffset>\n<voffset={(((0 - seer.transform.position.y) * 28.5f) - test * 2.5) / 2}>暇な人 KYけーわい";
+                    string name = "";
                     bool nomarker = false;
                     string RealName;
                     Mark.Clear();
@@ -1376,7 +1410,7 @@ namespace TownOfHost
                         {
                             if (!Options.EnableGM.GetBool())
                             {
-                                if (Options.TaskBattletaska.GetBool())
+                                if (Options.TaskBattelShowAllTask.GetBool())
                                 {
                                     var t1 = 0f;
                                     var t2 = 0;
@@ -1390,7 +1424,7 @@ namespace TownOfHost
                                     }
                                     else
                                     {
-                                        foreach (var t in Main.TaskBattleTeams)
+                                        foreach (var t in TaskBattle.TaskBattleTeams)
                                         {
                                             if (!t.Contains(seer.PlayerId)) continue;
                                             t1 = Options.TaskBattleTeamWinTaskc.GetFloat();
@@ -1400,7 +1434,7 @@ namespace TownOfHost
                                     }
                                     Mark.Append($"<color=yellow>({t2}/{t1})</color>");
                                 }
-                                if (Options.TaskBattletasko.GetBool())
+                                if (Options.TaskBattleShowFastestPlayer.GetBool())
                                 {
                                     var to = 0;
                                     if (!Options.TaskBattleTeamMode.GetBool() && !Options.TaskBattleTeamWinType.GetBool())
@@ -1409,7 +1443,7 @@ namespace TownOfHost
                                             if (pc.GetPlayerTaskState().CompletedTasksCount > to) to = pc.GetPlayerTaskState().CompletedTasksCount;
                                     }
                                     else
-                                        foreach (var t in Main.TaskBattleTeams)
+                                        foreach (var t in TaskBattle.TaskBattleTeams)
                                         {
                                             var to2 = 0;
                                             foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
@@ -1422,7 +1456,7 @@ namespace TownOfHost
                         }
                         else
                         {
-                            if (Options.TaskBattletaskc.GetBool())
+                            if (Options.TaskBattelCanSeeOtherPlayer.GetBool())
                                 Mark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
                         }
                     }
@@ -1549,6 +1583,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
     class CoEnterVentPatch
     {
+        public static Dictionary<byte, float> VentPlayers = new();
         static bool MadBool = false;
         public static bool Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] int id)
         {
@@ -1632,6 +1667,8 @@ namespace TownOfHost
                 }
                 CustomRoleManager.OnEnterVent(__instance, id);
             }
+            if (Options.MaxInVentMode.GetBool())
+                VentPlayers.TryAdd(__instance.myPlayer.PlayerId, 0);
             return true;
         }
         static bool CanUse(PlayerPhysics pp, int id)
@@ -1656,11 +1693,12 @@ namespace TownOfHost
         }
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetName))]
-    class SetNamePatch
+    [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoExitVent))]
+    class ExitVentPatch
     {
-        public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] string name)
+        public static void Prefix(PlayerPhysics __instance)
         {
+            CoEnterVentPatch.VentPlayers.Remove(__instance.myPlayer.PlayerId);
         }
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
@@ -1677,6 +1715,14 @@ namespace TownOfHost
             var roleClass = pc.GetRoleClass();
             var roleinfo = pc.GetCustomRole().GetRoleInfo();
             var ret = true;
+
+            //タスクバトルの処理　タスバトならこれ以外の処理いらない。
+            if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
+            {
+                TaskBattle.TaskBattleCompleteTask(pc, taskState);
+                return ret;
+            }
+
             if (roleClass != null)
             {
                 if (Amnesia.CheckAbility(pc))
@@ -1708,46 +1754,10 @@ namespace TownOfHost
                     }, 0.2f, "ResetAbility");
                 }
 
-            if (pc.Is(CustomRoles.TaskPlayerB) && Options.CurrentGameMode == CustomGameMode.TaskBattle && taskState.IsTaskFinished)
-            {
-                if (!Options.TaskBattleTeamMode.GetBool())
-                {
-                    foreach (var otherPlayer in PlayerCatch.AllAlivePlayerControls)
-                    {
-                        if (otherPlayer == pc || otherPlayer.AllTasksCompleted()) continue;
-                        otherPlayer.RpcExileV2();
-                        var playerState = PlayerState.GetByPlayerId(otherPlayer.PlayerId);
-                        playerState.SetDead();
-                    }
-                }
-                else
-                {
-                    foreach (var team in Main.TaskBattleTeams)
-                    {
-                        if (team.Contains(pc.PlayerId)) continue;
-                        team.Do(playerId =>
-                        {
-                            PlayerCatch.GetPlayerById(playerId).RpcExileV2();
-                            var playerState = PlayerState.GetByPlayerId(playerId);
-                            playerState.SetDead();
-                        });
-                    }
-                }
-            }
-            /*if (NoName.RoleInfo.IsEnable)
-            {
-                NoName.tasks[pc.PlayerId] += 5;
-            }*/
-
             //属性クラスの扱いを決定するまで仮置き
             ret &= Workhorse.OnCompleteTask(pc);
             if (UtilsTask.TaskCh) UtilsNotifyRoles.NotifyRoles();
 
-            if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
-            {
-                UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), Utils.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
-            }
-            else
             if (ret && UtilsTask.TaskCh)
             {
                 if (taskState.CompletedTasksCount < taskState.AllTasksCount) return ret;

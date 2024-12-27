@@ -129,7 +129,7 @@ namespace TownOfHost
 
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                     {
-                        if (Options.TaskBattletaska.GetBool())
+                        if (Options.TaskBattelShowAllTask.GetBool())
                         {
                             var t1 = 0f;
                             var t2 = 0;
@@ -143,7 +143,7 @@ namespace TownOfHost
                             }
                             else
                             {
-                                foreach (var t in Main.TaskBattleTeams)
+                                foreach (var t in TaskBattle.TaskBattleTeams)
                                 {
                                     if (!t.Contains(seer.PlayerId)) continue;
                                     t1 = Options.TaskBattleTeamWinTaskc.GetFloat();
@@ -153,7 +153,7 @@ namespace TownOfHost
                             }
                             SelfMark.Append($"<color=yellow>({t2}/{t1})</color>");
                         }
-                        if (Options.TaskBattletasko.GetBool())
+                        if (Options.TaskBattleShowFastestPlayer.GetBool())
                         {
                             var to = 0;
                             if (!Options.TaskBattleTeamMode.GetBool() && !Options.TaskBattleTeamWinType.GetBool())
@@ -162,7 +162,7 @@ namespace TownOfHost
                                     if (pc.GetPlayerTaskState().CompletedTasksCount > to) to = pc.GetPlayerTaskState().CompletedTasksCount;
                             }
                             else
-                                foreach (var t in Main.TaskBattleTeams)
+                                foreach (var t in TaskBattle.TaskBattleTeams)
                                 {
                                     var to2 = 0;
                                     foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
@@ -294,7 +294,7 @@ namespace TownOfHost
                                 TargetMark.Append($"<color=#96514d>Ψ</color>");
 
                             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
-                                if (Options.TaskBattletaskc.GetBool())
+                                if (Options.TaskBattelCanSeeOtherPlayer.GetBool())
                                     TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
 
                             //インサイダーモードタスク表示

@@ -123,7 +123,7 @@ namespace TownOfHost
                     {
                         if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                         target.RpcSetRoleDesync(target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId());
-                        Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName} ({(target.PlayerId == ImpostorId ? "Impostor" : "Crewmate")})", "AntiSetRole");
+                        //Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName} ({(target.PlayerId == ImpostorId ? "Impostor" : "Crewmate")})", "AntiSetRole");
                     }
                 }
 

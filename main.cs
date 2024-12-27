@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.24.14";
-        public const string PluginShowVersion = "519.24<sub>.14</sub>";
+        public const string PluginVersion = "519.24.15";
+        public const string PluginShowVersion = "519.24<sub>.15</sub>";
         public const string ModVersion = ".24";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -156,7 +156,6 @@ namespace TownOfHost
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
         public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
-        public static List<List<byte>> TaskBattleTeams = new();
         public static bool showkillbutton = false;
         public static bool RTAMode = false;
         public static byte RTAPlayer = 0;
@@ -230,7 +229,7 @@ namespace TownOfHost
 
             Logger = BepInEx.Logging.Logger.CreateLogSource("TownOfHost-K");
             TownOfHost.Logger.Enable();
-            //TownOfHost.Logger.Disable("NotifyRoles");
+            TownOfHost.Logger.Disable("NotifyRoles");
             TownOfHost.Logger.Disable("SendRPC");
             TownOfHost.Logger.Disable("ReceiveRPC");
             TownOfHost.Logger.Disable("SwitchSystem");

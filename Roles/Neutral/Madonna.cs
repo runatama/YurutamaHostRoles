@@ -170,12 +170,12 @@ public sealed class Madonna : RoleBase
             Utils.SendMessage(string.Format(GetString("Skill.MadoonnaHAMETU"), GetString($"{LoverChenge}")), Player.PlayerId);
             Wakarero = false;
             if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
-            Player.RpcSetCustomRole(LoverChenge, true);
+            Player.RpcSetCustomRole(LoverChenge, true, log: true);
         }
         if (Hangyaku)
         {
             Hangyaku = false;
-            Player.RpcSetCustomRole(LoverChenge, true);
+            Player.RpcSetCustomRole(LoverChenge, true, log: true);
         }
         else
         if (limit <= UtilsGameLog.day && Limitd && Player.IsAlive())

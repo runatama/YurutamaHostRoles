@@ -115,6 +115,14 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
 
         if (info.CanKill && info.DoKill) Afterkill = true;
     }
+    public override string GetProgressText(bool comms = false, bool GameLog = false)
+    {
+        if (GameLog)
+        {
+            return Utils.ColorString(Palette.Purple, $"{Count}");
+        }
+        return "";
+    }
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {
         seen ??= seer;
