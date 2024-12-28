@@ -71,7 +71,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         resetkillcooldown = false;
         fall = true;
         if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= PlayerCatch.SKMadmateNowCount) return;
-        var target = Player.GetKillTarget();
+        var target = Player.GetKillTarget(true);
         if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoleTypes.Impostor)) return;
 
         SKMad = false;

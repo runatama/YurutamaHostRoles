@@ -183,6 +183,7 @@
 "TaskBattelShowAllTask","Can See Total Number Of Tasks","合計タスク数を表示する","可以查看任务总数","","","",""
 "TaskBattleShowFastestPlayer","Can See Fastest Player Number Of Tasks","一番速い人のタスク数を表示する","可查看最快玩家的任务数量","","","",""
 "TaskBattleTeamMode","Enable Team Mode","チームモードを有効にする","启用团队模式","","","",""
+"TaskBattleTeamModeInfo","","※現在は出来ません(´・ω・`)"
 "TaskBattleTeamCount","Number of teams","チーム数","团队数量","","","",""
 "TaskBattleTeamGameTaskComp","Set the game end condition to the total number of tasks completed by the team","ゲーム終了条件をチームの合計タスク完了数にする","将游戏结束条件设置为团队完成任务的总数","","","",""
 "TaskBattleTeamWinTaskc","Total Number of Tasks","合計タスク数","任务总数","","","",""

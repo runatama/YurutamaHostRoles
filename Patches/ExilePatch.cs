@@ -173,17 +173,6 @@ namespace TownOfHost
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
                 }, 0.7f, "", true);
 
-                //OFFならリセ
-                /*if (!Options.AntiBlackOutSpawnVer.GetBool())
-                {
-                    foreach (var state in PlayerState.AllPlayerStates.Values)
-                    {
-                        if (state == null) continue;
-                        state.TeleportedWithAntiBlackout = true;
-                    }
-                    AllSpawned = true;
-                }*/
-
                 if (Options.BlackOutwokesitobasu.GetBool())
                 {
                     _ = new LateTask(() =>
@@ -198,13 +187,17 @@ namespace TownOfHost
                                 pc.ResetPlayerCam();
                                 _ = new LateTask(() =>
                                 {
-                                    if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)
-                                        RandomSpawn.AirshipSpawn(pc);
-                                    else
-                                        pc.RpcSnapToForced(pos);
-                                    PlayerState.GetByPlayerId(pc.PlayerId).HasSpawned = true;
-                                    pc.RpcSetRoleDesync(role, pc.GetClientId());
-                                }, 0.65f);
+                                    pc.ResetPlayerCam();
+                                    _ = new LateTask(() =>
+                                    {
+                                        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                                            RandomSpawn.AirshipSpawn(pc);
+                                        else
+                                            pc.RpcSnapToForced(pos);
+                                        PlayerState.GetByPlayerId(pc.PlayerId).HasSpawned = true;
+                                        pc.RpcSetRoleDesync(role, pc.GetClientId());
+                                    }, 0.65f);
+                                }, 0.1f);
                             }
                         }
                     }, 0.25f);

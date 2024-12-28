@@ -174,6 +174,7 @@ namespace TownOfHost
             CoEnterVentPatch.VentPlayers.Clear();
             PlayerControlRpcUseZiplinePatch.reset();
             GameStates.Reset();
+            TaskBattle.Init();
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
             MeetingHudPatch.Title = "";
@@ -239,11 +240,11 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                 {
                     TaskBattle.TaskBattleTeams.Clear();
-                    if (Options.TaskBattleTeamMode.GetBool())
+                    if (TaskBattle.IsTaskBattleTeamMode)
                     {
                         var rand = new Random();
                         var AllPlayerCount = Options.EnableGM.GetBool() ? PlayerCatch.AllPlayerControls.Count() - 1 : PlayerCatch.AllPlayerControls.Count();
-                        var teamc = Math.Min(Options.TaskBattleTeamCount.GetFloat(), AllPlayerCount);
+                        var teamc = Math.Min(TaskBattle.TaskBattleTeamCount.GetFloat(), AllPlayerCount);
                         var c = AllPlayerCount / teamc;//1チームのプレイヤー数 ↑チーム数
                         List<PlayerControl> ap = new();
                         List<byte> playerlist = new();
@@ -251,6 +252,8 @@ namespace TownOfHost
                             ap.Add(pc);
                         if (Options.EnableGM.GetBool())
                             ap.RemoveAll(x => x == PlayerControl.LocalPlayer);
+                        //チームを指定されている人は処理せず、後から追加する。
+                        ap.RemoveAll(x => TaskBattle.SelectedTeams.ContainsValue(x.PlayerId));
                         Logger.Info($"{teamc},{c}", "TB");
                         for (var i = 0; teamc > i; i++)
                         {
@@ -264,7 +267,13 @@ namespace TownOfHost
                                 Logger.Info($"{player.PlayerId}", "TB");
                                 ap.Remove(player);
                             }
-                            TaskBattle.TaskBattleTeams.Add(new List<byte>(playerlist));
+                            TaskBattle.TaskBattleTeams[(byte)i++] = new List<byte>(playerlist);
+                        }
+                        foreach (var (teamId, playerId) in TaskBattle.SelectedTeams)
+                        {
+                            var players = TaskBattle.TaskBattleTeams[teamId] ?? new List<byte>();
+                            players.Add(teamId);
+                            TaskBattle.TaskBattleTeams[teamId] = players;
                         }
                     }
                     foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -278,7 +287,7 @@ namespace TownOfHost
                         else
                         {
                             pc.RpcSetCustomRole(CustomRoles.TaskPlayerB);
-                            pc.RpcSetRole(Options.TaskBattleCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, false);
+                            pc.RpcSetRole(TaskBattle.TaskBattleCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, false);
                         }
                     }
                 }
@@ -446,10 +455,10 @@ namespace TownOfHost
                 if (TaskBattle.IsTaskBattleTeamMode)
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
-                        foreach (var t in TaskBattle.TaskBattleTeams)
+                        foreach (var (team, players) in TaskBattle.TaskBattleTeams)
                         {
-                            if (!t.Contains(pc.PlayerId)) continue;
-                            foreach (var id in t.Where(id => id != pc.PlayerId))
+                            if (!players.Contains(pc.PlayerId)) continue;
+                            foreach (var id in players.Where(id => id != pc.PlayerId))
                                 NameColorManager.Add(pc.PlayerId, id);
                         }
                 }

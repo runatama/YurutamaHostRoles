@@ -92,10 +92,7 @@ namespace TownOfHost
                 }
                 if (Main.RTAMode && (RpcCalls)callId == RpcCalls.SnapTo)
                 {
-                    var newReader = MessageReader.Get(reader);
-                    HudManagerPatch.TaskBattlep = NetHelpers.ReadVector2(newReader);
-                    HudManagerPatch.TaskBattleTimer = 0.0f;
-                    newReader.Recycle();
+                    HudManagerPatch.TaskBattleTimer = 0.0f; ;
                 }
                 if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
                 {
@@ -115,15 +112,6 @@ namespace TownOfHost
                         // SnapTo先が湧き位置だったら湧き処理に進む
                         if (IsAirshipVanillaSpawnPosition(position))
                         {
-                            /*
-                            if (!state.TeleportedWithAntiBlackout && !MeetingStates.FirstMeeting && Options.AntiBlackOutSpawnVer.GetBool())
-                            {
-                                state.SpawnPoint = position;
-                                player.RpcSnapToForced(new(999f, 999f));
-                                player.RpcProtectedMurderPlayer();
-                                state.TeleportedWithAntiBlackout = true;
-                                return false;
-                            }*/
                             AirshipSpawn(player);
                             return !IsRandomSpawn();
                         }
@@ -234,7 +222,7 @@ namespace TownOfHost
         }
         public static bool IsRandomSpawn(bool CheckCustomSpawn = false)
         {
-            var CustomSpawns = Main.CustomSpawnPosition.Count;
+            var CustomSpawns = CustomSpawnEditor.CustomSpawnPosition.Count;
             if (!Options.EnableRandomSpawn.GetBool()) return false;
             var cp = Options.CustomSpawn.GetBool() && SpawnMap.AddCustomSpawnPoint() is not null && CustomSpawns != 0;
             if (CheckCustomSpawn)
@@ -411,7 +399,7 @@ namespace TownOfHost
                 {
                     EnableLocations.AddRange(AddCustomSpawnPoint());
                 }
-                var locations = EnableLocations.Count > 0 ? EnableLocations : !IsRandomSpawn(true) ? Positions.Values.ToList() : Main.CustomSpawnPosition[Main.NormalOptions.MapId];
+                var locations = EnableLocations.Count > 0 ? EnableLocations : !IsRandomSpawn(true) ? Positions.Values.ToList() : CustomSpawnEditor.CustomSpawnPosition[Main.NormalOptions.MapId];
                 if (first) return locations[0];
                 var location = locations.OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
                 {
@@ -459,10 +447,10 @@ namespace TownOfHost
                 //カスランスポがOFFならさっさとnull。
                 if (!Options.CustomSpawn.GetBool()) return null;
 
-                var CustomSpawn = Main.CustomSpawnPosition;
+                var CustomSpawn = CustomSpawnEditor.CustomSpawnPosition;
                 if (!CustomSpawn.ContainsKey(Main.NormalOptions.MapId)) return null;
 
-                var CustomSpawns = Main.CustomSpawnPosition[Main.NormalOptions.MapId];
+                var CustomSpawns = CustomSpawnEditor.CustomSpawnPosition[Main.NormalOptions.MapId];
                 List<Vector2> EnableLocations = new(8);
                 if (CustomSpawns is null || !Options.CustomSpawn.GetBool() || CustomSpawns.Count == 0) return null;
 

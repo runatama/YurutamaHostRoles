@@ -282,7 +282,7 @@ namespace TownOfHost
             if (roleInfo != null)
                 return roleInfo.BaseRoleType.Invoke();
 
-            if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleCanVent.GetBool() && role is CustomRoles.TaskPlayerB)
+            if (Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleCanVent.GetBool() && role is CustomRoles.TaskPlayerB)
                 return RoleTypes.Engineer;
 
             return role switch

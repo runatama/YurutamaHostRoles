@@ -767,12 +767,13 @@ namespace TownOfHost
             }
             return rangePlayers;
         }
-        public static PlayerControl killtarget(this PlayerControl pc)//SNR参考!(((
+        public static PlayerControl killtarget(this PlayerControl pc, bool IsOneclick = false)//SNR参考!(((
         {
             float killdis = GameOptionsData.KillDistances[Mathf.Clamp(GameManager.Instance.LogicOptions.currentGameOptions.GetInt(Int32OptionNames.KillDistance), 0, 2)];
 
             if (pc.Data.IsDead || pc.inVent) return null;
 
+            var roletype = pc.GetCustomRole().GetCustomRoleTypes();
             Vector2 psi = pc.GetTruePosition();
             var ta = pc;
             foreach (var playerInfo in GameData.Instance.AllPlayers)
@@ -782,6 +783,7 @@ namespace TownOfHost
                 var tage = playerInfo.Object;
 
                 if (tage == null || tage.inVent) continue;
+                if (IsOneclick && tage.GetCustomRole().GetCustomRoleTypes() == roletype) continue;
                 if (SuddenDeathMode.NowSuddenDeathTemeMode)
                 {
                     if (SuddenDeathMode.TeamRed.Contains(pc.PlayerId) && SuddenDeathMode.TeamRed.Contains(tage.PlayerId)) continue;
@@ -793,6 +795,11 @@ namespace TownOfHost
 
                 var vector = tage.GetTruePosition() - psi;
                 float dis = vector.magnitude;
+
+                if (IsOneclick)//ワンクリ取得のラグが洒落にならん位えぐいから補正
+                {
+                    dis = Mathf.Clamp(dis - 2f, 0.01f, 99);
+                }
                 if (dis > killdis || PhysicsHelpers.AnyNonTriggersBetween(psi, vector.normalized, dis, Constants.ShipAndObjectsMask)) continue;
                 killdis = dis;
                 ta = tage;
@@ -1059,12 +1066,16 @@ namespace TownOfHost
             return !state.IsDead;
         }
 
-        public static PlayerControl GetKillTarget(this PlayerControl player)
+        public static PlayerControl GetKillTarget(this PlayerControl player, bool IsOneclick)
         {
             var playerrole = player.GetCustomRole();
-            if (player.AmOwner && GameStates.IsInTask && !GameStates.Intro && !(playerrole.IsImpostor() || playerrole is CustomRoles.Egoist) && (playerrole.GetRoleInfo()?.IsDesyncImpostor ?? false) && !player.Data.IsDead)
-                return player.killtarget();
 
+            if (IsOneclick) return player.killtarget(player.PlayerId > 0);
+
+            if (player.AmOwner && GameStates.IsInTask && !GameStates.Intro && !(playerrole.IsImpostor() || playerrole is CustomRoles.Egoist) && (playerrole.GetRoleInfo()?.IsDesyncImpostor ?? false) && !player.Data.IsDead)
+            {
+                return player.killtarget(!player.AmOwner);
+            }
             var players = player.GetPlayersInAbilityRangeSorted(false);
             return players.Count <= 0 ? null : players[0];
         }

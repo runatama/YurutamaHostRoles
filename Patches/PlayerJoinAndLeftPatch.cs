@@ -73,7 +73,7 @@ namespace TownOfHost
 
             if (GameStates.IsFreePlay && Main.EditMode)
             {
-                CustomSpawnSaveandLoadManager.Save();
+                CustomSpawnEditor.Save();
                 Main.EditMode = false;
             }
 
@@ -168,7 +168,7 @@ namespace TownOfHost
                         UtilsNotifyRoles.NotifyRoles(NoCache: true);
                     }
                     Main.playerVersion.Remove(data.Character.PlayerId);
-                    Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping})", "Session");
+                    Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping}), Platform:{data.PlatformData}", "Session");
                 }
             }
             catch (Exception e)
@@ -236,11 +236,11 @@ namespace TownOfHost
             }
         }
     }
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Update))]
+    //[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Update))]
     class CheckPingPatch
     {
         public static bool Check;
-        public static void Postfix(InnerNetClient __instance)
+        /*public static void Postfix(InnerNetClient __instance)
         {
             if (Check)
                 if (__instance.Ping >= 750)
@@ -248,6 +248,6 @@ namespace TownOfHost
                     Logger.Warn($"接続が不安定", "Ping");
                     ErrorText.Instance.AddError(ErrorCode.CommunicationisUnstable);
                 }
-        }
+        }*/
     }
 }

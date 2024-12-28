@@ -75,7 +75,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     {
         resetkillcooldown = false;
         fall = true;
-        var target = Player.GetKillTarget();
+        var target = Player.GetKillTarget(true);
         if (target == null) return;
         if (!CanUseAbilityButton() || mg.ContainsKey(target.PlayerId)) return;
         fall = false;

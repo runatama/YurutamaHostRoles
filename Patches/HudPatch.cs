@@ -25,7 +25,6 @@ namespace TownOfHost
         public static int NowCallNotifyRolesCount = 0;
         public static int LastSetNameDesyncCount = 0;
         public static float TaskBattleTimer = 0.0f;
-        public static Vector2 TaskBattlep;
         public static TMPro.TextMeshPro LowerInfoText;
         public static TMPro.TextMeshPro GameSettings;
         private static readonly int Desat = Shader.PropertyToID("_Desat");
@@ -338,6 +337,8 @@ namespace TownOfHost
         public static void Postfix(ShapeshifterPanel __instance, [HarmonyArgument(0)] int index, [HarmonyArgument(1)] NetworkedPlayerInfo pl)
         {
             {
+                if (Main.EditMode && GameStates.IsFreePlay) return;
+
                 var seer = PlayerControl.LocalPlayer;
                 var seerRole = seer.GetRoleClass();
                 var target = PlayerCatch.GetPlayerById(pl.PlayerId);

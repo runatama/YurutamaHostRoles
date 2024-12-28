@@ -122,7 +122,7 @@ namespace TownOfHost.Roles.Neutral
                 return;
             }
             var ch = Fall;
-            var target = Player.GetKillTarget();
+            var target = Player.GetKillTarget(true);
             var targetrole = target.GetCustomRole();
             if (target == null || (targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia) || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !CanImpSK.GetBool()))
             {

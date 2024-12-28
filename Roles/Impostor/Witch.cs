@@ -184,7 +184,7 @@ namespace TownOfHost.Roles.Impostor
             if (NowSwitchTrigger is SwitchTrigger.WitchOcButton)
             {
                 fall = false;
-                var target = Player.GetKillTarget();
+                var target = Player.GetKillTarget(true);
                 if (target != null)
                 {
                     var targetroleclass = target?.GetRoleClass();

@@ -107,63 +107,20 @@ namespace TownOfHost
             Logger.Info("-----------ゲーム開始-----------", "Phase");
             if (GameStates.IsFreePlay && Main.EditMode)
             {
-                Main.CustomSpawnPosition.TryAdd(AmongUsClient.Instance.TutorialMapId, new List<Vector2>());
+                CustomSpawnEditor.CustomSpawnPosition.TryAdd(AmongUsClient.Instance.TutorialMapId, new List<Vector2>());
                 _ = new LateTask(() =>
                 {
                     try
                     {
-                        SetCustomSporns();
+                        CustomSpawnEditor.Setup();
                     }
                     finally
                     {
                         Logger.Error("0.2f後でErrorが発生したため5秒後に再度実行", "SetCustomSporn");
-                        _ = new LateTask(() => SetCustomSporns(), 5f, "SetCustomSporn");
+                        _ = new LateTask(() => CustomSpawnEditor.Setup(), 5f, "SetCustomSporn");
                     }
                 }, 0.2f, "SetCustomSporn");
                 return;
-
-                void SetCustomSporns()
-                {
-                    PlayerControl.LocalPlayer.StartCoroutine(PlayerControl.LocalPlayer.CoSetRole(AmongUs.GameOptions.RoleTypes.Shapeshifter, false));
-                    if (PlayerControl.AllPlayerControls.Count < 10)
-                    {
-                        //SNR参考 https://github.com/SuperNewRoles/SuperNewRoles/blob/master/SuperNewRoles/Modules/BotManager.cs
-                        byte id = 0;
-                        foreach (var p in PlayerControl.AllPlayerControls)
-                            id++;
-                        for (var i = 0; PlayerControl.AllPlayerControls.Count < 10; i++)
-                        {
-                            var dummy = GameObject.Instantiate(AmongUsClient.Instance.PlayerPrefab);
-                            dummy.isDummy = true;
-                            dummy.PlayerId = id;
-                            AmongUsClient.Instance.Spawn(GameData.Instance.AddDummy(dummy));
-                            AmongUsClient.Instance.Spawn(dummy);
-                            dummy.NetTransform.enabled = true;
-                            dummy.SetColor(6);
-                            id++;
-                        }
-                    }
-                    //Mark
-                    var mark = UtilsSprite.LoadSprite("TownOfHost.Resources.SpawnMark.png", 300f);
-                    foreach (var p in PlayerControl.AllPlayerControls.ToArray().Where(p => p.PlayerId > 1))
-                    {
-                        _ = new LateTask(() =>
-                        {
-                            var nametext = p.transform.Find("Names/NameText_TMP");
-                            nametext.transform.position -= new Vector3(0, nametext.gameObject.activeSelf ? 0.3f : -0.3f);
-                            nametext.gameObject.SetActive(true);
-                        }, 0.5f);
-                        GameObject.Destroy(p.transform.Find("Names/ColorblindName_TMP").gameObject);
-                        p.transform.Find("BodyForms").gameObject.active = false;
-                        var hand = p.transform.Find("BodyForms/Seeker/SeekerHand");
-                        var Mark = GameObject.Instantiate(hand, hand.transform.parent.parent.parent);
-                        Mark.transform.localPosition = new Vector2(0, 0);
-                        Mark.GetComponent<SpriteRenderer>().sprite = mark;
-                        Component.Destroy(Mark.GetComponent<PowerTools.SpriteAnimNodeSync>());
-                        Mark.name = "Mark";
-                        Mark.gameObject.SetActive(true);
-                    }
-                }
             }
             if (GameStates.IsModHost && Main.UseWebHook.Value) UtilsWebHook.WH_ShowActiveRoles();
             PlayerCatch.CountAlivePlayers(true);
@@ -179,7 +136,6 @@ namespace TownOfHost
                     return;
                 }
                 Main.RTAPlayer = playerRTA.PlayerId;
-                HudManagerPatch.TaskBattlep = playerRTA.transform.position;
                 HudManagerPatch.TaskBattleTimer = 0f;
             }, 1f, "TaskBattle TimerReset");
         }
@@ -198,7 +154,6 @@ namespace TownOfHost
             foreach (var state in PlayerState.AllPlayerStates.Values)
             {
                 state.HasSpawned = false;
-                state.TeleportedWithAntiBlackout = false;
             }
         }
     }

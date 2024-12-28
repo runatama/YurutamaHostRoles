@@ -89,7 +89,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         resetkillcooldown = false;
         if (maxtellcount <= seentarget.Count) return;
         fall = true;
-        var target = Player.GetKillTarget();
+        var target = Player.GetKillTarget(true);
         if (target == null) { fall = true; return; }
         if (target.Is(CustomRoleTypes.Impostor)) { fall = true; return; }
 

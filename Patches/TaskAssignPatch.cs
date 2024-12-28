@@ -104,7 +104,7 @@ namespace TownOfHost
                 Main.FixTaskNoPlayer.Add(pc);
             }
             //変更点がない場合
-            if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskSoroeru.GetBool()) &&
+            if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskSoroeru.GetBool()) &&
                 !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks
                 && !Options.UploadDataIsLongTask.GetBool())
             {
@@ -189,7 +189,7 @@ namespace TownOfHost
             );
 
             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
-                if (Options.TaskSoroeru.GetBool())
+                if (TaskBattle.TaskSoroeru.GetBool())
                 {
                     if (!HostFin)
                     {

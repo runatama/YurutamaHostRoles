@@ -246,9 +246,9 @@ namespace TownOfHost.Modules
                     }
                 }
             }
-            if (CurrentGameMode == CustomGameMode.TaskBattle && TaskBattleCanVent.GetBool())
+            if (CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleCanVent.GetBool())
             {
-                opt.SetFloat(FloatOptionNames.EngineerCooldown, TaskBattleVentCooldown.GetFloat());
+                opt.SetFloat(FloatOptionNames.EngineerCooldown, TaskBattle.TaskBattleVentCooldown.GetFloat());
                 AURoleOptions.EngineerInVentMaxTime = 0;
             }
             MeetingTimeManager.ApplyGameOptions(opt);

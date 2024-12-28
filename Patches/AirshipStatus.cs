@@ -13,7 +13,6 @@ namespace TownOfHost
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             {
                 RandomSpawn.AirshipSpawn(PlayerControl.LocalPlayer);
-                PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).TeleportedWithAntiBlackout = true;
                 // GMは湧き画面をスキップ
                 return false;
             }

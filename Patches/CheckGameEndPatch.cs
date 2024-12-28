@@ -1,11 +1,17 @@
+using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
+
+using TownOfHost.Roles;
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
@@ -13,10 +19,6 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Ghost;
-using TownOfHost.Roles;
-using System.Text;
-using System.Text.RegularExpressions;
-using TownOfHost.Modules;
 
 namespace TownOfHost
 {
@@ -364,7 +366,15 @@ namespace TownOfHost
             }
             yield return new WaitForSeconds(EndGameDelay);
             //ちゃんとバニラに試合結果表示させるための遅延
-            SetRoleSummaryText();
+            try
+            {
+                SetRoleSummaryText();
+            }
+            catch (Exception ex)
+            {
+                Logger.Exception(ex, "SetRoleSummaryText");
+                Logger.seeingame("非クライアントへのアウトロテキスト生成中にエラーが発生しました。");
+            }
             yield return new WaitForSeconds(EndGameDelay);
 
             // ゲーム終了
@@ -372,22 +382,7 @@ namespace TownOfHost
         }
         private static void SetRoleSummaryText(CustomRpcSender sender = null)
         {
-            var sb = new StringBuilder();
-            sb.Append("<align=left><ktag-voffset><pos=-44><size=1><color=white>" + Translator.GetString("RoleSummaryText") + "</voffset>");
-
-            string CustomWinnerColor = UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate);
-            var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
-            if (winnerRole >= 0)
-                CustomWinnerColor = UtilsRoleText.GetRoleColorCode(winnerRole);
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw && SuddenDeathMode.NowSuddenDeathMode)
-            {
-                var color = Color.white;
-                var wr = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                if (Main.PlayerColors.TryGetValue(wr, out var co)) color = co;
-                CustomWinnerColor = StringHelper.ColorCode(color);
-            }
-
-            var winners = new List<PlayerControl>();
+            var winners = new List<PlayerControl>(); //先に処理
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)) winners.Add(pc);
@@ -414,27 +409,53 @@ namespace TownOfHost
                     winnerList.Add(pc.PlayerId);
                 }
 
-            List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
-            if (winnerList.Count != 0)
-                foreach (var id in winnerList)
+            var sb = new StringBuilder();
+            string[] rtaStr = null;
+            if (Main.RTAMode && Options.CurrentGameMode == CustomGameMode.TaskBattle && CustomWinnerHolder.WinnerTeam is not (CustomWinner.Draw or CustomWinner.None))
+                rtaStr = UtilsGameLog.GetRTAText(winnerList).ToString().Split('\n');//RTA&廃村以外の時のみ取得/他はnull
+            sb.Append("<align=left><ktag-voffset><pos=-44><size=1><color=white>" + (rtaStr == null ? Translator.GetString("RoleSummaryText") : rtaStr[0]) + "</voffset>");
+
+            var (CustomWinnerText, CustomWinnerColor, _, _, _) = UtilsGameLog.GetWinnerText(winnerList: winnerList);
+            var winnerSize = GetScale(CustomWinnerText.RemoveHtmlTags().Length, 2, 6);
+            // フォントサイズを制限
+            CustomWinnerText = $"<size={winnerSize}>{CustomWinnerText}</size>";
+
+            static double GetScale(int input, double min, double max)
+                => min + (max - min) * (1 - (double)(input - 1) / 19);//大きさ調整するやつ
+
+            if (rtaStr == null)//nullならRTAではないので通常ログを追加
+            {
+                List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
+                if (winnerList.Count != 0)
+                    foreach (var id in winnerList)
+                    {
+                        sb.Replace("<ktag-voffset>", "");
+                        sb.Append($"\n<pos=-44><ktag-voffset><color={CustomWinnerColor}>★</color> </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 41}em>") + "</voffset>");
+                        cloneRoles.Remove(id);
+                    }
+                if (cloneRoles.Count != 0)
+                    foreach (var id in cloneRoles)
+                    {
+                        sb.Replace("<ktag-voffset>", "");
+                        sb.Append($"\n<pos=-44><ktag-voffset>　 </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 41}em>") + "</voffset>");
+                    }
+            }
+            else
+            {
+                rtaStr = rtaStr.Skip(1).ToArray();
+                foreach (var text in rtaStr)
                 {
                     sb.Replace("<ktag-voffset>", "");
-                    sb.Append($"\n<pos=-44><ktag-voffset><color={CustomWinnerColor}>★</color> </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 41}em>") + "</voffset>");
-                    cloneRoles.Remove(id);
+                    sb.Append($"\n<pos=-44><ktag-voffset>{text}</pos></voffset>");
                 }
-            if (cloneRoles.Count != 0)
-                foreach (var id in cloneRoles)
-                {
-                    sb.Replace("<ktag-voffset>", "");
-                    sb.Append($"\n<pos=-44><ktag-voffset>　 </pos>").Append(Regex.Replace(UtilsGameLog.SummaryTexts(id), @"<pos=(\d+(\.\d+)?)em>", m => $"<pos={float.Parse(m.Groups[1].Value) - 41}em>") + "</voffset>");
-                }
-            sb.Replace("<ktag-voffset>", $"<voffset={13 - (1.5 * sb.ToString().Split('\n').Length)}>");
+            }
+            sb.Replace("<ktag-voffset>", $"<voffset={15 - (1.5 * sb.ToString().Split('\n').Length * (0.2 * winnerSize))}>");
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc == null) continue;
                 var target = (winnerList.Contains(pc.PlayerId) ? pc : (winnerList.Count == 0 ? pc : PlayerCatch.GetPlayerById(winnerList.OrderBy(pc => pc).FirstOrDefault()) ?? pc)) ?? pc;
                 var targetname = Main.AllPlayerNames[target.PlayerId].Color(UtilsRoleText.GetRoleColor(target.GetCustomRole()));
-                var text = sb.ToString() + $"\n</align><voffset=23><size=5>{UtilsGameLog.GetLastWinTeamtext()}</size>\n<voffset=45><size=1.75>{targetname}";
+                var text = sb.ToString() + $"\n</align><voffset=23>{CustomWinnerText}\n<voffset=45><size=1.75>{targetname}";
                 if (sender == null)
                     target.RpcSetNamePrivate(text, true, pc, true);
                 else
@@ -837,7 +858,7 @@ namespace TownOfHost
                 }
             }
             else
-            if (!Options.TaskBattleTeamWinType.GetBool())
+            if (!TaskBattle.TaskBattleTeamWinType.GetBool())
             {
                 int TaskPlayerB = PlayerCatch.AlivePlayersCount(CountTypes.TaskPlayer);
                 bool win = TaskPlayerB <= 1;
@@ -861,13 +882,13 @@ namespace TownOfHost
             }
             else
             {
-                foreach (var t in TaskBattle.TaskBattleTeams)
+                foreach (var t in TaskBattle.TaskBattleTeams.Values)
                 {
                     if (t == null) continue;
                     var task = 0;
                     foreach (var id in t)
                         task += PlayerState.GetByPlayerId(id).taskState.CompletedTasksCount;
-                    if (Options.TaskBattleTeamWinTaskc.GetFloat() <= task)
+                    if (TaskBattle.TaskBattleTeamWinTaskc.GetFloat() <= task)
                     {
                         reason = GameOverReason.HumansByTask;
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);

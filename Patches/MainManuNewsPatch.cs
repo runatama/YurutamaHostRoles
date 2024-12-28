@@ -940,11 +940,33 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            if (DateTime.Now.Year == 2025)
             {
                 var news = new ModNews
                 {
                     Number = 100038,
+                    Title = "バグ修正はなんぼあってもいいですからねっ!!",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.24.16</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.24.16</color>",
+                    Text = "<size=80%>\nけーわいさんログまだっすか...\n"
+                    + "<size=125%>【バグ修正等】</size>\n"
+                    + "・アウトロのテキスト処理を少し変更\n"
+                    + "・タスクバトルのタイマーが正常じゃないもないの修正\n"
+                    + "・バニラ視点のアウトロにRTA表示を追加\n"
+                    + "・内部のコード結構変更\n"
+                    + "・ResetCam式暗転対策の処理を変更\n"
+                    + "・サボ関係でボタンが押せなくなる問題の対応?"
+                    + "・ワンクリックボタンでのキルターゲット取得の処理を少し変更"
+                    + "・少しの間タスクバトル(チーム戦)が使用不可になります...ごめんネ..."
+                    + "\n\nどーせまたあうやろ()もう言わないぞ()じゃっ!\n\nヨラン",
+                    Date = "2024-12-28T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
+            if (DateTime.Now.Year == 2025)
+            {
+                var news = new ModNews
+                {
+                    Number = 100039,
                     Title = "謹賀新年",
                     SubTitle = "<color=#00c1ff>Town Of Host-K</color>",
                     ShortTitle = "<color=#00c1ff>TOH-Kからの御挨拶</color>",

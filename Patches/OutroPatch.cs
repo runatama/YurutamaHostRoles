@@ -152,162 +152,20 @@ namespace TownOfHost
             WinnerTextObject.transform.localScale = new(0.6f, 0.6f, 0.6f);
             var WinnerText = WinnerTextObject.GetComponent<TMPro.TextMeshPro>(); //WinTextと同じ型のコンポーネントを取得
             WinnerText.fontSizeMin = 3f;
-            WinnerText.text = "";
 
-            string CustomWinnerText = "";
-            var AdditionalWinnerText = new StringBuilder(32);
-            string CustomWinnerColor = UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate);
-            Main.AssignSameRoles = false;
+            string CustomWinnerText;
+            string CustomWinnerColor;
+            string WinText = __instance.WinText.text;
+            Color BackgroundBar = __instance.BackgroundBar.material.color;
+            Color WinColor = __instance.WinText.color;
 
-            var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
-            if (winnerRole >= 0)
-            {
-                CustomWinnerText = UtilsRoleText.GetRoleName(winnerRole);
-                CustomWinnerColor = UtilsRoleText.GetRoleColorCode(winnerRole);
-                if (winnerRole.IsNeutral())
-                {
-                    __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(winnerRole);
-                }
-            }
-            if (AmongUsClient.Instance.AmHost && PlayerState.GetByPlayerId(0).MainRole == CustomRoles.GM)
-            {
-                __instance.WinText.text = "Game Over";
-                __instance.WinText.color = UtilsRoleText.GetRoleColor(CustomRoles.GM);
-                __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.GM);
-            }
-            switch (CustomWinnerHolder.WinnerTeam)
-            {
-                //通常勝利
-                case CustomWinner.Crewmate:
-                    __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
-                    CustomWinnerColor = UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate);
-                    break;
-                //特殊勝利
-                case CustomWinner.Terrorist: __instance.BackgroundBar.material.color = Color.red; break;
-                case CustomWinner.Lovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.Lovers); break;
-                case CustomWinner.RedLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.RedLovers); break;
-                case CustomWinner.YellowLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.YellowLovers); break;
-                case CustomWinner.BlueLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.BlueLovers); break;
-                case CustomWinner.GreenLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.GreenLovers); break;
-                case CustomWinner.WhiteLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.WhiteLovers); break;
-                case CustomWinner.PurpleLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.PurpleLovers); break;
-                case CustomWinner.MadonnaLovers: __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.MadonnaLovers); break;
-                case CustomWinner.OneLove: WinnerText.text = CustomWinnerText = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), GetString("OneLoveWin")); __instance.BackgroundBar.material.color = UtilsRoleText.GetRoleColor(CustomRoles.OneLove); break;
-                case CustomWinner.TaskPlayerB:
-                    if (Main.winnerList.Count is 0) break;
-                    if (Main.winnerList.Count == 1)
-                        if (Main.RTAMode)
-                        {
-                            __instance.WinText.text = "Game Over";
-                            CustomWinnerText = $"タイム: {HudManagerPatch.GetTaskBattleTimer().Replace(" : ", "：")}<size=0>";
-                        }
-                        else
-                            CustomWinnerText = Main.AllPlayerNames[Main.winnerList[0]];
-                    else
-                    {
-                        var n = 0;
-                        foreach (var t in TaskBattle.TaskBattleTeams)
-                        {
-                            n++;
-                            if (t.Contains(Main.winnerList[0]))
-                                break;
-                        }
-                        CustomWinnerText = string.Format(GetString("Team2"), n);
-                    }
-                    break;
-                case CustomWinner.SuddenDeathRed:
-                    __instance.WinText.text = "Game Over";
-                    __instance.WinText.color = ModColors.Red;
-                    __instance.BackgroundBar.material.color = ModColors.Red;
-                    WinnerText.text = GetString("SuddenDeathRed");
-                    WinnerText.color = ModColors.Red;
-                    CustomWinnerColor = ModColors.codered;
-                    break;
+            (CustomWinnerText, CustomWinnerColor, WinText, BackgroundBar, WinColor) = UtilsGameLog.GetWinnerText(WinText, BackgroundBar, WinColor);
 
-                case CustomWinner.SuddenDeathBlue:
-                    __instance.WinText.text = "Game Over";
-                    __instance.WinText.color = ModColors.Blue;
-                    __instance.BackgroundBar.material.color = ModColors.Blue;
-                    WinnerText.text = GetString("SuddenDeathBlue");
-                    WinnerText.color = ModColors.Blue;
-                    CustomWinnerColor = ModColors.codeblue;
-                    break;
+            WinnerText.text = CustomWinnerText;
+            __instance.WinText.text = WinText;
+            __instance.WinText.color = WinColor;
+            __instance.BackgroundBar.material.color = BackgroundBar;
 
-                case CustomWinner.SuddenDeathYellow:
-                    __instance.WinText.text = "Game Over";
-                    __instance.WinText.color = ModColors.Yellow;
-                    __instance.BackgroundBar.material.color = ModColors.Yellow;
-                    WinnerText.text = GetString("SuddenDeathYellow");
-                    WinnerText.color = ModColors.Yellow;
-                    CustomWinnerColor = ModColors.codeyellow;
-                    break;
-
-                case CustomWinner.SuddenDeathGreen:
-                    __instance.WinText.text = "Game Over";
-                    __instance.WinText.color = ModColors.Green;
-                    __instance.BackgroundBar.material.color = ModColors.Green;
-                    WinnerText.text = GetString("SuddenDeathGreen");
-                    WinnerText.color = ModColors.Green;
-                    CustomWinnerColor = ModColors.codegreen;
-                    break;
-
-                case CustomWinner.SuddenDeathPurple:
-                    __instance.WinText.text = "Game Over";
-                    __instance.WinText.color = ModColors.Purple;
-                    __instance.BackgroundBar.material.color = ModColors.Purple;
-                    WinnerText.text = GetString("SuddenDeathPurple");
-                    WinnerText.color = ModColors.Purple;
-                    CustomWinnerColor = ModColors.codepurple;
-                    break;
-                //引き分け処理
-                case CustomWinner.Draw:
-                    __instance.WinText.text = GetString("ForceEnd");
-                    __instance.WinText.color = Color.white;
-                    __instance.BackgroundBar.material.color = Color.gray;
-                    WinnerText.text = GetString("ForceEndText");
-                    WinnerText.color = Color.gray;
-                    /*
-                                        //次の試合に役職を引き継ぐなら
-                                        if (Options.AssignSameRoleAfterForcedEnding.GetBool() && !Main.introDestroyed)
-                                        {
-                                            Main.AssignSameRoles = true;
-                                            Main.RoleatForcedEnd.Clear();
-                                            foreach (var pc in PlayerCatch.AllPlayerControls)
-                                                Main.RoleatForcedEnd[BanManager.GetHashedPuid(pc.GetClient())] = pc.GetCustomRole();
-                                        }*/
-                    break;
-                //全滅
-                case CustomWinner.None:
-                    __instance.WinText.text = "";
-                    __instance.WinText.color = Color.black;
-                    __instance.BackgroundBar.material.color = Color.gray;
-                    WinnerText.text = GetString("EveryoneDied");
-                    WinnerText.color = Color.gray;
-                    break;
-            }
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
-                if (SuddenDeathMode.NowSuddenDeathMode && !SuddenDeathMode.NowSuddenDeathTemeMode)
-                {
-                    var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                    var color = Color.white;
-                    if (Main.PlayerColors.TryGetValue(winner, out var co)) color = co;
-                    __instance.WinText.text = "Game Over";
-                    __instance.WinText.color = color;
-                    __instance.BackgroundBar.material.color = color;
-                    var name = "";
-                    if (Main.AllPlayerNames.ContainsKey(winner)) name = Utils.ColorString(Main.PlayerColors[winner], Main.AllPlayerNames[winner]);
-                    WinnerText.text = "<size=60%>" + name + Utils.ColorString(UtilsRoleText.GetRoleColor(winnerRole), $"({UtilsRoleText.GetRoleName(winnerRole)})") + $"{GetString("Win")}</size>";
-                    CustomWinnerColor = StringHelper.ColorCode(color);
-                }
-
-            foreach (var role in CustomWinnerHolder.AdditionalWinnerRoles)
-            {
-                AdditionalWinnerText.Append('＆').Append(Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role)));
-            }
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.OneLove && !SuddenDeathMode.NowSuddenDeathMode)
-            {
-                WinnerText.text = $"<color={CustomWinnerColor}>{CustomWinnerText}{AdditionalWinnerText}{GetString("Win")}</color>";
-            }
             LastWinsText = WinnerText.text;
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,16 +215,7 @@ namespace TownOfHost
             StringBuilder sb = new();
             if (Main.RTAMode && Options.CurrentGameMode == CustomGameMode.TaskBattle)
             {
-                sb.Append($"{GetString("TaskPlayerB")}:\n　{Main.AllPlayerNames[Main.winnerList[0]] ?? "?"}")
-                .Append($"\n{GetString("TaskCount")}:")
-                .Append($"\n　通常タスク数: {Main.NormalOptions.NumCommonTasks}")
-                .Append($"\n　ショートタスク数: {Main.NormalOptions.NumShortTasks}")
-                .Append($"\n　ロングタスク数: {Main.NormalOptions.NumLongTasks}")
-                .Append($"\nタイム: {HudManagerPatch.GetTaskBattleTimer()}")
-                .Append($"\nマップ: {(MapNames)Main.NormalOptions.MapId}")
-                .Append($"\nベント: " + (Options.TaskBattleCanVent.GetBool() ? "あり" : "なし"));//マップの設定なども記載しなければならない
-                if (Options.TaskBattleCanVent.GetBool())
-                    sb.Append($"\n　クールダウン:{Options.TaskBattleVentCooldown.GetFloat()}");
+                sb.Append(UtilsGameLog.GetRTAText());
                 EndGamePatch.KillLog += $"<color=#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}\n" + sb.ToString().Replace("\n", "\n　") + $"\n{"★".Color(Palette.DisabledGrey)}<color=#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}";
             }
             else

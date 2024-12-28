@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.24.15";
-        public const string PluginShowVersion = "519.24<sub>.15</sub>";
+        public const string PluginVersion = "519.24.16";
+        public const string PluginShowVersion = "519.24<sub>.16</sub>";
         public const string ModVersion = ".24";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -164,7 +164,6 @@ namespace TownOfHost
         public static bool AssignSameRoles = false;
         public static Dictionary<byte, int> KillCount = new();
         public static string Alltask;
-        public static Dictionary<int, List<Vector2>> CustomSpawnPosition = new();
         public static byte LastSab;
         public static SystemTypes SabotageType;
         public static bool NowSabotage;

@@ -129,11 +129,11 @@ namespace TownOfHost
 
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                     {
-                        if (Options.TaskBattelShowAllTask.GetBool())
+                        if (TaskBattle.TaskBattelShowAllTask.GetBool())
                         {
                             var t1 = 0f;
                             var t2 = 0;
-                            if (!Options.TaskBattleTeamMode.GetBool() && !Options.TaskBattleTeamWinType.GetBool())
+                            if (!TaskBattle.TaskBattleTeamMode.GetBool() && !TaskBattle.TaskBattleTeamWinType.GetBool())
                             {
                                 foreach (var pc in PlayerCatch.AllPlayerControls)
                                 {
@@ -143,26 +143,26 @@ namespace TownOfHost
                             }
                             else
                             {
-                                foreach (var t in TaskBattle.TaskBattleTeams)
+                                foreach (var t in TaskBattle.TaskBattleTeams.Values)
                                 {
                                     if (!t.Contains(seer.PlayerId)) continue;
-                                    t1 = Options.TaskBattleTeamWinTaskc.GetFloat();
+                                    t1 = TaskBattle.TaskBattleTeamWinTaskc.GetFloat();
                                     foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
                                         t2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
                                 }
                             }
                             SelfMark.Append($"<color=yellow>({t2}/{t1})</color>");
                         }
-                        if (Options.TaskBattleShowFastestPlayer.GetBool())
+                        if (TaskBattle.TaskBattleShowFastestPlayer.GetBool())
                         {
                             var to = 0;
-                            if (!Options.TaskBattleTeamMode.GetBool() && !Options.TaskBattleTeamWinType.GetBool())
+                            if (!TaskBattle.TaskBattleTeamMode.GetBool() && !TaskBattle.TaskBattleTeamWinType.GetBool())
                             {
                                 foreach (var pc in PlayerCatch.AllPlayerControls)
                                     if (pc.GetPlayerTaskState().CompletedTasksCount > to) to = pc.GetPlayerTaskState().CompletedTasksCount;
                             }
                             else
-                                foreach (var t in TaskBattle.TaskBattleTeams)
+                                foreach (var t in TaskBattle.TaskBattleTeams.Values)
                                 {
                                     var to2 = 0;
                                     foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
@@ -294,7 +294,7 @@ namespace TownOfHost
                                 TargetMark.Append($"<color=#96514d>Ψ</color>");
 
                             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
-                                if (Options.TaskBattelCanSeeOtherPlayer.GetBool())
+                                if (TaskBattle.TaskBattelCanSeeOtherPlayer.GetBool())
                                     TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
 
                             //インサイダーモードタスク表示

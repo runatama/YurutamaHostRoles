@@ -266,21 +266,21 @@ namespace TownOfHost
                     return false;
                 }
 
-                if (Options.CurrentGameMode == CustomGameMode.TaskBattle && Options.TaskBattleTeamMode.GetBool())
+                if (Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleTeamMode.GetBool())
                 {
                     //チェック
-                    var teamc = Math.Min(Options.TaskBattleTeamCount.GetFloat(), PlayerCatch.AllPlayerControls.Count());
+                    var teamc = Math.Min(TaskBattle.TaskBattleTeamCount.GetFloat(), PlayerCatch.AllPlayerControls.Count());
                     var playerc = PlayerCatch.AllPlayerControls.Count() / teamc;
 
                     //チーム数でプレイヤーが足りない場合
-                    if (Options.TaskBattleTeamCount.GetFloat() > PlayerCatch.AllPlayerControls.Count())
+                    if (TaskBattle.TaskBattleTeamCount.GetFloat() > PlayerCatch.AllPlayerControls.Count())
                     {
                         var msg = GetString("Warning.MoreTeamsThanPlayers");
                         Logger.seeingame(msg);
                         Logger.Warn(msg, "BeginGame");
                     }
                     //合計タスク数が足りない場合
-                    if (Options.TaskBattleTeamWinType.GetBool() && Main.NormalOptions.TotalTaskCount * playerc < Options.TaskBattleTeamWinTaskc.GetFloat())
+                    if (TaskBattle.TaskBattleTeamWinType.GetBool() && Main.NormalOptions.TotalTaskCount * playerc < TaskBattle.TaskBattleTeamWinTaskc.GetFloat())
                     {
                         var msg = GetString("Warning.TBTask");
                         Logger.seeingame(msg);

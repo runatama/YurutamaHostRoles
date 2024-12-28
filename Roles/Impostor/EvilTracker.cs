@@ -216,8 +216,6 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         //※どちらにしろシェイプシフトは出来ない
         if (!CanTarget() || target.Is(CustomRoleTypes.Impostor)) return false;
 
-        var oldtarget = TargetId;
-        if (oldtarget == TargetId) return false;
         SetTarget(target.PlayerId);
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}のターゲットを{target.GetNameWithRole().RemoveHtmlTags()}に設定", "EvilTrackerTarget");
         Player.MarkDirtySettings();

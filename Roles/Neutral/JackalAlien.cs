@@ -58,7 +58,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     {
         AbductTimer = 255f;
         stopCount = false;
-        SK = CanmakeSK.GetBool() && JackalDoll.sidekick.GetInt() <= JackalDoll.side;
+        SK = CanmakeSK.GetBool();
         Fall = false;
         Init();
         PuppetCooltime.Clear();
@@ -759,7 +759,9 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
     public bool UseOneclickButton => SK;
-    public override bool CanUseAbilityButton() => SK; public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public override bool CanUseAbilityButton() => SK;
+
+    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;
         if (!SK) return;
@@ -770,18 +772,12 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
             return;
         }
         var ch = Fall;
-        var target = Player.GetKillTarget();
+        var target = Player.GetKillTarget(true);
+
         var targetrole = target.GetCustomRole();
         if (target == null || (targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia) || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !CanImpSK.GetBool()))
         {
             fall = true;
-            /*
-            Fall = true;
-            if (!ch)
-            {
-                _ = new LateTask(() => Player.MarkDirtySettings(), Main.LagTime, "", true);
-                _ = new LateTask(() => Player.RpcResetAbilityCooldown(), 0.4f + Main.LagTime, "", true);
-            }*/
             return;
         }
         SK = false;

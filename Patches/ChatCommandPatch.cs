@@ -913,16 +913,6 @@ namespace TownOfHost
                                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                                     }
                                     break;
-                                case "gettbteam":
-                                    var tbstring = "";
-                                    foreach (var t in TaskBattle.TaskBattleTeams)
-                                    {
-                                        foreach (var idt in t)
-                                            tbstring += idt + "\n";
-                                        tbstring += "\n";
-                                    }
-                                    SendMessage(tbstring, PlayerControl.LocalPlayer.PlayerId);
-                                    break;
                                 case "resetcam":
                                     if (args.Length < 2 || !int.TryParse(args[2], out int id3)) break;
                                     GetPlayerById(id3)?.ResetPlayerCam(1f);
