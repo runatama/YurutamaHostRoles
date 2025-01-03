@@ -107,10 +107,6 @@ namespace TownOfHost.Roles.Neutral
             {
                 var target = PlayerCatch.GetPlayerById(targetId);
                 KillBitten(target, true);
-                if (repo == target)
-                {
-                    ReportDeadBodyPatch.DieCheckReport(repo, __);
-                }
             }
             GrimPlayers.Clear();
         }

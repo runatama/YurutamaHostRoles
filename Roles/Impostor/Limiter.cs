@@ -207,10 +207,6 @@ namespace TownOfHost.Roles.Impostor
                 Player.RpcMurderPlayer(Player, true);
                 RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
             }
-            if (Limit && repo == Player)
-            {
-                ReportDeadBodyPatch.DieCheckReport(Player, target);
-            }
         }
     }
 }

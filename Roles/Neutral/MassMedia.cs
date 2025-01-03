@@ -8,7 +8,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
-public sealed class MassMedia : RoleBase, IImpostor, IKiller
+public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -36,7 +36,11 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem OptionShikai;
-    private static float KillCooldown;
+    static OptionItem OptionMeetingReset;
+    static OptionItem OptionCanSeeKillflash;
+    static bool MeetingReset;
+    static float KillCooldown;
+    static bool Canseekillflash;
     public byte Target;
     byte Guees;
     bool Makkura;
@@ -46,11 +50,15 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
     public static HashSet<MassMedia> MassMedias = new();
     enum Option
     {
-        MassMediaShikai
+        MassMediaShikai,
+        MassMediaMeetingReset,
+        MassMediaCanSeeKillflash
     }
     public override void Add()
     {
         KillCooldown = OptionKillCoolDown.GetFloat();
+        MeetingReset = OptionMeetingReset.GetBool();
+        Canseekillflash = OptionCanSeeKillflash.GetBool();
         Target = byte.MaxValue;
         Makkura = false;
         TagePo = new Vector3(999f, 999f);
@@ -66,7 +74,9 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionShikai = FloatOptionItem.Create(RoleInfo, 11, Option.MassMediaShikai, new(0f, 0.20f, 0.02f), 0.04f, false)
-        .SetValueFormat(OptionFormat.Multiplier);
+                .SetValueFormat(OptionFormat.Multiplier);
+        OptionMeetingReset = BooleanOptionItem.Create(RoleInfo, 12, Option.MassMediaMeetingReset, false, false);
+        OptionCanSeeKillflash = BooleanOptionItem.Create(RoleInfo, 13, Option.MassMediaCanSeeKillflash, false, false);
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -144,10 +154,13 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
                 }
         }
         //リセット
-        TargetArrow.Remove(Player.PlayerId, Target);
-        GetArrow.Remove(Player.PlayerId, TagePo);
-        TagePo = new Vector3(999f, 999f);
-        Target = byte.MaxValue;
+        if (MeetingReset || !PlayerCatch.GetPlayerById(Target).IsAlive())
+        {
+            TargetArrow.Remove(Player.PlayerId, Target);
+            GetArrow.Remove(Player.PlayerId, TagePo);
+            TagePo = new Vector3(999f, 999f);
+            Target = byte.MaxValue;
+        }
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
@@ -160,8 +173,22 @@ public sealed class MassMedia : RoleBase, IImpostor, IKiller
                 return "<color=#512513>" + TargetArrow.GetArrows(Player, Target) + "</color>";
             else return "<color=#512513>" + GetArrow.GetArrows(Player, TagePo) + "</color>";
         }
+        if (seen.PlayerId == Target) return "<color=#512513>★</color>";
+
         return "";
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (!seer.IsAlive() ||
+            !Winchance ||
+            !isForMeeting ||
+            Target == byte.MaxValue
+        ) return "";
+
+        return GetString("MassMediaChance");
+    }
+    public bool? CheckKillFlash(MurderInfo info) => info.AppearanceTarget.PlayerId == Target && Canseekillflash;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!SelfVoteManager.Canuseability()) return true;

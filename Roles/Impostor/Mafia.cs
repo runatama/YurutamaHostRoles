@@ -1,5 +1,5 @@
 using AmongUs.GameOptions;
-
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
@@ -72,9 +72,51 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         fall = true;
         if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= PlayerCatch.SKMadmateNowCount) return;
         var target = Player.GetKillTarget(true);
-        if (target == null || target.Is(CustomRoles.King) || target.Is(CustomRoleTypes.Impostor)) return;
+        if (target == null || target.Is(CustomRoles.King) || (target.Is(CustomRoleTypes.Impostor) && !SuddenDeathMode.NowSuddenDeathTemeMode)) return;
 
-        SKMad = false;
+        SKMad = false; if (SuddenDeathMode.NowSuddenDeathTemeMode)
+        {
+            if (SuddenDeathMode.TeamRed.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Add(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamBlue.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Add(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamYellow.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Add(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamGreen.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Add(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamPurple.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Add(target.PlayerId);
+            }
+        }
         Player.RpcProtectedMurderPlayer(target);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);

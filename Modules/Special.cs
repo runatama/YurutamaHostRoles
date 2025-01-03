@@ -18,7 +18,7 @@ static class Event
     public static bool April = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool IsEventDay => IsChristmas || White || IsInitialRelease || IsHalloween || GoldenWeek || April;
     public static bool Special = false;
-    public static bool NowRoleEvent => (DateTime.Now.Month == 12 && 20 <= DateTime.Now.Day) || (DateTime.Now.Month == 1 && DateTime.Now.Day <= 8);
+    public static bool NowRoleEvent => DateTime.Now.Month == 1 && DateTime.Now.Day <= 8;
     public static List<string> OptionLoad = new();
     public static bool IsE(this CustomRoles role) => role is CustomRoles.SpeedStar or CustomRoles.Chameleon;
 }

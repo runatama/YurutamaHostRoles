@@ -522,6 +522,7 @@ public abstract class RoleBase : IDisposable
         NonReport,
         Transparent,
         CantUseButton,
-        Other
+        Eat,
+        Other,
     }
 }

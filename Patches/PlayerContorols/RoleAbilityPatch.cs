@@ -78,6 +78,49 @@ namespace TownOfHost
                     PlayerControl targetm = min.Key;
                     if (!targetm.Is(CustomRoles.King))
                     {
+                        if (SuddenDeathMode.NowSuddenDeathTemeMode)
+                        {
+                            if (SuddenDeathMode.TeamRed.Contains(targetm.PlayerId))
+                            {
+                                SuddenDeathMode.TeamRed.Add(target.PlayerId);
+                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+                            }
+                            if (SuddenDeathMode.TeamBlue.Contains(targetm.PlayerId))
+                            {
+                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamBlue.Add(target.PlayerId);
+                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+                            }
+                            if (SuddenDeathMode.TeamYellow.Contains(targetm.PlayerId))
+                            {
+                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamYellow.Add(target.PlayerId);
+                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+                            }
+                            if (SuddenDeathMode.TeamGreen.Contains(targetm.PlayerId))
+                            {
+                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamGreen.Add(target.PlayerId);
+                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+                            }
+                            if (SuddenDeathMode.TeamPurple.Contains(targetm.PlayerId))
+                            {
+                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                                SuddenDeathMode.TeamPurple.Add(target.PlayerId);
+                            }
+                        }
                         UtilsGameLog.AddGameLog("SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(targetm, true) + $"({UtilsRoleText.GetTrueRoleName(targetm.PlayerId)})", Utils.GetPlayerColor(shapeshifter, true) + $"({UtilsRoleText.GetTrueRoleName(shapeshifter.PlayerId)})"));
                         targetm.RpcSetCustomRole(targetRole);
                         Logger.Info($"Make SKMadmate:{targetm.name}", "Shapeshift");
@@ -162,11 +205,6 @@ namespace TownOfHost
                 logger.Info("会議中のため変身をキャンセルします");
                 return false;
             }
-            if (!Main.CanUseAbility)
-            {
-                logger.Info("CanUseAbilityがfalseなのでりたーん");
-                return false;
-            }
             return true;
         }
     }
@@ -229,6 +267,7 @@ namespace TownOfHost
         [HarmonyPatch(nameof(PlayerControl.CheckVanish)), HarmonyPrefix]
         public static bool Prefix(PlayerControl __instance)
         {
+            if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId) return false;
             //Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
             var resetkillcooldown = false;
             bool? fall = false;

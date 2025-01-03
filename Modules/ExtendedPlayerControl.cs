@@ -391,7 +391,6 @@ namespace TownOfHost
                 return;
             }
             if (kousin) target.SyncSettings();
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId) CustomButtonHud.BottonHud(true);
             if (log) Logger.Info($"アビリティクールダウンのリセット:{target?.name ?? "ﾇﾙﾎﾟｯ"}({target?.PlayerId ?? 334})", "RpcResetAbilityCooldown");
 
             if (kousin)
@@ -783,14 +782,10 @@ namespace TownOfHost
                 var tage = playerInfo.Object;
 
                 if (tage == null || tage.inVent) continue;
-                if (IsOneclick && tage.GetCustomRole().GetCustomRoleTypes() == roletype) continue;
+                if (!SuddenDeathMode.NowSuddenDeathTemeMode && IsOneclick && tage.GetCustomRole().GetCustomRoleTypes() == roletype) continue;
                 if (SuddenDeathMode.NowSuddenDeathTemeMode)
                 {
-                    if (SuddenDeathMode.TeamRed.Contains(pc.PlayerId) && SuddenDeathMode.TeamRed.Contains(tage.PlayerId)) continue;
-                    if (SuddenDeathMode.TeamBlue.Contains(pc.PlayerId) && SuddenDeathMode.TeamBlue.Contains(tage.PlayerId)) continue;
-                    if (SuddenDeathMode.TeamYellow.Contains(pc.PlayerId) && SuddenDeathMode.TeamYellow.Contains(tage.PlayerId)) continue;
-                    if (SuddenDeathMode.TeamGreen.Contains(pc.PlayerId) && SuddenDeathMode.TeamGreen.Contains(tage.PlayerId)) continue;
-                    if (SuddenDeathMode.TeamPurple.Contains(pc.PlayerId) && SuddenDeathMode.TeamPurple.Contains(tage.PlayerId)) continue;
+                    if (SuddenDeathMode.IsOnajiteam(pc.PlayerId, tage.PlayerId)) continue;
                 }
 
                 var vector = tage.GetTruePosition() - psi;
@@ -1070,11 +1065,11 @@ namespace TownOfHost
         {
             var playerrole = player.GetCustomRole();
 
-            if (IsOneclick) return player.killtarget(player.PlayerId > 0);
+            if (IsOneclick && !player.AmOwner) return player.killtarget(true);
 
             if (player.AmOwner && GameStates.IsInTask && !GameStates.Intro && !(playerrole.IsImpostor() || playerrole is CustomRoles.Egoist) && (playerrole.GetRoleInfo()?.IsDesyncImpostor ?? false) && !player.Data.IsDead)
             {
-                return player.killtarget(!player.AmOwner);
+                return player.killtarget();
             }
             var players = player.GetPlayersInAbilityRangeSorted(false);
             return players.Count <= 0 ? null : players[0];

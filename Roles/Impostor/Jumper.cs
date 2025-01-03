@@ -39,12 +39,14 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         onecooltime = Onecooltime.GetFloat();
         jampcooltime = Jampcooltime.GetFloat();
         killcool = OptionKillCoolDown.GetFloat();
+        jampdistance = JampDistance.GetInt();
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem Jampcount;
     static OptionItem Onecooltime;
     static OptionItem Jampcooltime;
     static OptionItem Jampdis;
+    static OptionItem JampDistance;
     Vector2 position;
     Vector2 nowposition;
     static float killcool;
@@ -52,6 +54,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     static float jampcooltime;
     static float jampdis;
     static int jampcount;
+    static int jampdistance;
     int PlayerColor;
     float x;
     float y;
@@ -64,7 +67,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     bool aname;
     enum Op
     {
-        JamperOneCoolTime, JamperCCoolTime, JamperJampcount, JamperJampDis
+        JamperOneCoolTime, JamperCCoolTime, JamperJampcount, JamperJampDis, JamperDistance
     }
 
     static void SetupOptionItem()
@@ -72,6 +75,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JamperJampcount, new(1f, 30f, 1f), 4f, false);
+        JampDistance = IntegerOptionItem.Create(RoleInfo, 15, Op.JamperDistance, new(1, 3, 1), 1, false);
         Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JamperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JamperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
         Jampdis = FloatOptionItem.Create(RoleInfo, 14, Op.JamperJampDis, new(0.2f, 3, 0.1f), 1.5f, false).SetValueFormat(OptionFormat.Seconds);
@@ -96,7 +100,6 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             PlayerCatch.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
             player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
-            //player.RpcProtectedMurderPlayer();
             _ = new LateTask(() =>
             {
                 if (!GameStates.Meeting && player.IsAlive())
@@ -107,7 +110,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                         if (target != player)
                         {
                             float Distance = Vector2.Distance(player.transform.position, target.transform.position);
-                            if (Distance <= 1.22f)
+                            if (Distance <= (jampdistance == 1 ? 1.22f : (jampdistance == 2 ? 1.82f : 2.2)))
                             {
                                 PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
                                 target.SetRealKiller(player);
@@ -193,7 +196,10 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         seen ??= seer;
         if (Player == seen && aname && !GameStates.Meeting)
         {
-            name = "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n<size=1200%><color=#ff1919>●</color></size></line-height>";
+            name = jampdistance == 1 ? "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n<size=1200%><color=#ff1919>●</color></size></line-height>"
+            : (jampdistance == 2 ? "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n<size=2100%><color=#ff1919>●</color></size></line-height>"
+                : "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n<size=2800%><color=#ff1919>●</color></size></line-height>"
+            );
             NoMarker = true;
             return true;
         }

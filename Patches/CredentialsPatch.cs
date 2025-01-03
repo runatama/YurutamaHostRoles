@@ -8,6 +8,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
+using System.Linq;
 
 namespace TownOfHost
 {
@@ -67,7 +68,7 @@ namespace TownOfHost
 #if DEBUG
                 if (Main.ViewPingDetails.Value)
                 {
-                    __instance.text.text += $"({AmongUsClient.Instance.Ping / 1000f}秒/{(GameStates.IsOnlineGame ? (Main.IsCs() ? ServerManager.Instance.CurrentRegion.Name : GetString(ServerManager.Instance.CurrentRegion.TranslateName)) : "ローカル")})";
+                    __instance.text.text += $"({AmongUsClient.Instance.Ping / 1000f}秒/{(GameStates.IsOnlineGame ? (Main.IsCs() ? ServerManager.Instance.CurrentRegion.Name : GetString(ServerManager.Instance.CurrentRegion.TranslateName)) : "ローカル")})\n";
                     __instance.text.alignment = TextAlignmentOptions.Top;
                 }
                 else __instance.text.alignment = TextAlignmentOptions.TopLeft;

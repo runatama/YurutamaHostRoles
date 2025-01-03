@@ -475,7 +475,7 @@ namespace TownOfHost
                     case "/impct":
                     case "/ic":
                         canceled = true;
-                        if (Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && (PlayerControl.LocalPlayer.GetCustomRole().IsImpostor() || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Egoist))
+                        if (GameStates.InGame && Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && (PlayerControl.LocalPlayer.GetCustomRole().IsImpostor() || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Egoist))
                         {
                             if ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita == false) break;
                             var send = "";
@@ -514,7 +514,7 @@ namespace TownOfHost
                     case "/jacct":
                     case "/jc":
                         canceled = true;
-                        if (Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien)
+                        if (GameStates.InGame && Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien)
                         {
                             var send = "";
                             foreach (var ag in args)
@@ -551,7 +551,7 @@ namespace TownOfHost
                     case "/loverchat":
                     case "/lc":
                         canceled = true;
-                        if (Options.LoversHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRiaju())
+                        if (GameStates.InGame && Options.LoversHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRiaju())
                         {
                             var l = PlayerControl.LocalPlayer.GetRiaju();
 
@@ -564,7 +564,7 @@ namespace TownOfHost
                                 send += ag;
                             }
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "loversChat");
-                            foreach (var lover in PlayerCatch.AllAlivePlayerControls)
+                            foreach (var lover in AllAlivePlayerControls)
                             {
                                 if (lover && (lover.GetRiaju() == l))
                                 {
@@ -1291,6 +1291,8 @@ namespace TownOfHost
                 "大狼" or "たいろう" or "大老" => GetString("Tairou"),
                 "吸血鬼" or "ヴァンパイア" => GetString("Vampire"),
                 "魔女" or "ウィッチ" => GetString("Witch"),
+                "プロボウラー" or "プロボーラー" => GetString("ProBowler"),
+                "一途な狼" or "一途" or "いちず" => GetString("EarnestWolf"),
 
                 //マッドメイト
                 "サイドキックマッドメイト" => GetString("SKMadmate"),
@@ -1300,19 +1302,20 @@ namespace TownOfHost
                 "エンジニア" => GetString("Engineer"),
                 "科学者" => GetString("Scientist"),
                 "トラッカー" => GetString("Tracker"),
-                "ノイズメーカー" => GetString("Noisemaker"),//アプデ対応用  よくわからない
+                "ノイズメーカー" => GetString("Noisemaker"),
                 "巫女" or "みこ" or "ふじょ" => GetString("ShrineMaiden"),
                 "クルー" or "クルーメイト" => GetString("Crewmate"),
                 "狼少年" or "オオカミ少年" or "おおかみ少年" => GetString("WolfBoy"),
+                "ギャスプ" or "ギャプス" or "ギャスフ" => GetString("Gasp"),//これを許していいのか。
 
                 //第3陣営
                 "ラバーズ" or "リア充" or "恋人" => GetString("Lovers"),
                 "片思い" or "片想い" => GetString("OneLove"),
                 "シュレディンガーの猫" or "シュレ猫" => GetString("SchrodingerCat"),
-                "Eシュレディンガーの猫" or "Eシュレ猫" => GetString("EgoSchrodingerCat"),
-                "Jシュレディンガーの猫" or "Jシュレ猫" => GetString("JSchrodingerCat"),
                 "ジャッカルドール" => GetString("Jackaldoll"),
                 "きつね" or "ようこ" or "妖狐" => GetString("Fox"),
+                "ヴァルチャー" or "バルチャー" => GetString("Vulture"),
+
                 _ => text,
             };
         }
@@ -1543,7 +1546,7 @@ namespace TownOfHost
                 case "/impstorchat":
                 case "/impct":
                 case "/ic":
-                    if (Options.ImpostorHideChat.GetBool() && player.IsAlive() && (player.GetCustomRole().IsImpostor() || player.GetCustomRole() is CustomRoles.Egoist))
+                    if (GameStates.InGame && Options.ImpostorHideChat.GetBool() && player.IsAlive() && (player.GetCustomRole().IsImpostor() || player.GetCustomRole() is CustomRoles.Egoist))
                     {
                         if ((player.GetRoleClass() as Amnesiac)?.omoidasita == false)
                         {
@@ -1573,6 +1576,24 @@ namespace TownOfHost
                                     if (clientid == -1) continue;
                                     var writer = CustomRpcSender.Create("ImpostorChatSend", SendOption.Reliable);
                                     writer.StartMessage(clientid);
+
+                                    if (imp.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                    {
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write($"<align=\"left\"><line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(Palette.ImpostorRed)}")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(player.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                        continue;
+                                    }
                                     writer.StartRpc(imp.NetId, (byte)RpcCalls.SetName)
                                     .Write(imp.Data.NetId)
                                     .Write($"<align=\"left\"><line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
@@ -1596,7 +1617,7 @@ namespace TownOfHost
                 case "/jackalchat":
                 case "/jacct":
                 case "/jc":
-                    if (Options.JackalHideChat.GetBool() && player.IsAlive() && player.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien)
+                    if (GameStates.InGame && Options.JackalHideChat.GetBool() && player.IsAlive() && player.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien)
                     {
                         var send = "";
                         if (GameStates.Tuihou)
@@ -1620,6 +1641,23 @@ namespace TownOfHost
                                     if (clientid == -1) continue;
                                     var writer = CustomRpcSender.Create("JacalSendChat", SendOption.Reliable);
                                     writer.StartMessage(clientid);
+                                    if (jac.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                    {
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write($"<align=\"left\"><line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(ModColors.JackalColor)}")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(player.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                        continue;
+                                    }
                                     writer.StartRpc(jac.NetId, (byte)RpcCalls.SetName)
                                     .Write(jac.Data.NetId)
                                     .Write($"<align=\"left\"><line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
@@ -1642,7 +1680,7 @@ namespace TownOfHost
                 case "/loverschat":
                 case "/loverchat":
                 case "/lc":
-                    if (Options.LoversHideChat.GetBool() && player.IsAlive() && player.IsRiaju())
+                    if (GameStates.InGame && Options.LoversHideChat.GetBool() && player.IsAlive() && player.IsRiaju())
                     {
                         var l = player.GetRiaju();
 
@@ -1670,6 +1708,23 @@ namespace TownOfHost
                                     if (clientid == -1) continue;
                                     var writer = CustomRpcSender.Create("LoverChatSend", SendOption.Reliable);
                                     writer.StartMessage(clientid);
+                                    if (lover.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                    {
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(ColorString(GetRoleColor(l), $"<align=\"left\"><line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>"))
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(GetRoleColor(l))}")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(player.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                        continue;
+                                    }
                                     writer.StartRpc(lover.NetId, (byte)RpcCalls.SetName)
                                     .Write(lover.Data.NetId)
                                     .Write(ColorString(GetRoleColor(l), $"<align=\"left\"><line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>"))

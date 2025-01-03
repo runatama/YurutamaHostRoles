@@ -60,6 +60,7 @@
 "Camouflager","Camouflager","カモフラージャー"
 "EvilSatellite","EvilSatellite","イビルサテライト"
 "Curser","Curser","カーサー",
+"ProBowler","ProBowler","プロボーラー"
 "#ImpostorName"
 
 "# マッドメイト系役職"
@@ -161,6 +162,8 @@
 "CurseMaker","CurseMaker","カースメーカー"
 "Fox","Fox","妖狐"
 "SantaClaus","SantaClaus","サンタクロース"
+"Vulture","Vulture","ヴァルチャー"
+"Turncoat","Turncoat","裏切者"
 "#NeutralName"
 
 "#コンビネーション役職"
@@ -183,7 +186,6 @@
 "TaskBattelShowAllTask","Can See Total Number Of Tasks","合計タスク数を表示する","可以查看任务总数","","","",""
 "TaskBattleShowFastestPlayer","Can See Fastest Player Number Of Tasks","一番速い人のタスク数を表示する","可查看最快玩家的任务数量","","","",""
 "TaskBattleTeamMode","Enable Team Mode","チームモードを有効にする","启用团队模式","","","",""
-"TaskBattleTeamModeInfo","","※現在は出来ません(´・ω・`)"
 "TaskBattleTeamCount","Number of teams","チーム数","团队数量","","","",""
 "TaskBattleTeamGameTaskComp","Set the game end condition to the total number of tasks completed by the team","ゲーム終了条件をチームの合計タスク完了数にする","将游戏结束条件设置为团队完成任务的总数","","","",""
 "TaskBattleTeamWinTaskc","Total Number of Tasks","合計タスク数","任务总数","","","",""
@@ -298,6 +300,7 @@
 "CamouflagerInfo","Illusion!","イリュージョン!"
 "EvilSatelliteInfo","Where have you been?","君がいたのはどこなんだい?"
 "CurserInfo","Curse and curse and finally tome!","呪って呪って最後はトドメ！"
+"ProBowlerInfo","","あそこをめがけて！"
 "#ImpostorInfo"
 
 "# マッドメイト系役職"
@@ -406,6 +409,8 @@
 "JackalAlienInfo","A-lien you is A-lien...","高鳴る気持ちが抑えられない"
 "FoxInfo","Survive to the end while completing tasks","タスクをこなしつつ最後まで生き残れ"
 "SantaClausInfo","A gift for everyone!","皆にプレゼントを！"
+"VultureInfo","","お腹が空いた..."
+"TurncoatInfo","","全部キミが悪いんだよ..."
 "#NeutralInfo"
 
 "# HideAndSeek"
@@ -506,8 +511,9 @@
 "EarnestWolfInfoLong","","ワンクリックボタンを使用することで通常キルとオーバーキルを切り替えることができる。\nオーバーキルモード中はキルディスタンスが長い。\nオーバーキルモード中にキルをすると、キルターゲットの能力、ガードを貫通するが、キルクールが倍率で増加する。"
 "AmnesiacInfoLong","","自身の事をシェリフだと思い込んでいるインポスター。\nシェリフのように見えているが誤爆はしない。\n相方も分からない。\nベントとサボタージュが使用できない。"
 "CamouflagerInfoLong","","ワンクリックボタンを使用することで\nプレイヤー全員(ウルトラスターを除く)のスキンが一定時間グレーになり、識別できない状態にする。"
-"EvilSatelliteInfoLong","","会議中にシェイプシフトで対象を選択すると選択した対象の今回のターンの経路が表示される\nもう一度確認したい時も同様にシェイプシフトで選択することで経路が表示される。\n※再表示の場合、能力使用可能回数は減少しない"
+"EvilSatelliteInfoLong","","会議中、自投票をする事でサテライトモードに変更可能。\nサテライトモード中に自身以外の誰かに投票する事で、対象の今回の経路を表示する。"
 "CurserInfoLong","","ターゲットをシェイプで選択が可能、\nその選択した相手にθが表示。\nただし、ターゲットを決めると呪える回数が減るぞ。\n\nθが表示されているターゲットをキルすると次のキルクールが短くなる。\nターゲット以外をキルしても、いつも通りのキルクールになる。"
+"ProBowlerInfoLong","","シェイプシフトをして穴を掘る。\n穴を掘った後、キルボタンを押すことでキルターゲットを掘った穴に落としてキルをする。\n\n会議後、穴は埋まる。"
 "#ImpostorInfoLong"
 
 "# マッドメイト系役職"
@@ -601,6 +607,8 @@
 "JackalAlienInfoLong","","ターン毎に設定された確率に応じて、様々な役職や能力に変化するジャッカル。\nターン毎の役職や能力は会議時に知ることができる。"
 "FoxInfoLong","","規定タスクを完了させ、ゲーム終了時まで生存していると単独勝利\n\nサボタージュが修復できない\n設定タスク完了毎にキルガードが1枚付与される\n\n初手ターン以降、名前の下に表示される部屋に行かないと\n次会議、自身が生存していることが通知されてしまう\n\n生存人数が3人以下又は勝利に必要なタスク数を完了させていないと、妖狐は生存カウントに含まれない"
 "SantaClausInfoLong","","タスクを全て完了させることでプレゼントを作成することができる。\nプレゼント作成後、\n指定されたベントに入ることでプレゼントを投下することができる。\n\n指定数プレゼントを投下すれば勝利。\n\nプレゼントを投下したターンの会議でプレゼントが届いた通知が来る\n\nプレゼントを投下するとタスクが再度復活する"
+"VultureInfoLong","","通報ボタンを押すことで死体をつまみぐいする事ができる。\n一定回数つまみぐいを行うと勝利。\nタスクを行うことでキルフラッシュが見えたり、死体への矢印を受け取ることができる\n\nそのターンにつまみぐいされた死体は会議で<color=#6f4204>×</color>がつく。"
+"TurncoatInfoLong","","ターゲットに<color=#371a1a>★</color>マークがついている。\n\nゲーム終了時、ターゲットが敗北し、自身が生存していると追加勝利。\nターゲットが死亡すると裏切者視点ターゲットの役職が分かるようになる。"
 "#NeutralInfoLong"
 
 "# HideAndSeek"
@@ -717,6 +725,8 @@
 "ExAftermeetingflash","After Meeting flash","会議後にフラッシュを入れる"
 "BlackOutwokesitobasu","Reset Camera Anti BlackOut","リセットカメラ式暗転対策"
 "BlackOutwokesitobasuInfo","(Cant Spawn AirShip)","(AirShipは会議後スポーン先を選択できなくなります)"
+"ExWeightReduction","Experimental Weight Reduction","安定しないかもしれない軽量化"
+"ExWeightReductionInfo","If the cooldown is not normal, report a bug and turn Off","クールダウン等がおかしい場合、バグ報告し、OFFにしてネ"
 "ExHideChatCommand","Meeting Can't see ChatCommand","会議時チャットコマンドを非表示にする"
 "ExHideChatCommandInfo","(Can't Use Voice,BetterCrew Room)","(CT卓でのみONにしてください)"
 "FixSpawnPacketSize","Set When Disconnect above 8-9 People","8～9人以上で切断される現象の修正"
@@ -950,7 +960,6 @@
 "UKakusei","Unaware of ability until it becomes available","能力使用可能になるまで自覚できない"
 "CanseeComms","Can use Ability communications","通信妨害中でも能力が発揮される"
 "VentCooldown","VentCooldown","ベントクールダウン"
-"UOcShButton","Use Shapeshift Button","ワンクリックボタンを使用する"
 "AddGuardCount","Number of times you can guard","ガード可能回数"
 "OptionCount","Maximum","能力使用可能回数"
 "DefaultShapeshiftCooldown","Default Shapeshift Cooldown","デフォルトの変身クールダウン","默认变形冷却时间","預設變身時間","Обычная перезарядка Оборотня","Tempo de Recarga Padrão (Mutar)",""
@@ -1114,6 +1123,7 @@
 "JamperOneCoolTime","jamppos cool","目的地指定クールダウン"
 "JamperCCoolTime","jamp cooldown","ジャンプクールダウン"
 "JamperJampDis","jamp time","ジャンプの間隔"
+"JamperDistance","JampDooon Distance","爆破範囲"
 "EarnestWolfOverKillCount","max overkill","オーバーキル可能回数"
 "EarnestWolfOverBairitu","overkill add killcooldown","オーバーキル時のキルクール増加率"
 "EarnestWolfNomalKllDistance","nomal Killdistance","通常時のキルディスタンス"
@@ -1132,6 +1142,9 @@
 "EvilSatelliteRandom","Shuffle Room","経路をランダムに表示する"
 "CurserTKillCooldown","Target Killed Killcool","ターゲット切った時のキルクール"
 "CurserNroiCunt","AbilityTime","呪える回数"
+"ProBowlerMaxUseCount","Max Use","穴を掘れる最大数"
+"ProBowlerBowling","","穴に向かって転がる"
+"ProBowlerDeathReasonIsFall","","死因を転落死にする"
 
 "## MadMate Role Setting"
 "MadmateOption","MadMate Options","マッドメイト系役職の設定"
@@ -1246,6 +1259,8 @@
 "SeerDelayMode","Delay Mode","キルフラッシュに遅延を追加する"
 "SeerMindelay","Min delay","最小遅延"
 "SeerMaxdelay","Max delay","最大遅延"
+"PsychicCallRate","Call Rate","警報発生の確率"
+"PsychicTaskAddrate","Dependence of alarm occurrence probability on task progress rate","警報発生確率をタスク進捗率に依存する"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
@@ -1287,6 +1302,8 @@
 "DoppelGangerWinCount","Add Win Must Count","追加勝利に必要なカウント"
 "DoppelGangerWin","Solo Win Must Count","単独勝利に必要なカウント"
 "MassMediaShikai","Vision","追跡相手が近くにいる場合の視界"
+"MassMediaMeetingReset","Meeting Target Reset","会議でターゲットをリセットするか"
+"MassMediaCanSeeKillflash","Target Kill Can See Killflash","ターゲットのキルフラッシュが見える"
 "BankerFarstCoin","First Have Coin","最初に所持しているポイント"
 "BankerTaskAddCoin","Taskcomplete Get Coins","タスクを行うことで手に入るポイント"
 "BankerKillAddCoin","Kill Get Coins","キルすることで手に入るポイント"
@@ -1317,6 +1334,13 @@
 "Foxwintaskcount","Can Win Must Taskcount","勝利に必要なタスク完了数"
 "Fox3playersCanwin","Can win 3players","生存人数が3人以下の時でも勝利できるか"
 "SantaClausWinGivePresentCount","win Must Presennt","勝利に必要なプレゼント投下数"
+"VultrueCanSeeKillFlushTaskCount","Killflash task count","キルフラッシュが見えるタスク完了数"
+"VultrueCanSeeOnikuArrowTaskCount","Arrow task count","矢印が見えるタスク完了数"
+"VultrueWinEatcount","WinEatcount","勝利に必要なつまみぐい数"
+"VultrueEatShape","Eat Shape","つまみぐいした時、シェイプの殻を表示する"
+"TurncoatCanTargetImpostor","Can Target Impostor","<color=#ff1919>インポスター</color>をターゲットにできる"
+"TurncoatCanTargetMadmate","Can Target Madmate","<color=#ff7f50>マッドメイト</color>をターゲットにできる"
+"TurncoatCanTargetNeutral","Can Target Neutral","<color=#cccccc>ニュートラル</color>をターゲットにできる"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール"
@@ -1492,9 +1516,9 @@
 
 "Vote.Divied","Vote→Divination ability to activate","誰かに投票→占い能力発動"
 "Vote.Balancer","Vote(Select two)→Balancer ability to activate","誰かに投票(2人選択)→天秤の能力発動"
-"Vote.MeetingSheriff","Vote→Sheriff ability to activate","誰かに投票→シェリフの能力発動"^
+"Vote.MeetingSheriff","Vote→Sheriff ability to activate","誰かに投票→シェリフの能力発動"
 "Vote.Satellite","Vote → UseAbility","誰かに投票 → 対象の経路を表示"
-"Vote.ConnectSaver","Vote(tow)→ ability to activate","誰かに投票(2人選択)→対象の命を接続"^
+"Vote.ConnectSaver","Vote(tow)→ ability to activate","誰かに投票(2人選択)→対象の命を接続"
 "Vote.Madonna","Vote→Confession","誰かに投票→告白"
 "Vote.Dictator","Vote → DictatorAbility","誰かに投票 → その人を追放"
 
@@ -1619,6 +1643,7 @@
 "Meetingkill","was Killed.","が急に意識を失った。\nどうしたんだろうな。"
 "RMeetingKill","{0} has Guessed {1}!!!It was a brilliant target.","{0}が{1}をゲスしたんだ...!良くあてたな...!"
 "Rgobaku","Oy... \nLooks like {0} tried to ghettoize {1} with {2} and misfired...","ん...?\n{0}は{1}を{2}でゲスしようとして誤爆したようだね..."
+"MassMediaChance","Vote for the murderer of <color=#512513>★</color>","<color=#512513>★</color>を殺した犯人に投票せよ"
 
 "## GuesserMeg"
 "GuessError1","I think I'm typing something wrong. /bt {id} {name of role} to shoot.","おっと。撃ち方を間違えているようだね。\n /bt ID 役職名\nで撃つんだ。IDは各プレイヤーの左にある黄色い数字だ。"
@@ -1662,6 +1687,9 @@
 "FoxRoomMission","Go to {0}","{0}に行け"
 "SelfVoteRoleInfoMeg","Self-voting => RoleAbility","自投票で効果発動"
 "NomalVoteRoleInfoMeg","Voting => RoleAbility","誰かに投票することで効果発動"
+"ProBowlerInfoTextSet","Set Hole","穴を設置しよう"
+"ProBowlerInfoTextKill","Kill target go to Hole","キル → 設置した穴に死体が残る"
+"TurncoatLowerText","Betray {0}","{0}を裏切れ..."
 
 "## かくれんぼ設定"
 "HideAndSeekOptions","Hide and Seek Settings","かくれんぼの設定","躲猫猫设置","躲貓貓設定","Настройки Пряток","Configurações do Esconde-Esconde",""
@@ -1734,6 +1762,7 @@
 "StealthAbility","add rooms","追加"
 "MadAvengerAbility","Call Meeting","革命を起こす"
 "CamebackerAbility","CameBack","カムバック"
+"ToiletFanAbility","Open","オープン！"
 
 "## クライアント設定"
 "Close","Close","閉じる","关闭","","Закрыть","Fechar",""

@@ -52,6 +52,12 @@ namespace TownOfHost
             {
                 return false;
             }
+            //エンジニア置き換えでもコミュだったらだめだよね。
+            if (pc.Role.Role == RoleTypes.Engineer && Utils.IsActive(SystemTypes.Comms))
+            {
+                canUse = couldUse = false;
+                return false;
+            }
 
             // ここまでMod独自の処理
             // ここからバニラ処理の置き換え

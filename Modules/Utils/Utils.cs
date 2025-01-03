@@ -158,6 +158,7 @@ namespace TownOfHost
                 {
                     var role = killFlashSeeable.CheckKillFlash(info);
                     if (role is null) return false;
+                    check |= role is true;
                 }
             }
 

@@ -240,7 +240,7 @@ namespace TownOfHost
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                 {
                     TaskBattle.TaskBattleTeams.Clear();
-                    if (TaskBattle.IsTaskBattleTeamMode)
+                    if (TaskBattle.TaskBattleTeamMode.GetBool())
                     {
                         var rand = new Random();
                         var AllPlayerCount = Options.EnableGM.GetBool() ? PlayerCatch.AllPlayerControls.Count() - 1 : PlayerCatch.AllPlayerControls.Count();
@@ -254,21 +254,23 @@ namespace TownOfHost
                             ap.RemoveAll(x => x == PlayerControl.LocalPlayer);
                         //チームを指定されている人は処理せず、後から追加する。
                         ap.RemoveAll(x => TaskBattle.SelectedTeams.ContainsValue(x.PlayerId));
-                        Logger.Info($"{teamc},{c}", "TB");
-                        for (var i = 0; teamc > i; i++)
+                        Logger.Info($"{teamc},{c}", "TBTeamandpc");
+
+                        for (var i = 0; i < teamc; i++)
                         {
-                            Logger.Info($"team{i}", "TB");
+                            Logger.Info($"team{i}", "TBSetTeam");
                             playerlist.Clear();
-                            for (var i2 = 0; c > i2; i2++)
+                            for (var i2 = 0; i2 < c; i2++)
                             {
                                 if (ap.Count == 0) continue;
                                 var player = ap[rand.Next(0, ap.Count)];
                                 playerlist.Add(player.PlayerId);
-                                Logger.Info($"{player.PlayerId}", "TB");
+                                Logger.Info($"{player.PlayerId}", "TBSetplayer");
                                 ap.Remove(player);
                             }
-                            TaskBattle.TaskBattleTeams[(byte)i++] = new List<byte>(playerlist);
+                            TaskBattle.TaskBattleTeams[(byte)(i + 1)] = new List<byte>(playerlist);
                         }
+
                         foreach (var (teamId, playerId) in TaskBattle.SelectedTeams)
                         {
                             var players = TaskBattle.TaskBattleTeams[teamId] ?? new List<byte>();
@@ -643,6 +645,7 @@ namespace TownOfHost
                     roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
                     if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                 }
+                if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
                 if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
                 {
                     roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
@@ -698,6 +701,8 @@ namespace TownOfHost
                         roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Crewmate : roleType));
                         if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                     }
+
+                    if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
 
                     if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
                     {

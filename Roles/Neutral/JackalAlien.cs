@@ -99,10 +99,6 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         {
             var target = PlayerCatch.GetPlayerById(targetId);
             KillBitten(target, true);
-            if (repo == target)
-            {
-                ReportDeadBodyPatch.DieCheckReport(repo, __);
-            }
         }
         BittenPlayers.Clear();
         stopCount = true;
@@ -382,7 +378,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         {
             PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
             target.SetRealKiller(vampire);
-            CustomRoleManager.OnCheckMurder(vampire, target, target, target);
+            CustomRoleManager.OnCheckMurder(vampire, target, target, target, true);
             Logger.Info($"Alienに噛まれている{target.name}を自爆させました。", "Alien.Va");
             if (!isButton && vampire.IsAlive())
                 RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
@@ -774,11 +770,59 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         var ch = Fall;
         var target = Player.GetKillTarget(true);
 
+        if (target == null)
+        {
+            fall = true;
+            return;
+        }
         var targetrole = target.GetCustomRole();
         if (target == null || (targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia) || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !CanImpSK.GetBool()))
         {
             fall = true;
             return;
+        }
+        if (SuddenDeathMode.NowSuddenDeathTemeMode)
+        {
+            if (SuddenDeathMode.TeamRed.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Add(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamBlue.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Add(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamYellow.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Add(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamGreen.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Add(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
+            }
+            if (SuddenDeathMode.TeamPurple.Contains(Player.PlayerId))
+            {
+                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
+                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
+                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
+                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
+                SuddenDeathMode.TeamPurple.Add(target.PlayerId);
+            }
         }
         SK = false;
         Player.RpcProtectedMurderPlayer(target);

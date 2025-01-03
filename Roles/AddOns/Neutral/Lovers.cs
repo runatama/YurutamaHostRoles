@@ -11,6 +11,7 @@ using static TownOfHost.Options;
 namespace TownOfHost;
 class Lovers
 {
+    public static List<byte> HaveLoverDontTaskPlayers = new();
     public static List<PlayerControl> LoversPlayers = new();
     public static bool isLoversDead = true;
     public static List<PlayerControl> RedLoversPlayers = new();
@@ -97,6 +98,7 @@ class Lovers
     }
     public static void RPCSetLovers(MessageReader reader)
     {
+        HaveLoverDontTaskPlayers.Clear();
         LoversPlayers.Clear();
         RedLoversPlayers.Clear();
         YellowLoversPlayers.Clear();
@@ -170,6 +172,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 LoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -187,6 +190,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 RedLoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -204,6 +208,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 YellowLoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -221,6 +226,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 BlueLoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -238,6 +244,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 GreenLoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -255,6 +262,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 WhiteLoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -272,6 +280,7 @@ class Lovers
             {
                 var player = allPlayers[rand.Next(0, allPlayers.Count)];
                 PurpleLoversPlayers.Add(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
@@ -295,6 +304,7 @@ class Lovers
                     var target = allPlayers[rand.Next(0, allPlayers.Count)];//片思いされてる人
                     if (p <= OneLoveLoversrect.GetInt())
                     {
+                        HaveLoverDontTaskPlayers.Add(target.PlayerId);
                         d = true;
                         allPlayers.Remove(target);
                         PlayerState.GetByPlayerId(target.PlayerId).SetSubRole(CustomRoles.OneLove);
@@ -307,6 +317,7 @@ class Lovers
                 }
                 assind = true;
                 allPlayers.Remove(player);
+                HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(CustomRoles.OneLove);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
             }

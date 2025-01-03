@@ -176,7 +176,6 @@ namespace TownOfHost
 
             var showInitially = Main.ShowResults.Value;
             var x = GameSettingMenuStartPatch.w == 1 ? 0 : 0.3f;
-            Logger.Info($"{x}", "aaa");
             showHideButton = new SimpleButton(
                 __instance.transform,
                 "ShowHideResultsButton",
@@ -264,6 +263,19 @@ namespace TownOfHost
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             //Utils.ApplySuffix();
+        }
+    }
+
+    [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.GetStingerVol))]
+    class EndGameManagerGetStingerVolPatch
+    {
+        public static void Postfix(EndGameManager __instance, ref AudioSource source)
+        {
+            //非クライアントの勝利の時アウトロ表示のため、クルー勝利の時もインポスター勝利音なってるから修正
+            if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate or CustomWinner.TaskPlayerB)
+            {
+                source.clip = __instance.CrewStinger;
+            }
         }
     }
 }

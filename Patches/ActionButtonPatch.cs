@@ -73,7 +73,7 @@ public static class AbilityButtonDoClickPatch
             //非クライアントの場合、役職調整の影響でキルクール弄らないとキルクールが正常の値にならないが、
             //クライアントの場合、別に役職変えてファントム状態解除をしなくていいので関係ない関数になる★
 
-            var resetKillCooldown = false;
+            bool resetKillCooldown = false;
             bool? fall = false;
 
             pb.OnClick(ref resetKillCooldown, ref fall);

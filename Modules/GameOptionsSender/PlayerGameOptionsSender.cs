@@ -13,6 +13,7 @@ using TownOfHost.Roles.Ghost;
 using static TownOfHost.Options;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Vanilla;
 
 namespace TownOfHost.Modules
 {
@@ -32,18 +33,20 @@ namespace TownOfHost.Modules
         public override bool IsDirty { get; protected set; }
 
         public PlayerControl player;
+        public string OldOptionstext;
 
         public PlayerGameOptionsSender(PlayerControl player)
         {
             this.player = player;
+            this.OldOptionstext = "";
         }
         public void SetDirty() => IsDirty = true;
 
         public override void SendGameOptions()
         {
+            var opt = BuildGameOptions();
             if (player.AmOwner)
             {
-                var opt = BuildGameOptions();
                 foreach (var com in GameManager.Instance.LogicComponents)
                 {
                     if (com.TryCast<LogicOptions>(out var lo))
@@ -51,7 +54,55 @@ namespace TownOfHost.Modules
                 }
                 GameOptionsManager.Instance.CurrentGameOptions = opt;
             }
-            else base.SendGameOptions();
+            else
+            {
+                if (ExWeightReduction.GetBool())
+                {
+                    //ちょっとやり方強引だけど送った時のくっそ思いよりはましな気がする。
+                    var opttext = "キルクール:" + opt.GetFloat(FloatOptionNames.KillCooldown);
+                    opttext += "キルディスタンス:" + opt.GetInt(Int32OptionNames.KillDistance);
+                    opttext += "インポス視界:" + opt.GetFloat(FloatOptionNames.ImpostorLightMod);
+                    opttext += "クルー視界:" + opt.GetFloat(FloatOptionNames.CrewLightMod);
+                    opttext += "移動速度:" + opt.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    opttext += "緊急会議:" + opt.GetInt(Int32OptionNames.NumEmergencyMeetings);
+                    opttext += "会議クール:" + opt.GetInt(Int32OptionNames.EmergencyCooldown);
+                    opttext += "議論時間:" + opt.GetInt(Int32OptionNames.DiscussionTime);
+                    opttext += "投票時間:" + opt.GetInt(Int32OptionNames.VotingTime);
+                    opttext += "匿名投票:" + opt.GetBool(BoolOptionNames.AnonymousVotes);
+                    opttext += "通常タスク:" + opt.GetInt(Int32OptionNames.NumCommonTasks);
+                    opttext += "ロングタスク:" + opt.GetInt(Int32OptionNames.NumLongTasks);
+                    opttext += "ショートタスク:" + opt.GetInt(Int32OptionNames.NumShortTasks);
+                    opttext += "視認タスク:" + opt.GetBool(BoolOptionNames.VisualTasks);
+                    opttext += "タスクバー:" + opt.GetInt(Int32OptionNames.TaskBarMode);
+                    opttext += "追放確認:" + opt.GetBool(BoolOptionNames.ConfirmImpostor);
+
+                    opttext += "エンジクール:" + opt.GetFloat(FloatOptionNames.EngineerCooldown);
+                    opttext += "エンジ最大時間:" + opt.GetFloat(FloatOptionNames.EngineerInVentMaxTime);
+                    opttext += "科学最大:" + opt.GetFloat(FloatOptionNames.ScientistBatteryCharge);
+                    opttext += "科学クール:" + opt.GetFloat(FloatOptionNames.ScientistCooldown);
+                    opttext += "ノイズ時間:" + opt.GetFloat(FloatOptionNames.NoisemakerAlertDuration);
+                    opttext += "ノイズtoimp:" + opt.GetBool(BoolOptionNames.NoisemakerImpostorAlert);
+                    opttext += "守護天時間:" + opt.GetFloat(FloatOptionNames.GuardianAngelCooldown);
+                    opttext += "守護天持続:" + opt.GetFloat(FloatOptionNames.ProtectionDurationSeconds);
+                    opttext += "守護見える:" + opt.GetBool(BoolOptionNames.ImpostorsCanSeeProtect);
+                    opttext += "トラッカークール:" + opt.GetFloat(FloatOptionNames.TrackerCooldown);
+                    opttext += "トラッカー遅延:" + opt.GetFloat(FloatOptionNames.TrackerDelay);
+                    opttext += "トラッカー間隔:" + opt.GetFloat(FloatOptionNames.TrackerDuration);
+                    opttext += "シェイプクール:" + opt.GetFloat(FloatOptionNames.ShapeshifterCooldown);
+                    opttext += "シェイプ持続:" + opt.GetFloat(FloatOptionNames.ShapeshifterDuration);
+                    opttext += "シェイプ証拠:" + opt.GetBool(BoolOptionNames.ShapeshifterLeaveSkin);
+                    opttext += "ファントムクール:" + opt.GetFloat(FloatOptionNames.PhantomCooldown);
+                    opttext += "ファントム持続:" + opt.GetFloat(FloatOptionNames.PhantomDuration);
+                    if (OldOptionstext == opttext)
+                    {
+                        Logger.Info($"{player?.Data?.PlayerName ?? "???"} 同一なのでキャンセル", "PlayerSendGameOptions");
+                        return;
+                    }
+
+                    OldOptionstext = opttext;
+                }
+                base.SendGameOptions();
+            }
         }
 
         public override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
@@ -91,11 +142,11 @@ namespace TownOfHost.Modules
                 return opt;
             }
 
-
             AURoleOptions.SetOpt(opt);
 
+            AURoleOptions.ShapeshifterLeaveSkin = false;
             AURoleOptions.NoisemakerImpostorAlert = true;
-            AURoleOptions.NoisemakerAlertDuration = GhostNoiseSender.NoisTime.GetFloat();
+            AURoleOptions.NoisemakerAlertDuration = Noisemaker.NoisemakerAlertDuration.GetFloat();
 
             if (player == null)
             {
@@ -246,8 +297,9 @@ namespace TownOfHost.Modules
                     }
                 }
             }
-            if (CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleCanVent.GetBool())
+            if (CurrentGameMode == CustomGameMode.TaskBattle)
             {
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 5f);
                 opt.SetFloat(FloatOptionNames.EngineerCooldown, TaskBattle.TaskBattleVentCooldown.GetFloat());
                 AURoleOptions.EngineerInVentMaxTime = 0;
             }
@@ -257,8 +309,6 @@ namespace TownOfHost.Modules
             AURoleOptions.PhantomCooldown = Mathf.Max(1f, AURoleOptions.PhantomCooldown);
             AURoleOptions.ProtectionDurationSeconds = 0f;
             AURoleOptions.ImpostorsCanSeeProtect = false;
-            AURoleOptions.ShapeshifterLeaveSkin = false;
-
 
             //幽霊役職用の奴
             if (player.IsGorstRole())

@@ -40,29 +40,31 @@ namespace TownOfHost
         }
 
         // 不正キル防止チェック
-        public static bool CheckForInvalidMurdering(MurderInfo info, bool kantu = false)
+        public static bool CheckForInvalidMurdering(MurderInfo info, bool? kantu = false)
         {
             (var killer, var target) = info.AttemptTuple;
 
             // Killerが既に死んでいないかどうか
-            if (!kantu)
+            if (kantu == false)
                 if (!killer.IsAlive())
                 {
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}は死亡しているためキャンセルされました。", "CheckMurder");
                     return false;
                 }
             // targetがキル可能な状態か
-            if (
-                // PlayerDataがnullじゃないか確認
-                target.Data == null ||
-                // targetの状態をチェック
-                target.inVent ||
-                target.MyPhysics.Animations.IsPlayingEnterVentAnimation() ||
-                target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() ||
-                target.inMovingPlat)
+            if (kantu is not null and not true)
             {
-                Logger.Info("targetは現在キルできない状態です。", "CheckMurder");
-                return false;
+                if (// PlayerDataがnullじゃないか確認
+                    target.Data == null ||
+                    // targetの状態をチェック
+                    target.inVent ||
+                    target.MyPhysics.Animations.IsPlayingEnterVentAnimation() ||
+                    target.MyPhysics.Animations.IsPlayingAnyLadderAnimation() ||
+                    target.inMovingPlat)
+                {
+                    Logger.Info("targetは現在キルできない状態です。", "CheckMurder");
+                    return false;
+                }
             }
             // targetが既に死んでいないか
             if (!target.IsAlive())
@@ -77,7 +79,7 @@ namespace TownOfHost
                 return false;
             }
 
-            if (!kantu)
+            if (kantu == false)
             {
                 // 連打キルでないか
                 float minTime = Mathf.Max(0.02f, AmongUsClient.Instance.Ping / 1000f * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000

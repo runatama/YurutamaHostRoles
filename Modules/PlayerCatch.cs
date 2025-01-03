@@ -48,7 +48,6 @@ namespace TownOfHost
                     Utils.CanVent = true;
                 else Utils.CanVent = false;
 
-                CustomButtonHud.BottonHud();
                 var sb = new StringBuilder(100);
                 foreach (var countTypes in EnumHelper.GetAllValues<CountTypes>())
                 {

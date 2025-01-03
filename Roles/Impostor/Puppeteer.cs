@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Puppeteer : RoleBase, IImpostor
@@ -124,6 +125,16 @@ public sealed class Puppeteer : RoleBase, IImpostor
             Dictionary<PlayerControl, float> targetDistance = new();
             foreach (var pc in PlayerCatch.AllAlivePlayerControls.ToArray())
             {
+                if (pc.PlayerId != puppet.PlayerId && SuddenDeathMode.NowSuddenDeathMode)
+                {
+                    if (!SuddenDeathMode.NowSuddenDeathTemeMode || !SuddenDeathMode.IsOnajiteam(pc.PlayerId, Player.PlayerId))
+                    {
+                        var dis = Vector2.Distance(puppetPos, pc.transform.position);
+                        targetDistance.Add(pc, dis);
+                    }
+                    continue;
+                }
+
                 if (pc.PlayerId != puppet.PlayerId && !pc.Is(CountTypes.Impostor) && !pc.Is(CustomRoles.King))
                 {
                     var dis = Vector2.Distance(puppetPos, pc.transform.position);

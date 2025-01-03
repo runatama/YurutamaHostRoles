@@ -1,4 +1,3 @@
-using System.Linq;
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
@@ -99,7 +98,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         Target = target;
         tagerole = target.GetCustomRole();
         MeetingNotice = true;
-        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "PhantomThief Target");
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "PhantomThief Target");
         killer.SetKillCooldown(target: target, delay: true);
         return;
     }
@@ -191,7 +190,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         seen ??= seer;
         if (!Player.IsAlive() || !Target.IsAlive()) return "";
 
-        if (seen.PlayerId == roletarget) return $"<color={RoleInfo.RoleColor}>◆</color>";
+        if (seen.PlayerId == roletarget) return $"<color={RoleInfo.RoleColorCode}>◆</color>";
 
         return "";
     }
@@ -204,7 +203,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
             if (Targetrole != tagerole && Targetrole != CustomRoles.NotAssigned) tagerole = Targetrole;
             if (OptionTandokuWin.GetBool())
             {
-                CustomWinnerHolder.ResetAndSetWinner((CustomWinner)CustomRoles.PhantomThief);
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PhantomThief);
                 CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
                 Player.RpcSetCustomRole(tagerole, log: null);
                 Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);

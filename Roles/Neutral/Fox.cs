@@ -74,8 +74,8 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
 
     private static void SetupOptionItem()
     {
-        OptEngVentCoolDown = FloatOptionItem.Create(RoleInfo, 10, "EngineerCooldown", OptionBaseCoolTime, 10, false).SetValueFormat(OptionFormat.Seconds);
-        OptEngVentInmaxtime = FloatOptionItem.Create(RoleInfo, 11, "EngineerInVentMaxTime", new(0.5f, 30, 0.5f), 3, false).SetValueFormat(OptionFormat.Seconds);
+        OptEngVentCoolDown = FloatOptionItem.Create(RoleInfo, 10, StringNames.EngineerCooldown, OptionBaseCoolTime, 10, false).SetValueFormat(OptionFormat.Seconds);
+        OptEngVentInmaxtime = FloatOptionItem.Create(RoleInfo, 11, StringNames.EngineerInVentCooldown, new(0.5f, 30, 0.5f), 3, false).SetValueFormat(OptionFormat.Seconds);
         OptGiveGuardTaskCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.FoxGiveGuardTaskcount, new(1, 99, 1), 3, false);
         OptGiveGuardMax = IntegerOptionItem.Create(RoleInfo, 13, OptionName.FoxGiveGuardMax, new(0, 99, 1), 2, false);
         OptCanseeGuardCount = BooleanOptionItem.Create(RoleInfo, 14, OptionName.FoxCanseeGuardCount, false, false);
@@ -240,7 +240,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         {
             reason = GameOverReason.ImpostorByKill;
 
-            CustomWinnerHolder.ResetAndSetWinner((CustomWinner)CustomRoles.Fox);
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Fox);
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
             return true;
         }

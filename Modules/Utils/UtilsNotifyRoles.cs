@@ -60,7 +60,7 @@ namespace TownOfHost
                             UtilsGameLog.LastLogSubRole[pp.PlayerId] = mark;
                     }
                 }
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default && !Main.DontGameSet) return;
             var caller = new StackFrame(1, false);
             var callerMethod = caller?.GetMethod();
             string callerMethodName = callerMethod?.Name ?? "ぬーるっ!!";
@@ -398,7 +398,7 @@ namespace TownOfHost
                             UtilsGameLog.LastLogSubRole[pp.PlayerId] = mark;
                     }
                 }
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default && !Main.DontGameSet) return;
 
             /* 会議拡張の奴 */
             var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";

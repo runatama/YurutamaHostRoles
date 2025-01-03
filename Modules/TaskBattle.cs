@@ -12,7 +12,7 @@ class TaskBattle
 
     public static void Init()
     {
-        IsTaskBattleTeamMode = false;//TaskBattleTeamMode.GetBool();
+        IsTaskBattleTeamMode = TaskBattleTeamMode.GetBool();
     }
     public static void TaskBattleCompleteTask(PlayerControl pc, TaskState taskState)
     {
@@ -71,7 +71,7 @@ class TaskBattle
         TaskBattelCanSeeOtherPlayer = BooleanOptionItem.Create(200311, "TaskBattelCanSeeOtherPlayer", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
         TaskBattleShowFastestPlayer = BooleanOptionItem.Create(200312, "TaskBattleShowFastestPlayer", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
         TaskBattleTeamMode = BooleanOptionItem.Create(200313, "TaskBattleTeamMode", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
-            .SetGameMode(CustomGameMode.TaskBattle).SetInfo(Translator.GetString("TaskBattleTeamModeInfo"));
+            .SetGameMode(CustomGameMode.TaskBattle);
         TaskBattleTeamCount = FloatOptionItem.Create(200314, "TaskBattleTeamCount", new(1f, 15f, 1f), 2f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
             .SetGameMode(CustomGameMode.TaskBattle);
         TaskBattleTeamWinType = BooleanOptionItem.Create(200315, "TaskBattleTeamGameTaskComp", false, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)

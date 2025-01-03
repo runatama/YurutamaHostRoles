@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
@@ -64,7 +65,7 @@ public sealed class Curser : RoleBase, IImpostor
     }
     public override bool CheckShapeshift(PlayerControl target, ref bool animate)
     {
-        if (target.Is(CustomRoleTypes.Impostor) || NroiCunt == 0 || target.PlayerId == TargetId) return false;
+        if ((target.Is(CustomRoleTypes.Impostor) && !SuddenDeathMode.NowSuddenDeathMode) || NroiCunt == 0 || target.PlayerId == TargetId) return false;
 
         SetTarget(target.PlayerId);
         Logger.Info($"{Player.GetNameWithRole()}のターゲットを{target.GetNameWithRole()}に設定", "CurserTarget");

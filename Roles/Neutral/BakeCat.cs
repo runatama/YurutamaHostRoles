@@ -173,7 +173,6 @@ namespace TownOfHost.Roles.Neutral
             {
                 if (!Killer.IsAlive()) return;
                 Killer.RpcMurderPlayerV2(Killer);
-                if (repo == Killer) ReportDeadBodyPatch.DieCheckReport(repo, sitai);
             }
         }
         public override void AfterMeetingTasks()
@@ -241,7 +240,7 @@ namespace TownOfHost.Roles.Neutral
                 TeamType.Egoist => CustomWinnerHolder.WinnerTeam == CustomWinner.Egoist,
                 TeamType.CountKiller => CustomWinnerHolder.WinnerTeam == CustomWinner.CountKiller,
                 TeamType.Remotekiller => CustomWinnerHolder.WinnerTeam == CustomWinner.Remotekiller,
-                TeamType.DoppelGanger => CustomWinnerHolder.WinnerTeam == (CustomWinner)CustomRoles.DoppelGanger,
+                TeamType.DoppelGanger => CustomWinnerHolder.WinnerTeam == CustomWinner.DoppelGanger,
                 _ => null,
             };
             if (!won.HasValue)

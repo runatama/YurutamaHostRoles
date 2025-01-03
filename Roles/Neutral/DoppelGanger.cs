@@ -161,7 +161,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         if (Seconds >= OptionWin.GetFloat())
         {
             win = true;
-            CustomWinnerHolder.ResetAndSetWinner((CustomWinner)CustomRoles.DoppelGanger);
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.DoppelGanger);
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
             Cankill = false;
             Target = byte.MaxValue;

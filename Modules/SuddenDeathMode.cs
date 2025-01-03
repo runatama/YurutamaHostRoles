@@ -378,5 +378,16 @@ namespace TownOfHost.Modules
             if (seen == seer) return $"<color=#03fcb6> ({PlayerCatch.AllAlivePlayersCount})</color>";
             return "";
         }
+
+        public static bool IsOnajiteam(this byte pc, byte tage)
+        {
+            if (TeamRed.Contains(pc) && TeamRed.Contains(tage)) return true;
+            if (TeamBlue.Contains(pc) && TeamBlue.Contains(tage)) return true;
+            if (TeamYellow.Contains(pc) && TeamYellow.Contains(tage)) return true;
+            if (TeamGreen.Contains(pc) && TeamGreen.Contains(tage)) return true;
+            if (TeamPurple.Contains(pc) && TeamPurple.Contains(tage)) return true;
+
+            return false;
+        }
     }
 }

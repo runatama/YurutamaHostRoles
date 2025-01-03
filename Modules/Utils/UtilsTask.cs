@@ -62,17 +62,6 @@ namespace TownOfHost
                 foreach (var subRole in States.SubRoles)
                     switch (subRole)
                     {
-                        //ラバーズはタスクを勝利用にカウントしない
-                        case CustomRoles.Lovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.RedLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.YellowLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.BlueLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.GreenLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.WhiteLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.PurpleLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.MadonnaLovers: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.OneLove: hasTasks &= !ForRecompute; break;
-
                         case CustomRoles.Amanojaku: hasTasks &= !ForRecompute; break;
                         case CustomRoles.Amnesia:
                             {
@@ -93,6 +82,12 @@ namespace TownOfHost
                     }
 
                 if (States.GhostRole is CustomRoles.AsistingAngel) hasTasks = false;
+
+                //ラバーズはタスクを勝利用にカウントしない
+                //回線落ちになってもタスクは復活しない
+                if (Lovers.HaveLoverDontTaskPlayers.Contains(p.PlayerId))
+                    hasTasks &= !ForRecompute;
+
             }
             return hasTasks;
         }
@@ -133,7 +128,6 @@ namespace TownOfHost
                 {
                     if (pc != null)
                     {
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                         if (Main.AllPlayerTask.TryGetValue(pc.PlayerId, out var tasks))
                             tasks.Do(task => pc.RpcCompleteTask(task));
                     }

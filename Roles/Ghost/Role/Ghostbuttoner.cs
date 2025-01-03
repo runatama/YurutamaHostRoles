@@ -34,7 +34,13 @@ namespace TownOfHost.Roles.Ghost
         {
             if (pc.Is(CustomRoles.Ghostbuttoner))
             {
-                if (Main.NowSabotage) return;
+                if (Utils.IsActive(SystemTypes.Reactor)
+                || Utils.IsActive(SystemTypes.Electrical)
+                || Utils.IsActive(SystemTypes.Laboratory)
+                || Utils.IsActive(SystemTypes.Comms)
+                || Utils.IsActive(SystemTypes.LifeSupp)
+                || Utils.IsActive(SystemTypes.HeliSabotage)) return;
+
                 if (!count.ContainsKey(pc.PlayerId))
                 {
                     count[pc.PlayerId] = Count.GetInt();

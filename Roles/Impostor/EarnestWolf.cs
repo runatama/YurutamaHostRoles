@@ -51,7 +51,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
         OptionOverKillCanCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0f, 15f, 1f), 2f, false).SetValueFormat(OptionFormat.Times);
-        OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(1f, 10f, 0.01f), 1.05f, false).SetValueFormat(OptionFormat.Multiplier);
+        OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(0.25f, 10f, 0.01f), 1.05f, false).SetValueFormat(OptionFormat.Multiplier);
         OptionNomalKillDistance = StringOptionItem.Create(RoleInfo, 13, OptionName.EarnestWolfNomalKllDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
         OptionOverKillDistance = StringOptionItem.Create(RoleInfo, 14, OptionName.EarnestWolfOverKillDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 2, false);
         OptionOverKillDontKillM = BooleanOptionItem.Create(RoleInfo, 15, OptionName.EarnestWolfOverKillDontKillM, false, false);
@@ -86,7 +86,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var c = OptionOverKillCanCount.GetInt() - count;
-        return c <= 0 ? Utils.ColorString(Palette.DisabledGrey, $"{c}") : Utils.ColorString(Palette.ImpostorRed, $"({c})");
+        return c <= 0 ? Utils.ColorString(Palette.DisabledGrey, $"({c})") : Utils.ColorString(Palette.ImpostorRed, $"({c})");
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
@@ -100,7 +100,6 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         fall = true;
         if (!Player.IsAlive()) return;
         if (count >= OptionOverKillCanCount.GetFloat()) return;
-        resetkillcooldown = true;
         OverKillMode = !OverKillMode;
         _ = new LateTask(() =>
         {

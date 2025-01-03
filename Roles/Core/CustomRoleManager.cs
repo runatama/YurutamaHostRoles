@@ -44,7 +44,7 @@ public static class CustomRoleManager
     /// <param name="appearanceKiller">見た目上でキルを行うプレイヤー 可変</param>
     /// <param name="appearanceTarget">見た目上でキルされるプレイヤー 可変</param>
     /// <returns></returns>
-    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool kantu = false, bool? RoleAbility = false)
+    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool? kantu = false, bool? RoleAbility = false)
     {
         Logger.Info($"Attempt  :{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
         if (appearanceKiller != attemptKiller || appearanceTarget != attemptTarget)
@@ -64,7 +64,7 @@ public static class CustomRoleManager
         var targetRole = attemptTarget.GetRoleClass();
 
         // キラーがキル能力持ちなら
-        if (!kantu)
+        if (kantu == false)
             if (killerRole is IKiller killer)
             {
                 if (killer.IsKiller)//一応今は属性ガード有線にしてますが
@@ -154,7 +154,7 @@ public static class CustomRoleManager
                 }
             }
             //ほぼウルトラスター用
-            else if (info.CanKill && info.DoKill && !info.IsGuard && !kantu)
+            else if (info.CanKill && info.DoKill && !info.IsGuard && kantu == false)
             {
                 if (targetRole != null)
                     if (Amnesia.CheckAbility(attemptTarget))
@@ -682,6 +682,10 @@ public class MurderInfo
     /// 遠距離キル代わりの疑似自殺
     /// </summary>
     public bool IsFakeSuicide => AppearanceKiller.PlayerId == AppearanceTarget.PlayerId;
+    /// <summary>
+    /// キルができる状態か
+    /// </summary>
+    public bool IsCanKilling => !IsGuard && !IsSuicide && !IsFakeSuicide && DoKill && CanKill && !IsAccident;
     public MurderInfo(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearancetarget, bool? roleability = false)
     {
         AttemptKiller = attemptKiller;
@@ -840,7 +844,10 @@ public enum CustomRoles
     TaskPlayerB,
     //DEBUG only Crewmate
     //DEBUG only Impostor
+    ProBowler,
     //DEBUG only Nuetral.
+    Turncoat,
+    Vulture,
     //HideAndSeek
     HASFox,
     HASTroll,

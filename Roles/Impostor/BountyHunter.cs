@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class BountyHunter : RoleBase, IImpostor
@@ -179,7 +180,16 @@ public sealed class BountyHunter : RoleBase, IImpostor
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}:ターゲットリセット", "BountyHunter");
         Player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
 
-        var cTargets = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(pc => !pc.Is(CountTypes.Impostor)));
+        var cTargets = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls
+        .Where(pc =>
+        {
+            if (SuddenDeathMode.NowSuddenDeathTemeMode)
+            {
+                return !SuddenDeathMode.IsOnajiteam(pc.PlayerId, Player.PlayerId);
+            }
+
+            return !pc.Is(CountTypes.Impostor);
+        }));
 
         if (cTargets.Count >= 2)
             cTargets.RemoveAll(x => x == Target); //前回のターゲットは除外

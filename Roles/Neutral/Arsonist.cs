@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using Hazel;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Arsonist : RoleBase, IKiller
@@ -78,7 +79,15 @@ public sealed class Arsonist : RoleBase, IKiller
     public override void Add()
     {
         foreach (var ar in PlayerCatch.AllPlayerControls)
+        {
             IsDoused.Add(ar.PlayerId, false);
+
+            if (SuddenDeathMode.NowSuddenDeathTemeMode)
+            {
+                if (SuddenDeathMode.IsOnajiteam(ar.PlayerId, Player.PlayerId))
+                    IsDoused[ar.PlayerId] = true;
+            }
+        }
     }
     public override bool NotifyRolesCheckOtherName => true;
     public bool CanUseKillButton() => !IsDouseDone(Player);

@@ -169,7 +169,7 @@ namespace TownOfHost
                         VentDuringDisabling.Remove(player.PlayerId);
                         Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId = num;
                     }
-                    else if (first.Value <= 2 && !VentDuringDisabling.ContainsKey(player.PlayerId) && (((roleclass as IKiller)?.CanUseImpostorVentButton() is false or null) || (roleclass?.CanClickUseVentButton == false)))
+                    else if (first.Value <= 2 && !VentDuringDisabling.ContainsKey(player.PlayerId) && (((roleclass as IKiller)?.CanUseImpostorVentButton() is false) || (roleclass?.CanClickUseVentButton == false)))
                     {
                         ushort num = (ushort)(Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId + 1U);
                         MessageWriter msgWriter = MessageWriter.Get(SendOption.Reliable);

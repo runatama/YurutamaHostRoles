@@ -210,10 +210,8 @@ namespace TownOfHost.Roles.Impostor
                     SetSpelled(target);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
-                occool = target is null ? 0 : cool;
+                fall = target is null;
                 resetkillcooldown = target != null;
-                Player.MarkDirtySettings();
-                Player.RpcResetAbilityCooldown();
             }
             else
             if (NowSwitchTrigger is SwitchTrigger.OnPhantom)
@@ -308,6 +306,11 @@ namespace TownOfHost.Roles.Impostor
         public override string GetAbilityButtonText()
         {
             return GetString("WitchSpellButtonText");
+        }
+        public override bool OverrideAbilityButton(out string text)
+        {
+            text = "Witch_Ability";
+            return true;
         }
         public override bool OnEnterVent(PlayerPhysics physics, int ventId)
         {

@@ -51,4 +51,10 @@ public sealed class ToiletFan : RoleBase
         ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Doors, 82);
         return false;
     }
+    public override string GetAbilityButtonText() => GetString("ToiletFanAbility");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "ToiletFan_Ability";
+        return true;
+    }
 }

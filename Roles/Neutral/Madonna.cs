@@ -188,4 +188,10 @@ public sealed class Madonna : RoleBase
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}は指定ターン経過したため自殺。", "Madonna");
         }
     }
+    public override string GetProgressText(bool comms = false, bool GameLog = false)
+    {
+        if (!Player.IsAlive() || !Limitd || Player.Is(CustomRoles.MadonnaLovers)) return "";
+
+        return $" <color={RoleInfo.RoleColorCode}>({UtilsGameLog.day}/{limit})</color>";
+    }
 }

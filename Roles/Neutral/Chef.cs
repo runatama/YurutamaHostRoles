@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using HarmonyLib;
 using Hazel;
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
@@ -44,6 +46,14 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     public bool CanUseSabotageButton() => false;
     public bool CanUseImpostorVentButton() => false;
     public bool CanUseKillButton() => true;
+    public override void Add()
+    {
+        if (SuddenDeathMode.NowSuddenDeathTemeMode)
+        {
+            PlayerCatch.AllPlayerControls.DoIf(p => SuddenDeathMode.IsOnajiteam(p.PlayerId, Player.PlayerId),
+            p => ChefTarget.Add(p.PlayerId));
+        }
+    }
     public bool OverrideKillButtonText(out string text)
     {
         text = GetString("ChefButtonText");

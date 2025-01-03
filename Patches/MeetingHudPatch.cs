@@ -37,6 +37,11 @@ public static class MeetingHudPatch
     {
         public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId /* 投票した人 */ , [HarmonyArgument(1)] byte suspectPlayerId /* 投票された人 */ )
         {
+            if (Options.firstturnmeeting && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting)
+            {
+                MeetingVoteManager.Instance?.SetVote(srcPlayerId, 253);
+                return true;
+            }
             var voter = PlayerCatch.GetPlayerById(srcPlayerId);
             var votefor = PlayerCatch.GetPlayerById(suspectPlayerId);
 
@@ -300,6 +305,13 @@ public static class MeetingHudPatch
                     }
                 }, 10f, "SetName To Chat", true);
             }
+            Main.NowSabotage =
+                Utils.IsActive(SystemTypes.Reactor)
+                || Utils.IsActive(SystemTypes.Electrical)
+                || Utils.IsActive(SystemTypes.Laboratory)
+                || Utils.IsActive(SystemTypes.Comms)
+                || Utils.IsActive(SystemTypes.LifeSupp)
+                || Utils.IsActive(SystemTypes.HeliSabotage);
 
             foreach (var pva in __instance.playerStates)
             {

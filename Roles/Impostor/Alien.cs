@@ -88,10 +88,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         {
             var target = PlayerCatch.GetPlayerById(targetId);
             KillBitten(target, true);
-            if (repo == target)
-            {
-                ReportDeadBodyPatch.DieCheckReport(repo, __);
-            }
         }
         BittenPlayers.Clear();
         stopCount = true;
@@ -373,7 +369,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         {
             PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
             target.SetRealKiller(vampire);
-            CustomRoleManager.OnCheckMurder(vampire, target, target, target);
+            CustomRoleManager.OnCheckMurder(vampire, target, target, target, true);
             Logger.Info($"Alienに噛まれている{target.name}を自爆させました。", "Alien.Va");
             if (!isButton && vampire.IsAlive())
                 RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);

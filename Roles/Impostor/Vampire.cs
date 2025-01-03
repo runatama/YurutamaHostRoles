@@ -128,10 +128,6 @@ namespace TownOfHost.Roles.Impostor
             {
                 var target = PlayerCatch.GetPlayerById(targetId);
                 KillBitten(target, true);
-                if (repo == target)
-                {
-                    ReportDeadBodyPatch.DieCheckReport(repo, __);
-                }
             }
             BittenPlayers.Clear();
         }
@@ -169,7 +165,7 @@ namespace TownOfHost.Roles.Impostor
                 target.SetRealKiller(vampire);
                 CustomRoleManager.OnCheckMurder(
                     vampire, target,
-                    target, target
+                    target, target, true
                 );
                 Logger.Info($"Vampireに噛まれている{target.name}を自爆させました。", "Vampire.KillBitten");
                 if (!isButton && vampire.IsAlive())

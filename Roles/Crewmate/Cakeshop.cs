@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Cakeshop : RoleBase, INekomata
@@ -30,17 +31,30 @@ public sealed class Cakeshop : RoleBase, INekomata
     )
     {
         Addedaddons.Clear();
+        Speedings.Clear();
         CustomRoleManager.LowerOthers.Add(GetLowerTextOthers);
     }
 
     public Dictionary<byte, CustomRoles> Addedaddons = new();
+    public Dictionary<byte, float> Speedings = new();
 
     public override void AfterMeetingTasks()
     {
-        if (!Player.IsAlive()) return;
+        foreach (var sp in Speedings)
+        {
+            Main.AllPlayerSpeed[sp.Key] = sp.Value;
+        }
+        foreach (var gu in Addedaddons.Where(v => v.Value is CustomRoles.Guarding))
+        {
+            Main.Guard[gu.Key] -= Guarding.Guard;
+        }
+        Speedings.Clear();
         PlayerState.AllPlayerStates.DoIf(
             x => Addedaddons.ContainsKey(x.Key),
             state => state.Value.RemoveSubRole(Addedaddons[state.Key]));
+
+        if (!Player.IsAlive()) return;
+
         PlayerCatch.AllAlivePlayerControls.Do(pc =>
         {
             var addons = GetAddons(pc.GetCustomRole().GetCustomRoleTypes());
@@ -49,6 +63,16 @@ public sealed class Cakeshop : RoleBase, INekomata
                               .OrderBy(x => Guid.NewGuid())
                               .FirstOrDefault();
             Addedaddons[pc.PlayerId] = addon;
+
+            if (addon is CustomRoles.Speeding)
+            {
+                Speedings.Add(pc.PlayerId, Main.AllPlayerSpeed[pc.PlayerId]);
+                Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
+            }
+            if (addon is CustomRoles.Guarding)
+            {
+                Main.Guard[pc.PlayerId] += Guarding.Guard;
+            }
             pc.RpcSetCustomRole(addon);
         });
     }

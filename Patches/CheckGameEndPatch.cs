@@ -140,11 +140,11 @@ namespace TownOfHost
                     }
                     Lovers.LoversAddWin();
                     //追加勝利陣営
-                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.Is(CustomRoles.PhantomThief) || pc.Is(CustomRoles.AsistingAngel)))
+                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.Is(CustomRoles.PhantomThief) || pc.Is(CustomRoles.Turncoat) || pc.Is(CustomRoles.AsistingAngel)))
                     {
                         var isAlive = pc.IsAlive();
                         if (Amnesia.CheckAbility(pc))
-                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && !pc.Is(CustomRoles.PhantomThief) && !pc.IsRiaju())
+                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && !pc.Is(CustomRoles.PhantomThief) && !pc.Is(CustomRoles.Turncoat) && !pc.IsRiaju())
                             {
                                 var winnerRole = pc.GetCustomRole();
                                 if (additionalWinner.CheckWin(ref winnerRole))
@@ -174,7 +174,6 @@ namespace TownOfHost
                         if (Amnesia.CheckAbility(pc))
                             if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && pc.Is(CustomRoles.PhantomThief))
                             {
-                                //属性での勝利も奪いたいので最後に処理
                                 var winnerRole = pc.GetCustomRole();
                                 if (additionalWinner.CheckWin(ref winnerRole))
                                 {
@@ -200,6 +199,18 @@ namespace TownOfHost
                             else
                                 CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
                         }
+
+                        if (Amnesia.CheckAbility(pc))
+                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && pc.Is(CustomRoles.Turncoat))
+                            {
+                                var winnerRole = pc.GetCustomRole();
+                                if (additionalWinner.CheckWin(ref winnerRole))
+                                {
+                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                                    CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
+                                    continue;
+                                }
+                            }
                     }
                 }
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Draw)
@@ -211,7 +222,7 @@ namespace TownOfHost
                             {
                                 if (cm.CanWin)
                                 {
-                                    CustomWinnerHolder.ResetAndSetWinner((CustomWinner)CustomRoles.CurseMaker);
+                                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CurseMaker);
                                     CustomWinnerHolder.WinnerIds.Add(cm.Player.PlayerId);
                                 }
                             }

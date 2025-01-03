@@ -191,4 +191,9 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     }
     public bool CheckWin(ref CustomRoles winnerRole) => IWinflag;
     public override string GetAbilityButtonText() => GetString("ChefButtonText");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "SantaClaus_Ability";
+        return true;
+    }
 }

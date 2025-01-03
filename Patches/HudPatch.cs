@@ -11,6 +11,7 @@ using System.Text;
 using TownOfHost.Roles.Impostor;
 using AmongUs.GameOptions;
 using TownOfHost.Roles.Neutral;
+using System.Linq;
 
 namespace TownOfHost
 {
@@ -147,6 +148,14 @@ namespace TownOfHost
                     LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
                     if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
                     if (roleClass?.Jikaku() != CustomRoles.NotAssigned) LowerInfoText.text = "";
+
+#if DEBUG
+                    if (Main.ViewPingDetails.Value)
+                    {
+                        foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != 0))
+                            LowerInfoText.text += Utils.ColorString(Palette.PlayerColors[pc.cosmetics.ColorId], $"{Vector2.Distance(PlayerControl.LocalPlayer.transform.position, pc.transform.position)}");
+                    }
+#endif
 
                     LowerInfoText.enabled = LowerInfoText.text != "";
 
@@ -306,7 +315,6 @@ namespace TownOfHost
                                     player.Data.Role.Ability.Image = CustomButton.Get(abname);
                                     if (reset && OldValue == Main.CustomSprite.Value)
                                     {
-
                                         var role = customrole.GetRoleTypes();
                                         if (customrole.GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
                                         RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);

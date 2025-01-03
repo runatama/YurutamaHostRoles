@@ -57,13 +57,14 @@ namespace TownOfHost
             //ホスト以外はこの先処理しない
             if (!AmongUsClient.Instance.AmHost) return true;
 
-            PlayerControlRpcUseZiplinePatch.OnMeeting(__instance, target);
-
             if (!CheckMeeting(__instance, target)) return false;
+
+            PlayerControlRpcUseZiplinePatch.OnMeeting(__instance, target);
 
             //=============================================
             //以下、ボタンが押されることが確定したものとする。
             //=============================================
+
             GameStates.task = false;
             //Pos.Clear();
 
@@ -162,6 +163,9 @@ namespace TownOfHost
         public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool? ch = true, string Meetinginfo = "", string colorcode = "#000000")
         {
             if (!AmongUsClient.Instance.AmHost) return;
+
+            Logger.Info($"{repo.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "DieCheckReport");
+
             if (repo == null)
             {
                 Logger.Error($"{repo?.Data.PlayerName ?? "???"} がnull!", "DieCheckReport");
@@ -171,12 +175,11 @@ namespace TownOfHost
             var State = PlayerState.GetByPlayerId(repo.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null && ch is not false) return;
 
-            PlayerControlRpcUseZiplinePatch.OnMeeting(repo, target);
-
             if (ch is null or true)
                 if (!CheckMeeting(repo, target, checkdie: ch is true)) return;
 
-            if (!AmongUsClient.Instance.AmHost) return;
+            PlayerControlRpcUseZiplinePatch.OnMeeting(repo, target);
+
             GameStates.Meeting = true;
             GameStates.task = false;// Pos.Clear();
 
@@ -273,6 +276,7 @@ namespace TownOfHost
                         case DontReportreson.Transparent: return "<size=120%><color=#7b7c7d>×</color></size>";
                         case DontReportreson.CantUseButton: return "<size=120%><color=#bdb091>×</color></size>";
                         case DontReportreson.Other: return "<size=120%><color=#bd9391>×</color></size>";
+                        case DontReportreson.Eat: return "<size=120%><color=#6f4204>×</color></size>";
                     }
                 }
 
@@ -280,13 +284,17 @@ namespace TownOfHost
         }
         public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target, bool checkdie = true)
         {
-            var c = false;
+            var DontAddonCheck = false;
             if (target != null)
+            {
                 if (repoter.GetRoleClass() is MassMedia massMedia)
                 {
                     if (massMedia.Target == target.PlayerId)
-                        c = true;
+                        DontAddonCheck = true;
                 }
+                if (repoter.GetCustomRole() is CustomRoles.Vulture)
+                    DontAddonCheck = true;
+            }
 
             if (SuddenDeathMode.NowSuddenDeathMode)
             {
@@ -317,7 +325,7 @@ namespace TownOfHost
                     }
                 }
             }
-            else if (!c)
+            else if (!DontAddonCheck)
             {
                 if (GiveNonReport && val is RoleAddAddons.Convener.ConvenerAll or RoleAddAddons.Convener.NotReport)
                 {
@@ -363,16 +371,18 @@ namespace TownOfHost
             }
 
             var r = DontReportreson.None;
+            var check = false;
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
                 if (role.CancelReportDeadBody(repoter, target, ref r))
                 {
-                    Logger.Info($"{role}によって会議はキャンセルされました。", "ReportDeadBody");
+                    Logger.Info($"{role}によって会議はキャンセルされました。{r}", "ReportDeadBody");
                     GameStates.Meeting = false;
                     AddDontrepo(repoter, r);
-                    return false;
+                    check = true;
                 }
             }
+            if (check) return false;
 
             if (Options.SyncButtonMode.GetBool() && target == null)
             {
@@ -390,11 +400,6 @@ namespace TownOfHost
 
             void AddDontrepo(PlayerControl pc, DontReportreson repo)
             {
-                if (DontReport.TryGetValue(pc.PlayerId, out var check))
-                {
-                    //同一の者ならスキップ
-                    if (check.reason == repo) return;
-                }
                 if (!DontReport.TryAdd(pc.PlayerId, (0, repo))) DontReport[pc.PlayerId] = (0, repo);
                 _ = new LateTask(() =>
                 {

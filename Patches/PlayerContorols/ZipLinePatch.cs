@@ -75,11 +75,6 @@ namespace TownOfHost
                 state.DeathReason = CustomDeathReason.Fall;
                 state.SetDead();
             }
-            if (ZipdiePlayers.Contains(reporter.PlayerId))
-            {
-                ZipdiePlayers.Clear();
-                ReportDeadBodyPatch.DieCheckReport(reporter, oniku);
-            }
             ZiplineCools.Clear();
             ZipdiePlayers.Clear();
         }

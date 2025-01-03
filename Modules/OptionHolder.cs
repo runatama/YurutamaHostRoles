@@ -101,8 +101,7 @@ namespace TownOfHost
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
         public static OptionItem BlackOutwokesitobasu;
-        //public static OptionItem UseCustomRpcSenderAtGameEnd;
-        //public static OptionItem ExIntroSystem;
+        public static OptionItem ExWeightReduction;
 
         //幽霊役職
         public static OptionItem GRRoleOp;
@@ -627,13 +626,11 @@ namespace TownOfHost
                 .SetColorcode("#ff0000")
                 .SetParent(ExperimentalMode)
                 .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
-            /*UseCustomRpcSenderAtGameEnd = BooleanOptionItem.Create(300005, "UseCustomRpcSenderAtGameEnd", false, TabGroup.MainSettings, false)
+            ExWeightReduction = BooleanOptionItem.Create(300007, "ExWeightReduction", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetParent(ExperimentalMode)
-                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("UseCustomRpcSenderAtGameEndInfo")));
-            ExIntroSystem = BooleanOptionItem.Create(300006, "ExIntroSystem", false, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.All)
-                .SetParent(ExperimentalMode);*/
+                .SetInfo($"<color=red>{Translator.GetString("ExWeightReductionInfo")}</color>");
+
             //9人以上部屋で落ちる現象の対策
             FixSpawnPacketSize = BooleanOptionItem.Create(300004, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)
                 .SetColor(new Color32(255, 255, 0, 255))
@@ -655,7 +652,7 @@ namespace TownOfHost
             sortedRoleInfo.Where(role => role.CustomRoleType != CustomRoleTypes.Impostor).Do(info =>
             {
                 //#if RELEASE
-                if (info.RoleName == CustomRoles.Cakeshop && !((DateTime.Now.Month == 12 && 20 <= DateTime.Now.Day) || (DateTime.Now.Month == 1 && DateTime.Now.Day <= 8))) return;
+                if (info.RoleName == CustomRoles.Cakeshop && !(DateTime.Now.Month == 1 && DateTime.Now.Day <= 8)) return;
                 //#endif
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();

@@ -186,8 +186,10 @@ public sealed class Sniper : RoleBase, IImpostor
             if (target.PlayerId == Player.PlayerId) continue;
             //君臨者には当たらん！
             if (target.Is(CustomRoles.King)) continue;
-            //FriendlyFireがOFFかつサドンデスモードならImpostorを除外
+            //FriendlyFireがOFFかつサドンデスモードでないならImpostorを除外
             if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode) continue;
+            //FriendlyFireがOffかつ、チームかつ、同陣営なら
+            if (!OpFriendlyFire.GetBool() && SuddenDeathMode.NowSuddenDeathTemeMode && SuddenDeathMode.IsOnajiteam(target.PlayerId, Player.PlayerId)) continue;
             //死んでいない対象の方角ベクトル作成
             var target_pos = target.transform.position - snipePos;
             //自分より後ろの場合はあたらない
@@ -272,7 +274,7 @@ public sealed class Sniper : RoleBase, IImpostor
             var snipedTarget = targets.OrderBy(c => c.Value).First().Key;
             CustomRoleManager.OnCheckMurder(
                 Player, snipedTarget,       // sniperがsnipedTargetを打ち抜く
-                snipedTarget, snipedTarget  // 表示上はsnipedTargetの自爆
+                snipedTarget, snipedTarget, true // 表示上はsnipedTargetの自爆
             );
 
             //あたった通知
