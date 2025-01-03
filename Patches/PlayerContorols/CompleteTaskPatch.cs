@@ -25,7 +25,7 @@ namespace TownOfHost
             //タスクバトルの処理　タスバトならこれ以外の処理いらない。
             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
             {
-                TaskBattle.TaskBattleCompleteTask(pc, taskState);
+                ret &= TaskBattle.TaskBattleCompleteTask(pc, taskState);
                 return ret;
             }
 

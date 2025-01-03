@@ -1046,6 +1046,26 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100041,
+                    Title = "ことしもKはKだ。",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.25.11</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.25.11</color>",
+                    Text = "<size=80%>\n遊べないレベルのバグだから..."
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・プロボーラーのキルが亜空間迄飛ぶ問題\n"
+                    + "・タスクがカウントされないプレイヤーが出てくる問題\n"
+                    + "・タスクhacking判定が256からなのに254を上限にしてた問題\n"
+                    + "\n<size=125%>【新設定】</size>\n"
+                    + "・タスクバトルに追加でタスクを付与する設定を追加\n"
+                    + "・ワークホースに通常タスク追加設定、タスク追加上限を99に\n"
+                    + "\n今年もKは変らずのんびりバグ見つけたらサブバージョンをさっさとやったりする気がします。\n\n今年もよろしくお願いします()\n\n夜藍",
+                    Date = "2025-01-04T03:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
 
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }

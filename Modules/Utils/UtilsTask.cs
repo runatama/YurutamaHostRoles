@@ -87,7 +87,6 @@ namespace TownOfHost
                 //回線落ちになってもタスクは復活しない
                 if (Lovers.HaveLoverDontTaskPlayers.Contains(p.PlayerId))
                     hasTasks &= !ForRecompute;
-
             }
             return hasTasks;
         }

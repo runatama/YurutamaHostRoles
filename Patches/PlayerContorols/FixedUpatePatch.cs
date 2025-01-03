@@ -14,6 +14,7 @@ using TownOfHost.Roles.Neutral;
 using AmongUs.Data;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Patches.ISystemType;
+using AmongUs.GameOptions;
 
 namespace TownOfHost
 {

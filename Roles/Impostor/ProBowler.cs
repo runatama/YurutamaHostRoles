@@ -90,7 +90,8 @@ public sealed class ProBowler : RoleBase, IImpostor
     {
         var (killer, target) = info.AttemptTuple;
 
-        if (!NowKilling && (info.IsCanKilling || Bowl != null))
+        // キル中ではない、　キルができる状態でBowlがnullじゃない
+        if (!NowKilling && info.IsCanKilling && Bowl != null)
         {
             NowKilling = true;
             info.DoKill = false;
@@ -105,8 +106,8 @@ public sealed class ProBowler : RoleBase, IImpostor
                 targetpos = tagepos;
                 return;
             }
-            Bowl = null;
             target.RpcSnapToForced(Bowl.Value);
+            Bowl = null;
             _ = new LateTask(() =>
             {
                 NowKilling = false;

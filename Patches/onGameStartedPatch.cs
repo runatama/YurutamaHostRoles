@@ -30,11 +30,11 @@ namespace TownOfHost
             if (GameStates.IsOnlineGame && !Main.IsCs())
             {
                 var op = Main.NormalOptions;
-                if (op.NumCommonTasks + op.NumLongTasks + op.NumShortTasks >= 255)
+                if (op.NumCommonTasks + op.NumLongTasks + op.NumShortTasks > 255)
                 {
                     Main.NormalOptions.SetInt(Int32OptionNames.NumCommonTasks, 85);
                     Main.NormalOptions.SetInt(Int32OptionNames.NumLongTasks, 85);
-                    Main.NormalOptions.SetInt(Int32OptionNames.NumShortTasks, 84);
+                    Main.NormalOptions.SetInt(Int32OptionNames.NumShortTasks, 85);
                     Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
                 }
             }
@@ -182,6 +182,7 @@ namespace TownOfHost
             IUsePhantomButton.IPPlayerKillCooldown.Clear();
             CustomButtonHud.ch = null;
             Utils.RoleSendList.Clear();
+            Lovers.HaveLoverDontTaskPlayers.Clear();
             UtilsTask.TaskCh = true;
             UtilsNotifyRoles.MeetingMoji = "";
             Roles.Madmate.MadAvenger.Skill = false;

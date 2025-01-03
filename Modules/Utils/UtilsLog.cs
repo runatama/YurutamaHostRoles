@@ -271,14 +271,21 @@ namespace TownOfHost
         }
         public static StringBuilder GetRTAText(List<byte> winnerList = null)
         {
-
+            var AddCommon = TaskBattle.NumCommonTasks.GetInt() * TaskBattle.MaxAddCount.GetInt();
+            var AddLong = TaskBattle.NumLongTasks.GetInt() * TaskBattle.MaxAddCount.GetInt();
+            var AddShort = TaskBattle.NumShortTasks.GetInt() * TaskBattle.MaxAddCount.GetInt();
+            if (!TaskBattle.TaskAddMode.GetBool())
+                (AddCommon, AddLong, AddShort) = (0, 0, 0);
             StringBuilder sb = new();
             winnerList ??= Main.winnerList;
-            sb.Append($"{GetString("TaskPlayerB")}:\n　{Main.AllPlayerNames[winnerList[0]] ?? "?"}")
-            .Append($"\n{GetString("TaskCount")}:")
-            .Append($"\n　通常タスク数: {Main.NormalOptions.NumCommonTasks}")
-            .Append($"\n　ショートタスク数: {Main.NormalOptions.NumShortTasks}")
-            .Append($"\n　ロングタスク数: {Main.NormalOptions.NumLongTasks}")
+
+            if (!(CustomWinnerHolder.WinnerTeam is CustomWinner.None or CustomWinner.Draw))
+                sb.Append($"{GetString("TaskPlayerB")}:\n　{Main.AllPlayerNames[winnerList[0]] ?? "?"}");
+
+            sb.Append($"\n{GetString("TaskCount")}:")
+            .Append($"\n　通常タスク数: {Main.NormalOptions.NumCommonTasks + AddCommon}")
+            .Append($"\n　ショートタスク数: {Main.NormalOptions.NumShortTasks + AddLong}")
+            .Append($"\n　ロングタスク数: {Main.NormalOptions.NumLongTasks + AddShort}")
             .Append($"\nタイム: {HudManagerPatch.GetTaskBattleTimer()}")
             .Append($"\nマップ: {(MapNames)Main.NormalOptions.MapId}")
             .Append($"\nベント: " + (TaskBattle.TaskBattleCanVent.GetBool() ? "あり" : "なし"));//マップの設定なども記載しなければならない

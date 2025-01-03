@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TownOfHost.Roles.Core;
 
@@ -9,15 +10,54 @@ class TaskBattle
     public static Dictionary<byte, List<byte>> TaskBattleTeams = new();
     /// <summary>チャットで設定されたチーム情報 </summary>
     public static Dictionary<byte, byte> SelectedTeams = new();
-
+    /// <summary>追加でタスクを付与した数</summary>
+    public static Dictionary<byte, int> TaskAddCount = new();
+    public static bool IsAdding;
     public static void Init()
     {
+        IsAdding = false;
+        TaskAddCount = new();
         IsTaskBattleTeamMode = TaskBattleTeamMode.GetBool();
+
+        if (TaskAddMode.GetBool())
+        {
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                //GMはさいなら
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
+
+                TaskAddCount.TryAdd(pc.PlayerId, 0);
+            }
+        }
     }
-    public static void TaskBattleCompleteTask(PlayerControl pc, TaskState taskState)
+    public static bool TaskBattleCompleteTask(PlayerControl pc, TaskState taskState)
     {
         if (pc.Is(CustomRoles.TaskPlayerB) && taskState.IsTaskFinished)
         {
+            if (TaskAddMode.GetBool())
+            {
+                if (TaskAddCount.TryGetValue(pc.PlayerId, out var count))
+                {
+                    //タスクは続くよどこまでも
+                    if (count < MaxAddCount.GetInt())
+                    {
+                        IsAdding = true;
+                        TaskAddCount[pc.PlayerId]++;
+
+                        taskState.AllTasksCount += NumCommonTasks.GetInt() + NumLongTasks.GetInt() + NumShortTasks.GetInt();
+
+                        if (AmongUsClient.Instance.AmHost)
+                        {
+                            pc.Data.RpcSetTasks(Array.Empty<byte>()); //タスクを再配布
+                            pc.SyncSettings();
+                        }
+                        UtilsNotifyRoles.NotifyRoles();
+                        UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), Utils.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
+                        return false;
+                    }
+                }
+            }
+
             if (IsTaskBattleTeamMode)
             {
                 foreach (var team in TaskBattleTeams.Values)
@@ -45,6 +85,7 @@ class TaskBattle
 
         UtilsNotifyRoles.NotifyRoles();
         UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), Utils.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
+        return true;
     }
     public static OptionItem TaskBattleSet;
     public static OptionItem TaskBattleCanVent;
@@ -57,6 +98,12 @@ class TaskBattle
     public static OptionItem TaskBattleTeamWinType;
     public static OptionItem TaskBattleTeamWinTaskc;
     public static OptionItem TaskSoroeru;
+
+    public static OptionItem TaskAddMode;
+    public static OptionItem NumCommonTasks;
+    public static OptionItem NumLongTasks;
+    public static OptionItem NumShortTasks;
+    public static OptionItem MaxAddCount;
     public static void SetupOptionItem()
     {
         TaskBattleSet = BooleanOptionItem.Create(200317, "TaskBattleSet", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle)
@@ -80,5 +127,16 @@ class TaskBattle
             .SetGameMode(CustomGameMode.TaskBattle);
         TaskSoroeru = BooleanOptionItem.Create(200318, "TaskSoroeru", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
             .SetGameMode(CustomGameMode.TaskBattle);
+
+        TaskAddMode = BooleanOptionItem.Create(200319, "TaskAddMode", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
+            .SetGameMode(CustomGameMode.TaskBattle);
+        NumCommonTasks = IntegerOptionItem.Create(200320, "WorkhorseNumCommonTasks", new(0, 99, 1), 1, TabGroup.MainSettings, false).SetParent(TaskAddMode)
+            .SetGameMode(CustomGameMode.TaskBattle).SetValueFormat(OptionFormat.Pieces);
+        NumLongTasks = IntegerOptionItem.Create(200321, "WorkhorseNumLongTasks", new(0, 99, 1), 1, TabGroup.MainSettings, false).SetParent(TaskAddMode)
+            .SetGameMode(CustomGameMode.TaskBattle).SetValueFormat(OptionFormat.Pieces);
+        NumShortTasks = IntegerOptionItem.Create(200322, "WorkhorseNumShortTasks", new(0, 99, 1), 1, TabGroup.MainSettings, false).SetParent(TaskAddMode)
+            .SetGameMode(CustomGameMode.TaskBattle).SetValueFormat(OptionFormat.Pieces);
+        MaxAddCount = IntegerOptionItem.Create(200323, "MaxAddCount", new(1, 99, 1), 1, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskAddMode);
     }
 }

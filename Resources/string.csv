@@ -191,6 +191,8 @@
 "TaskBattleTeamWinTaskc","Total Number of Tasks","合計タスク数","任务总数","","","",""
 "TaskBattleInfo","Task battle:\nEveryone is assigned a crew and no meetings can be held.\nOnly the player who completes all tasks first can win. (with settings)","タスクバトル:\n全員にクルーが割り当てられ、会議を開くことはできない。\n一番最初にタスクを全て完了させたプレイヤーのみ勝利することができる。(設定有)","任务战：\n每个人都被分配到一个团队，不能开启会议。\n只有先完成所有任务的玩家才能获胜（可设置）","","","",""
 "TaskSoroeru","Align the Tasks","全員のタスクを共通にする"
+"TaskAddMode","Task Add Mode","タスク完了時にタスクを追加する"
+"MaxAddCount","Max Add Count","追加回数"
 
 "# GM"
 "GM","GM","ゲームマスター","GM(管理员)","GM(遊戲大師)","Мастер Игры","MJ(Mestre de Jogo)","GM(Fantasma)"
@@ -1356,6 +1358,7 @@
 
 "## 属性設定"
 "AssignOnlyTo%role%","Assign Only To %role%","%role%のみに割り当てる","只赋予%role%","","Назначить только для %role%","Atribuir Apenas a %role%",""
+"WorkhorseNumCommonTasks","Additional Common Tasks","追加通常タスクの個数"
 "WorkhorseNumLongTasks","Additional Long Tasks","追加ロングタスクの個数","额外长任务数","增加的長任務數量","Дополнительные долгие задания","Adicionar Tarefas Longas",""
 "WorkhorseNumShortTasks","Additional Short Tasks","追加ショートタスクの個数","额外短任务数","增加的短任務數量","Дополнительные короткие задания","Adicionar Tarefas Curtas",""
 "WoMaximum","WolfBoy Maximum","<color=#727171>狼少年</color>の最大アサイン数"

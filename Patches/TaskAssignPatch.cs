@@ -83,17 +83,25 @@ namespace TownOfHost
                                                                 // ロングとショートは常時再割り当てが行われる。
             }
             if (pc.Is(CustomRoles.Workhorse))
-                (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
+                (hasCommonTasks, NumCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
+
+            if (Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.IsAdding)
+            {
+                hasCommonTasks = false;
+                NumCommonTasks = TaskBattle.NumCommonTasks.GetInt();
+                NumLongTasks = TaskBattle.NumLongTasks.GetInt();
+                NumShortTasks = TaskBattle.NumShortTasks.GetInt();
+            }
 
             if (taskTypeIds.Count == 0) hasCommonTasks = false; //タスク再配布時はコモンを0に
 
             if (GameStates.IsOnlineGame && !Main.IsCs())
             {
-                if (NumCommonTasks + NumLongTasks + NumShortTasks >= 255)
+                if (NumCommonTasks + NumLongTasks + NumShortTasks > 255)
                 {
                     hasCommonTasks = false;
                     NumCommonTasks = 85;
-                    NumLongTasks = 84;
+                    NumLongTasks = 85;
                     NumShortTasks = 85;
                     Logger.Error($"{pc?.name ?? "ｼｭﾄｸﾑﾘﾀﾞｯﾀ!"}のタスクが255を超えています", "TaskAssignPatch");
                 }
@@ -104,7 +112,7 @@ namespace TownOfHost
                 Main.FixTaskNoPlayer.Add(pc);
             }
             //変更点がない場合
-            if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskSoroeru.GetBool()) &&
+            if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle) &&
                 !Options.CommnTaskResetAssing.GetBool() && hasCommonTasks && NumCommonTasks == Main.NormalOptions.NumCommonTasks && NumLongTasks == Main.NormalOptions.NumLongTasks && NumShortTasks == Main.NormalOptions.NumShortTasks
                 && !Options.UploadDataIsLongTask.GetBool())
             {
@@ -127,7 +135,7 @@ namespace TownOfHost
             //コモンタスクを割り当てる設定ならコモンタスク以外を削除
             //コモンタスクを割り当てない設定ならリストを空にする
             int defaultCommonTasksNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
-            if (hasCommonTasks && !Options.CommnTaskResetAssing.GetBool()) TasksList.RemoveRange(defaultCommonTasksNum, TasksList.Count - defaultCommonTasksNum);
+            if (hasCommonTasks && !Options.CommnTaskResetAssing.GetBool() && Options.CurrentGameMode is not CustomGameMode.TaskBattle) TasksList.RemoveRange(defaultCommonTasksNum, TasksList.Count - defaultCommonTasksNum);
             else TasksList.Clear();
 
             //割り当て済みのタスクが入れられるHashSet
@@ -137,7 +145,7 @@ namespace TownOfHost
             int start2 = 0;
             int start3 = 0;
 
-            if ((Options.CommnTaskResetAssing.GetBool() && hasCommonTasks) || (!hasCommonTasks && NumCommonTasks != start1))
+            if ((Options.CommnTaskResetAssing.GetBool() && hasCommonTasks) || (!hasCommonTasks && NumCommonTasks != start1) || Options.CurrentGameMode is CustomGameMode.TaskBattle)
             {
                 //コモンの再割り当て
                 Il2CppSystem.Collections.Generic.List<NormalPlayerTask> CommnTasks = new();
@@ -189,7 +197,7 @@ namespace TownOfHost
             );
 
             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
-                if (TaskBattle.TaskSoroeru.GetBool())
+                if (TaskBattle.TaskSoroeru.GetBool() && !TaskBattle.IsAdding)
                 {
                     if (!HostFin)
                     {

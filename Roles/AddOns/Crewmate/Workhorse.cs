@@ -14,9 +14,11 @@ namespace TownOfHost.Roles.AddOns.Crewmate
         public static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Workhorse);
         public static List<byte> playerIdList = new();
         private static OptionItem OptionAssignOnlyToCrewmate;
+        private static OptionItem OptionNumCommonTasks;
         private static OptionItem OptionNumLongTasks;
         private static OptionItem OptionNumShortTasks;
         public static bool AssignOnlyToCrewmate;
+        public static int NumCommonTasks;
         public static int NumLongTasks;
         public static int NumShortTasks;
         public static void SetupCustomOption()
@@ -24,9 +26,11 @@ namespace TownOfHost.Roles.AddOns.Crewmate
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, fromtext: "<color=#000000>From:</color><color=#00bfff>TownOfHost</color></size>");
             OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyTo%role%", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
             OptionAssignOnlyToCrewmate.ReplacementDictionary = new Dictionary<string, string> { { "%role%", Utils.ColorString(Palette.CrewmateBlue, UtilsRoleText.GetRoleName(CustomRoles.Crewmate)) } };
-            OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+            OptionNumCommonTasks = IntegerOptionItem.Create(Id + 13, "WorkhorseNumCommonTasks", new(0, 99, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
                 .SetValueFormat(OptionFormat.Pieces);
-            OptionNumShortTasks = IntegerOptionItem.Create(Id + 12, "WorkhorseNumShortTasks", new(0, 5, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+            OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 99, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+                .SetValueFormat(OptionFormat.Pieces);
+            OptionNumShortTasks = IntegerOptionItem.Create(Id + 12, "WorkhorseNumShortTasks", new(0, 99, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
                 .SetValueFormat(OptionFormat.Pieces);
         }
         [GameModuleInitializer]
@@ -35,6 +39,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
             playerIdList = new();
 
             AssignOnlyToCrewmate = OptionAssignOnlyToCrewmate.GetBool();
+            NumCommonTasks = OptionNumCommonTasks.GetInt();
             NumLongTasks = OptionNumLongTasks.GetInt();
             NumShortTasks = OptionNumShortTasks.GetInt();
         }
@@ -44,7 +49,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
         }
         public static bool IsEnable => playerIdList.Count > 0;
         public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-        public static (bool, int, int) TaskData => (false, NumLongTasks, NumShortTasks);
+        public static (bool, int, int, int) TaskData => (false, NumCommonTasks, NumLongTasks, NumShortTasks);
         private static bool IsAssignTarget(PlayerControl pc)
         {
             if (!pc.IsAlive() || IsThisRole(pc.PlayerId) || pc.Is(CustomRoles.Amanojaku)) return false;
@@ -62,7 +67,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
 
             pc.RpcSetCustomRole(CustomRoles.Workhorse);
             var taskState = pc.GetPlayerTaskState();
-            taskState.AllTasksCount += NumLongTasks + NumShortTasks;
+            taskState.AllTasksCount += NumCommonTasks + NumLongTasks + NumShortTasks;
 
             if (AmongUsClient.Instance.AmHost)
             {
