@@ -559,7 +559,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 
 **TownOfHost-Kの開発者**<br>
 　暇な人 KY/けーわい<br>
-　　[Youtube](https://www.youtube.com/@MTGC_KY)<br>
+　　[Youtube](https://www.youtube.com/@KYMario_ky)<br>
 　　[Twitter(X)](https://x.com/ky_mario_ky) ・ [Bluesky](https://bsky.app/profile/kymario.bsky.social)<br>
 
 　タイガー<br>
