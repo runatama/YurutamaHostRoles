@@ -28,7 +28,6 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return false;
 
-            if (!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) return false;
             // 処理は全てCustomRoleManager側で行う
             if (!CustomRoleManager.OnCheckMurder(__instance, target))
             {

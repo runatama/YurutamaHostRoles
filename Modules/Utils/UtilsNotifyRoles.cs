@@ -18,6 +18,7 @@ using HarmonyLib;
 using TownOfHost.Roles.Neutral;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace TownOfHost
 {
@@ -129,48 +130,7 @@ namespace TownOfHost
 
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                     {
-                        if (TaskBattle.TaskBattelShowAllTask.GetBool())
-                        {
-                            var t1 = 0f;
-                            var t2 = 0;
-                            if (!TaskBattle.TaskBattleTeamMode.GetBool() && !TaskBattle.TaskBattleTeamWinType.GetBool())
-                            {
-                                foreach (var pc in PlayerCatch.AllPlayerControls)
-                                {
-                                    t1 += pc.GetPlayerTaskState().AllTasksCount;
-                                    t2 += pc.GetPlayerTaskState().CompletedTasksCount;
-                                }
-                            }
-                            else
-                            {
-                                foreach (var t in TaskBattle.TaskBattleTeams.Values)
-                                {
-                                    if (!t.Contains(seer.PlayerId)) continue;
-                                    t1 = TaskBattle.TaskBattleTeamWinTaskc.GetFloat();
-                                    foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
-                                        t2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
-                                }
-                            }
-                            SelfMark.Append($"<color=yellow>({t2}/{t1})</color>");
-                        }
-                        if (TaskBattle.TaskBattleShowFastestPlayer.GetBool())
-                        {
-                            var to = 0;
-                            if (!TaskBattle.TaskBattleTeamMode.GetBool() && !TaskBattle.TaskBattleTeamWinType.GetBool())
-                            {
-                                foreach (var pc in PlayerCatch.AllPlayerControls)
-                                    if (pc.GetPlayerTaskState().CompletedTasksCount > to) to = pc.GetPlayerTaskState().CompletedTasksCount;
-                            }
-                            else
-                                foreach (var t in TaskBattle.TaskBattleTeams.Values)
-                                {
-                                    var to2 = 0;
-                                    foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
-                                        to2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
-                                    if (to2 > to) to = to2;
-                                }
-                            SelfMark.Append($"<color=#00f7ff>({to})</color>");
-                        }
+                        TaskBattle.GetMark(seer, null, ref SelfMark);
                     }
                     //Markとは違い、改行してから追記されます。
                     SelfSuffix.Clear();
@@ -294,8 +254,7 @@ namespace TownOfHost
                                 TargetMark.Append($"<color=#96514d>Ψ</color>");
 
                             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
-                                if (TaskBattle.TaskBattelCanSeeOtherPlayer.GetBool())
-                                    TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
+                                TaskBattle.GetMark(target, seer, ref TargetMark);
 
                             //インサイダーモードタスク表示
                             if (Options.Taskcheck.GetBool())
@@ -333,7 +292,8 @@ namespace TownOfHost
                                 {
                                     if (((seerRole as Alien)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
                                     || ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
-                                    || (role is CustomRoles.ProgressKiller && ProgressKiller.ProgressWorkhorseseen))
+                                    || (role is CustomRoles.ProgressKiller && ProgressKiller.ProgressWorkhorseseen)
+                                    || ((seerRole as AlienHijack)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen))
                                     {
                                         TargetMark.Append($"<color=blue>♦</color>");
                                     }
@@ -620,7 +580,8 @@ namespace TownOfHost
                                 {
                                     if (((seerRole as Alien)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
                                     || ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
-                                    || (role is CustomRoles.ProgressKiller && ProgressKiller.ProgressWorkhorseseen))
+                                    || (role is CustomRoles.ProgressKiller && ProgressKiller.ProgressWorkhorseseen)
+                                    || ((seerRole as AlienHijack)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen))
                                     {
                                         TargetMark.Append($"<color=blue>♦</color>");
                                     }

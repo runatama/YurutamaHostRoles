@@ -316,14 +316,14 @@ namespace TownOfHost
 
             foreach (var id in Main.winnerList)
             {
-                sb.Append($"\n★ ".Color(winnerColor)).Append(UtilsGameLog.GetLogtext(id));
+                sb.Append($"\n★ ".Color(winnerColor)).Append(GetLogtext(id));
                 cloneRoles.Remove(id);
             }
             foreach (var id in cloneRoles)
             {
-                sb.Append($"\n　 ").Append(UtilsGameLog.GetLogtext(id));
+                sb.Append($"\n　 ").Append(GetLogtext(id));
             }
-            sb.Append("   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            sb.Append("</color>   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
             sb.Append(string.Format(GetString("Result.Task"), Main.Alltask));
             SendMessage(sb.ToString(), PlayerId);
         }

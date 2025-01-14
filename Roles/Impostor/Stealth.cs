@@ -211,4 +211,12 @@ public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
         text = "Stealth_ability";
         return true;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || !Player.IsAlive() || isForMeeting || optionmax.GetInt() <= adddarkenroom.Count || !optionAddDarkenRoom.GetBool()) return "";
+
+        if (isForHud) return GetString("StealthLowerInfo");
+        return $"<size=50%>{GetString("StealthLowerInfo")}</size>";
+    }
 }

@@ -59,40 +59,17 @@ namespace TownOfHost
                 {
                     if (setRole)
                     {
-                        if (roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode)
+                        if (AntiBlackout.IsSet)
                         {
-                            foreach (var pc in PlayerCatch.AllPlayerControls)
+                            // 暗転対策が動作している状態なのであれば役職変更したら不味い。
+                            new LateTask(() =>
                             {
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                                {
-                                    player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
-                                    if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
-                                }
-                                else
-                                {
-                                    player.RpcSetRoleDesync(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
-                                    if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
-                                }
-                            }
-                            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                            {
-                                if ((roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
-                                    RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate);
-                            }
+                                SetRole();
+                            }, 10, "ExSetRole");
                         }
                         else
                         {
-                            player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
-                        }
-                        if (roleInfo?.IsCantSeeTeammates == true && role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode)
-                        {
-                            var clientId = player.GetClientId();
-                            foreach (var killer in PlayerCatch.AllPlayerControls)
-                            {
-                                if (!killer.GetCustomRole().IsImpostor()) continue;
-                                //Amnesiac視点インポスターをクルーにする
-                                killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
-                            }
+                            SetRole();
                         }
                     }
                 }
@@ -121,6 +98,45 @@ namespace TownOfHost
             {
                 CustomButtonHud.BottonHud(true);
                 _ = new LateTask(() => Main.showkillbutton = true, 0.02f, "", true);
+            }
+
+            void SetRole()
+            {
+                if (roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode)
+                {
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                        {
+                            player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
+                            if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
+                        }
+                        else
+                        {
+                            player.RpcSetRoleDesync(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
+                            if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
+                        }
+                    }
+                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    {
+                        if ((roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
+                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, roleInfo?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate);
+                    }
+                }
+                else
+                {
+                    player.RpcSetRole(role.GetRoleTypes(), Main.SetRoleOverride);
+                }
+                if (roleInfo?.IsCantSeeTeammates == true && role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode)
+                {
+                    var clientId = player.GetClientId();
+                    foreach (var killer in PlayerCatch.AllPlayerControls)
+                    {
+                        if (!killer.GetCustomRole().IsImpostor()) continue;
+                        //Amnesiac視点インポスターをクルーにする
+                        killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
+                    }
+                }
             }
         }
         public static void RpcSetCustomRole(byte PlayerId, CustomRoles role)
@@ -545,7 +561,7 @@ namespace TownOfHost
         }
         public static void ResetPlayerCam(this PlayerControl pc, float delay = 0f)
         {
-            if (pc == null || !AmongUsClient.Instance.AmHost || pc.AmOwner) return;
+            if (pc == null || !AmongUsClient.Instance.AmHost || pc.AmOwner || GameStates.IsLobby) return;
 
             var systemtypes = Utils.GetCriticalSabotageSystemType();
             _ = new LateTask(() =>
@@ -567,7 +583,7 @@ namespace TownOfHost
         }
         public static void ReactorFlash(this PlayerControl pc, float delay = 0f)
         {
-            if (pc == null) return;
+            if (pc == null || GameStates.IsLobby) return;
             int clientId = pc.GetClientId();
             // Logger.Info($"{pc}", "ReactorFlash");
             var systemtypes = Utils.GetCriticalSabotageSystemType();

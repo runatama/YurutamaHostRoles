@@ -198,6 +198,7 @@ namespace TownOfHost
                 (roleClass as Penguin)?.OnSpawnAirship();
                 (roleClass as Alien)?.OnSpawnAirship();
                 (roleClass as JackalAlien)?.OnSpawnAirship();
+                (roleClass as AlienHijack)?.OnSpawnAirship();
                 player.RpcResetAbilityCooldown();
                 if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
                     Options.CurrentGameMode != CustomGameMode.TaskBattle

@@ -19,7 +19,7 @@ namespace TownOfHost.Roles.Ghost
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.DemonicTracker);
             GhostRoleAssingData.Create(Id + 1, CustomRoles.DemonicTracker, CustomRoleTypes.Madmate);
-            CoolDown = FloatOptionItem.Create(Id + 2, "GhostButtonerCoolDown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
+            CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.DemonicTracker]);
         }
         public static void Init()

@@ -110,7 +110,7 @@ namespace TownOfHost
             Giveseeing = BooleanOptionItem.Create(idStart++, "Giveseeing", false, tab, false).SetParent(GiveAddons);
             SCanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(Giveseeing);
             GiveOpener = BooleanOptionItem.Create(idStart++, "GiveOpener", false, tab, false).SetParent(GiveAddons);
-            if (!role.IsImpostor())
+            if (!IsImpostor)
             {
                 GiveLighting = BooleanOptionItem.Create(idStart++, "GiveLighting", NeutralKiller, tab, false).SetParent(GiveAddons);
                 GiveMoon = BooleanOptionItem.Create(idStart++, "GiveMoon", NeutralKiller || MadMate, tab, false).SetParent(GiveAddons);

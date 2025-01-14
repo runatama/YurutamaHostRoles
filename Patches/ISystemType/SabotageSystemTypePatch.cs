@@ -25,7 +25,6 @@ public static class SabotageSystemTypeUpdateSystemPatch
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
 
         if (SuddenDeathMode.NowSuddenDeathMode) return false;
-        if (!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) return false;
 
         if (!CustomRoleManager.OnSabotage(player, nextSabotage))
         {

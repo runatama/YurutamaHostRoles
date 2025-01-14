@@ -196,4 +196,12 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         }
     }
     public override string GetAbilityButtonText() => GetString("EvliTellerAbility");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || maxtellcount <= seentarget.Count || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("PhantomButtonKilltargetLowertext");
+        return $"<size=50%>{GetString("PhantomButtonKilltargetLowertext")}</size>";
+    }
 }

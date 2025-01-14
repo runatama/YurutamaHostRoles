@@ -16,7 +16,7 @@ namespace TownOfHost.Roles.Ghost
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.Ghostbuttoner);
             GhostRoleAssingData.Create(Id + 1, CustomRoles.Ghostbuttoner, CustomRoleTypes.Crewmate);
-            CoolDown = FloatOptionItem.Create(Id + 2, "GhostButtonerCoolDown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
+            CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
             Count = IntegerOptionItem.Create(Id + 3, "GhostButtonerCount", new(1, 9, 1), 1, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Times).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
@@ -25,6 +25,7 @@ namespace TownOfHost.Roles.Ghost
         {
             playerIdList = new();
             count = new Dictionary<byte, int>();
+            CustomRoleManager.MarkOthers.Add(OtherMark);
         }
         public static void Add(byte playerId)
         {
@@ -39,8 +40,11 @@ namespace TownOfHost.Roles.Ghost
                 || Utils.IsActive(SystemTypes.Laboratory)
                 || Utils.IsActive(SystemTypes.Comms)
                 || Utils.IsActive(SystemTypes.LifeSupp)
-                || Utils.IsActive(SystemTypes.HeliSabotage)) return;
-
+                || Utils.IsActive(SystemTypes.HeliSabotage))
+                {
+                    Logger.Info("サボちゅうなう", "Ghostbuttoner");
+                    return;
+                }
                 if (!count.ContainsKey(pc.PlayerId))
                 {
                     count[pc.PlayerId] = Count.GetInt();
@@ -52,6 +56,18 @@ namespace TownOfHost.Roles.Ghost
                         ReportDeadBodyPatch.DieCheckReport(pc, null, false);
                     }
             }
+        }
+        public static string OtherMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
+        {
+            seen ??= seer;
+
+            if (seer == seen && seer.Is(CustomRoles.Ghostbuttoner))
+            {
+                var c = 0;
+                if (count.ContainsKey(seer.PlayerId)) c = count[seer.PlayerId];
+                return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Ghostbuttoner).ShadeColor(-0.25f), $" ({c}/{Count.GetInt()})");
+            }
+            return "";
         }
     }
 }

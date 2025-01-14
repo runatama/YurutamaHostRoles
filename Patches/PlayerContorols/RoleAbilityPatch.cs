@@ -36,7 +36,7 @@ namespace TownOfHost
             var roleclass = __instance.GetRoleClass();
 
             // 無効な変身を弾く．これより前に役職等の処理をしてはいけない
-            if ((!ExileControllerWrapUpPatch.AllSpawned && !MeetingStates.FirstMeeting) || !CheckInvalidShapeshifting(__instance, target, shouldAnimate))
+            if (!CheckInvalidShapeshifting(__instance, target, shouldAnimate))
             {
                 __instance.RpcRejectShapeshift();
                 return false;

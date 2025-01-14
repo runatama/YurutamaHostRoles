@@ -278,8 +278,8 @@ namespace TownOfHost.Roles.Impostor
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
             seen ??= seer;
-            if (!Is(seen) || isForMeeting) return "";
-            if (NowSwitchTrigger is SwitchTrigger.WitchOcButton) return "";
+            if (!Is(seen) || isForMeeting || !Player.IsAlive()) return "";
+            if (NowSwitchTrigger is SwitchTrigger.WitchOcButton) return GetString("UseWitchOcButton");
 
             var sb = new StringBuilder();
             sb.Append(isForHud ? GetString("WitchCurrentMode") : "Mode:");

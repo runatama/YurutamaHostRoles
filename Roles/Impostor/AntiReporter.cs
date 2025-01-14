@@ -131,4 +131,12 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
         text = "AntiReporter_Ability";
         return true;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !(Use > 0) || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("PhantomButtonKilltargetLowertext");
+        return $"<size=50%>{GetString("PhantomButtonKilltargetLowertext")}</size>";
+    }
 }

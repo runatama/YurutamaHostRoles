@@ -204,7 +204,7 @@ namespace TownOfHost.Roles.Neutral
                     Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
                     CanKill = true;
                 }, 0.3f, "ResetKillCooldown", true);
-            }, 5f, "Bakecatkillbutton");
+            }, 10f, "Bakecatkillbutton");
         }
         private void RevealNameColors(PlayerControl killer)
         {

@@ -115,7 +115,7 @@ namespace TownOfHost.Roles.Crewmate
         public override void OnStartMeeting()
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-            if (Player.IsAlive())
+            if (Player.IsAlive() && LogPos != new Vector2(999f, 999f))
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                     Player.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
@@ -133,22 +133,25 @@ namespace TownOfHost.Roles.Crewmate
         }
         public override void AfterMeetingTasks()
         {
-            Log.Clear();
-            LogPos = new(999f, 999f);
+            new LateTask(() =>
+            {
+                Log.Clear();
+                LogPos = new(999f, 999f);
 
-            if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-            if (Player.IsAlive())
-                if (AmongUsClient.Instance.AmHost)
-                {
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
+                if (Player.IsAlive())
+                    if (AmongUsClient.Instance.AmHost)
                     {
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                            Player.StartCoroutine(Player.CoSetRole(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, true));
-                        if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, pc.GetClientId());
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                        {
+                            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                Player.StartCoroutine(Player.CoSetRole(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, true));
+                            if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                                Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, pc.GetClientId());
+                        }
+                        Taskmode = false;
                     }
-                    Taskmode = false;
-                }
+            }, 10, "NiceLoggerReset", null);
         }
         public override bool CanTask() => Taskmode;
         public override void OnFixedUpdate(PlayerControl player)

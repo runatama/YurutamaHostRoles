@@ -13,6 +13,7 @@ namespace TownOfHost
     {
         private static readonly string DENY_NAME_LIST_PATH = @"./TOHK_DATA/DenyName.txt";
         private static readonly string BAN_LIST_PATH = @"./TOHK_DATA/BanList.txt";
+        private static readonly string WhiteList_LIST_PATH = @"./TOHK_DATA/WhiteList.txt";
 
         [PluginModuleInitializer]
         public static void Init()
@@ -20,34 +21,52 @@ namespace TownOfHost
             Directory.CreateDirectory("TOHK_DATA");
             if (!File.Exists(DENY_NAME_LIST_PATH)) File.Create(DENY_NAME_LIST_PATH).Close();
             if (!File.Exists(BAN_LIST_PATH)) File.Create(BAN_LIST_PATH).Close();
-        }
-        //機種別というかフレコない人もBANする奴の参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.5.1
-        public static string GetHashedPuid(this ClientData player)
-        {
-            if (player == null) return "";
-            string puid = player.ProductUserId;
-            using SHA256 sha256 = SHA256.Create();
-
-            // get sha-256 hash
-            byte[] sha256Bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(puid));
-            string sha256Hash = BitConverter.ToString(sha256Bytes).Replace("-", "").ToLower();
-
-            // pick front 5 and last 4
-            return string.Concat(sha256Hash.AsSpan(0, 5), sha256Hash.AsSpan(sha256Hash.Length - 4));
+            if (!File.Exists(WhiteList_LIST_PATH)) File.Create(WhiteList_LIST_PATH).Close();
         }
         public static void AddBanPlayer(InnerNet.ClientData player)
         {
             if (!AmongUsClient.Instance.AmHost || player == null) return;
-            if (!CheckBanList(player?.FriendCode, player?.GetHashedPuid()))
+            if (!CheckBanList(player?.FriendCode, player?.ProductUserId))
             {
-                if (player?.GetHashedPuid() is not "" and not null and not "e3b0cb855")
+                if (player?.ProductUserId is not "" and not null and not "e3b0cb855")
                 {
                     var additionalInfo = "";
-                    //if (CheckEACList(player?.FriendCode, player?.GetHashedPuid())) additionalInfo = " //added by EAC";
-                    File.AppendAllText(BAN_LIST_PATH, $"{player?.FriendCode},{player?.GetHashedPuid()},{player.PlayerName.RemoveHtmlTags()}{additionalInfo}\n");
+                    File.AppendAllText(BAN_LIST_PATH, $"{player?.FriendCode},{player?.ProductUserId},{player.PlayerName.RemoveHtmlTags()}{additionalInfo}\n");
                     Logger.seeingame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
                 }
-                else Logger.Info($"Failed to add player {player?.PlayerName.RemoveHtmlTags()}/{player?.FriendCode}/{player?.GetHashedPuid()} to ban list!", "AddBanPlayer");
+                else Logger.Info($"Failed to add player {player?.PlayerName.RemoveHtmlTags()}/{player?.FriendCode}/{player?.ProductUserId} to ban list!", "AddBanPlayer");
+            }
+        }
+        public static void AddWhitePlayer(InnerNet.ClientData player)
+        {
+            if (!AmongUsClient.Instance.AmHost || player == null)
+            {
+                Logger.seeingame($"{player?.PlayerName} → ぬるぽ / ホストじゃないから処理キャンセル");
+                return;
+            }
+            if (CheckWhiteList(player?.FriendCode, player?.ProductUserId))
+            {
+                Logger.seeingame($"{player?.PlayerName} → ホワイトリストに記載済みだよ！！");
+                return;
+            }
+
+            if (!CheckBanList(player?.FriendCode, player?.ProductUserId))
+            {
+                if (player?.ProductUserId is not "" and not null and not "e3b0cb855")
+                {
+                    var additionalInfo = "";
+                    File.AppendAllText(WhiteList_LIST_PATH, $"{player?.FriendCode},{player?.ProductUserId},{player.PlayerName.RemoveHtmlTags()}{additionalInfo}\n");
+                    Logger.seeingame(string.Format(GetString("Message.AddedWhiteList"), player.PlayerName));
+                }
+                else
+                {
+                    Logger.seeingame($"{player?.PlayerName} → PUIDがぬるぽ！追加できませんでした！");
+                    Logger.Info($"Failed to add player {player?.PlayerName.RemoveHtmlTags()}/{player?.FriendCode}/{player?.ProductUserId} to White list!", "AddWhitePlayer");
+                }
+            }
+            else
+            {
+                Logger.seeingame($"{player?.PlayerName.RemoveHtmlTags()}はBANListに記載済み...");
             }
         }
         public static void CheckDenyNamePlayer(InnerNet.ClientData player)
@@ -79,7 +98,7 @@ namespace TownOfHost
         public static void CheckBanPlayer(InnerNet.ClientData player)
         {
             if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
-            if (CheckBanList(player?.FriendCode, player?.GetHashedPuid()))
+            if (CheckBanList(player?.FriendCode, player?.ProductUserId))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
                 Logger.seeingame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
@@ -112,6 +131,31 @@ namespace TownOfHost
             }
             return false;
         }
+        public static bool CheckWhiteList(string code, string hashedpuid = "")
+        {
+            bool OnlyCheckPuid = false;
+            if (code == "" && hashedpuid != "") OnlyCheckPuid = true;
+            else if (code == "") return false;
+            try
+            {
+                //Directory.CreateDirectory("TOHK_DATA");
+                if (!File.Exists(WhiteList_LIST_PATH)) File.Create(WhiteList_LIST_PATH).Close();
+                using StreamReader sr = new(WhiteList_LIST_PATH);
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line == "") continue;
+                    if (!OnlyCheckPuid)
+                        if (line.Contains(code)) return true;
+                    if (line.Contains(hashedpuid)) return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Exception(ex, "CheckWhiteList");
+            }
+            return false;
+        }
     }
     [HarmonyPatch(typeof(BanMenu), nameof(BanMenu.Select))]
     class BanMenuSelectPatch
@@ -120,7 +164,7 @@ namespace TownOfHost
         {
             InnerNet.ClientData recentClient = AmongUsClient.Instance.GetRecentClient(clientId);
             if (recentClient == null) return;
-            if (!BanManager.CheckBanList(recentClient?.FriendCode, recentClient?.GetHashedPuid())) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
+            if (!BanManager.CheckBanList(recentClient?.FriendCode, recentClient?.ProductUserId)) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
         }
     }
 }

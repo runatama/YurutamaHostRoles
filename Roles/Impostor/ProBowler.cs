@@ -75,7 +75,7 @@ public sealed class ProBowler : RoleBase, IImpostor
             return true;
         }
         NowUseCount++;
-        Bowl = Player.GetTruePosition();
+        Bowl = Player.transform.position;
         UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
         shouldAnimate = true;
         return true;
@@ -100,7 +100,7 @@ public sealed class ProBowler : RoleBase, IImpostor
             Bowltarget = target;
             if (Bowling)
             {
-                var tagepos = target.GetTruePosition();
+                var tagepos = target.transform.position;
                 BowlTp = new Vector2((Bowl.Value.x - tagepos.x) * 0.1f, (Bowl.Value.y - tagepos.y) * 0.1f);
                 Bowl = null;
                 targetpos = tagepos;

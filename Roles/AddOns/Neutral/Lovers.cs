@@ -344,7 +344,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -371,7 +371,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -398,7 +398,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -425,7 +425,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -452,7 +452,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -479,7 +479,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -506,7 +506,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -538,7 +538,7 @@ class Lovers
                         if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                         {
                             PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                            if (isExiled || GameStates.IsMeeting)
+                            if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                             {
                                 MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                                 ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -559,7 +559,7 @@ class Lovers
                 if (my.PlayerId != deathId && !my.Data.IsDead)
                 {
                     PlayerState.GetByPlayerId(my.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                    if (isExiled || GameStates.IsMeeting)
+                    if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                     {
                         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, my.PlayerId);
                         ReportDeadBodyPatch.Musisuruoniku[my.PlayerId] = false;
@@ -585,7 +585,7 @@ class Lovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[MadonnaLoversPlayer.PlayerId] = false;

@@ -18,7 +18,7 @@ namespace TownOfHost.Roles.Ghost
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.GhostReseter);
             GhostRoleAssingData.Create(Id + 1, CustomRoles.GhostReseter, CustomRoleTypes.Crewmate);
-            CoolDown = FloatOptionItem.Create(Id + 2, "GhostButtonerCoolDown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
+            CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostReseter]);
             ResetAbilityCool = BooleanOptionItem.Create(Id + 3, "GhostReseterResetAbilityCool", true, TabGroup.GhostRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.GhostReseter]);
             Count = IntegerOptionItem.Create(Id + 4, "GhostReseterCount", new(1, 99, 1), 2, TabGroup.GhostRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.GhostReseter]);

@@ -81,4 +81,12 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
         text = "Reloader_Ability";
         return true;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !(Count > 0) || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("PhantomButtonLowertext");
+        return $"<size=50%>{GetString("PhantomButtonLowertext")}</size>";
+    }
 }

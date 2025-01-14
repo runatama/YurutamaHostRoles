@@ -108,7 +108,7 @@ namespace TownOfHost
                     //梯子ぼーんの奴
                     //Q.ジップラインどうするの？
                     //A.しらん。
-                    if (isAlive)
+                    if (isAlive && !((roleclass as Jumper)?.ability == true))
                     {
                         var nowpos = __instance.GetTruePosition();
                         if (!Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
@@ -160,7 +160,7 @@ namespace TownOfHost
 
                     if (VentDuringDisabling.TryGetValue(player.PlayerId, out var ventId) && (first.Key != ventId || first.Value > 2))
                     {
-                        ushort num = (ushort)(Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId + 1U);
+                        ushort num = (ushort)(VentilationSystemUpdateSystemPatch.last_opId + 1U);
                         MessageWriter msgWriter = MessageWriter.Get(SendOption.Reliable);
                         msgWriter.Write(num);
                         msgWriter.Write((byte)VentilationSystem.Operation.StopCleaning);
@@ -168,18 +168,18 @@ namespace TownOfHost
                         player.RpcDesyncUpdateSystem(SystemTypes.Ventilation, msgWriter);
                         msgWriter.Recycle();
                         VentDuringDisabling.Remove(player.PlayerId);
-                        Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId = num;
+                        VentilationSystemUpdateSystemPatch.last_opId = num;
                     }
                     else if (first.Value <= 2 && !VentDuringDisabling.ContainsKey(player.PlayerId) && (((roleclass as IKiller)?.CanUseImpostorVentButton() is false) || (roleclass?.CanClickUseVentButton == false)))
                     {
-                        ushort num = (ushort)(Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId + 1U);
+                        ushort num = (ushort)(VentilationSystemUpdateSystemPatch.last_opId + 1U);
                         MessageWriter msgWriter = MessageWriter.Get(SendOption.Reliable);
                         msgWriter.Write(num);
                         msgWriter.Write((byte)VentilationSystem.Operation.StartCleaning);
                         msgWriter.Write((byte)first.Key);
                         player.RpcDesyncUpdateSystem(SystemTypes.Ventilation, msgWriter);
                         msgWriter.Recycle();
-                        Patches.ISystemType.VentilationSystemUpdateSystemPatch.last_opId = num;
+                        VentilationSystemUpdateSystemPatch.last_opId = num;
                         VentDuringDisabling[player.PlayerId] = first.Key;
                     }
                 }
@@ -489,6 +489,10 @@ namespace TownOfHost
 
                         __instance.cosmetics.nameText.text = $"{__instance.cosmetics.nameText.text}<color={color}>★</color>";
                     }
+
+                    var client = __instance.GetClient();
+                    if (BanManager.CheckWhiteList(client?.FriendCode, client?.ProductUserId))
+                        __instance.cosmetics.nameText.text = "<color=#feffe2>◎</color>" + __instance.cosmetics.nameText.text;
                 }
                 if (GameStates.IsInGame)
                 {
@@ -525,59 +529,8 @@ namespace TownOfHost
 
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                     {
-                        if (PlayerControl.LocalPlayer.PlayerId == __instance.PlayerId)
-                        {
-                            if (!Options.EnableGM.GetBool())
-                            {
-                                if (TaskBattle.TaskBattelShowAllTask.GetBool())
-                                {
-                                    var t1 = 0f;
-                                    var t2 = 0;
-                                    if (!TaskBattle.TaskBattleTeamMode.GetBool() && !TaskBattle.TaskBattleTeamWinType.GetBool())
-                                    {
-                                        foreach (var pc in PlayerCatch.AllPlayerControls)
-                                        {
-                                            t1 += pc.GetPlayerTaskState().AllTasksCount;
-                                            t2 += pc.GetPlayerTaskState().CompletedTasksCount;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        foreach (var t in TaskBattle.TaskBattleTeams.Values)
-                                        {
-                                            if (!t.Contains(seer.PlayerId)) continue;
-                                            t1 = TaskBattle.TaskBattleTeamWinTaskc.GetFloat();
-                                            foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
-                                                t2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
-                                        }
-                                    }
-                                    Mark.Append($"<color=yellow>({t2}/{t1})</color>");
-                                }
-                                if (TaskBattle.TaskBattleShowFastestPlayer.GetBool())
-                                {
-                                    var to = 0;
-                                    if (!TaskBattle.TaskBattleTeamMode.GetBool() && !TaskBattle.TaskBattleTeamWinType.GetBool())
-                                    {
-                                        foreach (var pc in PlayerCatch.AllPlayerControls)
-                                            if (pc.GetPlayerTaskState().CompletedTasksCount > to) to = pc.GetPlayerTaskState().CompletedTasksCount;
-                                    }
-                                    else
-                                        foreach (var t in TaskBattle.TaskBattleTeams.Values)
-                                        {
-                                            var to2 = 0;
-                                            foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
-                                                to2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
-                                            if (to2 > to) to = to2;
-                                        }
-                                    Mark.Append($"<color=#00f7ff>({to})</color>");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (TaskBattle.TaskBattelCanSeeOtherPlayer.GetBool())
-                                Mark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
-                        }
+                        //タスクバトルのマーク処理
+                        TaskBattle.GetMark(target, seer, ref Mark);
                     }
                     else
                     {
@@ -620,7 +573,8 @@ namespace TownOfHost
                             {
                                 if (((seerRole as Alien)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
                                 || ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
-                                || (seerRole is ProgressKiller) && ProgressKiller.ProgressWorkhorseseen)
+                                || ((seerRole is ProgressKiller) && ProgressKiller.ProgressWorkhorseseen)
+                                || ((seerRole as AlienHijack)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen))
                                 {
                                     Mark.Append($"<color=blue>♦</color>");
                                 }

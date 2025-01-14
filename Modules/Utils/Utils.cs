@@ -19,6 +19,7 @@ using static TownOfHost.Translator;
 using HarmonyLib;
 using static TownOfHost.UtilsRoleText;
 using System.Collections.Generic;
+using TownOfHost.Roles;
 
 namespace TownOfHost
 {
@@ -143,8 +144,7 @@ namespace TownOfHost
         {
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
-            if (seer.Is(CustomRoles.GM) ||
-                Options.SuddenCanSeeKillflash.GetBool()) return true;
+            if (seer.Is(CustomRoles.GM)) return true;
 
             if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
@@ -168,6 +168,8 @@ namespace TownOfHost
 
             if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.seeing))
                 if (data.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || data.SCanSeeComms.GetBool();
+
+            if (Options.SuddenCanSeeKillflash.GetBool()) return true;
 
             return check || seer.GetCustomRole() switch
             {
@@ -250,8 +252,9 @@ namespace TownOfHost
             {
                 case true:
                     {
+                        //rgb(97, 128, 163)
                         var KillerId = state.GetRealKiller();
-                        Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : new Color32(162, 194, 230, 255);
+                        Color color = KillerId != byte.MaxValue ? Main.PlayerColors[KillerId] : (state.DeathReason == CustomDeathReason.etc ? new Color32(97, 128, 163, 255) : new Color32(120, 120, 120, 255));
                         deathReason = ColorString(color, deathReason);
                     }
                     break;
@@ -282,6 +285,7 @@ namespace TownOfHost
             {
                 a += $"\n/tp o - {GetString("Command.tpo")}";
                 a += $"\n/tp i - {GetString("Command.tpi")}";
+                a += $"\n/allplayertp(/apt) - {GetString("Command.apt")}";
             }
             send = GetString("CommandList")
             + "<size=60%><line-height=1.3pic>";
@@ -295,23 +299,25 @@ namespace TownOfHost
                 + $"\n/forceend(/fe) - {GetString("Command.forceend")}"
                 + $"\n/mw - {GetString("Command.mw")}"
                 + $"\n/kf - {GetString("Command.kf")}"
-                + $"\n/allplayertp(/apt) - {GetString("Command.apt")}";
+                + $"\n/addwhite(/aw) - {GetString("Command.addwhite")}";
+                //導入者
+                send += $"<size=80%></line-height>\n【~~~~~~~{GetString("OnlyClient")}~~~~~~~】</size><line-height=1.3pic>"
+                + $"\n/dump - {GetString("Command.dump")}";
             }
-            //導入者
-            send += $"<size=80%></line-height>\n【~~~~~~~{GetString("OnlyClient")}~~~~~~~】</size><line-height=1.3pic>"
-            + $"\n/dump - {GetString("Command.dump")}"
+            send
             //全員
-            + $"<size=80%></line-height>\n【~~~~~~~{GetString("Allplayer")}~~~~~~~】</size><line-height=1.3pic>"
+            += $"<size=80%></line-height>\n【~~~~~~~{GetString("Allplayer")}~~~~~~~】</size><line-height=1.3pic>"
             + $"\n/now(/n) - {GetString("Command.now")}"
             + $"\n/now role(/n r) - {GetString("Command.nowrole")}"
             + $"\n/now set(/n s) - {GetString("Command.nowset")}"
             + $"\n/h now(/h n) - {GetString("Command.h_now")}"
-            + $"\n/h roles (/h r ) {GetString("Command.h_roles")}"
-            + $"\n/myrole - {GetString("Command.m")}"
-            + $"\n/meetinginfo - {GetString("Command.mi")}";
+            + $"\n/h roles(/h r ) {GetString("Command.h_roles")}"
+            + $"\n/myrole(/m) - {GetString("Command.m")}"
+            + $"\n/meetinginfo(/mi,/day) - {GetString("Command.mi")}";
+            if (CustomRolesHelper.CheckGuesser() || CustomRoles.Guesser.IsPresent()) send += $"\n/bt - {GetString("Command.bt")}";
             if (Options.ImpostorHideChat.GetBool()) send += $"\n/ic - {GetString("Command.impchat")}";
             if (Options.JackalHideChat.GetBool()) send += $"\n/jc - {GetString("Command.jacchat")}";
-            if (Options.LoversHideChat.GetBool()) send += $"\n/jc - {GetString("Command.LoverChat")}";
+            if (Options.LoversHideChat.GetBool()) send += $"\n/lc - {GetString("Command.LoverChat")}";
             if (GameStates.IsLobby)
             {
                 send += $"\n/lastresult(/l) - {GetString("Command.lastresult")}"
@@ -326,6 +332,7 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (text.RemoveHtmlTags() == "") return;
+            Croissant.ChocolateCroissant = true;
             if (title == "") title = $"<color={Main.ModColor}>" + GetString($"DefaultSystemMessageTitle") + "</color>";
             //すぐ</align>すると最終行もあれなので。
             var fir = rob ? "" : "<align=\"left\">";
@@ -487,7 +494,9 @@ namespace TownOfHost
         public static string RemoveSizeTags(this string str) => Regex.Replace(str, "</?size[^>]*?>", "");
         public static string RemoveGiveAddon(this string str) => Regex.Replace(str, "を付与する", "");
         public static string RemoveSN(this string str) => Regex.Replace(str, "\n", "");
+        public static string Changebr(this string str, bool nokosu) => Regex.Replace(str, "\n", $"{(nokosu ? "<br>\n" : "<br>")}");
         public static string RemoveaAlign(this string str) => Regex.Replace(str, "align", "");
+        public static string RemoveDeltext(this string str, string del) => Regex.Replace(str, del, "");
         public static string RemoveText(this string str, bool Update = false)
         {
             bool musi = false;

@@ -166,6 +166,12 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                         Guessd.Add(pc);
                         Player.RpcProtectedMurderPlayer();
                         Utils.SendMessage(GetString("Skill.MadAvengersuccess"), Player.PlayerId, title: " <color=#ff1919>" + GetString("MadAvengerMeeting"));
+
+                        foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
+                        {
+                            Utils.SendMessage(string.Format(GetString("MadAvengerCo"), Utils.GetPlayerColor(pc, true)), go.PlayerId, GetString("RMSKillTitle"));
+                        }
+
                         foreach (var Guessdpc in Guessd)
                         {
                             var pc1 = PlayerCatch.AllAlivePlayerControls.Where(pc1 => pc1.IsNeutralKiller() || pc1.Is(CustomRoles.GrimReaper)).Count();
@@ -211,6 +217,10 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, 253);
                             hudManager.ShowKillAnimation(Player.Data, Player.Data);
                             SoundManager.Instance.PlaySound(Player.KillSfx, false, 0.8f);
+                            foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
+                            {
+                                Utils.SendMessage(string.Format(GetString("MadAvengerDie"), Utils.GetPlayerColor(pc, true)), go.PlayerId, GetString("RMSKillTitle"));
+                            }
                             return true;
                         }
                     }

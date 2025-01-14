@@ -195,11 +195,12 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         modeNekokabocha = false;
         modeinsider = false;
         modepenguin = false;
+        modeComebaker = false;
 
         int Count = RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer
                     + RateStealth + RateRemotekiller + RateNotifier + RateTimeThief
                     + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
-                    + RatePenguin + RateNomal;
+                    + RatePenguin + RateComebaker + RateNomal;
         int chance = IRandom.Instance.Next(1, Count);
         //ランダム
         ChengeMode(chance);
@@ -649,10 +650,28 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if ((seen.Is(CustomRoles.Jackal) || seen.Is(CustomRoles.JackalMafia) || seen.Is(CustomRoles.JackalAlien)) && OptionJackalCanAlsoBeExposedToJMafia.GetBool())
             enabled = true;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.sidekick.GetInt() <= JackalDoll.side || !SK) return "";
+
+        if (isForHud) return GetString("PhantomButtonSideKick");
+        return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";
+    }
     #endregion
     #region Vent
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
+        if (Tp != new Vector2(999f, 999f) && modeComebaker)
+        {
+            var tp = Tp;
+            _ = new LateTask(() =>
+            {
+                Player.RpcSnapToForced(tp);
+            }, 0.7f, "TP");
+        }
+        ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
+
         if (modeRemotekiller)
         {
             var user = physics.myPlayer;
@@ -680,7 +699,13 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         }
         return true;
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => !modeMole;
+    public override bool CantVentIdo(PlayerPhysics physics, int ventId)
+    {
+        if (modeMole) return false;
+        if (modeComebaker) return false;
+
+        return true;
+    }
     #endregion
     #region RPC
     private void SendRPC(byte targetId, byte typeId)
@@ -751,6 +776,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override bool OnInvokeSabotage(SystemTypes systemType) => OptionCanUseSabotage.GetBool();
     public override void ApplyGameOptions(IGameOptions opt)
     {
+        opt.SetVision(OptionHasImpostorVision.GetBool());
         AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : OptionCooldown.GetFloat());
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
@@ -924,6 +950,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (modeNekokabocha) return size + "<color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
         if (modeinsider) return size + "<color=#ff1919>mode:" + GetString("Insider") + "</color></size>";
         if (modepenguin) return size + "<color=#ff1919>mode:" + GetString("Penguin") + "</color></size>";
+        if (modeComebaker) return size + "<color=#ff9966>mode:" + GetString("Comebacker") + "</color></size>";
         if (modeNomal) return size + "<color=#ff1919>mode:Normal</color></size>";
 
         return size + "<color=#ff1919>mode:？</color></size>";
@@ -1015,6 +1042,13 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
             Logger.Info("Alienはペングインになりました", "Alien");
             modepenguin = true;
         }
+        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
+        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
+        + RatePenguin + RateComebaker)
+        {
+            Logger.Info("Alienはカムバッカーになりました。", "Alien");
+            modeComebaker = true;
+        }
         else//どれにもあてはまらないならとりあえずノーマル
         {
             Logger.Info("ｴｰﾘｱﾝﾜﾀｼｴｰﾘｱﾝ", "Alien");
@@ -1039,6 +1073,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         RateNekokabocha = OptionModeNekokabocha.GetInt();
         RateInsider = OptionModeInsider.GetInt();
         RatePenguin = OptionModePenguin.GetInt();
+        RateComebaker = OptionModeComebaker.GetInt();
 
         TimeThiefDecreaseMeetingTime = OptionTimeThiefDecreaseMeetingTime.GetInt();
         NotifierCance = OptionNotifierProbability.GetInt();
@@ -1058,6 +1093,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         Spped = SpeedDownCount.GetFloat();
         AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
         MeetingKill = OptionMeetingKill.GetBool();
+        Tp = new(999f, 999f);
 
         modeNone = true;
         modeVampire = false;
@@ -1076,6 +1112,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         modeNekokabocha = false;
         modeinsider = false;
         modepenguin = false;
+        modeComebaker = false;
     }
     #region  Options
     public static HashSet<JackalAlien> Aliens = new();
@@ -1116,7 +1153,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     static OptionItem OptionModeRemotekiller;
     static int RateRemotekiller;
     bool modeRemotekiller;
-    static byte Remotekillertarget;
+    byte Remotekillertarget;
     //ステルス
     static OptionItem OptionModeStealth;
     static int RateStealth;
@@ -1195,6 +1232,12 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     bool stopCount;
     bool MeetingKill;
 
+    //カムバッカー
+    static OptionItem OptionModeComebaker;
+    static int RateComebaker;
+    bool modeComebaker;
+    private Vector2 Tp;
+
     //秘匿設定
     static OptionItem FirstAbility;
     static OptionItem OptionAlienHitoku;
@@ -1212,6 +1255,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public static OptionItem SKimpwocanimp;
     static OptionItem CanmakeSK;
     public static OptionItem OptionDoll;
+    static OptionItem OptionHasImpostorVision;
     bool SK;
     bool Fall;
     enum OptionName
@@ -1232,13 +1276,15 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         AlienCProgressKiller, ProgressKillerMadseen, ProgressWorkhorseseen,
         AlienCNekokabocha, NekoKabochaImpostorsGetRevenged, NekoKabochaMadmatesGetRevenged, NekoKabochaNeutralsGetRevenged, NekoKabochaRevengeOnExile,
         AlienCInsider,
-        AlienCPenguin, PenguinAbductTimerLimit, PenguinMeetingKill
+        AlienCPenguin, PenguinAbductTimerLimit, PenguinMeetingKill,
+        AlienCComebacker
     }
     static void SetupOptionItem()//NowMax : 52
     {
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 7, GeneralOption.CanUseSabotage, false, false);
+        OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 53, GeneralOption.ImpostorVision, true, false);
         OptionJJackalCanKillMafia = BooleanOptionItem.Create(RoleInfo, 9, JackalMafia.JackalOption.JackalCanKillMafia, false, false);
         OptionJJackalMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 10, JackalMafia.JackalOption.JackalMafiaCanAlsoBeExposedToJackal, false, false);
         OptionJackalCanAlsoBeExposedToJMafia = BooleanOptionItem.Create(RoleInfo, 11, JackalMafia.JackalOption.JackalCanAlsoBeExposedToJMafia, true, false);
@@ -1285,6 +1331,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         OptionModePenguin = FloatOptionItem.Create(RoleInfo, 50, OptionName.AlienCPenguin, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         OptionAbductTimerLimit = FloatOptionItem.Create(RoleInfo, 51, OptionName.PenguinAbductTimerLimit, new(5f, 100f, 1f), 10f, false, OptionModePenguin).SetValueFormat(OptionFormat.Seconds);
         OptionMeetingKill = BooleanOptionItem.Create(RoleInfo, 52, OptionName.PenguinMeetingKill, false, false, OptionModePenguin);
+        OptionModeComebaker = FloatOptionItem.Create(RoleInfo, 54, OptionName.AlienCComebacker, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         OptionModeNomal = FloatOptionItem.Create(RoleInfo, 8, OptionName.AlienCNomal, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RoleAddAddons.Create(RoleInfo, 100, NeutralKiller: true);
     }

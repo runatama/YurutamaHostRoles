@@ -142,5 +142,13 @@ namespace TownOfHost.Roles.Impostor
         {
             AURoleOptions.PhantomCooldown = BomberExplosion <= 0 ? 200f : Cooldown;
         }
+        public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        {
+            seen ??= seer;
+            if (seen.PlayerId != seer.PlayerId || isForMeeting || BomberExplosion <= 0 || !Player.IsAlive()) return "";
+
+            if (isForHud) return GetString("PhantomButtonKilltargetLowertext");
+            return $"<size=50%>{GetString("PhantomButtonKilltargetLowertext")}</size>";
+        }
     }
 }

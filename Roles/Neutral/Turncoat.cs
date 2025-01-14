@@ -142,7 +142,7 @@ public sealed class Turncoat : RoleBase, IAdditionalWinner
         seen ??= seer;
 
         if (Is(seer) && seen.PlayerId == Target) return $"<color={RoleInfo.RoleColorCode}>★</color>";
-        if (seer.PlayerId == seen.PlayerId) return $"<color={TargetColorcode}>★</color>";
+        //if (seer.PlayerId == seen.PlayerId) return $"<color={TargetColorcode}>★</color>";
 
         return "";
     }
@@ -160,4 +160,6 @@ public sealed class Turncoat : RoleBase, IAdditionalWinner
         }
         return $"{string.Format(GetString("TurncoatLowerText"), targetname)}";
     }
+    public override string GetProgressText(bool comms = false, bool GameLog = false) => $"<color={TargetColorcode}>★</color>";
+
 }

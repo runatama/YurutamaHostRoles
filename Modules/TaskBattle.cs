@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost;
@@ -9,7 +11,7 @@ class TaskBattle
     /// <summary>key:チームid,value:List<プレイヤーid> </summary>
     public static Dictionary<byte, List<byte>> TaskBattleTeams = new();
     /// <summary>チャットで設定されたチーム情報 </summary>
-    public static Dictionary<byte, byte> SelectedTeams = new();
+    public static Dictionary<byte, List<byte>> SelectedTeams = new();
     /// <summary>追加でタスクを付与した数</summary>
     public static Dictionary<byte, int> TaskAddCount = new();
     public static bool IsAdding;
@@ -87,6 +89,67 @@ class TaskBattle
         UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), Utils.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
         return true;
     }
+
+    public static void GetMark(PlayerControl target, PlayerControl seer, ref StringBuilder Mark)
+    {
+        //seerがnullの場合targetに
+        seer ??= target;
+
+        if (seer.PlayerId == target.PlayerId)
+        {
+            if (!Options.EnableGM.GetBool())
+            {
+                if (TaskBattelShowAllTask.GetBool())
+                {
+                    var t1 = 0f;
+                    var t2 = 0;
+                    if (!TaskBattleTeamMode.GetBool() && !TaskBattleTeamWinType.GetBool())
+                    {
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                        {
+                            t1 += pc.GetPlayerTaskState().AllTasksCount;
+                            t2 += pc.GetPlayerTaskState().CompletedTasksCount;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var t in TaskBattleTeams.Values)
+                        {
+                            if (!t.Contains(seer.PlayerId)) continue;
+                            t1 = TaskBattleTeamWinTaskc.GetFloat();
+                            foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
+                                t2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
+                        }
+                    }
+                    Mark.Append($"<color=yellow>({t2}/{t1})</color>");
+                }
+                if (TaskBattleShowFastestPlayer.GetBool())
+                {
+                    var to = 0;
+                    if (!TaskBattleTeamMode.GetBool() && !TaskBattleTeamWinType.GetBool())
+                    {
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                            if (pc.GetPlayerTaskState().CompletedTasksCount > to) to = pc.GetPlayerTaskState().CompletedTasksCount;
+                    }
+                    else
+                        foreach (var t in TaskBattleTeams.Values)
+                        {
+                            var to2 = 0;
+                            foreach (var id in t.Where(id => PlayerCatch.GetPlayerById(id).IsAlive()))
+                                to2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
+                            if (to2 > to) to = to2;
+                        }
+                    Mark.Append($"<color=#00f7ff>({to})</color>");
+                }
+            }
+        }
+        else
+        {
+            if (TaskBattelCanSeeOtherPlayer.GetBool())
+                Mark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().AllTasksCount})</color>");
+        }
+    }
+
     public static OptionItem TaskBattleSet;
     public static OptionItem TaskBattleCanVent;
     public static OptionItem TaskBattleVentCooldown;

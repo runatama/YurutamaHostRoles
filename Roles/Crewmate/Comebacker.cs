@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using TownOfHost.Roles.Core;
 using HarmonyLib;
+using System.Collections.Generic;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Comebacker : RoleBase
@@ -28,6 +29,7 @@ public sealed class Comebacker : RoleBase
     {
         Cooldown = OptionCooldown.GetFloat();
         Tp = new(999f, 999f);
+        ComebackPosString = "";
     }
     private static OptionItem OptionCooldown;
     enum OptionName
@@ -36,6 +38,7 @@ public sealed class Comebacker : RoleBase
     }
     private static float Cooldown;
     private Vector2 Tp;
+    private string ComebackPosString;
     private static void SetupOptionItem()
     {
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.Cooldown, new(0f, 180f, 0.5f), 30f, false)
@@ -60,7 +63,44 @@ public sealed class Comebacker : RoleBase
         }
         ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
         Logger.Info("ベントを設定するよ!", "Comebacker");
+
+        var NowRoom = Player.GetPlainShipRoom();
+
+        var Rooms = ShipStatus.Instance.AllRooms;
+        Dictionary<PlainShipRoom, float> Distance = new();
+
+        if (Rooms != null)
+            foreach (var r in Rooms)
+            {
+                if (r.RoomId == SystemTypes.Hallway) continue;
+                Distance.Add(r, Vector2.Distance(Player.GetTruePosition(), r.transform.position));
+            }
+
+        var near = GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");
+
+        if (NowRoom != null)
+        {
+            var now = GetString($"{NowRoom.RoomId}");
+
+            if (NowRoom.RoomId == SystemTypes.Hallway)
+            {
+                now = near + now;
+            }
+            ComebackPosString = now;
+        }
+        else ComebackPosString = string.Format(GetString($"SantaClausnear"), $"{near}");
+
+        UtilsNotifyRoles.NotifyRoles(Player, OnlyMeName: true);
         return true;
     }
     public override string GetAbilityButtonText() => GetString("CamebackerAbility");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+
+        if (isForMeeting || !Player.IsAlive() || ComebackPosString == "") return "";
+
+        if (isForHud) return $"<color={RoleInfo.RoleColorCode}>{string.Format(GetString("ComebackLowerText"), ComebackPosString)}</color>";
+        return $"<size=50%><color={RoleInfo.RoleColorCode}{string.Format(GetString("ComebackLowerText"), ComebackPosString)}</color></size>";
+    }
 }

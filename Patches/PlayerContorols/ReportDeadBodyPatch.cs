@@ -23,6 +23,7 @@ namespace TownOfHost
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
         {
             if (GameStates.IsMeeting) return false;
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
 
             Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ReportDeadBody");
 
@@ -139,6 +140,7 @@ namespace TownOfHost
 
             UtilsOption.SyncAllSettings();
 
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
             //サボ関係多分なしに～
             //押したのなら強制で始める
             MeetingRoomManager.Instance.AssignSelf(__instance, target);
@@ -163,6 +165,7 @@ namespace TownOfHost
         public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool? ch = true, string Meetinginfo = "", string colorcode = "#000000")
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
 
             Logger.Info($"{repo.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "DieCheckReport");
 
@@ -250,6 +253,7 @@ namespace TownOfHost
                 Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
             }
 
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
             UtilsNotifyRoles.NotifyMeetingRoles();
 
             MeetingTimeManager.OnReportDeadBody();
@@ -285,6 +289,8 @@ namespace TownOfHost
         public static bool CheckMeeting(PlayerControl repoter, NetworkedPlayerInfo target, bool checkdie = true)
         {
             var DontAddonCheck = false;
+            var r = DontReportreson.None;
+            var check = false;
             if (target != null)
             {
                 if (repoter.GetRoleClass() is MassMedia massMedia)
@@ -295,11 +301,35 @@ namespace TownOfHost
                 if (repoter.GetCustomRole() is CustomRoles.Vulture)
                     DontAddonCheck = true;
             }
+            if (SuddenDeathMode.NowSuddenDeathMode)
+            {
+                foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+                {
+                    if (role.CancelReportDeadBody(repoter, target, ref r))
+                    {
+                        Logger.Info($"{role}によって会議はキャンセルされました。{r}", "ReportDeadBody");
+                        GameStates.Meeting = false;
+                        AddDontrepo(repoter, r);
+                        check = true;
+                    }
+                }
+            }
 
             if (SuddenDeathMode.NowSuddenDeathMode)
             {
                 Logger.Info($"サドンデスモードなのにボタンを使おうと?", "ReportDeadBody");
                 AddDontrepo(repoter, DontReportreson.CantUseButton);
+                return false;
+            }
+            //サボタージュ中でボタンの時、キャンセルする
+            if ((Utils.IsActive(SystemTypes.Reactor)
+                || Utils.IsActive(SystemTypes.Electrical)
+                || Utils.IsActive(SystemTypes.Laboratory)
+                || Utils.IsActive(SystemTypes.Comms)
+                || Utils.IsActive(SystemTypes.LifeSupp)
+                || Utils.IsActive(SystemTypes.HeliSabotage)) && target == null)
+            {
+                Logger.Info($"サボ発生中！キャンセルする！", "ReportDeadBody");
                 return false;
             }
             RoleAddAddons.GetRoleAddon(repoter.GetCustomRole(), out var da, repoter, subrole: CustomRoles.NonReport);
@@ -370,8 +400,6 @@ namespace TownOfHost
                 return false;
             }
 
-            var r = DontReportreson.None;
-            var check = false;
             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
             {
                 if (role.CancelReportDeadBody(repoter, target, ref r))

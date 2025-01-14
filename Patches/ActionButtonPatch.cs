@@ -76,7 +76,7 @@ public static class AbilityButtonDoClickPatch
             bool resetKillCooldown = false;
             bool? fall = false;
 
-            pb.OnClick(ref resetKillCooldown, ref fall);
+            pb.CheckOnClick(ref resetKillCooldown, ref fall);
 
             if (fall == false)
             {

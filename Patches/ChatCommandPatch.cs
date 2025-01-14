@@ -388,9 +388,17 @@ namespace TownOfHost
                                 break;
 
                             default:
-                                ShowHelp(PlayerControl.LocalPlayer.PlayerId);
+                                foreach (var pc in PlayerCatch.AllPlayerControls)
+                                {
+                                    ShowHelp(pc.PlayerId);
+                                }
                                 break;
                         }
+                        break;
+                    case "/hr":
+                        canceled = true;
+                        subArgs = args.Length < 2 ? "" : args[1];
+                        GetRolesInfo(subArgs, byte.MaxValue);
                         break;
 
                     case "/m":
@@ -484,6 +492,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
+                            Croissant.ChocolateCroissant = true;
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "impostorsChat");
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
@@ -522,6 +531,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
+                            Croissant.ChocolateCroissant = true;
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "jackalChat");
                             foreach (var jac in PlayerCatch.AllAlivePlayerControls)
                             {
@@ -563,6 +573,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
+                            Croissant.ChocolateCroissant = true;
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "loversChat");
                             foreach (var lover in AllAlivePlayerControls)
                             {
@@ -668,6 +679,7 @@ namespace TownOfHost
 
                     case "/kill":
                         canceled = true;
+                        if (GameStates.IsLobby) break;
                         if (args.Length < 2 || !int.TryParse(args[1], out int id2)) break;
                         GetPlayerById(id2)?.RpcMurderPlayer(GetPlayerById(id2), true);
                         break;
@@ -685,9 +697,28 @@ namespace TownOfHost
 
                     case "/revive":
                     case "/rev":
+                        if (!DebugModeManager.EnableDebugMode.GetBool()) break;
+                        //まぁ・・・期待してるような動作はしない。
                         canceled = true;
-                        PlayerControl.LocalPlayer.Revive();
-                        PlayerControl.LocalPlayer.Data.IsDead = false;
+                        var revplayer = PlayerControl.LocalPlayer;
+                        if (args.Length < 2 || !int.TryParse(args[1], out int revid)) { }
+                        else
+                        {
+                            revplayer = GetPlayerById(revid);
+                            if (revplayer == null) revplayer = PlayerControl.LocalPlayer;
+                        }
+                        revplayer.Revive();
+                        revplayer.RpcSetRole(RoleTypes.Crewmate, true);
+                        revplayer.Data.IsDead = false;
+                        if (GameStates.InGame)
+                        {
+                            var state = PlayerState.GetByPlayerId(revplayer.PlayerId);
+                            state.IsDead = false;
+                            state.DeathReason = CustomDeathReason.etc;
+
+                            revplayer.RpcSetRole(state.MainRole.GetRoleTypes(), true);
+                        }
+                        RPC.RpcSyncAllNetworkedPlayer();
                         break;
 
                     case "/id":
@@ -736,16 +767,6 @@ namespace TownOfHost
                         }
                         break;
 
-                    case "/find":
-                        canceled = true;
-                        GameOptionsMenuUpdatePatch.find = args.Length < 2 ? "" : args[1];
-                        break;
-
-                    case "/at":
-                        canceled = true;
-                        //Roles.Neutral.NoName.OnCommand(PlayerControl.LocalPlayer.PlayerId, int.TryParse(args.Length < 2 ? "" : args[1], out var coin) ? coin : null);
-                        break;
-
                     case "/yaminabe":
                     case "/yami":
                     case "/ym":
@@ -780,6 +801,84 @@ namespace TownOfHost
                             {
                                 option.Value.SetValue(0);
                             }
+                        }
+                        break;
+                    case "/addwhite":
+                    case "/aw":
+                        canceled = true;
+                        if (args.Length < 2)
+                        {
+                            Logger.seeingame("ロビーにいる全てのプレイヤーをホワイトリストに登録するぞ！");
+                            //指定がない場合
+                            foreach (var pc in AllPlayerControls)
+                            {
+                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                BanManager.AddWhitePlayer(pc.GetClient());
+                            }
+                        }
+                        else
+                        {
+                            var targetname = args[1];
+                            var added = false;
+                            //指定がない場合
+                            foreach (var pc in AllPlayerControls.Where(pc => (pc?.Data?.PlayerName ?? "('ω')").RemoveDeltext(" ") == targetname))
+                            {
+                                BanManager.AddWhitePlayer(pc.GetClient());
+                                added = true;
+                            }
+                            if (!added)
+                                SendMessage($"{targetname}って名前のプレイヤーがいないよっ...", 0);
+                        }
+                        break;
+
+                    case "/st":
+                    case "/setteam":
+
+                        canceled = true;
+
+                        //モードがタスバトじゃない時はメッセージ表示
+                        if (Options.CurrentGameMode != CustomGameMode.TaskBattle)
+                        {
+                            __instance.AddChat(PlayerControl.LocalPlayer, "選択されているモードが<color=cyan>タスクバトル</color>のみ実行可能です。\nロビーにある設定から変えてみてね><");
+                            break;
+                        }
+
+                        if (GameStates.IsLobby && !GameStates.IsCountDown)
+                        {
+                            if (args.Length < 3)//引数がない場合
+                            {
+
+                                if (args.Length > 1 && args[1] == "None")
+                                {
+                                    TaskBattle.SelectedTeams.Clear();
+                                    SendMessage("チームをリセットしました。", PlayerControl.LocalPlayer.PlayerId);
+                                    break;
+                                }
+
+                                StringBuilder tbSb = new();
+                                foreach (var (tbTeamId, tbPlayers) in TaskBattle.SelectedTeams)
+                                {
+                                    tbSb.Append($"・チーム{tbTeamId}\n");
+                                    foreach (var tbId in tbPlayers)
+                                        tbSb.Append(GetPlayerInfoById(tbId).PlayerName).Append('\n');
+                                    tbSb.Append('\n');
+                                }
+                                SendMessage($"現在のチーム:\n{tbSb}\n\n使用方法: 設定: /st プレイヤーid チーム番号\nリセット: /st None\nプレイヤーid確認方法: /id", PlayerControl.LocalPlayer.PlayerId);
+                                break;
+                            }
+
+                            if (byte.TryParse(args[1], out var stPlayerId) && byte.TryParse(args[2], out var stTeamId))
+                            {
+                                List<byte> stData;
+                                TaskBattle.SelectedTeams.Values.Do(players => players.Remove(stPlayerId));
+                                TaskBattle.SelectedTeams.DoIf(teamData => teamData.Value.Count < 1, teamData => TaskBattle.SelectedTeams.Remove(teamData.Key));
+                                stData = TaskBattle.SelectedTeams.TryGetValue(stTeamId, out stData) ? stData : new();
+                                stData.Add(stPlayerId);
+                                TaskBattle.SelectedTeams[stTeamId] = stData;
+                                SendMessage($"{GetPlayerById(stPlayerId)?.name ?? stPlayerId.ToString()}をチーム{stTeamId}に設定しました！", PlayerControl.LocalPlayer.PlayerId);
+                                break;
+                            }
+                            SendMessage("引数の値が正しくありません。", PlayerControl.LocalPlayer.PlayerId);
                         }
                         break;
 
@@ -820,6 +919,23 @@ namespace TownOfHost
                             }
                         }
                         break;
+                    case "/wi":
+                        if (DebugModeManager.EnableTOHkDebugMode.GetBool())
+                        {
+                            canceled = true;
+                            subArgs = args.Length < 2 ? "" : args[1];
+                            var pc = PlayerControl.LocalPlayer;
+                            if (GetRoleByInputName(subArgs, out var role, true))
+                            {
+                                if (role.GetRoleInfo()?.Description?.WikiText is not null and not "")
+                                {
+                                    ClipboardHelper.PutClipboardString(role.GetRoleInfo().Description.WikiText);
+                                    SendMessage($"{role}の設定コピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
+                                }
+                            }
+                        }
+                        break;
+
                     case "/dgm":
                         if (DebugModeManager.EnableTOHkDebugMode.GetBool())
                         {
@@ -926,8 +1042,8 @@ namespace TownOfHost
                                     break;
                                 case "rev":
                                     if (!byte.TryParse(args[2], out byte idr)) break;
-                                    var revplayer = GetPlayerById(idr);
-                                    revplayer.Data.IsDead = false;
+                                    var revpc = GetPlayerById(idr);
+                                    revpc.Data.IsDead = false;
                                     PlayerControl.LocalPlayer.SetDirtyBit(0b_1u << idr);
                                     AmongUsClient.Instance.SendAllStreamedObjects();
                                     break;
@@ -1157,6 +1273,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_impostor").Color(Palette.ImpostorRed)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsImpostor()))
                     {
+                        if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1171,6 +1288,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_crew").Color(Color.blue)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsCrewmate()))
                     {
+                        if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1186,6 +1304,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_Neutral").Color(Palette.DisabledGrey)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsNeutral()))
                     {
+                        if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1199,6 +1318,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_MadMate").Color(ModColors.MadMateOrenge)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsMadmate()))
                     {
+                        if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1214,6 +1334,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_Addon").Color(ModColors.AddonsColor)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsAddOn() || r.Key is CustomRoles.Amanojaku))
                     {
+                        if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1227,6 +1348,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_GhostRole").Color(ModColors.GhostRoleColor)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsGorstRole()))
                     {
+                        if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1423,6 +1545,11 @@ namespace TownOfHost
                             break;
                     }
                     break;
+                case "/hr":
+                    canceled = true;
+                    subArgs = args.Length < 2 ? "" : args[1];
+                    GetRolesInfo(subArgs, byte.MaxValue);
+                    break;
 
                 case "/m":
                 case "/myrole":
@@ -1564,6 +1691,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
+                        Croissant.ChocolateCroissant = true;
                         Logger.Info($"{player.Data.PlayerName} : {send}", "ImpostorChat");
                         foreach (var imp in AllPlayerControls)
                         {
@@ -1630,6 +1758,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
+                        Croissant.ChocolateCroissant = true;
                         Logger.Info($"{player.Data.PlayerName} : {send}", "JackalChat");
                         foreach (var jac in AllPlayerControls)
                         {
@@ -1697,6 +1826,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
+                        Croissant.ChocolateCroissant = true;
                         Logger.Info($"{player.Data.PlayerName} : {send}", "LoversChat");
                         foreach (var lover in AllPlayerControls)
                         {
@@ -1848,6 +1978,7 @@ namespace TownOfHost
             {
                 _ = new LateTask(() => aftersystemmeg = true, 0.24f, "", true);
             }
+            Croissant.ChocolateCroissant = true;
             var name = player.Data.PlayerName;
             if (Options.ExHideChatCommand.GetBool())
             {

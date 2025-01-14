@@ -8,6 +8,7 @@ using UnityEngine;
 using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
+using static TownOfHost.Croissant;
 
 namespace TownOfHost
 {
@@ -485,6 +486,7 @@ namespace TownOfHost
         public static OptionItem KickPlayerFriendCodeNotExist;
         //public static OptionItem KickModClient;
         public static OptionItem ApplyBanList;
+        public static OptionItem KiclHotNotFriend;
 
         public static readonly string[] suffixModes =
         {
@@ -640,6 +642,7 @@ namespace TownOfHost
             // Impostor
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
             {
+                if (info.RoleName is CustomRoles.AlienHijack) return;
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
             });
@@ -1200,13 +1203,23 @@ namespace TownOfHost
             ApplyDenyNameList = BooleanOptionItem.Create(1_000_100, "ApplyDenyNameList", true, TabGroup.MainSettings, true)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.All)
+                .SetInfo(Translator.GetString("KickBanOptionWhiteList"))
                 .SetColor(Color.red);
             KickPlayerFriendCodeNotExist = BooleanOptionItem.Create(1_000_101, "KickPlayerFriendCodeNotExist", false, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All)
+                .SetInfo(Translator.GetString("KickBanOptionWhiteList"))
                 .SetColor(Color.red);
             //KickModClient = BooleanOptionItem.Create(1_000_102, "KickModClient", false, TabGroup.MainSettings, true)
             //.SetGameMode(CustomGameMode.All);
             ApplyBanList = BooleanOptionItem.Create(1_000_110, "ApplyBanList", true, TabGroup.MainSettings, true)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(Color.red);
+            KiclHotNotFriend = BooleanOptionItem.Create(1_000_111, "KiclHotNotFriend", false, TabGroup.MainSettings, true)
+                .SetGameMode(CustomGameMode.All)
+                .SetInfo(Translator.GetString("KickBanOptionWhiteList"))
+                .SetColor(Color.red);
+
+            jam = BooleanOptionItem.Create(1_000_112, "AntiCheat", true, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All)
                 .SetColor(Color.red);
 

@@ -116,6 +116,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [イビルトラッカー](https://github.com/KYMario/TownOfHost-K/wiki/イビルトラッカー)
 - [イビルサテライト](https://github.com/KYMario/TownOfHost-K/wiki/イビルサテライト)
 - [イビルテラー](https://github.com/KYMario/TownOfHost-K/wiki/イビルテラー)
+- [イビルメーカー](https://github.com/KYMario/TownOfHost-K/wiki/イビルメーカー)
 - [アンチレポーター](https://github.com/KYMario/TownOfHost-K/wiki/アンチレポーター)
 - [爆弾魔](https://github.com/KYMario/TownOfHost-K/wiki/爆弾魔)
 - [モグラ](https://github.com/KYMario/TownOfHost-K/wiki/モグラ)
@@ -131,6 +132,9 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [マジシャン](https://github.com/KYMario/TownOfHost-K/wiki/マジシャン)
 - [カモフラージャー](https://github.com/KYMario/TownOfHost-K/wiki/カモフラージャー)
 - [記憶喪失者](https://github.com/KYMario/TownOfHost-K/wiki/記憶喪失者)
+- [カーサー](https://github.com/KYMario/TownOfHost-K/wiki/カーサー)
+- [プロボーラー](https://github.com/KYMario/TownOfHost-K/wiki/プロボーラー)
+- [イレイサー](https://github.com/KYMario/TownOfHost-K/wiki/イレイサー)
 - [シリアルキラー](https://github.com/KYMario/TownOfHost-K/wiki/シリアルキラー)
 - [バウンティハンター](https://github.com/KYMario/TownOfHost-K/wiki/バウンティハンター)
 - [インサイダー](https://github.com/KYMario/TownOfHost-K/wiki/インサイダー)
@@ -210,6 +214,8 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [カムバッカー](https://github.com/KYMario/TownOfHost-K/wiki/カムバッカー)
 - [ベントマスター](https://github.com/KYMario/TownOfHost-K/wiki/ベントマスター)
 - [トイレファン](https://github.com/KYMario/TownOfHost-K/wiki/トイレファン)
+- [ベントオープナー](https://github.com/KYMario/TownOfHost-K/wiki/ベントオープナー)
+- [ベントハンター](https://github.com/KYMario/TownOfHost-K/wiki/ベントハンター)
 
 </details>
 
@@ -240,9 +246,11 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [ワーカホリック](https://github.com/KYMario/TownOfHost-K/wiki/ワーカホリック)
 - [妖狐](https://github.com/KYMario/TownOfHost-K/wiki/妖狐)
 - [サンタクロース](https://github.com/KYMario/TownOfHost-K/wiki/サンタクロース)
+- [ヴァルチャー](https://github.com/KYMario/TownOfHost-K/wiki/ヴァルチャー)
 - [シュレディンガーの猫](https://github.com/KYMario/TownOfHost-K/wiki/シュレディンガーの猫)
 - [バケネコ](https://github.com/KYMario/TownOfHost-K/wiki/バケネコ)
 - [オポチュニスト](https://github.com/KYMario/TownOfHost-K/wiki/オポチュニスト)
+- [裏切者](https://github.com/KYMario/TownOfHost-K/wiki/裏切者)
 
 </details>
 
@@ -363,6 +371,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - イビルトラッカー `プレイヤーを追跡する`
 - イビルサテライト `プレイヤーの経路を調査する`
 - イビルテラー `近付き役職を占う`
+- イビルメーカー `マッドを作れ`
 - アンチレポーター `レポートを一定時間防ぐ`
 - 爆弾魔 `爆弾を渡そう`
 - モグラ `ランダムなベントに飛ぼう`
@@ -378,6 +387,9 @@ HostModなので部屋主のみModを導入すれば、<br>
 - マジシャン `なんと...死体が無くなっちゃいました～！`
 - カモフラージャー `全員の姿を同じにして混乱させろ`
 - 記憶喪失者 `僕はシェリフだよ！ん?`
+- カーサー `呪いを駆使しキルを進めよ`
+- プロボーラー `死体を穴に飛ばそう`
+- イレイサー `他人の役職を消しちゃおう!`
 - シリアルキラー `キルをし続けないと死んでしまう`
 - バウンティハンター `獲物を狩りキルしまくれ`
 - インサイダー `霊の役職を知れ`
@@ -456,7 +468,8 @@ HostModなので部屋主のみModを導入すれば、<br>
 - アンドロイド `充電を貯めてベントを使え`
 - カムバッカー `ベントを使うと一個前のベントに帰ってくる`
 - ベントマスター `ベントが開くと通知が来る`
-- トイレファン `AirShipのトイレが開く`
+- ベントオープナー `ベントに潜んでる人を出そう`
+- ベントハンター `ベントに罠を仕掛けよう`
 
 </details>
 
@@ -487,9 +500,11 @@ HostModなので部屋主のみModを導入すれば、<br>
 - ワーカホリック `タスクを全て完了させろ`
 - 妖狐 `最後まで生き残れ`
 - サンタクロース `指定数プレゼントを渡せ`
+- ヴァルチャー `小腹を満たせ`
 - シュレディンガーの猫 `キルしてきた人の援助をしろ`
 - バケネコ `キルしてきた人に味方しろ`
 - オポチュニスト `生きろ`
+- 裏切者 `アイツを負けさせろ`
 
 </details>
 
@@ -559,7 +574,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 
 **TownOfHost-Kの開発者**<br>
 　暇な人 KY/けーわい<br>
-　　[Youtube](https://www.youtube.com/@MTGC_KY)<br>
+　　[Youtube](https://www.youtube.com/@KYMario_ky)<br>
 　　[Twitter(X)](https://x.com/ky_mario_ky) ・ [Bluesky](https://bsky.app/profile/kymario.bsky.social)<br>
 
 　タイガー<br>

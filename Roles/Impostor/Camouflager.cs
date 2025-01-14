@@ -178,4 +178,12 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         return true;
     }
     public override string GetAbilityButtonText() => GetString("CamouflagerText");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("PhantomButtonLowertext");
+        return $"<size=50%>{GetString("PhantomButtonLowertext")}</size>";
+    }
 }

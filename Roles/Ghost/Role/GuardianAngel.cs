@@ -18,7 +18,7 @@ namespace TownOfHost.Roles.Ghost
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.GuardianAngel, fromtext: UtilsOption.GetFrom(From.AmongUs));
             GhostRoleAssingData.Create(Id + 1, CustomRoles.GuardianAngel, CustomRoleTypes.Crewmate);
-            CoolDown = FloatOptionItem.Create(Id + 2, "GhostButtonerCoolDown", new(0f, 180f, 0.5f), 27.5f, TabGroup.GhostRoles, false)
+            CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]);
             GuardTime = FloatOptionItem.Create(Id + 3, "GuardianAngelGuardTime", new(0.5f, 180, 0.5f), 5f, TabGroup.GhostRoles, false)
             .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]);

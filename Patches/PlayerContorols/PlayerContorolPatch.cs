@@ -25,6 +25,8 @@ namespace TownOfHost
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
+
+            Croissant.BaketheDough(__instance);
         }
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
@@ -47,17 +49,23 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
     class PlayerControlSetRolePatch
     {
-        public static bool Prefix(PlayerControl __instance, ref RoleTypes roleType)
+        public static bool Prefix(PlayerControl __instance, ref RoleTypes roleType, ref bool canOverrideRole)
         {
             var target = __instance;
             var targetName = __instance.GetNameWithRole().RemoveHtmlTags();
+            canOverrideRole = true;
             Logger.Info($"{targetName} =>{roleType}", "PlayerControl.RpcSetRole");
             if (GameStates.IsFreePlay && Main.EditMode)
             {
                 roleType = RoleTypes.Shapeshifter;
                 return true;
             }
-            if (!ShipStatus.Instance.enabled) return true;
+            if (!(ShipStatus.Instance?.enabled == true)) return true;
+            if (AntiBlackout.IsSet)
+            {
+                Logger.Info($"AntiBlackoutが動作ちゅうだからキャンセル！", "RpcSetRole");
+                return false;
+            }
             if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
             {
                 var targetIsKiller = target.GetRoleClass() is IKiller;

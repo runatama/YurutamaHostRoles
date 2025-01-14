@@ -463,6 +463,7 @@ namespace TownOfHost
             sb.Replace("<ktag-voffset>", $"<voffset={15 - (1.5 * sb.ToString().Split('\n').Length * (0.2 * winnerSize))}>");
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                 if (pc == null) continue;
                 var target = (winnerList.Contains(pc.PlayerId) ? pc : (winnerList.Count == 0 ? pc : PlayerCatch.GetPlayerById(winnerList.OrderBy(pc => pc).FirstOrDefault()) ?? pc)) ?? pc;
                 var targetname = Main.AllPlayerNames[target.PlayerId].Color(UtilsRoleText.GetRoleColor(target.GetCustomRole()));
@@ -641,21 +642,6 @@ namespace TownOfHost
             {
                 reason = GameOverReason.ImpostorByKill;
 
-
-                /* int Imp = PlayerCatch.AlivePlayersCount(CountTypes.Impostor);
-                int Jackal = PlayerCatch.AlivePlayersCount(CountTypes.Jackal);
-
-                //ジャッカルカウントが0でカウントが増える前に終わってしまわないように
-                if (Jackal == 0 && (CustomRoles.Jackal.IsPresent() || CustomRoles.JackalMafia.IsPresent() || CustomRoles.JackalAlien.IsPresent()))
-                    foreach (var player in PlayerCatch.AllAlivePlayerControls)
-                        if (player && Jackal == 0)
-                            if (player.Is(CustomRoles.Jackaldoll) && JackalDoll.Oyabun.ContainsKey(player.PlayerId))
-                                Jackal++;
-
-                int Remotekiller = PlayerCatch.AlivePlayersCount(CountTypes.Remotekiller);
-                int GrimReaper = PlayerCatch.AlivePlayersCount(CountTypes.GrimReaper);
-                int Crew = PlayerCatch.AlivePlayersCount(CountTypes.Crew);
-*/
                 int Imp = 0;
                 int Jackal = 0;
                 int Crew = 0;

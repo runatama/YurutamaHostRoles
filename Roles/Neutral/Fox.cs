@@ -150,6 +150,10 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
 
             Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             Utils.AllPlayerKillFlash();
+            foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
+            {
+                Utils.SendMessage(string.Format(GetString("FoxTelldie"), Utils.GetPlayerColor(Player, true)), go.PlayerId, GetString("RMSKillTitle"));
+            }
             if (!Player.IsModClient() && !Player.AmOwner) Player.RpcMeetingKill(Player);
             hudManager.ShowKillAnimation(Player.Data, Player.Data);
             SoundManager.Instance.PlaySound(Player.KillSfx, false, 0.8f);

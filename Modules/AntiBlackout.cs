@@ -70,6 +70,7 @@ namespace TownOfHost
             }
             isDeadCache.Clear();
             IsCached = false;
+            IsSet = false;
             if (doSend) SendGameData();
         }
 
@@ -108,6 +109,7 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
+                IsSet = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
                 if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId || !PlayerControl.LocalPlayer.IsAlive())
                 {

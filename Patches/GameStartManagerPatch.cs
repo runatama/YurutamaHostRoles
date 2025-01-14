@@ -348,21 +348,31 @@ namespace TownOfHost
         {
             public static void Postfix(HostInfoPanel __instance)
             {
-                if (!__instance) return;
-                var host = AmongUsClient.Instance?.GetHost();
-                var mark = "";
-                if (!AmongUsClient.Instance || (host?.PlayerName == null)) return;
-                if (Options.SuddenTeamOption.GetBool())
+                try
                 {
-                    var color = "#ffffff";
-                    if (SuddenDeathMode.TeamRed.Contains(host.Character.PlayerId)) color = ModColors.codered;
-                    if (SuddenDeathMode.TeamBlue.Contains(host.Character.PlayerId)) color = ModColors.codeblue;
-                    if (SuddenDeathMode.TeamYellow.Contains(host.Character.PlayerId)) color = ModColors.codeyellow;
-                    if (SuddenDeathMode.TeamGreen.Contains(host.Character.PlayerId)) color = ModColors.codegreen;
-                    if (SuddenDeathMode.TeamPurple.Contains(host.Character.PlayerId)) color = ModColors.codepurple;
-                    mark = $"  <color={color}>★</color>";
+                    if (!__instance) return;
+                    var host = AmongUsClient.Instance?.GetHost();
+                    var mark = "";
+                    if (!AmongUsClient.Instance || (host?.PlayerName == null)) return;
+                    if (Options.SuddenTeamOption.GetBool())
+                    {
+                        var color = "#ffffff";
+                        if (SuddenDeathMode.TeamRed.Contains(host.Character.PlayerId)) color = ModColors.codered;
+                        if (SuddenDeathMode.TeamBlue.Contains(host.Character.PlayerId)) color = ModColors.codeblue;
+                        if (SuddenDeathMode.TeamYellow.Contains(host.Character.PlayerId)) color = ModColors.codeyellow;
+                        if (SuddenDeathMode.TeamGreen.Contains(host.Character.PlayerId)) color = ModColors.codegreen;
+                        if (SuddenDeathMode.TeamPurple.Contains(host.Character.PlayerId)) color = ModColors.codepurple;
+                        mark = $"  <color={color}>★</color>";
+                    }
+                    var colorid = AmongUsClient.Instance.GetHost()?.ColorId ?? 0;
+                    var colorr = Palette.PlayerColors.Length > colorid ? Palette.PlayerColors[colorid] : ModColors.White;
+                    __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(colorr)}{mark}</b>";
                 }
-                __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(Palette.PlayerColors[AmongUsClient.Instance.GetHost().ColorId])}{mark}</b>";
+                catch
+                {
+                    if (!__instance) return;
+                    __instance.playerName.text = "???";
+                }
             }
         }
     }

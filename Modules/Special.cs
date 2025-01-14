@@ -142,6 +142,15 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
             _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 0.2f, "", true);
         }
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("PhantomButtonLowertext");
+        return $"<size=50%>{GetString("PhantomButtonLowertext")}</size>";
+    }
+    public override string GetAbilityButtonText() => GetString("SpeedStarAbility");
 }
 public sealed class Chameleon : RoleBase, IAdditionalWinner
 {

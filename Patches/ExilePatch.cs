@@ -12,8 +12,7 @@ namespace TownOfHost
     class ExileControllerWrapUpPatch
     {
         public static NetworkedPlayerInfo AntiBlackout_LastExiled;
-        public static float SpawnTimer = 0;
-        public static bool AllSpawned = false;
+
         [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
         class BaseExileControllerPatch
         {
@@ -95,7 +94,7 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     AntiBlackout.RestoreIsDead(doSend: false);
-                }, 0.4f, "Res");//ラグを考慮して遅延入れる。
+                }, 0.7f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
                     foreach (var Player in PlayerCatch.AllPlayerControls)//役職判定を戻す。
@@ -171,7 +170,7 @@ namespace TownOfHost
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 0.7f, "", true);
+                }, 1.2f, "", true);
 
                 if (Options.BlackOutwokesitobasu.GetBool())
                 {
@@ -247,15 +246,15 @@ namespace TownOfHost
                 {
                     exiled = AntiBlackout_LastExiled;
                     AntiBlackout.SendGameData();
+                }, 0.5f, "Restore IsDead Task");
+                _ = new LateTask(() =>
+                {
                     if (AntiBlackout.OverrideExiledPlayer && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
                         exiled != null && //exiledがnullでない
                         exiled.Object != null) //exiled.Objectがnullでない
                     {
                         exiled.Object.RpcExileV2();
                     }
-                }, 0.5f, "Restore IsDead Task");
-                _ = new LateTask(() =>
-                {
                     Main.AfterMeetingDeathPlayers.Do(x =>
                     {
                         var player = PlayerCatch.GetPlayerById(x.Key);
@@ -274,14 +273,14 @@ namespace TownOfHost
                             Executioner.ChangeRoleByTarget(x.Key);
                     });
                     Main.AfterMeetingDeathPlayers.Clear();
-                }, 0.5f, "AfterMeetingDeathPlayers Task");
+                }, 2f, "AfterMeetingDeathPlayers Task");
             }
 
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             Logger.Info("タスクフェイズ開始", "Phase");
-            ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+            //ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
             MeetingStates.First = false;
             _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }

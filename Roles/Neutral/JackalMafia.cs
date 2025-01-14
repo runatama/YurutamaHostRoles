@@ -47,6 +47,7 @@ namespace TownOfHost.Roles.Neutral
         private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
+        static OptionItem OptionHasImpostorVision;
         private static OptionItem OptionJackalCanAlsoBeExposedToJMafia;
         private static OptionItem OptionJJackalMafiaCanAlsoBeExposedToJackal;
         private static OptionItem OptionJJackalCanKillMafia;
@@ -82,6 +83,7 @@ namespace TownOfHost.Roles.Neutral
                 .SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);
+            OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             OptionJJackalCanKillMafia = BooleanOptionItem.Create(RoleInfo, 14, JackalOption.JackalCanKillMafia, false, false);
             OptionJJackalMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 16, JackalOption.JackalMafiaCanAlsoBeExposedToJackal, false, false);
             OptionJackalCanAlsoBeExposedToJMafia = BooleanOptionItem.Create(RoleInfo, 17, JackalOption.JackalCanAlsoBeExposedToJMafia, true, false);
@@ -101,6 +103,7 @@ namespace TownOfHost.Roles.Neutral
         public override bool OnInvokeSabotage(SystemTypes systemType) => CanUseSabotage;
         public override void ApplyGameOptions(IGameOptions opt)
         {
+            opt.SetVision(OptionHasImpostorVision.GetBool());
             AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : Cooldown);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
@@ -231,6 +234,15 @@ namespace TownOfHost.Roles.Neutral
         {
             text = "SideKick";
             return true;
+        }
+        public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        {
+            seen ??= seer;
+            if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()
+            || JackalDoll.sidekick.GetInt() <= JackalDoll.side || !SK) return "";
+
+            if (isForHud) return GetString("PhantomButtonSideKick");
+            return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";
         }
     }
 }

@@ -42,9 +42,11 @@ namespace TownOfHost
             RpcCalls rpcType = (RpcCalls)callId;
             Logger.Info($"{__instance?.Data?.PlayerId}({__instance?.Data?.PlayerName}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
             MessageReader subReader = MessageReader.Get(reader);
+            if (!Croissant.CheckLowertheHeat(__instance, rpcType, subReader)) return false;
             switch (rpcType)
             {
                 case RpcCalls.SetName: //SetNameRPC
+                    if (Croissant.jam.GetBool()) break;
                     subReader.ReadUInt32();
                     string name = subReader.ReadString();
                     if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;

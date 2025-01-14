@@ -8,7 +8,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using System.Linq;
 
 namespace TownOfHost.Roles.Neutral;
-public sealed class Vulture : RoleBase, IKillFlashSeeable
+public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -34,6 +34,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable
         EatCount = 0;
         staticEatedPlayers.Clear();
 
+        OptAddWinEatcount = OptionAddWinEatCount.GetInt();
         OptWinEatcount = OptionWinEatCount.GetInt();
         OptEatShape = OptionEatShape.GetBool();
         OptKillflashTaskcount = OptionKillflashtaskcount.GetInt();
@@ -45,6 +46,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable
 
         MyTaskState.NeedTaskCount = OptKillflashTaskcount < OptOnikuArrowtaskcount ? OptOnikuArrowtaskcount : OptKillflashTaskcount;
     }
+    static OptionItem OptionAddWinEatCount; static int OptAddWinEatcount;//追加勝利に必要なつまみ数
     static OptionItem OptionWinEatCount; static int OptWinEatcount; //勝利に必要なつまみ食い数
     static OptionItem OptionEatShape; static bool OptEatShape;//つまみぐいしたらシェイプ出る
     static OptionItem OptionKillflashtaskcount; static int OptKillflashTaskcount;//キルフラ見えるタスク数
@@ -61,11 +63,13 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable
         VultrueCanSeeKillFlushTaskCount,
         VultrueCanSeeOnikuArrowTaskCount,
         VultrueWinEatcount,
+        VultrueAddWinEatcount,
         VultrueEatShape
     }
 
     private static void SetupOptionItem()
     {
+        OptionAddWinEatCount = FloatOptionItem.Create(RoleInfo, 9, OptionName.VultrueAddWinEatcount, new(0, 14, 1), 2, false, null, null);
         OptionWinEatCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.VultrueWinEatcount, new(1, 14, 1), 3, false);
         OptionEatShape = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VultrueEatShape, true, false);
         OptionCanUseVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
@@ -169,4 +173,14 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable
         return "";
     }
     public override void AfterMeetingTasks() => staticEatedPlayers.Clear();
+
+    public bool CheckWin(ref CustomRoles winnerRole)
+    {
+        if (OptAddWinEatcount is 0) return false;
+        //君勝ってるやないか
+        if (CustomWinnerHolder.WinnerTeam is CustomWinner.Vulture && CustomWinnerHolder.WinnerIds.Contains(Player.PlayerId)) return false;
+
+        //生きてて小腹が満たせれば勝
+        return OptAddWinEatcount <= EatCount && Player.IsAlive();
+    }
 }

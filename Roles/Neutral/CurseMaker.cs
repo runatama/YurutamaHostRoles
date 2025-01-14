@@ -221,4 +221,12 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         text = "CurseMaker_Ability";
         return true;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("CurseMakerLowerText");
+        return $"<size=50%>{GetString("CurseMakerLowerText")}</size>";
+    }
 }

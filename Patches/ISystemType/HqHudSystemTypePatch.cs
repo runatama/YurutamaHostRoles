@@ -42,7 +42,7 @@ public static class HqHudSystemTypeUpdateSystemPatch
                 return false;
             }
 
-        if (player.Is(CustomRoles.Clumsy))
+        if (player.Is(CustomRoles.Clumsy) || player.Is(CustomRoles.Satellite))
         {
             return false;
         }

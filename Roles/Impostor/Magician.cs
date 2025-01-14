@@ -191,4 +191,12 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
     {
         AURoleOptions.PhantomCooldown = MagicCooldown;
     }
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("PhantomButtonLowertext");
+        return $"<size=50%>{GetString("PhantomButtonLowertext")}</size>";
+    }
 }

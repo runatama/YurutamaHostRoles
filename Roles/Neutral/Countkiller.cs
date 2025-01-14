@@ -88,7 +88,6 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
             (var killer, var target) = info.AttemptTuple;
             if (target.Is(CustomRoles.SchrodingerCat))
             {
-                SchrodingerPatch.SAddPlayer(killer, target);
                 return;
             }
             KillCount++;

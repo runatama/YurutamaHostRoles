@@ -13,12 +13,16 @@ namespace TownOfHost
             ZiplineCools.Clear();
             ZipdiePlayers.Clear();
         }
-        public static bool Prefix(PlayerControl __instance, [HarmonyArgument(2)] bool fromTop)
+        public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] ZiplineBehaviour ziplineBehaviour, [HarmonyArgument(2)] bool fromTop)
         {
             if (!fromTop && Options.CantUseZipLineTotop.GetBool()) return false;
             if (fromTop && Options.CantUseZipLineTodown.GetBool()) return false;
 
-            if (ZiplineCools.Contains(__instance.PlayerId)) return true;
+            if (ZiplineCools.Contains(__instance.PlayerId))
+            {
+                __instance.RpcUseZipline(target, ziplineBehaviour, fromTop);
+                return false;
+            }
 
             ZiplineCools.Add(__instance.PlayerId);
             _ = new LateTask(() =>
@@ -32,12 +36,12 @@ namespace TownOfHost
                 int chance = IRandom.Instance.Next(1, 101);
                 if (chance <= FallFromLadder.Chance)
                 {
-                    if (__instance.Data.IsDead) return true;
+                    if (__instance.Data.IsDead) return false;
                     var speed = Main.AllPlayerSpeed[__instance.PlayerId];
 
                     _ = new LateTask(() =>
                     {
-                        if (!GameStates.Meeting && !__instance.Data.IsDead && Options.LadderDeathZipline.GetBool())
+                        if (!GameStates.Meeting && !__instance.Data.IsDead)
                         {
                             Main.AllPlayerSpeed[__instance.PlayerId] = Main.MinSpeed;
                             __instance.SyncSettings();
@@ -48,9 +52,8 @@ namespace TownOfHost
                     {
                         Main.AllPlayerSpeed[__instance.PlayerId] = speed;
                         __instance.SyncSettings();
-                        if (!GameStates.Meeting && !__instance.Data.IsDead && Options.LadderDeathZipline.GetBool())
+                        if (!GameStates.Meeting && !__instance.Data.IsDead)
                         {
-                            __instance.Data.IsDead = true;
                             __instance.RpcMurderPlayer(__instance);
                             var state = PlayerState.GetByPlayerId(__instance.PlayerId);
                             state.DeathReason = CustomDeathReason.Fall;
@@ -59,7 +62,9 @@ namespace TownOfHost
                     }, fromTop ? 5f : 8f, "ZipLineFall", null);
                 }
             }
-            return true;
+
+            __instance.RpcUseZipline(target, ziplineBehaviour, fromTop);
+            return false;
         }
         public static void OnMeeting(PlayerControl reporter, NetworkedPlayerInfo oniku)
         {

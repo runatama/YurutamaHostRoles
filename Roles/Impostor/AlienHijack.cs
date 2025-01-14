@@ -9,32 +9,25 @@ using Hazel;
 using System.Text;
 using HarmonyLib;
 
-using static TownOfHost.Modules.SelfVoteManager;
+using static TownOfHost.Roles.Impostor.Alien;
+
 namespace TownOfHost.Roles.Impostor;
 
-/// コードがクッソ長い!!スパゲッティかよ!!まぁ処理が複雑な役職だからね。仕方ない。
-//
-// メモ
-// 追加したいなぁって思ってるの
-// マジシャン(キルボタンぜんぶ吹っ飛ばす...流石に強い気がする)
-// ウィッチ(キルで呪い付与...弱いかなぁ...)
-// エイリアンジャッカルって需要ありそうじゃね?(???)シェイプも丁度開いてるし！
-
-public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomata
+public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, INekomata
 {
     public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
-                typeof(Alien),
-                player => new Alien(player),
-                CustomRoles.Alien,
+                typeof(AlienHijack),
+                player => new AlienHijack(player),
+                CustomRoles.AlienHijack,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                2000,
-                SetupOptionItem,
-                "Al",
+                2300,
+                null,
+                "HAl",
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter)
             );
-    public Alien(PlayerControl player)
+    public AlienHijack(PlayerControl player)
 : base(
     RoleInfo,
     player
@@ -52,12 +45,10 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         InsiderCansee.Clear();
         Name.Clear();
-        if (FirstAbility.GetBool()) AfterMeetingTasks();
     }
     public override void Add()
     {
-        Uetukecount = 0;
-        AddS(Player);
+        UetukeNokori = OptUetuketukeTrun.GetInt();
         AbductTimer = 255f;
         stopCount = false;
         Aliens.Add(this);
@@ -166,38 +157,21 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public override void AfterMeetingTasks()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
 
         if (Main.NormalOptions.MapId != 4) RestartAbduct();
-        UetukeUsed = !OptUetuke.GetBool();
 
-        modeNone = false;
-        modeVampire = false;
-        modeEvilHacker = false;
-        modeLimiter = false;
-        modeNomal = false;
-        modePuppeteer = false;
-        modeStealth = false;
-        modeRemotekiller = false;
-        modeTimeThief = false;
-        modeNotifier = false;
-        modeTairo = false;
-        modeMayor = false;
-        modeMole = false;
-        modeProgresskiller = false;
-        modeNekokabocha = false;
-        modeinsider = false;
-        modepenguin = false;
-        modeComebaker = false;
-
-        int Count = RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer
-                    + RateStealth + RateRemotekiller + RateNotifier + RateTimeThief
-                    + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
-                    + RatePenguin + RateComebaker + RateNomal;
-        int chance = IRandom.Instance.Next(1, Count);
-        //ランダム
-        ChengeMode(chance);
+        if (UetukeNokori <= 0)
+        {
+            byte playerid = Player.PlayerId;
+            _ = new LateTask(() =>
+            {
+                CustomRoleManager.AllActiveRoles[playerid] = MaenoRole;
+                UtilsNotifyRoles.NotifyRoles();
+            }, 2, "Modosu", true);
+            Player.RpcSetCustomRole(MaenoCRole);
+        }
+        UetukeNokori--;
     }
     #endregion
     #region Kill
@@ -562,13 +536,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     }
     #endregion
     #region Name
-    public override string GetProgressText(bool comms = false, bool gamelog = false)
-    {
-        if (!Player.IsAlive()) return "";
-        if (AlienHitoku || GameStates.Meeting) return Mode(gamelog);
-
-        return "";
-    }
+    public override string GetProgressText(bool comms = false, bool GameLog = false) => OptUetuketukeTrun.GetBool() ? $"<color=#ff1919>({UetukeNokori})</color>" : "";
     public override string GetMark(PlayerControl seer, PlayerControl seen, bool _ = false)
     {
         seen ??= seer;
@@ -604,10 +572,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 }
                 return "";
             }
-            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHitoku && !GameStates.Meeting && !MeetingStates.FirstMeeting)
-            {
-                return $"<size=50%>{al.Mode()}</size>";
-            }
         }
         return "";
     }
@@ -633,7 +597,11 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         if (InsiderCansee.Contains(seen.PlayerId))
             enabled = true;
     }
-    #endregion    
+    public override void OverrideTrueRoleName(ref Color roleColor, ref string roleText)
+    {
+        roleText = Mode() + roleText;
+    }
+    #endregion
     #region Vent
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
@@ -744,70 +712,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     }
     #endregion
 
-    #region 植え付け
-
-    public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
-    {
-        if (!Canuseability()) return true;
-        if (OptUetukeCount.GetInt() > Uetukecount && Is(voter) && !UetukeUsed && !modeNone && !modeNomal)
-        {
-            var target = PlayerCatch.GetPlayerById(votedForId);
-            {
-                if (CheckSelfVoteMode(Player, votedForId, out var status))
-                {
-                    if (status is VoteStatus.Self)
-                        Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Divied"), GetString("Vote.Divied")) + GetString("VoteSkillMode"), Player.PlayerId);
-                    if (status is VoteStatus.Skip)
-                        Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
-                    if (status is VoteStatus.Vote)
-                        Uetuke(votedForId);
-                    SetMode(Player, status is VoteStatus.Self);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    void Uetuke(byte toid)
-    {
-        var pc = PlayerCatch.GetPlayerById(toid);
-        if (pc.GetCustomRole().IsImpostor() && !pc.Is(CustomRoles.AlienHijack))
-        {
-            var Troleclass = pc.GetRoleClass();
-            var role = pc.GetCustomRole();
-
-            Uetukecount++;
-            UetukeUsed = true;
-            pc.RpcSetCustomRole(CustomRoles.AlienHijack, true, null);
-
-            _ = new LateTask(() =>
-            {
-                if (pc.GetRoleClass() is AlienHijack alienHijack)
-                {
-                    alienHijack.modeVampire = modeVampire;
-                    alienHijack.modeEvilHacker = modeEvilHacker;
-                    alienHijack.modeLimiter = modeLimiter;
-                    alienHijack.modePuppeteer = modePuppeteer;
-                    alienHijack.modeStealth = modeStealth;
-                    alienHijack.modeRemotekiller = modeRemotekiller;
-                    alienHijack.modeNotifier = modeNotifier;
-                    alienHijack.modeTimeThief = modeTimeThief;
-                    alienHijack.modeTairo = modeTairo;
-                    alienHijack.modeMayor = modeMayor;
-                    alienHijack.modeProgresskiller = modeProgresskiller;
-                    alienHijack.modeMole = modeMole;
-                    alienHijack.modeNekokabocha = modeNekokabocha;
-                    alienHijack.modeinsider = modeinsider;
-                    alienHijack.modepenguin = modepenguin;
-                    alienHijack.modeComebaker = modeComebaker;
-                    alienHijack.MaenoRole = Troleclass;
-                    alienHijack.MaenoCRole = role;
-                }
-            }, 4, "AlienUetule", true);
-        }
-    }
-
-    #endregion
     #region Other
     public override bool NotifyRolesCheckOtherName => true;
     void ResetDarkenState()
@@ -856,175 +760,31 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public string Mode(bool gamelog = false)
     {
         if (!Player.IsAlive()) return "";
-        var size = gamelog ? "<size=30%>" : "<size=75%>";
 
-        if (modeNone) return size + "<color=#ff1919>mode:None</color></size>";
-        if (modeVampire) return size + "<color=#ff1919>mode:" + GetString("Vampire") + "</color></size>";
-        if (modeEvilHacker) return size + "<color=#ff1919>mode:" + GetString("EvilHacker") + "</color></size>";
-        if (modeLimiter) return size + "<color=#ff1919>mode:" + GetString("Limiter") + "</color></size>";
-        if (modePuppeteer) return size + "<color=#ff1919>mode:" + GetString("Puppeteer") + "</color></size>";
-        if (modeStealth) return size + "<color=#ff1919>mode:" + GetString("Stealth") + "</color></size>";
-        if (modeRemotekiller) return size + "<color=#8f00ce>mode:" + GetString("Remotekiller") + "</color></size>";
-        if (modeNotifier) return size + "<color=#ff1919>mode:" + GetString("Notifier") + "</color></size>";
-        if (modeTimeThief) return size + "<color=#ff1919>mode:" + GetString("TimeThief") + "</color></size>";
-        if (modeTairo) return size + "<color=#ff1919>mode:" + GetString("Tairou") + "</color></size>";
-        if (modeMayor) return size + "<color=#204d42>mode:" + GetString("Mayor") + "</color></size>";
-        if (modeMole) return size + "<color=#ff1919>mode:" + GetString("Mole") + "</color></size>";
-        if (modeProgresskiller) return size + "<color=#ff1919>mode:" + GetString("ProgressKiller") + "</color></size>";
-        if (modeNekokabocha) return size + "<color=#ff1919>mode:" + GetString("NekoKabocha") + "</color></size>";
-        if (modeinsider) return size + "<color=#ff1919>mode:" + GetString("Insider") + "</color></size>";
-        if (modepenguin) return size + "<color=#ff1919>mode:" + GetString("Penguin") + "</color></size>";
-        if (modeComebaker) return size + "<color=#ff9966>mode:" + GetString("Comebacker") + "</color></size>";
-        if (modeNomal) return size + "<color=#ff1919>mode:Normal</color></size>";
+        if (modeVampire) return "<color=#ff1919>" + GetString("Vampire") + "</color>";
+        if (modeEvilHacker) return "<color=#ff1919>" + GetString("EvilHacker") + "</color>";
+        if (modeLimiter) return "<color=#ff1919>" + GetString("Limiter") + "</color>";
+        if (modePuppeteer) return "<color=#ff1919>" + GetString("Puppeteer") + "</color>";
+        if (modeStealth) return "<color=#ff1919>" + GetString("Stealth") + "</color>";
+        if (modeRemotekiller) return "<color=#8f00ce>" + GetString("Remotekiller") + "</color>";
+        if (modeNotifier) return "<color=#ff1919>" + GetString("Notifier") + "</color>";
+        if (modeTimeThief) return "<color=#ff1919>" + GetString("TimeThief") + "</color>";
+        if (modeTairo) return "<color=#ff1919>" + GetString("Tairou") + "</color>";
+        if (modeMayor) return "<color=#204d42>" + GetString("Mayor") + "</color>";
+        if (modeMole) return "<color=#ff1919>" + GetString("Mole") + "</color>";
+        if (modeProgresskiller) return "<color=#ff1919>" + GetString("ProgressKiller") + "</color>";
+        if (modeNekokabocha) return "<color=#ff1919>" + GetString("NekoKabocha") + "</color>";
+        if (modeinsider) return "<color=#ff1919>" + GetString("Insider") + "</color>";
+        if (modepenguin) return "<color=#ff1919>" + GetString("Penguin") + "</color>";
+        if (modeComebaker) return "<color=#ff9966>" + GetString("Comebacker") + "</color>";
 
-        return size + "<color=#ff1919>mode:？</color></size>";
-    }
-    void ChengeMode(int chance)
-    {
-        if (chance <= RateVampire)
-        {
-            modeVampire = true;
-            Logger.Info("Alienはヴァンパイアになりました。", "Alien");
-        }
-        else if (chance <= RateVampire + RateEvilHacker)
-        {
-            Logger.Info("Alienはイビルハッカーになりました。", "Alien");
-            modeEvilHacker = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter)
-        {
-            Logger.Info("Alienはリミッターになりました。", "Alien");
-            modeLimiter = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer)
-        {
-            Logger.Info("Alienはパペッティアになりました。", "Alien");
-            modePuppeteer = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth)
-        {
-            Logger.Info("Alienはステルスになりました。", "Alien");
-            modeStealth = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller)
-        {
-            Logger.Info("Alienはリモートキラーになりました。", "Alien");
-            modeRemotekiller = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier)
-        {
-            Logger.Info("Alienはノーティファーになりました。", "Alien");
-            modeNotifier = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief)
-        {
-            Logger.Info("Alienはタイムシーフになりました。", "Alien");
-            modeTimeThief = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo)
-        {
-            Logger.Info("Alienは大狼になりました。", "Alien");
-            modeTairo = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor)
-        {
-            Logger.Info("Alienはメイヤーになりました。", "Alien");
-            modeMayor = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole)
-        {
-            Logger.Info("Alienはモグラになりました。", "Alien");
-            modeMole = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller)
-        {
-            Logger.Info("Alienはプログレスキラーになりました。", "Alien");
-            modeProgresskiller = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha)
-        {
-            Logger.Info("Alienはネコカボチャになりました。", "Alien");
-            modeNekokabocha = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider)
-        {
-            Logger.Info("Alienはインサイダーになりました。", "Alien");
-            modeinsider = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
-        + RatePenguin)
-        {
-            Logger.Info("Alienはペングインになりました", "Alien");
-            modepenguin = true;
-        }
-        else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
-        + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
-        + RatePenguin + RateComebaker)
-        {
-            Logger.Info("Alienはカムバッカーになりました。", "Alien");
-            modeComebaker = true;
-        }
-        else//どれにもあてはまらないならとりあえずノーマル
-        {
-            Logger.Info("ｴｰﾘｱﾝﾜﾀｼｴｰﾘｱﾝ", "Alien");
-            modeNomal = true;
-        }
+        return "<color=#ff1919>？</color>";
     }
     void Init()
     {
-        RateVampire = OptionModeVampire.GetInt();
-        RateEvilHacker = OptionModeEvilHacker.GetInt();
-        RateLimiter = OptionModeLimiter.GetInt();
-        RateNomal = OptionModeNomal.GetInt();
-        RatePuppeteer = OptionModePuppeteer.GetInt();
-        RateStealth = OptionModeStealth.GetInt();
-        RateRemotekiller = OptionModeRemotekiller.GetInt();
-        RateNotifier = OptionModeNotifier.GetInt();
-        RateTimeThief = OptionModeTimeThief.GetInt();
-        RateTairo = OptionModeTairo.GetInt();
-        RateMayor = OptionModeMayor.GetInt();
-        RateProgresskiller = OptionModeProgresskiller.GetInt();
-        RateMole = OptionModeMole.GetInt();
-        RateNekokabocha = OptionModeNekokabocha.GetInt();
-        RateInsider = OptionModeInsider.GetInt();
-        RatePenguin = OptionModePenguin.GetInt();
-        RateComebaker = OptionModeComebaker.GetInt();
-        UetukeUsed = !OptUetuke.GetBool();
-
-        TimeThiefDecreaseMeetingTime = OptionTimeThiefDecreaseMeetingTime.GetInt();
-        NotifierCance = OptionNotifierProbability.GetInt();
-        VampireKillDelay = OptionVampireKillDelay.GetFloat();
-        AlienHitoku = OptionAlienHitoku.GetBool();
-        Limiterblastrange = Optionblastrange.GetFloat();
-        TimeThiefReturnStolenTimeUponDeath = OptionTimeThiefReturnStolenTimeUponDeath.GetBool();
-        StealthDarkenDuration = OptionStealthDarkenDuration.GetInt();
-        TairoDeathReason = OptionTairoDeathReason.GetBool();
-        AdditionalVote = OptionAdditionalVote.GetInt();
-        ProgressKillerMadseen = OptionProgressKillerMadseen.GetBool();
-        ProgressWorkhorseseen = OptionProgressWorkhorseseen.GetBool();
-        impostorsGetRevenged = optionImpostorsGetRevenged.GetBool();
-        madmatesGetRevenged = optionMadmatesGetRevenged.GetBool();
-        NeutralsGetRevenged = optionNeutralsGetRevenged.GetBool();
-        revengeOnExile = optionRevengeOnExile.GetBool();
-        Spped = SpeedDownCount.GetFloat();
-        AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
-        MeetingKill = OptionMeetingKill.GetBool();
-        Tp = new(999f, 999f);
-
-        modeNone = true;
         modeVampire = false;
         modeEvilHacker = false;
         modeLimiter = false;
-        modeNomal = false;
         modePuppeteer = false;
         modeStealth = false;
         modeRemotekiller = false;
@@ -1037,209 +797,59 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         modeNekokabocha = false;
         modeinsider = false;
         modepenguin = false;
-        modeComebaker = false;
+        Tp = new(999f, 999f);
     }
-    #region  Options
-    public static HashSet<Alien> Aliens = new();
+    public RoleBase MaenoRole;
+    public CustomRoles MaenoCRole;
+    public static HashSet<AlienHijack> Aliens = new();
     //ヴァンパイア
-    static OptionItem OptionModeVampire;
-    static OptionItem OptionVampireKillDelay;
-    public static OptionItem SpeedDown;
-    static OptionItem SpeedDownCount;
     Dictionary<byte, float> BittenPlayers = new(14);
-    public static float Spped;
-    public static float tmpSpeed;
-    public static float VampireKillDelay;
-    public static int RateVampire;
-    bool modeVampire;
+    public bool modeVampire;
     //イビルハッカー
-    static OptionItem OptionModeEvilHacker;
-    static int RateEvilHacker;
-    bool modeEvilHacker;
+    public bool modeEvilHacker;
     static Dictionary<byte, string> Name = new();
     //リミッター
-    static OptionItem OptionModeLimiter;
-    static OptionItem Optionblastrange;
-    static int RateLimiter;
-    public static float Limiterblastrange;
-    bool modeLimiter;
-    //ノーマル
-    static OptionItem OptionModeNomal;
-    static int RateNomal;
-    bool modeNomal;
+    public bool modeLimiter;
     //パペッティア
-    public static OptionItem PuppetCool;
     static Dictionary<byte, float> PuppetCooltime = new(15);
-    static Dictionary<byte, Alien> Puppets = new(15);
-    static OptionItem OptionModePuppeteer;
-    static int RatePuppeteer;
-    bool modePuppeteer;
+    static Dictionary<byte, AlienHijack> Puppets = new(15);
+    public bool modePuppeteer;
     //リモートキラー
-    static OptionItem OptionModeRemotekiller;
-    static int RateRemotekiller;
-    bool modeRemotekiller;
+    public bool modeRemotekiller;
     byte Remotekillertarget;
     //ステルス
-    static OptionItem OptionModeStealth;
-    static int RateStealth;
-    bool modeStealth;
-    static OptionItem OptionStealthDarkenDuration;
-    public static float StealthDarkenDuration;
-    public float darkenTimer;
+    public bool modeStealth;
+    float darkenTimer;
     PlayerControl[] darkenedPlayers;
     SystemTypes? darkenedRoom = null;
     //ノーティファー
-    static OptionItem OptionModeNotifier;
-    static OptionItem OptionNotifierProbability;
-    static int RateNotifier;
-    bool modeNotifier;
-    public static int NotifierCance;
+    public bool modeNotifier;
     //タイムシーフ
-    static OptionItem OptionModeTimeThief;
-    static OptionItem OptionTimeThiefDecreaseMeetingTime;
-    static int RateTimeThief;
-    bool modeTimeThief;
-    public static int TimeThiefDecreaseMeetingTime;
-    static OptionItem OptionTimeThiefReturnStolenTimeUponDeath;
-    public static bool TimeThiefReturnStolenTimeUponDeath;
-    public bool RevertOnDie => TimeThiefReturnStolenTimeUponDeath;
-    static int Count;
+    public bool modeTimeThief;
+    int Count;
+    public bool RevertOnDie => Alien.TimeThiefReturnStolenTimeUponDeath;
     //大狼
-    static OptionItem OptionModeTairo;
-    static OptionItem OptionTairoDeathReason;
-    static int RateTairo;
     public bool modeTairo;
-    public static bool TairoDeathReason;
     //メイヤー
-    static OptionItem OptionModeMayor;
-    static OptionItem OptionAdditionalVote;
-    static int RateMayor;
-    bool modeMayor;
-    public static int AdditionalVote;
+    public bool modeMayor;
     //モグラ
-    static OptionItem OptionModeMole;
-    static int RateMole;
-    bool modeMole;
+    public bool modeMole;
     //プログレスキラー
-    static OptionItem OptionModeProgresskiller;
-    static OptionItem OptionProgressKillerMadseen;
-    static OptionItem OptionProgressWorkhorseseen;
-    static int RateProgresskiller;
     public bool modeProgresskiller;
-    public static bool ProgressKillerMadseen;
-    public static bool ProgressWorkhorseseen;
     //ネコカボチャ
-    static OptionItem OptionModeNekokabocha;
-    static BooleanOptionItem optionImpostorsGetRevenged;
-    static BooleanOptionItem optionMadmatesGetRevenged;
-    static BooleanOptionItem optionNeutralsGetRevenged;
-    static BooleanOptionItem optionRevengeOnExile;
-    static int RateNekokabocha;
-    bool modeNekokabocha;
-    public static bool impostorsGetRevenged;
-    public static bool madmatesGetRevenged;
-    public static bool NeutralsGetRevenged;
-    public static bool revengeOnExile;
+    public bool modeNekokabocha;
     //インサイダー
-    static OptionItem OptionModeInsider;
     List<byte> InsiderCansee = new();
-    static int RateInsider;
-    bool modeinsider;
+    public bool modeinsider;
     //ペンギン
-    static OptionItem OptionModePenguin;
-    public static OptionItem OptionAbductTimerLimit;
-    public static OptionItem OptionMeetingKill;
     PlayerControl AbductVictim;
-    static int RatePenguin;
-    bool modepenguin;
-    public float AbductTimer;
-    public static float AbductTimerLimit;
-    public bool stopCount;
-    public static bool MeetingKill;
-
+    public bool modepenguin;
+    float AbductTimer;
+    bool stopCount;
     //カムバッカー
-    static OptionItem OptionModeComebaker;
-    static int RateComebaker;
-    bool modeComebaker;
+    public bool modeComebaker;
     private Vector2 Tp;
-
-    //秘匿設定
-    static OptionItem FirstAbility;
-    static OptionItem OptionAlienHitoku;
-    static bool AlienHitoku;
-    bool modeNone;
-    //植え付け
-    static OptionItem OptUetuke;
-    static OptionItem OptUetukeCount;
-    public static OptionItem OptUetuketukeTrun;
-    int Uetukecount;
-    bool UetukeUsed;
-    enum OptionName
-    {
-        AlienHitoku, AlienFirstAbility,
-        AlienCVampire, VampireKillDelay, VampireSpeedDownCount, VampireSpeedDown,
-        AlienCEvilHacker,
-        AlienCLimiter, blastrange,
-        AlienCPuppeteer, PuppeteerPuppetCool,
-        AlienCRemoteKiller,
-        AlienCStealth, StealthDarkenDuration,
-        AlienCNomal,
-        AlienCNotifier, NotifierProbability,
-        AlienCTimeThief, TimeThiefDecreaseMeetingTime, TimeThiefReturnStolenTimeUponDeath,
-        AlienCTairo, TairoDeathReason,
-        AlienCMayor, MayorAdditionalVote,
-        AlienCMole,
-        AlienCProgressKiller, ProgressKillerMadseen, ProgressWorkhorseseen,
-        AlienCNekokabocha, NekoKabochaImpostorsGetRevenged, NekoKabochaMadmatesGetRevenged, NekoKabochaNeutralsGetRevenged, NekoKabochaRevengeOnExile,
-        AlienCInsider,
-        AlienCPenguin, PenguinAbductTimerLimit, PenguinMeetingKill,
-        AlienCComebacker,
-        AlienUetuke, AlienUetukeCount, AlienUetukeTrun
-    }
-    static void SetupOptionItem()//NowMax : 42
-    {
-        FirstAbility = BooleanOptionItem.Create(RoleInfo, 7, OptionName.AlienFirstAbility, false, false);
-        OptionAlienHitoku = BooleanOptionItem.Create(RoleInfo, 9, OptionName.AlienHitoku, false, false);
-        OptionModeVampire = FloatOptionItem.Create(RoleInfo, 10, OptionName.AlienCVampire, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        SpeedDown = BooleanOptionItem.Create(RoleInfo, 40, OptionName.VampireSpeedDown, true, false, OptionModeVampire);
-        SpeedDownCount = FloatOptionItem.Create(RoleInfo, 41, OptionName.VampireSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown).SetValueFormat(OptionFormat.Seconds);
-        OptionVampireKillDelay = FloatOptionItem.Create(RoleInfo, 11, OptionName.VampireKillDelay, new(0, 100, 0.2f), 10, false, OptionModeVampire).SetValueFormat(OptionFormat.Seconds);
-        OptionModeEvilHacker = FloatOptionItem.Create(RoleInfo, 12, OptionName.AlienCEvilHacker, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionModeLimiter = FloatOptionItem.Create(RoleInfo, 13, OptionName.AlienCLimiter, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        Optionblastrange = FloatOptionItem.Create(RoleInfo, 14, OptionName.blastrange, new(0.5f, 20f, 0.5f), 5f, false, OptionModeLimiter);
-        OptionModePuppeteer = FloatOptionItem.Create(RoleInfo, 15, OptionName.AlienCPuppeteer, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        PuppetCool = FloatOptionItem.Create(RoleInfo, 42, OptionName.PuppeteerPuppetCool, new(0, 100, 0.5f), 5f, false, OptionModePuppeteer).SetValueFormat(OptionFormat.Seconds);
-        OptionModeStealth = FloatOptionItem.Create(RoleInfo, 18, OptionName.AlienCStealth, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionStealthDarkenDuration = FloatOptionItem.Create(RoleInfo, 19, OptionName.StealthDarkenDuration, new(0.5f, 5f, 0.5f), 1f, false, OptionModeStealth).SetValueFormat(OptionFormat.Seconds);
-        OptionModeRemotekiller = FloatOptionItem.Create(RoleInfo, 20, OptionName.AlienCRemoteKiller, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionModeNotifier = FloatOptionItem.Create(RoleInfo, 21, OptionName.AlienCNotifier, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionNotifierProbability = FloatOptionItem.Create(RoleInfo, 22, OptionName.NotifierProbability, new(0, 100, 5), 50, false, OptionModeNotifier).SetValueFormat(OptionFormat.Percent);
-        OptionModeTimeThief = FloatOptionItem.Create(RoleInfo, 23, OptionName.AlienCTimeThief, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionTimeThiefDecreaseMeetingTime = FloatOptionItem.Create(RoleInfo, 24, OptionName.TimeThiefDecreaseMeetingTime, new(0, 100, 5), 50, false, OptionModeTimeThief).SetValueFormat(OptionFormat.Seconds);
-        OptionTimeThiefReturnStolenTimeUponDeath = BooleanOptionItem.Create(RoleInfo, 25, OptionName.TimeThiefReturnStolenTimeUponDeath, false, false, OptionModeTimeThief);
-        OptionModeTairo = FloatOptionItem.Create(RoleInfo, 26, OptionName.AlienCTairo, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionTairoDeathReason = BooleanOptionItem.Create(RoleInfo, 27, OptionName.TairoDeathReason, false, false, OptionModeTairo);
-        OptionModeMayor = FloatOptionItem.Create(RoleInfo, 28, OptionName.AlienCMayor, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionAdditionalVote = IntegerOptionItem.Create(RoleInfo, 29, OptionName.MayorAdditionalVote, new(1, 99, 1), 1, false, OptionModeMayor).SetValueFormat(OptionFormat.Votes);
-        OptionModeMole = FloatOptionItem.Create(RoleInfo, 30, OptionName.AlienCMole, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionModeProgresskiller = FloatOptionItem.Create(RoleInfo, 31, OptionName.AlienCProgressKiller, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionProgressKillerMadseen = BooleanOptionItem.Create(RoleInfo, 32, OptionName.ProgressKillerMadseen, false, false, OptionModeProgresskiller);
-        OptionProgressWorkhorseseen = BooleanOptionItem.Create(RoleInfo, 33, OptionName.ProgressWorkhorseseen, false, false, OptionModeProgresskiller);
-        OptionModeNekokabocha = FloatOptionItem.Create(RoleInfo, 34, OptionName.AlienCNekokabocha, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        optionImpostorsGetRevenged = BooleanOptionItem.Create(RoleInfo, 35, OptionName.NekoKabochaImpostorsGetRevenged, false, false, OptionModeNekokabocha);
-        optionMadmatesGetRevenged = BooleanOptionItem.Create(RoleInfo, 36, OptionName.NekoKabochaMadmatesGetRevenged, false, false, OptionModeNekokabocha);
-        optionNeutralsGetRevenged = BooleanOptionItem.Create(RoleInfo, 37, OptionName.NekoKabochaNeutralsGetRevenged, false, false, OptionModeNekokabocha);
-        optionRevengeOnExile = BooleanOptionItem.Create(RoleInfo, 38, OptionName.NekoKabochaRevengeOnExile, false, false, OptionModeNekokabocha);
-        OptionModeInsider = FloatOptionItem.Create(RoleInfo, 39, OptionName.AlienCInsider, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionModePenguin = FloatOptionItem.Create(RoleInfo, 43, OptionName.AlienCPenguin, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionAbductTimerLimit = FloatOptionItem.Create(RoleInfo, 44, OptionName.PenguinAbductTimerLimit, new(5f, 100f, 1f), 10f, false, OptionModePenguin).SetValueFormat(OptionFormat.Seconds);
-        OptionMeetingKill = BooleanOptionItem.Create(RoleInfo, 45, OptionName.PenguinMeetingKill, false, false, OptionModePenguin);
-        OptionModeComebaker = FloatOptionItem.Create(RoleInfo, 49, OptionName.AlienCComebacker, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptionModeNomal = FloatOptionItem.Create(RoleInfo, 8, OptionName.AlienCNomal, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
-        OptUetuke = BooleanOptionItem.Create(RoleInfo, 46, OptionName.AlienUetuke, false, false);
-        OptUetukeCount = IntegerOptionItem.Create(RoleInfo, 47, OptionName.AlienUetukeCount, new(1, 20, 1), 1, false, OptUetuke);
-        OptUetuketukeTrun = IntegerOptionItem.Create(RoleInfo, 48, OptionName.AlienUetukeTrun, new(1, 20, 1), 2, false, OptUetuke);
-    }
-    #endregion
-    #endregion
+    // 戻るなら
+    int UetukeNokori;
 }
+#endregion

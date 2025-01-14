@@ -81,6 +81,7 @@ public static class MeetingHudPatch
         {
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
+            MeetingStates.Sending = true;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             PlayerCatch.OldAlivePlayerControles.Clear();
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -303,6 +304,7 @@ public static class MeetingHudPatch
                             seen.RpcSetNamePrivate(seenName, true, seer, true);
                         }
                     }
+                    MeetingStates.Sending = false;
                 }, 10f, "SetName To Chat", true);
             }
             Main.NowSabotage =

@@ -55,9 +55,9 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.25.11";
-        public const string PluginShowVersion = "519.25<sub>.11</sub>";
-        public const string ModVersion = ".25";//リリースver用バージョン変更
+        public const string PluginVersion = "519.26";
+        public const string PluginShowVersion = "519.26";//<sub>.99</sub>";
+        public const string ModVersion = ".26";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
@@ -82,7 +82,7 @@ namespace TownOfHost
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
                     if (client != null)
-                        //Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.GetHashedPuid()}");
+                        //Alert.Send($"> 期限切れなのにデバッグ版開いてる人がいるよっ!!\n FriendCode:{client.FriendCode}\nPuId:{client.ProductUserId}");
                         return false;
                 }
             }
@@ -128,6 +128,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> ViewPingDetails { get; private set; }
         public static ConfigEntry<bool> DebugChatopen { get; private set; }
         public static ConfigEntry<bool> DebugSendAmout { get; private set; }
+        public static ConfigEntry<bool> ShowDistance { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
         public static ConfigEntry<string> Preset1 { get; private set; }
@@ -144,7 +145,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> LastKickModClient { get; private set; }
         public static OptionBackupData RealOptionsData;
         public static Dictionary<byte, Vector2> AllPlayerLastkillpos = new();
-        public static Dictionary<byte, string> AllPlayerNames;
+        public static Dictionary<byte, string> AllPlayerNames = new();
         public static Dictionary<(byte, byte), string> LastNotifyNames;
         public static Dictionary<byte, Color32> PlayerColors = new();
         public static Dictionary<byte, CustomDeathReason> AfterMeetingDeathPlayers = new();
@@ -223,6 +224,7 @@ namespace TownOfHost
             ViewPingDetails = Config.Bind("Client Options", "View Ping Details", false);
             DebugChatopen = Config.Bind("Client Options", "Debug Chat open", false);
             DebugSendAmout = Config.Bind("Client Options", "Debug Send Amout", false);
+            ShowDistance = Config.Bind("Client Options", "Show Distance", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
             ExplosionKeyInput = Config.Bind("Authentication", "Explosion Key", "");
 
@@ -413,6 +415,7 @@ namespace TownOfHost
         Sniped,
         Revenge,
         Revenge1,
+        Revenge2,
         Execution,
         Infected,
         Grim,
@@ -421,6 +424,7 @@ namespace TownOfHost
         Magic,
         Guess,
         TeleportKill,
+        Trap,
         etc = -1
     }
     //WinData

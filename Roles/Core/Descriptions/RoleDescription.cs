@@ -1,4 +1,6 @@
+using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Core.Descriptions;
 
@@ -85,6 +87,48 @@ public abstract class RoleDescription
             return builder.ToString();
         }
     }
+    public string WikiText
+    {
+        get
+        {
+            var builder = new StringBuilder(256);
+            //役職とイントロ
+            builder.Append("# ").Append(Translator.GetRoleString(RoleInfo.RoleName.ToString()));
+            var roleTeam = RoleInfo.CustomRoleType == CustomRoleTypes.Madmate ? CustomRoleTypes.Impostor : RoleInfo.CustomRoleType;
+
+            if (roleTeam is CustomRoleTypes.Neutral)
+            {
+                builder.Append($"\n陣営　　：{Translator.GetString($"CustomRoleTypes.{roleTeam}")}<br>\n");
+                builder.Append($"判定　　：<br>\n");
+                builder.Append($"カウント：<br>\n");
+            }
+            else
+            {
+                builder.Append($"\n陣営：{Translator.GetString($"CustomRoleTypes.{roleTeam}")}<br>\n");
+                builder.Append($"判定：<br>\n");
+            }
+            builder.Append($"\n\n\n");
+            builder.Append($"## 参考/移植元\n").Append("[]()より<br>\n");
+            builder.Append($"\n## 役職概要\n{Description.Changebr(true)}<br>\n");
+            builder.Append($"\n## 能力\n ()<br>\n◎→ワンクリ\n△→キル\n★→常時発動\n◇→ベント\n※→自投票\n▽→タスク\n▶→その他のアビリティ\n");
+
+            //設定
+            var sb = new StringBuilder();
+            if (Options.CustomRoleSpawnChances.TryGetValue(RoleInfo.RoleName, out var op))
+                wikiOption(op, ref sb);
+
+            if (sb.ToString().RemoveHtmlTags() is not null and not "")
+            {
+                builder.Append($"\n## 設定\n").Append("|設定名|(設定値 / デフォルト値)|説明|\n").Append("|-----|----------------------|----|\n");
+                builder.Append($"{sb.ToString().RemoveHtmlTags()}\n");
+            }
+
+            builder.Append($"\n## 補足説明/仕様\n");
+            builder.Append($"\n## 勝利条件\n");
+
+            return builder.ToString().RemoveColorTags();
+        }
+    }
 
     public const string FirstHeaderSize = "150%";
     public const string InfoSize = "90%";
@@ -92,4 +136,79 @@ public abstract class RoleDescription
     public const string SecondSize = "70%";
     public const string BodySize = "60%";
     public const string BlankLineSize = "30%";
+
+    public static void wikiOption(OptionItem option, ref StringBuilder sb, int deep = 0)
+    {
+        foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
+        {
+            switch (opt.Value.Name)
+            {
+                case "Maximum": continue;
+                case "GiveGuesser": continue;
+                case "GiveWatching": continue;
+                case "GiveManagement": continue;
+                case "Giveseeing": continue;
+                case "GiveAutopsy": continue;
+                case "GiveTiebreaker": continue;
+                case "GiveMagicHand": continue;
+                case "GivePlusVote": continue;
+                case "GiveRevenger": continue;
+                case "GiveOpener": continue;
+                case "GiveLighting": continue;
+                case "GiveMoon": continue;
+                case "GiveElector": continue;
+                case "GiveInfoPoor": continue;
+                case "GiveNonReport": continue;
+                case "GiveTransparent": continue;
+                case "GiveNotvoter": continue;
+                case "GiveWater": continue;
+                case "GiveSpeeding": continue;
+                case "GiveGuarding": continue;
+                case "GiveClumsy": continue;
+                case "GiveSlacker": continue;
+            }
+
+            sb.Append("|");
+            if (deep > 0)
+            {
+                sb.Append(string.Concat(Enumerable.Repeat("┃", Mathf.Max(deep - 1, 0))));
+                sb.Append(opt.Index == option.Children.Count ? "┗ " : "┣ ");
+            }
+            var val = "";
+            var tani = "";
+            if (opt.Value is BooleanOptionItem boolean)
+            {
+                val = $"On/Off ({(opt.Value.GetBool() ? "On" : "Off")})";
+            }
+            if (opt.Value is IntegerOptionItem integer)
+            {
+                val = $"{integer.Rule.MinValue}/{integer.Rule.MaxValue}/{integer.Rule.Step} ({opt.Value.GetInt()})";
+            }
+            if (opt.Value is FloatOptionItem floatOption)
+            {
+                var i = opt.Value.Infinity;
+                var min = $"{floatOption.Rule.MinValue}";
+                var step = $"{floatOption.Rule.Step}";
+                if (i is not false)
+                {
+                    if (min == "0") min = i == true ? "∞" : "ー";
+                    if (step == "0") step = i == true ? "∞" : "ー";
+                }
+
+                val = $"{min}/{floatOption.Rule.MaxValue}/{step} ({opt.Value.GetFloat()})";
+            }
+            if (opt.Value is StringOptionItem stringOption)
+            {
+                val = $" ({opt.Value.GetString()})";
+            }
+            if (opt.Value.ValueFormat is not OptionFormat.None)
+            {
+                //かっこの色がおかしくなるけどご愛敬。とると判定が狂って削除エラー吐く
+                tani = $"({Translator.GetString("Format." + opt.Value.ValueFormat).RemoveDeltext("{0").RemoveDeltext("}")})";
+            }
+
+            sb.Append($"{opt.Value.GetName(true)}{tani}|{val}||\n");
+            if (opt.Value is not null) wikiOption(opt.Value, ref sb, deep + 1);
+        }
+    }
 }

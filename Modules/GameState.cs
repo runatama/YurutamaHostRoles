@@ -224,6 +224,7 @@ namespace TownOfHost
     {
         public static void Reset()
         {
+            MeetingStates.Sending = false;
             MeetingStates.MeetingCalled = false;
             MeetingStates.FirstMeeting = true;
             MeetingStates.First = true;
@@ -257,6 +258,7 @@ namespace TownOfHost
     }
     public static class MeetingStates
     {
+        public static bool Sending;
         public static DeadBody[] DeadBodies = null;
         public static NetworkedPlayerInfo ReportTarget = null;
         public static bool IsEmergencyMeeting => ReportTarget == null;

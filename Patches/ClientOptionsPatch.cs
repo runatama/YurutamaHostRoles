@@ -25,6 +25,7 @@ namespace TownOfHost
         private static ClientActionItem ViewPingDetails;
         private static ClientActionItem DebugChatopen;
         private static ClientActionItem DebugSendAmout;
+        private static ClientActionItem ShowDistance;
         private static ClientActionItem AutoSaveScreenShot;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
@@ -102,6 +103,10 @@ namespace TownOfHost
             if (DebugSendAmout == null || DebugSendAmout.ToggleButton == null)
             {
                 DebugSendAmout = ClientOptionItem.Create("DebugSendAmout", Main.DebugSendAmout, __instance);
+            }
+            if (ShowDistance == null || ShowDistance.ToggleButton == null)
+            {
+                ShowDistance = ClientOptionItem.Create("ShowDistance", Main.ShowDistance, __instance);
             }
 #endif
             if (ModUnloaderScreen.Popup == null)

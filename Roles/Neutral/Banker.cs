@@ -127,26 +127,29 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
 
-        if (Player.IsAlive())
-            Coin -= TurnRemoveCoin.GetInt();
-        else Coin -= DieRemoveTurn.GetInt();
-
-        if (AmongUsClient.Instance.AmHost)
-        {
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-            {
-                if (pc == PlayerControl.LocalPlayer)
-                    Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
-                else
-                    Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
-            }
-            TaskMode = true;
-        }
         _ = new LateTask(() =>
         {
-            Player.SetKillCooldown();
-            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
-        }, Main.LagTime, "Bankerchenge");
+            if (Player.IsAlive())
+                Coin -= TurnRemoveCoin.GetInt();
+            else Coin -= DieRemoveTurn.GetInt();
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (pc == PlayerControl.LocalPlayer)
+                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
+                    else
+                        Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
+                }
+                TaskMode = true;
+            }
+            _ = new LateTask(() =>
+            {
+                Player.SetKillCooldown();
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
+            }, Main.LagTime, "Bankerchenge");
+        }, 10f, "BankerChange", null);
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {

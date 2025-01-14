@@ -45,6 +45,7 @@ namespace TownOfHost.Roles.Neutral
         private static OptionItem OptionCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
+        static OptionItem OptionHasImpostorVision;
         static OptionItem CanmakeSK;
         static OptionItem CanImpSK;
         //サイドキックが元仲間の色を見える
@@ -69,6 +70,7 @@ namespace TownOfHost.Roles.Neutral
                 .SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);
+            OptionHasImpostorVision = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.ImpostorVision, true, false);
             CanmakeSK = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanCreateSideKick, true, false);
             CanImpSK = BooleanOptionItem.Create(RoleInfo, 15, opt.JackaldollCanimp, false, false, CanmakeSK);
             SKcanImp = BooleanOptionItem.Create(RoleInfo, 16, opt.JackalbeforeImpCanSeeImp, false, false, CanImpSK);
@@ -83,6 +85,7 @@ namespace TownOfHost.Roles.Neutral
         public bool CanUseImpostorVentButton() => CanVent;
         public override void ApplyGameOptions(IGameOptions opt)
         {
+            opt.SetVision(OptionHasImpostorVision.GetBool());
             AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : Cooldown);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
@@ -185,6 +188,14 @@ namespace TownOfHost.Roles.Neutral
         {
             text = "SideKick";
             return true;
+        }
+        public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+        {
+            seen ??= seer;
+            if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.sidekick.GetInt() <= JackalDoll.side || !SK) return "";
+
+            if (isForHud) return GetString("PhantomButtonSideKick");
+            return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";
         }
     }
 }

@@ -101,6 +101,8 @@ namespace TownOfHost
                 }
                 //__instance.RoleText.text += UtilsRoleText.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, amkesu: true);
             */
+            if (PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.VentHunter)
+                SoundManager.Instance.PlaySound(DestroyableSingleton<PhantomRole>.Instance.IntroSound, false);
         }
     }
     [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
@@ -395,8 +397,8 @@ namespace TownOfHost
                     if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f, delay: true));
-                        }, 2f, "FixKillCooldownTask", null);
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 0.7f, delay: true));
+                        }, 0.7f, "FixKillCooldownTask", null);
                     else _ = new LateTask(() =>
                         {
                             PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, kyousei: true, delay: true));

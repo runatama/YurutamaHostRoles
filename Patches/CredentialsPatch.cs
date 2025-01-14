@@ -8,7 +8,6 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
-using System.Linq;
 
 namespace TownOfHost
 {
@@ -52,6 +51,23 @@ namespace TownOfHost
                 {
                     sb.Append("\r\n");
                     sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<color=#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
+                }
+                var text = "";
+                //#7fc1fe
+                if (Options.ExHideChatCommand.GetBool())
+                    text += $"<color=#ffdfaf>Ⓗ</color> ";
+                if (Options.ExAftermeetingflash.GetBool())
+                    text += $"<color=#d62c12>Ⓚ</color> ";
+                if (Options.FixSpawnPacketSize.GetBool())
+                    text += $"<color=#ffef39>Ⓟ</color> ";
+                if (Options.BlackOutwokesitobasu.GetBool())
+                    text += $"<color=#8839ff>Ⓑ</color> ";
+                if (Options.ExWeightReduction.GetBool())
+                    text += $"<color=#7fc1fe>Ⓦ</color> ";
+
+                if (text != "")
+                {
+                    sb.Append("\r\n<size=50%>").Append(text + "</size>");
                 }
 
                 var offset_x = 2.5f; //右端からのオフセット

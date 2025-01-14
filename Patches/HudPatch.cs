@@ -150,7 +150,7 @@ namespace TownOfHost
                     if (roleClass?.Jikaku() != CustomRoles.NotAssigned) LowerInfoText.text = "";
 
 #if DEBUG
-                    if (Main.ViewPingDetails.Value)
+                    if (Main.ShowDistance.Value)
                     {
                         foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != 0))
                             LowerInfoText.text += Utils.ColorString(Palette.PlayerColors[pc.cosmetics.ColorId], $"{Vector2.Distance(PlayerControl.LocalPlayer.transform.position, pc.transform.position)}");
@@ -252,6 +252,7 @@ namespace TownOfHost
         public static bool? ch;
         public static Sprite MotoKillButton = null;
         public static Sprite ShepeButton = null;
+        public static Sprite PhButton = null;
         public static Sprite EngButton = null;
         public static Sprite HyoiButton = null;
         public static Sprite ImpVentButton = null;
@@ -261,7 +262,7 @@ namespace TownOfHost
             OldValue ??= Main.CustomSprite.Value;
             if (!AmongUsClient.Instance) return;
             if (!AmongUsClient.Instance.IsGameStarted) return;
-            if (!GameStates.AfterIntro) return;
+            //if (!GameStates.AfterIntro) return;
             try
             {
                 if (SetHudActivePatch.IsActive)
@@ -281,9 +282,19 @@ namespace TownOfHost
                     {
                         if (player?.Data?.Role?.Ability?.Image ?? false)
                         {
-                            if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer) EngButton = player.Data.Role.Ability.Image;
-                            if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter) ShepeButton = player.Data.Role.Ability.Image;
-                            if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) HyoiButton = player.Data.Role.Ability.Image;
+                            if (player?.Data?.Role?.Ability?.name is not null and not "ModRoleAbilityButton" and not "")
+                            {
+                                if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer)
+                                    EngButton = player.Data.Role.Ability.Image;
+                                if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter)
+                                    ShepeButton = player.Data.Role.Ability.Image;
+                                if (PhButton == null && player.Data.Role.Role is RoleTypes.Phantom)
+                                {
+                                    PhButton = player.Data.Role.Ability.Image;
+                                }
+                                if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
+                                    HyoiButton = player.Data.Role.Ability.Image;
+                            }
                         }
                     }
                     if (player == !GameStates.IsModHost) return;
@@ -292,9 +303,31 @@ namespace TownOfHost
                     if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
                     if ((roleClass?.HasAbility ?? false) || !isalive)
                     {
-                        if (EngButton && player.Data.Role.Role is RoleTypes.Engineer) player.Data.Role.Ability.Image = EngButton;
-                        if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter) player.Data.Role.Ability.Image = ShepeButton;
-                        if (HyoiButton && !isalive && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost) player.Data.Role.Ability.Image = HyoiButton;
+                        var reseted = false;
+                        if (EngButton && player.Data.Role.Role is RoleTypes.Engineer)
+                        {
+                            reseted = true;
+                            player.Data.Role.Ability.Image = EngButton;
+                        }
+                        if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter)
+                        {
+                            reseted = true;
+                            player.Data.Role.Ability.Image = ShepeButton;
+                        }
+                        if (PhButton && player.Data.Role.Role is RoleTypes.Phantom)
+                        {
+                            reseted = true;
+                            player.Data.Role.Ability.SecondImage = player.Data.Role.Ability.Image = PhButton;
+                        }
+                        if (HyoiButton && !isalive && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
+                        {
+                            reseted = true;
+                            player.Data.Role.Ability.Image = HyoiButton;
+                        }
+                        if (reseted)
+                        {
+                            player.Data.Role.Ability.name = $"{player.Data.Role.Role}";
+                        }
                     }
                     if (CustomRoles.Amnesia.IsPresent()) return;
                     if (ch == null)
@@ -310,9 +343,12 @@ namespace TownOfHost
                         if (roleClass != null)
                         {
                             if (isalive)
+                            {
                                 if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
                                 {
-                                    player.Data.Role.Ability.Image = CustomButton.Get(abname);
+                                    player.Data.Role.Ability.SecondImage = player.Data.Role.Ability.Image = CustomButton.Get(abname);
+
+                                    player.Data.Role.Ability.name = "ModRoleAbilityButton";
                                     if (reset && OldValue == Main.CustomSprite.Value)
                                     {
                                         var role = customrole.GetRoleTypes();
@@ -320,15 +356,28 @@ namespace TownOfHost
                                         RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
                                     }
                                 }
+                            }
 
                             // Memo
                             // キルボタン非表示してから当てれば大丈夫
                             // キルボタンがバグってもなんかスイッチシェリフのキルボだけ大丈夫なことが多い。
                             if ((roleClass as IKiller)?.OverrideKillButton(out string name) == true && Main.CustomSprite.Value)
+                            {
                                 __instance.KillButton.graphic.sprite = CustomButton.Get(name);
+                            }
+                            else if (MotoKillButton)
+                            {
+                                __instance.KillButton.graphic.sprite = MotoKillButton;
+                            }
 
                             if ((roleClass as IKiller)?.OverrideImpVentButton(out string name2) == true && Main.CustomSprite.Value)
+                            {
                                 __instance.ImpostorVentButton.graphic.sprite = CustomButton.Get(name2);
+                            }
+                            else if (ImpVentButton)
+                            {
+                                __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
+                            }
                         }
                     }
                     OldValue = Main.CustomSprite.Value;//アビリティボタンのあれのせいでクールがあれなのでリセット入る時だけしっかり反映させる。
@@ -413,6 +462,11 @@ namespace TownOfHost
                             Mark.Append($"<color=blue>♦</color>");
                         }
                     if ((seerRole as JackalAlien)?.modeProgresskiller == true && JackalAlien.ProgressWorkhorseseen)
+                        if (target.Is(CustomRoles.Workhorse))
+                        {
+                            Mark.Append($"<color=blue>♦</color>");
+                        }
+                    if ((seerRole as AlienHijack)?.modeProgresskiller == true && Alien.ProgressWorkhorseseen)
                         if (target.Is(CustomRoles.Workhorse))
                         {
                             Mark.Append($"<color=blue>♦</color>");
@@ -542,7 +596,14 @@ namespace TownOfHost
             {
                 var RoleWithInfo = $"{UtilsRoleText.GetTrueRoleName(player.PlayerId)}:\r\n";
                 RoleWithInfo += player.GetRoleInfo();
-                __instance.taskText.text = Utils.ColorString(player.GetRoleColor(), RoleWithInfo) + "\n" + __instance.taskText.text;
+                var task = __instance.taskText.text;
+                if (role.IsCrewmate())
+                {
+                    task = task.RemoveDeltext(GetString(StringNames.FakeTasks));
+                    task = task.RemoveDeltext(GetString(StringNames.ImpostorTask));
+                    task = task.RemoveDeltext("<color=#FF0000FF>\r\n<color=#FF1919FF></color></color>\r\n");
+                }
+                __instance.taskText.text = Utils.ColorString(player.GetRoleColor(), RoleWithInfo) + "\n" + task;
             }
 
             // RepairSenderの表示

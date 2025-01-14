@@ -78,6 +78,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
 
             _ = new LateTask(() =>
             {
+                UtilsNotifyRoles.NotifyRoles(Player);
                 Player.SetKillCooldown(delay: true);
                 Player.SyncSettings();
             }, 0.2f, "EarnestWolf");
@@ -99,7 +100,11 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         resetkillcooldown = false;
         fall = true;
         if (!Player.IsAlive()) return;
-        if (count >= OptionOverKillCanCount.GetFloat()) return;
+        if (count >= OptionOverKillCanCount.GetFloat())
+        {
+            OverKillMode = false;
+            return;
+        }
         OverKillMode = !OverKillMode;
         _ = new LateTask(() =>
         {
@@ -109,4 +114,12 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     }
     public float CalculateKillCooldown() => KillCoolDown;
     public override string GetAbilityButtonText() => GetString("Modechenge");
+    public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
+    {
+        seen ??= seer;
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || count >= OptionOverKillCanCount.GetFloat() || !Player.IsAlive()) return "";
+
+        if (isForHud) return GetString("EarnestWolfLowerText");
+        return $"<size=50%>{GetString("EarnestWolfLowerText")}</size>";
+    }
 }

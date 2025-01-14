@@ -37,7 +37,7 @@ namespace TownOfHost
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc == null) continue;
-                Logger.Info($"FriendCore:{pc.FriendCode},Puid:{pc.GetClient()?.GetHashedPuid()}", "Session");
+                Logger.Info($"FriendCore:{pc.FriendCode},Puid:{pc.GetClient()?.ProductUserId}", "Session");
             }
             if (AmongUsClient.Instance.AmHost) //以下、ホストのみ実行
             {
@@ -54,9 +54,10 @@ namespace TownOfHost
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+                Main.NormalOptions.roleOptions.TryGetRoleOptions(RoleTypes.GuardianAngel, out GuardianAngelRoleOptionsV08 roleData);
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
                 Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
+                roleData.ProtectionDurationSeconds = 9999999999;
                 foreach (var option in OptionItem.AllOptions)
                 {
                     if (Event.OptionLoad.Contains(option.Name) && !Event.Special) option.SetValue(0);
@@ -69,7 +70,7 @@ namespace TownOfHost
     {
         public static void Prefix(InnerNetClient __instance, DisconnectReasons reason, string stringReason)
         {
-            Logger.Info($"切断(理由:{reason}:{stringReason}, ping:{__instance.Ping})", "Session");
+            Logger.Info($"切断(理由:{reason}:{stringReason}, ping:{__instance.Ping},FriendCode:{__instance?.GetClient(__instance.ClientId)?.FriendCode}PUID{__instance?.GetClient(__instance.ClientId)?.ProductUserId})", "Session");
 
             if (GameStates.IsFreePlay && Main.EditMode)
             {
@@ -91,20 +92,33 @@ namespace TownOfHost
     {
         public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData client)
         {
-            Logger.Info($"{client.PlayerName}(ClientID:{client.Id})(FriendCode:{client.FriendCode})(PuiD:{client.GetHashedPuid()})が参加", "Session");
-            if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool())
+            Logger.Info($"{client.PlayerName}(ClientID:{client.Id})(FriendCode:{client?.FriendCode ?? "???"})(PuId:{client?.ProductUserId ?? "???"})が参加", "Session");
+            if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame && !Main.IsCs() && !BanManager.CheckWhiteList(client?.FriendCode, client?.ProductUserId))
             {
                 AmongUsClient.Instance.KickPlayer(client.Id, false);
                 Logger.seeingame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
                 Logger.Info($"フレンドコードがないプレイヤーを{client?.PlayerName}をキックしました。", "Kick");
+                return;
             }
             if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
             {
                 AmongUsClient.Instance.KickPlayer(client.Id, true);
+                Logger.seeingame($"{client?.PlayerName}({client.FriendCode})はブロック済みのため、BANしました");
                 Logger.Info($"ブロック済みのプレイヤー{client?.PlayerName}({client.FriendCode})をBANしました。", "BAN");
+                return;
+            }
+            if (Options.KiclHotNotFriend.GetBool() && !GameStates.IsLocalGame && !Main.IsCs() && !(DestroyableSingleton<FriendsListManager>.Instance.IsPlayerFriend(client.ProductUserId) || client.FriendCode == PlayerControl.LocalPlayer.GetClient().FriendCode || Main.IsCs()) && AmongUsClient.Instance.AmHost && !BanManager.CheckWhiteList(client?.FriendCode, client?.ProductUserId))
+            {
+                AmongUsClient.Instance.KickPlayer(client.Id, false);
+                Logger.seeingame($"{client?.PlayerName}({client.FriendCode})はフレンドではないため、kickしました");
+                Logger.Info($"プレイヤー{client?.PlayerName}({client.FriendCode})をKickしました。", "Kick");
+                return;
             }
             BanManager.CheckBanPlayer(client);
-            BanManager.CheckDenyNamePlayer(client);
+            if (!BanManager.CheckWhiteList(client?.FriendCode, client?.ProductUserId))
+            {
+                BanManager.CheckDenyNamePlayer(client);
+            }
             RPC.RpcVersionCheck();
             if (AmongUsClient.Instance.AmHost)
             {
@@ -168,7 +182,7 @@ namespace TownOfHost
                         UtilsNotifyRoles.NotifyRoles(NoCache: true);
                     }
                     Main.playerVersion.Remove(data.Character.PlayerId);
-                    Logger.Info($"{data.PlayerName}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping}), Platform:{data.PlatformData}", "Session");
+                    Logger.Info($"{data?.PlayerName ?? "('ω')"}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping}), Platform:{data?.PlatformData?.Platform} , friendcode:{data?.FriendCode ?? "???"} , PuId:{data?.ProductUserId ?? "???"}", "Session");
                 }
             }
             catch (Exception e)
@@ -180,7 +194,7 @@ namespace TownOfHost
 
             if (isFailure)
             {
-                Logger.Warn($"正常に完了しなかった切断 - 名前:{(data == null || data.PlayerName == null ? "(不明)" : data.PlayerName)}, 理由:{reason}, ping:{AmongUsClient.Instance.Ping}", "Session");
+                Logger.Warn($"正常に完了しなかった切断 - 名前:{(data == null || data.PlayerName == null ? "(不明)" : data.PlayerName)}, 理由:{reason}, ping:{AmongUsClient.Instance.Ping}, Platform:{data?.PlatformData?.Platform ?? Platforms.Unknown} , friendcode:{data?.FriendCode ?? "???"} , PuId:{data?.ProductUserId ?? "???"}", "Session");
                 ErrorText.Instance.AddError(AmongUsClient.Instance.GameState is InnerNetClient.GameStates.Started ? ErrorCode.OnPlayerLeftPostfixFailedInGame : ErrorCode.OnPlayerLeftPostfixFailedInLobby);
             }
         }

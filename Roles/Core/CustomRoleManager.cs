@@ -44,7 +44,7 @@ public static class CustomRoleManager
     /// <param name="appearanceKiller">見た目上でキルを行うプレイヤー 可変</param>
     /// <param name="appearanceTarget">見た目上でキルされるプレイヤー 可変</param>
     /// <returns></returns>
-    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool? kantu = false, bool? RoleAbility = false)
+    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool? kantu = false, bool? RoleAbility = false, bool? noCheckForInvalidMurdering = false)
     {
         Logger.Info($"Attempt  :{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
         if (appearanceKiller != attemptKiller || appearanceTarget != attemptTarget)
@@ -55,7 +55,7 @@ public static class CustomRoleManager
         appearanceKiller.ResetKillCooldown();
 
         // 無効なキルをブロックする処理 必ず最初に実行する
-        if (!CheckMurderPatch.CheckForInvalidMurdering(info, kantu))
+        if (!CheckMurderPatch.CheckForInvalidMurdering(info, kantu == true || noCheckForInvalidMurdering == true))
         {
             return false;
         }
@@ -734,6 +734,7 @@ public enum CustomRoles
     Decrescendo,
     Curser,
     Alien,
+    AlienHijack,
     SpeedStar,
     EvilTeller,
     Limiter,
@@ -747,6 +748,10 @@ public enum CustomRoles
     Camouflager,
     ConnectSaver,
     EvilSatellite,
+    ProBowler,
+    EvilMaker,
+    Eraser,
+    //DEBUG only Impostor
     //Madmate
     MadGuardian,
     Madmate,
@@ -762,6 +767,7 @@ public enum CustomRoles
     MadTracker,
     MadChanger,
     MadSuicide,
+    //DEBUG only Madmate
     //Crewmate(Vanilla)
     Engineer,
     Scientist,
@@ -810,6 +816,10 @@ public enum CustomRoles
     Cakeshop,
     Snowman,
     Stolener,
+    VentOpener,
+    VentHunter,
+    //DEBUG only Crewmate
+    Satellite,
     //Neutral
     Arsonist,
     Egoist,
@@ -840,14 +850,11 @@ public enum CustomRoles
     CurseMaker,
     PhantomThief,
     Fox,
-    SantaClaus,
-    TaskPlayerB,
-    //DEBUG only Crewmate
-    //DEBUG only Impostor
-    ProBowler,
-    //DEBUG only Nuetral.
     Turncoat,
     Vulture,
+    SantaClaus,
+    TaskPlayerB,
+    //DEBUG only Neutral.
     //HideAndSeek
     HASFox,
     HASTroll,

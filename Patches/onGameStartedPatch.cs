@@ -127,6 +127,7 @@ namespace TownOfHost
                 var outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
                 Main.clientIdList.Add(pc.GetClientId());
+                pc.RemoveProtection();
             }
             Main.VisibleTasksCount = true;
             if (__instance.AmHost)
@@ -144,7 +145,6 @@ namespace TownOfHost
             }
 
             SelectRolesPatch.Disconnected.Clear();
-            ExileControllerWrapUpPatch.AllSpawned = true;
             RpcSetTasksPatch.HostFin = false;
             Main.DontGameSet = Options.NoGameEnd.GetBool();
             CustomRoleManager.Initialize();
@@ -154,7 +154,7 @@ namespace TownOfHost
             GetArrow.Init();
             DoubleTrigger.Init();
             GhostRoleCore.Init();
-            PlayerSkinPatch.RemoveAll();
+            PlayerOutfitManager.RemoveAll();
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
             GuessManager.Guessreset();
@@ -244,17 +244,19 @@ namespace TownOfHost
                     if (TaskBattle.TaskBattleTeamMode.GetBool())
                     {
                         var rand = new Random();
-                        var AllPlayerCount = Options.EnableGM.GetBool() ? PlayerCatch.AllPlayerControls.Count() - 1 : PlayerCatch.AllPlayerControls.Count();
-                        var teamc = Math.Min(TaskBattle.TaskBattleTeamCount.GetFloat(), AllPlayerCount);
-                        var c = AllPlayerCount / teamc;//1チームのプレイヤー数 ↑チーム数
+
                         List<PlayerControl> ap = new();
-                        List<byte> playerlist = new();
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                             ap.Add(pc);
                         if (Options.EnableGM.GetBool())
                             ap.RemoveAll(x => x == PlayerControl.LocalPlayer);
                         //チームを指定されている人は処理せず、後から追加する。
-                        ap.RemoveAll(x => TaskBattle.SelectedTeams.ContainsValue(x.PlayerId));
+                        ap.RemoveAll(x => TaskBattle.SelectedTeams.Values.Any(list => list.Contains(x.PlayerId)));
+
+                        var AllPlayerCount = ap.Count;
+                        var teamc = Math.Min(TaskBattle.TaskBattleTeamCount.GetFloat(), AllPlayerCount);
+                        var c = AllPlayerCount / teamc;//1チームのプレイヤー数 ↑チーム数
+                        List<byte> playerlist = new();
                         Logger.Info($"{teamc},{c}", "TBTeamandpc");
 
                         for (var i = 0; i < teamc; i++)
@@ -272,10 +274,11 @@ namespace TownOfHost
                             TaskBattle.TaskBattleTeams[(byte)(i + 1)] = new List<byte>(playerlist);
                         }
 
-                        foreach (var (teamId, playerId) in TaskBattle.SelectedTeams)
+                        foreach (var (teamId, player) in TaskBattle.SelectedTeams)
                         {
-                            var players = TaskBattle.TaskBattleTeams[teamId] ?? new List<byte>();
-                            players.Add(teamId);
+                            List<byte> players;
+                            players = TaskBattle.TaskBattleTeams.TryGetValue(teamId, out players) ? players : new();
+                            player.Do(x => players.Add(x));
                             TaskBattle.TaskBattleTeams[teamId] = players;
                         }
                     }
@@ -733,7 +736,7 @@ namespace TownOfHost
             {
                 _ = new LateTask(() =>
                 {
-                    PlayerCatch.AllPlayerControls.Do(Player => PlayerSkinPatch.Save(Player));
+                    PlayerCatch.AllPlayerControls.Do(Player => PlayerOutfitManager.Save(Player));
                     if (Options.CurrentGameMode == CustomGameMode.Standard)
                         if (GameStates.InGame)
                             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -793,34 +796,37 @@ namespace TownOfHost
                                     if (!AmongUsClient.Instance.AmHost) return;
                                     if (Camouflage.IsCamouflage) return;
                                     if (Player.inVent) return;
-                                    var (name, color, hat, skin, visor, nameplate, level, pet) = PlayerSkinPatch.Load(Player);
+                                    var outfit = PlayerOutfitManager.Load(Player);
+
+                                    if (outfit == null) return;
+
                                     var sender = CustomRpcSender.Create();
 
-                                    Player.SetColor(color);
+                                    Player.SetColor(outfit.color);
                                     sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetColor)
                                         .Write(Player.Data.NetId)
-                                        .Write(color)
+                                        .Write(outfit.color)
                                         .EndRpc();
 
-                                    Player.SetHat(hat, color);
+                                    Player.SetHat(outfit.hat, outfit.color);
                                     sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetHatStr)
-                                        .Write(hat)
+                                        .Write(outfit.hat)
                                         .Write(Player.GetNextRpcSequenceId(RpcCalls.SetHatStr))
                                         .EndRpc();
 
-                                    Player.SetSkin(skin, color);
+                                    Player.SetSkin(outfit.skin, outfit.color);
                                     sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetSkinStr)
-                                        .Write(skin)
+                                        .Write(outfit.skin)
                                         .Write(Player.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
                                         .EndRpc();
 
-                                    Player.SetVisor(visor, color);
+                                    Player.SetVisor(outfit.visor, outfit.color);
                                     sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetVisorStr)
-                                        .Write(visor)
+                                        .Write(outfit.visor)
                                         .Write(Player.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                                         .EndRpc();
 
-                                    if (Player.IsAlive()) Player.RpcSetPet(pet);
+                                    if (Player.IsAlive()) Player.RpcSetPet(outfit.pet);
 
                                     _ = new LateTask(() => sender.SendMessage(), 0.23f);
                                 }
