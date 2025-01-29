@@ -314,6 +314,7 @@ namespace TownOfHost
         }
         private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)
         {
+            GameStates.IsOutro = true;
             // サーバー側のパケットサイズ制限によりCustomRpcSenderが利用できないため，遅延を挟むことで順番の整合性を保つ．
 
             // バニラ画面でのアウトロを正しくするためのゴーストロール化

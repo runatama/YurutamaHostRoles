@@ -1,5 +1,6 @@
 using UnityEngine;
 using AmongUs.GameOptions;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 

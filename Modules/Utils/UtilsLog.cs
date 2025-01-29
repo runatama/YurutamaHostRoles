@@ -1,19 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Data;
+using System.Diagnostics;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-using TownOfHost.Roles.Core;
-using static TownOfHost.Translator;
-using static TownOfHost.Utils;
-using static TownOfHost.UtilsRoleText;
-using static TownOfHost.PlayerCatch;
 using TownOfHost.Modules;
+using TownOfHost.Roles.Core;
+using static TownOfHost.Utils;
+using static TownOfHost.Translator;
+using static TownOfHost.PlayerCatch;
+using static TownOfHost.UtilsRoleText;
 
 namespace TownOfHost
 {

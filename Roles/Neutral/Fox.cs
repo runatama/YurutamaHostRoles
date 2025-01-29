@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using UnityEngine;
 using HarmonyLib;
+
+using TownOfHost.Modules;
 using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Fox : RoleBase, ISystemTypeUpdateHook
@@ -149,34 +151,11 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             }
 
             Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
-            Utils.AllPlayerKillFlash();
             foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
             {
                 Utils.SendMessage(string.Format(GetString("FoxTelldie"), Utils.GetPlayerColor(Player, true)), go.PlayerId, GetString("RMSKillTitle"));
             }
-            if (!Player.IsModClient() && !Player.AmOwner) Player.RpcMeetingKill(Player);
-            hudManager.ShowKillAnimation(Player.Data, Player.Data);
-            SoundManager.Instance.PlaySound(Player.KillSfx, false, 0.8f);
-            PlayerVoteArea voteArea2 = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == Player.PlayerId);
-            if (voteArea2 == null) return CustomRoles.NotAssigned;
-            if (voteArea2.DidVote) voteArea2.UnsetVote();
-
-            foreach (var playerVoteArea in meetingHud.playerStates)
-            {
-                if (playerVoteArea.VotedFor != Player.PlayerId) continue;
-                playerVoteArea.UnsetVote();
-                meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
-                meetingHud.ClearVote();
-                MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, Player.PlayerId);
-                var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
-                if (!voteAreaPlayer.AmOwner) continue;
-                MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, Player.PlayerId);
-                meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
-                meetingHud.ClearVote();
-                playerVoteArea.UnsetVote();
-            }
-            //5s後にチェックを入れる(把握のため)
-            _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "FoxCheckMeeting", null);
+            MeetingVoteManager.ResetVoteManager(Player.PlayerId);
         }
         return CustomRoles.NotAssigned;
     }

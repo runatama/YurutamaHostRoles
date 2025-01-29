@@ -6,16 +6,17 @@ using HarmonyLib;
 using Hazel;
 
 using TownOfHost.Modules;
-using TownOfHost.Roles;
-using TownOfHost.Roles.Core;
-using TownOfHost.Roles.AddOns.Common;
-using static TownOfHost.Translator;
-using TownOfHost.Roles.Neutral;
 using TownOfHost.Modules.ChatManager;
-using TownOfHost.Roles.Ghost;
-using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Neutral;
+using TownOfHost.Roles.Ghost;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Patches.ISystemType;
+
+using static TownOfHost.Translator;
 
 namespace TownOfHost
 {

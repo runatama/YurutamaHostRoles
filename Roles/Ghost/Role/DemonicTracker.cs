@@ -1,11 +1,12 @@
+using System.Linq;
 using System.Collections.Generic;
+
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
-using System.Linq;
 
 namespace TownOfHost.Roles.Ghost
 {
-    public static class DemonicTracker
+    public class DemonicTracker
     {
         private static readonly int Id = 60300;
         public static List<byte> playerIdList = new();

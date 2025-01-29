@@ -34,7 +34,6 @@ namespace TownOfHost
         public static int Hima = 0;
         public static void Postfix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
-            //Logger.Info($"{tabNum}", "OPH");
             if (previewOnly) return;
 
             var l = Last;
@@ -85,28 +84,26 @@ namespace TownOfHost
                             case StringNames.GameShortTasks:
                             case StringNames.GameLongTasks:
                             case StringNames.GameCommonTasks:
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 99);
+                                ob.TryCast<NumberOption>().ValidRange = new FloatRange(0, 99);
                                 break;
                             case StringNames.GameKillCooldown:
-                                ob.Cast<NumberOption>().Increment = 0.5f;
-                                ob.Cast<NumberOption>().ValidRange = new FloatRange(0, 180);
+                                ob.TryCast<NumberOption>().Increment = 0.5f;
+                                ob.TryCast<NumberOption>().ValidRange = new FloatRange(0, 180);
                                 break;
                             case StringNames.GameNumImpostors:
                                 if (DebugModeManager.IsDebugMode)
                                 {
-                                    ob.Cast<NumberOption>().ValidRange.min = 0;
+                                    ob.TryCast<NumberOption>().ValidRange.min = 0;
                                 }
                                 break;
                             case StringNames.GameTaskBarMode:
-                                ob.transform.position = new Vector3(999f, 999f);
-                                break;
                             case StringNames.GameConfirmImpostor:
                                 ob.transform.position = new Vector3(999f, 999f);
                                 break;
                             case StringNames.GameVotingTime:
                             case StringNames.GameEmergencyCooldown:
                             case StringNames.GameDiscussTime:
-                                ob.Cast<NumberOption>().Increment = 1f;
+                                ob.TryCast<NumberOption>().Increment = 1f;
                                 break;
                             default:
                                 break;

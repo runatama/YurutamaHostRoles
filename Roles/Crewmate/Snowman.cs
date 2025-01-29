@@ -1,7 +1,7 @@
 using AmongUs.GameOptions;
+using UnityEngine;
 
 using TownOfHost.Roles.Core;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Snowman : RoleBase

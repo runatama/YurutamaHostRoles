@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using UnityEngine;
 using HarmonyLib;
 using Hazel;
+
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 

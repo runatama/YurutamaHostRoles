@@ -6,9 +6,9 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
 using static TownOfHost.Translator;
-using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner

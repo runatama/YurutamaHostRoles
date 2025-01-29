@@ -1,14 +1,14 @@
 using AmongUs.GameOptions;
 using UnityEngine;
 using Hazel;
-using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Impostor;
 using System.Linq;
 
-using TownOfHost.Modules.ChatManager;
-
-using static TownOfHost.Modules.SelfVoteManager;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
+using TownOfHost.Modules.ChatManager;
+using static TownOfHost.Modules.SelfVoteManager;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class MeetingSheriff : RoleBase
@@ -166,28 +166,8 @@ public sealed class MeetingSheriff : RoleBase
             {
                 Utils.SendMessage(string.Format(GetString("MMeetingKill"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
             }
-            hudManager.ShowKillAnimation(target.Data, target.Data);
-            if (!target.IsModClient() && !target.AmOwner) Player.RpcMeetingKill(target);
-            Utils.AllPlayerKillFlash();
-            SoundManager.Instance.PlaySound(Player.KillSfx, false, 0.8f);
-            PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == target.PlayerId);
-            if (voteArea == null) return;
-            if (voteArea.DidVote) voteArea.UnsetVote();
-            foreach (var playerVoteArea in meetingHud.playerStates)
-            {
-                if (playerVoteArea.VotedFor != target.PlayerId) continue;
-                playerVoteArea.UnsetVote();
-                meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
-                meetingHud.ClearVote();
-                MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, target.PlayerId);
-                var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
-                if (!voteAreaPlayer.AmOwner) continue;
-                MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, target.PlayerId);
-                meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
-                meetingHud.ClearVote();
-                playerVoteArea.UnsetVote();
-            }
-            _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "MeetingSheriffCheck");
+
+            MeetingVoteManager.ResetVoteManager(target.PlayerId);
             return;
         }
         Player.RpcExileV2();
@@ -213,34 +193,12 @@ public sealed class MeetingSheriff : RoleBase
         }
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
         Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
-        Utils.AllPlayerKillFlash();
         foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
         {
             Utils.SendMessage(string.Format(GetString("MMeetingKillfall"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
         }
-        if (!Player.IsModClient() && !Player.AmOwner) Player.RpcMeetingKill(Player);
-        hudManager.ShowKillAnimation(Player.Data, Player.Data);
-        SoundManager.Instance.PlaySound(Player.KillSfx, false, 0.8f);
-        PlayerVoteArea voteArea2 = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == Player.PlayerId);
-        if (voteArea2 == null) return;
-        if (voteArea2.DidVote) voteArea2.UnsetVote();
 
-        foreach (var playerVoteArea in meetingHud.playerStates)
-        {
-            if (playerVoteArea.VotedFor != Player.PlayerId) continue;
-            playerVoteArea.UnsetVote();
-            meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
-            meetingHud.ClearVote();
-            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, Player.PlayerId);
-            var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
-            if (!voteAreaPlayer.AmOwner) continue;
-            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, Player.PlayerId);
-            meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
-            meetingHud.ClearVote();
-            playerVoteArea.UnsetVote();
-        }
-        //5s後にチェックを入れる(把握のため)
-        _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "MeetingSheriffCheck");
+        MeetingVoteManager.ResetVoteManager(Player.PlayerId);
     }
     bool CanBeKilledBy(CustomRoles role)
     {

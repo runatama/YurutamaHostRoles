@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using HarmonyLib;
+using UnityEngine;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton

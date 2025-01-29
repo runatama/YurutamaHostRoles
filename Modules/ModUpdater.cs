@@ -8,9 +8,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using HarmonyLib;
+using UnityEngine;
 using Newtonsoft.Json.Linq;
 using TownOfHost.Templates;
-using UnityEngine;
 using static TownOfHost.Translator;
 
 namespace TownOfHost

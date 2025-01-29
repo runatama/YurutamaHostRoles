@@ -2,27 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.CoreScripts;
-using HarmonyLib;
-using Hazel;
-using UnityEngine;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+
+using Hazel;
 using InnerNet;
+using HarmonyLib;
+using UnityEngine;
+using Assets.CoreScripts;
+using AmongUs.GameOptions;
+
+using TownOfHost.Modules;
 using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles.Core;
-using static TownOfHost.Translator;
+using TownOfHost.Roles.Impostor;
 using static TownOfHost.Utils;
 using static TownOfHost.UtilsGameLog;
 using static TownOfHost.UtilsShowOption;
 using static TownOfHost.UtilsRoleText;
-using System.Text.Json;
-using AmongUs.GameOptions;
-using TownOfHost.Modules;
+using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
-using TownOfHost.Roles.Impostor;
-using Rewired;
 
 namespace TownOfHost
 {
@@ -31,7 +29,6 @@ namespace TownOfHost
     {
         public static List<string> ChatHistory = new();
         private static Dictionary<CustomRoles, string> roleCommands;
-        public static Dictionary<int, string> YomiageS = new();
         public static bool Prefix(ChatController __instance)
         {
             __instance.timeSinceLastMessage = 3f;
@@ -81,43 +78,8 @@ namespace TownOfHost
                 case "/voice":
                 case "/vo":
                     canceled = true;
-                    if (!Main.UseYomiage.Value) break;
-                    var voc = 0;
-                    byte vo0id = PlayerControl.LocalPlayer.PlayerId;
-                    if ((args.Length < 2 ? "" : args[1]) == "set" && (args.Length < 3 ? "" : args[2]) != "")
-                        if (byte.TryParse(args[2], out vo0id))
-                            voc += 2;
-                    subArgs = args.Length < 2 ? "" : args[voc + 1];
-                    string subArgs2 = args.Length < 3 ? "" : args[voc + 2];
-                    string subArgs3 = args.Length < 4 ? "" : args[voc + 3];
-                    string subArgs4 = args.Length < 5 ? "" : args[voc + 4];
-                    if (subArgs is "get" or "g" && Main.UseYomiage.Value)
-                    {
-                        StringBuilder sb = new();
-                        foreach (var r in GetvoiceListAsync(true).Result)
-                            sb.Append($"{r.Key}: {r.Value}\n");
-                        SendMessage(sb.ToString(), PlayerControl.LocalPlayer.PlayerId);
-                    }
-                    else if (subArgs != "" && subArgs2 != "" && subArgs3 != "" && subArgs4 != "")
-                    {
-                        if (VoiceList is null) GetvoiceListAsync().Wait();
-                        if (int.TryParse(subArgs, out int vid) && VoiceList.Count > vid)
-                        {
-                            var vopc = GetPlayerById(vo0id);
-                            YomiageS[vopc.Data.DefaultOutfit.ColorId] = $"{subArgs} {subArgs2} {subArgs3} {subArgs4}";
-                            if (AmongUsClient.Instance.AmHost) RPC.SyncYomiage();
-                            if (vo0id != PlayerControl.LocalPlayer.PlayerId)
-                                SendMessage($"{vopc.name}の声設定を変更しました。", PlayerControl.LocalPlayer.PlayerId);
-                        }
-                        else
-                        {
-                            StringBuilder sb = new();
-                            foreach (var r in GetvoiceListAsync().Result)
-                                sb.Append($"{r.Key}: {r.Value}\n");
-                            SendMessage(sb.ToString(), PlayerControl.LocalPlayer.PlayerId);
-                        }
-                    }
-                    else SendMessage("使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", PlayerControl.LocalPlayer.PlayerId);
+                    if (!Yomiage.ChatCommand(args, PlayerControl.LocalPlayer.PlayerId))
+                        SendMessage("使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", PlayerControl.LocalPlayer.PlayerId);
                     break;
                 case "/devban":
                     canceled = true;
@@ -1037,7 +999,7 @@ namespace TownOfHost
                                     AirShipElectricalDoors.Initialize();
                                     break;
                                 case "GetVoice":
-                                    foreach (var r in GetvoiceListAsync().Result)
+                                    foreach (var r in Yomiage.GetvoiceListAsync().Result)
                                         Logger.Info(r.Value, "VoiceList");
                                     break;
                                 case "rev":
@@ -1074,89 +1036,6 @@ namespace TownOfHost
                 return false;
             }
             return !canceled;
-        }
-
-        public static async Task Yomiage(int color, string text = "")
-        {
-            var te = text;
-            text = text.RemoveHtmlTags();//Html消す
-            if (ChatManager.CommandCheck(text)) return;// /から始まってるならスルー
-            if (text != te) return;//htmlタグが入ってる場合は発言じゃないのでスルー
-            // HttpClientを作成
-            using var httpClient = new HttpClient();
-            try
-            {
-                ClientOptionsManager.CheckOptions();
-                string url = $"http://localhost:{ClientOptionsManager.YomiagePort}/";
-                if (YomiageS.ContainsKey(color))
-                {
-                    string[] args = YomiageS[color].Split(' ');
-                    string y1 = args[0];
-                    string y2 = args[1];
-                    string y3 = args[2];
-                    string y4 = args[3];
-                    HttpResponseMessage response = await httpClient.GetAsync(url + "talk?text=" + text + "&voice=" + y1 + "&volume=" + y2 + "&speed=" + y3 + "&tone=" + y4);
-                }
-                else
-                {
-                    HttpResponseMessage response = await httpClient.GetAsync(url + "talk?text=" + text);
-                }
-            }
-            catch (HttpRequestException e)
-            {
-                // エラーが発生した場合はエラーメッセージを表示
-                Logger.Info($"Error: {e.Message}", "yomiage");
-                Logger.seeingame("エラーが発生したため、読み上げが無効になりました");
-                Main.UseYomiage.Value = false;
-            }
-        }
-        public static Dictionary<int, string> VoiceList;
-        public static async Task<Dictionary<int, string>> GetvoiceListAsync(bool forced = false)
-        {
-            if (VoiceList is null || VoiceList.Count is 0 || forced)
-            {
-                try
-                {
-                    string result;
-                    ClientOptionsManager.CheckOptions();
-                    using (HttpClient client = new())
-                    {
-                        client.DefaultRequestHeaders.Add("User-Agent", "TownOfHost-K Updater");
-                        using var response = await client.GetAsync(new Uri($"http://localhost:{ClientOptionsManager.YomiagePort}/getvoicelist"), HttpCompletionOption.ResponseContentRead);
-                        if (!response.IsSuccessStatusCode || response.Content == null)
-                        {
-                            Logger.Error($"ステータスコード: {response.StatusCode}", "GetVoiceList");
-                            return null;
-                        }
-                        result = await response.Content.ReadAsStringAsync();
-                    }
-                    var voice = JsonSerializer.Deserialize<Voice>(result)?.voiceList;
-
-                    VoiceList = new();
-                    for (var i = 0; i < voice.Count; i++)
-                        VoiceList.Add(i, voice[i].name);
-                    return VoiceList;
-
-                }
-                catch (HttpRequestException e)
-                {
-                    // エラーが発生した場合はエラーメッセージを表示
-                    Logger.Info($"Error: {e.Message}", "yomiage");
-                    Logger.seeingame("エラーが発生したため、読み上げが無効になりました");
-                    Main.UseYomiage.Value = false;
-                }
-                return null;
-            }
-            return VoiceList;
-        }
-        public class Voice
-        {
-            public List<Namev> voiceList { get; set; }
-
-            public class Namev
-            {
-                public string name { get; set; }
-            }
         }
 
         public static string LastL = "N";
@@ -1548,7 +1427,7 @@ namespace TownOfHost
                 case "/hr":
                     canceled = true;
                     subArgs = args.Length < 2 ? "" : args[1];
-                    GetRolesInfo(subArgs, byte.MaxValue);
+                    GetRolesInfo(subArgs, player.PlayerId);
                     break;
 
                 case "/m":
@@ -1639,36 +1518,8 @@ namespace TownOfHost
 
                 case "/voice":
                 case "/vo":
-                    if (!Main.UseYomiage.Value) break;
-                    canceled = true;
-                    subArgs = args.Length < 2 ? "" : args[1];
-                    string subArgs2 = args.Length < 3 ? "" : args[2];
-                    string subArgs3 = args.Length < 4 ? "" : args[3];
-                    string subArgs4 = args.Length < 5 ? "" : args[4];
-                    if (subArgs is "get" or "g" && Main.UseYomiage.Value)
-                    {
-                        StringBuilder sb = new();
-                        foreach (var r in GetvoiceListAsync().Result)
-                            sb.Append($"{r.Key}: {r.Value}");
-                        SendMessage(sb.ToString(), player.PlayerId);
-                    }
-                    else if (subArgs != "" && subArgs2 != "" && subArgs3 != "" && subArgs4 != "")
-                    {
-                        if (VoiceList is null) GetvoiceListAsync().Wait();
-                        if (int.TryParse(subArgs, out int vid) && VoiceList.Count > vid)
-                        {
-                            YomiageS[player.Data.DefaultOutfit.ColorId] = $"{subArgs} {subArgs2} {subArgs3} {subArgs4}";
-                            RPC.SyncYomiage();
-                        }
-                        else
-                        {
-                            StringBuilder sb = new();
-                            foreach (var r in GetvoiceListAsync().Result)
-                                sb.Append($"{r.Key}: {r.Value}");
-                            SendMessage(sb.ToString(), player.PlayerId);
-                        }
-                    }
-                    else SendMessage("使用方法:\n/vo 音質(id) 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", player.PlayerId);
+                    if (!Yomiage.ChatCommand(args, player.PlayerId))
+                        SendMessage("使用方法:\n/vo 音質(id) 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", player.PlayerId);
                     break;
                 case "/impstorchat":
                 case "/impct":

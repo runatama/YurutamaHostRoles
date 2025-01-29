@@ -5,7 +5,7 @@ using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Ghost
 {
-    public static class GhostNoiseSender
+    public class GhostNoiseSender
     {
         private static readonly int Id = 60500;
         public static List<byte> playerIdList = new();

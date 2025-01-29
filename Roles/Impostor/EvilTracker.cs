@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using Hazel;
@@ -6,8 +8,6 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using System;
-using System.Linq;
 
 namespace TownOfHost.Roles.Impostor;
 

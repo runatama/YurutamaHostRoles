@@ -158,7 +158,7 @@ namespace TownOfHost.Modules
             {
                 Logger.Error($"stateがnullやで", "Pl.BuildGameOptions");
                 return opt;
-            };
+            }
             opt.SetInt(Int32OptionNames.NumEmergencyMeetings, (int)state.NumberOfRemainingButtons);
             opt.BlackOut(state.IsBlackOut);
 
@@ -260,7 +260,7 @@ namespace TownOfHost.Modules
                 {
                     opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultImpostorVision);
                     opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultImpostorVision);
-                };
+                }
             }
 
             //キルクール0に設定+修正する設定をONにしたと気だけ呼び出す。

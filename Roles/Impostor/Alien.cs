@@ -1,15 +1,17 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using Hazel;
+using UnityEngine;
+using HarmonyLib;
+using AmongUs.GameOptions;
+
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using System.Linq;
-using UnityEngine;
-using TownOfHost.Modules;
-using Hazel;
-using System.Text;
-using HarmonyLib;
-
 using static TownOfHost.Modules.SelfVoteManager;
+
 namespace TownOfHost.Roles.Impostor;
 
 /// コードがクッソ長い!!スパゲッティかよ!!まぁ処理が複雑な役職だからね。仕方ない。
@@ -564,8 +566,8 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     #region Name
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
-        if (!Player.IsAlive()) return "";
-        if (AlienHitoku || GameStates.Meeting) return Mode(gamelog);
+        if (!Player.IsAlive() && !gamelog) return "";
+        if (AlienHitoku || GameStates.Meeting || gamelog) return Mode(gamelog);
 
         return "";
     }
@@ -756,7 +758,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 if (CheckSelfVoteMode(Player, votedForId, out var status))
                 {
                     if (status is VoteStatus.Self)
-                        Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.Divied"), GetString("Vote.Divied")) + GetString("VoteSkillMode"), Player.PlayerId);
+                        Utils.SendMessage(string.Format(GetString("SkillMode"), GetString("Mode.AlienUetuke"), GetString("Vote.AlienUetuke")) + GetString("VoteSkillMode"), Player.PlayerId);
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)

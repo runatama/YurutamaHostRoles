@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;

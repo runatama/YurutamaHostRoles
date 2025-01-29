@@ -528,7 +528,7 @@ namespace TownOfHost
             if (IsLoaded) return;
             OptionSaver.Initialize();
             // プリセット
-            _ = PresetOptionItem.Create(0, TabGroup.MainSettings)
+            PresetOptionItem.Preset = PresetOptionItem.Create(0, TabGroup.MainSettings)
                 .SetColor(new Color32(204, 204, 0, 255))
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.All);
@@ -1221,7 +1221,8 @@ namespace TownOfHost
 
             jam = BooleanOptionItem.Create(1_000_112, "AntiCheat", true, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All)
-                .SetColor(Color.red);
+                .SetColor(Color.gray)
+                .SetInfo("...今は動かないよ...ごめんネ");
 
             DebugModeManager.SetupCustomOption();
 

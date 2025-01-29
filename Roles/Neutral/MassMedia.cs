@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 using AmongUs.GameOptions;
+using UnityEngine;
+
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable

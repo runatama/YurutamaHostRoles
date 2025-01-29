@@ -4,7 +4,7 @@ using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Ghost
 {
-    public static class DemonicCrusher
+    public class DemonicCrusher
     {
         private static readonly int Id = 60200;
         public static List<byte> playerIdList = new();

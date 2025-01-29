@@ -6,7 +6,6 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
-
 namespace TownOfHost.Roles.Impostor;
 public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
 {
@@ -98,7 +97,7 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
             MagicCooldown = DefaultCooldown;
     }
 
-    public void OnCheckMurderAsKiller(MurderInfo info) => killc++;
+    public void OnMurderPlayerAsKiller(MurderInfo info) => killc++;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;

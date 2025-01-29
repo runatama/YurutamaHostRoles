@@ -1,17 +1,17 @@
 using System;
+using System.Linq;
+using System.Text;
 using HarmonyLib;
 using UnityEngine;
+using AmongUs.GameOptions;
 
+using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
-using TownOfHost.Roles;
 using TownOfHost.Roles.AddOns.Common;
-using System.Text;
 using TownOfHost.Roles.Impostor;
-using AmongUs.GameOptions;
 using TownOfHost.Roles.Neutral;
-using System.Linq;
+using static TownOfHost.Translator;
 
 namespace TownOfHost
 {

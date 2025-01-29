@@ -1,9 +1,10 @@
 using AmongUs.GameOptions;
+using Hazel;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 using TownOfHost.Roles.Core;
-using System.Linq;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Crewmate;
@@ -28,7 +29,7 @@ public sealed class VentHunter : RoleBase
         player
     )
     {
-        count = OptionCount.GetFloat();
+        count = OptionCount.GetInt();
         cooldown = OptionCooldown.GetInt();
         trapDisappearTime = OptionDisappearTime.GetFloat();
         task = OptionTask.GetFloat();
@@ -46,7 +47,7 @@ public sealed class VentHunter : RoleBase
     static float trapDisappearTime;
     static float task;
     static bool nasi;
-    float count;
+    int count;
 
     Dictionary<int, float> TrapVents;
     static Dictionary<byte, int> Vent;
@@ -61,8 +62,8 @@ public sealed class VentHunter : RoleBase
 
     private static void SetupOptionItem()
     {
-        OptionCount = FloatOptionItem.Create(RoleInfo, 10, OptionName.VentHunterCount, new(0, 99, 1), 2, false);
-        OptionCooldown = IntegerOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(0, 120, 1), 30, false);
+        OptionCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.VentHunterCount, new(0, 99, 1), 2, false, infinity: true);
+        OptionCooldown = IntegerOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(0, 120, 1), 30, false, infinity: true);
         OptionDisappearTime = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentHunterTime, new(0, 30, 2.5f), 10, false);
         OptionTask = FloatOptionItem.Create(RoleInfo, 13, OptionName.cantaskcount, new(0, 99, 1), 5, false);
     }
@@ -72,6 +73,7 @@ public sealed class VentHunter : RoleBase
         if (!CanUseAbility || TrapVents.ContainsKey(ventId)) return false;
 
         count--;
+        SendRPC();
         var players = Vent.Where(x => x.Value == ventId).Select(x => PlayerCatch.GetPlayerById(x.Key));
         var checkKiller = players.Any(x => x.GetRoleClass() is IKiller { CanKill: true });
 
@@ -104,7 +106,7 @@ public sealed class VentHunter : RoleBase
     }
     public override void OnVentilationSystemUpdate(PlayerControl user, VentilationSystem.Operation Operation, int ventId)
     {
-        if (Is(user)) return;
+        if (!AmongUsClient.Instance.AmHost || Is(user)) return;
         if (Operation is VentilationSystem.Operation.Move)
             Vent[user.PlayerId] = ventId;
         if (Operation is VentilationSystem.Operation.Exit or VentilationSystem.Operation.BootImpostors)
@@ -119,6 +121,15 @@ public sealed class VentHunter : RoleBase
         }
     }
 
+    private void SendRPC()
+    {
+        using var sender = CreateSender();
+        sender.Writer.Write(count);
+    }
+    public override void ReceiveRPC(MessageReader reader)
+    {
+        count = reader.ReadInt32();
+    }
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
     public override string GetProgressText(bool comms = false, bool GameLog = false) => nasi ? "" : Utils.ColorString(CanUseAbility ? RoleInfo.RoleColor : IsTaskCompleted ? Color.red : Color.gray, $"({count})");
     public bool CanUseAbility => (nasi || count > 0) && IsTaskCompleted;
@@ -127,6 +138,7 @@ public sealed class VentHunter : RoleBase
 
     public void TrapKill(PlayerControl pc)
     {
+        if (!pc.IsAlive()) return;
         pc.SetRealKiller(Player);
         var state = PlayerState.GetByPlayerId(pc.PlayerId);
         state.DeathReason = CustomDeathReason.Trap;
@@ -141,6 +153,7 @@ public sealed class VentHunter : RoleBase
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
+        if (trapDisappearTime == 0) return;
         foreach (var (ventid, time) in TrapVents)
         {
             if (time >= trapDisappearTime)

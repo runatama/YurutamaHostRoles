@@ -4,9 +4,7 @@ using System.Text.RegularExpressions;
 using HarmonyLib;
 using TownOfHost.Attributes;
 using static TownOfHost.Translator;
-using InnerNet;
-using System.Security.Cryptography;
-using System.Text;
+
 namespace TownOfHost
 {
     public static class BanManager
@@ -134,6 +132,9 @@ namespace TownOfHost
         public static bool CheckWhiteList(string code, string hashedpuid = "")
         {
             bool OnlyCheckPuid = false;
+            //nullなら空白
+            code ??= "";
+            hashedpuid ??= "";
             if (code == "" && hashedpuid != "") OnlyCheckPuid = true;
             else if (code == "") return false;
             try

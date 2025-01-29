@@ -224,11 +224,10 @@ public sealed class JackalDoll : RoleBase
         if (Oyabun.TryGetValue(player.PlayerId, out var oyabunid))
         {
             var oya = PlayerCatch.GetPlayerById(oyabunid);
-            if (!oya.IsAlive() && !shoukaku)
+            var jacrole = CustomRoles.Jackal;
+            role.TryGetValue(player.PlayerId, out jacrole);
+            if ((!oya.IsAlive() || oya.GetCustomRole() != jacrole) && !shoukaku)
             {
-                var jacrole = CustomRoles.Jackal;
-                role.TryGetValue(player.PlayerId, out jacrole);
-
                 MyState.SetCountType(CountTypes.Jackal);
                 shoukaku = true;
                 if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
@@ -243,6 +242,17 @@ public sealed class JackalDoll : RoleBase
         {
             roleText = $"☆" + GetString("Jackaldoll");
         }
+    }
+    public override string GetProgressText(bool comms = false, bool GameLog = false)
+    {
+        var text = "";
+        if (GameLog) return "";
+
+        if (role.TryGetValue(Player.PlayerId, out var r))
+        {
+            text = GetString($"{r}");
+        }
+        return text == "" ? "" : $" (<color={RoleInfo.RoleColorCode}>{text}</color>)";
     }
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {

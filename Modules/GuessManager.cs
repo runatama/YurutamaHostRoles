@@ -1,19 +1,21 @@
-using Hazel;
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using TMPro;
-using TownOfHost.Roles.Core;
-using TownOfHost.Attributes;
-using TownOfHost.Roles.AddOns.Common;
 using UnityEngine;
-using static TownOfHost.Translator;
+
+using TownOfHost.Attributes;
+using TownOfHost.Modules;
+using TownOfHost.Modules.ChatManager;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Crewmate;
-using TownOfHost.Modules;
-using TownOfHost.Modules.ChatManager;
+
+using static TownOfHost.Translator;
+
 namespace TownOfHost;
 
 //参考→https://github.com/0xDrMoe/TownofHost-Enhanced/releases/tag/v1.0.1
@@ -144,6 +146,22 @@ public static class GuessManager
                         break;
                 }
 
+                switch (RoleTypes)
+                {
+                    case CustomRoleTypes.Impostor:
+                        if (ImpHantei(pc, target, role)) return true;
+                        break;
+                    case CustomRoleTypes.Crewmate:
+                        if (CrewHantei(pc, target, role)) return true;
+                        break;
+                    case CustomRoleTypes.Madmate:
+                        if (MadHantei(pc, target, role)) return true;
+                        break;
+                    case CustomRoleTypes.Neutral:
+                        if (NeuHantei(pc, target, role)) return true;
+                        break;
+                }
+
                 if (role == CustomRoles.GM || target.Is(CustomRoles.GM) || role.IsAddOn() || role.IsGorstRole())
                     return true;
 
@@ -168,25 +186,6 @@ public static class GuessManager
                 if (targetroleclass?.CheckGuess(pc) == false)
                 {
                     guesserSuicide = true;
-                }
-                else
-                {
-                    //ここから陣営事に処理決める
-                    switch (RoleTypes)
-                    {
-                        case CustomRoleTypes.Impostor:
-                            guesserSuicide |= ImpHantei(pc, target, role);
-                            break;
-                        case CustomRoleTypes.Crewmate:
-                            guesserSuicide |= CrewHantei(pc, target, role);
-                            break;
-                        case CustomRoleTypes.Madmate:
-                            guesserSuicide |= MadHantei(pc, target, role);
-                            break;
-                        case CustomRoleTypes.Neutral:
-                            guesserSuicide |= NeuHantei(pc, target, role);
-                            break;
-                    }
                 }
 
                 //自殺が決まってないなら処理
@@ -214,7 +213,7 @@ public static class GuessManager
                     var playerState = PlayerState.GetByPlayerId(dp.PlayerId);
                     playerState.DeathReason = tempDeathReason;
                     dp.SetRealKiller(pc);
-                    RpcGuesserMurderPlayer(dp);
+                    MeetingVoteManager.ResetVoteManager(dp.PlayerId);
 
                     //死者检查
                     //Utils.AfterPlayerDeathTasks(dp, true);
@@ -302,54 +301,7 @@ public static class GuessManager
 
     public static TextMeshPro nameText(this PlayerControl p) => p.cosmetics.nameText;
     public static TextMeshPro NameText(this PoolablePlayer p) => p.cosmetics.nameText;
-    public static void RpcGuesserMurderPlayer(this PlayerControl pc, float delay = 0f)
-    {
-        // DEATH STUFF //
-        var amOwner = pc.AmOwner;
-        pc.Data.IsDead = true;
-        pc.RpcExileV2();
-        var playerState = PlayerState.GetByPlayerId(pc.PlayerId);
-        playerState.SetDead();
-        PlayerState.AllPlayerStates[pc.PlayerId].SetDead();
-        var meetingHud = MeetingHud.Instance;
-        var hudManager = DestroyableSingleton<HudManager>.Instance;
-        SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
-        hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
-        Utils.AllPlayerKillFlash();
-        if (amOwner)
-        {
-            hudManager.ShadowQuad.gameObject.SetActive(false);
-            pc.nameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
-            pc.RpcSetScanner(false);
-            ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
-            importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
-            meetingHud.SetForegroundForDead();
-        }
-        PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(
-            x => x.TargetPlayerId == pc.PlayerId
-        );
-        if (voteArea == null) return;
-        if (voteArea.DidVote) voteArea.UnsetVote();
-        voteArea.AmDead = true;
-        voteArea.Overlay.gameObject.SetActive(true);
-        voteArea.Overlay.color = Color.white;
-        voteArea.XMark.gameObject.SetActive(true);
-        voteArea.XMark.transform.localScale = Vector3.one;
-        foreach (var playerVoteArea in meetingHud.playerStates)
-        {
-            if (playerVoteArea.VotedFor != pc.PlayerId) continue;
-            playerVoteArea.UnsetVote();
-            meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
-            meetingHud.ClearVote();
-            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
-            var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
-            if (!voteAreaPlayer.AmOwner) continue;
-            meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
-            meetingHud.ClearVote();
-            MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, pc.PlayerId);
-        }
-        _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "GuessMeetingCheck");
-    }
+
     private static bool MsgToPlayerAndRole(string msg, out byte id, out CustomRoles role, out string error)
     {
         if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
@@ -682,7 +634,7 @@ public static class GuessManager
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.giveguesser) dame = LastImpostor.ICanGuessTaskDoneSnitch.GetBool();
             if (!dame)
             {
-                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Impostor")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, "【=== 緑のあの子は打てないよ！ ===】"));
+                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Impostor")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, GetString("GuessSnitchTitle")));
                 return true;
             }
         }
@@ -692,7 +644,11 @@ public static class GuessManager
             var Nakama = Guesser.ICanGuessNakama.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.giveguesser) Nakama = LastImpostor.ICanGuessNakama.GetBool();
-            if (!Nakama) return true;
+            if (!Nakama)
+            {
+                Utils.SendMessage(GetString("GuessTeamMate"), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Impostor), GetString("GuessTeamMateTitle")));
+                return true;
+            }
         }
         //各白を打ち抜けるか
         if (guessrole.IsWhiteCrew())
@@ -700,7 +656,11 @@ public static class GuessManager
             var WC = Guesser.ICanWhiteCrew.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.giveguesser) WC = LastImpostor.ICanWhiteCrew.GetBool();
-            if (!WC) return true;
+            if (!WC)
+            {
+                Utils.SendMessage(string.Format(GetString("GuessWhiteRole"), GetString("Impostor")), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.UltraStar), GetString("GuessWhiteRoleTitle")));
+                return true;
+            }
         }
         //バニラを撃ちぬけるか
         if (guessrole.IsVanilla())
@@ -708,7 +668,11 @@ public static class GuessManager
             var va = Guesser.ICanGuessVanilla.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
             if (pc.Is(CustomRoles.LastImpostor) && LastImpostor.giveguesser) va = LastImpostor.ICanGuessVanilla.GetBool();
-            if (!va) return true;
+            if (!va)
+            {
+                Utils.SendMessage(GetString("GuessVanillaRoleTitle"), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(guessrole), GetString("GuessVanillaRole")));
+                return true;
+            }
         }
         return false;
     }
@@ -724,7 +688,7 @@ public static class GuessManager
             if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) dame = LastNeutral.ICanGuessTaskDoneSnitch.GetBool();
             if (!dame)
             {
-                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Neutral")), pc.PlayerId, Utils.ColorString(Palette.DisabledGrey, "【=== スニッチ君は打てないよ！ ===】"));
+                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Neutral")), pc.PlayerId, Utils.ColorString(Palette.DisabledGrey, GetString("GuessSnitchTitle")));
                 return true;
             }
         }
@@ -734,7 +698,11 @@ public static class GuessManager
             var WC = Guesser.NCanWhiteCrew.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
             if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) WC = LastNeutral.ICanWhiteCrew.GetBool();
-            if (!WC) return true;
+            if (!WC)
+            {
+                Utils.SendMessage(string.Format(GetString("GuessWhiteRole"), GetString("Neutral")), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.UltraStar), GetString("GuessWhiteRoleTitle")));
+                return true;
+            }
         }
         //バニラを撃ちぬけるか
         if (guessrole.IsVanilla())
@@ -742,7 +710,11 @@ public static class GuessManager
             var va = Guesser.NCanGuessVanilla.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
             if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveGuesser.GetBool()) va = LastNeutral.ICanGuessVanilla.GetBool();
-            if (!va) return true;
+            if (!va)
+            {
+                Utils.SendMessage(GetString("GuessVanillaRoleTitle"), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(guessrole), GetString("GuessVanillaRole")));
+                return true;
+            }
         }
         return false;
     }
@@ -756,7 +728,7 @@ public static class GuessManager
             if (roleaddon && data.GiveGuesser.GetBool()) dame = data.ICanGuessTaskDoneSnitch.GetBool();
             if (!dame)
             {
-                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Madmate")), pc.PlayerId, Utils.ColorString(Palette.ImpostorRed, "【=== 全てわかってる奴は打てないよ ===】"));
+                Utils.SendMessage(string.Format(GetString("GuessSnitch"), GetString("Madmate")), pc.PlayerId, Utils.ColorString(ModColors.MadMateOrenge, GetString("GuessSnitchTitle")));
                 return true;
             }
         }
@@ -765,21 +737,33 @@ public static class GuessManager
         {
             var Nakama = Guesser.MCanGuessNakama.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
-            if (!Nakama) return true;
+            if (!Nakama)
+            {
+                Utils.SendMessage(GetString("GuessTeamMate"), pc.PlayerId, Utils.ColorString(ModColors.MadMateOrenge, GetString("GuessTeamMateTitle")));
+                return true;
+            }
         }
         //各白を打ち抜けるか
         if (guessrole.IsWhiteCrew())
         {
             var WC = Guesser.MCanWhiteCrew.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
-            if (!WC) return true;
+            if (!WC)
+            {
+                Utils.SendMessage(string.Format(GetString("GuessWhiteRole"), GetString("Madmate")), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.UltraStar), GetString("GuessWhiteRoleTitle")));
+                return true;
+            }
         }
         //バニラを撃ちぬけるか
         if (guessrole.IsVanilla())
         {
             var va = Guesser.MCanGuessVanilla.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
-            if (!va) return true;
+            if (!va)
+            {
+                Utils.SendMessage(GetString("GuessVanillaRoleTitle"), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(guessrole), GetString("GuessVanillaRole")));
+                return true;
+            }
         }
         return false;
     }
@@ -792,21 +776,33 @@ public static class GuessManager
         {
             var Nakama = Guesser.CCanGuessNakama.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) Nakama = data.ICanGuessNakama.GetBool();
-            if (!Nakama) return true;
+            if (!Nakama)
+            {
+                Utils.SendMessage(GetString("GuessTeamMate"), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Crewmate), GetString("GuessTeamMateTitle")));
+                return true;
+            }
         }
         //各白を打ち抜けるか
         if (guessrole.IsWhiteCrew())
         {
             var WC = Guesser.CCanWhiteCrew.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) WC = data.ICanWhiteCrew.GetBool();
-            if (!WC) return true;
+            if (!WC)
+            {
+                Utils.SendMessage(string.Format(GetString("GuessWhiteRole"), GetString("Crewmate")), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.UltraStar), GetString("GuessWhiteRoleTitle")));
+                return true;
+            }
         }
         //バニラを撃ちぬけるか
         if (guessrole.IsVanilla())
         {
             var va = Guesser.CCanGuessVanilla.GetBool();
             if (roleaddon && data.GiveGuesser.GetBool()) va = data.ICanGuessVanilla.GetBool();
-            if (!va) return true;
+            if (!va)
+            {
+                Utils.SendMessage(GetString("GuessVanillaRoleTitle"), pc.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(guessrole), GetString("GuessVanillaRole")));
+                return true;
+            }
         }
         return false;
     }

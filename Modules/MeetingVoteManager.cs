@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
@@ -234,7 +235,8 @@ public class MeetingVoteManager
             }
 
             var voter = PlayerCatch.GetPlayerById(vote.Voter);
-            if (voter == null) continue;
+            if (voter.IsAlive()) continue;//投票者が死亡済み、投票相手がスキップじゃなく、投票先が死んでる...!?なら票数えない
+            if (PlayerCatch.GetPlayerById(vote.VotedFor).IsAlive() && vote.VotedFor is not Skip) continue;
 
             votes[vote.VotedFor] += vote.NumVotes;
 
@@ -471,4 +473,61 @@ public class MeetingVoteManager
 
     public const byte Skip = 253;
     public const byte NoVote = 254;
+
+    public static void ResetVoteManager(byte killtargetid)
+    {
+        PlayerControl pc = PlayerCatch.GetPlayerById(killtargetid);
+        bool amOwner = pc.AmOwner;
+
+        /* 死亡の設定 */
+        pc.Data.IsDead = true;
+        pc.RpcExileV2();
+        PlayerState.GetByPlayerId(killtargetid).SetDead();
+        PlayerState.AllPlayerStates[killtargetid].SetDead();
+
+        MeetingHud meetingHud = MeetingHud.Instance;
+        HudManager hudManager = DestroyableSingleton<HudManager>.Instance;
+        if (amOwner)
+        {
+            hudManager.ShadowQuad.gameObject.SetActive(false);
+            pc.nameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
+            pc.RpcSetScanner(false);
+            ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
+            importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
+            meetingHud.SetForegroundForDead();
+        }
+        PlayerVoteArea voteArea = meetingHud.playerStates.First(x => x.TargetPlayerId == pc.PlayerId);
+        if (voteArea is not null)
+        {
+            if (voteArea.DidVote) voteArea.UnsetVote();
+            voteArea.AmDead = true;
+            voteArea.Overlay.gameObject.SetActive(true);
+            voteArea.Overlay.color = Color.white;
+            voteArea.XMark.gameObject.SetActive(true);
+            voteArea.XMark.transform.localScale = Vector3.one;
+            int client = pc.GetClientId();
+            meetingHud.CastVote(pc.PlayerId, NoVote);
+            meetingHud.RpcClearVote(client);
+            meetingHud.ClearVote();
+            voteArea.UnsetVote();
+        }
+
+        /* ホストにキルアニメーション,全員にリアフラ*/
+        hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
+        Utils.AllPlayerKillFlash();
+
+        foreach (var playerVoteArea in meetingHud.playerStates)
+        {
+            var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
+            if (playerVoteArea.VotedFor != pc.PlayerId) continue;
+
+            meetingHud.CastVote(pc.PlayerId, NoVote);
+            meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
+            meetingHud.ClearVote();
+            playerVoteArea.UnsetVote();
+        }
+
+        meetingHud.CheckForEndVoting();
+        _ = new LateTask(() => meetingHud?.CheckForEndVoting(), 3f, "CheckForEndVoteing", true);
+    }
 }

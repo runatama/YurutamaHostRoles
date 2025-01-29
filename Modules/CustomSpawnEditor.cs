@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Collections.Generic;
 using AmongUs.Data;
@@ -10,7 +11,6 @@ using TownOfHost.Attributes;
 using TownOfHost.Modules;
 
 using Object = UnityEngine.Object;
-using System.Linq;
 
 namespace TownOfHost
 {

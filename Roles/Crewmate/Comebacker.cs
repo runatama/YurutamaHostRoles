@@ -1,9 +1,11 @@
 using System.Linq;
+using System.Collections.Generic;
+
 using AmongUs.GameOptions;
 using UnityEngine;
-using TownOfHost.Roles.Core;
 using HarmonyLib;
-using System.Collections.Generic;
+
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Comebacker : RoleBase

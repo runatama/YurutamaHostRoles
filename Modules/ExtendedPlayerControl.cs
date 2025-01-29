@@ -1,22 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
-using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
+using HarmonyLib;
 using UnityEngine;
+using AmongUs.GameOptions;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Impostor;
+using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
-using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Common;
-using TownOfHost.Roles.Neutral;
-using HarmonyLib;
+
+using static TownOfHost.Translator;
 
 namespace TownOfHost
 {
@@ -47,6 +48,20 @@ namespace TownOfHost
 
                 if (log == true) UtilsGameLog.LastLogRole[player.PlayerId] = "<b> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
                 else if (log == null) UtilsGameLog.LastLogRole[player.PlayerId] = $"<size=40%>{UtilsGameLog.LastLogRole[player.PlayerId].RemoveSizeTags()}</size><b>=> " + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
+
+                if (!SuddenDeathMode.NowSuddenDeathMode) NameColorManager.RemoveAll(player.PlayerId);
+
+                //マッドメイトの最初からの内通
+                if (role.IsMadmate() && Options.MadCanSeeImpostor.GetBool())
+                {
+                    if (PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor).Any())
+                        foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
+                        {
+                            var iste = PlayerState.GetByPlayerId(imp.Key);
+                            if (iste.TargetColorData.ContainsKey(player.PlayerId)) NameColorManager.Remove(player.PlayerId, imp.Key);
+                            NameColorManager.Add(player.PlayerId, imp.Key, "ff1919");
+                        }
+                }
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
@@ -102,6 +117,9 @@ namespace TownOfHost
 
             void SetRole()
             {
+                //会議中なら処理しない
+                if (GameStates.Meeting) return;
+
                 if (roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode)
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -136,6 +154,13 @@ namespace TownOfHost
                         //Amnesiac視点インポスターをクルーにする
                         killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
                     }
+                }
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (pc == null) continue;
+                    if (pc.IsAlive()) continue;
+
+                    pc.RpcExileV2();
                 }
             }
         }
@@ -250,6 +275,7 @@ namespace TownOfHost
                 Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
                 if (!GameStates.IsLobby) HudManagerPatch.LastSetNameDesyncCount++;
             }
+            UtilsNotifyRoles.NowSend = true;
 
             var clientId = seer.GetClientId();
             if (clientId == -1) return;
@@ -258,6 +284,7 @@ namespace TownOfHost
             writer.Write(name);
             writer.Write(DontShowOnModdedClient);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
+            UtilsNotifyRoles.NowSend = false;
         }
         public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
         {
@@ -898,7 +925,8 @@ namespace TownOfHost
                         text = CustomRoles.Madmate.ToString();
                         Prefix = player.GetPlayerTaskState().IsTaskFinished ? "" : "Before";
                         break;
-                };
+                }
+            ;
 
             if (role is CustomRoles.Amnesiac)
             {

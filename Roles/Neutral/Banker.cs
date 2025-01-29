@@ -20,7 +20,11 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             "bu",
             "#489972",
             true,
-            introSound: () => GetIntroSound(RoleTypes.Tracker)
+            introSound: () => GetIntroSound(RoleTypes.Tracker),
+            Desc: () =>
+            {
+                return string.Format(GetString("BankerDesc"), AddWinCoin.GetInt(), TaskAddCoin.GetInt(), KillAddCoin.GetInt(), ChengeCoin.GetInt(), TurnRemoveCoin.GetInt());
+            }
         );
     public Banker(PlayerControl player)
     : base(
@@ -133,7 +137,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
                 Coin -= TurnRemoveCoin.GetInt();
             else Coin -= DieRemoveTurn.GetInt();
 
-            if (AmongUsClient.Instance.AmHost)
+            if (AmongUsClient.Instance.AmHost && Player.IsAlive())
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {

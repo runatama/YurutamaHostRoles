@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 using static TownOfHost.Translator;
+
 
 namespace TownOfHost.Roles.AddOns.Common
 {

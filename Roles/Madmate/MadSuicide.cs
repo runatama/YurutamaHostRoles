@@ -2,6 +2,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 

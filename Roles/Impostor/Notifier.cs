@@ -1,5 +1,6 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 

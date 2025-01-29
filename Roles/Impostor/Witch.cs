@@ -161,8 +161,8 @@ namespace TownOfHost.Roles.Impostor
             {
                 if (pc == byte.MaxValue) continue;
                 if (tg.Contains(pc)) continue;
-                tg.Add(pc);
                 r += (tg.Count == 0 ? "" : ",") + $"{Utils.GetPlayerColor(pc)}";
+                tg.Add(pc);
             }
             return r + GetString("Skill.WitchO");
         }

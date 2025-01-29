@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Collections.Generic;
-using TownOfHost.Roles.Core;
+using Hazel;
 using AmongUs.GameOptions;
 
+using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
-using Hazel;
 
 namespace TownOfHost.Roles.Ghost
 {
@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Ghost
         public static Dictionary<CustomRoles, int> GhostAssingCount = new();
         public CustomRoles Role { get; private set; }
         public CustomRoleTypes RoleType { get; private set; }
-        public CustomRoleTypes kottinimofuyo { get; private set; }
+        public CustomRoleTypes kottinimofuyo { get; set; }
         public int IdStart { get; private set; }
 
         public GhostRoleAssingData(int idStart, CustomRoles role, CustomRoleTypes roleTypes, CustomRoleTypes k)

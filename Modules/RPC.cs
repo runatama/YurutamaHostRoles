@@ -42,11 +42,10 @@ namespace TownOfHost
             RpcCalls rpcType = (RpcCalls)callId;
             Logger.Info($"{__instance?.Data?.PlayerId}({__instance?.Data?.PlayerName}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
             MessageReader subReader = MessageReader.Get(reader);
-            if (!Croissant.CheckLowertheHeat(__instance, rpcType, subReader)) return false;
+            if (!Croissant.CheckLowertheHeat(__instance, rpcType, subReader) && (1 + 1 == 6)) return false;
             switch (rpcType)
             {
                 case RpcCalls.SetName: //SetNameRPC
-                    if (Croissant.jam.GetBool()) break;
                     subReader.ReadUInt32();
                     string name = subReader.ReadString();
                     if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
@@ -161,9 +160,11 @@ namespace TownOfHost
                 case CustomRPC.SyncYomiage:
                     if (Main.SyncYomiage.Value)
                     {
-                        ChatCommands.YomiageS.Clear();
-                        foreach (PlayerControl pc in PlayerCatch.AllPlayerControls)
-                            ChatCommands.YomiageS[reader.ReadInt32()] = reader.ReadString();
+                        Yomiage.YomiageS.Clear();
+                        int yomi = reader.ReadInt32();
+                        //foreach (PlayerControl pc in PlayerCatch.AllPlayerControls)
+                        for (int i = 0; i < yomi; i++)
+                            Yomiage.YomiageS[reader.ReadInt32()] = reader.ReadString();
                     }
                     break;
                 case CustomRPC.DevExplosion:
@@ -246,7 +247,8 @@ namespace TownOfHost
         public static void SyncYomiage()
         {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYomiage, SendOption.Reliable, -1);
-            foreach (System.Collections.Generic.KeyValuePair<int, string> data in ChatCommands.YomiageS)
+            writer.Write(Yomiage.YomiageS.Count);
+            foreach (var data in Yomiage.YomiageS)
             {
                 writer.Write(data.Key);
                 writer.Write(data.Value);

@@ -4,6 +4,7 @@ namespace TownOfHost
     {
         // 必須情報
         public IntegerValueRule Rule;
+        public static OptionItem Preset;
 
         // コンストラクタ
         public PresetOptionItem(int defaultValue, TabGroup tab)

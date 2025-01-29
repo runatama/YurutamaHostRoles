@@ -1,12 +1,13 @@
 using System.Collections.Generic;
-using TownOfHost.Roles.Core;
-using static TownOfHost.Options;
 using UnityEngine;
 using System.Linq;
 
+using TownOfHost.Roles.Core;
+using static TownOfHost.Options;
+
 namespace TownOfHost.Roles.Ghost
 {
-    public static class AsistingAngel
+    public class AsistingAngel
     {
         private static readonly int Id = 60400;
         public static List<byte> playerIdList = new();

@@ -1,13 +1,14 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using AmongUs.GameOptions;
+using UnityEngine;
+using HarmonyLib;
+using Hazel;
+
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using System.Linq;
-using UnityEngine;
-using TownOfHost.Modules;
-using Hazel;
-using System.Text;
-using HarmonyLib;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -570,8 +571,8 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     #region Name
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
-        if (!Player.IsAlive()) return "";
-        if (AlienHitoku || GameStates.Meeting) return Mode();
+        if (!Player.IsAlive() && !gamelog) return "";
+        if (AlienHitoku || GameStates.Meeting || gamelog) return Mode(gamelog);
 
         return "";
     }

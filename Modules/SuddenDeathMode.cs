@@ -54,10 +54,11 @@ namespace TownOfHost.Modules
             SuddenCannotSeeName = Options.SuddenCannotSeeName.GetBool();
             SuddenDeathtime = 0;
             ItijohoSendTime = 0;
+            gpsstarttime = 0;
             sabotage = false;
             arrow = false;
             colorint = -1;
-            color = Color.white;
+            color = ModColors.MadMateOrenge;
             pos.Clear();
             nokori60s = false;
             nokori30s = false;
@@ -288,6 +289,24 @@ namespace TownOfHost.Modules
 
             if (ItijohoSendTime > Options.SuddenItijohoSenddis.GetFloat() && arrow)
             {
+                if (Options.SuddenItijohoSenddis.GetFloat() is 0)
+                {
+                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        foreach (var pl in PlayerCatch.AllAlivePlayerControls)
+                        {
+                            if (pc.PlayerId == pl.PlayerId) continue;
+                            if (TeamRed.Contains(pl.PlayerId) && TeamRed.Contains(pc.PlayerId)) continue;
+                            if (TeamBlue.Contains(pl.PlayerId) && TeamBlue.Contains(pc.PlayerId)) continue;
+                            if (TeamYellow.Contains(pl.PlayerId) && TeamYellow.Contains(pc.PlayerId)) continue;
+                            if (TeamGreen.Contains(pl.PlayerId) && TeamGreen.Contains(pc.PlayerId)) continue;
+                            if (TeamPurple.Contains(pl.PlayerId) && TeamPurple.Contains(pc.PlayerId)) continue;
+
+                            TargetArrow.Add(pc.PlayerId, pl.PlayerId);
+                        }
+                    }
+                    return;
+                }
                 ItijohoSendTime = 0;
                 foreach (var pc in PlayerCatch.AllAlivePlayerControls) pos.Do(pos => GetArrow.Remove(pc.PlayerId, pos.Value));
                 pos.Clear();
@@ -348,9 +367,19 @@ namespace TownOfHost.Modules
             var ar = "";
             if (Options.SuddenItijohoSend.GetBool())
             {
-                foreach (var p in pos)
+                if (Options.SuddenItijohoSenddis.GetFloat() is 0)
                 {
-                    ar += " " + GetArrow.GetArrows(seer, p.Value);
+                    foreach (var sen in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        ar += " " + TargetArrow.GetArrows(seer, sen.PlayerId);
+                    }
+                }
+                else
+                {
+                    foreach (var p in pos)
+                    {
+                        ar += " " + GetArrow.GetArrows(seer, p.Value);
+                    }
                 }
                 ar = Utils.ColorString(color, ar);
             }

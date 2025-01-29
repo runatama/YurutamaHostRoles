@@ -1,24 +1,24 @@
+using System.Text;
+using System.Linq;
+using System.Data;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using HarmonyLib;
+using UnityEngine;
+
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Impostor;
+using TownOfHost.Roles.Neutral;
+using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.AddOns.Neutral;
+using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.Core.Interfaces;
+
 using static TownOfHost.Utils;
 using static TownOfHost.Translator;
-using static TownOfHost.UtilsRoleText;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Linq;
-using TownOfHost.Modules;
-using TownOfHost.Roles.AddOns.Neutral;
-using TownOfHost.Roles.AddOns.Common;
-using TownOfHost.Roles.AddOns.Impostor;
 using static TownOfHost.RandomSpawn;
-using TownOfHost.Roles.Impostor;
-using System.Data;
-using UnityEngine;
-using HarmonyLib;
-using TownOfHost.Roles.Neutral;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using static TownOfHost.UtilsRoleText;
 
 namespace TownOfHost
 {
@@ -29,6 +29,7 @@ namespace TownOfHost
         private static StringBuilder TargetMark = new(20);
         private static StringBuilder TargetSuffix = new(20);
 
+        public static bool NowSend;
         /// <summary>
         /// タスクターン中の役職名の変更
         /// </summary>

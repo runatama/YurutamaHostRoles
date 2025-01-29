@@ -237,6 +237,7 @@ namespace TownOfHost
             canmusic = false;
         }
         public static bool InGame = false;
+        public static bool IsOutro = false;
         public static bool AlreadyDied = false;
         public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().FirstOrDefault(x => x.PlayerId == 0 && x.IsModClient());
         public static bool IsLobby => AmongUsClient.Instance.GameState == AmongUsClient.GameStates.Joined;

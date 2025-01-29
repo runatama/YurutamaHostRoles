@@ -1,4 +1,5 @@
 using AmongUs.GameOptions;
+using Hazel;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +29,7 @@ public sealed class VentOpener : RoleBase
     {
         CustomRoleManager.OnEnterVentOthers.Add(OnEnterVentOthers);
         currentVent = new();
-        count = OptionCount.GetFloat();
+        count = OptionCount.GetInt();
         cooldown = OptionCooldown.GetInt();
         Defo = count is 0;
         fuhatu = OptinoFuhatu.GetBool();
@@ -55,7 +56,7 @@ public sealed class VentOpener : RoleBase
     static bool Neutral;
     static bool Defo;
     static float taskc;
-    float count;
+    int count;
 
     static Dictionary<byte, int> currentVent;
 
@@ -73,7 +74,7 @@ public sealed class VentOpener : RoleBase
 
     private static void SetupOptionItem()
     {
-        OptionCount = FloatOptionItem.Create(RoleInfo, 10, OptionName.VentOpenerCount, new(0, 30, 1), 3, false);
+        OptionCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.VentOpenerCount, new(0, 30, 1), 3, false, infinity: true);
         OptionCooldown = IntegerOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(0, 999, 1), 30, false);
         OptinoFuhatu = BooleanOptionItem.Create(RoleInfo, 12, OptionName.VentOpenerFuhatu, false, false);
         OptionImp = BooleanOptionItem.Create(RoleInfo, 13, OptionName.VentOpenerImp, true, false);
@@ -108,6 +109,7 @@ public sealed class VentOpener : RoleBase
         if ((check || fuhatu) && count > 0)
         {
             count--;
+            SendRPC();
         }
         if (!CanUseAbility)
         {
@@ -122,6 +124,16 @@ public sealed class VentOpener : RoleBase
         if (IsTaskCompleted)
             Player.RpcProtectedMurderPlayer();
         return true;
+    }
+
+    private void SendRPC()
+    {
+        using var sender = CreateSender();
+        sender.Writer.Write(count);
+    }
+    public override void ReceiveRPC(MessageReader reader)
+    {
+        count = reader.ReadInt32();
     }
 
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;

@@ -1,6 +1,7 @@
 using AmongUs.GameOptions;
-using TownOfHost.Roles.Core;
 using UnityEngine;
+
+using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class UltraStar : RoleBase

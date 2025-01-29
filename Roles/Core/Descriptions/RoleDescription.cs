@@ -28,17 +28,32 @@ public abstract class RoleDescription
             builder.AppendFormat("<b><line-height=2.0pic><size={0}>{1}\n", FirstHeaderSize, Translator.GetRoleString(RoleInfo.RoleName.ToString()).Color(RoleInfo.RoleColor.ToReadableColor()));
             builder.AppendFormat("<line-height=1.8pic><size={0}>{1}</b>\n", InfoSize, Blurb.Color(RoleInfo.RoleColor.ToReadableColor()));
             // 陣営
-            builder.AppendFormat("<size={0}>{1}:", SecondSize, Translator.GetString("Team"));
+            builder.AppendFormat("<size={0}>{1}:", "65%", Translator.GetString("Team"));
             var roleTeam = RoleInfo.CustomRoleType == CustomRoleTypes.Madmate ? CustomRoleTypes.Impostor : RoleInfo.CustomRoleType;
-            builder.AppendFormat("<b><size={0}>{1}</b>    ", SecondSize, Translator.GetString($"CustomRoleTypes.{roleTeam}"));
+            builder.AppendFormat("<b>{0}</b>    ", Translator.GetString($"CustomRoleTypes.{roleTeam}"));
+
+            //カウント
+            var count = RoleInfo.CountType;
+            var roletext = CustomRoles.Crewmate;
+            switch (count)
+            {
+                case CountTypes.Impostor: roletext = CustomRoles.Impostor; break;
+                case CountTypes.Jackal: roletext = CustomRoles.Jackal; break;
+                case CountTypes.Fox: roletext = CustomRoles.Fox; break;
+                case CountTypes.GrimReaper: roletext = CustomRoles.GrimReaper; break;
+                case CountTypes.Remotekiller: roletext = CustomRoles.Remotekiller; break;
+            }
+
+            builder.Append($"{Translator.GetString("Count")}:<b>{Utils.ColorString(UtilsRoleText.GetRoleColor(roletext), Translator.GetString(roletext.ToString()))}</b>    ");
+
             // バニラ置き換え役職
-            builder.AppendFormat("<size={0}>{1}", SecondSize, Translator.GetString("Basis"));
-            builder.AppendFormat("<line-height=1.3pic><size={0}>:{1}\n", SecondSize, Translator.GetString(RoleInfo.BaseRoleType.Invoke().ToString()));
+            builder.Append(Translator.GetString("Basis"));
+            builder.AppendFormat("<line-height=1.3pic>:{0}\n", Translator.GetString(RoleInfo.BaseRoleType.Invoke().ToString()));
             //From
-            if (RoleInfo.From != From.None) builder.AppendFormat("<line-height=1.3pic><size={0}>{1}\n", SecondSize, UtilsOption.GetFrom(RoleInfo).RemoveSizeTags());
+            if (RoleInfo.From != From.None) builder.AppendFormat("{0}\n", UtilsOption.GetFrom(RoleInfo).RemoveSizeTags());
 
             //説明
-            builder.AppendFormat("<line-height=1.3pic><size={0}>\n", BlankLineSize);
+            builder.AppendFormat("<line-height=1.2pic><size={0}>\n", BlankLineSize);
             builder.AppendFormat("<size={0}>{1}\n", BodySize, Description);
             //設定
             var sb = new StringBuilder();
@@ -75,8 +90,8 @@ public abstract class RoleDescription
             if (sb.ToString() != "")
             {
                 builder.AppendFormat("<size={0}>\n", BlankLineSize);
-                builder.AppendFormat("<size={0}>{1}\n", InfoSize, Translator.GetString("Settings"));
-                builder.AppendFormat("<line-height=1.0pic><size={0}>{1}", "50%", sb);
+                builder.AppendFormat("<size={0}>{1}\n", "80%", Translator.GetString("Settings"));
+                builder.AppendFormat("<line-height=0.9pic><size={0}>{1}", "45%", sb);
             }
             var temp = TemplateManager.GetTemplate($"{RoleInfo.RoleName}");
             if (temp != "")
@@ -134,7 +149,7 @@ public abstract class RoleDescription
     public const string InfoSize = "90%";
     public const string SecondHeaderSize = "80%";
     public const string SecondSize = "70%";
-    public const string BodySize = "60%";
+    public const string BodySize = "57%";
     public const string BlankLineSize = "30%";
 
     public static void wikiOption(OptionItem option, ref StringBuilder sb, int deep = 0)

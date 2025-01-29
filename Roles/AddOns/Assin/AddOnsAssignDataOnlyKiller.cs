@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using HarmonyLib;
+
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 using static TownOfHost.Translator;
-using HarmonyLib;
 
 namespace TownOfHost.Roles.AddOns.Common
 {

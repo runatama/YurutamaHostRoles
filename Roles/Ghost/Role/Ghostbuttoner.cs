@@ -5,27 +5,32 @@ using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Ghost
 {
-    public static class Ghostbuttoner
+    public class Ghostbuttoner
     {
+        static GhostRoleAssingData Data;
         private static readonly int Id = 60000;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static OptionItem Count;
+        static OptionItem AssingMadmate;
         public static Dictionary<byte, int> count;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.Ghostbuttoner);
-            GhostRoleAssingData.Create(Id + 1, CustomRoles.Ghostbuttoner, CustomRoleTypes.Crewmate);
+            Data = GhostRoleAssingData.Create(Id + 1, CustomRoles.Ghostbuttoner, CustomRoleTypes.Crewmate);
             CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
             Count = IntegerOptionItem.Create(Id + 3, "GhostButtonerCount", new(1, 9, 1), 1, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Times).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
+            AssingMadmate = BooleanOptionItem.Create(Id + 4, "AssgingMadmate", false, TabGroup.GhostRoles, false)
+                                .SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
         }
         public static void Init()
         {
             playerIdList = new();
             count = new Dictionary<byte, int>();
             CustomRoleManager.MarkOthers.Add(OtherMark);
+            Data.kottinimofuyo = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
         }
         public static void Add(byte playerId)
         {
@@ -45,16 +50,16 @@ namespace TownOfHost.Roles.Ghost
                     Logger.Info("サボちゅうなう", "Ghostbuttoner");
                     return;
                 }
-                if (!count.ContainsKey(pc.PlayerId))
+                if (!count.TryGetValue(pc.PlayerId, out var nowcont))
                 {
                     count[pc.PlayerId] = Count.GetInt();
+                    nowcont = Count.GetInt();
                 }
-                if (count.ContainsKey(pc.PlayerId))
-                    if (count[pc.PlayerId] > 0)
-                    {
-                        count[pc.PlayerId]--;
-                        ReportDeadBodyPatch.DieCheckReport(pc, null, false);
-                    }
+                if (nowcont > 0)
+                {
+                    count[pc.PlayerId]--;
+                    ReportDeadBodyPatch.DieCheckReport(pc, null, false);
+                }
             }
         }
         public static string OtherMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)

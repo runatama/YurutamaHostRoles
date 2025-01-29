@@ -57,7 +57,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
     static int maxtellcount;
     bool nowuse;
     bool fall;
-    static Dictionary<byte, CustomRoles> seentarget = new();
+    Dictionary<byte, CustomRoles> seentarget = new();
     enum OptionName { EvilTellerTellTime, EvilTellerDistance, EvilTellertellrole, EvilTellerCanTellCount }
 
     private TimerInfo TargetInfo;

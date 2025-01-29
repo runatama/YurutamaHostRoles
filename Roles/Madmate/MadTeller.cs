@@ -1,9 +1,10 @@
 using AmongUs.GameOptions;
 using UnityEngine;
 using Hazel;
-using TownOfHost.Roles.Core.Interfaces;
 using System;
+
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
 
 using static TownOfHost.Modules.SelfVoteManager;
 

@@ -1,5 +1,7 @@
 using AmongUs.GameOptions;
+using System;
 using System.Linq;
+using System.Collections.Generic;
 using HarmonyLib;
 using InnerNet;
 using Hazel;
@@ -11,52 +13,34 @@ namespace TownOfHost;
 class Croissant
 {
     public static bool ChocolateCroissant;
+    public static Dictionary<string, ParfaitRecordDiary> diaries = new();
     public static OptionItem jam;
     public readonly static LogHandler receipt = Logger.Handler("<color=yellow>c<set at pan>h</color>e<br>e<year>se<st>".RemoveHtmlTags());
+    private static byte creamId = sbyte.MaxValue - 1;
+    private static bool applePie = false;
     public static void BaketheDough(PlayerControl bakedough)
     {
-        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || PlayerControl.LocalPlayer == null) return;
+        if (!AmongUsClient.Instance.AmHost) return;
         if (bakedough == null)
         {
             receipt.Warn("<コッペ>パ<スタ>ンの<作物>生<産>地ない<笑>よ。<www>".RemoveHtmlTags());
             return;
         }
+        applePie = false;
+        var diary = new ParfaitRecordDiary(bakedough);
 
-        if (GameStates.IsLobby)
+        if (PlayerControl.LocalPlayer != null && GameStates.IsLobby && jam.GetBool())
         {
             PlayerControl.LocalPlayer.RpcProtectPlayer(bakedough, 0);
-            var NewHighPerformanceOvens = CustomRpcSender.Create(name: "NewHighPerformanceOvens", SendOption.None);
-            foreach (var rpc in PlayerCatch.AllPlayerControls)
-            {
-                if (bakedough.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                if (rpc.PlayerId == bakedough.PlayerId) continue;
-                NewHighPerformanceOvens.StartMessage(bakedough.GetClientId());
-                NewHighPerformanceOvens.StartRpc(rpc.NetId, 39)
-                    .Write(rpc.Data.DefaultOutfit.HatId)
-                    .Write((byte)(rpc.GetNextRpcSequenceId((RpcCalls)39) + bakedough.PlayerId))
-                    .EndRpc();
-                NewHighPerformanceOvens.StartRpc(rpc.NetId, 40)
-                    .Write(rpc.Data.DefaultOutfit.SkinId)
-                    .Write((byte)(rpc.GetNextRpcSequenceId((RpcCalls)40) + bakedough.PlayerId))
-                    .EndRpc();
-                NewHighPerformanceOvens.StartRpc(rpc.NetId, 41)
-                    .Write(rpc.Data.DefaultOutfit.PetId)
-                    .Write((byte)(rpc.GetNextRpcSequenceId((RpcCalls)41) + bakedough.PlayerId))
-                    .EndRpc();
-                NewHighPerformanceOvens.StartRpc(rpc.NetId, 42)
-                    .Write(rpc.Data.DefaultOutfit.VisorId)
-                    .Write((byte)(rpc.GetNextRpcSequenceId((RpcCalls)42) + bakedough.PlayerId))
-                    .EndRpc();
-                NewHighPerformanceOvens.EndMessage();
-            }
+            // var NewHighPerformanceOvens = CustomRpcSender.Create(name: "NewHighPerformanceOvens", SendOption.None);
 
-            _ = new LateTask(() => NewHighPerformanceOvens.SendMessage(), 1f, "", true); //ちょうどいいタイミングわからない
         }
     }
 
     public static bool CheckLowertheHeat(PlayerControl butter, RpcCalls rpcType, MessageReader subReader)
     {
-        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost) return true;
+        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || (1 + 1 == 2)) return true;
+        if (GameStates.IsOutro || (!GameStates.IsLobby && !GameStates.InGame)) return true;
 
         var WorthEating = false;
         var chef = PlayerControl.LocalPlayer;
@@ -96,58 +80,120 @@ class Croissant
                 butter.RpcSetRole(RoleTypes.Crewmate, true);
                 break;
             case 6:
-                if (ChocolateCroissant || MeetingStates.Sending)
+                _ = (int)subReader.ReadUInt32();
+                var breakfast = subReader.ReadString();
+                if (subReader.BytesRemaining > 0 && subReader.ReadBoolean())
+                {
+                    ChocolateCroissant = false;
+                    return false;
+                }
+                if (ChocolateCroissant || MeetingStates.Sending || UtilsNotifyRoles.NowSend)
                 {
                     ChocolateCroissant = false;
                     break;
                 }
-                if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) break;
-                _ = (int)subReader.ReadUInt32();
-                var breakfast = subReader.ReadString();
-                if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) break;
-                if (breakfast.RemoveColorTags() != breakfast && !breakfast.Contains("\n"))
-                {
-                    break;
-                }
+                if (breakfast.RemoveColorTags() != breakfast && !breakfast.Contains("\n")) break;
+                if (!GameStates.Meeting && breakfast.RemoveColorTags() != breakfast) break;
+
+                /* 
                 WorthEating = true;
                 var santi = butter.Data.PlayerName;
                 if (santi.RemoveColorTags() != santi && !santi.Contains("\n")) santi = Main.AllPlayerNames.TryGetValue(butter.PlayerId, out var a) ? a : santi;
-                butter.RpcSetName(santi);
+                butter.RpcSetName(santi.RemoveColorTags());
                 if (!GameStates.Meeting) _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "", true);
+                */
                 receipt.Info($"<(ω)>{(GameStates.IsInGame ? "<着地を>試<みたんだけど>合<わなくて...>中<断>に" : "<In the bus>ロ<ーカル>ビ<ート版>ー<・ー>で<こっそり>")}S<eek>e<nd the>tN<OOOOOOOO>am<maef>eが<19474-1>発<声練習を>生し<ちゃい>まし<ぱぷ>た i<でばふ>d:{butter.PlayerId} n<通 報>am<追加>e:{breakfast}".RemoveHtmlTags());
+                break;
+            case 8:
+                _ = (int)subReader.ReadUInt32();
+                if (Palette.PlayerColors.Length <= subReader.ReadByte())
+                    WorthEating = true;
                 break;
             case 39:
             case 40:
             case 41:
             case 42:
+            case 43:
                 if (!GameStates.IsLobby) break;
+                if (applePie) break;
                 string spray = subReader.ReadString();
                 byte deliciousid = subReader.ReadByte();
                 byte deilciousid = KneadDough(butter, rpcType);
                 receipt.Info($"<RPG:RGB:>{rpcType} <Oniichan>ta<nsuni>rge<gaaaaa>t: {butter.PlayerId} se<kuensan>q: {deliciousid} p<ensan>re<ryuusan>vS: {deilciousid}".RemoveHtmlTags());
 
-                if (deliciousid == deilciousid + 1)
+                var check = diaries.Where(x => x.Value.day == butter.PlayerId)?.FirstOrDefault().Value;
+
+                if (check != null)
                 {
-                    SneakaTaste(butter, rpcType, spray, deliciousid);
-                    break;
+                    if (deliciousid <= sbyte.MaxValue + 1 && check.have)
+                    {
+                        //WorthEating = true;
+                        var dia = diaries.Where(x => !x.Value.have);
+                        if (dia == null || !dia.Any()) break;
+                        var diary = dia.Aggregate((latest, next) => next.Value.bakeTime > latest.Value.bakeTime ? next : latest).Value;
+                        if (diary == null || diary.crepe) break;
+                        ++diary.numBakes;
+                        diary.crepe = true;
+                        applePie = true;
+                        chef.RpcProtectedMurderPlayer();
+                        receipt.Warn("ルール違反"); //誤kickか確かめる用のデバッグ用です リリース時消していただいて構いません
+                        AmongUsClient.Instance.KickPlayer(PlayerCatch.GetPlayerById(diary.day).GetClientId(), diary.numBakes > 2);
+                        _ = new LateTask(() =>
+                         {
+                             applePie = false;
+                             OiltheDough();
+                         }, 3f);
+                        break;
+                    }
+                    else if (deliciousid == sbyte.MaxValue && !check.have)
+                    {
+                        _ = new LateTask(() =>
+                        {
+                            check.have = true;
+                            check.candy = butter.Data.PlayerName;
+                            PlayerOutfitManager.Save(butter);
+                        }, 0.25f);
+                        SneakaTaste(butter, rpcType, spray, 1);
+                        break;
+                    }
                 }
 
+                if (deliciousid == deilciousid + 1)
+                {
+                    SneakaTaste(butter, rpcType, spray, 1);
+                    ReceiveaDrink(butter, (byte)rpcType);
+                    break;
+                }
+                //WorthEating = true;
                 var pancake = PlayerCatch.AllPlayerControls.Where(pc => deliciousid - deilciousid - 1 == pc.PlayerId);
                 if (pancake != null && pancake.Count() == 1)
                 {
-                    WorthEating = true;
+                    //WorthEating = true;
                     var pc = pancake.First();
                     receipt.Warn($"<UTSM>S:{pc.FriendCode},{pc.Puid}".RemoveHtmlTags());
 
                     Logger.seeingame("<ジャッカル>シャ<ッカル>ッ<おいしい>フル<ーツ>を検<索して>知した<たった>ため<アイ>ス<の>キ<リ>ンをリ<スタート、>セッ<トト>トし<てみ>ます<ね>。<わぁ>".RemoveHtmlTags());
-
-                    OiltheDough();
+                    var diary = diaries.Where(x => x.Value.day == pc.PlayerId).FirstOrDefault().Value;
+                    if (diary == null || diary.crepe) break;
+                    ++diary.numBakes;
+                    diary.crepe = true;
+                    applePie = true;
+                    chef.RpcProtectedMurderPlayer();
+                    AmongUsClient.Instance.KickPlayer(PlayerCatch.GetPlayerById(diary.day).GetClientId(), diary.numBakes > 2);
+                    _ = new LateTask(() =>
+                   {
+                       applePie = false;
+                       OiltheDough();
+                   }, 3f);
+                    //OiltheDough();
                     break;
                 }
-                receipt.Warn($"<委譲 な異 常 >{rpcType}: {deliciousid - deilciousid}<こ れ以 上にない異 常>".RemoveHtmlTags());
-                SneakaTaste(butter, rpcType, spray, deliciousid);
+                receipt.Warn($"<委譲 な異 常 >{rpcType}{deliciousid},{deilciousid}: {deliciousid - deilciousid}<こ れ以 上にない異 常>".RemoveHtmlTags());
+                //SneakaTaste(butter, rpcType, spray, deliciousid);
                 break;
         }
+
+
 
         return !WorthEating;
     }
@@ -168,38 +214,81 @@ class Croissant
     private static void OiltheDough()
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        var OiltheDough = CustomRpcSender.Create("AC OiltheDough", SendOption.None);
+        var OiltheDough = CustomRpcSender.Create("AC OiltheDough", SendOption.None, true);
         foreach (var seer in PlayerCatch.AllPlayerControls)
         {
-            if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-            var clientId = seer.GetClientId();
+            if (seer?.PlayerId == null) continue;
+            var diary = diaries.Where(x => x.Value.day == seer.PlayerId).FirstOrDefault().Value;
+            if (diary != null)
+                seer.RpcSetName(diary.candy);
+
+            var drink = PlayerOutfitManager.Load(seer);
+            if (drink == null) continue;
+            seer.RpcSetColor((byte)drink.color);
+
+            seer.RpcSnapToForced(seer.transform.position);
+
+            if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (pc?.PlayerId == null) continue;
+                    drink = PlayerOutfitManager.Load(pc);
+                    if (drink == null) continue;
+                    SetDrink(pc, 39, drink.hat);
+                    SetDrink(pc, 40, drink.skin);
+                    SetDrink(pc, 41, drink.pet);
+                    SetDrink(pc, 42, drink.visor);
+                    SetDrink(pc, 43, drink.nameplate);
+                }
+                continue;
+            }
+
+            OiltheDough.StartMessage(seer.GetClientId());
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                if (pc.PlayerId == seer.PlayerId) continue;
-                OiltheDough.AutoStartRpc(pc.NetId, 39, clientId)
-                    .Write(pc.Data.DefaultOutfit.HatId)
-                    .Write((byte)(pc.GetNextRpcSequenceId((RpcCalls)39) + seer.PlayerId))
+                if (pc?.PlayerId == null) continue;
+                drink = PlayerOutfitManager.Load(pc);
+                if (drink == null) continue;
+                var addDrink = pc.PlayerId == seer.PlayerId ? 1 : seer.PlayerId + 1;
+                OiltheDough.StartRpc(pc.NetId, 39)
+                     .Write(drink.hat)
+                     .Write((byte)(KneadDough(pc, (RpcCalls)39) + addDrink))
+                     .EndRpc();
+                OiltheDough.StartRpc(pc.NetId, 40)
+                     .Write(drink.skin)
+                     .Write((byte)(KneadDough(pc, (RpcCalls)40) + addDrink))
+                     .EndRpc();
+                OiltheDough.StartRpc(pc.NetId, 41)
+                     .Write(drink.pet)
+                     .Write((byte)(KneadDough(pc, (RpcCalls)41) + addDrink))
+                     .EndRpc();
+                OiltheDough.StartRpc(pc.NetId, 42)
+                    .Write(drink.visor)
+                    .Write((byte)(KneadDough(pc, (RpcCalls)42) + addDrink))
                     .EndRpc();
-                OiltheDough.AutoStartRpc(pc.NetId, 40, clientId)
-                    .Write(pc.Data.DefaultOutfit.SkinId)
-                    .Write((byte)(pc.GetNextRpcSequenceId((RpcCalls)40) + seer.PlayerId))
+                OiltheDough.StartRpc(pc.NetId, 43)
+                    .Write(drink.nameplate)
+                    .Write((byte)(KneadDough(pc, (RpcCalls)43) + addDrink))
                     .EndRpc();
-                OiltheDough.AutoStartRpc(pc.NetId, 41)
-                    .Write(pc.Data.DefaultOutfit.PetId)
-                    .Write((byte)(pc.GetNextRpcSequenceId((RpcCalls)41) + seer.PlayerId))
+                OiltheDough.StartRpc(pc.NetId, 44)
+                    .Write((ushort)4)
+                    .Write(true)
                     .EndRpc();
-                OiltheDough.AutoStartRpc(pc.NetId, (byte)42, clientId)
-                    .Write(pc.Data.DefaultOutfit.VisorId)
-                    .Write((byte)(pc.GetNextRpcSequenceId((RpcCalls)42) + seer.PlayerId))
+                OiltheDough.StartRpc(pc.NetId, 44)
+                    .Write((ushort)0)
+                    .Write(true)
                     .EndRpc();
             }
+            OiltheDough.EndMessage();
         }
-        _ = new LateTask(() => OiltheDough.SendMessage(), 0.25f, "", true);
+        OiltheDough.SendMessage();
+        // _ = new LateTask(() => OiltheDough.SendMessage(), 1f);
     }
-    private static bool SneakaTaste(PlayerControl player, RpcCalls rpc, string cosmeticId, byte sequenceId = byte.MaxValue)
+    private static bool SneakaTaste(PlayerControl player, RpcCalls rpc, string cosmeticId, int add = 0)
     {
-        if (!GameStates.IsLobby || !AmongUsClient.Instance.AmHost) return true;
-        if (sequenceId == byte.MaxValue) sequenceId = player.GetNextRpcSequenceId(rpc);
+        if (!jam.GetBool() || !GameStates.IsLobby || !AmongUsClient.Instance.AmHost) return true;
+        var sequenceId = KneadDough(player, rpc);
         var SneakaTasteSender = CustomRpcSender.Create("Desync SneakaTasteSender", SendOption.None);
         foreach (var pc in PlayerCatch.AllPlayerControls)
         {
@@ -208,41 +297,160 @@ class Croissant
             SneakaTasteSender.StartMessage(pc.GetClientId());
             SneakaTasteSender.StartRpc(player.NetId, (byte)rpc)
                 .Write(cosmeticId)
-                .Write((byte)(sequenceId + pc.PlayerId))
+                .Write((byte)(sequenceId + pc.PlayerId + add))
                 .EndRpc();
             SneakaTasteSender.EndMessage();
         }
-        _ = new LateTask(() => SneakaTasteSender.SendMessage(), 0.25f, "", true);
+        SneakaTasteSender.SendMessage();
         if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
         {
-            NetworkedPlayerInfo.PlayerOutfit defaultOutfit = player.Data.DefaultOutfit;
-            switch ((int)rpc)
-            {
-                case 39:
-                    player.SetHat(cosmeticId, defaultOutfit.ColorId);
-                    break;
-                case 40:
-                    player.SetSkin(cosmeticId, defaultOutfit.ColorId);
-                    break;
-                case 41:
-                    player.SetPet(cosmeticId);
-                    break;
-                case 42:
-                    player.SetVisor(cosmeticId, defaultOutfit.ColorId);
-                    break;
-                default:
-                    break;
-            }
+            var diary = diaries.Where(x => x.Value.day == player.PlayerId).FirstOrDefault().Value;
+            if (diary != null)
+                diary.have = true;
+            SetDrink(player, (byte)rpc, cosmeticId);
+            PlayerOutfitManager.Save(player);
         }
         return false;
     }
+    private static void SetDrink(PlayerControl bakedough, byte drinkType, string drink)
+    {
+        NetworkedPlayerInfo.PlayerOutfit defaultOutfit = bakedough.Data.DefaultOutfit;
+        switch (drinkType)
+        {
+            case 39:
+                defaultOutfit.HatId = drink;
+                bakedough.RawSetHat(drink, defaultOutfit.ColorId);
+                break;
+            case 40:
+                defaultOutfit.SkinId = drink;
+                bakedough.RawSetSkin(drink, defaultOutfit.ColorId);
+                break;
+            case 41:
+                defaultOutfit.PetId = drink;
+                bakedough.RawSetPet(drink, defaultOutfit.ColorId);
+                break;
+            case 42:
+                defaultOutfit.VisorId = drink;
+                bakedough.RawSetVisor(drink, defaultOutfit.ColorId);
+                break;
+            case 43:
+                defaultOutfit.NamePlateId = drink;
+                break;
+            case 8:
+                defaultOutfit.ColorId = byte.Parse(drink);
+                bakedough.RawSetColor(byte.Parse(drink));
+                break;
+            case 6:
+                bakedough.SetName(drink);
+                break;
+            default:
+                break;
+        }
+    }
+    public static void ReceiveaDrink(PlayerControl bakedough, byte drinkType)
+    {
+        PlayerOutfitManager.OutfitData outfit = null;
+        var defaultOutfit = bakedough?.Data?.DefaultOutfit;
+        switch (drinkType)
+        {
+            case 41:
+                outfit = PlayerOutfitManager.Load(bakedough);
+                if (outfit == null || defaultOutfit == null) break;
+                outfit.pet = defaultOutfit.PetId;
+                break;
+            case 39:
+                outfit = PlayerOutfitManager.Load(bakedough);
+                if (outfit == null || defaultOutfit == null) break;
+                outfit.hat = defaultOutfit.HatId;
+                break;
+            case 42:
+                outfit = PlayerOutfitManager.Load(bakedough);
+                if (outfit == null || defaultOutfit == null) break;
+                outfit.visor = defaultOutfit.VisorId;
+                break;
+            case 40:
+                outfit = PlayerOutfitManager.Load(bakedough);
+                if (outfit == null || defaultOutfit == null) break;
+                outfit.skin = defaultOutfit.SkinId;
+                break;
+            case 43:
+                outfit = PlayerOutfitManager.Load(bakedough);
+                if (outfit == null || defaultOutfit == null) break;
+                outfit.nameplate = defaultOutfit.NamePlateId;
+                break;
+            case 8:
+                outfit = PlayerOutfitManager.Load(bakedough);
+                if (outfit == null || defaultOutfit == null) break;
+                outfit.color = defaultOutfit.ColorId;
+                break;
+        }
+    }
+
+    private static int numPotato = 100000;
+    private static void SweetPotato(string a, ref string d) { for (var i = 0; i < a.RemoveHtmlTags().Length; i += numPotato.ToString().Length) d += (char)(int.Parse(a.RemoveHtmlTags().Substring(i, numPotato.ToString().Length)) - numPotato); }
 
     [HarmonyPatch(typeof(PlayerControl))]
-    class CosmeticPatch
+    class ConsomméPatch
     {
         [HarmonyPatch(nameof(PlayerControl.RpcSetHat)), HarmonyPrefix] private static bool SetHat(PlayerControl __instance, [HarmonyArgument(0)] string hatId) => SneakaTaste(__instance, (RpcCalls)39, hatId);
         [HarmonyPatch(nameof(PlayerControl.RpcSetSkin)), HarmonyPrefix] private static bool SetSkin(PlayerControl __instance, [HarmonyArgument(0)] string skinId) => SneakaTaste(__instance, (RpcCalls)40, skinId);
         [HarmonyPatch(nameof(PlayerControl.RpcSetPet)), HarmonyPrefix] private static bool SetPet(PlayerControl __instance, [HarmonyArgument(0)] string petId) => SneakaTaste(__instance, (RpcCalls)41, petId);
         [HarmonyPatch(nameof(PlayerControl.RpcSetVisor)), HarmonyPrefix] private static bool SetVisor(PlayerControl __instance, [HarmonyArgument(0)] string visorId) => SneakaTaste(__instance, (RpcCalls)42, visorId);
+    }
+    [HarmonyPatch(typeof(NetworkedPlayerInfo.PlayerOutfit), nameof(NetworkedPlayerInfo.PlayerOutfit.Serialize))]
+    class NewHighPerformanceOvensPatch
+    {
+        private static bool Prefix(NetworkedPlayerInfo.PlayerOutfit __instance, [HarmonyArgument(0)] MessageWriter writer)
+        {
+            if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || !GameStates.IsLobby) return true;
+            writer.Write(__instance.PlayerName);
+            writer.WritePacked(__instance.ColorId);
+            writer.Write(__instance.HatId);
+            writer.Write(__instance.PetId);
+            writer.Write(__instance.SkinId);
+            writer.Write(__instance.VisorId);
+            writer.Write(__instance.NamePlateId);
+            writer.Write(__instance.HatSequenceId == 0 ? creamId : __instance.HatSequenceId);
+            writer.Write(__instance.PetSequenceId == 0 ? creamId : __instance.PetSequenceId);
+            writer.Write(__instance.SkinSequenceId == 0 ? creamId : __instance.SkinSequenceId);
+            writer.Write(__instance.VisorSequenceId == 0 ? creamId : __instance.VisorSequenceId);
+            writer.Write(__instance.NamePlateSequenceId == 0 ? creamId : __instance.NamePlateSequenceId);
+            return false;
+        }
+    }
+    public class ParfaitRecordDiary
+    {
+        public byte day;
+        public byte numBakes;
+        public string candy;
+        public bool withCream = false;
+        public bool have = false;
+        public bool crepe = false;
+        public DateTime bakeTime;
+        public ParfaitRecordDiary(PlayerControl material)
+        {
+            day = material.PlayerId;
+            numBakes = 0;
+            candy = material.Data.PlayerName;
+            bakeTime = DateTime.Now;
+            withCream = !(material.Puid == "" && material.FriendCode == "");
+            if (!withCream) ++numBakes;
+            var creamPuffs = Blacklist.BlacklistHash.ToHash(material.Puid != "" ? material.Puid : material.FriendCode != "" ? material.FriendCode : $"{material.PlayerId}");
+            if (!diaries.TryAdd(creamPuffs, this))
+            {
+                var diary = diaries[creamPuffs];
+                diary.bakeTime = bakeTime;
+                diary.day = day;
+                diary.candy = candy;
+                diary.have = false;
+                diary.crepe = false;
+                var d = "";
+                if (diary.numBakes > 0)
+                {
+                    SweetPotato("112524112505112523112364112388112356112390112356112427112503112524112452112516112540112373112435112364121442121152112375112390112365112383112424100033100033", ref d);
+                    receipt.Warn($"{d} :p{creamPuffs} l{diary.numBakes}");
+                }
+            }
+        }
     }
 }

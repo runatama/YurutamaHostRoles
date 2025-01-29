@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton

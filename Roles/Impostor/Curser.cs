@@ -103,7 +103,7 @@ public sealed class Curser : RoleBase, IImpostor
         if (!Is(seer) || !Is(seen)) return "";
 
         var target = PlayerCatch.GetPlayerById(TargetId);
-        return target != null ? $"{(isForHud ? GetString("CurserCurrentTarget") : "Target")}:{Utils.GetPlayerColor(target.PlayerId)}" : "";
+        return target != null ? $"Target:{Utils.GetPlayerColor(target.PlayerId)}" : "";
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool _ = false)
     {

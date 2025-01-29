@@ -178,6 +178,7 @@ namespace TownOfHost.Roles.Neutral
         public override void AfterMeetingTasks()
         {
             if (!CanKill) return;
+            if (!Player.IsAlive()) return;
 
             _ = new LateTask(() =>
             {

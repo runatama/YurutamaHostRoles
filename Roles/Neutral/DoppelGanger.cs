@@ -1,8 +1,8 @@
 using AmongUs.GameOptions;
+using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IAdditionalWinner
@@ -119,7 +119,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     {
         if (GameLog)
         {
-            return Utils.ColorString(Palette.Purple, $"{Count}");
+            return Utils.ColorString(Palette.Purple, $"({Count})");
         }
         return "";
     }

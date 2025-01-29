@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
-using TownOfHost.Roles.Core;
 
 namespace TownOfHost
 {

@@ -51,6 +51,7 @@ public class SimpleRoleInfo
     private Func<AudioClip> introSound;
     public AudioClip IntroSound => introSound?.Invoke();
     private Func<bool> canMakeMadmate;
+    public Func<string> Desc;
     public bool CanMakeMadmate => canMakeMadmate?.Invoke() == true;
     public RoleAssignInfo AssignInfo { get; }
     public From From;
@@ -79,7 +80,8 @@ public class SimpleRoleInfo
         RoleAssignInfo assignInfo,
         CombinationRoles combination,
         From from,
-        bool isCantSeeTeammates
+        bool isCantSeeTeammates,
+        Func<string> Desc
     )
     {
         ClassType = classType;
@@ -98,6 +100,7 @@ public class SimpleRoleInfo
         From = from;
         Combination = combination;
         IsCantSeeTeammates = isCantSeeTeammates;
+        this.Desc = Desc;
 
         if (colorCode == "")
             colorCode = customRoleType switch
@@ -141,7 +144,8 @@ public class SimpleRoleInfo
         RoleAssignInfo assignInfo = null,
         CombinationRoles combination = CombinationRoles.None,
         From from = From.None,
-        bool isCantSeeTeammates = false
+        bool isCantSeeTeammates = false,
+        Func<string> Desc = null
     )
     {
         countType ??= customRoleType == CustomRoleTypes.Impostor ?
@@ -167,7 +171,8 @@ public class SimpleRoleInfo
             assignInfo,
             combination,
             from,
-            isCantSeeTeammates
+            isCantSeeTeammates,
+            Desc
             );
         roleInfo.Description = new SingleRoleDescription(roleInfo);
         return roleInfo;
@@ -248,7 +253,8 @@ public class SimpleRoleInfo
             assignInfo ?? new(roleName, customRoleType),
             combination,
             from,
-            false);
+            false,
+            null);
         roleInfo.Description = new VanillaRoleDescription(roleInfo, baseRoleType);
         return roleInfo;
     }

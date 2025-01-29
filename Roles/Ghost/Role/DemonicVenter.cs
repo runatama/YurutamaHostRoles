@@ -1,12 +1,13 @@
 using System.Collections.Generic;
-using TownOfHost.Roles.Core;
-using static TownOfHost.Options;
 using System.Linq;
 using UnityEngine;
 
+using TownOfHost.Roles.Core;
+using static TownOfHost.Options;
+
 namespace TownOfHost.Roles.Ghost
 {
-    public static class DemonicVenter
+    public class DemonicVenter
     {
         private static readonly int Id = 60700;
         public static List<byte> playerIdList = new();

@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HarmonyLib;
 using Hazel;
+using HarmonyLib;
 using UnityEngine;
+using AmongUs.Data;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
-using AmongUs.Data;
-using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Patches.ISystemType;
-using AmongUs.GameOptions;
 
 namespace TownOfHost
 {

@@ -52,7 +52,7 @@ namespace TownOfHost
         public static TMPro.TextMeshPro prisettext;
         public static FreeChatInputField search;
         public static TMPro.TextMeshPro searchtext;
-        static Il2CppSystem.Collections.Generic.List<PassiveButton> hozon2;
+        static Il2CppSystem.Collections.Generic.List<PassiveButton> tabButtons;
         public static void Postfix(GameSettingMenu __instance)
         {
             ActiveOnlyMode = false;
@@ -150,137 +150,156 @@ namespace TownOfHost
 
             if (template == null) return;
 
+            template = Object.Instantiate(template);
+            {
+                Vector3 pos = new();
+                Vector3 scale = new();
+
+                template.stringOptionName = AmongUs.GameOptions.Int32OptionNames.TaskBarMode;
+                //Background
+                var label = template.LabelBackground.transform;
+                {
+                    label.localScale = new Vector3(1.3f, 1.14f, 1f);
+                    label.SetLocalX(-2.2695f * w);
+                }
+                //プラスボタン
+                var plusButton = template.PlusBtn.transform;
+                {
+                    pos = plusButton.localPosition;
+                    scale = plusButton.localScale;
+                    plusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+                    plusButton.localPosition = new Vector3((pos.x + 1.1434f) * w, pos.y * h, pos.z);
+                }
+                //マイナスボタン
+                var minusButton = template.MinusBtn.transform;
+                {
+                    pos = minusButton.localPosition;
+                    scale = minusButton.localScale;
+                    minusButton.localPosition = new Vector3((pos.x + 0.3463f) * w, (pos.y * h), pos.z);
+                    minusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+                }
+                //値を表示するテキスト
+                var valueTMP = template.ValueText.transform;
+                {
+                    pos = valueTMP.localPosition;
+                    valueTMP.localPosition = new Vector3((pos.x + 2.5f) * w, pos.y * h, pos.z);
+                    scale = valueTMP.localScale;
+                    valueTMP.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                }
+                //上のテキストを囲む箱(ﾀﾌﾞﾝ)
+                var valueBox = template.transform.FindChild("ValueBox");
+                {
+                    pos = valueBox.localPosition;
+                    valueBox.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                    scale = valueBox.localScale;
+                    valueBox.localScale = new Vector3((scale.x + 0.2f) * w, scale.y * h, scale.z);
+                }
+                //タイトル(設定名)
+                var titleText = template.TitleText;
+                {
+                    var transform = titleText.transform;
+                    pos = transform.localPosition;
+                    transform.localPosition = new Vector3((pos.x + -1.096f) * w, pos.y * h, pos.z);
+                    scale = transform.localScale;
+                    transform.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                    titleText.rectTransform.sizeDelta = new Vector2(6.5f, 0.37f);
+                    titleText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+                    titleText.SetOutlineColor(Color.black);
+                    titleText.SetOutlineThickness(0.125f);
+                }
+                template.OnValueChanged = new Action<OptionBehaviour>((o) => { });
+            }
+
             Dictionary<TabGroup, GameOptionsMenu> list = new();
             Dictionary<TabGroup, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> scOptions = new();
 
-            foreach (var tb in EnumHelper.GetAllValues<TabGroup>())
+            var TabLength = EnumHelper.GetAllValues<TabGroup>().Length;
+
+            for (var i = 0; i < TabLength; i++)
             {
-                var s = new GameObject($"{tb}-Stg").AddComponent<GameOptionsMenu>();
-                s.transform.SetParent(ModSettingsTab.AdvancedRolesSettings.transform.parent);
-                s.transform.localPosition = new Vector3(0.7789f, -0.5101f);
-                list.Add(tb, s);
+                var tab = (TabGroup)i;
+                var optionsMenu = new GameObject($"{tab}-Stg").AddComponent<GameOptionsMenu>();
+                var transform = optionsMenu.transform;
+                transform.SetParent(ModSettingsTab.AdvancedRolesSettings.transform.parent);
+                transform.localPosition = new Vector3(0.7789f, -0.5101f);
+                list.Add(tab, optionsMenu);
+                scOptions[tab] = new();
             }
+
+            var LabelBackgroundSprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
+
             foreach (var option in OptionItem.AllOptions)
             {
                 if (option.OptionBehaviour == null)
                 {
-                    var stringOption = Object.Instantiate(template, list[option.Tab].transform);
-                    if (!scOptions.ContainsKey(option.Tab))
-                        scOptions[option.Tab] = new();
+                    var optionsMenu = list[option.Tab];
+                    var stringOption = Object.Instantiate(template, optionsMenu.transform);
                     scOptions[option.Tab].Add(stringOption);
-                    stringOption.OnValueChanged = new System.Action<OptionBehaviour>((o) => { });
                     stringOption.TitleText.text = $"<b>{option.Name}</b>";
-                    stringOption.TitleText.SetOutlineColor(Color.black);
-                    stringOption.TitleText.SetOutlineThickness(0.125f);
                     stringOption.Value = stringOption.oldValue = option.CurrentValue;
                     stringOption.ValueText.text = option.GetString();
                     stringOption.name = option.Name;
 
-                    Vector3 pos = new();
-                    Vector3 scale = new();
-
-                    //Background
-                    var label = stringOption.LabelBackground;
+                    stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
+                    if (option.HideValue)
                     {
-                        label.transform.localScale = new Vector3(1.3f, 1.14f, 1f);
-                        label.transform.SetLocalX(-2.2695f * w);
-                        label.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
-                    }
-                    //プラスボタン
-                    var plusButton = stringOption.PlusBtn.transform;
-                    {
-                        pos = plusButton.localPosition;
-                        plusButton.localPosition = new Vector3(option.HideValue ? 100f : (pos.x + 1.1434f) * w, option.HideValue ? 100f : pos.y * h, option.HideValue ? 100f : pos.z);
-                        scale = plusButton.localScale;
-                        plusButton.localScale = new Vector3(scale.x * w, scale.y * h);
-                    }
-                    //マイナスボタン
-                    var minusButton = stringOption.MinusBtn.transform;
-                    {
-                        pos = minusButton.localPosition;
-                        minusButton.localPosition = new Vector3(option.HideValue ? 100f : (pos.x + 0.3463f) * w, option.HideValue ? 100f : (pos.y * h), option.HideValue ? 100f : pos.z);
-                        scale = minusButton.localScale;
-                        minusButton.localScale = new Vector3(scale.x * w, scale.y * h);
-                    }
-                    //値を表示するテキスト
-                    var valueTMP = stringOption.ValueText.transform;
-                    {
-                        pos = valueTMP.localPosition;
-                        valueTMP.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
-                        scale = valueTMP.localScale;
-                        valueTMP.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
-                    }
-                    //上のテキストを囲む箱(ﾀﾌﾞﾝ)
-                    var valueBox = stringOption.transform.FindChild("ValueBox");
-                    {
-                        pos = valueBox.localScale;
-                        valueBox.localScale = new Vector3((pos.x + 0.2f) * w, pos.y * h, pos.z);
-                        scale = valueBox.localPosition;
-                        valueBox.localPosition = new Vector3((scale.x + 0.7322f) * w, scale.y * h, scale.z);
-                    }
-                    //タイトル(設定名)
-                    var titleText = stringOption.TitleText;
-                    {
-                        pos = titleText.transform.localPosition;
-                        titleText.transform.localPosition = new Vector3((pos.x + -1.096f) * w, pos.y * h, pos.z);
-                        scale = titleText.transform.localScale;
-                        titleText.transform.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
-                        titleText.rectTransform.sizeDelta = new Vector2(6.5f, 0.37f);
-                        titleText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+                        stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                        stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
                     }
 
-                    stringOption.SetClickMask(list[option.Tab].ButtonClickMask);
+                    var transform = stringOption.ValueText.transform;
+                    var pos = transform.localPosition;
+                    transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                    stringOption.SetClickMask(optionsMenu.ButtonClickMask);
                     option.OptionBehaviour = stringOption;
                 }
-                option.OptionBehaviour.gameObject.SetActive(true);
-            }
-
-            for (var t = 0; t < EnumHelper.GetAllValues<TabGroup>().Length; t++)
-            {
-                var tab = (TabGroup)t;
-                list[tab].Children = scOptions[tab];
-                list[tab].gameObject.SetActive(false);
-                list[tab].enabled = true;
-                menus.Add(tab, list[tab].gameObject);
+                option.OptionBehaviour.gameObject.active = true;
             }
 
             var templateTabButton = ModSettingsTab.AllButton;
+            {
+                Object.Destroy(templateTabButton.buttonText.gameObject);
+            }
 
             ModSettingsTab.roleTabs = new();
-            var hozon = new Il2CppSystem.Collections.Generic.List<PassiveButton>();
-            hozon2 = new();
+            tabButtons = new();
 
-            for (var i = 0; i < EnumHelper.GetAllValues<TabGroup>().Length; i++)
+            for (var i = 0; i < TabLength; i++)
             {
-                var tab = EnumHelper.GetAllValues<TabGroup>()[i];
+                var tab = (TabGroup)i;
+                var tabs = list[tab];
+                tabs.Children = scOptions[tab];
+                tabs.gameObject.SetActive(false);
+                tabs.enabled = true;
+                menus.Add(tab, tabs.gameObject);
 
                 var tabButton = Object.Instantiate(templateTabButton, templateTabButton.transform.parent);
                 tabButton.name = tab.ToString();
                 tabButton.transform.position = templateTabButton.transform.position + new Vector3((0.762f * i * 0.8f) + (0.762f * i * w * 0.2f), 0, -300f);
-                Object.Destroy(tabButton.buttonText.gameObject);
                 tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 60);
                 tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
                 tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 120);
 
-                hozon.Add(tabButton);
+                tabButtons.Add(tabButton);
             }
 
             //一旦全部作ってから
-            for (var i = 0; i < EnumHelper.GetAllValues<TabGroup>().Length; i++)
+            for (var i = 0; i < TabLength; i++)
             {
-                var tab = EnumHelper.GetAllValues<TabGroup>()[i];
-                var tabButton = hozon[i];
+                var tab = (TabGroup)i;
+                var tabButton = tabButtons[i];
                 if (tabButton == null) continue;
 
                 tabButton.OnClick = new();
                 tabButton.OnClick.AddListener((Action)(() =>
                 {
-                    for (var j = 0; j < EnumHelper.GetAllValues<TabGroup>().Length; j++)
+                    for (var i = 0; i < TabLength; i++)
                     {
-                        var n = EnumHelper.GetAllValues<TabGroup>()[j];
-                        menus[(TabGroup)j].SetActive(false);
-                        hozon[j].SelectButton(false);
-                        hozon[j].selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{n}.png", 120);
+                        var n = (TabGroup)i;
+                        var tabButton = tabButtons[i];
+                        menus[n].SetActive(false);
+                        tabButton.SelectButton(false);
+                        tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{n}.png", 120);
                     }
                     tabButton.SelectButton(true);
                     tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
@@ -301,7 +320,6 @@ namespace TownOfHost
                 }));
 
                 ModSettingsTab.roleTabs.Add(tabButton);
-                hozon2.Add(tabButton);
             }
 
             search.transform.localPosition = new Vector3(0f, 3.5f);
@@ -347,9 +365,9 @@ namespace TownOfHost
 
                     int tabIndex = (int)opt.Tab;
 
-                    if (tabIndex >= 0 && tabIndex < hozon2.Count && hozon2[tabIndex] != null)
+                    if (tabIndex >= 0 && tabIndex < tabButtons.Count && tabButtons[tabIndex] != null)
                     {
-                        hozon2[tabIndex].OnClick.Invoke();
+                        tabButtons[tabIndex].OnClick.Invoke();
                     }
 
                     _ = new LateTask(() =>
@@ -375,8 +393,8 @@ namespace TownOfHost
                     {
                         if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
                         dasu = false;
-                        if (hozon2[0] != null)
-                            hozon2[0].GetComponent<PassiveButton>().OnClick.Invoke();
+                        if (tabButtons[0] != null)
+                            tabButtons[0].GetComponent<PassiveButton>().OnClick.Invoke();
                     }, 0.05f, "", true);
                 }
             }));
@@ -473,8 +491,9 @@ namespace TownOfHost
         {
             if (ModSettingsTab == null) return;
 
-            var option = OptionItem.AllOptions.Where(opt => opt.Id == 0).FirstOrDefault(opt => opt.OptionBehaviour == __instance);
+            var option = PresetOptionItem.Preset;
             if (option == null) return;
+            if (option.OptionBehaviour != __instance) return;
 
             __instance.ValueText.text = option.GetString();
         }
@@ -485,7 +504,6 @@ namespace TownOfHost
         public static void Postfix(GameSettingMenu __instance)
         {
             __instance.ChangeTab(1, false);
-            _ = new LateTask(() => __instance.ChangeTab(1, false), 0.2f, "", true);
             GameSettingMenuChangeTabPatch.Hima = 0;
         }
     }

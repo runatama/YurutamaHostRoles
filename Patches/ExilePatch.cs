@@ -1,6 +1,7 @@
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
+
 using TownOfHost.Modules;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
@@ -97,6 +98,7 @@ namespace TownOfHost
                 }, 0.7f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
+                    if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                     foreach (var Player in PlayerCatch.AllPlayerControls)//役職判定を戻す。
                     {
                         if (Player != PlayerControl.LocalPlayer)
@@ -161,6 +163,7 @@ namespace TownOfHost
                     }
                     _ = new LateTask(() =>
                         {
+                            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                             foreach (var kvp in PlayerState.AllPlayerStates)
                             {
@@ -176,6 +179,7 @@ namespace TownOfHost
                 {
                     _ = new LateTask(() =>
                     {
+                        if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                         {
                             if (!pc.IsModClient())

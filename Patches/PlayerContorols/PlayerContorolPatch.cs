@@ -60,7 +60,7 @@ namespace TownOfHost
                 roleType = RoleTypes.Shapeshifter;
                 return true;
             }
-            if (!(ShipStatus.Instance?.enabled == true)) return true;
+            if (ShipStatus.Instance == null || !ShipStatus.Instance.enabled) return true;
             if (AntiBlackout.IsSet)
             {
                 Logger.Info($"AntiBlackoutが動作ちゅうだからキャンセル！", "RpcSetRole");

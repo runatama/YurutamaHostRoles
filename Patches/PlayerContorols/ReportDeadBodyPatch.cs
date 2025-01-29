@@ -22,7 +22,7 @@ namespace TownOfHost
         //public static Dictionary<byte, Vector2> Pos = new();
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
         {
-            if (GameStates.IsMeeting) return false;
+            if (GameStates.IsMeeting || GameStates.IsLobby) return false;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
 
             Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ReportDeadBody");
@@ -173,7 +173,7 @@ namespace TownOfHost
             {
                 Logger.Error($"{repo?.Data.PlayerName ?? "???"} がnull!", "DieCheckReport");
             }
-            if (GameStates.IsMeeting) return;
+            if (GameStates.IsMeeting || GameStates.IsLobby) return;
 
             var State = PlayerState.GetByPlayerId(repo.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null && ch is not false) return;

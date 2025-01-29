@@ -1,8 +1,8 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
+using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
@@ -67,18 +67,18 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     bool aname;
     enum Op
     {
-        JamperOneCoolTime, JamperCCoolTime, JamperJampcount, JamperJampDis, JamperDistance
+        JumperOneCoolTime, JumperCCoolTime, JumperJampcount, JumperJampDis, JumperDistance
     }
 
     static void SetupOptionItem()
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JamperJampcount, new(1f, 30f, 1f), 4f, false);
-        JampDistance = IntegerOptionItem.Create(RoleInfo, 15, Op.JamperDistance, new(1, 3, 1), 1, false);
-        Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JamperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
-        Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JamperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
-        Jampdis = FloatOptionItem.Create(RoleInfo, 14, Op.JamperJampDis, new(0.2f, 3, 0.1f), 1.5f, false).SetValueFormat(OptionFormat.Seconds);
+        Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JumperJampcount, new(1f, 30f, 1f), 4f, false);
+        JampDistance = IntegerOptionItem.Create(RoleInfo, 15, Op.JumperDistance, new(1, 3, 1), 1, false);
+        Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JumperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
+        Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JumperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
+        Jampdis = FloatOptionItem.Create(RoleInfo, 14, Op.JumperJampDis, new(0.2f, 3, 0.1f), 1.5f, false).SetValueFormat(OptionFormat.Seconds);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -170,7 +170,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             resetkillcooldown = false;
             Player.RpcSpecificRejectShapeshift(Player, false);
             Player.RpcResetAbilityCooldown(kousin: true);
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "Jamperset");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "Jumperset");
             return;
         }
         timer = 0;
@@ -188,7 +188,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             Player.RpcSetPet("");
             Player.SyncSettings();
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-        }, 0.4f, "Jamper0Speed");
+        }, 0.4f, "Jumper0Speed");
 
     }
     public override bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null)
@@ -214,7 +214,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     }
     public override bool OverrideAbilityButton(out string text)
     {
-        text = "Jamper_Ability";
+        text = "Jumper_Ability";
         return true;
     }
     public override string GetAbilityButtonText()

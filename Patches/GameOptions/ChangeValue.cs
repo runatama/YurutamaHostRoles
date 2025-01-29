@@ -16,8 +16,10 @@ namespace TownOfHost
         public static bool Prefix(StringOption __instance)
         {
             var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
-            if (option == null) return true;
-
+            if (option == null)
+            {
+                return __instance?.stringOptionName is not Int32OptionNames.TaskBarMode;
+            }
             var role = CustomRoles.NotAssigned;
             var size = "<size=105%>";
             string mark = "";

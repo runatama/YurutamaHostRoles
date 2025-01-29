@@ -103,7 +103,7 @@ public sealed class Satellite : RoleBase
 
     public static void OnFixedUpdateOthers(PlayerControl player)
     {
-        if (CheckComms) return;
+        if (CheckComms || !AmongUsClient.Instance.AmHost) return;
         // 検出された当たり判定の格納用に使い回す配列 変換時の負荷を回避するためIl2CppReferenceArrayで扱う
         Il2CppReferenceArray<Collider2D> colliders = new(45);
         // 各部屋の人数カウント処理
@@ -187,6 +187,7 @@ public sealed class Satellite : RoleBase
 
     public override void OnStartMeeting()
     {
+        if (!Player.IsAlive()) return;
         mcount = Option1MeetingMaximum.GetFloat() == 0 ? count : Math.Min(mMaxCount, count);
         var locationData = data[Player.PlayerId];
         var lastLocation = locationData.LastLocation;

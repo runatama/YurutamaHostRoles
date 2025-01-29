@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Hazel;
 using UnityEngine;
 
 using AmongUs.GameOptions;
-using Hazel;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;

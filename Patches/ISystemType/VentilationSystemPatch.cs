@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using Hazel;
-using Rewired;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Patches.ISystemType;

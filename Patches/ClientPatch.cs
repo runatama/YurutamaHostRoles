@@ -1,10 +1,11 @@
 using System.Globalization;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using UnityEngine;
+
 using TownOfHost.Modules;
 using static TownOfHost.Translator;
-using Hazel;
 
 namespace TownOfHost
 {

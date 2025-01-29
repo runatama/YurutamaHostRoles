@@ -1,13 +1,15 @@
 using System;
+using System.Text.RegularExpressions;
+
+using TMPro;
 using HarmonyLib;
-using TownOfHost.Templates;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using AmongUs.Data;
 using Assets.InnerNet;
-using System.Text.RegularExpressions;
-using TMPro;
+
+using TownOfHost.Templates;
 using static TownOfHost.GameSettingMenuStartPatch;
+using Object = UnityEngine.Object;
 
 namespace TownOfHost
 {

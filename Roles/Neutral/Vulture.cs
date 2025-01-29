@@ -1,11 +1,11 @@
-using AmongUs.GameOptions;
+using System.Linq;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using System.Linq;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
@@ -22,7 +22,21 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
             "Vu",
             "#6f4204",
             false,
-            from: From.TheOtherRoles
+            from: From.TheOtherRoles,
+            Desc: () =>
+            {
+                var solo = string.Format(GetString("VultrueDescSoloWin"), OptionWinEatCount.GetInt());
+
+                var add = "";
+                if (OptionAddWinEatCount.GetInt() is not 0)
+                    add = string.Format(GetString("VultrueDescAddWin"), OptionAddWinEatCount.GetInt());
+
+                var shape = "";
+                if (OptionEatShape.GetBool())
+                    shape = GetString("VultrueDescEatShape");
+
+                return string.Format(GetString("VultureDesc"), solo, add, shape);
+            }
         );
     public Vulture(PlayerControl player)
     : base(

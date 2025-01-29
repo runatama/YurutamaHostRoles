@@ -191,11 +191,14 @@ namespace TownOfHost
         public static void Postfix(GameSettingMenu __instance)
         {
             __instance.MenuDescriptionText.text = GameSettingMenuChangeTabPatch.meg;
-            if (ModSettingsButton?.selected ?? false && __instance?.GameSettingsTab is not null)
+            var settingsButton = __instance.GameSettingsTab?.gameObject;
+            var allButton = ModSettingsTab?.AllButton?.gameObject;
+            if (settingsButton?.active == true && (ModSettingsButton?.selected ?? false) && __instance?.GameSettingsTab is not null)
             {
-                GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB")?.SetActive(false);
+                __instance.GameSettingsTab?.gameObject?.SetActive(false);
             }
-            GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/HeaderButtons/AllButton")?.SetActive(false);
+            if (allButton?.active == true)
+                allButton?.SetActive(false);
         }
     }
 }

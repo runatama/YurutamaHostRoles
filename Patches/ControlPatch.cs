@@ -3,7 +3,6 @@ using HarmonyLib;
 using UnityEngine;
 
 using TownOfHost.Modules;
-using AmongUs.GameOptions;
 using System.Collections.Generic;
 
 namespace TownOfHost

@@ -8,10 +8,11 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using static TownOfHost.Translator;
+
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Modules;
+using static TownOfHost.Translator;
 
 namespace TownOfHost
 {
@@ -346,6 +347,18 @@ namespace TownOfHost
         [HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.Update))]
         class HostInfoPanelUpdatePatch
         {
+            public static bool Prefix(HostInfoPanel __instance)
+            {
+                if (!__instance) return false;
+                var host = AmongUsClient.Instance?.GetHost();
+
+                if (host?.PlayerName == null || host?.ColorId == null || Palette.PlayerColors.Length <= host.ColorId)
+                {
+                    __instance.playerName.text = "???(ホストの情報の取得に失敗)";
+                    return false;
+                }
+                return true;
+            }
             public static void Postfix(HostInfoPanel __instance)
             {
                 try
@@ -353,7 +366,8 @@ namespace TownOfHost
                     if (!__instance) return;
                     var host = AmongUsClient.Instance?.GetHost();
                     var mark = "";
-                    if (!AmongUsClient.Instance || (host?.PlayerName == null)) return;
+
+                    if (!AmongUsClient.Instance) return;
                     if (Options.SuddenTeamOption.GetBool())
                     {
                         var color = "#ffffff";
@@ -364,9 +378,9 @@ namespace TownOfHost
                         if (SuddenDeathMode.TeamPurple.Contains(host.Character.PlayerId)) color = ModColors.codepurple;
                         mark = $"  <color={color}>★</color>";
                     }
-                    var colorid = AmongUsClient.Instance.GetHost()?.ColorId ?? 0;
+                    var colorid = host?.ColorId ?? 0;
                     var colorr = Palette.PlayerColors.Length > colorid ? Palette.PlayerColors[colorid] : ModColors.White;
-                    __instance.playerName.text = $"<b>{AmongUsClient.Instance.GetHost().PlayerName.Color(colorr)}{mark}</b>";
+                    __instance.playerName.text = $"<b>{host.PlayerName.Color(colorr)}{mark}</b>";
                 }
                 catch
                 {

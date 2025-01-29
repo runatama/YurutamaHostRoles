@@ -4,6 +4,7 @@ using System.Text;
 
 using HarmonyLib;
 using UnityEngine;
+using AmongUs.GameOptions;
 
 using TownOfHost.Modules;
 using TownOfHost.Roles;
@@ -11,11 +12,10 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Translator;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
-using AmongUs.GameOptions;
+using static TownOfHost.Translator;
 
 namespace TownOfHost;
 

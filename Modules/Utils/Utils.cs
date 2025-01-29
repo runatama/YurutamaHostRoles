@@ -1,13 +1,16 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Il2CppInterop.Runtime.InteropTypes;
+using HarmonyLib;
+using UnityEngine;
 using AmongUs.Data;
 using AmongUs.GameOptions;
-using Il2CppInterop.Runtime.InteropTypes;
-using UnityEngine;
 
 using TownOfHost.Modules;
+using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
@@ -16,10 +19,7 @@ using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Ghost;
 using static TownOfHost.Translator;
-using HarmonyLib;
 using static TownOfHost.UtilsRoleText;
-using System.Collections.Generic;
-using TownOfHost.Roles;
 
 namespace TownOfHost
 {

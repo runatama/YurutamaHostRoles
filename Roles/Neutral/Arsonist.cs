@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Hazel;
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using Hazel;
 using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Neutral;

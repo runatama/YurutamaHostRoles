@@ -1,8 +1,9 @@
 using AmongUs.GameOptions;
-using TownOfHost.Roles.Core;
-using static TownOfHost.Modules.SelfVoteManager;
 using System.Linq;
+
+using TownOfHost.Roles.Core;
 using TownOfHost.Attributes;
+using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class Madonna : RoleBase

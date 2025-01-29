@@ -1,10 +1,11 @@
 using AmongUs.GameOptions;
 using Hazel;
+using UnityEngine;
+using System.Linq;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.SelfVoteManager;
-using UnityEngine;
-using System.Linq;
 
 namespace TownOfHost.Roles.Impostor;
 

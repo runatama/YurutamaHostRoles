@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.MeetingVoteManager;
+
 namespace TownOfHost.Roles.Madmate;
 public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {

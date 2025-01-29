@@ -156,9 +156,13 @@ namespace TownOfHost.Roles
             {
                 var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
 
-                if (AssignRoleList.Count < PlayerCatch.AllPlayerControls.Count())
+                if (roles.Length < PlayerCatch.AllPlayerControls.Count())
+                {
                     for (var i = roles.Length; i < PlayerCatch.AllPlayerControls.Count(); i++)
+                    {
                         AssignRoleList.Add(CustomRoles.Impostor);
+                    }
+                }
             }
             Logger.Info($"{string.Join(", ", AssignCount)}", "AssignCount");
             Logger.Info($"{string.Join(", ", AssignRoleList)}", "AssignRoleList");

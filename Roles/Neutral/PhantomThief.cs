@@ -1,8 +1,8 @@
 using AmongUs.GameOptions;
+using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral;
 public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditionalWinner

@@ -5,8 +5,6 @@ using UnityEngine;
 using Hazel;
 using AmongUs.GameOptions;
 
-using static TownOfHost.Translator;
-
 namespace TownOfHost.Roles.Core;
 
 public abstract class RoleBase : IDisposable

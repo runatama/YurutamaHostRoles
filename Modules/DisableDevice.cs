@@ -78,10 +78,23 @@ namespace TownOfHost
             AdminPoss.Clear();
             LogPoss.Clear();
             VitalPoss.Clear();
+            UseCount = 0;
+
+            if (optTimeLimitDevices)
+            {
+                Logger.Info($"アドミンの残り時間：{Math.Round(optTimeLimitAdmin - GameAdminTimer)}s", "TimeLimitDevices");
+                Logger.Info($"カメラ/ログの残り時間：{Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer)}s", "TimeLimitDevices");
+                Logger.Info($"バイタルの残り時間：{Math.Round(optTimeLimitVital - GameVitalTimer)}s", "TimeLimitDevices");
+            }
+            if (optTurnTimeLimitDevice)
+            {
+                Logger.Info($"このターンのアドミンの残り時間：{Math.Round(optTurnTimeLimitAdmin - TurnAdminTimer)}s", "TimeLimitDevices");
+                Logger.Info($"このターンのカメラ/ログの残り時間：{Math.Round(optTurnTimeLimitCamAndLog - TurnLogAndCamTimer)}s", "TimeLimitDevices");
+                Logger.Info($"このターンのバイタルの残り時間：{Math.Round(optTurnTimeLimitVital - TurnVitalTimer)}s", "TimeLimitDevices");
+            }
             TurnAdminTimer = 0;
             TurnLogAndCamTimer = 0;
             TurnVitalTimer = 0;
-            UseCount = 0;
         }
         public static string GetAddminTimer()
         {
