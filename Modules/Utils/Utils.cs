@@ -338,9 +338,8 @@ namespace TownOfHost
             var fir = rob ? "" : "<align=\"left\">";
             Main.MessagesToSend.Add(($"{fir}{text}", sendTo, $"{fir}{title}"));
         }
-        /// <param name="pc">seer</param>
-        /// <param name="force">強制かつ全員に送信</param>
-        public static void ApplySuffix(PlayerControl pc, bool force = false)
+        public static bool aftersystemmeg;
+        public static void ApplySuffix(PlayerControl pc)
         {
             if (!AmongUsClient.Instance.AmHost) return;
             string name = DataManager.player.Customization.Name;
@@ -397,7 +396,7 @@ namespace TownOfHost
             if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
                 PlayerControl.LocalPlayer.RpcSetName(name);
 
-            if (GameStates.IsLobby && !GameStates.IsCountDown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
+            if (GameStates.IsLobby && !GameStates.IsCountDown && pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())
             {
                 name = $"<b>{name}</b>";
 
@@ -415,10 +414,7 @@ namespace TownOfHost
 
                 info += "</size>";
                 n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginShowVersion}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
-                if (force)
-                    PlayerCatch.AllPlayerControls.DoIf(x => x.name != "Player(Clone)" && x.PlayerId != PlayerControl.LocalPlayer.PlayerId && !x.IsModClient(), x => PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, x, true));
-                else
-                    PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc);
+                PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc, aftersystemmeg);
             }
         }
         #region AfterMeetingTasks
