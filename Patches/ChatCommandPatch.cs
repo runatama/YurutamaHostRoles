@@ -1827,7 +1827,7 @@ namespace TownOfHost
             }
             if (GameStates.IsLobby)
             {
-                _ = new LateTask(() => ApplySuffix(null,true), 0.24f, "", true);
+                _ = new LateTask(() => aftersystemmeg = true, 0.24f, "", true);
             }
             Croissant.ChocolateCroissant = true;
             var name = player.Data.PlayerName;
