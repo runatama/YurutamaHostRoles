@@ -267,7 +267,7 @@ namespace TownOfHost
 
             if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
             {
-                aftersystemmeg = true;
+                Utils.aftersystemmeg = false;
                 //Logger.info($"Cancel:{player.name}:{name} for {seer.name}", "RpcSetNamePrivate");
                 return;
             }
