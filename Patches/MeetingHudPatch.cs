@@ -90,7 +90,7 @@ public static class MeetingHudPatch
 
                 if (!pc.IsAlive())
                 {
-                    if (AntiBlackout.OverrideExiledPlayer) continue;
+                    if (AntiBlackout.OverrideExiledPlayer()) continue;
                     pc.RpcExileV2();
                     pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride);
                 }//  会議時に生きてたぜリスト追加
@@ -104,6 +104,7 @@ public static class MeetingHudPatch
             {
                 _ = new LateTask(() =>
                 {
+                    var count = 0;
                     Dictionary<byte, bool> State = new();
                     foreach (var player in PlayerCatch.AllAlivePlayerControls)
                     {
@@ -111,27 +112,34 @@ public static class MeetingHudPatch
                     }
                     foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                     {
+                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) count++;
+
                         if (!State.ContainsKey(pc.PlayerId)) continue;
                         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                         if (pc.IsModClient()) continue;
-                        foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
-                        {
-                            if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                            if (tg.IsModClient()) continue;
-                            tg.Data.IsDead = true;
-                        }
-                        pc.Data.IsDead = false;
-                        Serialize = true;
-                        RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                        Serialize = false;
-                    }
-                    foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
-                    {
-                        player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
 
-                        RPC.RpcSyncAllNetworkedPlayer(PlayerControl.LocalPlayer.GetClientId());
+                        _ = new LateTask(() =>
+                        {
+                            foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
+                            {
+                                if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                                if (tg.IsModClient()) continue;
+                                tg.Data.IsDead = true;
+                            }
+                            pc.Data.IsDead = false;
+                            Serialize = true;
+                            RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                            Serialize = false;
+                        }, count * 0.1f, "SetDienoNaka", true);
                     }
-                }, 6f, "SetDie");
+                    _ = new LateTask(() =>
+                    {
+                        foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
+                        {
+                            player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
+                        }
+                    }, count * 0.1f, "SetDienoNaka", true);
+                }, 4f, "SetDie");
             }
         }
         public static void Postfix(MeetingHud __instance)
@@ -218,7 +226,7 @@ public static class MeetingHudPatch
             }
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.OnStartMeeting());
             SlowStarter.OnStartMeeting();
-            Send = "";
+            Send = "<size=80%>";
             Title = "";
 
             if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting) Title += "<b>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</b>\n";
@@ -231,27 +239,27 @@ public static class MeetingHudPatch
             }
             if (Oniku != "")
             {
-                Send += "<color=#001e43><size=80%>※" + Oniku + "</size></color>\n";
+                Send += "<color=#001e43>※" + Oniku + "</color>\n";
             }
             if (Options.SyncButtonMode.GetBool())
             {
-                Send += "<size=80%><color=#006e54>★" + string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "</size></color>\n";
+                Send += "<color=#006e54>★" + string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "</color>\n";
                 Logger.Info("緊急会議ボタンはあと" + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "回使用可能です。", "SyncButtonMode");
             }
-            if (AntiBlackout.OverrideExiledPlayer)
+            if (AntiBlackout.OverrideExiledPlayer())
             {
-                Send += "<color=#640125><size=80%>！" + GetString("Warning.OverrideExiledPlayer") + "</size></color>\n";
+                Send += "<color=#640125>！" + GetString("Warning.OverrideExiledPlayer") + "</color>\n";
             }
             if (!SelfVoteManager.Canuseability())
             {
-                Send += "<color=#998317><size=80%>◇" + GetString("Warning.CannotUseAbility") + "</size></color>\n";
+                Send += "<color=#998317>◇" + GetString("Warning.CannotUseAbility") + "</color>\n";
             }
             if (MeetingVoteManager.Voteresult != "")
             {
-                if (Send != "") Send += "\n";
+                if (Send.RemoveHtmlTags() != "") Send += "\n";
                 Send += "<size=120%>【" + GetString("LastMeetingre") + "】\n</size>" + MeetingVoteManager.Voteresult;
             }
-            Send += $"\n<size=80%>{GetString("MeetingHelp")}</size>";
+            Send += $"\n{GetString("MeetingHelp")}";
             TemplateManager.SendTemplate("OnMeeting", noErr: true);
             if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
             if (Send != "") Utils.SendMessage(Send, title: Title);
@@ -280,32 +288,11 @@ public static class MeetingHudPatch
                 }
                 _ = new LateTask(() =>
                 {
-                    foreach (var seen in PlayerCatch.AllPlayerControls)
-                    {
-                        foreach (var seer in PlayerCatch.AllPlayerControls)
-                        {
-                            var seenName = seen.GetRealName(isMeeting: true);
-                            seenName = seenName.ApplyNameColorData(seer, seen, true);
-
-                            seen.RpcSetNamePrivate(seenName, true, seer, true);
-                        }
-                        ChatUpdatePatch.DoBlockChat = false;
-                    }
-                }, 3f, "SetName To Chat", true);
-                _ = new LateTask(() =>
-                {
-                    foreach (var seen in PlayerCatch.AllPlayerControls)
-                    {
-                        foreach (var seer in PlayerCatch.AllPlayerControls)
-                        {
-                            var seenName = seen.GetRealName(isMeeting: true);
-                            seenName = seenName.ApplyNameColorData(seer, seen, true);
-
-                            seen.RpcSetNamePrivate(seenName, true, seer, true);
-                        }
-                    }
                     MeetingStates.Sending = false;
-                }, 10f, "SetName To Chat", true);
+                    ChatUpdatePatch.DoBlockChat = false;
+                }, 2f, "Send to Chat", true);
+                _ = new LateTask(() => NameColorManager.RpcMeetingColorName(), 5f, "SetName", true);
+                _ = new LateTask(() => NameColorManager.RpcMeetingColorName(), 10f, "SetName", true);
             }
             Main.NowSabotage =
                 Utils.IsActive(SystemTypes.Reactor)
@@ -487,10 +474,11 @@ public static class MeetingHudPatch
             {
                 ReportDeadBodyPatch.Musisuruoniku[playerId] = false;
                 AddedIdList.Add(playerId);
-                if (deathReason == CustomDeathReason.Revenge && Options.VRcanseemitidure.GetBool())
-                    MeetingVoteManager.Voteresult += "\n<size=60%>" + Utils.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi");
                 if (deathReason == CustomDeathReason.Revenge)
+                {
+                    MeetingVoteManager.Voteresult += "\n<size=60%>" + Utils.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi");
                     UtilsGameLog.AddGameLog("Revenge", Utils.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi"));
+                }
             }
 
         //投票の道連れ処理は他でしてるのでここではしない。

@@ -13,7 +13,7 @@ namespace TownOfHost
     class DisableDevice
     {
         public static bool DoDisable => Options.DisableDevices.GetBool() || Options.IsStandardHAS || optTimeLimitDevices || optTurnTimeLimitDevice;
-        private static List<byte> DesyncComms = new();
+        public static List<byte> DesyncComms = new();
         private static int frame = 0;
 
         //検知
@@ -47,6 +47,7 @@ namespace TownOfHost
         public static bool DisableDevicesIgnoreAfterAnyoneDied;
         public static void Reset()
         {
+            DesyncComms.Clear();
             optTimeLimitCamAndLog = Options.TimeLimitCamAndLog.GetFloat();
             optTimeLimitDevices = Options.TimeLimitDevices.GetBool();
             optTurnTimeLimitDevice = Options.TurnTimeLimitDevice.GetBool();
@@ -370,6 +371,7 @@ namespace TownOfHost
                     {
                         if (!DesyncComms.Contains(pc.PlayerId))
                             DesyncComms.Add(pc.PlayerId);
+                        else return;
 
                         pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
                     }

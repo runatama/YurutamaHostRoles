@@ -1,17 +1,22 @@
 //TOH_Yを参考にさせて貰いました ありがとうございます
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data.Player;
 using Assets.InnerNet;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using Newtonsoft.Json.Linq;
 using TownOfHost;
+using UnityEngine.Networking;
 
 [HarmonyPatch]
 public class ModNewsHistory
 {
     public static List<ModNews> AllModNews = new();
+    public static List<ModNews> JsonAndAllModNews = new();
     public static void Init()
     {
         {
@@ -19,7 +24,6 @@ public class ModNewsHistory
                 var news = new ModNews
                 {
                     Number = 100002,
-                    //BeforeNumber = 0,
                     Title = "ハッピーハロウィンついにTOH-Kリリース！",
                     SubTitle = "やっとリリースしたよ！",
                     ShortTitle = "◆TOH-K v5.1.14",
@@ -1149,9 +1153,76 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-
+            //100045
+            {
+                var news = new ModNews
+                {
+                    Number = 100046,
+                    Title = "2月ももう後半",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.26.21</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.26.21</color>",
+                    Text = "<size=80%>\n凄くいっぱいしたから.21でいいっしょ！\nあ、後discordとかGithubにちゃんと情報載せてるから見たりしといてね！\n"
+                    + "\n<size=125%>【まーたかわったのか！】</size>\n"
+                    + "オプション画面が代わりました！！！\n"
+                    + "まず、<b>役職の排出割合のパーセント表示に色がつきました</b>\n"
+                    + "ｻﾞｰｯﾃ見たときにちょっとわかりやすかったり～\n"
+                    + "そして、役職の詳細オプションの場所が変わりました\n"
+                    + "役職名の所にカーソルを合わせると反応するようになってます。\n"
+                    + "クリックしてもらうとその役職の詳細設定が表示されるようになりました\n"
+                    + "\n...これ多分きっとめっちゃ軽いんすよ()"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・ゴーストボタナーの表示が正常じゃない問題の修正\n"
+                    + "・ホスト目線システムメッセージのスキンがおかしい問題の修正\n"
+                    + "・サドンデスモードの勝利表示がおかしい問題の修正\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・MeetingInfoに道連れなどの表示を出すように変更\n"
+                    + "・ゲーム開始時の通信が少し軽くなったかも...?\n"
+                    + "・ロビーでの通信を少し軽く\n"
+                    + "・一部ニュートラルのInfoLongを変更\n"
+                    + "\n<size=125%>【新設定】</size>\n"
+                    + "・マッドベイトにベントを使用できる設定の追加\n"
+                    + "・マッドメイト系設定に占いの設定を追加\n"
+                    + "・パペッティア(パペット)にキルディスタンス設定を追加\n"
+                    + "・大狼に生存報告設定の追加\n"
+                    + "\n\nってなわけで～そんなわけで。またねっ！by yr"
+                    ,
+                    Date = "2025-02-15T23:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
+    }
+    //ここもTownOfHost_Y様を参考に..!
+    public const string ModNewsURL = "https://raw.githubusercontent.com/KYMario/TownOfHost-K/refs/heads/main/ModNews.json";
+    static bool downloaded = false;
+    [HarmonyPatch(typeof(AnnouncementPopUp), nameof(AnnouncementPopUp.Init)), HarmonyPostfix]
+    public static void Initialize(ref Il2CppSystem.Collections.IEnumerator __result)
+    {
+        static IEnumerator FetchBlacklist()
+        {
+            if (downloaded)
+            {
+                yield break;
+            }
+            downloaded = true;
+            var request = UnityWebRequest.Get(ModNewsURL);
+            yield return request.SendWebRequest();
+            if (request.isNetworkError || request.isHttpError)
+            {
+                downloaded = false;
+                TownOfHost.Logger.Info("ModNews Error Fetch:" + request.responseCode.ToString(), "ModNews");
+                yield break;
+            }
+            var json = JObject.Parse(request.downloadHandler.text);
+            for (var news = json["News"].First; news != null; news = news.Next)
+            {
+                JsonModNews n = new(
+                    int.Parse(news["Number"].ToString()), news["Title"]?.ToString(), news["Subtitle"]?.ToString(), news["Short"]?.ToString(),
+                    news["Body"]?.ToString(), news["Date"]?.ToString());
+            }
+        }
+        __result = Effects.Sequence(FetchBlacklist().WrapToIl2Cpp(), __result);
     }
 
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements)), HarmonyPrefix]
@@ -1160,14 +1231,15 @@ public class ModNewsHistory
         if (AllModNews.Count < 1)
         {
             Init();
-            AllModNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });
+            AllModNews.Do(n => JsonAndAllModNews.Add(n));
+            JsonAndAllModNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });
         }
 
         List<Announcement> FinalAllNews = new();
-        AllModNews.Do(n => FinalAllNews.Add(n.ToAnnouncement()));
+        JsonAndAllModNews.Do(n => FinalAllNews.Add(n.ToAnnouncement()));
         foreach (var news in aRange)
         {
-            if (!AllModNews.Any(x => x.Number == news.Number))
+            if (!JsonAndAllModNews.Any(x => x.Number == news.Number))
                 FinalAllNews.Add(news);
         }
         FinalAllNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });

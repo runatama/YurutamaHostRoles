@@ -5,7 +5,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Madmate;
-public sealed class MadGuardian : RoleBase, IKillFlashSeeable
+public sealed class MadGuardian : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -27,7 +27,6 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
         () => HasTask.ForRecompute
     )
     {
-        FieldCanSeeKillFlash = MadmateCanSeeKillFlash.GetBool();
         CanSeeWhoTriedToKill = OptionCanSeeWhoTriedToKill.GetBool();
         MyTaskState.NeedTaskCount = OptionTaskTrigger.GetInt();
     }
@@ -39,7 +38,6 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
     {
         MadGuardianCanSeeWhoTriedToKill
     }
-    private static bool FieldCanSeeKillFlash;
     private static bool CanSeeWhoTriedToKill;
 
     private static void SetupOptionItem()
@@ -75,5 +73,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable
 
         return false;
     }
-    public bool? CheckKillFlash(MurderInfo info) => FieldCanSeeKillFlash;
+    public bool? CheckKillFlash(MurderInfo info) => MadmateCanSeeKillFlash.GetBool();
+    public bool? CheckSeeDeathReason(PlayerControl seen) => MadmateCanSeeDeathReason.GetBool();
+    public override CustomRoles GetFtResults(PlayerControl player) => MadTellOpt();
 }

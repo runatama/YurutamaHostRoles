@@ -1,4 +1,5 @@
 using HarmonyLib;
+using TownOfHost.Roles.Core;
 using UnityEngine;
 using static TownOfHost.GameSettingMenuStartPatch;
 
@@ -36,6 +37,128 @@ namespace TownOfHost
             }
 
             if (__instance.transform.name == "GAME SETTINGS TAB") return;
+
+            if (NowRoleTab is not CustomRoles.NotAssigned)
+            {
+                float numItems = __instance.Children.Count;
+                var offset = 2.7f;
+                var y = 0.713f;
+                foreach (var option in OptionItem.AllOptions)
+                {
+                    if (option?.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
+
+                    var p = option;
+                    var customrole = CustomRoles.NotAssigned;
+                    while (p.Parent != null)
+                    {
+                        p = p.Parent;
+                    }
+                    customrole = p.CustomRole;
+                    if (customrole != NowRoleTab) continue;
+                    if (p.CustomRole == NowRoleTab)
+                    {
+                        if (!crOptions[NowRoleTab].Contains(p.OptionBehaviour))
+                        {
+                            p.OptionBehaviour.transform.parent = crlist[customrole].transform;
+                            crOptions[NowRoleTab].Add(p.OptionBehaviour);
+                            scOptions[p.Tab].Remove(p.OptionBehaviour);
+                        }
+                    }
+                    if (!crOptions[NowRoleTab].Contains(option.OptionBehaviour) && option.Name == "Maximum")
+                    {
+                        option.OptionBehaviour.transform.parent = crlist[customrole].transform;
+                        crOptions[NowRoleTab].Add(option.OptionBehaviour);
+                        scOptions[option.Tab].Remove(option.OptionBehaviour);
+                    }
+
+                    var enabled = true;
+                    var parent = option.Parent;
+                    var opt = option.OptionBehaviour.LabelBackground;
+                    var isroleoption = option.CustomRole is not CustomRoles.NotAssigned;
+                    if (isroleoption && rolebutton.TryGetValue(option.CustomRole, out var button))
+                    {
+                        button.gameObject.SetActive(false);
+                    }
+                    enabled = AmongUsClient.Instance.AmHost && !option.IsHiddenOn(Options.CurrentGameMode);
+                    opt.color = new Color32(200, 200, 200, 255);
+                    opt.size = new(5.0f * w, 0.68f * h);
+
+                    if (option.Tab is TabGroup.MainSettings && (option.NameColor != Color.white || option.NameColorCode != "#ffffff"))
+                    {
+                        var color = option.NameColor == Color.white ? StringHelper.CodeColor(option.NameColorCode) : option.NameColor;
+
+                        opt.color = color.ShadeColor(-6);
+                    }
+                    if (isroleoption)
+                    {
+                        opt.color = option.NameColor.ShadeColor(-5);
+                    }
+
+                    Transform titleText = option.OptionBehaviour.transform.Find("Title Text");
+                    RectTransform titleTextRect = titleText.GetComponent<RectTransform>();
+
+                    var i = 0;
+                    while (parent != null && enabled)
+                    {
+                        i++;
+                        enabled = parent.GetBool();
+                        parent = parent.Parent;
+                    }
+
+                    switch (i)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                            opt.color = new Color32(40, 50, 80, 255);
+                            opt.size = new(4.6f * w, 0.68f * h);
+                            titleText.transform.localPosition = new Vector3(-1.8566f * w, 0f);
+                            titleTextRect.sizeDelta = new Vector2(6.4f, 0.6f);
+                            break;
+                        case 2:
+                            opt.color = new Color32(20, 60, 40, 255);
+                            opt.size = new(4.4f * w, 0.68f * h);
+                            titleText.transform.localPosition = new Vector3(-1.7566f * w, 0f);
+                            titleTextRect.sizeDelta = new Vector2(6.35f, 0.6f);
+                            break;
+                        case 3:
+                            opt.color = new Color32(60, 20, 40, 255);
+                            opt.size = new(4.2f * w, 0.68f * h);
+                            titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
+                            titleTextRect.sizeDelta = new Vector2(6.3f, 0.6f);
+                            break;
+                        case 4:
+                            opt.color = new Color32(60, 40, 10, 255);
+                            opt.size = new(4.0f * w, 0.68f * h);
+                            titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
+                            titleTextRect.sizeDelta = new Vector2(6.25f, 0.6f);
+                            break;
+                    }
+
+                    option.OptionBehaviour.gameObject.SetActive(enabled);
+                    if (enabled)
+                    {
+                        offset -= option.IsHeader ? (0.68f * h) : (0.45f * h);
+                        option.OptionBehaviour.transform.localPosition = new Vector3(
+                            option.OptionBehaviour.transform.localPosition.x,//0.952f,
+                            offset - (1.5f * h),//y,
+                            option.OptionBehaviour.transform.localPosition.z);//-120f);
+                        y -= option.IsHeader ? (0.68f * h) : (0.45f * h);
+
+                        if (option.IsHeader)
+                        {
+                            numItems += (0.5f * h);
+                        }
+                    }
+                    else
+                    {
+                        numItems--;
+                    }
+                }
+                __instance.GetComponentInParent<Scroller>().ContentYBounds.max = -(offset * 3 - (h * offset * (h == 1 ? 2f : 2.2f))) + 0.75f;
+                return;
+            }
+
             foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
             {
                 if (__instance.gameObject.name != tab + "-Stg") continue;
@@ -53,8 +176,39 @@ namespace TownOfHost
 
                     enabled = AmongUsClient.Instance.AmHost && !option.IsHiddenOn(Options.CurrentGameMode);
 
+                    var isroleoption = option.CustomRole is not CustomRoles.NotAssigned;
+                    var p = option;
+                    var customrole = CustomRoles.NotAssigned;
+                    while (p.Parent != null)
+                    {
+                        p = p.Parent;
+                    }
+                    customrole = p.CustomRole;
+                    if (p == option)
+                    {
+                        customrole = CustomRoles.NotAssigned;
+                    }
+                    if (option.CustomRole is not CustomRoles.NotAssigned)
+                    {
+                        if (!scOptions[option.Tab].Contains(p.OptionBehaviour))
+                        {
+                            p.OptionBehaviour.transform.parent = list[option.Tab].transform;
+                            scOptions[option.Tab].Add(p.OptionBehaviour);
+                            crOptions[option.CustomRole].Remove(p.OptionBehaviour);
+                        }
+                    }
+                    else
+                    {
+                        if (!scOptions[option.Tab].Contains(option.OptionBehaviour) && option.Name == "Maximum")
+                        {
+                            option.OptionBehaviour.transform.parent = list[option.Tab].transform;
+                            scOptions[option.Tab].Add(option.OptionBehaviour);
+                            crOptions[customrole].Remove(option.OptionBehaviour);
+                        }
+                    }
+                    if (!isroleoption && customrole is not CustomRoles.NotAssigned && option.Name is not "Maximum") continue;
+
                     //起動時以外で表示/非表示を切り替える際に使う
-                    var isroleoption = Options.CustomRoleSpawnChances.ContainsValue(option as IntegerOptionItem);
                     if (enabled)
                     {
                         if (ActiveOnlyMode)
@@ -77,14 +231,14 @@ namespace TownOfHost
                         }
                         if (!Event.Special)
                         {
-                            if (isroleoption)
-                            {
-                                if (Event.OptionLoad.Contains(option.Name)) enabled = false;
-                            }
+                            if (Event.OptionLoad.Contains(option.Name)) enabled = false;
                         }
                     }
-
                     var opt = option.OptionBehaviour.LabelBackground;
+                    if (isroleoption && rolebutton.TryGetValue(option.CustomRole, out var button))
+                    {
+                        button.gameObject.SetActive(!(3.5f < opt.transform.position.y || opt.transform.position.y <= -0.4));
+                    }
 
                     opt.color = new Color32(200, 200, 200, 255);
                     opt.size = new(5.0f * w, 0.68f * h);
@@ -190,7 +344,7 @@ namespace TownOfHost
     {
         public static void Postfix(GameSettingMenu __instance)
         {
-            __instance.MenuDescriptionText.text = GameSettingMenuChangeTabPatch.meg;
+            if (ModSettingsButton?.selected ?? false) __instance.MenuDescriptionText.text = GameSettingMenuChangeTabPatch.meg;
             var settingsButton = __instance.GameSettingsTab?.gameObject;
             var allButton = ModSettingsTab?.AllButton?.gameObject;
             if (settingsButton?.active == true && (ModSettingsButton?.selected ?? false) && __instance?.GameSettingsTab is not null)

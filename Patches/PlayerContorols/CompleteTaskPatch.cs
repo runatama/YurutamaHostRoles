@@ -62,9 +62,9 @@ namespace TownOfHost
 
             //属性クラスの扱いを決定するまで仮置き
             ret &= Workhorse.OnCompleteTask(pc);
-            if (UtilsTask.TaskCh) UtilsNotifyRoles.NotifyRoles();
+            UtilsNotifyRoles.NotifyRoles();
 
-            if (ret && UtilsTask.TaskCh)
+            if (ret)
             {
                 if (taskState.CompletedTasksCount < taskState.AllTasksCount) return ret;
                 if (!UtilsTask.HasTasks(pc.Data)) return ret;

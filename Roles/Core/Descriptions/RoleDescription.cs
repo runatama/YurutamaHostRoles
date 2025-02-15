@@ -84,7 +84,8 @@ public abstract class RoleDescription
                     sb.Append($"{rule}{Options.MadCanSeeImpostor.GetName()}: {Options.MadCanSeeImpostor.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateVentCooldown.GetName()}: {Options.MadmateVentCooldown.GetString()}\n");
                     sb.Append($"{rule}{Options.MadmateVentMaxTime.GetName()}: {Options.MadmateVentMaxTime.GetString()}\n");
-                    sb.Append($"{ruleFooter}{Options.MadmateCanMovedByVent.GetName()}: {Options.MadmateCanMovedByVent.GetString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanMovedByVent.GetName()}: {Options.MadmateCanMovedByVent.GetString()}\n");
+                    sb.Append($"{ruleFooter}{Options.MadmateTell.GetName()}: {Options.MadmateTell.GetString()}\n");
                 }
             }
             if (sb.ToString() != "")
@@ -140,6 +141,24 @@ public abstract class RoleDescription
 
             builder.Append($"\n## 補足説明/仕様\n");
             builder.Append($"\n## 勝利条件\n");
+
+            return builder.ToString().RemoveColorTags();
+        }
+    }
+    public string WikiOpt
+    {
+        get
+        {
+            var builder = new StringBuilder(256);
+            var sb = new StringBuilder();
+            if (Options.CustomRoleSpawnChances.TryGetValue(RoleInfo.RoleName, out var op))
+                wikiOption(op, ref sb);
+
+            if (sb.ToString().RemoveHtmlTags() is not null and not "")
+            {
+                builder.Append($"\n## 設定\n").Append("|設定名|(設定値 / デフォルト値)|説明|\n").Append("|-----|----------------------|----|\n");
+                builder.Append($"{sb.ToString().RemoveHtmlTags()}\n");
+            }
 
             return builder.ToString().RemoveColorTags();
         }

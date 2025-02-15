@@ -61,6 +61,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         Uetukecount = 0;
         AddS(Player);
         AbductTimer = 255f;
+        oldsendabtimer = 255f;
         stopCount = false;
         Aliens.Add(this);
     }
@@ -489,16 +490,20 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     var position = Player.transform.position;
-                    if (Player.PlayerId != 0)
+                    if (Player.PlayerId != 0 && AbductTimer < (oldsendabtimer - 0.1))
                     {
+                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
                         AbductVictim.RpcSnapToForced(position);
                     }
                     else
                     {
                         _ = new LateTask(() =>
                         {
-                            if (AbductVictim != null)
+                            if (AbductVictim != null && AbductTimer < (oldsendabtimer - 0.1))
+                            {
+                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
                                 AbductVictim.RpcSnapToForced(position);
+                            }
                         }
                         , 0.25f, "", true);
                     }
@@ -1155,6 +1160,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     static int RatePenguin;
     bool modepenguin;
     public float AbductTimer;
+    float oldsendabtimer;
     public static float AbductTimerLimit;
     public bool stopCount;
     public static bool MeetingKill;

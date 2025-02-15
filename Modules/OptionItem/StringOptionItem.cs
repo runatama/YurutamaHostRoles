@@ -33,11 +33,21 @@ namespace TownOfHost
             );
         }
         public static StringOptionItem Create(
-             SimpleRoleInfo roleInfo, int idOffset, Enum name, string[] selections, int defaultIndex, bool isSingleValue, OptionItem parent = null
+            SimpleRoleInfo roleInfo, int idOffset, Enum name, string[] selections, int defaultIndex, bool isSingleValue, OptionItem parent = null
         )
         {
             var opt = new StringOptionItem(
                 roleInfo.ConfigId + idOffset, name.ToString(), defaultIndex, roleInfo.Tab, isSingleValue, selections
+            );
+            opt.SetParent(parent ?? roleInfo.RoleOption);
+            return opt;
+        }
+        public static StringOptionItem Create(
+            SimpleRoleInfo roleInfo, int idOffset, string name, string[] selections, int defaultIndex, bool isSingleValue, OptionItem parent = null
+        )
+        {
+            var opt = new StringOptionItem(
+                roleInfo.ConfigId + idOffset, name, defaultIndex, roleInfo.Tab, isSingleValue, selections
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
             return opt;

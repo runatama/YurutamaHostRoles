@@ -1,3 +1,4 @@
+using System.Linq;
 using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
@@ -62,7 +63,8 @@ namespace TownOfHost
                 || target.Is(CustomRoles.GM)
                 || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)
                 && (!seer.Is(CustomRoles.Amnesiac) || ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita ?? false)))
-                || Mare.KnowTargetRoleColor(target, isMeeting);
+                || Mare.KnowTargetRoleColor(target, isMeeting)
+                || ((seer.Is(CountTypes.Jackal) || seer.Is(CustomRoles.Jackaldoll)) && (target.Is(CountTypes.Jackal) || target.Is(CustomRoles.Jackaldoll)));
         }
         public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
         {
@@ -127,6 +129,44 @@ namespace TownOfHost
                 Remove(seerId, targetId);
             else
                 Add(seerId, targetId, colorCode);
+        }
+        public static void RpcMeetingColorName(PlayerControl pc = null)
+        {
+            if (pc == null)//全員に反映させる(会議開始時)
+            {
+                foreach (var seer in PlayerCatch.AllPlayerControls)
+                {
+                    if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    var clientid = seer.GetClientId();
+                    if (clientid == -1) continue;
+
+                    var sender = CustomRpcSender.Create("MeetingNameColor");
+                    sender.StartMessage(clientid);
+                    foreach (var seen in PlayerCatch.AllPlayerControls)
+                    {
+                        string playername = seen.GetRealName(isMeeting: true);
+                        playername = playername.ApplyNameColorData(seer, seen, true);
+
+                        sender.StartRpc(seen.NetId, (byte)RpcCalls.SetName)
+                        .Write(seen.NetId)
+                        .Write(playername)
+                        .EndRpc();
+                    }
+                    sender.EndMessage();
+                    sender.SendMessage();
+                }
+            }
+            else
+            {
+                foreach (var seer in PlayerCatch.AllPlayerControls)
+                {
+                    if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    string playername = pc.GetRealName(isMeeting: true);
+                    playername = playername.ApplyNameColorData(seer, pc, true);
+
+                    pc.RpcSetNamePrivate(playername, true, seer, true);
+                }
+            }
         }
     }
 }

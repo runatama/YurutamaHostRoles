@@ -12,7 +12,7 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             typeof(MadBait),
             player => new MadBait(player),
             CustomRoles.MadBait,
-            () => RoleTypes.Engineer,
+            () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             11000,
             SetupOptionItem,
@@ -27,14 +27,17 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
+        CanVent = OptionCanVent.GetBool();
     }
 
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
+    public static bool CanVent;
     static OptionItem RandomRepo;
     static OptionItem ImpRepo;
     static OptionItem Chien;
     static OptionItem Saiaichien;
+    public static OptionItem OptionCanVent;
     enum Option
     {
         BaitChien, Baitsaidaichien,
@@ -42,14 +45,17 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     }
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
     public static void SetupOptionItem()
     {
         RandomRepo = BooleanOptionItem.Create(RoleInfo, 10, Option.MadBaitRandomReport, true, false);
         ImpRepo = BooleanOptionItem.Create(RoleInfo, 11, Option.MadBaitIgnoreImpostor, false, false, RandomRepo);
         Chien = FloatOptionItem.Create(RoleInfo, 12, Option.BaitChien, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         Saiaichien = FloatOptionItem.Create(RoleInfo, 13, Option.Baitsaidaichien, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
 
     }
+    public bool CanUseImpostorVentButton() => CanVent;
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;

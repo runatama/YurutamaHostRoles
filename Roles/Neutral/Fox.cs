@@ -29,7 +29,11 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             {
                 AssignCountRule = new(1, 1, 1)
             },
-            from: From.None
+            from: From.None,
+            Desc: () =>
+            {
+                return string.Format(GetString("FoxDesc"), OptWinTaskCount.GetInt(), OptGiveGuardTaskCount.GetInt(), OptGiveGuardMax.GetInt());
+            }
         );
     public Fox(PlayerControl player)
     : base(

@@ -17,7 +17,6 @@ namespace TownOfHost
         ///<summary>
         ///追放処理を上書きするかどうか
         ///</summary>
-        public static bool OverrideExiledPlayer => PlayerCatch.AllPlayerControls.Count() < 4 && !ModClientOnly && (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool()) && !Options.BlackOutwokesitobasu.GetBool();
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
@@ -30,6 +29,15 @@ namespace TownOfHost
                 if (info.IsEnable && info.CountType is not CountTypes.Crew and not CountTypes.Impostor)
                     return true;
             return false;
+        }
+
+        public static bool OverrideExiledPlayer()
+        {
+            if (4 <= PlayerCatch.AllPlayerControls.Count()) return false;
+            if (ModClientOnly is true) return false;
+            //if (!Options.BlackOutwokesitobasu.GetBool()) return false;
+
+            return (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
         }
 
         private static bool ModClientOnly//全員ModClient ↓これじゃダメなの?()

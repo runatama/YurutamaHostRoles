@@ -51,7 +51,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static OptionItem Option1MeetingMaximum;
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
-    private static Options.OverrideTasksData Tasks;
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
     public float collect;
     public bool srole;
     public float Max;
@@ -85,7 +85,7 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 15, GeneralOption.TaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
+        Options.OverrideTasksData.Create(RoleInfo, 20);
     }
 
     public override void Add()

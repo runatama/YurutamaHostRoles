@@ -28,21 +28,19 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
-        canVent = OptionCanVent.GetBool();
     }
     private static OptionItem OptionCanVent;
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-    private static bool canVent;
 
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
-    private static Options.OverrideTasksData Tasks;
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
 
     public static void SetupOptionItem()
     {
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 11);
+        Options.OverrideTasksData.Create(RoleInfo, 11);
     }
 
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)

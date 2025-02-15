@@ -22,7 +22,8 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
             assignInfo: new RoleAssignInfo(CustomRoles.CountKiller, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(1, 1, 1)
-            }
+            },
+            Desc: () => string.Format(GetString("CountKillerDesc"), OptionVictoryCount.GetInt(), OptionAddWin.GetBool() ? GetString("AddWin") : GetString("SoloWin"))
         );
     public CountKiller(PlayerControl player)
     : base(

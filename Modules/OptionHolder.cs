@@ -92,6 +92,20 @@ namespace TownOfHost
         public static OptionItem MadmateHasLighting;
         public static OptionItem MadmateHasMoon;
         public static OptionItem MadmateCanSeeOtherVotes;
+        public static OptionItem MadmateTell;
+        static string[] Tellopt =
+        {"Sonomama","Crewmate","Madmate","Impostor"};
+        public static CustomRoles MadTellOpt()
+        {
+            switch (Tellopt[MadmateTell.GetValue()])
+            {
+                case "Sonomama": return CustomRoles.NotAssigned;
+                case "Crewmate": return CustomRoles.Crewmate;
+                case "Madmate": return CustomRoles.Madmate;
+                case "Impostor": return CustomRoles.Impostor;
+            }
+            return CustomRoles.NotAssigned;
+        }
         public static OptionItem MadmateVentCooldown;
         public static OptionItem MadmateVentMaxTime;
         public static OptionItem MadmateCanMovedByVent;
@@ -102,7 +116,7 @@ namespace TownOfHost
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
         public static OptionItem BlackOutwokesitobasu;
-        public static OptionItem ExWeightReduction;
+        public static OptionItem ExRpcWeightR;
 
         //幽霊役職
         public static OptionItem GRRoleOp;
@@ -623,15 +637,17 @@ namespace TownOfHost
             LoversHideChat = BooleanOptionItem.Create(900_009, "LoversHideChat", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Lovers)).SetParent(TeamHideChat);
-            BlackOutwokesitobasu = BooleanOptionItem.Create(1_000_009, "BlackOutwokesitobasu", false, TabGroup.MainSettings, false)
+            /*
+        BlackOutwokesitobasu = BooleanOptionItem.Create(1_000_009, "BlackOutwokesitobasu", false, TabGroup.MainSettings, false)
+            .SetGameMode(CustomGameMode.All)
+            .SetColorcode("#ff0000")
+            .SetParent(ExperimentalMode)
+            .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));*/
+            /*ExWeightReduction = BooleanOptionItem.Create(300007, "ExWeightReduction", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#ff0000")
                 .SetParent(ExperimentalMode)
-                .SetInfo(Utils.ColorString(Color.red, "  " + Translator.GetString("BlackOutwokesitobasuInfo")));
-            ExWeightReduction = BooleanOptionItem.Create(300007, "ExWeightReduction", true, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.All)
-                .SetParent(ExperimentalMode)
-                .SetInfo($"<color=red>{Translator.GetString("ExWeightReductionInfo")}</color>");
+                .SetInfo($"<color=red>{Translator.GetString("ExWeightReductionInfo")}</color>");*/
+            ExRpcWeightR = BooleanOptionItem.Create(300008, "ExRpcWeightR", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode);
 
             //9人以上部屋で落ちる現象の対策
             FixSpawnPacketSize = BooleanOptionItem.Create(300004, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)
@@ -687,6 +703,7 @@ namespace TownOfHost
             MadNekomataCanMad = BooleanOptionItem.Create(1010018, "NekoKabochaMadmatesGetRevenged", true, TabGroup.MadmateRoles, false).SetParent(MadmateRevengeCrewmate);
             MadNekomataCanNeu = BooleanOptionItem.Create(101010, "NekomataCanNeu", true, TabGroup.MadmateRoles, false).SetParent(MadmateRevengeCrewmate);
             MadCanSeeImpostor = BooleanOptionItem.Create(101019, "MadmateCanSeeImpostor", false, TabGroup.MadmateRoles, false).SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Snitch)).SetParent(MadMateOption);
+            MadmateTell = StringOptionItem.Create(101020, "MadmateTellOption", Tellopt, 0, TabGroup.MadmateRoles, false).SetColor(UtilsRoleText.GetRoleColor(CustomRoles.FortuneTeller)).SetParent(MadMateOption);
 
             MadmateVentCooldown = FloatOptionItem.Create(101011, "MadmateVentCooldown", new(0f, 180f, 0.5f), 0f, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption)
                 .SetHeader(true)
@@ -1255,6 +1272,7 @@ namespace TownOfHost
             var spawnOption = IntegerOptionItem.Create(id, combination == CombinationRoles.None ? role.ToString() : combination.ToString(), new(0, 100, 10), 0, tab, false, from)
                 .SetColorcode(UtilsRoleText.GetRoleColorCode(role))
                 .SetColor(UtilsRoleText.GetRoleColor(role, true))
+                .SetCustomRole(role)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHeader(true)
                 .SetHidden(role == CustomRoles.NotAssigned)

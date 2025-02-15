@@ -182,12 +182,12 @@ public class MeetingVoteManager
             }
         }
         Main.CanUseAbility = false;
-        if (!AntiBlackout.OverrideExiledPlayer && !Options.BlackOutwokesitobasu.GetBool())
+        if (!AntiBlackout.OverrideExiledPlayer())// && !Options.BlackOutwokesitobasu.GetBool())
         {
             AntiBlackout.SetRole(result);
         }
 
-        if (AntiBlackout.OverrideExiledPlayer)
+        if (AntiBlackout.OverrideExiledPlayer())
         {
             meetingHud.RpcVotingComplete(states.ToArray(), null, true);
             ExileControllerWrapUpPatch.AntiBlackout_LastExiled = result.Exiled;
@@ -235,8 +235,8 @@ public class MeetingVoteManager
             }
 
             var voter = PlayerCatch.GetPlayerById(vote.Voter);
-            if (voter.IsAlive()) continue;//投票者が死亡済み、投票相手がスキップじゃなく、投票先が死んでる...!?なら票数えない
-            if (PlayerCatch.GetPlayerById(vote.VotedFor).IsAlive() && vote.VotedFor is not Skip) continue;
+            /*if (!voter.IsAlive()) continue;//投票者が死亡済み、投票相手がスキップじゃなく、投票先が死んでる...!?なら票数えない
+            if (!PlayerCatch.GetPlayerById(vote.VotedFor).IsAlive() && vote.VotedFor is not Skip) continue;*/
 
             votes[vote.VotedFor] += vote.NumVotes;
 

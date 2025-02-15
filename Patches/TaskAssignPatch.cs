@@ -109,7 +109,6 @@ namespace TownOfHost
             if (!hasCommonTasks && NumLongTasks == 0 && NumShortTasks == 0 && NumCommonTasks == 0)
             {
                 NumShortTasks = 1; //タスク0対策
-                Main.FixTaskNoPlayer.Add(pc);
             }
             //変更点がない場合
             if (!(Options.CurrentGameMode == CustomGameMode.TaskBattle) &&

@@ -38,6 +38,7 @@ namespace TownOfHost
         public bool IsHeader { get; protected set; }
         public bool IsHidden { get; protected set; }
         public bool HideValue { get; protected set; }
+        public CustomRoles CustomRole { get; protected set; }
         public Dictionary<string, string> ReplacementDictionary
         {
             get => _replacementDictionary;
@@ -91,6 +92,7 @@ namespace TownOfHost
             IsHidden = false;
             Infinity = infinity;
             parented = false;
+            CustomRole = CustomRoles.NotAssigned;
 
             // オブジェクト初期化
             Children = new();
@@ -137,6 +139,7 @@ namespace TownOfHost
         public OptionItem SetValueFormat(OptionFormat value) => Do(i => i.ValueFormat = value);
         public OptionItem SetGameMode(CustomGameMode value) => Do(i => i.GameMode = value);
         public OptionItem SetHeader(bool value) => Do(i => i.IsHeader = value);
+        public OptionItem SetCustomRole(CustomRoles role) => Do(i => i.CustomRole = role);
         public OptionItem SetHidden(bool value) => Do(i => i.IsHidden = value);
         public OptionItem SetInfo(string value) => Do(i => i.Fromtext = "<line-height=25%><size=25%>\n</size><size=60%></color> <b>" + value + "</b></size>");
 
@@ -185,13 +188,8 @@ namespace TownOfHost
         public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool() || CheckRoleOption(Parent))
                                         && (GameMode == CustomGameMode.All || GameMode == Options.CurrentGameMode);
         public bool InfoGetBool() => CurrentValue != 0 && (Parent == null || Parent.InfoGetBool());
-        bool CheckRoleOption(OptionItem option)
-        {
-            if (option == null) return false;
-            var intopiton = option as IntegerOptionItem;
-            if (intopiton == null) return false;
-            return Options.CustomRoleSpawnChances.ContainsValue(intopiton);
-        }
+        bool CheckRoleOption(OptionItem option) => option.CustomRole is not CustomRoles.NotAssigned;
+
         /* オプションのgetboolの表示のやつ */
         public virtual bool OptionMeGetBool() => CurrentValue != 0;
         public virtual int GetInt() => CurrentValue;
@@ -215,6 +213,24 @@ namespace TownOfHost
                 if (Infinity != false) return Infinity == true ? "∞" : "<b>―</b>";
             }
             if (ValueFormat == OptionFormat.None) return value;
+            if (CustomRole is not CustomRoles.NotAssigned)
+            {
+                var format = string.Format(Translator.GetString("Format." + ValueFormat), value);
+                switch (value)
+                {
+                    case "10": format = $"<color=#fc7979>{format}</color>"; break;
+                    case "20": format = $"<color=#f7b199>{format}</color>"; break;
+                    case "30": format = $"<color=#fcf479>{format}</color>"; break;
+                    case "40": format = $"<color=#dcfc79>{format}</color>"; break;
+                    case "50": format = $"<color=#b5f77c>{format}</color>"; break;
+                    case "60": format = $"<color=#99f79b>{format}</color>"; break;
+                    case "70": format = $"<color=#87ff9c>{format}</color>"; break;
+                    case "80": format = $"<color=#63ffc6>{format}</color>"; break;
+                    case "90": format = $"<color=#40ffc6>{format}</color>"; break;
+                    case "100": format = $"<color=#79e2fc>{format}</color>"; break;
+                }
+                return format;
+            }
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
 

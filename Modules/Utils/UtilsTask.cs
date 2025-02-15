@@ -1,6 +1,5 @@
 using System;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost
@@ -115,29 +114,6 @@ namespace TownOfHost
             else if (!kakuritu) return $"<color=#cee4ae>[{t2}/{t1}]</color>";
             else if (oomaka) return $"<color=#cee4ae>[{ret3}%]</color>";
             else return $"<color=#cee4ae>[{ret1}%]</color>";
-        }
-        public static bool TaskCh = true;
-        public static void DelTask()
-        {
-            if (Main.FixTaskNoPlayer.Count == 0) return;
-            TaskCh = false;
-            try
-            {
-                foreach (var pc in Main.FixTaskNoPlayer)
-                {
-                    if (pc != null)
-                    {
-                        if (Main.AllPlayerTask.TryGetValue(pc.PlayerId, out var tasks))
-                            tasks.Do(task => pc.RpcCompleteTask(task));
-                    }
-                }
-                Main.FixTaskNoPlayer.Clear();
-            }
-            catch
-            {
-                Logger.Error($"DelTask中にエラーがおこったよ！", "Deltask");
-            }
-            TaskCh = true;
         }
     }
 }

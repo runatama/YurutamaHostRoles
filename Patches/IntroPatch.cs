@@ -508,7 +508,6 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
-                    UtilsTask.DelTask();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     SuddenDeathMode.NotTeamKill();
                 }, 1.25f, "", true);

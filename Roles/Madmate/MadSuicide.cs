@@ -7,7 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
-public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton
+public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -58,6 +58,9 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton
         OptionAbilityDeathreason = StringOptionItem.Create(RoleInfo, 16, OptionName.MadSuicideAbilityDeathreason, cRolesString, 0, false);
         OptionCanusevent = BooleanOptionItem.Create(RoleInfo, 20, GeneralOption.CanVent, true, false);
     }
+    public bool? CheckKillFlash(MurderInfo info) => Options.MadmateCanSeeKillFlash.GetBool();
+    public bool? CheckSeeDeathReason(PlayerControl seen) => Options.MadmateCanSeeDeathReason.GetBool();
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.PhantomCooldown = OptionAbilityCoolDown.GetFloat();

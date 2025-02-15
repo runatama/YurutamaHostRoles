@@ -20,7 +20,11 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
             35900,
             SetupOptionItem,
             "Sac",
-            "#e05050"
+            "#e05050",
+            Desc: () =>
+            {
+                return string.Format(GetString("SantaClausDesc"), OptWinGivePresentCount.GetInt(), OptAddWin.GetBool() ? GetString("AddWin") : GetString("SoloWin"));
+            }
         );
     public SantaClaus(PlayerControl player)
     : base(

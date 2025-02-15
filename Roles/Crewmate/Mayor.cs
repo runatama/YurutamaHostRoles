@@ -17,7 +17,16 @@ public sealed class Mayor : RoleBase
             "my",
             "#204d42",
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
-            from: From.TownOfUs
+            from: From.TownOfUs,
+            Desc: () =>
+            {
+                var info = "";
+                var portable = "";
+                if (OptionKakusei.GetBool()) info = string.Format(GetString("MayorDescInfo"), OptionCount.GetInt(), OptionKadditionaVote.GetInt() + OptionAdditionalVote.GetInt() + 1);
+                if (OptionHasPortableButton.GetBool()) portable = GetString("MayorPortable");
+
+                return string.Format(GetString("MayorDesc"), OptionAdditionalVote.GetInt() + 1, info, portable);
+            }
         );
     public Mayor(PlayerControl player)
     : base(

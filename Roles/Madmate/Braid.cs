@@ -64,6 +64,7 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public static bool canVent;
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
     public override bool OnCompleteTask(uint taskid)
     {
         if (MyTaskState.CompletedTasksCount >= KtaskTrigger && OptionDriverseeKillFlash.GetBool())

@@ -112,8 +112,6 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
             else
                 target.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
         }
-        Main.FixTaskNoPlayer.Add(target);
-        UtilsTask.DelTask();
         PlayerCatch.SKMadmateNowCount++;
         UtilsOption.MarkEveryoneDirtySettings();
         UtilsNotifyRoles.NotifyRoles();

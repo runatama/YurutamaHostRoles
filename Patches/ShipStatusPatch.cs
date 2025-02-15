@@ -42,6 +42,10 @@ namespace TownOfHost
             {
                 Logger.Info("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount, "UpdateSystem");
             }
+            else
+            {
+                DisableDevice.DesyncComms.Clear();
+            }
             if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
                 Logger.seeingame("SystemType: " + systemType.ToString() + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);

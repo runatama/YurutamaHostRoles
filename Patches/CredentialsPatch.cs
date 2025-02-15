@@ -53,17 +53,17 @@ namespace TownOfHost
                     sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<color=#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
                 }
                 var text = "";
-                //#7fc1fe
+                //#3d83c5
                 if (Options.ExHideChatCommand.GetBool())
                     text += $"<color=#ffdfaf>Ⓗ</color> ";
                 if (Options.ExAftermeetingflash.GetBool())
                     text += $"<color=#d62c12>Ⓚ</color> ";
                 if (Options.FixSpawnPacketSize.GetBool())
                     text += $"<color=#ffef39>Ⓟ</color> ";
-                if (Options.BlackOutwokesitobasu.GetBool())
-                    text += $"<color=#8839ff>Ⓑ</color> ";
-                if (Options.ExWeightReduction.GetBool())
-                    text += $"<color=#7fc1fe>Ⓦ</color> ";
+                //if (Options.BlackOutwokesitobasu.GetBool())
+                //    text += $"<color=#8839ff>Ⓑ</color> ";
+                if (Options.ExRpcWeightR.GetBool())
+                    text += $"<color=#3d83c5>Ⓡ</color> ";
 
                 if (text != "")
                 {
@@ -192,12 +192,41 @@ namespace TownOfHost
         [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
         class ModManagerLateUpdatePatch
         {
+            static int oldcount;
+            static float olddeltimer;
+            static float timer = 0;
             public static void Prefix(ModManager __instance)
             {
                 __instance.ShowModStamp();
 
                 LateTask.Update(Time.deltaTime);
                 CheckMurderPatch.Update();
+
+                if (Main.MegCount > 49)
+                {
+                    timer += Time.deltaTime;
+
+                    if (timer > 1)
+                    {
+                        timer = 0;
+                        olddeltimer = 0;
+                        Main.MegCount = 0;
+                    }
+                }
+                else
+                if (Main.MegCount == oldcount)
+                {
+                    olddeltimer += Time.deltaTime;
+
+                    if (olddeltimer > 1.3f)
+                    {
+                        timer = 0;
+                        olddeltimer = 0;
+                        Main.MegCount = 0;
+                    }
+                }
+
+                oldcount = Main.MegCount;
             }
             public static void Postfix(ModManager __instance)
             {

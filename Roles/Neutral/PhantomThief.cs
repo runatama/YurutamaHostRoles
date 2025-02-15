@@ -19,7 +19,20 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
             "PT",
             "#3c1f56",
             true,
-            introSound: () => GetIntroSound(RoleTypes.Phantom)
+            introSound: () => GetIntroSound(RoleTypes.Phantom),
+            Desc: () =>
+            {
+                var yokoku = "";
+                var win = "";
+
+                if (OptionTandokuWin.GetBool()) win = GetString("SoloWin");
+                else win = GetString("AddWin");
+
+                if (OptionNotice.GetBool())
+                    yokoku = string.Format(GetString("PhantomThiefDescInfo"), GetString($"PhantomThiefDescY{OptionNoticetype.GetValue()}"));
+
+                return string.Format(GetString("PhantomThiefDesc"), yokoku, OptionCantSetCount.GetInt(), win);
+            }
         );
     public PhantomThief(PlayerControl player)
     : base(
@@ -147,6 +160,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
         if (!Target.IsAlive()) return;
         if (!Player.IsAlive()) return;
         var sendmeg = "";
+        var tumari = "";
 
         switch ((Notice)OptionNoticetype.GetValue())
         {
@@ -160,13 +174,16 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
                 Color color = team is CustomRoleTypes.Crewmate ? Palette.Blue : (team is CustomRoleTypes.Impostor ? ModColors.ImpostorRed : ModColors.NeutralGray);
 
                 sendmeg = string.Format(GetString("PhantomThiefNoticeTeam0"), Utils.ColorString(color, $"<u>{GetString($"PT.{team}")}</u>"));
+                tumari = string.Format(GetString("PhantomThiefmegInfo"), Utils.ColorString(color, GetString(team.ToString())));
                 break;
             case Notice.NoticePlayer:
                 var colorid = Target.Data.DefaultOutfit.ColorId;
                 var playername = Utils.ColorString(Palette.PlayerColors[colorid], $"<u>{GetString($"PhantomThiefmeg{colorid}")}</u>");
                 sendmeg = string.Format(GetString("PhantomThiefNoticePlayer0"), playername);
+                tumari = string.Format(GetString("PhantomThiefmegInfo"), Utils.GetPlayerColor(Target.Data));
                 break;
         }
+        sendmeg += $"<size=40%>\n{tumari}</size>";
         if (sendmeg.RemoveHtmlTags() != "") _ = new LateTask(() => Utils.SendMessage(sendmeg, title: GetString("PhantomThiefTitle").Color(UtilsRoleText.GetRoleColor(CustomRoles.PhantomThief))), 5f, "SendPhantom", true);
     }
     public bool OverrideKillButtonText(out string text)

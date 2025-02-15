@@ -178,9 +178,7 @@ namespace TownOfHost.Roles.Neutral
             target.RpcSetCustomRole(CustomRoles.Jackaldoll);
             JackalDoll.Sidekick(target, Player);
             if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
-            Main.FixTaskNoPlayer.Add(target);
             UtilsOption.MarkEveryoneDirtySettings();
-            UtilsTask.DelTask();
             JackalDoll.side++;
             UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>";
         }

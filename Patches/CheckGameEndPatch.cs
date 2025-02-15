@@ -428,16 +428,17 @@ namespace TownOfHost
             sb.Append("<align=left><ktag-voffset><pos=-44><size=1><color=white>" + (rtaStr == null ? Translator.GetString("RoleSummaryText") : rtaStr[0]) + "</voffset>");
 
             var (CustomWinnerText, CustomWinnerColor, _, _, _) = UtilsGameLog.GetWinnerText(winnerList: winnerList);
-            var winnerSize = GetScale(CustomWinnerText.RemoveHtmlTags().Length, 2, 6);
+            var winnerSize = GetScale(CustomWinnerText.RemoveHtmlTags().Length, 2, 3.3);
             // フォントサイズを制限
             CustomWinnerText = $"<size={winnerSize}>{CustomWinnerText}</size>";
 
             static double GetScale(int input, double min, double max)
-                => min + (max - min) * (1 - (double)(input - 1) / 19);//大きさ調整するやつ
+                => min + (max - min) * (1 - (double)(input - 1) / 13);//大きさ調整するやつ
 
             if (rtaStr == null)//nullならRTAではないので通常ログを追加
             {
                 List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
+
                 if (winnerList.Count != 0)
                     foreach (var id in winnerList)
                     {
@@ -1037,3 +1038,7 @@ namespace TownOfHost
         }
     }
 }
+//<align=left><pos=-44><size=1><color=white>ゲーム終了時の役職一覧:</voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>\n<pos=-44>　 </pos><color=#50f039ff>夜藍</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>\n<pos=-44>　 </pos><color=#50f039ff>夜藍</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>\n<pos=-44>　 </pos><color=#50f039ff>夜藍</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>\n<pos=-44>　 </pos><color=#50f039ff>夜藍</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>\n<pos=-44>　 </pos><color=#50f039ff>夜藍</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>
+//\n<pos=-44><voffset=-4.010526315789473>　 </pos><color=#50f039ff>夜藍 1</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>
+//<align=left><pos=-44><size=1><color=white>ゲーム終了時の役職一覧:</voffset>\n<pos=-44><color=#8cffff>★</color> </pos><color=#50f039ff>夜藍</color><pos=-36.5em><color=#ffeb04ff>(0/3)</color></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#8cffffff>クルーメイト</color></pos></voffset>
+//\n<pos=-44><voffset=10.926315789473684>　 </pos><color=#5f1d2eff>夜藍 1</color><pos=-36.5em></pos><pos=-30.5em><color=#6180a3ff>生存</color></pos><pos=-25.5em><color=#00b4ebff>ジャッカルドール</color></pos></voffset>

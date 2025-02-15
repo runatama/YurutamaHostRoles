@@ -345,4 +345,21 @@ namespace TownOfHost
             return result;
         }
     }
+    public class JsonModNews
+    {
+        public JsonModNews(int Number, string Title, string SubTitle, string ShortTitle,
+            string Text, string Date)
+        {
+            var news = new ModNews
+            {
+                Number = Number,
+                Title = Title,
+                SubTitle = SubTitle,
+                ShortTitle = ShortTitle,
+                Text = Text,
+                Date = Date
+            };
+            ModNewsHistory.JsonAndAllModNews.Add(news);
+        }
+    }
 }

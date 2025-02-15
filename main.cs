@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.26.11";
-        public const string PluginShowVersion = "519.26<sub>.11</sub>";
+        public const string PluginVersion = "519.26.21";
+        public const string PluginShowVersion = "519.26<sub>.21</sub>";
         public const string ModVersion = ".26";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -154,8 +154,8 @@ namespace TownOfHost
         public static List<byte> winnerList;
         public static List<int> clientIdList;
         public static List<(string, byte, string)> MessagesToSend;
+        public static int MegCount;
         public static Dictionary<byte, float> AllPlayerKillCooldown = new();
-        public static List<PlayerControl> FixTaskNoPlayer = new();
         public static bool HnSFlag = false;
         public static bool showkillbutton = false;
         public static bool RTAMode = false;

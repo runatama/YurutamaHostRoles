@@ -58,6 +58,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override void Add()
     {
         AbductTimer = 255f;
+        oldsendabtimer = 255f;
         stopCount = false;
         SK = CanmakeSK.GetBool();
         Fall = false;
@@ -493,16 +494,20 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     var position = Player.transform.position;
-                    if (Player.PlayerId != 0)
+                    if (Player.PlayerId != 0 && AbductTimer < (oldsendabtimer - 0.1))
                     {
+                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
                         AbductVictim.RpcSnapToForced(position);
                     }
                     else
                     {
                         _ = new LateTask(() =>
                         {
-                            if (AbductVictim != null)
+                            if (AbductVictim != null && AbductTimer < (oldsendabtimer - 0.1))
+                            {
+                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
                                 AbductVictim.RpcSnapToForced(position);
+                            }
                         }
                         , 0.25f, "", true);
                     }
@@ -859,9 +864,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         target.RpcSetCustomRole(CustomRoles.Jackaldoll);
         JackalDoll.Sidekick(target, Player);
         if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
-        Main.FixTaskNoPlayer.Add(target);
         UtilsOption.MarkEveryoneDirtySettings();
-        UtilsTask.DelTask();
         JackalDoll.side++;
         UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>";
     }
@@ -1227,6 +1230,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     static OptionItem OptionMeetingKill;
     PlayerControl AbductVictim;
     static int RatePenguin;
+    float oldsendabtimer;
     bool modepenguin;
     float AbductTimer;
     float AbductTimerLimit;

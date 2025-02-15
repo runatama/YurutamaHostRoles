@@ -47,7 +47,7 @@ namespace TownOfHost
         }
         static void WrapUpPostfix(NetworkedPlayerInfo exiled)
         {
-            if (AntiBlackout.OverrideExiledPlayer)
+            if (AntiBlackout.OverrideExiledPlayer())
             {
                 exiled = AntiBlackout_LastExiled;
             }
@@ -72,7 +72,7 @@ namespace TownOfHost
                 var role = exiled.GetCustomRole();
                 var info = role.GetRoleInfo();
                 //霊界用暗転バグ対処
-                if (!AntiBlackout.OverrideExiledPlayer && info?.IsDesyncImpostor == true)
+                if (!AntiBlackout.OverrideExiledPlayer() && info?.IsDesyncImpostor == true)
                     exiled.Object?.ResetPlayerCam(3f);
 
                 exiled.IsDead = true;
@@ -95,51 +95,56 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     AntiBlackout.RestoreIsDead(doSend: false);
-                }, 0.7f, "Res");//ラグを考慮して遅延入れる。
+                }, 0.5f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
+                    var count = 0;
                     if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                     foreach (var Player in PlayerCatch.AllPlayerControls)//役職判定を戻す。
                     {
                         if (Player != PlayerControl.LocalPlayer)
-                            foreach (var pc in PlayerCatch.AllPlayerControls)
+                            _ = new LateTask(() =>
                             {
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
+                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) count++;
+                                foreach (var pc in PlayerCatch.AllPlayerControls)
                                 {
-                                    pc.RpcSetRoleDesync(RoleTypes.Crewmate, Player.PlayerId);
-                                }
-                                var customrole = pc.GetCustomRole();
-                                var roleinfo = customrole.GetRoleInfo();
-                                var role = roleinfo?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
-                                var isalive = pc.IsAlive();
-                                if (!isalive)
-                                    if (customrole.IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
                                     {
-                                        role = RoleTypes.ImpostorGhost;
+                                        pc.RpcSetRoleDesync(RoleTypes.Crewmate, Player.PlayerId);
                                     }
-                                    else role = RoleTypes.CrewmateGhost;
-                                if (Player != pc && (roleinfo?.IsDesyncImpostor ?? false))
-                                    role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
-                                if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
+                                    var customrole = pc.GetCustomRole();
+                                    var roleinfo = customrole.GetRoleInfo();
+                                    var role = roleinfo?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
+                                    var isalive = pc.IsAlive();
+                                    if (!isalive)
+                                        if (customrole.IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                                        {
+                                            role = RoleTypes.ImpostorGhost;
+                                        }
+                                        else role = RoleTypes.CrewmateGhost;
+                                    if (Player != pc && (roleinfo?.IsDesyncImpostor ?? false))
+                                        role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
+                                    if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
 
-                                var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
-                                if (SuddenDeathMode.NowSuddenDeathMode) IDesycImpostor = true;
+                                    var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
+                                    if (SuddenDeathMode.NowSuddenDeathMode) IDesycImpostor = true;
 
-                                if (pc.Is(CustomRoles.Amnesia))
-                                {
-                                    if (roleinfo?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
-                                        role = RoleTypes.Crewmate;
-
-                                    if (Amnesia.dontcanUseability)
+                                    if (pc.Is(CustomRoles.Amnesia))
                                     {
-                                        if (pc.Is(CustomRoleTypes.Impostor))
-                                            role = RoleTypes.Impostor;
-                                        else role = RoleTypes.Crewmate;
-                                    }
-                                }
+                                        if (roleinfo?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
+                                            role = RoleTypes.Crewmate;
 
-                                pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
-                            }
+                                        if (Amnesia.dontcanUseability)
+                                        {
+                                            if (pc.Is(CustomRoleTypes.Impostor))
+                                                role = RoleTypes.Impostor;
+                                            else role = RoleTypes.Crewmate;
+                                        }
+                                    }
+
+                                    pc.RpcSetRoleDesync((IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role, Player.GetClientId());
+                                }
+                            }, count * 0.1f, "SetRoleDy", true);
 
                         if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) Player.RpcExileV2();
 
@@ -164,7 +169,7 @@ namespace TownOfHost
                     _ = new LateTask(() =>
                         {
                             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-                            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
+                            UtilsNotifyRoles.NotifyRoles(true, true);
                             foreach (var kvp in PlayerState.AllPlayerStates)
                             {
                                 kvp.Value.IsBlackOut = false;
@@ -173,9 +178,9 @@ namespace TownOfHost
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 1.2f, "", true);
+                }, 0.5f, "", true);
 
-                if (Options.BlackOutwokesitobasu.GetBool())
+                /*if (Options.BlackOutwokesitobasu.GetBool())
                 {
                     _ = new LateTask(() =>
                     {
@@ -204,7 +209,7 @@ namespace TownOfHost
                             }
                         }
                     }, 0.25f);
-                }
+                }*/
             }
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -253,7 +258,7 @@ namespace TownOfHost
                 }, 0.5f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
-                    if (AntiBlackout.OverrideExiledPlayer && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
+                    if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
                         exiled != null && //exiledがnullでない
                         exiled.Object != null) //exiled.Objectがnullでない
                     {

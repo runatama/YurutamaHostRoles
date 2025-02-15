@@ -51,6 +51,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
 
     public static void SetupOptionItem()
     {

@@ -7,6 +7,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Modules;
+using static TownOfHost.Options.OverrideKilldistance;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Puppeteer : RoleBase, IImpostor
@@ -34,11 +35,15 @@ public sealed class Puppeteer : RoleBase, IImpostor
     }
     static OptionItem PuppetCool;
     static OptionItem KillCooldown;
+    static OptionItem PuppetKillDis;
     enum Op { PuppeteerPuppetCool }
     public static void SetUpOption()
     {
         KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0, 180, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
         PuppetCool = FloatOptionItem.Create(RoleInfo, 11, Op.PuppeteerPuppetCool, new(0, 100, 0.5f), 5f, false).SetValueFormat(OptionFormat.Seconds);
+        Create(RoleInfo, 12);
+        PuppetKillDis = StringOptionItem.Create(RoleInfo, 13, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, false);
+        PuppetKillDis.ReplacementDictionary = new() { { "%role%", "パペット" } };
     }
     public override bool NotifyRolesCheckOtherName => true;
     /// <summary>
@@ -145,7 +150,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
 
             var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();//一番値が小さい
             var target = min.Key;
-            var KillRange = NormalGameOptionsV08.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+            var KillRange = NormalGameOptionsV08.KillDistances[Mathf.Clamp(PuppetKillDis.GetValue(), 0, 2)];
             if (min.Value <= KillRange && puppet.CanMove && target.CanMove)
             {
                 PuppetCooltime.Remove(puppet.PlayerId);

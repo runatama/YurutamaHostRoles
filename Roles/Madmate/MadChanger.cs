@@ -4,7 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
-public sealed class MadChanger : RoleBase, IKiller
+public sealed class MadChanger : RoleBase, IKiller, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -37,6 +37,9 @@ public sealed class MadChanger : RoleBase, IKiller
         MadChangerKillTargetCooldown
     }
     PlayerControl KillTarget;
+    public bool? CheckKillFlash(MurderInfo info) => Options.MadmateCanSeeKillFlash.GetBool();
+    public bool? CheckSeeDeathReason(PlayerControl seen) => Options.MadmateCanSeeDeathReason.GetBool();
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
     private static void SetupOptionItem()
     {
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, true, false);

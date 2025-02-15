@@ -9,6 +9,7 @@ using InnerNet;
 using HarmonyLib;
 using UnityEngine;
 using Assets.CoreScripts;
+using AmongUs.Data;
 using AmongUs.GameOptions;
 
 using TownOfHost.Modules;
@@ -867,7 +868,7 @@ namespace TownOfHost
                                     if (role.IsAddOn() || role.IsGorstRole() || role.IsRiaju()) break;
                                     Main.HostRole = role;
                                     var r = ColorString(GetRoleColor(role), GetString($"{role}"));
-                                    SendMessage($"ホストの役職を{r}にするよっ!!", PlayerControl.LocalPlayer.PlayerId);
+                                    SendMessage($"ホストの役職を{r}にするよっ!!");
                                 }
                             }
                             else
@@ -886,13 +887,29 @@ namespace TownOfHost
                         {
                             canceled = true;
                             subArgs = args.Length < 2 ? "" : args[1];
-                            var pc = PlayerControl.LocalPlayer;
                             if (GetRoleByInputName(subArgs, out var role, true))
                             {
                                 if (role.GetRoleInfo()?.Description?.WikiText is not null and not "")
                                 {
                                     ClipboardHelper.PutClipboardString(role.GetRoleInfo().Description.WikiText);
                                     SendMessage($"{role}の設定コピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
+                                    GetRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId);
+                                }
+                            }
+                        }
+                        break;
+                    case "/wiop":
+                        if (DebugModeManager.EnableTOHkDebugMode.GetBool())
+                        {
+                            canceled = true;
+                            subArgs = args.Length < 2 ? "" : args[1];
+                            if (GetRoleByInputName(subArgs, out var role, true))
+                            {
+                                if (role.GetRoleInfo()?.Description?.WikiOpt is not null and not "")
+                                {
+                                    ClipboardHelper.PutClipboardString(role.GetRoleInfo().Description.WikiOpt);
+                                    SendMessage($"{role}の設定コピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
+                                    GetRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId);
                                 }
                             }
                         }
@@ -1283,7 +1300,7 @@ namespace TownOfHost
         /// <returns></returns>
         public static string FixRoleNameInput(string text)
         {
-            return text switch
+            return text.RemoveHtmlTags() switch
             {
                 "GM" or "gm" or "ゲームマスター" => GetString("GM"),
 
@@ -1317,6 +1334,7 @@ namespace TownOfHost
                 "きつね" or "ようこ" or "妖狐" => GetString("Fox"),
                 "ヴァルチャー" or "バルチャー" => GetString("Vulture"),
 
+                "ドライバーとブレイド" => GetString("Driver"),
                 _ => text,
             };
         }
@@ -1762,6 +1780,8 @@ namespace TownOfHost
                                     player.PlayerId == PlayerControl.LocalPlayer.PlayerId || player.IsModClient() ||
                                     pc.PlayerId == player.PlayerId) continue;
                                     player.Data.IsDead = false;
+                                    string playername = player.GetRealName(isMeeting: true);
+                                    playername = playername.ApplyNameColorData(pc, player, true);
 
                                     var sender = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                                     sender.StartMessage(pc.GetClientId());
@@ -1778,6 +1798,10 @@ namespace TownOfHost
                                         wit.EndMessage();
                                     }, true);
                                     MeetingHudPatch.StartPatch.Serialize = false;
+                                    sender.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                    .Write(player.NetId)
+                                    .Write(playername)
+                                    .EndRpc();
                                     sender.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                                             .Write(text)
                                             .EndRpc();
@@ -1817,7 +1841,11 @@ namespace TownOfHost
             var player = AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
             if (player == null) return;
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
+            var pcname = DataManager.player.Customization.Name;
+            if (Main.nickName != "") pcname = Main.nickName;
+            if (Main.MegCount > 49 && title != pcname && GameStates.IsLobby) return;
             Main.MessagesToSend.RemoveAt(0);
+            if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) Main.MegCount++;
             var sendtopc = GetPlayerById(sendTo);
             int clientId = sendTo == byte.MaxValue ? -1 : sendtopc.GetClientId();
             if (sendTo != byte.MaxValue && sendtopc == null)
@@ -1827,7 +1855,7 @@ namespace TownOfHost
             }
             if (GameStates.IsLobby)
             {
-                _ = new LateTask(() => aftersystemmeg = true, 0.24f, "", true);
+                _ = new LateTask(() => ApplySuffix(null, true), 0.24f, "", true);
             }
             Croissant.ChocolateCroissant = true;
             var name = player.Data.PlayerName;
@@ -1861,13 +1889,7 @@ namespace TownOfHost
                             if (GameStates.Meeting)
                                 _ = new LateTask(() =>
                                     {
-                                        foreach (var seer in AllPlayerControls)
-                                        {
-                                            var seenName = player.GetRealName(isMeeting: true);
-                                            seenName = seenName.ApplyNameColorData(seer, player, true);
-
-                                            player.RpcSetNamePrivate(seenName, true, seer, true);
-                                        }
+                                        NameColorManager.RpcMeetingColorName(player);
                                         DoBlockChat = false;
                                     }, Main.LagTime, "Setname", true);
                         }
@@ -1929,13 +1951,7 @@ namespace TownOfHost
             if (GameStates.Meeting)
                 _ = new LateTask(() =>
                     {
-                        foreach (var seer in AllPlayerControls)
-                        {
-                            var seenName = player.GetRealName(isMeeting: true);
-                            seenName = seenName.ApplyNameColorData(seer, player, true);
-
-                            player.RpcSetNamePrivate(seenName, true, seer, true);
-                        }
+                        NameColorManager.RpcMeetingColorName(player);
                         DoBlockChat = false;
                     }, Main.LagTime, "Setname", true);
             __instance.timeSinceLastMessage = 0f;

@@ -89,6 +89,10 @@ namespace TownOfHost
                 if (seer == null || seer.Data.Disconnected) continue;
 
                 if (seer.IsModClient()) continue;
+                var clientId = seer.GetClientId();
+                if (clientId == -1) continue;
+                var sender = CustomRpcSender.Create("NotifyRoles");
+                sender.StartMessage(clientId);
                 string fontSize = Main.RoleTextSize.ToString();
                 Logger.Info($"{seer?.Data?.PlayerName} (Me)", "NotifyRoles");
 
@@ -104,7 +108,14 @@ namespace TownOfHost
                 // 会議じゃなくて，キノコカオス中で，seerが生きていてdesyncインポスターの場合に自身の名前を消す
                 if (isMushroomMixupActive && seerisAlive && !role.IsImpostor() && seerRoleInfo?.IsDesyncImpostor == true)
                 {
-                    seer.RpcSetNamePrivate("<size=0>", true, force: NoCache);
+                    if (seer.SetNameCheck("<size=0>", seer, NoCache))
+                    {
+                        sender.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
+                        .Write(seer.NetId)
+                        .Write("<size=0>")
+                        .Write(true)
+                        .EndRpc();
+                    }
                 }
                 else
                 {
@@ -180,9 +191,20 @@ namespace TownOfHost
                     SelfName = "<line-height=85%>" + SelfName + "\r\n";
 
                     //適用
-                    //Logger.Info(SelfName, "Name");
-                    seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
-                    if (OnlyMeName) continue;
+                    if (seer.SetNameCheck(SelfName, seer, NoCache))
+                    {
+                        sender.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
+                        .Write(seer.NetId)
+                        .Write(SelfName)
+                        .Write(true)
+                        .EndRpc();
+                    }
+                    if (OnlyMeName)
+                    {
+                        sender.EndMessage();
+                        sender.SendMessage();
+                        continue;
+                    }
                 }
                 var rolech = seerRole?.NotifyRolesCheckOtherName ?? false;
 
@@ -217,7 +239,14 @@ namespace TownOfHost
                         // 会議じゃなくて，キノコカオス中で，targetが生きていてseerがdesyncインポスターの場合にtargetの名前を消す
                         if (isMushroomMixupActive && targetisalive && !role.IsImpostor() && seerRoleInfo?.IsDesyncImpostor == true)
                         {
-                            target.RpcSetNamePrivate("<size=0>", true, seer, force: NoCache);
+                            if (target.SetNameCheck("<size=0>", seer, NoCache))
+                            {
+                                sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                                .Write(target.NetId)
+                                .Write("<size=0>")
+                                .Write(true)
+                                .EndRpc();
+                            }
                         }
                         else
                         {
@@ -327,9 +356,20 @@ namespace TownOfHost
                                 TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
 
                             //適用
-                            target.RpcSetNamePrivate(TargetName, true, seer, force: NoCache);
+                            if (target.SetNameCheck(TargetName, seer, NoCache))
+                            {
+                                sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                                .Write(target.NetId)
+                                .Write(TargetName)
+                                .Write(true)
+                                .EndRpc();
+                            }
                         }
                     }
+                }
+                {
+                    sender.EndMessage();
+                    sender.SendMessage();
                 }
             }
         }
@@ -382,6 +422,12 @@ namespace TownOfHost
                 if (seer == null || seer.Data.Disconnected) continue;
 
                 if (seer.IsModClient()) continue;
+                var clientid = seer.GetClientId();
+                if (clientid == -1) continue;
+
+                var sender = CustomRpcSender.Create("MeetingNotifyRoles");
+                sender.StartMessage(clientid);
+
                 string fontSize = "1.5";
                 if (seer.GetClient()?.PlatformData?.Platform is Platforms.Playstation or Platforms.Switch) fontSize = "70%";
 
@@ -497,7 +543,11 @@ namespace TownOfHost
                         }
                     //適用
                     //Logger.Info(SelfName, "Name");
-                    seer.RpcSetNamePrivate(SelfName, true, force: true);
+                    sender.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
+                    .Write(seer.NetId)
+                    .Write(SelfName)
+                    .Write(true)
+                    .EndRpc();
                 }
                 var rolech = seerRole?.NotifyRolesCheckOtherName ?? false;
 
@@ -649,9 +699,17 @@ namespace TownOfHost
                                     }
                                 }
                             //適用
-                            target.RpcSetNamePrivate(TargetName, true, seer, force: true);
+                            sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                            .Write(target.NetId)
+                            .Write(TargetName)
+                            .Write(true)
+                            .EndRpc();
                         }
                     }
+                }
+                {
+                    sender.EndMessage();
+                    sender.SendMessage();
                 }
             }
         }

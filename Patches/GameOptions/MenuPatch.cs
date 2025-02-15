@@ -34,6 +34,12 @@ namespace TownOfHost
             prisettext = null;
             search = null;
             searchtext = null;
+            list = null;
+            scOptions = null;
+            crlist = null;
+            crOptions = null;
+            roleopts = new();
+            rolebutton = new();
         }
     }
 
@@ -53,8 +59,18 @@ namespace TownOfHost
         public static FreeChatInputField search;
         public static TMPro.TextMeshPro searchtext;
         static Il2CppSystem.Collections.Generic.List<PassiveButton> tabButtons;
+        public static CustomRoles NowRoleTab;
+        public static Dictionary<TabGroup, GameOptionsMenu> list = new();
+        public static Dictionary<TabGroup, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> scOptions = new();
+        public static Dictionary<CustomRoles, GameOptionsMenu> crlist = new();
+        public static Dictionary<CustomRoles, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> crOptions = new();
+        public static List<OptionItem> roleopts = new();
+        public static Dictionary<CustomRoles, PassiveButton> rolebutton = new();
         public static void Postfix(GameSettingMenu __instance)
         {
+            roleopts = new();
+            rolebutton = new();
+            NowRoleTab = CustomRoles.NotAssigned;
             ActiveOnlyMode = false;
             var GamePresetButton = __instance.GamePresetsButton;
             var GameSettingsButton = __instance.GameSettingsButton;
@@ -142,6 +158,7 @@ namespace TownOfHost
                 }
             });
             Dictionary<TabGroup, GameObject> menus = new();
+            Dictionary<CustomRoles, GameObject> crmenus = new();
 
             __instance.GameSettingsTab.gameObject.SetActive(true);
             GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/Gradient").SetActive(false);
@@ -209,9 +226,10 @@ namespace TownOfHost
                 }
                 template.OnValueChanged = new Action<OptionBehaviour>((o) => { });
             }
-
-            Dictionary<TabGroup, GameOptionsMenu> list = new();
-            Dictionary<TabGroup, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> scOptions = new();
+            list = new();
+            scOptions = new();
+            crlist = new();
+            crOptions = new();
 
             var TabLength = EnumHelper.GetAllValues<TabGroup>().Length;
 
@@ -225,6 +243,15 @@ namespace TownOfHost
                 list.Add(tab, optionsMenu);
                 scOptions[tab] = new();
             }
+            foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
+            {
+                var optionsMenu = new GameObject($"{role}-Stg").AddComponent<GameOptionsMenu>();
+                var transform = optionsMenu.transform;
+                transform.SetParent(ModSettingsTab.AdvancedRolesSettings.transform.parent);
+                transform.localPosition = new Vector3(0.7789f, -0.5101f);
+                crlist.Add(role, optionsMenu);
+                crOptions[role] = new();
+            }
 
             var LabelBackgroundSprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
 
@@ -232,26 +259,98 @@ namespace TownOfHost
             {
                 if (option.OptionBehaviour == null)
                 {
-                    var optionsMenu = list[option.Tab];
-                    var stringOption = Object.Instantiate(template, optionsMenu.transform);
-                    scOptions[option.Tab].Add(stringOption);
-                    stringOption.TitleText.text = $"<b>{option.Name}</b>";
-                    stringOption.Value = stringOption.oldValue = option.CurrentValue;
-                    stringOption.ValueText.text = option.GetString();
-                    stringOption.name = option.Name;
+                    var role = CustomRoles.NotAssigned;
+                    var ropt = option;
 
-                    stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
-                    if (option.HideValue)
+                    while (ropt.Parent != null)
                     {
-                        stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
-                        stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                        ropt = ropt.Parent;
                     }
+                    role = ropt.CustomRole;
+                    if (ropt == option) role = CustomRoles.NotAssigned;
 
-                    var transform = stringOption.ValueText.transform;
-                    var pos = transform.localPosition;
-                    transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
-                    stringOption.SetClickMask(optionsMenu.ButtonClickMask);
-                    option.OptionBehaviour = stringOption;
+                    if (role is not CustomRoles.NotAssigned)
+                    {
+                        var optionsMenu = crlist[role];
+                        var stringOption = Object.Instantiate(template, optionsMenu.transform);
+                        crOptions[role].Add(stringOption);
+                        roleopts.Add(option);
+                        stringOption.TitleText.text = $"<b>{option.Name}</b>";
+                        stringOption.Value = stringOption.oldValue = option.CurrentValue;
+                        stringOption.ValueText.text = option.GetString();
+                        stringOption.name = option.Name;
+
+                        stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
+                        if (option.HideValue)
+                        {
+                            stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                            stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                        }
+
+                        var transform = stringOption.ValueText.transform;
+                        var pos = transform.localPosition;
+                        transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        stringOption.SetClickMask(optionsMenu.ButtonClickMask);
+                        option.OptionBehaviour = stringOption;
+                    }
+                    else
+                    {
+                        var optionsMenu = list[option.Tab];
+                        var stringOption = Object.Instantiate(template, optionsMenu.transform);
+                        scOptions[option.Tab].Add(stringOption);
+                        stringOption.TitleText.text = $"<b>{option.Name}</b>";
+                        stringOption.Value = stringOption.oldValue = option.CurrentValue;
+                        stringOption.ValueText.text = option.GetString();
+                        stringOption.name = option.Name;
+
+                        stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
+                        if (option.HideValue)
+                        {
+                            stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                            stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                        }
+                        if (option.CustomRole is not CustomRoles.NotAssigned and not CustomRoles.GM)
+                        {
+                            var button = Object.Instantiate(GameSettingsButton, stringOption.transform);
+                            button.inactiveSprites.GetComponent<SpriteRenderer>().sprite =
+                            button.selectedSprites.GetComponent<SpriteRenderer>().sprite = null;
+
+                            button.activeSprites.GetComponent<SpriteRenderer>().color = UtilsRoleText.GetRoleColor(option.CustomRole).ShadeColor(-0.2f).SetAlpha(0.25f);
+
+                            button.OnClick = new();
+                            button.buttonText.DestroyTranslator();
+                            button.buttonText.text = " ";
+                            button.transform.localPosition = new Vector3(-2.06f, 0.0446f, -2);
+                            button.transform.localScale = new Vector3(1.64f, 1.14f, 1f);
+                            button.OnClick.AddListener((Action)(() =>
+                            {
+                                button.selected = false;
+                                NowRoleTab = option.CustomRole;
+
+                                menus[option.Tab].SetActive(false);
+                                crmenus[option.CustomRole].SetActive(true);
+                                var tabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
+                                CategoryHeaderEditRole[] tabsubtitle = tabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
+                                tabtitle.Title.DestroyTranslator();
+                                tabtitle.Title.text = Utils.ColorString(UtilsRoleText.GetRoleColor(option.CustomRole, true), GetString(option.CustomRole.ToString()));
+                                tabtitle.Title.color = Color.white;
+
+                                ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                                ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
+                                ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                                foreach (var sub in tabsubtitle)
+                                {
+                                    Object.Destroy(sub.gameObject);
+                                }
+                            }));
+                            rolebutton.Add(option.CustomRole, button);
+                        }
+                        var transform = stringOption.ValueText.transform;
+                        var pos = transform.localPosition;
+                        transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        stringOption.SetClickMask(optionsMenu.ButtonClickMask);
+                        option.OptionBehaviour = stringOption;
+                    }
                 }
                 option.OptionBehaviour.gameObject.active = true;
             }
@@ -283,6 +382,15 @@ namespace TownOfHost
                 tabButtons.Add(tabButton);
             }
 
+            foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
+            {
+                var tabs = crlist[role];
+                tabs.Children = crOptions[role];
+                tabs.gameObject.SetActive(false);
+                tabs.enabled = true;
+                crmenus.Add(role, tabs.gameObject);
+            }
+
             //一旦全部作ってから
             for (var i = 0; i < TabLength; i++)
             {
@@ -297,10 +405,12 @@ namespace TownOfHost
                     {
                         var n = (TabGroup)i;
                         var tabButton = tabButtons[i];
-                        menus[n].SetActive(false);
+                        if (tab != n) menus[n].SetActive(false);
                         tabButton.SelectButton(false);
                         tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{n}.png", 120);
                     }
+                    crmenus[NowRoleTab].SetActive(false);
+                    NowRoleTab = CustomRoles.NotAssigned;
                     tabButton.SelectButton(true);
                     tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
                     menus[tab].SetActive(true);
@@ -358,7 +468,7 @@ namespace TownOfHost
                 void scroll(OptionItem op)
                 {
                     var opt = op;
-                    while (opt.Parent != null && !opt.GetBool())
+                    while (opt.Parent != null && (!opt.GetBool() || roleopts.Contains(opt)))
                     {
                         opt = opt.Parent;
                     }

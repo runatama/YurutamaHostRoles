@@ -6,6 +6,7 @@ using UnityEngine;
 
 using TownOfHost.Modules;
 using static TownOfHost.Translator;
+using Object = UnityEngine.Object;
 
 namespace TownOfHost
 {
@@ -120,7 +121,7 @@ namespace TownOfHost
             if (ServerManager.Instance?.CurrentRegion?.Name == null) return;
 
             var nowserver = ServerManager.Instance.CurrentRegion.Name;
-            if ((nowserver is "ExROfficialTokyo" || nowserver.Contains("<color=#ffa500>Super</color>")) && MMOnlineManagerStartPatch.DontCreatetext)
+            if ((nowserver is "ExROfficialTokyo" || nowserver.Contains("Nebula on the Ship JP") || nowserver.Contains("<color=#ffa500>Super</color>")) && MMOnlineManagerStartPatch.DontCreatetext)
             {
                 obj.transform.localPosition = new Vector3(100f, 100f, 100);
                 MMOnlineManagerStartPatch.DontCreatetext.text = $"<size=2><color=red>{GetString("DontCreatetext")}";

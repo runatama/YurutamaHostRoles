@@ -338,13 +338,15 @@ namespace TownOfHost
             var fir = rob ? "" : "<align=\"left\">";
             Main.MessagesToSend.Add(($"{fir}{text}", sendTo, $"{fir}{title}"));
         }
-        public static bool aftersystemmeg;
-        public static void ApplySuffix(PlayerControl pc)
+        /// <param name="pc">seer</param>
+        /// <param name="force">強制かつ全員に送信</param>
+        public static void ApplySuffix(PlayerControl pc, bool force = false)
         {
             if (!AmongUsClient.Instance.AmHost) return;
             string name = DataManager.player.Customization.Name;
             if (Main.nickName != "") name = Main.nickName;
             string n = name;
+            bool RpcTimer = false;
             if (AmongUsClient.Instance.IsGameStarted)
             {
                 if (!Camouflage.PlayerSkins.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var color)) return;
@@ -388,15 +390,16 @@ namespace TownOfHost
                             if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
                             if (minutes <= 0) Color = "<color=red>";//1分切ったら。
                             name += $"</size><size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size><size=150%>";
+                            RpcTimer = true;
                             break;
                     }
                 }
             }
             //Dataのほう変えるのはなぁっておもいました。うん。
-            if (name != PlayerControl.LocalPlayer.name && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
+            if (name != PlayerControl.LocalPlayer.name && !RpcTimer && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
                 PlayerControl.LocalPlayer.RpcSetName(name);
 
-            if (GameStates.IsLobby && !GameStates.IsCountDown && pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())
+            if (GameStates.IsLobby && !GameStates.IsCountDown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
             {
                 name = $"<b>{name}</b>";
 
@@ -414,7 +417,10 @@ namespace TownOfHost
 
                 info += "</size>";
                 n = "<size=150%><line-height=-1400%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1300%>\r\n<size=145%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginShowVersion}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
-                PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc, aftersystemmeg);
+                if (force)
+                    PlayerCatch.AllPlayerControls.DoIf(x => x.name != "Player(Clone)" && x.PlayerId != PlayerControl.LocalPlayer.PlayerId && !x.IsModClient(), x => PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, x, true));
+                else if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+                    PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, pc);
             }
         }
         #region AfterMeetingTasks
@@ -456,7 +462,6 @@ namespace TownOfHost
                 {
                     if (AsistingAngel.ch())
                         AsistingAngel.Limit++;
-                    UtilsTask.DelTask();
                     UtilsGameLog.day++;
                     UtilsGameLog.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</size><size=60%>";
                 }

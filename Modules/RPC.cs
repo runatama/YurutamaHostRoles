@@ -379,7 +379,7 @@ namespace TownOfHost
         //参考元→SuperNewRoles様
         public static void RpcSyncAllNetworkedPlayer(int TargetClientId = -1)
         {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter writer = MessageWriter.Get(SendOption.None);
             if (TargetClientId < 0)
             {
                 writer.StartMessage(5);
@@ -402,7 +402,7 @@ namespace TownOfHost
                     AmongUsClient.Instance.SendOrDisconnect(writer);
                     writer.Recycle();
 
-                    writer = MessageWriter.Get(SendOption.Reliable);
+                    writer = MessageWriter.Get(SendOption.None);
                     if (TargetClientId < 0)
                     {
                         writer.StartMessage(5);

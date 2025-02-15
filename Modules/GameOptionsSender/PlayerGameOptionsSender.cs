@@ -56,7 +56,7 @@ namespace TownOfHost.Modules
             }
             else
             {
-                if (ExWeightReduction.GetBool())
+                //if (ExWeightReduction.GetBool())
                 {
                     //ちょっとやり方強引だけど送った時のくっそ思いよりはましな気がする。
                     var opttext = "キルクール:" + opt.GetFloat(FloatOptionNames.KillCooldown);

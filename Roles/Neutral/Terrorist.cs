@@ -19,7 +19,13 @@ public sealed class Terrorist : RoleBase
             "te",
             "#00ff00",
             introSound: () => ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixWiring).FirstOrDefault().MinigamePrefab.OpenSound,
-            from: From.FoolersMod
+            from: From.FoolersMod,
+            Desc: () =>
+            {
+                var info = "";
+                if (!OptionCanSuicideWin.GetBool()) info = GetString("TerroristDescInfo");
+                return GetString("TerroristInfoLong") + info;
+            }
             );
     public Terrorist(PlayerControl player)
     : base(

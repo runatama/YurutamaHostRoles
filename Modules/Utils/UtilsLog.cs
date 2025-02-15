@@ -128,14 +128,17 @@ namespace TownOfHost
 
             winnerList ??= Main.winnerList;
 
-            var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
-            if (winnerRole >= 0)
+            if ((int)CustomWinnerHolder.WinnerTeam < 1000)
             {
-                CustomWinnerText = GetRoleName(winnerRole);
-                CustomWinnerColor = GetRoleColorCode(winnerRole);
-                if (winnerRole.IsNeutral())
+                var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
+                if (winnerRole >= 0)
                 {
-                    barColor = GetRoleColor(winnerRole);
+                    CustomWinnerText = GetRoleName(winnerRole);
+                    CustomWinnerColor = GetRoleColorCode(winnerRole);
+                    if (winnerRole.IsNeutral())
+                    {
+                        barColor = GetRoleColor(winnerRole);
+                    }
                 }
             }
             if (AmongUsClient.Instance.AmHost && PlayerState.GetByPlayerId(0).MainRole == CustomRoles.GM)
@@ -243,6 +246,7 @@ namespace TownOfHost
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.None and not CustomWinner.Draw)
                 if (SuddenDeathMode.NowSuddenDeathMode && !SuddenDeathMode.NowSuddenDeathTemeMode)
                 {
+                    var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
                     var winner = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                     var color = Color.white;
                     if (Main.PlayerColors.TryGetValue(winner, out var co)) color = co;

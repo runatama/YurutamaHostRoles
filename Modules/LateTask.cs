@@ -33,6 +33,12 @@ namespace TownOfHost
             this.timer = time;
             this.name = name;
             this.NoLog = NoLog;
+            if (time <= 0)//0s以下ならその場で処理したまえ。
+            {
+                try { action(); }
+                catch (Exception ex) { Logger.Error($"{ex}", "LateTaskNattenaiyatu"); }
+                return;
+            }
             Tasks.Add(this);
             if (name != "" && NoLog == false)
                 Logger.Info("\"" + name + "\" is created", "LateTask");

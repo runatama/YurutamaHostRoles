@@ -70,6 +70,7 @@ namespace TownOfHost.Roles.Ghost
             {
                 var c = 0;
                 if (count.ContainsKey(seer.PlayerId)) c = count[seer.PlayerId];
+                else c = Count.GetInt();
                 return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Ghostbuttoner).ShadeColor(-0.25f), $" ({c}/{Count.GetInt()})");
             }
             return "";

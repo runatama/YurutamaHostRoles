@@ -239,7 +239,7 @@ namespace TownOfHost
                             SuddenDeathMode.TeamPurple.Remove(pc.PlayerId);
                         }
                         else
-                        if (-2.9 <= pos.x && pos.x <= -1.2 && 2.2 <= pos.y && pos.y <= 3.0 && Options.SuddenTeamPurple.GetBool())
+                        if (-2.9 <= pos.x && pos.x <= -1.1 && 2.2 <= pos.y && pos.y <= 3.0 && Options.SuddenTeamPurple.GetBool())
                         {
                             SuddenDeathMode.TeamRed.Remove(pc.PlayerId);
                             SuddenDeathMode.TeamBlue.Remove(pc.PlayerId);
@@ -333,34 +333,37 @@ namespace TownOfHost
                             if (pc != null)
                             {
                                 (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
-                                if (sendTo != byte.MaxValue)
+                                if (sendTo != byte.MaxValue && Main.MegCount < 50)
                                 {
                                     Main.MessagesToSend.RemoveAt(0);
                                     var sendpc = PlayerCatch.GetPlayerById(sendTo);
                                     int clientId = sendpc.GetClientId();
-                                    if (sendpc == null) return;
-                                    var name = pc.Data.PlayerName;
-                                    if (clientId == -1)
+                                    if (sendpc != null)
                                     {
-                                        pc.SetName(title);
-                                        DestroyableSingleton<HudManager>.Instance.Chat.AddChat(pc, msg);
-                                        pc.SetName(name);
+                                        var name = pc.Data.PlayerName;
+                                        if (clientId == -1)
+                                        {
+                                            pc.SetName(title);
+                                            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(pc, msg);
+                                            pc.SetName(name);
+                                        }
+                                        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                        writer.StartMessage(clientId);
+                                        writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
+                                            .Write(player.Data.NetId)
+                                            .Write(title)
+                                            .EndRpc();
+                                        writer.StartRpc(pc.NetId, (byte)RpcCalls.SendChat)
+                                            .Write(msg)
+                                            .EndRpc();
+                                        writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
+                                            .Write(player.Data.NetId)
+                                            .Write(pc.Data.PlayerName)
+                                            .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) Main.MegCount++;
                                     }
-                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-                                    writer.StartMessage(clientId);
-                                    writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                                        .Write(player.Data.NetId)
-                                        .Write(title)
-                                        .EndRpc();
-                                    writer.StartRpc(pc.NetId, (byte)RpcCalls.SendChat)
-                                        .Write(msg)
-                                        .EndRpc();
-                                    writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                                        .Write(player.Data.NetId)
-                                        .Write(pc.Data.PlayerName)
-                                        .EndRpc();
-                                    writer.EndMessage();
-                                    writer.SendMessage();
                                 }
                             }
                         }

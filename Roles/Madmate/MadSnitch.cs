@@ -107,4 +107,5 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
+    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
 }

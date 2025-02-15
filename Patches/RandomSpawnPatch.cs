@@ -169,7 +169,7 @@ namespace TownOfHost
                     return false;
                 }
                 // ランダムスポーンが有効ならバニラの湧きをキャンセル
-                if (IsRandomSpawn() || (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool()))
+                if (IsRandomSpawn())// || (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool()))
                 {
                     // バニラ処理のRpcSnapToForcedをAirshipSpawnに置き換えたもの
                     __instance.gotButton = true;
@@ -214,7 +214,7 @@ namespace TownOfHost
                 {
                     new AirshipSpawnMap().FirstTeleport(player);
                 }
-                else if (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool())
+                else// if (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool())
                 {
                     AirshipSpawnMap.VpRandomTeleport(player);
                 }

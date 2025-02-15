@@ -165,6 +165,7 @@ namespace TownOfHost.Modules
                 {
                     PlayerCatch.AllPlayerControls.Do(p => NameColorManager.Add(p.PlayerId, myid, ModColors.codered));
                     var mypc = PlayerCatch.GetPlayerById(myid);
+                    if (mypc == null) continue;
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
@@ -177,6 +178,7 @@ namespace TownOfHost.Modules
                 {
                     PlayerCatch.AllPlayerControls.Do(p => NameColorManager.Add(p.PlayerId, myid, ModColors.codeblue));
                     var mypc = PlayerCatch.GetPlayerById(myid);
+                    if (mypc == null) continue;
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
@@ -189,6 +191,7 @@ namespace TownOfHost.Modules
                 {
                     PlayerCatch.AllPlayerControls.Do(p => NameColorManager.Add(p.PlayerId, myid, ModColors.codeyellow));
                     var mypc = PlayerCatch.GetPlayerById(myid);
+                    if (mypc == null) continue;
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
@@ -201,6 +204,7 @@ namespace TownOfHost.Modules
                 {
                     PlayerCatch.AllPlayerControls.Do(p => NameColorManager.Add(p.PlayerId, myid, ModColors.codegreen));
                     var mypc = PlayerCatch.GetPlayerById(myid);
+                    if (mypc == null) continue;
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
@@ -213,6 +217,7 @@ namespace TownOfHost.Modules
                 {
                     PlayerCatch.AllPlayerControls.Do(p => NameColorManager.Add(p.PlayerId, myid, ModColors.codepurple));
                     var mypc = PlayerCatch.GetPlayerById(myid);
+                    if (mypc == null) continue;
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;

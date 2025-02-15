@@ -14,7 +14,10 @@ namespace TownOfHost.Patches
                     __instance.NameText.text = __instance.NameText.text.ApplyNameColorData(PlayerControl.LocalPlayer, __instance.playerInfo._object, GameStates.IsMeeting);
             }
             if (__instance.NameText.text.RemoveaAlign() != __instance.NameText.text)
+            {
                 __instance.SetLeft();
+                __instance.SetCosmetics(__instance.playerInfo);
+            }
         }
     }
 }

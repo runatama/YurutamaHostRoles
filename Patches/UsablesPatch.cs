@@ -13,11 +13,15 @@ namespace TownOfHost
         {
             canUse = couldUse = false;
             var hastask = UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
+            var isMotogaCrew = PlayerControl.LocalPlayer.IsAlive() && !hastask && PlayerControl.LocalPlayer.Data.RoleType.IsCrewmate();
+            var Rolecanuse = isMotogaCrew || (hastask && (PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true));
+            var isAmn = PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor);
+
             //こいつをfalseでreturnしても、タスク(サボ含む)以外の使用可能な物は使えるまま(ボタンなど)
             if (!GameStates.InGame)
                 return __instance.AllowImpostor || hastask;
             else
-                return __instance.AllowImpostor || (hastask && ((PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true) || (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))));
+                return __instance.AllowImpostor || Rolecanuse || isAmn;
         }
     }
     [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]

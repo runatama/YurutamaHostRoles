@@ -52,6 +52,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     {
         UetukeNokori = OptUetuketukeTrun.GetInt();
         AbductTimer = 255f;
+        oldsendabtimer = 255f;
         stopCount = false;
         Aliens.Add(this);
     }
@@ -463,16 +464,20 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     var position = Player.transform.position;
-                    if (Player.PlayerId != 0)
+                    if (Player.PlayerId != 0 && AbductTimer < (oldsendabtimer - 0.1))
                     {
+                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
                         AbductVictim.RpcSnapToForced(position);
                     }
                     else
                     {
                         _ = new LateTask(() =>
                         {
-                            if (AbductVictim != null)
+                            if (AbductVictim != null && AbductTimer < (oldsendabtimer - 0.1))
+                            {
+                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
                                 AbductVictim.RpcSnapToForced(position);
+                            }
                         }
                         , 0.25f, "", true);
                     }
@@ -847,6 +852,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     PlayerControl AbductVictim;
     public bool modepenguin;
     float AbductTimer;
+    float oldsendabtimer;
     bool stopCount;
     //カムバッカー
     public bool modeComebaker;

@@ -164,7 +164,6 @@ namespace TownOfHost
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
             ChatManager.ResetChat();
             SuddenDeathMode.Reset();
-            Main.FixTaskNoPlayer.Clear();
             Camouflage.ventplayr.Clear();
             PlayerCatch.OldAlivePlayerControles.Clear();
             ReportDeadBodyPatch.DontReport.Clear();
@@ -184,7 +183,6 @@ namespace TownOfHost
             CustomButtonHud.ch = null;
             Utils.RoleSendList.Clear();
             Lovers.HaveLoverDontTaskPlayers.Clear();
-            UtilsTask.TaskCh = true;
             UtilsNotifyRoles.MeetingMoji = "";
             Roles.Madmate.MadAvenger.Skill = false;
             JackalDoll.side = 0;
@@ -607,8 +605,6 @@ namespace TownOfHost
                 UtilsGameLog.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
                 UtilsGameLog.LastLogRole[pc.PlayerId] = $"<b>{lov}" + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
                 PlayerCatch.AllPlayerFirstTypes.Add(pc.PlayerId, roletype);
-                //FixTask
-                if (roleClass?.HasTasks == HasTask.False) Main.FixTaskNoPlayer.Add(pc);
 
                 //Addons
                 Main.Guard.Add(pc.PlayerId, 0);
@@ -638,30 +634,37 @@ namespace TownOfHost
         }
         private static void CoResetRoleY()
         {
-            foreach (var pc in PlayerCatch.AllPlayerControls)
+            var host = PlayerControl.LocalPlayer;
+
+            var stream = MessageWriter.Get(SendOption.Reliable);
+            stream.StartMessage(5);
+            stream.Write(AmongUsClient.Instance.GameId);
+            //playercount ^2だったのがこれだとplayercount * 2で済む。重くない！.動くか知らない！
             {
-                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                if (pc.GetClientId() == -1) continue;
-                var role = pc.GetCustomRole();
-                var roleType = role.GetRoleTypes();
+                SetDisconnectedMessage(stream, true);
+                stream.EndMessage();
 
-                if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
+                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
-                    if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
-                }
-                if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
-                if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
-                {
-                    roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                }
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    if (pc.GetClientId() == -1) continue;
+                    var role = pc.GetCustomRole();
+                    var roleType = role.GetRoleTypes();
 
-                var stream = MessageWriter.Get(SendOption.Reliable);
-                stream.StartMessage(6);
-                stream.Write(AmongUsClient.Instance.GameId);
-                stream.WritePacked(pc.GetClientId());
-                {
-                    SetDisconnectedMessage(stream, true);
+                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
+                    {
+                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
+                        if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
+                    }
+                    if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
+                    if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
+                    {
+                        roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                    }
+
+                    stream.StartMessage(6);
+                    stream.Write(AmongUsClient.Instance.GameId);
+                    stream.Write(pc.GetClientId());
 
                     stream.StartMessage(2);
                     stream.WritePacked(pc.NetId);
@@ -669,13 +672,17 @@ namespace TownOfHost
                     stream.Write((ushort)roleType);
                     stream.Write(true);
                     stream.EndMessage();
-
-                    SetDisconnectedMessage(stream, false);
+                    stream.EndMessage();
                 }
-                stream.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(stream);
-                stream.Recycle();
+
+                stream.StartMessage(5);
+                stream.Write(AmongUsClient.Instance.GameId);
+                SetDisconnectedMessage(stream, false);
             }
+            stream.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(stream);
+            stream.Recycle();
+
             new LateTask(() =>
             {
                 PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));

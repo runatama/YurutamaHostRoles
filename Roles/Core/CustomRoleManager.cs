@@ -850,6 +850,7 @@ public enum CustomRoles
     CurseMaker,
     PhantomThief,
     Fox,
+    Ventoman,
     Turncoat,
     Vulture,
     SantaClaus,
