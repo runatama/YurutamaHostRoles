@@ -1153,7 +1153,7 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            //100045
+            //100047
             {
                 var news = new ModNews
                 {
