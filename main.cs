@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.26.21";
-        public const string PluginShowVersion = "519.26<sub>.21</sub>";
+        public const string PluginVersion = "519.26.22";
+        public const string PluginShowVersion = "519.26<sub>.22</sub>";
         public const string ModVersion = ".26";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -138,6 +138,7 @@ namespace TownOfHost
         public static ConfigEntry<string> Preset5 { get; private set; }
         public static ConfigEntry<string> Preset6 { get; private set; }
         public static ConfigEntry<string> Preset7 { get; private set; }
+        public static ConfigEntry<string> SKey { get; private set; }
         //Other Configs
         public static ConfigEntry<string> BetaBuildURL { get; private set; }
         public static ConfigEntry<float> LastKillCooldown { get; private set; }
@@ -189,6 +190,7 @@ namespace TownOfHost
         public const float MinSpeed = 0.0001f;
         public static Dictionary<byte, bool> CheckShapeshift = new();
         public static Dictionary<byte, byte> ShapeshiftTarget = new();
+        public static Dictionary<byte, CustomDeathReason> HostKill = new();
         public static bool VisibleTasksCount;
         public static string nickName = "";
         public static string lobbyname = "";
@@ -255,6 +257,7 @@ namespace TownOfHost
             Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
             Preset6 = Config.Bind("Preset Name Options", "Preset6", "Preset_6");
             Preset7 = Config.Bind("Preset Name Options", "Preset7", "Preset_7");
+            SKey = Config.Bind("Other", "countdata", "141c2e1c");
             BetaBuildURL = Config.Bind("Other", "BetaBuildURL", "");
             MessageWait = Config.Bind("Other", "MessageWait", 1f);
             LastKillCooldown = Config.Bind("Other", "LastKillCooldown", (float)30);
@@ -377,6 +380,8 @@ namespace TownOfHost
 
             Harmony.PatchAll();
             Application.quitting += new Action(UtilsOutputLog.SaveNowLog);
+            Application.quitting += new Action(SaveStatistics.Save);
+            Statistics.NowStatistics = SaveStatistics.Load();
         }
 
         public static bool IsCs()
@@ -463,6 +468,7 @@ namespace TownOfHost
         Vulture = CustomRoles.Vulture,
         CurseMaker = CustomRoles.CurseMaker,
         Fox = CustomRoles.Fox,
+        Ventoman = CustomRoles.Ventoman,
         PhantomThief = CustomRoles.PhantomThief,
 
         HASTroll = CustomRoles.HASTroll,

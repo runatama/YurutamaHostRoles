@@ -130,6 +130,7 @@ namespace TownOfHost
             CustomRoleManager.Dispose();
 
             Camouflage.PlayerSkins.Clear();
+            Statistics.kosin();
         }
     }
     [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.SetEverythingUp))]

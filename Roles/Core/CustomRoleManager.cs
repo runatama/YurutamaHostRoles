@@ -26,6 +26,7 @@ public static class CustomRoleManager
     public static RoleBase GetRoleClass(this PlayerControl player) => GetByPlayerId(player.PlayerId);
     public static RoleBase GetByPlayerId(byte playerId) => AllActiveRoles.TryGetValue(playerId, out var roleBase) ? roleBase : null;
     public static void Do<T>(this List<T> list, Action<T> action) => list.ToArray().Do(action);
+    public static Dictionary<int, CustomRoles> CustomRoleIds = new();
     // == CheckMurder関連処理 ==
     public static Dictionary<byte, MurderInfo> CheckMurderInfos = new();
 

@@ -968,6 +968,10 @@ namespace TownOfHost
             if (State.RealKiller.Item1 != DateTime.MinValue && NotOverRide) return; //既に値がある場合上書きしない
             byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
             RPC.SetRealKiller(target.PlayerId, killerId);
+            if (killer.PlayerId == 0)
+            {
+                Main.HostKill.TryAdd(target.PlayerId, State.DeathReason);
+            }
         }
         public static PlayerControl GetRealKiller(this PlayerControl target)
         {

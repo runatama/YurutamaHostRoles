@@ -54,6 +54,7 @@ namespace TownOfHost
             Main.AllPlayerTask = new Dictionary<byte, List<uint>>();
             GhostRoleAssingData.GhostAssingCount = new Dictionary<CustomRoles, int>();
 
+            Main.HostKill = new();
             PlayerCatch.SKMadmateNowCount = 0;
 
             Main.AfterMeetingDeathPlayers = new();
@@ -636,14 +637,27 @@ namespace TownOfHost
         {
             var host = PlayerControl.LocalPlayer;
 
-            var stream = MessageWriter.Get(SendOption.Reliable);
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
+            var sender = CustomRpcSender.Create("ReSetRoleY", SendOption.None);
+            sender.StartMessage(-1);
+            MeetingHudPatch.StartPatch.Serialize = true;
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                pc.Data.Disconnected = true;
+                sender.Write((wit) =>
+                {
+                    wit.StartMessage(1);
+                    {
+                        wit.WritePacked(pc.Data.NetId);
+                        pc.Data.Serialize(wit, false);
+                    }
+                    wit.EndMessage();
+                }, true);
+            }
+            sender.EndMessage();
+            MeetingHudPatch.StartPatch.Serialize = false;
+
             //playercount ^2だったのがこれだとplayercount * 2で済む。重くない！.動くか知らない！
             {
-                SetDisconnectedMessage(stream, true);
-                stream.EndMessage();
-
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
@@ -662,26 +676,33 @@ namespace TownOfHost
                         roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
                     }
 
-                    stream.StartMessage(6);
-                    stream.Write(AmongUsClient.Instance.GameId);
-                    stream.Write(pc.GetClientId());
-
-                    stream.StartMessage(2);
-                    stream.WritePacked(pc.NetId);
-                    stream.Write((byte)RpcCalls.SetRole);
-                    stream.Write((ushort)roleType);
-                    stream.Write(true);
-                    stream.EndMessage();
-                    stream.EndMessage();
+                    sender.StartMessage(pc.GetClientId());
+                    sender.StartRpc(pc.NetId, (byte)RpcCalls.SetRole)
+                    .Write((ushort)roleType)
+                    .Write(true)
+                    .EndRpc();
+                    sender.EndMessage();
                 }
 
-                stream.StartMessage(5);
-                stream.Write(AmongUsClient.Instance.GameId);
-                SetDisconnectedMessage(stream, false);
+                sender.StartMessage(-1);
+                MeetingHudPatch.StartPatch.Serialize = true;
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    pc.Data.Disconnected = false;
+                    sender.Write((wit) =>
+                    {
+                        wit.StartMessage(1);
+                        {
+                            wit.WritePacked(pc.Data.NetId);
+                            pc.Data.Serialize(wit, false);
+                        }
+                        wit.EndMessage();
+                    }, true);
+                }
+                MeetingHudPatch.StartPatch.Serialize = false;
             }
-            stream.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
+            sender.EndMessage();
+            sender.SendMessage();
 
             new LateTask(() =>
             {
@@ -726,17 +747,6 @@ namespace TownOfHost
                 senders2 = null;
             }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
             _ = new LateTask(() => SetRole(), 5.5f, "", true);
-        }
-        private static void SetDisconnectedMessage(MessageWriter stream, bool disconnected)
-        {
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-            {
-                pc.Data.Disconnected = disconnected;
-                stream.StartMessage(1);
-                stream.WritePacked(pc.Data.NetId);
-                pc.Data.Serialize(stream, false);
-                stream.EndMessage();
-            }
         }
         public static void SetRole()
         {

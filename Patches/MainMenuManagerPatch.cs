@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using TMPro;
@@ -17,6 +18,11 @@ namespace TownOfHost
     public class MainMenuManagerPatch
     {
         private static SimpleButton discordButton;
+        private static SimpleButton StatisticsButton;
+        private static SimpleButton ModoruButton;
+        private static SimpleButton TuginoButton;
+        static Dictionary<byte, string> peji;
+        static byte now;
         public static SimpleButton UpdateButton { get; private set; }
         public static SimpleButton UpdateButton2;
         private static SimpleButton gitHubButton;
@@ -24,6 +30,7 @@ namespace TownOfHost
         private static SimpleButton TOHkBOTButton;
         private static SimpleButton VersionChangeButton;
         private static SimpleButton betaversionchange;
+        public static TextMeshPro Tokei;
         public static GameObject VersionMenu;
         public static GameObject betaVersionMenu;
         public static AnnouncementPopUp updatea;
@@ -32,6 +39,8 @@ namespace TownOfHost
         public static void StartPostfix(MainMenuManager __instance)
         {
             SimpleButton.SetBase(__instance.quitButton);
+            peji = new();
+            now = byte.MaxValue;
             //Discordボタンを生成
             if (SimpleButton.IsNullOrDestroyed(discordButton))
             {
@@ -68,7 +77,7 @@ namespace TownOfHost
                     () => Application.OpenURL("https://twitter.com/Tohkserver_k"),
                     "Twitter(X)");
             }
-            // TOHkBOTボタンを生成 BOTが完成次第アプデと同時に公開
+            // TOHkBOTボタンを生成
             if (SimpleButton.IsNullOrDestroyed(TOHkBOTButton))
             {
                 TOHkBOTButton = CreateButton(
@@ -78,6 +87,68 @@ namespace TownOfHost
                     new(60, 201, 87, byte.MaxValue),
                     () => Application.OpenURL("https://discord.com/api/oauth2/authorize?client_id=1198276538563567716&permissions=8&scope=bot"),
                     "TOHkBOT");
+            }
+            if (SimpleButton.IsNullOrDestroyed(StatisticsButton))
+            {
+                StatisticsButton = CreateButton(
+                    "StatisticsButton",
+                    new Vector3(0, -2, -5f),
+                    new(20, 20, 20, byte.MaxValue), new(20, 20, 20, byte.MaxValue),
+                    () =>
+                    {
+                        CredentialsPatch.TohkLogo.gameObject.SetActive(false);
+                        __instance.screenTint.enabled = true;
+                        Tokei.text = "Coming Soon...";
+                        Tokei.gameObject.SetActive(true);
+                    },
+                    " "
+                    );
+            }
+
+            if (SimpleButton.IsNullOrDestroyed(TuginoButton))
+            {
+                TuginoButton = CreateButton(
+                    "TuginoButton",
+                    new(3.1f * w, -2.2f, -6f),
+                    new(26, 150, 107, byte.MaxValue),
+                    new(193, 255, 233, byte.MaxValue),
+                    () =>
+                    {
+                        now++;
+                        if (peji.TryGetValue(now, out var t))
+                        {
+                            Tokei.text = t;
+                        }
+                        else now--;
+                    },
+                    "▷",
+                    new Vector2(0.5f, 0.5f),
+                    false,
+                    __instance.screenTint.transform
+                    );
+            }
+
+            if (SimpleButton.IsNullOrDestroyed(ModoruButton))
+            {
+                ModoruButton = CreateButton(
+                    "ModoruButton",
+                    new(2.5f * w, -2.2f, -6),
+                    new(26, 150, 107, byte.MaxValue),
+                    new(193, 255, 233, byte.MaxValue),
+                    () =>
+                    {
+                        now--;
+                        if (peji.TryGetValue(now, out var t))
+                        {
+                            Tokei.text = t;
+                        }
+                        else now++;
+                    },
+                    "◁",
+                    new Vector2(0.5f, 0.5f),
+                    false,
+                    __instance.screenTint.transform
+                    );
             }
 
             //Updateボタンを生成
@@ -279,9 +350,10 @@ namespace TownOfHost
             Action action,
             string label,
             Vector2? scale = null,
-            bool isActive = true)
+            bool isActive = true,
+            Transform transform = null)
         {
-            var button = new SimpleButton(CredentialsPatch.TohkLogo.transform, name, localPosition, normalColor, hoverColor, action, label, isActive);
+            var button = new SimpleButton(transform == null ? CredentialsPatch.TohkLogo.transform : transform, name, localPosition, normalColor, hoverColor, action, label, isActive);
             if (scale.HasValue)
             {
                 button.Scale = scale.Value;
@@ -304,6 +376,12 @@ namespace TownOfHost
                 VersionMenu.SetActive(false);
             if (betaVersionMenu != null)
                 betaVersionMenu.SetActive(false);
+            if (Tokei != null)
+                Tokei.gameObject.SetActive(false);
+            if (TuginoButton != null)
+                TuginoButton.Button.gameObject.SetActive(false);
+            if (ModoruButton != null)
+                ModoruButton.Button.gameObject.SetActive(false);
         }
         [HarmonyPatch(nameof(MainMenuManager.ResetScreen)), HarmonyPostfix]
         public static void ResetScreenPostfix()
@@ -316,6 +394,12 @@ namespace TownOfHost
                 VersionMenu.SetActive(false);
             if (betaVersionMenu != null)
                 betaVersionMenu.SetActive(false);
+            if (Tokei != null)
+                Tokei.gameObject.SetActive(false);
+            if (TuginoButton != null)
+                TuginoButton.Button.gameObject.SetActive(false);
+            if (ModoruButton != null)
+                ModoruButton.Button.gameObject.SetActive(false);
         }
     }
     public class ModNews

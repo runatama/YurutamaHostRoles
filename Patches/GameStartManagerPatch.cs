@@ -304,6 +304,9 @@ namespace TownOfHost
 
                 __instance.ReallyBegin(false);
                 TemplateManager.SendTemplate("Start", noErr: true);
+
+                //var check = Statistics.CheckAdd(true);
+                //if (check is not "") Logger.seeingame(check);
                 return false;
             }
             private static void SelectRandomMap()

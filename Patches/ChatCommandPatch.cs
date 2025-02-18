@@ -1501,6 +1501,7 @@ namespace TownOfHost
                         ShowTimer(player.PlayerId);
                     break;
 
+
                 case "/tp":
                     if (!GameStates.IsLobby || !Options.sotodererukomando.GetBool()) break;
                     canceled = true;

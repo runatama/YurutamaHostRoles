@@ -39,7 +39,7 @@ class Croissant
 
     public static bool CheckLowertheHeat(PlayerControl butter, RpcCalls rpcType, MessageReader subReader)
     {
-        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || (1 + 1 == 2)) return true;
+        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost) return true;
         if (GameStates.IsOutro || (!GameStates.IsLobby && !GameStates.InGame)) return true;
 
         var WorthEating = false;

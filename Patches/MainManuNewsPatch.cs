@@ -1153,7 +1153,7 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            //100047
+            //100045
             {
                 var news = new ModNews
                 {
@@ -1186,10 +1186,11 @@ public class ModNewsHistory
                     + "・大狼に生存報告設定の追加\n"
                     + "\n\nってなわけで～そんなわけで。またねっ！by yr"
                     ,
-                    Date = "2025-02-15T23:00:00Z"
+                    Date = "2025-02-14T00:00:00Z"
                 };
                 AllModNews.Add(news);
             }
+            //100047
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

@@ -125,6 +125,7 @@ public class SimpleRoleInfo
         Tab = tab;
 
         CustomRoleManager.AllRolesInfo.Add(roleName, this);
+        CustomRoleManager.CustomRoleIds.Add(configId, roleName);
     }
     public static SimpleRoleInfo Create(
         Type classType,
@@ -192,47 +193,57 @@ public class SimpleRoleInfo
         CustomRoles roleName;
         CustomRoleTypes customRoleType;
         CountTypes countType = CountTypes.Crew;
+        int configId = -1;
 
         switch (baseRoleType)
         {
             case RoleTypes.Engineer:
                 roleName = CustomRoles.Engineer;
                 customRoleType = CustomRoleTypes.Crewmate;
+                configId = 200;
                 break;
             case RoleTypes.Scientist:
                 roleName = CustomRoles.Scientist;
                 customRoleType = CustomRoleTypes.Crewmate;
+                configId = 250;
                 break;
             case RoleTypes.Tracker:
                 roleName = CustomRoles.Tracker;
                 customRoleType = CustomRoleTypes.Crewmate;
+                configId = 300;
                 break;
             case RoleTypes.Noisemaker:
                 roleName = CustomRoles.Noisemaker;
                 customRoleType = CustomRoleTypes.Crewmate;
+                configId = 350;
                 break;
             case RoleTypes.GuardianAngel:
                 roleName = CustomRoles.GuardianAngel;
                 customRoleType = CustomRoleTypes.Crewmate;
+                configId = -2;
                 break;
             case RoleTypes.Impostor:
                 roleName = CustomRoles.Impostor;
                 customRoleType = CustomRoleTypes.Impostor;
                 countType = CountTypes.Impostor;
+                configId = -3;
                 break;
             case RoleTypes.Shapeshifter:
                 roleName = CustomRoles.Shapeshifter;
                 customRoleType = CustomRoleTypes.Impostor;
                 countType = CountTypes.Impostor;
+                configId = 30;
                 break;
             case RoleTypes.Phantom:
                 roleName = CustomRoles.Phantom;
                 customRoleType = CustomRoleTypes.Impostor;
                 countType = CountTypes.Impostor;
+                configId = 40;
                 break;
             default:
                 roleName = CustomRoles.Crewmate;
                 customRoleType = CustomRoleTypes.Crewmate;
+                configId = -1;
                 break;
         }
         var roleInfo = new SimpleRoleInfo(
@@ -242,7 +253,7 @@ public class SimpleRoleInfo
             () => baseRoleType,
             customRoleType,
             countType,
-            -1,
+            configId,
             optionCreator,
             null,
             colorCode,
