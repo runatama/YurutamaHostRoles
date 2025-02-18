@@ -30,7 +30,7 @@ AmongUsバージョン : **2024.8.13**~<br>
 過去バージョンは[こちら](https://github.com/KYMario/TownOfHost-K/releases)
 
 ## 現在のMod状況
-1/30時点の情報です
+2/16時点の情報です
 
 > [!Note]
 > 現在のバージョンではバニラサーバーで公開ルームを開くことができません
