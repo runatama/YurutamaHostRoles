@@ -146,7 +146,7 @@ namespace TownOfHost
 
             if (seer.Is(CustomRoles.GM)) return true;
 
-            if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
+            if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
             //ラスポスで付いてるのに！とかが一応ありえる。
@@ -215,7 +215,7 @@ namespace TownOfHost
             {
                 ShipStatus.Instance.RpcUpdateSystem(systemtypes, 16);
 
-                if (Main.NormalOptions.MapId == 4) //Airship用            
+                if (Main.NormalOptions.MapId == 4) //Airship用
                     ShipStatus.Instance.RpcUpdateSystem(systemtypes, 17);
             }, Options.KillFlashDuration.GetFloat(), "Fix Reactor");
             _ = new LateTask(() => NowKillFlash = false, Options.KillFlashDuration.GetFloat() * 2, "", true);
@@ -236,9 +236,9 @@ namespace TownOfHost
             var pc = PlayerCatch.GetPlayerById(playerId);
             if (pc == null) return false;
             var isAlive = pc.IsAlive();
-            var IsGorstRole = pc.IsGorstRole();
-            if (!isAlive && IsGorstRole) return Options.GRCanSeeKillerColor.GetBool();
-            if (!isAlive && !IsGorstRole) return Options.GhostCanSeeKillerColor.GetBool() || !Options.GhostOptions.GetBool();
+            var GhostRole = pc.IsGhostRole();
+            if (!isAlive && GhostRole) return Options.GRCanSeeKillerColor.GetBool();
+            if (!isAlive && !GhostRole) return Options.GhostCanSeeKillerColor.GetBool() || !Options.GhostOptions.GetBool();
             return false;
         }
         public static string GetVitalText(byte playerId, bool? RealKillerColor = false)
@@ -318,6 +318,8 @@ namespace TownOfHost
             if (Options.ImpostorHideChat.GetBool()) send += $"\n/ic - {GetString("Command.impchat")}";
             if (Options.JackalHideChat.GetBool()) send += $"\n/jc - {GetString("Command.jacchat")}";
             if (Options.LoversHideChat.GetBool()) send += $"\n/lc - {GetString("Command.LoverChat")}";
+            if (Options.ConnectingHideChat.GetBool()) send += $"\n/cc - {GetString("Command.TwinsChat")}";
+            if (Options.TwinsHideChat.GetBool()) send += $"\n/tc - {GetString("Command.ConnectingChat")}";
             if (GameStates.IsLobby)
             {
                 send += $"\n/lastresult(/l) - {GetString("Command.lastresult")}"
@@ -622,5 +624,13 @@ namespace TownOfHost
             return casted != null;
         }
         public const string AdditionalWinnerMark = "<color=#dddd00>★</color>";
+
+        public static void SyncAllSettings()
+        {
+            // 設定を同期するための処理をここに記述
+            // 例: 各プレイヤーの設定をサーバーと同期する
+            Logger.Info("Syncing all settings...", "Utils");
+            // 実際の同期処理をここに実装
+        }
     }
 }

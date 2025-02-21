@@ -14,9 +14,6 @@ namespace TownOfHost
 {
     public static class AntiBlackout
     {
-        ///<summary>
-        ///追放処理を上書きするかどうか
-        ///</summary>
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
@@ -31,6 +28,9 @@ namespace TownOfHost
             return false;
         }
 
+        ///<summary>
+        ///追放処理を上書きするかどうか
+        ///</summary>
         public static bool OverrideExiledPlayer()
         {
             if (4 <= PlayerCatch.AllPlayerControls.Count()) return false;

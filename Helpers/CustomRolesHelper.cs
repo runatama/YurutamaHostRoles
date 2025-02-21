@@ -42,7 +42,7 @@ namespace TownOfHost
                 return roleInfo.CustomRoleType == CustomRoleTypes.Neutral || role == CustomRoles.Jackaldoll;
             return role is CustomRoles.HASTroll or CustomRoles.HASFox;
         }
-        public static bool IsCrewmate(this CustomRoles role) => role.GetRoleInfo()?.CustomRoleType == CustomRoleTypes.Crewmate || (role is not CustomRoles.Amanojaku and not CustomRoles.GM && !role.IsImpostorTeam() && role > 0 && !role.IsAddOn() && !role.IsGorstRole() && !role.IsRiaju() && !role.IsNeutral());
+        public static bool IsCrewmate(this CustomRoles role) => role.GetRoleInfo()?.CustomRoleType == CustomRoleTypes.Crewmate || (role is not CustomRoles.Amanojaku and not CustomRoles.GM and not CustomRoles.Twins && !role.IsImpostorTeam() && role > 0 && !role.IsAddOn() && !role.IsGhostRole() && !role.IsRiaju() && !role.IsNeutral());
         public static bool IsVanilla(this CustomRoles role)
         {
             return
@@ -76,6 +76,7 @@ namespace TownOfHost
                 CustomRoles.Serial or
                 CustomRoles.PlusVote or
                 CustomRoles.Opener or
+                //CustomRoles.AntiTeleporter or
                 CustomRoles.seeing or
                 CustomRoles.Revenger or
                 CustomRoles.Autopsy or
@@ -108,6 +109,7 @@ namespace TownOfHost
                 CustomRoles.Serial or
                 CustomRoles.PlusVote or
                 CustomRoles.Opener or
+                //CustomRoles.AntiTeleporter or
                 CustomRoles.seeing or
                 CustomRoles.Revenger or
                 CustomRoles.Autopsy or
@@ -134,7 +136,7 @@ namespace TownOfHost
             role is RoleTypes.Crewmate or RoleTypes.CrewmateGhost or
                     RoleTypes.Engineer or RoleTypes.GuardianAngel or
                     RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker;
-        public static bool IsSubRole(this CustomRoles role) => role.IsAddOn() || role.IsRiaju() || role.IsGorstRole() || role is CustomRoles.Amanojaku;
+        public static bool IsSubRole(this CustomRoles role) => role.IsAddOn() || role.IsRiaju() || role.IsGhostRole() || role is CustomRoles.Amanojaku or CustomRoles.Twins;
         public static bool IsRiaju(this CustomRoles roles, bool checkonelover = true)
         {
             if (roles is CustomRoles.OneLove && checkonelover) return true;
@@ -182,8 +184,8 @@ namespace TownOfHost
                 CustomRoles.UltraStar or
                 CustomRoles.TaskStar;
         }
-        public static bool IsGorstRole(this PlayerControl pc) => PlayerState.GetByPlayerId(pc.PlayerId)?.GhostRole.IsGorstRole() ?? false;
-        public static bool IsGorstRole(this CustomRoles role)
+        public static bool IsGhostRole(this PlayerControl pc) => PlayerState.GetByPlayerId(pc.PlayerId)?.GhostRole.IsGhostRole() ?? false;
+        public static bool IsGhostRole(this CustomRoles role)
         {
             return role is CustomRoles.GuardianAngel
                         or CustomRoles.Ghostbuttoner

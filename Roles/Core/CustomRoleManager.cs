@@ -498,6 +498,7 @@ public static class CustomRoleManager
                 case CustomRoles.Serial: Serial.Add(pc.PlayerId); break;
                 case CustomRoles.PlusVote: PlusVote.Add(pc.PlayerId); break;
                 case CustomRoles.Opener: Opener.Add(pc.PlayerId); break;
+                //case CustomRoles.AntiTeleporter: AntiTeleporter.Add(pc.PlayerId); break;
                 case CustomRoles.Revenger: Revenger.Add(pc.PlayerId); break;
                 case CustomRoles.seeing: seeing.Add(pc.PlayerId); break;
                 case CustomRoles.Guarding: Guarding.Add(pc.PlayerId); break;
@@ -870,6 +871,7 @@ public enum CustomRoles
     LastImpostor,
     LastNeutral,
     Workhorse,
+    Twins,
     //第三属性
     Lovers, RedLovers, YellowLovers, BlueLovers, GreenLovers, WhiteLovers, PurpleLovers,
     MadonnaLovers, OneLove, Amanojaku,
@@ -886,6 +888,7 @@ public enum CustomRoles
     Speeding,
     Management,
     Opener,
+    //AntiTeleporter,
     seeing,
     Lighting,
     Moon,

@@ -500,6 +500,7 @@ namespace TownOfHost
                 AddOnsAssignDataOnlyKiller.AssignAddOnsFromList();
                 AddOnsAssignDataTeamImp.AssignAddOnsFromList();
                 AddOnsAssignData.AssignAddOnsFromList();
+                Twins.AssingAndReset();
 
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
@@ -635,6 +636,7 @@ namespace TownOfHost
         }
         private static void CoResetRoleY()
         {
+            //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない！.動くか知らない！
             var host = PlayerControl.LocalPlayer;
 
             var sender = CustomRpcSender.Create("ReSetRoleY", SendOption.None);
@@ -653,10 +655,27 @@ namespace TownOfHost
                     wit.EndMessage();
                 }, true);
             }
+            sender.StartRpc(PlayerControl.LocalPlayer.NetId, RpcCalls.SetRole)
+                    .Write((ushort)RoleTypes.Crewmate)
+                    .Write(true)
+                    .EndRpc();
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                pc.Data.Disconnected = false;
+                sender.Write((wit) =>
+                {
+                    wit.StartMessage(1);
+                    {
+                        wit.WritePacked(pc.Data.NetId);
+                        pc.Data.Serialize(wit, false);
+                    }
+                    wit.EndMessage();
+                }, true);
+            }
             sender.EndMessage();
+            sender.SendMessage();
             MeetingHudPatch.StartPatch.Serialize = false;
 
-            //playercount ^2だったのがこれだとplayercount * 2で済む。重くない！.動くか知らない！
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
@@ -676,33 +695,14 @@ namespace TownOfHost
                         roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
                     }
 
-                    sender.StartMessage(pc.GetClientId());
-                    sender.StartRpc(pc.NetId, (byte)RpcCalls.SetRole)
-                    .Write((ushort)roleType)
-                    .Write(true)
-                    .EndRpc();
-                    sender.EndMessage();
-                }
+                    pc.RpcSetRoleDesync(roleType, pc.GetClientId());
 
-                sender.StartMessage(-1);
-                MeetingHudPatch.StartPatch.Serialize = true;
-                foreach (var pc in PlayerCatch.AllPlayerControls)
-                {
-                    pc.Data.Disconnected = false;
-                    sender.Write((wit) =>
+                    if (role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
                     {
-                        wit.StartMessage(1);
-                        {
-                            wit.WritePacked(pc.Data.NetId);
-                            pc.Data.Serialize(wit, false);
-                        }
-                        wit.EndMessage();
-                    }, true);
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId());
+                    }
                 }
-                MeetingHudPatch.StartPatch.Serialize = false;
             }
-            sender.EndMessage();
-            sender.SendMessage();
 
             new LateTask(() =>
             {

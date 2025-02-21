@@ -213,6 +213,7 @@ namespace TownOfHost
                             }
                     }
                 }
+                Twins.CheckAddWin();
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Draw)
                 {
                     foreach (var pc in PlayerCatch.AllPlayerControls)

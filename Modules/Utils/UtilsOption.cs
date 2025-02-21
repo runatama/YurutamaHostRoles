@@ -144,8 +144,8 @@ namespace TownOfHost
                     if (role.IsImpostor()) mark = ColorString(Palette.ImpostorRed, "<u>Ⓘ");
                     if (role.IsNeutral()) mark = ColorString(ModColors.Gray, "<u>Ⓝ");
                     if (role.IsMadmate()) mark = ColorString(ModColors.MadMateOrenge, "<u>Ⓜ");
-                    if (role.IsAddOn() || role is CustomRoles.Amanojaku) mark = ColorString(ModColors.AddonsColor, "<u>Ⓐ");
-                    if (role.IsGorstRole()) mark = ColorString(ModColors.GhostRoleColor, "<u>Ⓖ");
+                    if (role.IsAddOn() || role is CustomRoles.Amanojaku or CustomRoles.Twins) mark = ColorString(ModColors.AddonsColor, "<u>Ⓐ");
+                    if (role.IsGhostRole()) mark = ColorString(ModColors.GhostRoleColor, "<u>Ⓖ");
                     if (role.IsRiaju()) mark = ColorString(ModColors.Pink, "<u>Ⓛ");
 
                     sb.Append($"\n<size=90%>{mark}{UtilsRoleText.GetCombinationCName(role)}</size><size=70%>×{role.GetCount()}</size></u>\n\n");
@@ -364,7 +364,7 @@ namespace TownOfHost
                     var m = AdditionalWinnerMark;
                     if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
                     if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
-                    if (Addon.IsGorstRole()) m = "<color=#8989d9>■</color>";
+                    if (Addon.IsGhostRole()) m = "<color=#8989d9>■</color>";
                     var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                     var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
                     if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n" + m + "{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
@@ -436,6 +436,7 @@ namespace TownOfHost
                         case "GivePlusVote": continue;
                         case "GiveRevenger": continue;
                         case "GiveOpener": continue;
+                        case "GiveAntiTeleporter": continue;
                         case "GiveLighting": continue;
                         case "GiveMoon": continue;
                         case "GiveElector": continue;
@@ -650,6 +651,7 @@ namespace TownOfHost
             if (player.Is(CustomRoles.Management)) s.Append(k + AddonInfo(CustomRoles.Management, "θ", From.TownOfHost_Y, pc: player) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
             if (player.Is(CustomRoles.Opener)) s.Append(k + AddonInfo(CustomRoles.Opener, "п") + "\n");
+            //if (player.Is(CustomRoles.AntiTeleporter)) s.Append(k + AddonInfo(CustomRoles.AntiTeleporter, "t", From.RevolutionaryHostRoles, pc: player) + "\n");
             if (player.Is(CustomRoles.seeing)) s.Append(k + AddonInfo(CustomRoles.seeing, "☯", From.TownOfHost_Y, pc: player) + "\n");
             if (player.Is(CustomRoles.Lighting)) s.Append(k + AddonInfo(CustomRoles.Lighting, "＊", From.TownOfHost_Y, pc: player) + "\n");
             if (player.Is(CustomRoles.Moon)) s.Append(k + AddonInfo(CustomRoles.Moon, "э", pc: player) + "\n");
@@ -676,6 +678,7 @@ namespace TownOfHost
             if (player.Is(CustomRoles.LastNeutral)) s.Append(k + AddonInfo(CustomRoles.LastNeutral, pc: player) + "\n");
             if (player.Is(CustomRoles.Workhorse)) s.Append(k + AddonInfo(CustomRoles.Workhorse, from: From.TownOfHost, pc: player) + "\n");
             CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
+            if (player.Is(CustomRoles.Twins)) s.Append(k + AddonInfo(CustomRoles.Twins) + "\n");
 
             if (s.ToString().RemoveHtmlTags() != "" && s.Length != 0)
                 SendMessage(s.ToString(), player.PlayerId, AddRoleInfoTitle);
@@ -686,18 +689,19 @@ namespace TownOfHost
         {
             if (player.IsAlive()) return;
             if (player == null) return;
-            if (!player.IsGorstRole()) return;
+            if (!player.IsGhostRole()) return;
 
             SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId, $"<color=#8989d9>{GetString("GhostRolesIntoTitle")}</color>");
         }
         public static string GetAddonsHelp(CustomRoles role)
         {
-            if (!(role.IsAddOn() || role.IsGorstRole() || role.IsRiaju() || role is CustomRoles.Amanojaku)) return "";
+            if (!(role.IsAddOn() || role.IsGhostRole() || role.IsRiaju() || role is CustomRoles.Amanojaku || role is CustomRoles.Twins)) return "";
             var s = "";
             var k = "<line-height=2.0pic><size=150%>";
-            //バフ
+
             return (s += k) + (role switch
             {
+                CustomRoles.Twins => AddonInfo(role, ""),
                 //バフ
                 CustomRoles.Guesser => AddonInfo(role, "∮", From.TheOtherRoles),
                 CustomRoles.Serial => AddonInfo(role, "∂"),
@@ -712,6 +716,7 @@ namespace TownOfHost
                 CustomRoles.Guarding => AddonInfo(role, "ζ", From.TownOfHost_Y),
                 CustomRoles.Management => AddonInfo(role, "θ", From.TownOfHost_Y),
                 CustomRoles.Opener => AddonInfo(role, "п"),
+                //CustomRoles.AntiTeleporter => AddonInfo(role, "t", From.RevolutionaryHostRoles),
                 CustomRoles.seeing => AddonInfo(role, "☯", From.TownOfHost_Y),
                 CustomRoles.Lighting => AddonInfo(role, "＊", From.TownOfHost_Y),
                 CustomRoles.Moon => AddonInfo(role, "э"),
@@ -781,9 +786,9 @@ namespace TownOfHost
                 var chance = subRole.GetChance();
                 var count = subRole.GetCount();
                 if (chance == 0) continue;
-                if (subRole.IsAddOn() || subRole is CustomRoles.Amanojaku) a += count;
+                if (subRole.IsAddOn() || subRole is CustomRoles.Amanojaku or CustomRoles.Twins) a += count;
                 if (subRole.IsRiaju() && !loverch.Contains(subRole)) l++;
-                if (subRole.IsGorstRole()) g += count;
+                if (subRole.IsGhostRole()) g += count;
                 if (!loverch.Contains(subRole)) loverch.Add(subRole);
             }
             if (shouryaku)
@@ -809,7 +814,7 @@ namespace TownOfHost
             return text;
         }
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="shouryaku"></param>
         /// <returns>(imp , mad , crew , neutral , addon , lovers , ghost)</returns>
@@ -830,9 +835,9 @@ namespace TownOfHost
                 var chance = subRole.GetChance();
                 var count = subRole.GetCount();
                 if (chance == 0) continue;
-                if (subRole.IsAddOn() || subRole is CustomRoles.Amanojaku) a += count;
+                if (subRole.IsAddOn() || subRole is CustomRoles.Amanojaku or CustomRoles.Twins) a += count;
                 if (subRole.IsRiaju() && !loverch.Contains(subRole)) l++;
-                if (subRole.IsGorstRole()) g += count;
+                if (subRole.IsGhostRole()) g += count;
                 if (!loverch.Contains(subRole)) loverch.Add(subRole);
             }
             return (i, m, c, n, a, l, g);

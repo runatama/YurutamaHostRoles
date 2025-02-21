@@ -6,6 +6,7 @@ using HarmonyLib;
 using Hazel;
 using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Common; // 修正
 using static TownOfHost.Translator;
 
 namespace TownOfHost
@@ -27,7 +28,8 @@ namespace TownOfHost
         SyncYomiage,
         DevExplosion,
         ModUnload,
-        CustomRoleSync
+        CustomRoleSync,
+        SetAntiTeleporterPosition
     }
     public enum Sounds
     {
@@ -42,10 +44,11 @@ namespace TownOfHost
             RpcCalls rpcType = (RpcCalls)callId;
             Logger.Info($"{__instance?.Data?.PlayerId}({__instance?.Data?.PlayerName}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
             MessageReader subReader = MessageReader.Get(reader);
-            if (!Croissant.CheckLowertheHeat(__instance, rpcType, subReader) && (1 + 1 == 6)) return false;
+            if (!Croissant.CheckLowertheHeat(__instance, rpcType, subReader) && 41 == 21) return false;
             switch (rpcType)
             {
                 case RpcCalls.SetName: //SetNameRPC
+                    if (Croissant.jam.GetBool() && 1 == 5) break;
                     subReader.ReadUInt32();
                     string name = subReader.ReadString();
                     if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
@@ -150,6 +153,9 @@ namespace TownOfHost
                     byte killerId = reader.ReadByte();
                     RPC.SetRealKiller(targetId, killerId);
                     break;
+                /*case CustomRPC.SetAntiTeleporterPosition:
+                    AntiTeleporter.ReceiveRPC(reader);
+                    break;*/
                 case CustomRPC.SyncRoomTimer:
                     float timer = 0;
                     if (float.TryParse(reader.ReadString(), out timer))
@@ -185,6 +191,7 @@ namespace TownOfHost
                 case CustomRPC.CustomRoleSync:
                     CustomRoleManager.DispatchRpc(reader);
                     break;
+
             }
         }
     }
@@ -306,7 +313,7 @@ namespace TownOfHost
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
-                if (role.IsGorstRole()) PlayerState.GetByPlayerId(targetId).SetGhostRole(role);
+                if (role.IsGhostRole()) PlayerState.GetByPlayerId(targetId).SetGhostRole(role);
                 else PlayerState.GetByPlayerId(targetId).SetSubRole(role);
             }
 

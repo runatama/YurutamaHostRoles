@@ -10,6 +10,10 @@ using TownOfHost.Modules.ChatManager;
 namespace TownOfHost;
 
 class Yomiage
+// Memo
+// 棒読みちゃんを起動していない時に
+// 読み上げをONにしてチャットを送信すると
+// クラッシュするぬぇ
 {
     public static Dictionary<int, string> YomiageS = new();
     public static bool ChatCommand(string[] args, byte playerId = 0)

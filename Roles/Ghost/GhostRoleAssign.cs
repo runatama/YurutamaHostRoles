@@ -102,8 +102,8 @@ namespace TownOfHost.Roles.Ghost
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var AP = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGorstRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
-            var APc = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGorstRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
+            var AP = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGhostRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
+            var APc = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGhostRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
 
             if (!GhostAssingCount.ContainsKey(data.Role))//データ内なら0
             {
@@ -122,7 +122,7 @@ namespace TownOfHost.Roles.Ghost
                     continue;
                 }
                 //配布対象外ならサヨナラ...
-                if (pc == null || pc.IsGorstRole() || pc.Is(CustomRoles.GM) || pc.IsAlive() || PlayerState.GetByPlayerId(pc.PlayerId) == null)
+                if (pc == null || pc.IsGhostRole() || pc.Is(CustomRoles.GM) || pc.IsAlive() || PlayerState.GetByPlayerId(pc.PlayerId) == null)
                 {
                     AP.Remove(pc);
                     continue;

@@ -592,7 +592,7 @@ namespace TownOfHost
                     role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
             // 役職説明表示
-            if (!role.IsVanilla() || player.IsGorstRole())
+            if (!role.IsVanilla() || player.IsGhostRole())
             {
                 var RoleWithInfo = $"{UtilsRoleText.GetTrueRoleName(player.PlayerId)}:\r\n";
                 RoleWithInfo += player.GetRoleInfo();

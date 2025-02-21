@@ -39,7 +39,7 @@ class Croissant
 
     public static bool CheckLowertheHeat(PlayerControl butter, RpcCalls rpcType, MessageReader subReader)
     {
-        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost) return true;
+        if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || (1 == 1)) return true;
         if (GameStates.IsOutro || (!GameStates.IsLobby && !GameStates.InGame)) return true;
 
         var WorthEating = false;
@@ -287,7 +287,7 @@ class Croissant
     }
     private static bool SneakaTaste(PlayerControl player, RpcCalls rpc, string cosmeticId, int add = 0)
     {
-        if (!jam.GetBool() || !GameStates.IsLobby || !AmongUsClient.Instance.AmHost) return true;
+        if (!jam.GetBool() || !GameStates.IsLobby || !AmongUsClient.Instance.AmHost || (1 == 1)) return true;
         var sequenceId = KneadDough(player, rpc);
         var SneakaTasteSender = CustomRpcSender.Create("Desync SneakaTasteSender", SendOption.None);
         foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -402,7 +402,7 @@ class Croissant
     {
         private static bool Prefix(NetworkedPlayerInfo.PlayerOutfit __instance, [HarmonyArgument(0)] MessageWriter writer)
         {
-            if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || !GameStates.IsLobby) return true;
+            if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || !GameStates.IsLobby || (1 + 1 == 2)) return true;
             writer.Write(__instance.PlayerName);
             writer.WritePacked(__instance.ColorId);
             writer.Write(__instance.HatId);

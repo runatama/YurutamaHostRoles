@@ -25,7 +25,11 @@ namespace TownOfHost.Roles.Neutral
                 {
                     AssignCountRule = new(1, 1, 1)
                 },
-                from: From.TheOtherRoles
+                from: From.TheOtherRoles,
+                Desc: () =>
+                {
+                    return string.Format(GetString("JackalDesc"), CanmakeSK.GetBool() ? string.Format(GetString("JackalDescSidekick"), !CanImpSK.GetBool() ? GetString("JackalDescImpostorSideKick") : "") : "");
+                }
             );
         public Jackal(PlayerControl player)
         : base(

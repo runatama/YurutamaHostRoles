@@ -432,7 +432,7 @@ namespace TownOfHost
                                         }
                                         GetAddonsHelp(player);
 
-                                        if (player.IsGorstRole())
+                                        if (player.IsGhostRole())
                                             SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId);
                                     }
                                     break;
@@ -560,6 +560,101 @@ namespace TownOfHost
                                 }
                             }
                         }
+                        break;
+                    case "/Twinschat":
+                    case "/twinschet":
+                    case "/tc":
+                        if (GameStates.InGame && Options.TwinsHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && Twins.TwinsList.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var twinsid))
+                        {
+                            if (GameStates.Tuihou)
+                            {
+                                canceled = true;
+                                break;
+                            }
+
+                            var send = "";
+                            foreach (var ag in args)
+                            {
+                                if (ag.StartsWith("/")) continue;
+                                send += ag;
+                            }
+                            Croissant.ChocolateCroissant = true;
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "TwinsChat");
+                            foreach (var twins in AllPlayerControls)
+                            {
+                                if (twins && twins.PlayerId == twinsid)
+                                {
+                                    if (AmongUsClient.Instance.AmHost)
+                                    {
+                                        var clientid = twins.GetClientId();
+                                        if (clientid == -1) continue;
+                                        var writer = CustomRpcSender.Create("TwinsChat", SendOption.Reliable);
+                                        writer.StartMessage(clientid);
+                                        writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
+                                        .Write(twins.Data.NetId)
+                                        .Write(ColorString(GetRoleColor(CustomRoles.Twins), $"<align=\"left\"><line-height=-18%>\n∈{GetPlayerColor(PlayerControl.LocalPlayer)}∋</line-height>"))
+                                        .EndRpc();
+                                        writer.StartRpc(twins.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(GetRoleColor(CustomRoles.Twins))}")
+                                        .EndRpc();
+                                        writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
+                                        .Write(twins.Data.NetId)
+                                        .Write(twins.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                    }
+                                }
+                            }
+                        }
+                        canceled = true;
+                        break;
+                    case "/Connectingchat":
+                    case "/cc":
+                        if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting))
+                        {
+                            if (GameStates.Tuihou)
+                            {
+                                canceled = true;
+                                break;
+                            }
+
+                            var send = "";
+                            foreach (var ag in args)
+                            {
+                                if (ag.StartsWith("/")) continue;
+                                send += ag;
+                            }
+                            Croissant.ChocolateCroissant = true;
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "Connectingchat");
+                            foreach (var connect in AllPlayerControls)
+                            {
+                                if (connect && connect.Is(CustomRoles.Connecting))
+                                {
+                                    if (AmongUsClient.Instance.AmHost)
+                                    {
+                                        var clientid = connect.GetClientId();
+                                        if (clientid == -1) continue;
+                                        var writer = CustomRpcSender.Create("Connectingchat", SendOption.Reliable);
+                                        writer.StartMessage(clientid);
+                                        writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
+                                        .Write(connect.Data.NetId)
+                                        .Write(ColorString(GetRoleColor(CustomRoles.Connecting), $"<align=\"left\"><line-height=-18%>\nΨ{GetPlayerColor(PlayerControl.LocalPlayer)}Ψ</line-height>"))
+                                        .EndRpc();
+                                        writer.StartRpc(connect.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(GetRoleColor(CustomRoles.Connecting))}")
+                                        .EndRpc();
+                                        writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
+                                        .Write(connect.Data.NetId)
+                                        .Write(connect.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                    }
+                                }
+                            }
+                        }
+                        canceled = true;
                         break;
 
                     case "/t":
@@ -865,7 +960,7 @@ namespace TownOfHost
                                 }
                                 else
                                 {
-                                    if (role.IsAddOn() || role.IsGorstRole() || role.IsRiaju()) break;
+                                    if (role.IsAddOn() || role.IsGhostRole() || role.IsRiaju()) break;
                                     Main.HostRole = role;
                                     var r = ColorString(GetRoleColor(role), GetString($"{role}"));
                                     SendMessage($"ホストの役職を{r}にするよっ!!");
@@ -1113,6 +1208,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Serial, "Se");
                 roleCommands.Add(CustomRoles.PlusVote, "Pv");
                 roleCommands.Add(CustomRoles.Opener, "Oe");
+                //roleCommands.Add(CustomRoles.AntiTeleporter, "At");
                 roleCommands.Add(CustomRoles.Revenger, "Re");
                 roleCommands.Add(CustomRoles.seeing, "Se");
                 roleCommands.Add(CustomRoles.Autopsy, "Au");
@@ -1242,7 +1338,7 @@ namespace TownOfHost
                 case "幽霊":
                 case "幽霊役職":
                     rolemsg = $"{GetString("h_r_GhostRole").Color(ModColors.GhostRoleColor)}</u><size=50%>";
-                    foreach (var im in roleCommands.Where(r => r.Key.IsGorstRole()))
+                    foreach (var im in roleCommands.Where(r => r.Key.IsGhostRole()))
                     {
                         if (im.Key.IsE()) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
@@ -1266,7 +1362,7 @@ namespace TownOfHost
                     // RoleInfoがない役職は従来の処理
                     else
                     {
-                        if (r.Key.IsAddOn() || r.Key.IsRiaju() || r.Key == CustomRoles.Amanojaku || r.Key.IsGorstRole()) SendMessage(GetAddonsHelp(r.Key), sendTo: player);
+                        if (r.Key.IsAddOn() || r.Key.IsRiaju() || r.Key == CustomRoles.Amanojaku || r.Key.IsGhostRole()) SendMessage(GetAddonsHelp(r.Key), sendTo: player);
                         else SendMessage(ColorString(GetRoleColor(r.Key), "<b><line-height=2.0pic><size=150%>" + GetString(roleName) + "\n<line-height=1.8pic><size=90%>" + GetString($"{roleName}Info")) + "\n<line-height=1.3pic></b><size=60%>\n" + GetString($"{roleName}InfoLong"), sendTo: player);
                     }
                     return;
@@ -1284,7 +1380,7 @@ namespace TownOfHost
                 // RoleInfoがない役職は従来の処理
                 else
                 {
-                    if (hr.IsAddOn() || hr.IsRiaju() || hr == CustomRoles.Amanojaku || hr.IsGorstRole()) SendMessage(GetAddonsHelp(hr), sendTo: player);
+                    if (hr.IsAddOn() || hr.IsRiaju() || hr == CustomRoles.Amanojaku || hr.IsGhostRole()) SendMessage(GetAddonsHelp(hr), sendTo: player);
                     else SendMessage(ColorString(GetRoleColor(hr), "<b><line-height=2.0pic><size=150%>" + GetString($"{hr}") + "\n<line-height=1.8pic><size=90%>" + GetString($"{hr}Info")) + "\n<line-height=1.3pic></b><size=60%>\n" + GetString($"{hr}InfoLong"), sendTo: player);
                 }
                 return;
@@ -1735,6 +1831,135 @@ namespace TownOfHost
                                     writer.StartRpc(lover.NetId, (byte)RpcCalls.SetName)
                                     .Write(lover.Data.NetId)
                                     .Write(lover.Data.PlayerName)
+                                    .EndRpc();
+                                    writer.EndMessage();
+                                    writer.SendMessage();
+                                }
+                            }
+                        }
+                    }
+                    canceled = true;
+                    break;
+                case "/Twinschat":
+                case "/twinschet":
+                case "/tc":
+                    if (GameStates.InGame && Options.TwinsHideChat.GetBool() && player.IsAlive() && Twins.TwinsList.TryGetValue(player.PlayerId, out var twinsid))
+                    {
+                        if (GameStates.Tuihou)
+                        {
+                            canceled = true;
+                            break;
+                        }
+
+                        var send = "";
+                        foreach (var ag in args)
+                        {
+                            if (ag.StartsWith("/")) continue;
+                            send += ag;
+                        }
+                        Croissant.ChocolateCroissant = true;
+                        Logger.Info($"{player.Data.PlayerName} : {send}", "TwinsChat");
+                        foreach (var twins in AllPlayerControls)
+                        {
+                            if (twins && (twins.PlayerId == twinsid || (PlayerControl.LocalPlayer.PlayerId == twins?.PlayerId && !twins.IsAlive())) && twins.PlayerId != player.PlayerId)
+                            {
+                                if (AmongUsClient.Instance.AmHost)
+                                {
+                                    var clientid = twins.GetClientId();
+                                    if (clientid == -1) continue;
+                                    var writer = CustomRpcSender.Create("TwinsChat", SendOption.Reliable);
+                                    writer.StartMessage(clientid);
+                                    if (twins.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                    {
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(ColorString(GetRoleColor(CustomRoles.Twins), $"<align=\"left\"><line-height=-18%>\n∈{GetPlayerColor(player)}∋</line-height>"))
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(GetRoleColor(CustomRoles.Twins))}")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(player.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                        continue;
+                                    }
+                                    writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
+                                    .Write(twins.Data.NetId)
+                                    .Write(ColorString(GetRoleColor(CustomRoles.Twins), $"<align=\"left\"><line-height=-18%>\n∈{GetPlayerColor(player)}∋</line-height>"))
+                                    .EndRpc();
+                                    writer.StartRpc(twins.NetId, (byte)RpcCalls.SendChat)
+                                    .Write($"<align=\"left\">{send.Mark(GetRoleColor(CustomRoles.Twins))}")
+                                    .EndRpc();
+                                    writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
+                                    .Write(twins.Data.NetId)
+                                    .Write(twins.Data.PlayerName)
+                                    .EndRpc();
+                                    writer.EndMessage();
+                                    writer.SendMessage();
+                                }
+                            }
+                        }
+                    }
+                    canceled = true;
+                    break;
+                case "/Connectingchat":
+                case "/cc":
+                    if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && player.IsAlive() && player.Is(CustomRoles.Connecting))
+                    {
+                        if (GameStates.Tuihou)
+                        {
+                            canceled = true;
+                            break;
+                        }
+
+                        var send = "";
+                        foreach (var ag in args)
+                        {
+                            if (ag.StartsWith("/")) continue;
+                            send += ag;
+                        }
+                        Croissant.ChocolateCroissant = true;
+                        Logger.Info($"{player.Data.PlayerName} : {send}", "Connectingchat");
+                        foreach (var connect in AllPlayerControls)
+                        {
+                            if (connect && (connect.Is(CustomRoles.Connecting) || (PlayerControl.LocalPlayer.PlayerId == connect?.PlayerId && !connect.IsAlive())) && connect.PlayerId != player.PlayerId)
+                            {
+                                if (AmongUsClient.Instance.AmHost)
+                                {
+                                    var clientid = connect.GetClientId();
+                                    if (clientid == -1) continue;
+                                    var writer = CustomRpcSender.Create("Connectingchat", SendOption.Reliable);
+                                    writer.StartMessage(clientid);
+                                    if (connect.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                                    {
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(ColorString(GetRoleColor(CustomRoles.Connecting), $"<align=\"left\"><line-height=-18%>\nΨ{GetPlayerColor(player)}Ψ</line-height>"))
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        .Write($"<align=\"left\">{send.Mark(GetRoleColor(CustomRoles.Connecting))}")
+                                        .EndRpc();
+                                        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                        .Write(player.Data.NetId)
+                                        .Write(player.Data.PlayerName)
+                                        .EndRpc();
+                                        writer.EndMessage();
+                                        writer.SendMessage();
+                                        continue;
+                                    }
+                                    writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
+                                    .Write(connect.Data.NetId)
+                                    .Write(ColorString(GetRoleColor(CustomRoles.Connecting), $"<align=\"left\"><line-height=-18%>\nΨ{GetPlayerColor(player)}Ψ</line-height>"))
+                                    .EndRpc();
+                                    writer.StartRpc(connect.NetId, (byte)RpcCalls.SendChat)
+                                    .Write($"<align=\"left\">{send.Mark(GetRoleColor(CustomRoles.Connecting))}")
+                                    .EndRpc();
+                                    writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
+                                    .Write(connect.Data.NetId)
+                                    .Write(connect.Data.PlayerName)
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();

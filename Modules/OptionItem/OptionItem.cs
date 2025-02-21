@@ -368,5 +368,6 @@ namespace TownOfHost
         Votes,
         Pieces,
         day,
+        Set
     }
 }

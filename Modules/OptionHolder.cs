@@ -470,6 +470,8 @@ namespace TownOfHost
         public static OptionItem ImpostorHideChat;
         public static OptionItem LoversHideChat;
         public static OptionItem JackalHideChat;
+        public static OptionItem TwinsHideChat;
+        public static OptionItem ConnectingHideChat;
 
         public static OptionItem DisableTaskWin;
 
@@ -637,6 +639,12 @@ namespace TownOfHost
             LoversHideChat = BooleanOptionItem.Create(900_009, "LoversHideChat", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Lovers)).SetParent(TeamHideChat);
+            TwinsHideChat = BooleanOptionItem.Create(76120, "TwinsCanUseHideChet", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Twins)).SetParent(TeamHideChat);
+            ConnectingHideChat = BooleanOptionItem.Create(900_013, "ConnectingHideChat", false, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Connecting)).SetParent(TeamHideChat);
             /*
         BlackOutwokesitobasu = BooleanOptionItem.Create(1_000_009, "BlackOutwokesitobasu", false, TabGroup.MainSettings, false)
             .SetGameMode(CustomGameMode.All)
@@ -713,8 +721,10 @@ namespace TownOfHost
             MadmateCanMovedByVent = BooleanOptionItem.Create(101013, "MadmateCanMovedByVent", true, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption);
 
             //Com
+            Twins.SetUpTwinsOptions();
             Lovers.SetLoversOptions();
-            GhostRoleCore.SetupCustomOptionAddonAndGhostRole();
+            GhostRoleCore.SetupCustomOptionAddonAndIsGhostRole();
+
             //幽霊役職の設定
             GRRoleOp = BooleanOptionItem.Create(102001, "GRRoleOptions", false, TabGroup.GhostRoles, false)
                 .SetHeader(true)
@@ -1281,7 +1291,7 @@ namespace TownOfHost
 
             var countOption = IntegerOptionItem.Create(id + 1, "Maximum", assignCountRule, assignCountRule.Step, tab, false, HideValue: hidevalue)
                 .SetParent(spawnOption)
-                .SetValueFormat(OptionFormat.Players)
+                .SetValueFormat(assignCountRule.MaxValue is 7 ? OptionFormat.Set : OptionFormat.Players)
                 .SetGameMode(customGameMode)
                 .SetHidden(hidevalue);
 

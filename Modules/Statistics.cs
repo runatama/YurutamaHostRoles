@@ -7,8 +7,6 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
 using static TownOfHost.UtilsRoleText;
-/// Memo:
-/// ホーム画面での確認。
 
 namespace TownOfHost
 {
@@ -256,10 +254,11 @@ namespace TownOfHost
         public static string CheckAdd(bool InLoby)
         {
             if (CustomWinnerHolder.WinnerTeam == CustomWinner.Default && !InLoby) return "廃村の為、統計されません";
+            if (DebugModeManager.EnableDebugMode.GetBool() || DebugModeManager.EnableTOHkDebugMode.GetBool()) return "デバッグモードがONの為統計されませぬ";
             if (GameStates.IsLocalGame) return "ローカルの為、統計されません";
             if (UtilsGameLog.LastLogRole.Count <= 4 && !InLoby) return "人数不足の為、統計されません";
             if (InLoby && AllPlayerControls.Count() <= 4) return "人数不足の為、統計されません";
-            if (Options.CurrentGameMode is not CustomGameMode.Standard) return "ゲームモードがスタンダードじゃないため、統計されません";
+            if (Options.CurrentGameMode is not CustomGameMode.Standard) return "スタンダードじゃないため、統計されません";
 
             return "";
         }

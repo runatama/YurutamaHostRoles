@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.26.22";
-        public const string PluginShowVersion = "519.26<sub>.22</sub>";
+        public const string PluginVersion = "519.26.23";
+        public const string PluginShowVersion = "519.26<sub>.23</sub>";
         public const string ModVersion = ".26";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -294,6 +294,7 @@ namespace TownOfHost
                     {CustomRoles.LastImpostor, "#ff1919"},
                     {CustomRoles.LastNeutral,"#cccccc"},
                     {CustomRoles.Workhorse, "#00ffff"},
+                    {CustomRoles.Twins, "#80cf48"},
 
                     {CustomRoles.watching, "#800080"},
                     {CustomRoles.Speeding, "#33ccff"},
@@ -311,6 +312,7 @@ namespace TownOfHost
                     {CustomRoles.Tiebreaker,"#00552e"},
                     {CustomRoles.Guarding, "#7b68ee"},
                     {CustomRoles.MagicHand , "#dea785"},
+                    //{CustomRoles.AntiTeleporter,"#dea785"},
                     //デバフ
                     {CustomRoles.NonReport,"#006666"},
                     {CustomRoles.Notvoter,"#6c848d"},

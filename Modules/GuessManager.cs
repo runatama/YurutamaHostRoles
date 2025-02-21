@@ -162,7 +162,7 @@ public static class GuessManager
                         break;
                 }
 
-                if (role == CustomRoles.GM || target.Is(CustomRoles.GM) || role.IsAddOn() || role.IsGorstRole())
+                if (role == CustomRoles.GM || target.Is(CustomRoles.GM) || role.IsAddOn() || role.IsGhostRole())
                     return true;
 
                 if (pc.Is(CustomRoles.Egoist) && target.Is(CustomRoleTypes.Impostor) && Guesser.ICanGuessNakama.GetBool())

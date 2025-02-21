@@ -1191,6 +1191,33 @@ public class ModNewsHistory
                 AllModNews.Add(news);
             }
             //100047
+            {
+                var news = new ModNews
+                {
+                    Number = 100048,
+                    Title = "にゃんにゃんにゃんにゃん",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.26.23(&22)</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.26.23(&22)</color>",
+                    Text = "<size=80%>\n.26.22のアプデ内容ニュースは内容薄すぎて省略されました。\n"
+                    + ".26.22の変更点は文末に(22)って記載してます。"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・イントロ暗転によってゲームが正常に動作しない問題の対応(22,23)\n"
+                    + "・アンチチートが動作しないのに動作する問題の修正\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・.....................(22)\n"
+                    + "・オプション画面をほ～～～んのちょっとテコ入れ\n"
+                    + "・ジャッカル、Jエイリアン、Jマフィアの説明を追加\n"
+                    + "\n<size=125%>【新設定】</size>\n"
+                    + "・コネクティング専用秘匿チャットの追加\n"
+                    + "\n<size=125%>【新役職】</size>\n"
+                    + ".22に追加しよと思ってたんすけどね！\n時間無かった！\nそれはそうと.23では<size=100%>双子</color>\n"
+                    + "2人1組の属性。\nお互いに双子だとわかるぜ"
+                    + "\n\n やっと風邪がましになってきたぱんだ。"
+                    ,
+                    Date = "2025-02-21T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

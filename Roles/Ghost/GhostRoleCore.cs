@@ -28,6 +28,7 @@ class GhostRoleCore
         Guarding.Init();
         Connecting.Init();
         Opener.Init();
+        //AntiTeleporter.Init();
         Moon.Init();
         Tiebreaker.Init();
         MagicHand.Init();
@@ -50,7 +51,7 @@ class GhostRoleCore
         Transparent.Init();
         Clumsy.Init();
     }
-    public static void SetupCustomOptionAddonAndGhostRole()
+    public static void SetupCustomOptionAddonAndIsGhostRole()
     {
         // Add-Ons
         Amanojaku.SetupCustomOption();
@@ -73,6 +74,7 @@ class GhostRoleCore
         Management.SetupCustomOption();
         seeing.SetupCustomOption();
         Opener.SetupCustomOption();
+        //AntiTeleporter.SetupCustomOption();
         Lighting.SetupCustomOption();
         Moon.SetupCustomOption();
         //デバフ達

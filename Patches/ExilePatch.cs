@@ -124,7 +124,7 @@ namespace TownOfHost
                                         else role = RoleTypes.CrewmateGhost;
                                     if (Player != pc && (roleinfo?.IsDesyncImpostor ?? false))
                                         role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
-                                    if (pc.IsGorstRole()) role = RoleTypes.GuardianAngel;
+                                    if (pc.IsGhostRole()) role = RoleTypes.GuardianAngel;
 
                                     var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
                                     if (SuddenDeathMode.NowSuddenDeathMode) IDesycImpostor = true;
@@ -162,12 +162,13 @@ namespace TownOfHost
                                 else
                                 {
                                     Player.RpcExileV2();
-                                    if (Player.IsGorstRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
+                                    if (Player.IsGhostRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
                                 }
                             }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>
                         {
+                            Twins.TwinsSuicide();
                             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                             UtilsNotifyRoles.NotifyRoles(true, true);
                             foreach (var kvp in PlayerState.AllPlayerStates)

@@ -48,7 +48,7 @@ namespace TownOfHost
             //デフォルト値
             bool enabled = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGhostRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
                         || (Lovers.LoversRole.GetBool() && seer.Is(CustomRoles.Lovers) && seen.Is(CustomRoles.Lovers))
                         || (Lovers.RedLoversRole.GetBool() && seer.Is(CustomRoles.RedLovers) && seen.Is(CustomRoles.RedLovers))
                         || (Lovers.YellowLoversRole.GetBool() && seer.Is(CustomRoles.YellowLovers) && seen.Is(CustomRoles.YellowLovers))
@@ -62,7 +62,7 @@ namespace TownOfHost
             //属性が見れるか
             bool addon = seer == seen
                         || seen.Is(CustomRoles.GM)
-                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGorstRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGhostRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
                         || (Options.InsiderMode.GetBool() && seerrole.IsImpostor());
 
             var (roleColor, roleText) = GetTrueRoleNameData(seen.PlayerId, addon);
@@ -120,6 +120,9 @@ namespace TownOfHost
                         case CustomRoles.OneLove:
                             if (showSubRoleMarks) roleText = ColorString(GetRoleColor(CustomRoles.OneLove), GetString("OneLove")) + $" {roleText}";
                             break;
+                        case CustomRoles.Twins:
+                            roleText = GetRoleColorAndtext(CustomRoles.Twins) + roleText;
+                            break;
                     }
                 }
             }
@@ -156,6 +159,7 @@ namespace TownOfHost
                         case CustomRoles.Management: sb.Append(Management.SubRoleMark); break;
                         case CustomRoles.seeing: sb.Append(seeing.SubRoleMark); break;
                         case CustomRoles.Opener: sb.Append(Opener.SubRoleMark); break;
+                        //case CustomRoles.AntiTeleporter: sb.Append(AntiTeleporter.SubRoleMark); break;
                         case CustomRoles.Lighting: sb.Append(Lighting.SubRoleMark); break;
                         case CustomRoles.Moon: sb.Append(Moon.SubRoleMark); break;
                         //デバフ
@@ -205,6 +209,7 @@ namespace TownOfHost
                         if (data.GiveManagement.GetBool()) Subrole.Add(CustomRoles.Management);
                         if (data.Giveseeing.GetBool()) Subrole.Add(CustomRoles.seeing);
                         if (data.GiveOpener.GetBool()) Subrole.Add(CustomRoles.Opener);
+                        //if (data.GiveAntiTeleporter.GetBool()) Subrole.Add(CustomRoles.AntiTeleporter);
                         if (!data.IsImpostor)
                         {
                             if (data.GiveLighting.GetBool()) Subrole.Add(CustomRoles.Lighting);
@@ -339,10 +344,10 @@ namespace TownOfHost
             var comms = IsActive(SystemTypes.Comms);
             var seerisAlive = seer.IsAlive();
             bool enabled = seer == seen
-                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seerisAlive && (!seer.IsGorstRole() || Options.GRCanSeeOtherTasks.GetBool()) && (Options.GhostCanSeeOtherTasks.GetBool() || !Options.GhostOptions.GetBool()));
+                        || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seerisAlive && (!seer.IsGhostRole() || Options.GRCanSeeOtherTasks.GetBool()) && (Options.GhostCanSeeOtherTasks.GetBool() || !Options.GhostOptions.GetBool()));
             string text = GetProgressText(seen.PlayerId, comms, Mane, hide: seer != seen && seen.Is(CustomRoles.Fox));
 
-            if ((Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() || !Options.GhostOptions.GetBool()) && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool()))
+            if ((Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() || !Options.GhostOptions.GetBool()) && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool()))
                 text += $"<color=#ffff00>[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]</color>";
 
             //seer側による変更
@@ -420,7 +425,7 @@ namespace TownOfHost
             var isjingai = state == null || state.taskState == null || !state.taskState.hasTasks;
             if (Mane && !pc.Is(CustomRoles.Amnesia) && !(roleClass?.Jikaku() is CustomRoles.NotAssigned or null))
             {
-                if (!isalive && Options.GhostCanSeeAllTasks.GetBool() && !pc.Is(CustomRoles.AsistingAngel) && (!pc.IsGorstRole() || Options.GRCanSeeAllTasks.GetBool()))//死んでて霊界がタスク進捗を見れるがON
+                if (!isalive && Options.GhostCanSeeAllTasks.GetBool() && !pc.Is(CustomRoles.AsistingAngel) && (!pc.IsGhostRole() || Options.GRCanSeeAllTasks.GetBool()))//死んでて霊界がタスク進捗を見れるがON
                 {
                     if (isjingai) return AllTaskstext(false, false, false, comms, true);
                     else return ColorString(TextColor, $"({Completed}/{state.taskState.GetNeedCountOrAll()})") + AllTaskstext(false, false, false, comms, true);
@@ -530,6 +535,7 @@ namespace TownOfHost
                             if (data.GiveManagement.GetBool()) Subrole.Add(CustomRoles.Management);
                             if (data.Giveseeing.GetBool()) Subrole.Add(CustomRoles.seeing);
                             if (data.GiveOpener.GetBool()) Subrole.Add(CustomRoles.Opener);
+                            //if (data.GiveAntiTeleporter.GetBool()) Subrole.Add(CustomRoles.AntiTeleporter);
                             if (!data.IsImpostor)
                             {
                                 if (data.GiveLighting.GetBool()) Subrole.Add(CustomRoles.Lighting);

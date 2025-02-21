@@ -135,7 +135,7 @@ namespace TownOfHost.Roles
 
             if (Options.SuddenAllRoleonaji.GetBool())
             {
-                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
+                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGhostRole() && !r.IsRiaju()).ToArray();
                 var addons = AssignRoleList.Where(r => r.IsAddOn() || r.IsRiaju())?.ToArray();
                 var rand = IRandom.Instance;
                 var role = CustomRoles.Impostor;
@@ -154,7 +154,7 @@ namespace TownOfHost.Roles
             else
             if (Modules.SuddenDeathMode.NowSuddenDeathMode)
             {
-                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGorstRole() && !r.IsRiaju()).ToArray();
+                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGhostRole() && !r.IsRiaju()).ToArray();
 
                 if (roles.Length < PlayerCatch.AllPlayerControls.Count())
                 {

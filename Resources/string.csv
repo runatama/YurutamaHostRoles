@@ -177,6 +177,7 @@
 "Driver","Driver","ドライバー","驾驶员","","","",""
 "Braid","Braid","ブレイド","辫子","","","",""
 "DriverandBraid","DriverandBraid","ドライバー</color>と<color=#ff1919>ブレイド</color>","驾驶员</color>和<color=#ff1919>辫子</color>",
+"Twins","Twins","双子"
 
 "# HideAndSeek"
 "HASFox","Fox","狐","狐狸","狐妖","Лис","Raposa","Raposa"
@@ -236,6 +237,7 @@
 "Tiebreaker","Tiebreaker","タイブレーカー"
 "Guarding","Guarding","ガーディング"
 "MagicHand","MagicHand","マジックハンド"
+"AntiTeleporter","AntiTeleporter","アンチテレポーター"
 
 "# デバフ属性"
 "SlowStarter","SlowStarter","スロースターター"
@@ -453,6 +455,7 @@
 "LastImpostorInfo","You are the last of us","残ったのはあなただけ","你是狼村最后的希望…","你是狼村最後的希望...","Ты последний предатель","Você é o último Impostor","Você é o último Impostor"
 "LastNeutralInfo","You are Last Neutral.","後は君に託した。"
 "WorkhorseInfo","You have Extra tasks","タスクはまだ終わらない","这活还得继续肝","感覺不如做任務","Теперь у вас дополнительные задания","Você tem tarefas adicionais",""
+"TwinsInfo","","僕らは以心伝心"
 
 "# バフ"
 "watchingInfo","Gaze upon all votes","みんなの投票に目を光らせよう","你可以看见所有人的投票，注意他们的选择","注意所有人的投票","Вы видите цвета голосов","Veja todos os votos","Veja todos os votos"
@@ -471,6 +474,7 @@
 "TiebreakerInfo","Come on! This way!","だーかーらー!!こっち!!"
 "GuardingInfo","I thought you were dead...","何をしてでも生き残りたいの！！"
 "MagicHandInfo","I Have Magic hand","あらよっと"
+"AntiTeleporterInfo","I don't want Teleport","絶対にテレポートしたくないでござる","我不想传送"
 
 "# デバフ属性"
 "SlowStarterInfo","I'm sure he'll do it later","んー...後5分だけぇ..."
@@ -659,6 +663,9 @@
 "SantaClausDesc","","タスクを全て完了することでプレゼントを作成することができる。\n\nプレゼント作成後、\n指定されたベントに入ることでプレゼントを投下することができる。\n\n<b>{0}</b>回プレゼントを投下すると<b>{1}</b>勝利。\n\nプレゼントを投下すると次の会議でプレゼントが届いた旨の通知が届く。"
 "CountKillerDesc","","カウントキラーはすべてのプレイヤーを殺すことができる。\n<b>{0}</b>回キルすると<b>{1}</b>勝利できる。"
 "DoppelGangerDesc","","シェイプ対象以外キルが出来ない。\nまた、シェイプシフトを解除することもできない。\nシェイプシフト中にカウントが0.1/s溜まり、シェイプ対象をキルすると、通報までカウントが1/s貯まる。\nカウントが<b>{0}</b>を超えゲーム終了まで生存していると追加勝利、\nカウントが<b>{1}</b>に達するとその時点で自身が勝利する。\nベントやサボタージュは使用不可能"
+"JackalDesc","","ジャッカルはすべてのプレイヤーを殺すことができる。\nインポスターが残っておらず、生き残っているジャッカルカウントの人数がクルーと同じかそれ以上でジャッカルが勝利する。{0}"
+"JackalDescSidekick","","\n\nキルボタンが光っている状態でワンクリックボタンを押すと、\n{0}一番近くにいるプレイヤー(ジャッカル陣営を除く)をジャッカルドールにできる。"
+"JackalDescImpostorSideKick","","インポスター以外で"
 
 "# HideAndSeek"
 "HASFoxInfoLong","(HideAndSeek):\nThey win the game with other Roles (except Troll) only if they are alive at the game end.","(かくれんぼ):\nトロールを除くいずれかの陣営が勝利したときに生き残っていれば、勝利した陣営に追加で勝利することができる。","（躲猫猫）:\n狐狸活到最后便与获胜阵营一同获胜。","(躲貓貓):\n除了其他的中立陣營以外,只要狐妖活下來即可獲勝\n他們將跟著遊戲結束的獲勝陣營一起獲勝。","(Прятки):\nЕсли какая-либо роль, кроме Тролля побеждает и выживает, то победившая роль может одержать дополнительную победу.","(Esconde-Esconde): \nEles ganham adicionalmente com qualquer classe (exceto Troll), se estiverem vivos no final.",""
@@ -681,6 +688,7 @@
 "LastImpostorInfoLong","(Add-ons):\nAn Add-on granted to the last Impostor remaining.\nKill cooldown is reduced according to this setting.\nNot granted to Bounty Hunters, Serial Killers, or Vampires.","(属性):\n最後のインポスターに付与される属性。\nキルクールが設定した時間まで短くなる。\n一部インポスター役職には付与されない。","（效果）:\n这个效果在内鬼仅剩一人时赋予该内鬼。\n使其击杀冷却缩短。\n该效果对赏金猎人、嗜血杀手以及吸血鬼不适用。","(附加效果):\n該效果給予在場上的最後一位偽裝者，擁有該效果的偽裝者刀人冷卻時間會變短，該效果不會給予:\n賞金獵人, 連環殺手或吸血鬼 (可以設定冷卻)","(Атрибут):\nАтрибут, присваивается последнему Предателю. \nВремя отката убийства становится меньше, чем обычно. \nНе назначается Охотнику за головами, Серийному убийце или Вампиру.","(Atributos): \nUm Atributo dado ao último Impostor. \nO tempo de recarga (abate) é reduzido segundo a configuração. \nNão é dado para Caçadores de Recompensas, Serial Killers ou Vampiros.",""
 "LastNeutralInfoLong","(Add-ons):\nAn Add-on granted to the last Neutral remaining.\nIf you Cankill , Kill cooldown is reduced according to this setting.","(属性):\n最後のニュートラルに付与される属性。\nもしキル能力があれば設定した時間になる。\nまた生存時追加勝利するかを設定で決めることが出来る。"
 "WorkhorseInfoLong","(Add-ons):\nAn Add-on granted to the first living Crewmate finishing all the tasks.\nYou are assigned additional tasks necessary for the tasks win.\nNot granted to roles with no tasks or with abilities triggered by finishing tasks.","(属性):\n最初に生きてタスクを終えたクルーに付与される属性。\n追加タスクが割り当てられる。\nクルーメイト以外にも割り当てる設定でもタスクが無い、タスク完了で能力が発動する役職には付与されない。","(附加效果):\n该附加效果赋予给第一个完成所有任务并存活的船员。\n你需要完成额外的任务来达成任务胜利。\n此效果不会赋予那些没有任务或者通过完成任务才能使用能力的诸多职业。","(屬性):\n此效果會被賦予在第一個完成任務且存活的船員。\n實習生必須做完附加任務來獲勝，\n此效果不會賦予在那些需要通過完成任務來觸發技能的職業上。","(Атрибут):\nДополнительные задания присваиваются первому живому Члену Экипажа, который выполнит все задания. \nЕму назначаются дополнительные задания, необходимые для победы с помощью заданий. \nНе может присваиваться ролям которые не имеют заданий, или ролям со способностями которые активируются после выполнения заданий.","(Atributos):\nUm atributo dado ao primeiro tripulante que finalizar todas as tarefas.\nVocê recebe tarefas adicionais necessárias para vencer. \nNão é dado a classes quem não têm tarefas, ou com habilidades ativadas ao finalizar todas as tarefas.",""
+"TwinsInfoLong","(Add-ons):\n","(属性):\n基本クルー陣営、設定によってはマッドメイト、\nキル不可ニュートラルに付与される。2人1組の属性。\nお互いに付与されているということが分かる"
 
 "# バフ属性"
 "watchingInfoLong","Add-ons:\nYou can see everyone's votes even if anonymous voting is on.","(属性):\n全員の投票先を見ることができる。","(效果):\n会议时窥视者可以看到所有人的投票。","(附加效果):\n會議時觀察者可以看到所有人的投票。","(Атрибут):\nНаблюдатель может видеть все цвета голосов несмотря на анонимное голосование.","(Atributos):\nVocê consegue ver os votos de todos, mesmo que os votos anônimos estejam ligados.",""
@@ -699,6 +707,7 @@
 "TiebreakerInfoLong","Add-ons:\nIf Vote result Tie,My Vote Preferred.","(属性):\n同数投票であるプレイヤーもしくはスキップうち、タイブレーカーに1番多く投票された方を優先できる。\nタイブレーカーも同数の場合、同数投票のまま会議が終了する。\n天秤会議では機能しない。"
 "GuardingInfoLong","Add-ons:\nGive Nomal Kill Guard","(属性):\nガードすることが出来る。(設定有)"
 "MagicHandInfoLong","Add-ons:\nGive to Only Kill Roles\nKill distance becomes a set value.","(属性):\nキル可能役職にのみ付与される属性。\nキルディスタンスが設定値になる。"
+"AntiTeleporterInfoLong","Add-ons:\nThe Anti Teleport Modifier prevents the player from getting teleported to the Meeting Table if a body gets reported or an Emergency Meeting is called.\nThe player will start the round where the previous one ended (Emergency Meeting Call/Body Report).","(属性):\n会議や死体レポートなどが起こってもその後にテレポートせず、元居た場所からスタートします。","(附加效果):\n如果有尸体被报告或紧急会议被召集，通讯兵效果可以防止玩家被远程传送到会议桌。\n玩家将在上一回合结束时的位置继续（紧急会议/尸体报告）."
 
 "# デバフ属性"
 "SlowStarterInfoLong","Add-ons:\nGive to Impostor Only.\nCan't make a kill until the number of imposters is reduced.","(属性):\nインポスターにしか付与されない。\n味方の生存人数が一定人数を下回るまでキルできない。"
@@ -948,6 +957,7 @@
 "ImpostorHideChat","Impostor Hide Chat (/ic)","インポスター秘匿チャット(/ic)"
 "JackalHideChat","Jackal Hide Chat (/jc)","ジャッカル秘匿チャット(/jc)"
 "LoversHideChat","Lovers Hide Chat (/lc)","ラバーズ秘匿チャット(/lc)"
+"ConnectingHideChat","Connecting Hide Chat (/cc)","コネクティング秘匿チャット(/cc)"
 "OutroCrewWinreasonchenge","Display match results in non-client outros","非クライアントのアウトロで試合結果を表示"
 
 "### サドンデスモード"
@@ -1519,6 +1529,11 @@
 "LoversRoleAddwin","Addwin","追加勝利"
 "LoverSoloWin3players","Immediate victory with less than 3 survivors","生存人数が3人以下で即単独勝利する"
 "OneLoverLovers","Probability of mutual love","両片思いになる確率"
+"CanAssingMadmate","CanAssing Madmate","<color=#ff7f50>マッドメイト</color>に付与される"
+"CanAssingCantKillNeutral","CanAssing Can'tKill Neutral","<color=#cccccc>キル不可ニュートラル</color>に付与される"
+"TwinsCanUseHideChet","Twins Can Use HideChet","双子専用秘匿チャット(/tc)"
+"TwinsDiefollow","","片割れが死亡すると後追いする"
+"TwinsAddWin","","片割れが勝利すると自身も追加勝利する"
 
 "## 幽霊役職設定"
 "GRRoleOptions","GhostRole Options","幽霊役職の設定"
@@ -1936,6 +1951,8 @@
 "Command.impchat","Impostor Teammate Send Hidden chat","仲間のインポスターに秘匿メッセージを送信"
 "Command.jacchat","Jackal Teammate Send Hidden chat","仲間のジャッカル,Jドール,Jマフィアに秘匿メッセージを送信"
 "Command.LoverChat","Lover Send Hidden chat","恋人に秘匿メッセージを送信"
+"Command.TwinsChat","Twins Send HiddenChat","双子の相方に秘匿メッセージを送信"
+"Command.ConnectingChat","Connecting Send HiddenChat","ｺﾈｸﾃｨﾝｸﾞの相方に秘匿メッセージを送信"
 
 "OnlyHost","Only Host","ホスト限定"
 "OnlyClient","Only ModClient","導入者限定"
@@ -2136,6 +2153,7 @@
 "Format.Votes","{0}","{0}票","{0}票","{0}票","{0}","{0}",""
 "Format.Pieces","{0}","{0}個","{0}个","{0}個","{0}","{0}",""
 "Format.day","Day.{0}","{0}日目"
+"Format.Set","{0}Set","{0}組"
 "KillButtonText","Kill","キル","击杀","殺死","Убить","Matar",""
 "DefaultShapeshiftText","Shift","変身","变形","變身","Превращение","Mutar",""
 "DisabledBySettings","Disabled by Settings","設定で無効化されています","已在设置被中禁用","在設定中被禁用","Отключено настройкой","Desativado Pelas Configurações",""
@@ -2212,3 +2230,4 @@
 "Message.TairouAlive","","村に嫌な気配がする..."
 "SoloWin","Solo","単独"
 "AddWin","Add","追加"
+"Statistics","Statistics","統計"

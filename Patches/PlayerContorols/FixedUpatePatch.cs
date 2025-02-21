@@ -498,7 +498,6 @@ namespace TownOfHost
                 }
                 if (GameStates.IsInGame)
                 {
-
                     (RoleText.enabled, RoleText.text) = UtilsRoleText.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, __instance, PlayerControl.LocalPlayer == __instance);
                     if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
                     {
@@ -516,6 +515,12 @@ namespace TownOfHost
                     string RealName;
                     Mark.Clear();
                     Suffix.Clear();
+
+                    //見る側が双子で相方が双子の場合
+                    if (Twins.TwinsList.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var targetid) && seer.IsAlive())
+                    {
+                        if (targetid == target.PlayerId) RoleText.text = UtilsRoleText.GetRoleColorAndtext(CustomRoles.Twins) + RoleText.text;
+                    }
 
                     //名前を一時的に上書きするかのチェック
                     var TemporaryName = roleclass?.GetTemporaryName(ref name, ref nomarker, seer, target) ?? false;

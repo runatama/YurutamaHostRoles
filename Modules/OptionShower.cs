@@ -106,7 +106,7 @@ namespace TownOfHost
                             if (role.IsBuffAddon()) m = Utils.AdditionalWinnerMark;
                             if (role.IsRiaju()) m = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Lovers), "♥");
                             if (role.IsDebuffAddon()) m = Utils.ColorString(Palette.DisabledGrey, "☆");
-                            if (role.IsGorstRole()) m = "<color=#8989d9>■</color>";
+                            if (role.IsGhostRole()) m = "<color=#8989d9>■</color>";
 
                             if (count == 0) sb.Append($"\n{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
                             else if (count == -1) sb.Append($"{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
@@ -200,6 +200,7 @@ namespace TownOfHost
                         case "GivePlusVote": continue;
                         case "GiveRevenger": continue;
                         case "GiveOpener": continue;
+                        case "GiveAntiTeleporter": continue;
                         case "GiveLighting": continue;
                         case "GiveMoon": continue;
                         case "GiveElector": continue;
@@ -292,6 +293,7 @@ namespace TownOfHost
                     case "GivePlusVote": return false;
                     case "GiveRevenger": return false;
                     case "GiveOpener": return false;
+                    case "GiveAntiTeleporter": return false;
                     case "GiveLighting": return false;
                     case "GiveMoon": return false;
                     case "GiveElector": return false;

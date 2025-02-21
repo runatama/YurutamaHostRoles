@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using HarmonyLib;
@@ -146,7 +147,17 @@ namespace TownOfHost
             MeetingRoomManager.Instance.AssignSelf(__instance, target);
             DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
             __instance.RpcStartMeeting(target);
-            return false;
+
+            if (__instance.Data.IsDead) return true;
+
+            /* AntiTeleporter.SetLastPlace();
+             PlayerCatch.AllPlayerControls
+                 .Where(pc => Main.CheckShapeshift.ContainsKey(pc.PlayerId))
+                 .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true));
+
+             Utils.SyncAllSettings();
+             */
+            return true;
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)
         {

@@ -275,7 +275,7 @@ namespace TownOfHost.Modules
             }
 
             state.taskState.hasTasks = UtilsTask.HasTasks(player.Data, false);
-            if ((GhostCanSeeOtherVotes.GetBool() || !GhostOptions.GetBool()) && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGorstRole() || GRCanSeeOtherVotes.GetBool()))
+            if ((GhostCanSeeOtherVotes.GetBool() || !GhostOptions.GetBool()) && player.Data.IsDead && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGhostRole() || GRCanSeeOtherVotes.GetBool()))
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
             if (AdditionalEmergencyCooldown.GetBool() && AdditionalEmergencyCooldownThreshold.GetInt() <= PlayerCatch.AllAlivePlayersCount)
             {
@@ -311,7 +311,7 @@ namespace TownOfHost.Modules
             AURoleOptions.ImpostorsCanSeeProtect = false;
 
             //幽霊役職用の奴
-            if (player.IsGorstRole())
+            if (player.IsGhostRole())
             {
                 var gr = PlayerState.GetByPlayerId(player.PlayerId).GhostRole;
                 switch (gr)

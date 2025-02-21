@@ -54,7 +54,7 @@ namespace TownOfHost.Roles.Ghost
         {
             //アシスト先が決まってるなら～
             if (Asist != null) return false;
-            foreach (var pc in PlayerCatch.AllPlayerControls.Where(x => x.IsGorstRole()))
+            foreach (var pc in PlayerCatch.AllPlayerControls.Where(x => x.IsGhostRole()))
             {
                 if (pc.Is(CustomRoles.AsistingAngel)) return true;
             }

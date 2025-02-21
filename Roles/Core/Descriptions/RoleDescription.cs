@@ -188,6 +188,7 @@ public abstract class RoleDescription
                 case "GivePlusVote": continue;
                 case "GiveRevenger": continue;
                 case "GiveOpener": continue;
+                case "GiveAntiTeleporter": continue;
                 case "GiveLighting": continue;
                 case "GiveMoon": continue;
                 case "GiveElector": continue;

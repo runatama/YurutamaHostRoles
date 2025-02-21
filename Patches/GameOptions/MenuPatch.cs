@@ -332,8 +332,31 @@ namespace TownOfHost
                                 var tabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
                                 CategoryHeaderEditRole[] tabsubtitle = tabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
                                 tabtitle.Title.DestroyTranslator();
-                                tabtitle.Title.text = Utils.ColorString(UtilsRoleText.GetRoleColor(option.CustomRole, true), GetString(option.CustomRole.ToString()));
+                                Color.RGBToHSV(UtilsRoleText.GetRoleColor(option.CustomRole, true), out var h, out var s, out var v);
+                                if (v < 0.6f)
+                                {
+                                    v = 0.6f;
+                                }
+                                var rolecolor = Color.HSVToRGB(h, s, v);
+                                tabtitle.Title.text = Utils.ColorString(rolecolor, GetString(option.CustomRole.ToString()));
                                 tabtitle.Title.color = Color.white;
+                                var type = option.CustomRole.GetCustomRoleTypes();
+                                Color color = ModColors.CrewMateBlue;
+
+                                switch (type)
+                                {
+                                    case CustomRoleTypes.Impostor: color = ModColors.ImpostorRed; break;
+                                    case CustomRoleTypes.Madmate: color = ModColors.MadMateOrenge; break;
+                                    case CustomRoleTypes.Neutral: color = ModColors.NeutralGray; break;
+                                    case CustomRoleTypes.Crewmate:
+                                        color = ModColors.CrewMateBlue;
+                                        if (option.CustomRole.IsAddOn()) color = ModColors.AddonsColor;
+                                        if (option.CustomRole.IsGhostRole()) color = ModColors.GhostRoleColor;
+                                        if (option.CustomRole.IsRiaju()) color = UtilsRoleText.GetRoleColor(option.CustomRole);
+                                        break;
+                                }
+
+                                tabtitle.Background.color = color.ShadeColor(0.7f);
 
                                 ModSettingsTab.scrollBar.velocity = Vector2.zero;
                                 ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
@@ -418,6 +441,8 @@ namespace TownOfHost
                     CategoryHeaderEditRole[] tabsubtitle = tabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
                     tabtitle.Title.DestroyTranslator();
                     tabtitle.Title.text = GetString("TabGroup." + tab);
+
+                    tabtitle.Background.color = ModColors.Gray;
                     tabtitle.Title.color = Color.white;
 
                     ModSettingsTab.scrollBar.velocity = Vector2.zero;

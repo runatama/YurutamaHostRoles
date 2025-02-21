@@ -302,6 +302,12 @@ namespace TownOfHost
                             var targetRoleData = GetRoleNameAndProgressTextData(seer, target, false);
                             var TargetRoleText = targetRoleData.enabled ? $"<size={fontSize}>{targetRoleData.text}</size>\r\n" : $"";
 
+                            //見る側が双子で相方が双子の場合
+                            if (Twins.TwinsList.TryGetValue(seer.PlayerId, out var targetid))
+                            {
+                                if (targetid == target.PlayerId) TargetRoleText = GetRoleColorAndtext(CustomRoles.Twins) + TargetRoleText;
+                            }
+
                             TargetSuffix.Clear();
                             //seerに関わらず発動するLowerText
                             TargetSuffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target, isForMeeting: false));
@@ -610,7 +616,18 @@ namespace TownOfHost
                             //他人の役職とタスクは幽霊が他人の役職を見れるようになっていてかつ、seerが死んでいる場合のみ表示されます。それ以外の場合は空になります。
                             var targetRoleData = GetRoleNameAndProgressTextData(seer, target, false);
                             var TargetRoleText = targetRoleData.enabled ? $"<size={fontSize}>{targetRoleData.text}</size>\r\n" : $"";
+                            var meetingageru = targetRoleData.enabled;
 
+                            //見る側が双子で相方が双子の場合
+                            if (Twins.TwinsList.TryGetValue(seer.PlayerId, out var targetid) && seerisAlive)
+                            {
+                                if (targetid == target.PlayerId)
+                                {
+                                    meetingageru |= true;
+                                    if (TargetRoleText == "") TargetRoleText = $"<size={fontSize}>{GetRoleColorAndtext(CustomRoles.Twins)}</size>\r\n";
+                                    else TargetRoleText = GetRoleColorAndtext(CustomRoles.Twins) + TargetRoleText;
+                                }
+                            }
                             TargetSuffix.Clear();
                             //seerに関わらず発動するLowerText
                             TargetSuffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target, isForMeeting: true));
@@ -671,7 +688,7 @@ namespace TownOfHost
                             if (list[0] != null)
                                 if (list[0] == target)
                                 {
-                                    if (targetRoleData.enabled)
+                                    if (meetingageru)
                                     {
                                         var Name = (TargetSuffix.ToString() == "" ? "" : (TargetSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + Info + TargetName + Info.RemoveText() + "\r\n<size=1.5> ";
                                         TargetName = Name;

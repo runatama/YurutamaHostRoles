@@ -465,7 +465,7 @@ namespace TownOfHost
 
             Logger.Info("CheckProtect発生: " + __instance.GetNameWithRole().RemoveHtmlTags() + "=>" + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
 
-            if (__instance.IsGorstRole())
+            if (__instance.IsGhostRole())
             {
                 Ghostbuttoner.UseAbility(__instance);
                 GhostNoiseSender.UseAbility(__instance, target);

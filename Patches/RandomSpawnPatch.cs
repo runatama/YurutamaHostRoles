@@ -7,6 +7,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
+using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost
 {
@@ -77,6 +78,8 @@ namespace TownOfHost
     }
     class RandomSpawn
     {
+        //private static Dictionary<byte, int> NumOfTP = new();
+
         [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
         public class CustomNetworkTransformHandleRpcPatch
         {
@@ -121,7 +124,41 @@ namespace TownOfHost
                         }
                     }
                 }
+                /*
+                if (GameStates.IsInTask)
+                {
+                    var player = PlayerCatch.AllPlayerControls.Where(p => p.NetTransform == __instance).FirstOrDefault();
+                    if (player == null)
+                    {
+                        Logger.Warn("プレイヤーがnullです", "RandomSpawn");
+                        return false;
+                    }
+                    if (player.Is(CustomRoles.GM)) return false; // GMは対象外に
+
+                    // AntiTeleporterの場合、ランダムスポーンの処理をスキップ
+                    if (player.Is(CustomRoles.AntiTeleporter))
+                    {
+                        return false; // ランダムスポーンを無効にする
+                    }
+
+                    NumOfTP[player.PlayerId]++;
+
+                    if (NumOfTP[player.PlayerId] == 2)
+                    {
+                        if (Main.NormalOptions.MapId != 4) return false; // マップがエアシップじゃなかったらreturn
+                        player.RpcResetAbilityCooldown();
+                        if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
+                    }
+                }*/
                 return true;
+            }
+            public static void TP(CustomNetworkTransform nt, Vector2 location)
+            {
+                if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+                NetHelpers.WriteVector2(location, writer);
+                writer.Write(nt.lastSequenceId);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
 
             private static bool IsAirshipVanillaSpawnPosition(Vector2 position)

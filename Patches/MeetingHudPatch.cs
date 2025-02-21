@@ -173,6 +173,11 @@ public static class MeetingHudPatch
                     = UtilsRoleText.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, pc, PlayerControl.LocalPlayer == pc);
                 roleTextMeeting.gameObject.name = "RoleTextMeeting";
                 roleTextMeeting.enableWordWrapping = false;
+                //見る側が双子で相方が双子の場合
+                if (Twins.TwinsList.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var targetid))
+                {
+                    if (targetid == pc.PlayerId) roleTextMeeting.text = UtilsRoleText.GetRoleColorAndtext(CustomRoles.Twins) + roleTextMeeting.text;
+                }
 
                 var suffixTextMeeting = UnityEngine.Object.Instantiate(pva.NameText);
                 suffixTextMeeting.transform.SetParent(pva.PlayerIcon.transform);

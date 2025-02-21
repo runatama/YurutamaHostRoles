@@ -61,7 +61,7 @@ namespace TownOfHost
             }, 0.01f, "Override Role Text", null);
 
             /* wiki用
-                            if (PlayerControl.LocalPlayer.IsGorstRole())
+                            if (PlayerControl.LocalPlayer.IsGhostRole())
                     role = PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).GhostRole;
 
                 if (!role.IsVanilla() && !PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))

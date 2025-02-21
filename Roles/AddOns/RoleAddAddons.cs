@@ -40,6 +40,8 @@ namespace TownOfHost
         public OptionItem Imp; public OptionItem Crew; public OptionItem Mad; public OptionItem Neu;
         //オープナー
         public OptionItem GiveOpener;
+        //アンチテレポーター
+        //public OptionItem GiveAntiTeleporter;
         //スピーディング
         public OptionItem GiveSpeeding;
         public OptionItem Speed;
@@ -110,6 +112,7 @@ namespace TownOfHost
             Giveseeing = BooleanOptionItem.Create(idStart++, "Giveseeing", false, tab, false).SetParent(GiveAddons);
             SCanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(Giveseeing);
             GiveOpener = BooleanOptionItem.Create(idStart++, "GiveOpener", false, tab, false).SetParent(GiveAddons);
+            //GiveAntiTeleporter = BooleanOptionItem.Create(idStart++, "GiveAntiTeleporter", false, tab, false).SetParent(GiveAddons);
             if (!IsImpostor)
             {
                 GiveLighting = BooleanOptionItem.Create(idStart++, "GiveLighting", NeutralKiller, tab, false).SetParent(GiveAddons);
@@ -298,6 +301,7 @@ namespace TownOfHost
                         case CustomRoles.watching: olddata.GiveWatching = olddata.GiveWatching.InfoGetBool() == false ? newdata.GiveWatching : olddata.GiveWatching; break;
                         case CustomRoles.Tiebreaker: olddata.GiveTiebreaker = olddata.GiveTiebreaker.InfoGetBool() == false ? newdata.GiveTiebreaker : olddata.GiveTiebreaker; break;
                         case CustomRoles.Opener: olddata.GiveOpener = olddata.GiveOpener.InfoGetBool() == false ? newdata.GiveOpener : olddata.GiveOpener; break;
+                        //case CustomRoles.AntiTeleporter: olddata.GiveOpener = olddata.GiveAntiTeleporter.InfoGetBool() == false ? newdata.GiveAntiTeleporter : olddata.GiveAntiTeleporter; break;
                         case CustomRoles.Elector: olddata.GiveElector = olddata.GiveElector.InfoGetBool() == false ? newdata.GiveElector : olddata.GiveElector; break;
                         case CustomRoles.Transparent: olddata.GiveTransparent = olddata.GiveTransparent.InfoGetBool() == false ? newdata.GiveTransparent : olddata.GiveTransparent; break;
                         case CustomRoles.Notvoter: olddata.GiveNotvoter = olddata.GiveNotvoter.InfoGetBool() == false ? newdata.GiveNotvoter : olddata.GiveNotvoter; break;
@@ -318,6 +322,7 @@ namespace TownOfHost
                 olddata.GivePlusVote = olddata.GivePlusVote.InfoGetBool() == false ? newdata.GivePlusVote : olddata.GivePlusVote;
                 olddata.GiveRevenger = olddata.GiveRevenger.InfoGetBool() == false ? newdata.GiveRevenger : olddata.GiveRevenger;
                 olddata.GiveOpener = olddata.GiveOpener.InfoGetBool() == false ? newdata.GiveOpener : olddata.GiveOpener;
+                //olddata.GiveAntiTeleporter = olddata.GiveAntiTeleporter.InfoGetBool() == false ? newdata.GiveAntiTeleporter : olddata.GiveAntiTeleporter;
                 olddata.GiveSpeeding = olddata.GiveSpeeding.InfoGetBool() == false ? newdata.GiveSpeeding : olddata.GiveSpeeding;
                 olddata.GiveGuarding = olddata.GiveGuarding.InfoGetBool() == false ? newdata.GiveGuarding : olddata.GiveGuarding;
                 olddata.GiveElector = olddata.GiveElector.InfoGetBool() == false ? newdata.GiveElector : olddata.GiveElector;

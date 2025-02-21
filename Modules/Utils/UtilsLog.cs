@@ -387,7 +387,7 @@ namespace TownOfHost
                         if (role.IsBuffAddon()) mark = "Ⓐ";
                         else if (role.IsDebuffAddon()) mark = "Ⓓ";
                         else if (role.IsRiaju()) mark = "Ⓛ";
-                        else if (role.IsGorstRole()) mark = "Ⓖ";
+                        else if (role.IsGhostRole()) mark = "Ⓖ";
                         else mark = "〇";
                     }
                     if (role.IsEnable()) sb.AppendFormat($"\n {mark}" + "\"{0}\"   {1}×{2}", role.GetCombinationCName(false), $"{role.GetChance()}%", role.GetCount());

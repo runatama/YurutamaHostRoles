@@ -65,7 +65,7 @@ namespace TownOfHost
             }
             else if (role >= CustomRoles.NotAssigned)   //500:NoSubRole 501~:SubRole
             {
-                if (role.IsGorstRole()) PlayerState.GetByPlayerId(player.PlayerId).SetGhostRole(role);
+                if (role.IsGhostRole()) PlayerState.GetByPlayerId(player.PlayerId).SetGhostRole(role);
                 else PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(role);
             }
             if (AmongUsClient.Instance.AmHost)
@@ -95,7 +95,7 @@ namespace TownOfHost
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 player.SyncSettings();
 
-                if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro && (role.IsGorstRole() || role < CustomRoles.NotAssigned))
+                if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro && (role.IsGhostRole() || role < CustomRoles.NotAssigned))
                 {
                     player.SetKillCooldown(delay: true, kyousei: true, kousin: true);
                     player.RpcResetAbilityCooldown();
@@ -872,7 +872,7 @@ namespace TownOfHost
                 return false;
             }
             // seerが死亡済で，霊界から死因が見える設定がON
-            if (!seer.IsAlive() && (Options.GhostCanSeeDeathReason.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGorstRole() || Options.GRCanSeeDeathReason.GetBool()))
+            if (!seer.IsAlive() && (Options.GhostCanSeeDeathReason.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GRCanSeeDeathReason.GetBool()))
             {
                 return true;
             }
@@ -941,7 +941,7 @@ namespace TownOfHost
             }
 
             var Info = (role.IsVanilla() ? "Blurb" : "Info") + (InfoLong ? "Long" : "");
-            if (player.IsGorstRole())
+            if (player.IsGhostRole())
             {
                 var state = PlayerState.GetByPlayerId(player.PlayerId);
                 if (state != null)
@@ -972,6 +972,8 @@ namespace TownOfHost
             {
                 Main.HostKill.TryAdd(target.PlayerId, State.DeathReason);
             }
+            if (!(AntiBlackout.IsCached || GameStates.Meeting || GameStates.Tuihou))
+                Twins.TwinsSuicide();
         }
         public static PlayerControl GetRealKiller(this PlayerControl target)
         {
@@ -1084,7 +1086,7 @@ namespace TownOfHost
 
         //汎用
         public static bool Is(this PlayerControl target, CustomRoles role) =>
-            role > CustomRoles.NotAssigned ? (role.IsGorstRole() ? PlayerState.GetByPlayerId(target.PlayerId).GhostRole == role : target.GetCustomSubRoles().Contains(role)) : target.GetCustomRole() == role;
+            role > CustomRoles.NotAssigned ? (role.IsGhostRole() ? PlayerState.GetByPlayerId(target.PlayerId).GhostRole == role : target.GetCustomSubRoles().Contains(role)) : target.GetCustomRole() == role;
         public static bool Is(this PlayerControl target, CustomRoleTypes type) { return target.GetCustomRole().GetCustomRoleTypes() == type; }
         public static bool Is(this PlayerControl target, RoleTypes type) { return target.GetCustomRole().GetRoleTypes() == type; }
         public static bool Is(this PlayerControl target, CountTypes type) { return target.GetCountTypes() == type; }

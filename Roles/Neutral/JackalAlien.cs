@@ -31,7 +31,11 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 {
                     AssignCountRule = new(1, 1, 1)
                 },
-                introSound: () => GetIntroSound(RoleTypes.Phantom)
+                introSound: () => GetIntroSound(RoleTypes.Phantom),
+                Desc: () =>
+                {
+                    return GetString("JackalAlienInfoLong") + (CanmakeSK.GetBool() ? string.Format(GetString("JackalDescSidekick"), !CanImpSK.GetBool() ? GetString("JackalDescImpostorSideKick") : "") : "");
+                }
             );
     public JackalAlien(PlayerControl player)
 : base(

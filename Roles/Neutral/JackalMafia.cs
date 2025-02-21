@@ -25,6 +25,10 @@ namespace TownOfHost.Roles.Neutral
                 assignInfo: new RoleAssignInfo(CustomRoles.JackalMafia, CustomRoleTypes.Neutral)
                 {
                     AssignCountRule = new(1, 1, 1)
+                },
+                Desc: () =>
+                {
+                    return GetString("JackalMafiaInfoLong") + (CanmakeSK.GetBool() ? string.Format(GetString("JackalDescSidekick"), !CanImpSK.GetBool() ? GetString("JackalDescImpostorSideKick") : "") : "");
                 }
             );
         public JackalMafia(PlayerControl player)
