@@ -318,8 +318,8 @@ namespace TownOfHost
             if (Options.ImpostorHideChat.GetBool()) send += $"\n/ic - {GetString("Command.impchat")}";
             if (Options.JackalHideChat.GetBool()) send += $"\n/jc - {GetString("Command.jacchat")}";
             if (Options.LoversHideChat.GetBool()) send += $"\n/lc - {GetString("Command.LoverChat")}";
-            if (Options.ConnectingHideChat.GetBool()) send += $"\n/cc - {GetString("Command.TwinsChat")}";
-            if (Options.TwinsHideChat.GetBool()) send += $"\n/tc - {GetString("Command.ConnectingChat")}";
+            if (Options.ConnectingHideChat.GetBool()) send += $"\n/cc - {GetString("Command.ConnectingChat")}";
+            if (Options.TwinsHideChat.GetBool()) send += $"\n/tc - {GetString("Command.TwinsChat")}";
             if (GameStates.IsLobby)
             {
                 send += $"\n/lastresult(/l) - {GetString("Command.lastresult")}"

@@ -84,11 +84,12 @@ class Twins
         foreach (var twins in TwinsList)
         {
             //キョーセイ負け or 勝利済みなら除外
-            if (CustomWinnerHolder.IdRemoveLovers.Contains(twins.Key)) continue;
+            if (CustomWinnerHolder.IdRemoveLovers.Contains(twins.Key) && CustomWinnerHolder.WinnerTeam.IsRiaju()) continue;
             if (CustomWinnerHolder.WinnerIds.Contains(twins.Key)) continue;
+            if (CustomWinnerHolder.WinnerRoles.Contains(twins.Key.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness)) continue;
 
             //相方が勝利してるなら
-            if (CustomWinnerHolder.WinnerIds.Contains(twins.Value))
+            if (CustomWinnerHolder.WinnerIds.Contains(twins.Value) || CustomWinnerHolder.WinnerRoles.Contains(twins.Value.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness))
             {   // Id追加して勝利
                 CustomWinnerHolder.WinnerIds.Add(twins.Key);
                 if (!flug)

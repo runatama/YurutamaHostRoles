@@ -118,8 +118,9 @@ public sealed class Turncoat : RoleBase, IAdditionalWinner
         //生きてないなら負け。
         if (!Player.IsAlive()) return false;
 
-        //勝利IDに含まれていない場合 → かち！
-        if (!CustomWinnerHolder.WinnerIds.Contains(Target)) return true;
+        //勝利IDに含まれていないかつ、勝利役職に含まれてない場合 → かち！
+        if (!CustomWinnerHolder.WinnerIds.Contains(Target)
+        && !CustomWinnerHolder.WinnerRoles.Contains(Target.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness)) return true;
 
         //何が何でも負けるリストに含まれている場合 → かち！
         if (CustomWinnerHolder.IdRemoveLovers.Contains(Target)) return true;

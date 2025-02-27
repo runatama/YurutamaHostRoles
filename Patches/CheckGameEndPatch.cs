@@ -82,7 +82,7 @@ namespace TownOfHost
                         default:
                             //ラバー勝利以外の時にラバーをしめt...勝利を剥奪する処理。
                             //どーせ追加なら追加勝利するやろし乗っ取りなら乗っ取りやし。
-                            if (CustomWinnerHolder.WinnerTeam is CustomWinner.Lovers or CustomWinner.RedLovers or CustomWinner.BlueLovers or CustomWinner.GreenLovers or CustomWinner.WhiteLovers or CustomWinner.PurpleLovers or CustomWinner.YellowLovers or CustomWinner.MadonnaLovers or CustomWinner.OneLove)
+                            if (CustomWinnerHolder.WinnerTeam.IsRiaju())
                                 break;
                             PlayerCatch.AllPlayerControls
                                 .Where(p => p.IsRiaju())

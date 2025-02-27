@@ -192,8 +192,15 @@ namespace TownOfHost
                     __instance.ReportButton.Hide();
                     __instance.ImpostorVentButton.Hide();
                     __instance.KillButton.Hide();
-                    __instance.AbilityButton.Show();
-                    __instance.AbilityButton.OverrideText(GetString(StringNames.HauntAbilityName));
+                    if (GameStates.IsMeeting)
+                    {
+                        __instance.AbilityButton.Hide();
+                    }
+                    else
+                    {
+                        __instance.AbilityButton.Show();
+                        __instance.AbilityButton.OverrideText(GetString(StringNames.HauntAbilityName));
+                    }
                 }
             }
 

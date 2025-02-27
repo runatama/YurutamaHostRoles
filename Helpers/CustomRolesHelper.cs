@@ -158,6 +158,18 @@ namespace TownOfHost
             pc.Is(CustomRoles.PurpleLovers) || pc.Is(CustomRoles.MadonnaLovers) ||
             (pc.Is(CustomRoles.OneLove) && checkonelover);
         }
+        public static bool IsRiaju(this CustomWinner winner)
+        {
+            return winner is CustomWinner.Lovers or
+                            CustomWinner.RedLovers or
+                            CustomWinner.BlueLovers or
+                            CustomWinner.YellowLovers or
+                            CustomWinner.GreenLovers or
+                            CustomWinner.WhiteLovers or
+                            CustomWinner.PurpleLovers or
+                            CustomWinner.MadonnaLovers or
+                            CustomWinner.OneLove;
+        }
         public static CustomRoles GetRiaju(this PlayerControl pc)
         {
             if (pc == null) return CustomRoles.NotAssigned;

@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
 using static TownOfHost.Modules.MeetingTimeManager;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Balancer : RoleBase
@@ -181,22 +182,8 @@ public sealed class Balancer : RoleBase
                 target1 = Target1;
                 target2 = Target2;
 
-                foreach (var Player in PlayerCatch.AllPlayerControls)
-                {
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
-                    {
-                        if (pc == PlayerControl.LocalPlayer) continue;
-                        var taishou = PlayerControl.LocalPlayer;
-                        if (!PlayerControl.LocalPlayer.IsAlive())
-                        {
-                            var List = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls.Where(x => x && x != pc && x != PlayerControl.LocalPlayer));
-                            taishou = List.OrderBy(x => x.PlayerId).FirstOrDefault();
-                        }
-                        Player.RpcSetRoleDesync(Player == taishou ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                    }
-                }
-
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
+                MeetingVoteManager.Instance.ClearAndEndMeeting();
                 MeetingHud.Instance.RpcClose();
                 GameStates.Tuihou = true;
             }
@@ -297,7 +284,6 @@ public sealed class Balancer : RoleBase
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
             Voteresult = GetString("Balancer.Executad");
             UtilsGameLog.AddGameLog($"Vote", GetString("Balancer.Executad"));
-
         }
         return true;
     }
@@ -315,7 +301,11 @@ public sealed class Balancer : RoleBase
 
             foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
                 pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u>");
-            _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(reporter, oniku.Data, false, GetString("Balancer.meeting"), UtilsRoleText.GetRoleColorCode(CustomRoles.Balancer)), 2f, "BalanerMeeting");
+            _ = new LateTask(() =>
+            {
+                _ = new LateTask(() => Utils.AllPlayerKillFlash(), 1f, "BMkillf", true);
+                ReportDeadBodyPatch.DieCheckReport(reporter, oniku.Data, false, GetString("Balancer.meeting"), UtilsRoleText.GetRoleColorCode(CustomRoles.Balancer));
+            }, 2f, "BalanerMeeting");
 
             //対象の名前を天秤の色に
             Balancer(meetingtime);

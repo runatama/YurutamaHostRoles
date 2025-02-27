@@ -735,6 +735,7 @@ namespace TownOfHost
                 CustomRoles.Amanojaku => AddonInfo(role),
                 CustomRoles.Lovers or CustomRoles.RedLovers or CustomRoles.BlueLovers or CustomRoles.YellowLovers or CustomRoles.GreenLovers
                 or CustomRoles.WhiteLovers or CustomRoles.PurpleLovers => AddonInfo(role, "♥", role != CustomRoles.Lovers ? From.None : From.Love_Couple_Mod),
+                CustomRoles.OneLove => AddonInfo(role),
                 //ラスト系
                 CustomRoles.LastImpostor => AddonInfo(role, from: From.TownOfHost),
                 CustomRoles.LastNeutral => AddonInfo(role),

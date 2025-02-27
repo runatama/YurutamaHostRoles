@@ -11,6 +11,7 @@ namespace TownOfHost
     public static class PlayerCatch
     {
         private static Dictionary<byte, PlayerControl> cachedPlayers = new(15);
+        public static PlayerControl GetPlayerControl(this byte playerId) => GetPlayerById(playerId);
         public static PlayerControl GetPlayerById(int playerId) => GetPlayerById((byte)playerId);
         public static PlayerControl GetPlayerById(byte playerId)
         {

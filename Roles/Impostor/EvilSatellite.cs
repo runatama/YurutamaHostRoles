@@ -32,7 +32,7 @@ public sealed class EvilSatellite : RoleBase, IImpostor
         AllAlivePlayerKeiro.Clear();
         SendPlayerkeiro.Clear();
         AllAlivePlayerLast.Clear();
-        foreach (var pc in PlayerControl.AllPlayerControls)
+        foreach (var pc in PlayerCatch.AllPlayerControls)
         {
             List<SystemTypes> keiro = new();
             if (!AllAlivePlayerKeiro.TryAdd(pc.PlayerId, keiro)) AllAlivePlayerKeiro[pc.PlayerId] = keiro;

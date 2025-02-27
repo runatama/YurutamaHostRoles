@@ -55,6 +55,12 @@ public class MeetingVoteManager
         allVotes[voter] = vote;
         EndMeeting(false, true);
     }
+    public void ClearAndEndMeeting()
+    {
+        logger.Info($"削除して会議を終了します");
+        ClearVotes();
+        EndMeeting(false, true);
+    }
     /// <summary>
     /// 投票を行います．投票者が既に投票している場合は票を上書きします
     /// </summary>
@@ -431,7 +437,7 @@ public class MeetingVoteManager
             }
 
             var c = false;
-            foreach (var pc in PlayerControl.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc.GetRoleClass()?.VotingResults(ref Exiled, ref IsTie, votedCounts, mostVotedPlayers, ClearAndExile) ?? false)
                     c = true; //どれかがtrueを返すと以下の特殊モードが実行されなくなる

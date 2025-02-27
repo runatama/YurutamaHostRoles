@@ -1218,6 +1218,29 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100049,
+                    Title = "え?もう2月終わるの!?",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.519.26.24</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.519.26.24</color>",
+                    Text = "<size=80%>そろそろ学期末だったり...\n大事な時期になってきたネ...\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・双子の相乗り勝利が正常に動作しない事がある問題の修正\n"
+                    + "・投票終了時に天秤を発動させると正常な動作にならない問題の修正\n"
+                    + "・ぬるぽのしゅうせい\n"
+                    + "・片思いのHelpRoleが正常に表示されない問題の修正\n"
+                    + "・一部表記が間違っていた問題の修正\n"
+                    + "・クライアント視点会議中変なボタンが生えてる問題の修正\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・非クライアントのみ秘匿チャット時に守護天使の音を発生させるように\n"
+                    + "\n\n 短いとは言え速いっすネ...まだ1/21位だと思う...\nby:只野中兎人"
+                    ,
+                    Date = "2025-02-27T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

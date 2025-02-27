@@ -251,10 +251,10 @@ namespace TownOfHost
                 {
                     new AirshipSpawnMap().FirstTeleport(player);
                 }
-                else// if (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool())
-                {
-                    AirshipSpawnMap.VpRandomTeleport(player);
-                }
+                //else// if (!MeetingStates.FirstMeeting && Options.BlackOutwokesitobasu.GetBool())
+                //{
+                //    AirshipSpawnMap.VpRandomTeleport(player);
+                //}
             }
             PlayerState.GetByPlayerId(player.PlayerId).HasSpawned = true;
         }

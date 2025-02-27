@@ -95,11 +95,11 @@ namespace TownOfHost.Modules
                     opttext += "ファントム持続:" + opt.GetFloat(FloatOptionNames.PhantomDuration);
                     if (OldOptionstext == opttext)
                     {
-                        Logger.Info($"{player?.Data?.PlayerName ?? "???"} 同一なのでキャンセル", "PlayerSendGameOptions");
+                        //Logger.Info($"{player?.Data?.PlayerName ?? "???"} 同一なのでキャンセル", "PlayerSendGameOptions");
                         return;
                     }
 
-                    OldOptionstext = opttext;
+                    OldOptionstext = GameStates.Meeting ? "" : opttext;
                 }
                 base.SendGameOptions();
             }

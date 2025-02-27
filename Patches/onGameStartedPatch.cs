@@ -639,43 +639,37 @@ namespace TownOfHost
             //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない！.動くか知らない！
             var host = PlayerControl.LocalPlayer;
 
-            var sender = CustomRpcSender.Create("ReSetRoleY", SendOption.None);
-            sender.StartMessage(-1);
             MeetingHudPatch.StartPatch.Serialize = true;
-            foreach (var pc in PlayerCatch.AllPlayerControls)
+            var stream = MessageWriter.Get(SendOption.Reliable);
+            stream.StartMessage(5);
+            stream.Write(AmongUsClient.Instance.GameId);
+            foreach (var data in GameData.Instance.AllPlayers)
             {
-                pc.Data.Disconnected = true;
-                sender.Write((wit) =>
-                {
-                    wit.StartMessage(1);
-                    {
-                        wit.WritePacked(pc.Data.NetId);
-                        pc.Data.Serialize(wit, false);
-                    }
-                    wit.EndMessage();
-                }, true);
+                data.Disconnected = true;
+                stream.StartMessage(1);
+                stream.WritePacked(data.NetId);
+                data.Serialize(stream, false);
+                stream.EndMessage();
             }
-            sender.StartRpc(PlayerControl.LocalPlayer.NetId, RpcCalls.SetRole)
-                    .Write((ushort)RoleTypes.Crewmate)
-                    .Write(true)
-                    .EndRpc();
-            foreach (var pc in PlayerCatch.AllPlayerControls)
+            stream.StartMessage(2);
+            stream.WritePacked(PlayerControl.LocalPlayer.NetId);
+            stream.Write((byte)RpcCalls.SetRole);
+            stream.Write((ushort)RoleTypes.Crewmate);
+            stream.Write(true);
+            stream.EndMessage();
+            foreach (var data in GameData.Instance.AllPlayers)
             {
-                pc.Data.Disconnected = false;
-                sender.Write((wit) =>
-                {
-                    wit.StartMessage(1);
-                    {
-                        wit.WritePacked(pc.Data.NetId);
-                        pc.Data.Serialize(wit, false);
-                    }
-                    wit.EndMessage();
-                }, true);
+                data.Disconnected = false;
+                stream.StartMessage(1);
+                stream.WritePacked(data.NetId);
+                data.Serialize(stream, false);
+                stream.EndMessage();
             }
-            sender.EndMessage();
-            sender.SendMessage();
-            MeetingHudPatch.StartPatch.Serialize = false;
+            stream.EndMessage();
+            AmongUsClient.Instance.SendOrDisconnect(stream);
+            stream.Recycle();
 
+            MeetingHudPatch.StartPatch.Serialize = false;
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {

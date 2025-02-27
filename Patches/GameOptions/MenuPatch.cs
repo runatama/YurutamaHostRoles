@@ -463,6 +463,7 @@ namespace TownOfHost
             search.submitButton.OnPressed = (Action)(() =>
             {
                 bool ch = false;
+                List<OptionItem> subopt = new();
                 foreach (var op in OptionItem.AllOptions)
                 {
                     var name = op.GetName().RemoveHtmlTags();
@@ -473,18 +474,21 @@ namespace TownOfHost
                         ch = true;
                         break;
                     }
+
+                    if (name.Contains(search.textArea.text))
+                    {
+                        subopt.Add(op);
+                        break;
+                    }
                 }
 
-                if (!ch)//完全一致したものがないなら部分一致を検索
+                //不必要なループをなくしてみる
+                if (!ch)
                 {
-                    foreach (var op in OptionItem.AllOptions)
+                    foreach (var op in subopt)
                     {
-                        var name = op.GetName().RemoveHtmlTags();
-                        if (name.Contains(search.textArea.text))
-                        {
-                            scroll(op);
-                            break;
-                        }
+                        scroll(op);
+                        break;
                     }
                 }
                 search.textArea.Clear();

@@ -52,7 +52,7 @@ namespace TownOfHost.Roles.AddOns.Impostor
             ICanWhiteCrew = BooleanOptionItem.Create(Id + 18, "CanWhiteCrew", false, TabGroup.Addons, false).SetParent(GiveGuesser);
             GiveManagement = BooleanOptionItem.Create(Id + 19, "GiveManagement", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
             PercentGage = BooleanOptionItem.Create(Id + 20, "PercentGage", false, TabGroup.Addons, false).SetParent(GiveManagement);
-            PonkotuPercernt = BooleanOptionItem.Create(Id + 21, "PonkotuPercernt", true, TabGroup.Addons, false).SetParent(PercentGage);
+            PonkotuPercernt = BooleanOptionItem.Create(Id + 21, "PonkotuPercernt", false, TabGroup.Addons, false).SetParent(PercentGage);
             comms = BooleanOptionItem.Create(Id + 22, "CanseeComms", false, TabGroup.Addons, false).SetParent(GiveManagement);
             Meeting = BooleanOptionItem.Create(Id + 23, "CanseeMeeting", false, TabGroup.Addons, false).SetParent(GiveManagement);
             GiveWatching = BooleanOptionItem.Create(Id + 24, "GiveWatching", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);

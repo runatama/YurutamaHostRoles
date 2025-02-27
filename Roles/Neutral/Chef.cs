@@ -6,7 +6,6 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
-
 namespace TownOfHost.Roles.Neutral;
 public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
 {

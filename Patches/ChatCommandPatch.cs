@@ -1704,6 +1704,7 @@ namespace TownOfHost
                                 }
                             }
                         }
+                        player.RpcProtectedMurderPlayer();
                     }
                     canceled = true;
                     break;
@@ -1769,6 +1770,7 @@ namespace TownOfHost
                                 }
                             }
                         }
+                        player.RpcProtectedMurderPlayer();
                     }
                     canceled = true;
                     break;
@@ -1837,6 +1839,7 @@ namespace TownOfHost
                                 }
                             }
                         }
+                        player.RpcProtectedMurderPlayer();
                     }
                     canceled = true;
                     break;
@@ -1902,6 +1905,7 @@ namespace TownOfHost
                                 }
                             }
                         }
+                        player.RpcProtectedMurderPlayer();
                     }
                     canceled = true;
                     break;
@@ -1966,6 +1970,7 @@ namespace TownOfHost
                                 }
                             }
                         }
+                        player.RpcProtectedMurderPlayer();
                     }
                     canceled = true;
                     break;

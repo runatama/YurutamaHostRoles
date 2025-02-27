@@ -256,7 +256,7 @@ namespace TownOfHost
                 {
                     exiled = AntiBlackout_LastExiled;
                     AntiBlackout.SendGameData();
-                }, 0.5f, "Restore IsDead Task");
+                }, 0.6f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
                     if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)

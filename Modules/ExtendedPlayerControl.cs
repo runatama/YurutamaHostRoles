@@ -290,7 +290,7 @@ namespace TownOfHost
             writer.Write(DontShowOnModdedClient);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
-        public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
+        public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId, SendOption sendoption = SendOption.Reliable)
         {
             if (clientId == -1)
             {
@@ -308,7 +308,7 @@ namespace TownOfHost
                 player.StartCoroutine(player.CoSetRole(role, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard));
                 return;
             }
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, Hazel.SendOption.None, clientId);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, sendoption, clientId);
             writer.Write((ushort)role);
             writer.Write(Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -968,7 +968,7 @@ namespace TownOfHost
             if (State.RealKiller.Item1 != DateTime.MinValue && NotOverRide) return; //既に値がある場合上書きしない
             byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
             RPC.SetRealKiller(target.PlayerId, killerId);
-            if (killer.PlayerId == 0)
+            if (killer?.PlayerId is 0)
             {
                 Main.HostKill.TryAdd(target.PlayerId, State.DeathReason);
             }
@@ -1069,12 +1069,14 @@ namespace TownOfHost
             //↑バニラ視点自身の消えるから戻す。
             foreach (var ap in PlayerCatch.AllPlayerControls)
             {
+                if (ap.GetClient() == null) continue;
                 MessageWriter kesuwriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, ap.GetClientId());
                 kesuwriter.Write("");
                 kesuwriter.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
                 AmongUsClient.Instance.FinishRpcImmediately(kesuwriter);
             }
             if (!pc.IsAlive()) return;
+            if (pc.GetClient() == null) return;
             MessageWriter modosu = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, pc.GetClientId());
             modosu.Write(petid);
             modosu.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
