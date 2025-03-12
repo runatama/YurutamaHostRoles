@@ -2,6 +2,7 @@ using HarmonyLib;
 using TownOfHost.Roles.Core;
 using UnityEngine;
 using static TownOfHost.GameSettingMenuStartPatch;
+using static TownOfHost.Translator;
 
 namespace TownOfHost
 {
@@ -35,13 +36,42 @@ namespace TownOfHost
                 priset.gameObject.SetActive(active);
                 activeonly.gameObject.SetActive(active);
             }
+            if (timer > 0)
+            {
+                timer -= Time.fixedDeltaTime;
+            }
+            else if (timer > -10)
+            {
+                timer = -100;
+
+                var rand = IRandom.Instance;
+                int rect = IRandom.Instance.Next(1, 101);
+                if (rect < 40)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo0");
+                else if (rect < 50)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo10");
+                else if (rect < 60)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo1");
+                else if (rect < 70)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo2");
+                else if (rect < 80)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo3");
+                else if (rect < 90)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo4");
+                else if (rect < 95)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo5");
+                else if (rect < 99)
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo6");
+                else
+                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo7");
+            }
 
             if (__instance.transform.name == "GAME SETTINGS TAB") return;
 
             if (NowRoleTab is not CustomRoles.NotAssigned)
             {
                 float numItems = __instance.Children.Count;
-                var offset = 2.7f;
+                var offset = h is 1 ? 2.7f : 2f;
                 var y = 0.713f;
                 foreach (var option in OptionItem.AllOptions)
                 {
@@ -75,9 +105,16 @@ namespace TownOfHost
                     var parent = option.Parent;
                     var opt = option.OptionBehaviour.LabelBackground;
                     var isroleoption = option.CustomRole is not CustomRoles.NotAssigned;
-                    if (isroleoption && rolebutton.TryGetValue(option.CustomRole, out var button))
+                    /*if (isroleoption && rolebutton.TryGetValue(option.CustomRole, out var button))
                     {
                         button.gameObject.SetActive(false);
+                    }*/
+                    if (isroleoption && roleInfobutton.TryGetValue(option.CustomRole, out var infobutton))
+                    {
+                        if (!infobutton.isActiveAndEnabled)
+                        {
+                            infobutton.gameObject.SetActive(true);
+                        }
                     }
                     enabled = AmongUsClient.Instance.AmHost && !option.IsHiddenOn(Options.CurrentGameMode);
                     opt.color = new Color32(200, 200, 200, 255);
@@ -164,7 +201,7 @@ namespace TownOfHost
                 if (__instance.gameObject.name != tab + "-Stg") continue;
 
                 float numItems = __instance.Children.Count;
-                var offset = 2.7f;
+                var offset = h is 1 ? 2.7f : 2f;
                 var y = 0.713f;
 
                 foreach (var option in OptionItem.AllOptions)
@@ -206,7 +243,11 @@ namespace TownOfHost
                             crOptions[customrole].Remove(option.OptionBehaviour);
                         }
                     }
-                    if (!isroleoption && customrole is not CustomRoles.NotAssigned && option.Name is not "Maximum") continue;
+                    if (!isroleoption && customrole is not CustomRoles.NotAssigned && option.Name is not "Maximum")
+                    {
+                        option.OptionBehaviour?.gameObject?.SetActive(false);
+                        continue;
+                    }
 
                     //起動時以外で表示/非表示を切り替える際に使う
                     if (enabled)
@@ -238,6 +279,11 @@ namespace TownOfHost
                     if (isroleoption && rolebutton.TryGetValue(option.CustomRole, out var button))
                     {
                         button.gameObject.SetActive(!(3.5f < opt.transform.position.y || opt.transform.position.y <= -0.4));
+
+                        if (roleInfobutton.TryGetValue(option.CustomRole, out var infobutton))
+                        {
+                            infobutton.gameObject.SetActive(false);
+                        }
                     }
 
                     opt.color = new Color32(200, 200, 200, 255);

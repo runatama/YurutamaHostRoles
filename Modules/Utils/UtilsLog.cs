@@ -226,7 +226,7 @@ namespace TownOfHost
                     CustomWinnerText = GetString("SuddenDeathPurple");
                     CustomWinnerColor = ModColors.codepurple;
                     break;
-                //引き分け処理
+                //廃村処理
                 case CustomWinner.Draw:
                     WinText = GetString("ForceEnd");
                     winColor = Color.white;

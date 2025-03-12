@@ -460,7 +460,7 @@ namespace TownOfHost
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
                                 if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
-                                if (imp && ((imp?.GetCustomRole().IsImpostor() ?? false) || imp?.GetCustomRole() is CustomRoles.Egoist))
+                                if (imp && ((imp?.GetCustomRole().IsImpostor() ?? false) || imp?.GetCustomRole() is CustomRoles.Egoist) || !imp.IsAlive())
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
                                     writer.StartMessage(imp.GetClientId());
@@ -498,7 +498,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "jackalChat");
                             foreach (var jac in PlayerCatch.AllAlivePlayerControls)
                             {
-                                if (jac && (jac?.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien))
+                                if (jac && ((jac?.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien) || !jac.IsAlive()))
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
                                     writer.StartMessage(jac.GetClientId());
@@ -540,7 +540,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "loversChat");
                             foreach (var lover in AllAlivePlayerControls)
                             {
-                                if (lover && (lover.GetRiaju() == l))
+                                if (lover && (lover.GetRiaju() == l || !lover.IsAlive()))
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
                                     writer.StartMessage(lover.GetClientId());
@@ -582,7 +582,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "TwinsChat");
                             foreach (var twins in AllPlayerControls)
                             {
-                                if (twins && twins.PlayerId == twinsid)
+                                if (twins && (twins.PlayerId == twinsid || twins.PlayerId == PlayerControl.LocalPlayer.PlayerId || !twins.IsAlive()))
                                 {
                                     if (AmongUsClient.Instance.AmHost)
                                     {
@@ -629,7 +629,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "Connectingchat");
                             foreach (var connect in AllPlayerControls)
                             {
-                                if (connect && connect.Is(CustomRoles.Connecting))
+                                if (connect && (connect.Is(CustomRoles.Connecting) || !connect.IsAlive()))
                                 {
                                     if (AmongUsClient.Instance.AmHost)
                                     {
@@ -1237,6 +1237,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Ghostbuttoner, "Bbu");
                 roleCommands.Add(CustomRoles.GhostNoiseSender, "NiS");
                 roleCommands.Add(CustomRoles.GhostReseter, "Res");
+                roleCommands.Add(CustomRoles.GhostRumour, "Rum");
                 roleCommands.Add(CustomRoles.GuardianAngel, "Gan");
                 roleCommands.Add(CustomRoles.DemonicCrusher, "DCr");
                 roleCommands.Add(CustomRoles.DemonicTracker, "DTr");

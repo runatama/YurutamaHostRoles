@@ -4,6 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost
 {
@@ -174,6 +175,10 @@ namespace TownOfHost
             }
             hasTasks = true;
             AllTasksCount = player.Data.Tasks.Count;
+            if (player.Is(CustomRoles.Walker))
+            {
+                AllTasksCount += Walker.WalkTaskCount.GetInt();
+            }
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
         }
         public void Update(PlayerControl player)

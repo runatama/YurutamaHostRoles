@@ -29,12 +29,6 @@ AmongUsバージョン : **2024.8.13**~<br>
 
 過去バージョンは[こちら](https://github.com/KYMario/TownOfHost-K/releases)
 
-## 現在のMod状況
-2/16時点の情報です
-
-> [!Note]
-> 現在のバージョンではバニラサーバーで公開ルームを開くことができません
-
 ## 公開ルームについて
 > [!Note]
 > 現在のバージョンではAmongUs公式よりバニラサーバーで公開ルームを開くことができません。
@@ -115,6 +109,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 <summary>インポスター役職</summary>
 
 - [エイリアン](https://github.com/KYMario/TownOfHost-K/wiki/エイリアン)
+- - [ハイジャックエイリアン](https://github.com/KYMario/TownOfHost-K/wiki/ハイジャックエイリアン)
 - [ジャンパー](https://github.com/KYMario/TownOfHost-K/wiki/ジャンパー)
 - [イビルギャンブラー](https://github.com/KYMario/TownOfHost-K/wiki/イビルギャンブラー)
 - [イビルアドナー](https://github.com/KYMario/TownOfHost-K/wiki/イビルアドナー)
@@ -137,6 +132,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [リミッター](https://github.com/KYMario/TownOfHost-K/wiki/リミッター)
 - [マジシャン](https://github.com/KYMario/TownOfHost-K/wiki/マジシャン)
 - [カモフラージャー](https://github.com/KYMario/TownOfHost-K/wiki/カモフラージャー)
+- [クイックキラー](https://github.com/KYMario/TownOfHost-K/wiki/クイックキラー)
 - [記憶喪失者](https://github.com/KYMario/TownOfHost-K/wiki/記憶喪失者)
 - [カーサー](https://github.com/KYMario/TownOfHost-K/wiki/カーサー)
 - [プロボーラー](https://github.com/KYMario/TownOfHost-K/wiki/プロボーラー)
@@ -214,6 +210,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [ストルナー](https://github.com/KYMario/TownOfHost-K/wiki/ストルナー)
 - [雪だるま](https://github.com/KYMario/TownOfHost-K/wiki/雪だるま)
 - [ギャスプ](https://github.com/KYMario/TownOfHost-K/wiki/ギャスプ)
+- [ウォーカー](https://github.com/KYMario/TownOfHost-K/wiki/ウォーカー)
 - [シャイボーイ](https://github.com/KYMario/TownOfHost-K/wiki/シャイボーイ)
 - [スタッフ](https://github.com/KYMario/TownOfHost-K/wiki/スタッフ)
 - [アンドロイド](https://github.com/KYMario/TownOfHost-K/wiki/アンドロイド)
@@ -272,6 +269,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 
 - [片思い](https://github.com/KYMario/TownOfHost-K/wiki/片思い)
 - [ラバーズ](https://github.com/KYMario/TownOfHost-K/wiki/ラバーズ)
+- [双子](https://github.com/KYMario/TownOfHost-K/wiki/双子)
 - [天邪鬼](https://github.com/KYMario/TownOfHost-K/wiki/天邪鬼)
 - [ラストインポスター](https://github.com/KYMario/TownOfHost-K/wiki/ラストインポスター)
 - [ラストニュートラル](https://github.com/KYMario/TownOfHost-K/wiki/ラストニュートラル)
@@ -316,6 +314,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [ゴーストボタナー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストボタナー)
 - [ゴーストノイズセンダー](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストノイズセンダー)
 - [ゴーストリセッター](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストリセッター)
+- [ゴーストルーモア](https://github.com/KYMario/TownOfHost-K/wiki/ゴーストルーモア)
 - [守護天使](https://github.com/KYMario/TownOfHost-K/wiki/守護天使)
 
 </details>
@@ -370,6 +369,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 <summary>インポスター役職</summary>
 
 - エイリアン `毎ターン能力が変わる`
+- - ハイジャックエイリアン `エイリアンに能力を植え付けられた`
 - ジャンパー `指定した場所に爆発を起こしながらジャンプする`
 - イビルギャンブラー `確率でキルクールが速くなる`
 - イビルアドナー `属性が付与されている`
@@ -392,6 +392,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - リミッター `力尽きるまでに場をあらせ`
 - マジシャン `なんと...死体が無くなっちゃいました～！`
 - カモフラージャー `全員の姿を同じにして混乱させろ`
+- クイックキラー `大量キルを通せ`
 - 記憶喪失者 `僕はシェリフだよ！ん?`
 - カーサー `呪いを駆使しキルを進めよ`
 - プロボーラー `死体を穴に飛ばそう`
@@ -469,6 +470,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - ストルナー `キルされるとキラーに属性が渡される`
 - 雪だるま `段々視界が狭くなる`
 - ギャスプ `キルされると次会議までキラーにマークがつく`
+- ウォーカー `各部屋を歩け`
 - シャイボーイ `人の近くにいると死亡する`
 - スタッフ `タスクを完了させないと勝利できない`
 - アンドロイド `充電を貯めてベントを使え`
@@ -526,6 +528,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 
 - 片思い `想いを寄せてる人と共にずっと生きろ`
 - ラバーズ `恋人と共に生き残れ`
+- 双子 `2人でこっそり協力せよ`
 - 天邪鬼 `クルーを裏切れ`
 - ラストインポスター `最後の悪あがきをしろ`
 - ラストニュートラル `他の思いを背負って強化されたニュートラル`
@@ -570,6 +573,7 @@ HostModなので部屋主のみModを導入すれば、<br>
 - ゴーストボタナー `緊急会議を発生させろ`
 - ゴーストノイズセンダー `ノイズメーカーの通知を起こせ`
 - ゴーストリセッター `アビリティをリセットせよ`
+- ゴーストルーモア `どいつが残ってるか知らせろ`
 - 守護天使 `キルを防げ`
 
 </details>

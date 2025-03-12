@@ -133,8 +133,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
 
         _ = new LateTask(() =>
         {
-            if (Player.IsAlive())
-                Coin -= TurnRemoveCoin.GetInt();
+            if (Player.IsAlive()) Coin -= TurnRemoveCoin.GetInt();
             else Coin -= DieRemoveTurn.GetInt();
 
             if (AmongUsClient.Instance.AmHost && Player.IsAlive())

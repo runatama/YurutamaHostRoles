@@ -50,6 +50,9 @@ public static class SoundSettingsScreen
         Music.SetValue(DataManager.Settings.Audio.MusicVolume);
         Ambience.SetValue(DataManager.Settings.Audio.AmbienceVolume);
         MapTheme.SetValue(Main.MapTheme.Value);
+
+        optionsMenuBehaviour.MusicSlider.transform.localPosition = new Vector3(100, 100);
+        optionsMenuBehaviour.SoundSlider.transform.localPosition = new Vector3(100, 100);
     }
 
     private static void CreateButton(OptionsMenuBehaviour optionsMenuBehaviour, Buttons buttons, float y)
@@ -80,6 +83,7 @@ public static class SoundSettingsScreen
             }
             SoundManager.instance.OnAudioSettingsChanged();
         }));
+        Slideer.gameObject.name = $"{buttons}-Setting";
         var button = Object.Instantiate(optionsMenuBehaviour.DisableMouseMovement, Slideer.transform);
         button.transform.localPosition = new Vector3(4.5f, 0f, 0f);
         button.transform.localScale -= new Vector3(0.4f, 0.4f);

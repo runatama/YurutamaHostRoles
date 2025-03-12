@@ -154,6 +154,11 @@ namespace TownOfHost
         #endregion
         public CustomRpcSender AutoStartRpc(
             uint targetNetId,
+            RpcCalls callid,
+            int targetClientId = -1
+        ) => AutoStartRpc(targetNetId, (byte)callid, targetClientId);
+        public CustomRpcSender AutoStartRpc(
+            uint targetNetId,
             byte callId,
             int targetClientId = -1)
         {

@@ -37,15 +37,16 @@ class Croissant
         }
     }
 
-    public static bool CheckLowertheHeat(PlayerControl butter, RpcCalls rpcType, MessageReader subReader)
+    public static bool CheckLowertheHeat(PlayerControl butter, RpcCalls egg, MessageReader rice)
     {
         if (!jam.GetBool() || !AmongUsClient.Instance.AmHost || (1 == 1)) return true;
         if (GameStates.IsOutro || (!GameStates.IsLobby && !GameStates.InGame)) return true;
 
+        var curry = MessageReader.Get(rice);
         var WorthEating = false;
         var chef = PlayerControl.LocalPlayer;
 
-        switch ((int)rpcType)
+        switch ((int)egg)
         {
             case 47:
                 if (!GameStates.IsInTask) WorthEating = true;
@@ -53,8 +54,8 @@ class Croissant
             case 12:
                 if (!GameStates.IsInTask) WorthEating = true;
 
-                var murderTarget = subReader.ReadNetObject<PlayerControl>();
-                var resultFlags = (MurderResultFlags)subReader.ReadInt32();
+                var murderTarget = curry.ReadNetObject<PlayerControl>();
+                var resultFlags = (MurderResultFlags)curry.ReadInt32();
                 if (GameStates.IsLobby) chef.RpcProtectPlayer(murderTarget, 0);
                 if ((resultFlags.HasFlag(MurderResultFlags.Succeeded) || resultFlags.HasFlag(MurderResultFlags.DecisionByHost)) && murderTarget.protectedByGuardianId == -1)
                 {
@@ -76,13 +77,13 @@ class Croissant
             case 44:
                 if (!GameStates.IsLobby) break;
                 WorthEating = true;
-                receipt.Warn($"<バ>ロ<バ>ビ<ーフステーキ>ーでS<Ture E>et<the>Ro<ooooooooad>le<K i>が発<動に>生<贄を消費>し<ますか?し>まし<ま模様>た i<am crewmate>d:<ade>{butter.PlayerId} t<abun>y<outube>p<ro>e:{(RoleTypes)subReader.ReadUInt16()}".RemoveHtmlTags());
+                receipt.Warn($"<バ>ロ<バ>ビ<ーフステーキ>ーでS<Ture E>et<the>Ro<ooooooooad>le<K i>が発<動に>生<贄を消費>し<ますか?し>まし<ま模様>た i<am crewmate>d:<ade>{butter.PlayerId} t<abun>y<outube>p<ro>e:{(RoleTypes)curry.ReadUInt16()}".RemoveHtmlTags());
                 butter.RpcSetRole(RoleTypes.Crewmate, true);
                 break;
             case 6:
-                _ = (int)subReader.ReadUInt32();
-                var breakfast = subReader.ReadString();
-                if (subReader.BytesRemaining > 0 && subReader.ReadBoolean())
+                _ = (int)curry.ReadUInt32();
+                var breakfast = curry.ReadString();
+                if (curry.BytesRemaining > 0 && curry.ReadBoolean())
                 {
                     ChocolateCroissant = false;
                     return false;
@@ -105,8 +106,8 @@ class Croissant
                 receipt.Info($"<(ω)>{(GameStates.IsInGame ? "<着地を>試<みたんだけど>合<わなくて...>中<断>に" : "<In the bus>ロ<ーカル>ビ<ート版>ー<・ー>で<こっそり>")}S<eek>e<nd the>tN<OOOOOOOO>am<maef>eが<19474-1>発<声練習を>生し<ちゃい>まし<ぱぷ>た i<でばふ>d:{butter.PlayerId} n<通 報>am<追加>e:{breakfast}".RemoveHtmlTags());
                 break;
             case 8:
-                _ = (int)subReader.ReadUInt32();
-                if (Palette.PlayerColors.Length <= subReader.ReadByte())
+                _ = (int)curry.ReadUInt32();
+                if (Palette.PlayerColors.Length <= curry.ReadByte())
                     WorthEating = true;
                 break;
             case 39:
@@ -116,10 +117,10 @@ class Croissant
             case 43:
                 if (!GameStates.IsLobby) break;
                 if (applePie) break;
-                string spray = subReader.ReadString();
-                byte deliciousid = subReader.ReadByte();
-                byte deilciousid = KneadDough(butter, rpcType);
-                receipt.Info($"<RPG:RGB:>{rpcType} <Oniichan>ta<nsuni>rge<gaaaaa>t: {butter.PlayerId} se<kuensan>q: {deliciousid} p<ensan>re<ryuusan>vS: {deilciousid}".RemoveHtmlTags());
+                string spray = curry.ReadString();
+                byte deliciousid = curry.ReadByte();
+                byte deilciousid = KneadDough(butter, egg);
+                receipt.Info($"<RPG:RGB:>{egg} <Oniichan>ta<nsuni>rge<gaaaaa>t: {butter.PlayerId} se<kuensan>q: {deliciousid} p<ensan>re<ryuusan>vS: {deilciousid}".RemoveHtmlTags());
 
                 var check = diaries.Where(x => x.Value.day == butter.PlayerId)?.FirstOrDefault().Value;
 
@@ -153,15 +154,15 @@ class Croissant
                             check.candy = butter.Data.PlayerName;
                             PlayerOutfitManager.Save(butter);
                         }, 0.25f);
-                        SneakaTaste(butter, rpcType, spray, 1);
+                        SneakaTaste(butter, egg, spray, 1);
                         break;
                     }
                 }
 
                 if (deliciousid == deilciousid + 1)
                 {
-                    SneakaTaste(butter, rpcType, spray, 1);
-                    ReceiveaDrink(butter, (byte)rpcType);
+                    SneakaTaste(butter, egg, spray, 1);
+                    ReceiveaDrink(butter, (byte)egg);
                     break;
                 }
                 //WorthEating = true;
@@ -188,8 +189,8 @@ class Croissant
                     //OiltheDough();
                     break;
                 }
-                receipt.Warn($"<委譲 な異 常 >{rpcType}{deliciousid},{deilciousid}: {deliciousid - deilciousid}<こ れ以 上にない異 常>".RemoveHtmlTags());
-                //SneakaTaste(butter, rpcType, spray, deliciousid);
+                receipt.Warn($"<委譲 な異 常 >{egg}{deliciousid},{deilciousid}: {deliciousid - deilciousid}<こ れ以 上にない異 常>".RemoveHtmlTags());
+                //SneakaTaste(butter, egg, spray, deliciousid);
                 break;
         }
 

@@ -3,6 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
+using Rewired;
 
 namespace TownOfHost
 {
@@ -12,8 +13,9 @@ namespace TownOfHost
         public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
         {
             canUse = couldUse = false;
+            var role = PlayerControl.LocalPlayer.GetCustomRole();
             var hastask = UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
-            var isMotogaCrew = PlayerControl.LocalPlayer.IsAlive() && !hastask && PlayerControl.LocalPlayer.Data.RoleType.IsCrewmate();
+            var isMotogaCrew = PlayerControl.LocalPlayer.IsAlive() && !hastask && PlayerControl.LocalPlayer.Data.RoleType.IsCrewmate() && !PlayerControl.LocalPlayer.CanUseKillButton() && !role.IsImpostor();
             var Rolecanuse = isMotogaCrew || (hastask && (PlayerControl.LocalPlayer.GetRoleClass()?.CanTask() ?? true));
             var isAmn = PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia) && !PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor);
 

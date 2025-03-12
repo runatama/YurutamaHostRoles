@@ -29,6 +29,13 @@ namespace TownOfHost
         public static void OptionsLoadStart()
         {
             Logger.Info("Options.Load Start", "Options");
+            Main.UseYomiage.Value = false;
+#if RELEASE
+            Main.ViewPingDetails.Value = false; 
+            Main.DebugSendAmout.Value = false;
+            Main.ShowDistance.Value = false;
+            Main.DebugChatopen.Value  =false;
+#endif
             taskOptionsLoad = Task.Run(Load);
         }
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
@@ -497,6 +504,7 @@ namespace TownOfHost
         public static OptionItem ChangeNameToRoleInfo;
         public static OptionItem RoleAssigningAlgorithm;
         public static OptionItem sotodererukomando;
+        public static OptionItem UseZoom;
 
         public static OptionItem ApplyDenyNameList;
         public static OptionItem KickPlayerFriendCodeNotExist;
@@ -1226,6 +1234,9 @@ namespace TownOfHost
             sotodererukomando = BooleanOptionItem.Create(1_000_007, "sotodererukomando", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#00c1ff");
+            UseZoom = BooleanOptionItem.Create(1_000_008, "UseZoom", true, TabGroup.MainSettings, false)
+                .SetGameMode(CustomGameMode.All)
+                .SetColorcode("#9199a1");
 
             ApplyDenyNameList = BooleanOptionItem.Create(1_000_100, "ApplyDenyNameList", true, TabGroup.MainSettings, true)
                 .SetHeader(true)
@@ -1364,22 +1375,22 @@ namespace TownOfHost
             /// <param name="tab">タブ</param>
             /// <param name="role">設定に出すロール</param>
             /// <param name="chrole">設定名(ユニット用)</param>
-            public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned)
+            public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
             {
                 this.IdStart = idStart;
                 this.Role = role;
                 var r = chrole == CustomRoles.NotAssigned ? role : chrole;
                 Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
-                doOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab, false).SetParent(CustomRoleSpawnChances[role])
+                doOverride = BooleanOptionItem.Create(idStart++, "doOverride", tasks?.defo ?? false, tab, false).SetParent(CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
                 doOverride.ReplacementDictionary = replacementDic;
-                numCommonTasks = IntegerOptionItem.Create(idStart++, "roleCommonTasksNum", new(0, 99, 1), 3, tab, false).SetParent(doOverride)
+                numCommonTasks = IntegerOptionItem.Create(idStart++, "roleCommonTasksNum", new(0, 99, 1), tasks?.common ?? 3, tab, false).SetParent(doOverride)
                     .SetValueFormat(OptionFormat.Pieces);
                 numCommonTasks.ReplacementDictionary = replacementDic;
-                numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), 3, tab, false).SetParent(doOverride)
+                numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), tasks?.Long ?? 3, tab, false).SetParent(doOverride)
                     .SetValueFormat(OptionFormat.Pieces);
                 numLongTasks.ReplacementDictionary = replacementDic;
-                numShortTasks = IntegerOptionItem.Create(idStart++, "roleShortTasksNum", new(0, 99, 1), 3, tab, false).SetParent(doOverride)
+                numShortTasks = IntegerOptionItem.Create(idStart++, "roleShortTasksNum", new(0, 99, 1), tasks?.Short ?? 3, tab, false).SetParent(doOverride)
                     .SetValueFormat(OptionFormat.Pieces);
                 numShortTasks.ReplacementDictionary = replacementDic;
 
@@ -1388,10 +1399,11 @@ namespace TownOfHost
                 if (!AllData.ContainsKey(role)) AllData.Add(role, this);
                 else Logger.Warn("重複したCustomRolesを対象とするOverrideTasksDataが作成されました", "OverrideTasksData");
             }
+            /*
             public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role)
             {
                 return new OverrideTasksData(idStart, tab, role);
-            }
+            }*/
             /// <summary>
             /// タスクの上書き設定。
             /// </summary>
@@ -1399,9 +1411,9 @@ namespace TownOfHost
             /// <param name="tab">タブ</param>
             /// <param name="role">設定に出すロール</param>
             /// <param name="chrole">設定名(ユニット用)</param>
-            public static OverrideTasksData Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned)
+            public static OverrideTasksData Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
             {
-                return new OverrideTasksData(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename);
+                return new OverrideTasksData(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, tasks);
             }
         }
     }

@@ -62,6 +62,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     {
         foreach (var impostor in PlayerCatch.AllPlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)))
         {
+            if (impostor.Is(CustomRoles.Amnesiac)) continue;
             if (OptionNameColor.GetBool()) NameColorManager.Add(impostor.PlayerId, Player.PlayerId);
             else NameColorManager.Add(impostor.PlayerId, Player.PlayerId, "#ff1919");
         }

@@ -231,8 +231,8 @@ public class MeetingVoteManager
             votes[voteArea.TargetPlayerId] = 0;
             Tie[voteArea.TargetPlayerId] = 0;
         }
-        votes[Skip] = 0;
-        Tie[Skip] = 0;
+        if (!votes.TryAdd(Skip, 0)) votes[Skip] = 0;
+        if (!Tie.TryAdd(Skip, 0)) Tie[Skip] = 0;
         foreach (var vote in AllVotes.Values)
         {
             if (vote.VotedFor == NoVote)
@@ -244,7 +244,11 @@ public class MeetingVoteManager
             /*if (!voter.IsAlive()) continue;//投票者が死亡済み、投票相手がスキップじゃなく、投票先が死んでる...!?なら票数えない
             if (!PlayerCatch.GetPlayerById(vote.VotedFor).IsAlive() && vote.VotedFor is not Skip) continue;*/
 
-            votes[vote.VotedFor] += vote.NumVotes;
+            if (votes.ContainsKey(vote.VotedFor))
+            {
+                votes[vote.VotedFor] += vote.NumVotes;
+            }
+            else votes.TryAdd(vote.VotedFor, vote.NumVotes);
 
             if (vote.NumVotes != 0)
             {
@@ -253,7 +257,13 @@ public class MeetingVoteManager
                 || (voter.Is(CustomRoles.LastNeutral) && LastNeutral.GiveTiebreaker.GetBool())
                 || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var data, voter, subrole: CustomRoles.Tiebreaker) && data.GiveTiebreaker.GetBool())
                 )//タイブレ投票は1固定
-                { Tie[vote.VotedFor] += 1; }
+                {
+                    if (Tie.ContainsKey(vote.VotedFor))
+                    {
+                        Tie[vote.VotedFor] += 1;
+                    }
+                    else Tie.TryAdd(vote.VotedFor, 1);
+                }
             }
         }
 

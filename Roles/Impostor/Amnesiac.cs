@@ -116,7 +116,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
         var (killer, target) = info.AttemptTuple;
         if (!Is(killer)) return;
 
-        if (CantKillImpostor && target.GetCustomRole().IsImpostor())
+        if (CantKillImpostor && (target.GetCustomRole().IsImpostor() || target.GetCustomRole() is CustomRoles.Egoist))
             info.DoKill = false;
         if (omoidaseru && ImpNeedtoKill && !omoidasita)
             Omoidasu();
@@ -139,8 +139,11 @@ public sealed class Amnesiac : RoleBase, IImpostor
         foreach (var pc in PlayerCatch.AllPlayerControls)
         {
             var role = pc.GetCustomRole();
-            if (!role.IsImpostor()) continue;
-            pc.RpcSetRoleDesync(role.GetRoleTypes(), clientId);
+            if (!role.IsImpostor() && role is not CustomRoles.Egoist) continue;
+
+            RoleTypes roleTypes = role.GetRoleTypes();
+            if (!pc.IsAlive()) roleTypes = RoleTypes.ImpostorGhost;
+            pc.RpcSetRoleDesync(roleTypes, clientId);
         }
 
         if (!Utils.RoleSendList.Contains(Player.PlayerId))
@@ -151,7 +154,7 @@ public sealed class Amnesiac : RoleBase, IImpostor
 
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
-        if (seer.GetCustomRole().IsImpostor())
+        if (seer.GetCustomRole().IsImpostor() || seer.Is(CustomRoles.Egoist))
         {
             roleColor = Vanilla.Impostor.RoleInfo.RoleColor;
             roleText = omoidasita ? roleText : GetString("Amnesiac");

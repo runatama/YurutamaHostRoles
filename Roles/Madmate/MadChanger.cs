@@ -70,6 +70,7 @@ public sealed class MadChanger : RoleBase, IKiller, IKillFlashSeeable, IDeathRea
         //死亡 or Null or KillTargetなら自身が対象
         var pc = KillTarget;
         if (pc == null || !pc.IsAlive() || pc == target) pc = Player;
+        if (!target.IsAlive()) target = Player;//ターゲットが死んでるなら
 
         //ここまできたらリセット入れる。
         KillTarget = null;

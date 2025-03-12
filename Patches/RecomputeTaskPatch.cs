@@ -1,4 +1,6 @@
 using HarmonyLib;
+using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost
 {
@@ -24,6 +26,12 @@ namespace TownOfHost
                     {
                         __instance.TotalTasks++;
                         if (task.Complete) __instance.CompletedTasks++;
+                    }
+                    var roleclass = p.Object.GetRoleClass();
+                    if (roleclass is Walker walker)
+                    {
+                        __instance.TotalTasks += Walker.WalkTaskCount.GetInt();
+                        __instance.CompletedTasks += walker.completeroom;
                     }
                 }
             }

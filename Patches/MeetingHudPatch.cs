@@ -11,6 +11,7 @@ using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Neutral;
+using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
@@ -241,6 +242,11 @@ public static class MeetingHudPatch
             {
                 var RoleText = roleClass.MeetingMeg();
                 if (RoleText != "") Send += RoleText + "\n\n";
+            }
+            var Ghostrumortext = GhostRumour.SendMes();
+            if (Ghostrumortext != "")
+            {
+                Send += Ghostrumortext + "\n";
             }
             if (Oniku != "")
             {
@@ -473,6 +479,10 @@ public static class MeetingHudPatch
 
     public static void TryAddAfterMeetingDeathPlayers(CustomDeathReason deathReason, params byte[] playerIds)
     {
+        string log = "";
+        playerIds.Do(id => log += $"({id})");
+        Logger.Info($"{log}を{deathReason}で会議後に処理するぜ!", "TryAddAfterMeetingDeathPlayers");
+
         var AddedIdList = new List<byte>();
         foreach (var playerId in playerIds)
             if (Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason))

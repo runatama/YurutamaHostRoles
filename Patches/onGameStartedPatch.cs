@@ -748,6 +748,18 @@ namespace TownOfHost
             {
                 _ = new LateTask(() =>
                 {
+                    //イントロ中回線落ち用の奴
+                    // ...ホストが廃村してほしいけド...一応...
+                    var send = false;
+                    foreach (var dis in Disconnected)
+                    {
+                        var client = GameData.Instance.AllPlayers.ToArray().Where(data => data.PlayerId == dis).FirstOrDefault();
+                        if (client == null) continue;
+                        client.Disconnected = true;
+                        send = true;
+                    }
+                    if (send) RPC.RpcSyncAllNetworkedPlayer();
+
                     PlayerCatch.AllPlayerControls.Do(Player => PlayerOutfitManager.Save(Player));
                     if (Options.CurrentGameMode == CustomGameMode.Standard)
                         if (GameStates.InGame)

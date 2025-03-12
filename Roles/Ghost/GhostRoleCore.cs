@@ -16,6 +16,7 @@ class GhostRoleCore
         Ghostbuttoner.Init();
         GhostNoiseSender.Init();
         GhostReseter.Init();
+        GhostRumour.Init();
         GuardianAngel.Init();
 
         //アドオンもここ置かせて( ᐛ )
@@ -96,6 +97,7 @@ class GhostRoleCore
         Ghostbuttoner.SetupCustomOption();
         GhostNoiseSender.SetupCustomOption();
         GhostReseter.SetupCustomOption();
+        GhostRumour.SetupCustomOption();
         GuardianAngel.SetupCustomOption();
     }
 }

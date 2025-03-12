@@ -217,7 +217,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
     {
         seen ??= seer;
         if (isForMeeting || seer != seen || !Player.IsAlive() || FoxRoom == null) return "";
-        return $"<color=#d288ee>{string.Format(GetString("FoxRoomMission"), $"<b>{GetString($"{FoxRoom}")}<b>")}</color>";
+        return $"<color=#d288ee>{string.Format(GetString("FoxRoomMission"), $"<color=#cccccc><b>{GetString($"{FoxRoom}")}<b></color>")}</color>";
     }
     public bool FoxCheckWin(ref GameOverReason reason)
     {

@@ -358,17 +358,20 @@ namespace TownOfHost
             }
             if (addons != null && addons?.Length != 0)
             {
-                sb.Append("\n<size=100%>\n").Append(GetString("Addons")).Append("</size>");
-                foreach (CustomRoles Addon in addons)
+                if (addons.Any(add => add.IsEnable()))
                 {
-                    var m = AdditionalWinnerMark;
-                    if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
-                    if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
-                    if (Addon.IsGhostRole()) m = "<color=#8989d9>■</color>";
-                    var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
-                    var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                    if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n" + m + "{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
-                    if (Addon.IsEnable()) P(sb);
+                    sb.Append("\n<size=100%>\n").Append(GetString("Addons")).Append("</size>");
+                    foreach (CustomRoles Addon in addons)
+                    {
+                        var m = AdditionalWinnerMark;
+                        if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
+                        if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
+                        if (Addon.IsGhostRole()) m = "<color=#8989d9>■</color>";
+                        var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
+                        var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
+                        if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n" + m + "{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
+                        if (Addon.IsEnable()) P(sb);
+                    }
                 }
             }
             return sb.ToString();
@@ -744,6 +747,7 @@ namespace TownOfHost
                 CustomRoles.Ghostbuttoner => AddonInfo(role),
                 CustomRoles.GhostNoiseSender => AddonInfo(role),
                 CustomRoles.GhostReseter => AddonInfo(role),
+                CustomRoles.GhostRumour => AddonInfo(role),
                 CustomRoles.GuardianAngel => AddonInfo(role),
                 CustomRoles.DemonicTracker => AddonInfo(role),
                 CustomRoles.DemonicCrusher => AddonInfo(role),

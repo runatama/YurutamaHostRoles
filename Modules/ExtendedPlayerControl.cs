@@ -122,19 +122,38 @@ namespace TownOfHost
 
                 if (roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode)
                 {
+                    var sender = CustomRpcSender.Create("SetCustomRole", SendOption.Reliable);
+                    sender.StartMessage();
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                         {
                             player.StartCoroutine(player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
-                            if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
+                            if (player != pc)
+                            {
+                                sender.AutoStartRpc(pc.NetId, RpcCalls.SetRole, player.GetClientId())
+                                .Write((ushort)RoleTypes.Scientist)
+                                .Write(true)
+                                .EndRpc();
+                            }
                         }
                         else
                         {
-                            player.RpcSetRoleDesync(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate, pc.GetClientId());
-                            if (player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, player.GetClientId());
+                            sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, pc.GetClientId())
+                            .Write((ushort)(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate))
+                            .Write(true)
+                            .EndRpc();
+                            if (player != pc)
+                            {
+                                sender.AutoStartRpc(pc.NetId, RpcCalls.SetRole, player.GetClientId())
+                                .Write((ushort)RoleTypes.Scientist)
+                                .Write(true)
+                                .EndRpc();
+                            }
                         }
                     }
+                    sender.EndMessage();
+                    sender.SendMessage();
                     if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                     {
                         if ((roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
@@ -280,7 +299,7 @@ namespace TownOfHost
             if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
             if (seer == null) seer = player;
 
-            if (!player.SetNameCheck(name, seer)) return;
+            if (!player.SetNameCheck(name, seer, force)) return;
 
             var clientId = seer.GetClientId();
             if (clientId == -1) return;
@@ -375,7 +394,6 @@ namespace TownOfHost
             messageWriter.WriteNetObject(target);
             messageWriter.Write((int)MurderResultFlags.Succeeded);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
-
         }
         public static void RpcSpecificMurderPlayer(this PlayerControl killer, PlayerControl target = null)
         {
@@ -408,9 +426,12 @@ namespace TownOfHost
         public static void RpcResetAbilityCooldownAllPlayer()
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
             UtilsOption.SyncAllSettings();
             _ = new LateTask(() =>
             {
+                var sender = CustomRpcSender.Create("AllplayerresetAbility");
+                sender.StartMessage();
                 foreach (var target in PlayerCatch.AllPlayerControls)
                 {
                     if (PlayerControl.LocalPlayer == target)
@@ -421,12 +442,14 @@ namespace TownOfHost
                     else
                     {
                         //targetがホスト以外だった場合
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
-                        writer.WriteNetObject(target);
-                        writer.Write(0);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.GetClientId())
+                        .WriteNetObject(target)
+                        .Write(0)
+                        .EndRpc();
                     }
                 }
+                sender.EndMessage();
+                sender.SendMessage();
                 Main.CanUseAbility = true;
             }
             , 0.2f, "AllPlayerResetAbilityCoolDown", null);
@@ -437,6 +460,7 @@ namespace TownOfHost
             {
                 return;
             }
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
             if (kousin) target.SyncSettings();
             if (log) Logger.Info($"アビリティクールダウンのリセット:{target?.name ?? "ﾇﾙﾎﾟｯ"}({target?.PlayerId ?? 334})", "RpcResetAbilityCooldown");
 
@@ -540,6 +564,10 @@ namespace TownOfHost
         public static TaskState GetPlayerTaskState(this PlayerControl player)
         {
             return PlayerState.GetByPlayerId(player.PlayerId).GetTaskState();
+        }
+        public static PlayerState GetPlayerState(this PlayerControl player)
+        {
+            return PlayerState.GetByPlayerId(player.PlayerId);
         }
         public static string GetSubRoleName(this PlayerControl player)
         {
@@ -1025,9 +1053,14 @@ namespace TownOfHost
         public static void RpcChColor(this PlayerControl pc, PlayerControl target, byte Color, bool Nomal = false)
         {
             if (GameStates.IsLobby) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetColor, SendOption.None, target.GetClientId());
-            writer.Write(pc.NetId);
-            writer.Write(Color);
+            var sender = CustomRpcSender.Create("DChengeColor");
+            sender.StartMessage(target.GetClientId());
+
+            sender.StartRpc(pc.NetId, RpcCalls.SetColor)
+            .Write(pc.NetId)
+            .Write(Color)
+            .EndRpc();
+
             if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             {
                 pc.SetColor(Color);
@@ -1038,49 +1071,59 @@ namespace TownOfHost
                     pc.SetVisor("", Color);
                     pc.SetPet("", Color);
                 }
+
                 return;
             }
 
             if (Nomal)
             {
-                MessageWriter write = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetHatStr, SendOption.None, target.GetClientId());
-                MessageWriter writ = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetSkinStr, SendOption.None, target.GetClientId());
-                MessageWriter wri = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetVisorStr, SendOption.None, target.GetClientId());
-                MessageWriter wr = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, target.GetClientId());
-                write.Write("");
-                write.Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr));
-                writ.Write("");
-                writ.Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr));
-                wri.Write("");
-                wri.Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr));
-                wr.Write("");
-                wr.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-                AmongUsClient.Instance.FinishRpcImmediately(write);
-                AmongUsClient.Instance.FinishRpcImmediately(writ);
-                AmongUsClient.Instance.FinishRpcImmediately(wri);
-                AmongUsClient.Instance.FinishRpcImmediately(wr);
+                sender.StartRpc(pc.NetId, RpcCalls.SetHatStr)
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+                .EndRpc();
+                sender.StartRpc(pc.NetId, RpcCalls.SetSkinStr)
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+                .EndRpc();
+                sender.StartRpc(pc.NetId, RpcCalls.SetVisorStr)
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+                .EndRpc();
+                sender.StartRpc(pc.NetId, RpcCalls.SetPetStr)
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();
             }
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            sender.EndMessage();
+            sender.SendMessage();
         }
 
         public static void OnlySeeMePet(this PlayerControl pc, string petid)
         {
             //PlayerCatch.AllPlayerControls.Do(p => p.RpcSetPet("")); //ペットを全員視点消して本人視点のみ付けるRPCを送信
             //↑バニラ視点自身の消えるから戻す。
+            var sender = CustomRpcSender.Create("OnlySeeMepet");
+            sender.StartMessage();
             foreach (var ap in PlayerCatch.AllPlayerControls)
             {
                 if (ap.GetClient() == null) continue;
-                MessageWriter kesuwriter = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, ap.GetClientId());
-                kesuwriter.Write("");
-                kesuwriter.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-                AmongUsClient.Instance.FinishRpcImmediately(kesuwriter);
+                sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, ap.GetClientId())
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();
             }
-            if (!pc.IsAlive()) return;
-            if (pc.GetClient() == null) return;
-            MessageWriter modosu = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.None, pc.GetClientId());
-            modosu.Write(petid);
-            modosu.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-            AmongUsClient.Instance.FinishRpcImmediately(modosu);
+            if (!pc.IsAlive() || pc.GetClient() == null)
+            {
+                sender.EndMessage();
+                sender.SendMessage();
+                return;
+            }
+            sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, pc.GetClientId())
+            .Write(petid)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+            .EndRpc();
+            sender.EndMessage();
+            sender.SendMessage();
 
             pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "", pc.Data.DefaultOutfit.ColorId);
         }

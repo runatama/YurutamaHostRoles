@@ -92,16 +92,39 @@ namespace TownOfHost
             {
                 StatisticsButton = CreateButton(
                     "StatisticsButton",
-                    new Vector3(0, -2, -5f),
-                    new(20, 20, 20, byte.MaxValue), new(20, 20, 20, byte.MaxValue),
+                    new Vector3(0, -2.6963f, -5f),
+                    new(255, 242, 104, byte.MaxValue),
+                    new(255, 248, 173, byte.MaxValue),
                     () =>
                     {
+                        var ages = SaveStatistics.ShowText().RemoveSizeTags().Split("\n");
+                        var pejitext = "<size=60%>";
+                        var count = 0;
+                        byte c = 0;
+                        foreach (var text in ages)
+                        {
+                            count++;
+                            pejitext += $"{text}\n";
+                            if (16 <= count)
+                            {
+                                peji.TryAdd(c, pejitext);
+                                c++;
+                                count = 0;
+                                pejitext = "<size=60%>";
+                            }
+                        }
+                        if (pejitext.RemoveHtmlTags() != "")
+                            peji.TryAdd(c, pejitext);
+
                         CredentialsPatch.TohkLogo.gameObject.SetActive(false);
                         __instance.screenTint.enabled = true;
-                        Tokei.text = "Coming Soon...";
                         Tokei.gameObject.SetActive(true);
+                        now = 0;
+                        Tokei.text = peji.TryGetValue(now, out var t) ? t : "???";
+                        TuginoButton.Button.gameObject.SetActive(true);
+                        ModoruButton.Button.gameObject.SetActive(true);
                     },
-                    " "
+                    Translator.GetString("Statistics")
                     );
             }
 
@@ -110,8 +133,8 @@ namespace TownOfHost
                 TuginoButton = CreateButton(
                     "TuginoButton",
                     new(3.1f * w, -2.2f, -6f),
-                    new(26, 150, 107, byte.MaxValue),
-                    new(193, 255, 233, byte.MaxValue),
+                    new(255, 242, 104, byte.MaxValue),
+                    new(255, 248, 173, byte.MaxValue),
                     () =>
                     {
                         now++;
@@ -133,8 +156,8 @@ namespace TownOfHost
                 ModoruButton = CreateButton(
                     "ModoruButton",
                     new(2.5f * w, -2.2f, -6),
-                    new(26, 150, 107, byte.MaxValue),
-                    new(193, 255, 233, byte.MaxValue),
+                    new(255, 242, 104, byte.MaxValue),
+                    new(255, 248, 173, byte.MaxValue),
                     () =>
                     {
                         now--;

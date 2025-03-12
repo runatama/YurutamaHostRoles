@@ -87,6 +87,16 @@ namespace TownOfHost.Roles.Neutral
         {
             opt.SetVision(OptionHasImpostorVision.GetBool() && Team != TeamType.None);
         }
+        void IKiller.OnCheckMurderAsKiller(MurderInfo info)
+        {
+            if (info.AttemptKiller.PlayerId == Player.PlayerId) return;
+
+            // 親分はキル出来ないようにする
+            if (info.AttemptTarget.PlayerId == (Killer?.PlayerId ?? byte.MaxValue))
+            {
+                info.DoKill = false;
+            }
+        }
         public override bool OnCheckMurderAsTarget(MurderInfo info)
         {
             var killer = info.AttemptKiller;
@@ -127,13 +137,13 @@ namespace TownOfHost.Roles.Neutral
                     {
                         if (pc == PlayerControl.LocalPlayer)
                         {
-                            Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
-                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                            Player.StartCoroutine(Player.CoSetRole(Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost, Main.SetRoleOverride));
+                            if (Player != pc) pc.RpcSetRoleDesync(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost, Player.GetClientId());
                         }
                         else
                         {
-                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                            Player.RpcSetRoleDesync(pc == Player ? (Player.IsAlive() ? RoleTypes.Impostor : RoleTypes.ImpostorGhost) : (Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost), pc.GetClientId());
+                            if (Player != pc) pc.RpcSetRoleDesync(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost, Player.GetClientId());
                         }
                     }
                 }
@@ -189,13 +199,13 @@ namespace TownOfHost.Roles.Neutral
                     {
                         if (pc == PlayerControl.LocalPlayer)
                         {
-                            Player.StartCoroutine(Player.CoSetRole(RoleTypes.Crewmate, Main.SetRoleOverride));
-                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                            Player.StartCoroutine(Player.CoSetRole(Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost, Main.SetRoleOverride));
+                            if (Player != pc) pc.RpcSetRoleDesync(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost, Player.GetClientId());
                         }
                         else
                         {
-                            Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Impostor : RoleTypes.Crewmate, pc.GetClientId());
-                            if (Player != pc) pc.RpcSetRoleDesync(RoleTypes.Scientist, Player.GetClientId());
+                            Player.RpcSetRoleDesync(pc == Player ? (Player.IsAlive() ? RoleTypes.Impostor : RoleTypes.ImpostorGhost) : (Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost), pc.GetClientId());
+                            if (Player != pc) pc.RpcSetRoleDesync(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost, Player.GetClientId());
                         }
                     }
                 }
@@ -205,7 +215,7 @@ namespace TownOfHost.Roles.Neutral
                     Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
                     CanKill = true;
                 }, 0.3f, "ResetKillCooldown", true);
-            }, 10f, "Bakecatkillbutton");
+            }, 3f, "Bakecatkillbutton");
         }
         private void RevealNameColors(PlayerControl killer)
         {

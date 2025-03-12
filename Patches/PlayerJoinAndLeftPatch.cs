@@ -72,7 +72,7 @@ namespace TownOfHost
     {
         public static void Prefix(InnerNetClient __instance, DisconnectReasons reason, string stringReason)
         {
-            Logger.Info($"切断(理由:{reason}:{stringReason}, ping:{__instance.Ping},FriendCode:{__instance?.GetClient(__instance.ClientId)?.FriendCode}PUID{__instance?.GetClient(__instance.ClientId)?.ProductUserId})", "Session");
+            Logger.Info($"切断(理由:{reason}:{stringReason}, ping:{__instance.Ping},FriendCode:{__instance?.GetClient(__instance.ClientId)?.FriendCode},PUID{__instance?.GetClient(__instance.ClientId)?.ProductUserId})", "Session");
 
             if (GameStates.IsFreePlay && Main.EditMode)
             {
@@ -86,6 +86,7 @@ namespace TownOfHost
                 LastGameSave.CreateIfNotExists(oti: true);//落ちでも保存
             }
             Main.AssignSameRoles = false;
+            GameSettingMenuClosePatch.Postfix();
             CustomRoleManager.Dispose();
         }
     }

@@ -515,7 +515,7 @@ namespace TownOfHost
                 if (Options.firstturnmeeting)
                 {
                     _ = new LateTask(() =>
-                        ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, GetString("Firstmeetinginfo"), "#23dbc0"), 3f, "", true);
+                        ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, GetString("Firstmeetinginfo"), "#23dbc0"), 0.7f + Main.LagTime, "", true);
                 }
                 else
                 {

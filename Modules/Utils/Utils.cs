@@ -503,7 +503,7 @@ namespace TownOfHost
         public static string RemoveSN(this string str) => Regex.Replace(str, "\n", "");
         public static string Changebr(this string str, bool nokosu) => Regex.Replace(str, "\n", $"{(nokosu ? "<br>\n" : "<br>")}");
         public static string RemoveaAlign(this string str) => Regex.Replace(str, "align", "");
-        public static string RemoveDeltext(this string str, string del) => Regex.Replace(str, del, "");
+        public static string RemoveDeltext(this string str, string del, string set = "") => Regex.Replace(str, del, set);
         public static string RemoveText(this string str, bool Update = false)
         {
             bool musi = false;

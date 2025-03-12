@@ -368,17 +368,19 @@ namespace TownOfHost
                             }
                         }
                     }
-                    //ラバーズ
-                    Lovers.LoversSuicide();
-                    Lovers.RedLoversSuicide();
-                    Lovers.YellowLoversSuicide();
-                    Lovers.BlueLoversSuicide();
-                    Lovers.GreenLoversSuicide();
-                    Lovers.WhiteLoversSuicide();
-                    Lovers.PurpleLoversSuicide();
-                    Lovers.MadonnLoversSuicide();
-                    Lovers.OneLoveSuicide();
-
+                    if (!GameStates.IsMeeting)
+                    {
+                        //ラバーズ
+                        Lovers.LoversSuicide();
+                        Lovers.RedLoversSuicide();
+                        Lovers.YellowLoversSuicide();
+                        Lovers.BlueLoversSuicide();
+                        Lovers.GreenLoversSuicide();
+                        Lovers.WhiteLoversSuicide();
+                        Lovers.PurpleLoversSuicide();
+                        Lovers.MadonnLoversSuicide();
+                        Lovers.OneLoveSuicide();
+                    }
                     //サドンデスモード
                     if (SuddenDeathMode.NowSuddenDeathMode)
                     {

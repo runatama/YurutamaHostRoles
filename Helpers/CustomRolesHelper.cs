@@ -203,6 +203,7 @@ namespace TownOfHost
                         or CustomRoles.Ghostbuttoner
                         or CustomRoles.GhostNoiseSender
                         or CustomRoles.GhostReseter
+                        or CustomRoles.GhostRumour
                         or CustomRoles.DemonicTracker
                         or CustomRoles.DemonicVenter
                         or CustomRoles.DemonicCrusher
@@ -303,6 +304,7 @@ namespace TownOfHost
             {
                 CustomRoles.GM => RoleTypes.GuardianAngel,
                 CustomRoles.Emptiness => RoleTypes.CrewmateGhost,
+                CustomRoles.SKMadmate => Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
 
                 _ => role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate,
             };

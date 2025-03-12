@@ -245,14 +245,13 @@ public sealed class JackalDoll : RoleBase
     }
     public override string GetProgressText(bool comms = false, bool GameLog = false)
     {
-        var text = "";
         if (GameLog) return "";
 
-        if (role.TryGetValue(Player.PlayerId, out var r))
+        if (Oyabun.TryGetValue(Player.PlayerId, out var id))
         {
-            text = GetString($"{r}");
+            return Utils.ColorString(Main.PlayerColors[id], "◎");
         }
-        return text == "" ? "" : $" (<color={RoleInfo.RoleColorCode}>{text}</color>)";
+        return "";
     }
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {

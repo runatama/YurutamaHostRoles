@@ -481,14 +481,14 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive())
                 {
                     if ((optTimeLimitVital > 0 && GameVitalTimer > optTimeLimitVital)
-                    || (optTimeLimitVital > 0 && TurnVitalTimer > optTimeLimitVital))
+                    || (optTurnTimeLimitVital > 0 && TurnVitalTimer > optTurnTimeLimitVital))
                     {
                         __instance.Close();
                     }
                     else
                     {
-                        if (optTimeLimitDevices) GameVitalTimer += Time.fixedDeltaTime;
-                        if (optTurnTimeLimitDevice) TurnVitalTimer += Time.fixedDeltaTime;
+                        if (optTimeLimitDevices) GameVitalTimer += Time.deltaTime;
+                        if (optTurnTimeLimitDevice) TurnVitalTimer += Time.deltaTime;
                     }
                 }
             }
@@ -551,8 +551,8 @@ namespace TownOfHost
                     }
                     else
                     {
-                        if (optTimeLimitDevices) GameLogAndCamTimer += Time.fixedDeltaTime;
-                        if (optTurnTimeLimitDevice) TurnLogAndCamTimer += Time.fixedDeltaTime;
+                        if (optTimeLimitDevices) GameLogAndCamTimer += Time.deltaTime;
+                        if (optTurnTimeLimitDevice) TurnLogAndCamTimer += Time.deltaTime;
                     }
                 }
             }
@@ -576,14 +576,14 @@ namespace TownOfHost
                 if (PlayerControl.LocalPlayer.IsAlive() && MapBehaviour.Instance && __instance)
                 {
                     if ((optTimeLimitAdmin > 0 && GameAdminTimer > optTimeLimitAdmin)
-                    || (optTimeLimitAdmin > 0 && TurnAdminTimer > optTimeLimitAdmin))
+                    || (optTurnTimeLimitAdmin > 0 && TurnAdminTimer > optTurnTimeLimitAdmin))
                     {
                         MapBehaviour.Instance.Close();
                     }
                     else
                     {
-                        if (optTimeLimitDevices) GameAdminTimer += Time.fixedDeltaTime;
-                        if (optTurnTimeLimitDevice) TurnAdminTimer += Time.fixedDeltaTime;
+                        if (optTimeLimitDevices) GameAdminTimer += Time.deltaTime;
+                        if (optTurnTimeLimitDevice) TurnAdminTimer += Time.deltaTime;
                     }
                 }
             }

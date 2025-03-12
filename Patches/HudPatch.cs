@@ -81,6 +81,15 @@ namespace TownOfHost
                 GameSettings.transform.localPosition = new(-3.325f * GameSettingMenuStartPatch.w, 2.78f);
                 GameSettings.fontSizeMin =
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
+
+                var b = GameStates.IsLobby && !GameStates.IsCountDown && !GameStates.InGame && (GameSettingMenuStartPatch.ModSettingsButton?.selected ?? false) && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned;
+                GameObject.Find("Main Camera/Hud/TaskDisplay")?.SetActive(b);
+                GameObject.Find("Main Camera/Hud/TaskDisplay")?.transform.SetLocalZ(b ? -500 : 5);
+
+                if (b)
+                {
+                    __instance.TaskPanel.SetTaskText("");
+                }
             }
             if (GameSettings)
                 GameSettings.gameObject.SetActive(GameStates.IsLobby && Main.ShowGameSettingsTMP.Value);
@@ -586,7 +595,40 @@ namespace TownOfHost
         // タスク表示の文章が更新・適用された後に実行される
         public static void Postfix(TaskPanelBehaviour __instance)
         {
+            if (GameStates.IsLobby && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned)
+            {
+                var text = "";
+                var desc = "";
+                var inforole = GameSettingMenuStartPatch.NowRoleTab;
+                var inforoleinfo = inforole.GetRoleInfo();
+
+                text = $"<size=150%><color={UtilsRoleText.GetRoleColorCode(inforole)}>{UtilsRoleText.GetRoleName(inforole)}</color>\n</size>";
+
+                if (inforoleinfo?.Desc is not null)
+                {
+                    text += $"<size=100%>{GetString($"{inforole}Info")}" + "\n\n</size>";
+                    desc += $"<size=70%>{inforoleinfo?.Desc()}";
+                }
+                else
+                if (inforole.IsVanilla() && inforole is not CustomRoles.GuardianAngel)
+                {
+                    text += $"<size=100%>{inforoleinfo.Description.Blurb}" + "\n\n</size>";
+                    desc += $"<size=70%>{inforoleinfo.Description.Description}";
+                }
+                else
+                {
+                    text += "<size=100%>" + GetString($"{inforole}Info") + "\n\n</size>";
+                    desc += "<size=70%>" + GetString($"{inforole}InfoLong");
+                }
+                desc = desc.RemoveDeltext("、", "、\n");
+                desc = desc.RemoveDeltext("。", "。\n");
+
+                __instance.taskText.text = $"{text}{desc}";
+                __instance.background.color = new Color32(20, 20, 20, 220);
+                return;
+            }
             if (!GameStates.IsModHost || GameStates.IsLobby) return;
+            __instance.background.color = new Color(0.5188679f, 0.5188679f, 0.5188679f, 0.5176471f);
             PlayerControl player = PlayerControl.LocalPlayer;
             var role = player.GetCustomRole();
             var roleClass = player.GetRoleClass();

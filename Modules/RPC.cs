@@ -164,14 +164,11 @@ namespace TownOfHost
                     Logger.Info($"{timer - 0.5f}", "settimer");
                     break;
                 case CustomRPC.SyncYomiage:
-                    if (Main.SyncYomiage.Value)
-                    {
-                        Yomiage.YomiageS.Clear();
-                        int yomi = reader.ReadInt32();
-                        //foreach (PlayerControl pc in PlayerCatch.AllPlayerControls)
-                        for (int i = 0; i < yomi; i++)
-                            Yomiage.YomiageS[reader.ReadInt32()] = reader.ReadString();
-                    }
+                    Yomiage.YomiageS.Clear();
+                    int yomi = reader.ReadInt32();
+                    //foreach (PlayerControl pc in PlayerCatch.AllPlayerControls)
+                    for (int i = 0; i < yomi; i++)
+                        Yomiage.YomiageS[reader.ReadInt32()] = reader.ReadString();
                     break;
                 case CustomRPC.DevExplosion:
                     if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, reader.ReadString()))
@@ -386,7 +383,7 @@ namespace TownOfHost
         //参考元→SuperNewRoles様
         public static void RpcSyncAllNetworkedPlayer(int TargetClientId = -1)
         {
-            MessageWriter writer = MessageWriter.Get(SendOption.None);
+            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
             if (TargetClientId < 0)
             {
                 writer.StartMessage(5);

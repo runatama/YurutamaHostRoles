@@ -16,8 +16,6 @@ namespace TownOfHost
         private static ClientActionItem ForceEnd;
         private static ClientActionItem WebHookD;
         private static ClientActionItem Yomiage;
-        private static ClientActionItem UseZoom;
-        private static ClientActionItem SyncYomiage;
         private static ClientActionItem CustomName;
         private static ClientActionItem CustomSprite;
         private static ClientActionItem HideSomeFriendCodes;
@@ -43,10 +41,6 @@ namespace TownOfHost
             {
                 JapaneseRoleName = ClientOptionItem.Create("JapaneseRoleName", Main.JapaneseRoleName, __instance);
             }
-            if (UnloadMod == null || UnloadMod.ToggleButton == null)
-            {
-                UnloadMod = ClientActionItem.Create("UnloadMod", ModUnloaderScreen.Show, __instance);
-            }
             if (DumpLog == null || DumpLog.ToggleButton == null)
             {
                 DumpLog = ClientActionItem.Create("DumpLog", UtilsOutputLog.DumpLog, __instance);
@@ -54,6 +48,10 @@ namespace TownOfHost
             if (OpenLogFolder == null || OpenLogFolder.ToggleButton == null)
             {
                 OpenLogFolder = ClientActionItem.Create("OpenLogFolder", UtilsOutputLog.OpenLogFolder, __instance);
+            }
+            if (UnloadMod == null || UnloadMod.ToggleButton == null)
+            {
+                UnloadMod = ClientActionItem.Create("UnloadMod", ModUnloaderScreen.Show, __instance);
             }
             if ((ForceEnd == null || ForceEnd.ToggleButton == null) && AmongUsClient.Instance.AmHost)
             {
@@ -66,18 +64,6 @@ namespace TownOfHost
             if (Yomiage == null || Yomiage.ToggleButton == null)
             {
                 Yomiage = ClientOptionItem.Create("UseYomiage", Main.UseYomiage, __instance);
-            }
-            if (UseZoom == null || UseZoom.ToggleButton == null)
-            {
-                UseZoom = ClientOptionItem.Create("UseZoom", Main.UseZoom, __instance);
-            }
-            if (SyncYomiage == null || SyncYomiage.ToggleButton == null)
-            {
-                SyncYomiage = ClientOptionItem.Create("SyncYomiage", Main.SyncYomiage, __instance);
-            }
-            if ((CustomName == null || CustomName.ToggleButton == null) && Event.IsEventDay)
-            {
-                CustomName = ClientOptionItem.Create("CustomName", Main.CustomName, __instance);
             }
             if (CustomSprite == null || CustomSprite.ToggleButton == null)
             {
@@ -109,6 +95,10 @@ namespace TownOfHost
                 ShowDistance = ClientOptionItem.Create("ShowDistance", Main.ShowDistance, __instance);
             }
 #endif
+            if ((CustomName == null || CustomName.ToggleButton == null) && Event.IsEventDay)
+            {
+                CustomName = ClientOptionItem.Create("CustomName", Main.CustomName, __instance);
+            }
             if (ModUnloaderScreen.Popup == null)
             {
                 ModUnloaderScreen.Init(__instance);
@@ -120,8 +110,8 @@ namespace TownOfHost
             if (soundSettingsButton.IsDestroyedOrNull())
             {
                 soundSettingsButton = Object.Instantiate(__instance.DisableMouseMovement, __instance.transform.FindChild("GeneralTab/MiscGroup"));
-                soundSettingsButton.transform.localPosition = new(1.9546f, 1.5297f, __instance.DisableMouseMovement.transform.localPosition.z);//左側:-1.3127f,1.5588f
-                soundSettingsButton.transform.localScale = new(0.5f, 0.5f);
+                soundSettingsButton.transform.localPosition = new(0, 1.27f, __instance.DisableMouseMovement.transform.localPosition.z);//左側:-1.3127f,1.5588f
+                soundSettingsButton.transform.localScale = new(0.7f, 0.7f);
                 soundSettingsButton.name = "SoundStgButton";
                 soundSettingsButton.Text.text = "サウンド設定";
                 soundSettingsButton.Background.color = Palette.DisabledGrey;

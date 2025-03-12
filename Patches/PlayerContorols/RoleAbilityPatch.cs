@@ -130,13 +130,7 @@ namespace TownOfHost
                         targetm.RpcProtectedMurderPlayer(shapeshifter);
                         targetm.RpcProtectedMurderPlayer(targetm);
 
-                        foreach (var pl in PlayerCatch.AllPlayerControls)
-                        {
-                            if (pl == PlayerControl.LocalPlayer)
-                                targetm.StartCoroutine(targetm.CoSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
-                            else
-                                targetm.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
-                        }
+                        target.RpcSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate);
                         NameColorManager.Add(targetm.PlayerId, shapeshifter.PlayerId, "#ff1919");
                         if (!Utils.RoleSendList.Contains(targetm.PlayerId)) Utils.RoleSendList.Add(targetm.PlayerId);
                         PlayerState.GetByPlayerId(targetm.PlayerId).SetCountType(CountTypes.Crew);
@@ -470,6 +464,7 @@ namespace TownOfHost
                 Ghostbuttoner.UseAbility(__instance);
                 GhostNoiseSender.UseAbility(__instance, target);
                 GhostReseter.UseAbility(__instance, target);
+                GhostRumour.UseAbility(__instance, target);
                 GuardianAngel.UseAbility(__instance, target);
                 DemonicTracker.UseAbility(__instance, target);
                 DemonicCrusher.UseAbility(__instance);

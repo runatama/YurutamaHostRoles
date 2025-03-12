@@ -51,7 +51,8 @@ namespace TownOfHost
         public void Update()
         {
             AllErrors.ForEach(err => err.IncreaseTimer());
-            var ToRemove = AllErrors.Where(err => err.ErrorLevel <= 1 && 30f < err.Timer);
+            var ToRemove = AllErrors.Where(err => (err.Code is ErrorCode.OnPlayerLeftPostfixFailedInGame or ErrorCode.OnPlayerLeftPostfixFailedInLobby ||
+                                                    err.ErrorLevel <= 1) && 10f < err.Timer);
             if (ToRemove.Any())
             {
                 AllErrors.RemoveAll(err => ToRemove.Contains(err));

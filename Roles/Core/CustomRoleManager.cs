@@ -520,6 +520,7 @@ public static class CustomRoleManager
                 case CustomRoles.Ghostbuttoner: Ghostbuttoner.Add(pc.PlayerId); break;
                 case CustomRoles.GhostNoiseSender: GhostNoiseSender.Add(pc.PlayerId); break;
                 case CustomRoles.GhostReseter: GhostReseter.Add(pc.PlayerId); break;
+                case CustomRoles.GhostRumour: GhostRumour.Add(pc.PlayerId); break;
                 case CustomRoles.GuardianAngel: GuardianAngel.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicTracker: DemonicTracker.Add(pc.PlayerId); break;
                 case CustomRoles.DemonicVenter: DemonicVenter.Add(pc.PlayerId); break;
@@ -753,6 +754,7 @@ public enum CustomRoles
     ProBowler,
     EvilMaker,
     Eraser,
+    QuickKiller,
     //DEBUG only Impostor
     //Madmate
     MadGuardian,
@@ -820,6 +822,7 @@ public enum CustomRoles
     Stolener,
     VentOpener,
     VentHunter,
+    Walker,
     //DEBUG only Crewmate
     Satellite,
     //Neutral
@@ -875,7 +878,7 @@ public enum CustomRoles
     //第三属性
     Lovers, RedLovers, YellowLovers, BlueLovers, GreenLovers, WhiteLovers, PurpleLovers,
     MadonnaLovers, OneLove, Amanojaku,
-
+    AddMadmate,
     //バフ
     Guesser,
     Serial,
@@ -918,6 +921,7 @@ public enum CustomRoles
     GhostNoiseSender,
     GhostReseter,
     GuardianAngel,
+    GhostRumour,
     //NeutralGhost
     AsistingAngel,
 }

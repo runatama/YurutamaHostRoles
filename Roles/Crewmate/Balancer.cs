@@ -8,7 +8,6 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
 using static TownOfHost.Modules.MeetingTimeManager;
-using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Balancer : RoleBase
@@ -183,7 +182,7 @@ public sealed class Balancer : RoleBase
                 target2 = Target2;
 
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
-                MeetingVoteManager.Instance.ClearAndEndMeeting();
+                Modules.MeetingVoteManager.Instance.ClearAndEndMeeting();
                 MeetingHud.Instance.RpcClose();
                 GameStates.Tuihou = true;
             }

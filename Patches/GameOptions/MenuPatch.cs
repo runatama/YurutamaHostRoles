@@ -40,6 +40,9 @@ namespace TownOfHost
             crOptions = null;
             roleopts = new();
             rolebutton = new();
+            roleInfobutton = new();
+            ModoruTabu = (TabGroup.MainSettings, 0);
+            timer = -100;
         }
     }
 
@@ -66,11 +69,21 @@ namespace TownOfHost
         public static Dictionary<CustomRoles, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> crOptions = new();
         public static List<OptionItem> roleopts = new();
         public static Dictionary<CustomRoles, PassiveButton> rolebutton = new();
+        public static Dictionary<CustomRoles, PassiveButton> roleInfobutton = new();
+        public static (TabGroup, float) ModoruTabu;
+        public static float timer;
         public static void Postfix(GameSettingMenu __instance)
         {
+            timer = -100;
+            ModoruTabu = (TabGroup.MainSettings, 0);
             roleopts = new();
             rolebutton = new();
+            roleInfobutton = new();
             NowRoleTab = CustomRoles.NotAssigned;
+            if (HudManager.Instance.TaskPanel.open)
+            {
+                HudManager.Instance.TaskPanel.ToggleOpen();
+            }
             ActiveOnlyMode = false;
             var GamePresetButton = __instance.GamePresetsButton;
             var GameSettingsButton = __instance.GameSettingsButton;
@@ -80,6 +93,7 @@ namespace TownOfHost
             activeonly = Object.Instantiate(GamePresetButton, __instance.RoleSettingsTab.transform.parent);
 
             activeonly.buttonText.text = "有効なMap設定/役職のみ表示する <size=5>(OFF)</size>";
+            activeonly.gameObject.name = "ActiveOnly";
 
             activeonly.inactiveSprites.GetComponent<SpriteRenderer>().color =
             activeonly.activeSprites.GetComponent<SpriteRenderer>().color =
@@ -89,6 +103,7 @@ namespace TownOfHost
             GamePresetButton.gameObject.SetActive(false);
             RoleSettingsButton.gameObject.SetActive(false);
 
+            ModSettingsButton.gameObject.name = "TownOfHostSetting";
             ModSettingsButton.buttonText.text = "TownOfHost-Kの設定";
             var activeSprite = ModSettingsButton.activeSprites.GetComponent<SpriteRenderer>();
             var selectedSprite = ModSettingsButton.selectedSprites.GetComponent<SpriteRenderer>();
@@ -315,17 +330,40 @@ namespace TownOfHost
                             button.inactiveSprites.GetComponent<SpriteRenderer>().sprite =
                             button.selectedSprites.GetComponent<SpriteRenderer>().sprite = null;
 
-                            button.activeSprites.GetComponent<SpriteRenderer>().color = UtilsRoleText.GetRoleColor(option.CustomRole).ShadeColor(-0.2f).SetAlpha(0.25f);
-
                             button.OnClick = new();
                             button.buttonText.DestroyTranslator();
                             button.buttonText.text = " ";
-                            button.transform.localPosition = new Vector3(-2.06f, 0.0446f, -2);
-                            button.transform.localScale = new Vector3(1.64f, 1.14f, 1f);
+                            button.gameObject.name = $"{option.Name}OptionButton";
+                            button.transform.localPosition = new Vector3(-2.06f * w, 0.0446f, -2);
+                            button.transform.localScale = new Vector3(1.64f * w, 1.14f * h, 1f);
+                            button.activeSprites.GetComponent<SpriteRenderer>().sprite = LabelBackgroundSprite;
+                            button.activeSprites.GetComponent<SpriteRenderer>().color = UtilsRoleText.GetRoleColor(option.CustomRole).ShadeColor(0.2f).SetAlpha(0.35f);
+
                             button.OnClick.AddListener((Action)(() =>
                             {
+                                if (NowRoleTab is not CustomRoles.NotAssigned)
+                                {
+                                    var atabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
+                                    CategoryHeaderEditRole[] stabsubtitle = atabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
+                                    atabtitle.Title.DestroyTranslator();
+                                    atabtitle.Title.text = GetString("TabGroup." + ModoruTabu.Item1);
+
+                                    atabtitle.Background.color = ModColors.Gray;
+                                    atabtitle.Title.color = Color.white;
+                                    NowRoleTab = CustomRoles.NotAssigned;
+                                    menus[ModoruTabu.Item1].SetActive(true);
+                                    foreach (var sub in stabsubtitle)
+                                    {
+                                        Object.Destroy(sub.gameObject);
+                                    }
+                                    ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                                    ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                                    ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, ModoruTabu.Item2, ModSettingsTab.scrollBar.Inner.localPosition.z);
+                                    return;
+                                }
                                 button.selected = false;
                                 NowRoleTab = option.CustomRole;
+                                ModoruTabu = (option.Tab, ModSettingsTab.scrollBar.Inner.localPosition.y);
 
                                 menus[option.Tab].SetActive(false);
                                 crmenus[option.CustomRole].SetActive(true);
@@ -367,6 +405,23 @@ namespace TownOfHost
                                 }
                             }));
                             rolebutton.Add(option.CustomRole, button);
+
+                            {
+                                var infobutton = Object.Instantiate(stringOption.MinusBtn, stringOption.transform);
+                                {
+                                    infobutton.gameObject.name = $"{option.Name}-InfoButton";
+                                    infobutton.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "?";
+                                    infobutton.OnClick = new();
+                                    infobutton.OnClick.AddListener((Action)(() =>
+                                    {
+                                        HudManager.Instance.TaskPanel.ToggleOpen();
+                                    }));
+                                    infobutton.gameObject.transform.SetLocalX(0);
+                                    infobutton.gameObject.transform.SetLocalZ(-50);
+
+                                    roleInfobutton.Add(option.CustomRole, infobutton);
+                                }
+                            }
                         }
                         var transform = stringOption.ValueText.transform;
                         var pos = transform.localPosition;
@@ -556,20 +611,19 @@ namespace TownOfHost
                     case 6: Main.Preset7.Value = GetString("Preset_7"); break;
                 }
                 GameSettingMenuChangeTabPatch.meg = GetString("OptionResetMeg");
-                reset();
+                timer = 3;
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.RESET-STG.png", 150f));
             CreateButton("OptionCopy", Color.green, new Vector2(7.89f, 0), new Action(() =>
             {
                 OptionSerializer.SaveToClipboard();
                 GameSettingMenuChangeTabPatch.meg = GetString("OptionCopyMeg");
-                reset();
+                timer = 3;
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.COPY-STG.png", 180f), true);
             CreateButton("OptionLoad", Color.green, new Vector2(7.28f, 0), new Action(() =>
             {
                 OptionSerializer.LoadFromClipboard();
                 GameSettingMenuChangeTabPatch.meg = GetString("OptionLoadMeg");
-                reset();
-
+                timer = 3;
             }), UtilsSprite.LoadSprite("TownOfHost.Resources.LOAD-STG.png", 180f));
 
             void CreateButton(string text, Color color, Vector2 position, Action action, Sprite sprite = null, bool csize = false)
@@ -593,32 +647,6 @@ namespace TownOfHost
                 textTMP.fontSize = 10f;
                 ToggleButton.OnClick = new();
                 ToggleButton.OnClick.AddListener(action);
-            }
-            static void reset()
-            {
-                _ = new LateTask(() =>
-                {
-                    var rand = IRandom.Instance;
-                    int rect = IRandom.Instance.Next(1, 101);
-                    if (rect < 40)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo0");
-                    else if (rect < 50)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo10");
-                    else if (rect < 60)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo1");
-                    else if (rect < 70)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo2");
-                    else if (rect < 80)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo3");
-                    else if (rect < 90)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo4");
-                    else if (rect < 95)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo5");
-                    else if (rect < 99)
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo6");
-                    else
-                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo7");
-                }, 3, "SetModSettingInfo", true);
             }
         }
     }

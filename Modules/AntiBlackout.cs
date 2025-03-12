@@ -126,15 +126,24 @@ namespace TownOfHost
                     ImpostorId = impostortarget == null ?
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
                 }
-                foreach (var target in PlayerCatch.AllPlayerControls)
+                foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
-                    if (target == null) continue;
-                    foreach (var seer in PlayerCatch.AllPlayerControls)
+                    //clientがnull or ホスト視点のお話なら無し
+                    if (seer?.GetClient() == null) continue;
+                    if (seer?.PlayerId == PlayerControl.LocalPlayer?.PlayerId) continue;
+
+                    var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
+                    sender.StartMessage(seer.GetClientId());
+                    foreach (var target in PlayerCatch.AllPlayerControls)
                     {
-                        if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                        target.RpcSetRoleDesync(target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate, seer.GetClientId());
-                        //Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName} ({(target.PlayerId == ImpostorId ? "Impostor" : "Crewmate")})", "AntiSetRole");
+                        RoleTypes setrole = target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                        sender.StartRpc(target.NetId, RpcCalls.SetRole)
+                        .Write((ushort)setrole)
+                        .Write(true)
+                        .EndRpc();
                     }
+                    sender.EndMessage();
+                    sender.SendMessage();
                 }
 
             }
