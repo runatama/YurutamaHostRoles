@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 using HarmonyLib;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -15,6 +16,11 @@ namespace TownOfHost
             instance.SkinId = skinId;
             instance.VisorId = visorId;
             instance.PetId = petId;
+            /*
+            instance.HatId = HatManager._instance.allHats.Any(x => x.ProductId == hatId) ? hatId : "hat_NoHat";
+            instance.SkinId = HatManager._instance.allSkins.Any(x => x.ProductId == skinId) ? skinId : "skin_None";
+            instance.VisorId = HatManager._instance.allVisors.Any(x => x.ProductId == visorId) ? visorId : "visor_EmptyVisor";
+            instance.PetId = HatManager._instance.allPets.Any(x => x.ProductId == petId) ? petId : "pet_EmptyPet";*/
             return instance;
         }
         public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)

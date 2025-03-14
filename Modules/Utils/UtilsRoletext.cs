@@ -17,6 +17,7 @@ using static TownOfHost.Translator;
 using static TownOfHost.Utils;
 using static TownOfHost.PlayerCatch;
 using static TownOfHost.UtilsTask;
+using TownOfHost.Roles.Core.Descriptions;
 namespace TownOfHost
 {
     public static class UtilsRoleText
@@ -610,6 +611,49 @@ namespace TownOfHost
             }
 
             return string.Format(GetString("fortuihou"), playername);
+        }
+        public static string GetWikitext(CustomRoles role)
+        {
+            if (role < CustomRoles.NotAssigned)
+            {
+                /* 基本Infoあるんだろ！ここでなにしてもﾑﾀﾞﾑﾀﾞﾑﾀﾞﾑﾀﾞｧ!! */
+                return "";
+            }
+            else
+            {
+                var builder = new StringBuilder(256);
+                //役職とイントロ
+                builder.Append("# ").Append(Translator.GetRoleString(role.ToString()));
+
+                if (role.IsGhostRole())
+                {
+                    builder.Append($"\n陣営　　：\n");
+                    builder.Append($"判定　　：守護天使<br>\n");
+                }
+                else
+                {
+                    builder.Append($"\n区別：<br>\n");
+                }
+                builder.Append($"\n\n\n");
+                builder.Append($"\n## 役職概要\n{GetString($"{role}InfoLong")}<br>\n");
+                builder.Append($"\n## 能力\n ()<br>\n◎→ワンクリ\n△→キル\n★→常時発動\n◇→ベント\n※→自投票\n▽→タスク\n▶→その他のアビリティ\n");
+
+                //設定
+                var sb = new StringBuilder();
+                if (Options.CustomRoleSpawnChances.TryGetValue(role, out var op))
+                    RoleDescription.wikiOption(op, ref sb);
+
+                if (sb.ToString().RemoveHtmlTags() is not null and not "")
+                {
+                    builder.Append($"\n## 設定\n").Append("|設定名|(設定値 / デフォルト値)|説明|\n").Append("|-----|----------------------|----|\n");
+                    builder.Append($"{sb.ToString().RemoveHtmlTags()}\n");
+                }
+
+                builder.Append($"\n## 補足説明/仕様\n");
+                builder.Append($"\n## 勝利条件\n");
+
+                return builder.ToString().RemoveColorTags();
+            }
         }
     }
 }

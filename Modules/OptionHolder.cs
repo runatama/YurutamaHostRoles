@@ -1260,7 +1260,8 @@ namespace TownOfHost
             jam = BooleanOptionItem.Create(1_000_112, "AntiCheat", true, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All)
                 .SetColor(Color.gray)
-                .SetInfo("...今は動かないよ...ごめんネ");
+                .SetInfo("...今は動かないよ...ごめんネ")
+                .SetHidden(true);
 
             DebugModeManager.SetupCustomOption();
 

@@ -22,6 +22,7 @@ using static TownOfHost.UtilsShowOption;
 using static TownOfHost.UtilsRoleText;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
+using TownOfHost.Roles.Core.Descriptions;
 
 namespace TownOfHost
 {
@@ -987,7 +988,14 @@ namespace TownOfHost
                                 if (role.GetRoleInfo()?.Description?.WikiText is not null and not "")
                                 {
                                     ClipboardHelper.PutClipboardString(role.GetRoleInfo().Description.WikiText);
-                                    SendMessage($"{role}の設定コピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
+                                    SendMessage($"{role}のwikiコピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
+                                    GetRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId);
+                                }
+                                else
+                                {
+                                    string str = GetWikitext(role);
+                                    ClipboardHelper.PutClipboardString(str);
+                                    SendMessage($"{role}のwikiコピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
                                     GetRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId);
                                 }
                             }
@@ -1003,6 +1011,23 @@ namespace TownOfHost
                                 if (role.GetRoleInfo()?.Description?.WikiOpt is not null and not "")
                                 {
                                     ClipboardHelper.PutClipboardString(role.GetRoleInfo().Description.WikiOpt);
+                                    SendMessage($"{role}の設定コピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
+                                    GetRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId);
+                                }
+                                else
+                                {
+                                    var builder = new StringBuilder(256);
+                                    var sb = new StringBuilder();
+                                    if (Options.CustomRoleSpawnChances.TryGetValue(role, out var op))
+                                        RoleDescription.wikiOption(op, ref sb);
+
+                                    if (sb.ToString().RemoveHtmlTags() is not null and not "")
+                                    {
+                                        builder.Append($"\n## 設定\n").Append("|設定名|(設定値 / デフォルト値)|説明|\n").Append("|-----|----------------------|----|\n");
+                                        builder.Append($"{sb.ToString().RemoveHtmlTags()}\n");
+                                    }
+
+                                    ClipboardHelper.PutClipboardString(builder.ToString());
                                     SendMessage($"{role}の設定コピーしたよっ", PlayerControl.LocalPlayer.PlayerId);
                                     GetRolesInfo(subArgs, PlayerControl.LocalPlayer.PlayerId);
                                 }

@@ -132,7 +132,7 @@ namespace TownOfHost
                             if (player != pc)
                             {
                                 sender.AutoStartRpc(pc.NetId, RpcCalls.SetRole, player.GetClientId())
-                                .Write((ushort)RoleTypes.Scientist)
+                                .Write((ushort)(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost))
                                 .Write(true)
                                 .EndRpc();
                             }
@@ -140,13 +140,13 @@ namespace TownOfHost
                         else
                         {
                             sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, pc.GetClientId())
-                            .Write((ushort)(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate))
+                            .Write((ushort)(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : (RoleTypes.Crewmate)))
                             .Write(true)
                             .EndRpc();
                             if (player != pc)
                             {
                                 sender.AutoStartRpc(pc.NetId, RpcCalls.SetRole, player.GetClientId())
-                                .Write((ushort)RoleTypes.Scientist)
+                                .Write((ushort)(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost))
                                 .Write(true)
                                 .EndRpc();
                             }

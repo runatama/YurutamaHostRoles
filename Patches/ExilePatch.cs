@@ -145,7 +145,6 @@ namespace TownOfHost
                                         role = pc.Is(CustomRoleTypes.Impostor) ? RoleTypes.Impostor : RoleTypes.Crewmate;
                                     }
                                 }
-
                                 var setrole = (IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role;
 
                                 sender.StartRpc(pc.NetId, RpcCalls.SetRole)
@@ -155,6 +154,7 @@ namespace TownOfHost
                             }
                             sender.EndMessage();
                             sender.SendMessage();
+                            Player.Revive();
                         }
 
                         if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) Player.RpcExileV2();
@@ -190,7 +190,7 @@ namespace TownOfHost
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 0.5f, "", true);
+                }, 0.7f, "", true);
 
                 /*if (Options.BlackOutwokesitobasu.GetBool())
                 {

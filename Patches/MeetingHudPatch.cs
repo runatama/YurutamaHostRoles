@@ -85,6 +85,8 @@ public static class MeetingHudPatch
             MeetingStates.Sending = true;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             PlayerCatch.OldAlivePlayerControles.Clear();
+            var Sender = CustomRpcSender.Create("MeetingSet", Hazel.SendOption.Reliable);
+            Sender.StartMessage();
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
@@ -92,11 +94,25 @@ public static class MeetingHudPatch
                 if (!pc.IsAlive())
                 {
                     if (AntiBlackout.OverrideExiledPlayer()) continue;
-                    pc.RpcExileV2();
-                    pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride);
+                    Sender.StartRpc(pc.NetId, RpcCalls.Exiled)
+                    .EndRpc();
+                    Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                    .Write((ushort)RoleTypes.CrewmateGhost)
+                    .Write(true)
+                    .EndRpc();
                 }//  会議時に生きてたぜリスト追加
-                else PlayerCatch.OldAlivePlayerControles.Add(pc);
+                else
+                {
+                    if (AntiBlackout.OverrideExiledPlayer()) continue;
+                    Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                    .Write((ushort)RoleTypes.Crewmate)
+                    .Write(true)
+                    .EndRpc();
+                    PlayerCatch.OldAlivePlayerControles.Add(pc);
+                }
             }
+            Sender.EndMessage();
+            Sender.SendMessage();
             ReportDeadBodyPatch.DontReport.Clear();
             MeetingStates.MeetingCalled = true;
             GameStates.Tuihou = false;

@@ -1358,6 +1358,7 @@
 "SatelliteCount","","再生可能回数","","","",""
 "SatelliteComms","","通信妨害中も監視することができる","","","",""
 "SatelliteVent","","ベントにいる人をカウントしない","","","",""
+"WalkerWalkTaskCount","","部屋に行くタスク数"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""

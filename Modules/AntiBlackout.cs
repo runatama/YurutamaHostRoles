@@ -55,9 +55,9 @@ namespace TownOfHost
             var nowcount = PlayerCatch.AllPlayerControls.Count();
             foreach (var info in GameData.Instance.AllPlayers)
             {
+                isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
                 //情報が無い　　　   4人以上正常者がいる場合は役職変えるので回線切断者を生存擬装する必要が多分ない。
                 if (info == null || ((info?.Disconnected == true) && 4 <= nowcount)) continue;
-                isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
                 info.IsDead = false;
                 info.Disconnected = false;
             }

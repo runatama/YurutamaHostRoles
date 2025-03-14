@@ -122,11 +122,6 @@ namespace TownOfHost
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (!pc) continue;
-                if (!pc.IsAlive())
-                {
-                    pc.RpcExileV2();
-                    pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride);
-                }
 
                 Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
             }
@@ -256,11 +251,6 @@ namespace TownOfHost
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (!pc) continue;
-                if (!pc.IsAlive())
-                {
-                    pc.RpcExileV2();
-                    pc.RpcSetRole(RoleTypes.CrewmateGhost, Main.SetRoleOverride);
-                }
                 Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
             }
 

@@ -111,7 +111,7 @@ namespace TownOfHost
                             del.Add(release);
                             continue;
                         }
-                        if (!tag.Contains($"{Main.ModVersion}") && !tag.Contains($"{Main.OldModVersion}"))
+                        if (!tag.Contains($"{Main.ModVersion}"))
                         {
                             del.Add(release);
                             continue;//そのバージョンの奴じゃないなら除外

@@ -878,7 +878,7 @@ public enum CustomRoles
     //第三属性
     Lovers, RedLovers, YellowLovers, BlueLovers, GreenLovers, WhiteLovers, PurpleLovers,
     MadonnaLovers, OneLove, Amanojaku,
-    AddMadmate,
+    //AddMadmate,
     //バフ
     Guesser,
     Serial,

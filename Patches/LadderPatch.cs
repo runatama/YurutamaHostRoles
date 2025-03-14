@@ -44,13 +44,13 @@ namespace TownOfHost
                         ushort num2 = (ushort)(NetHelpers.YRange.ReverseLerp(targetPos.y) * 65535f);
                         CustomRpcSender sender = CustomRpcSender.Create("LadderFallRpc", sendOption: Hazel.SendOption.None);
                         sender.AutoStartRpc(player.NetTransform.NetId, (byte)RpcCalls.SnapTo)
-                                .Write(num)
-                                .Write(num2)
-                        .EndRpc();
+                            .Write(num)
+                            .Write(num2)
+                            .EndRpc();
                         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.MurderPlayer)
-                                                        .WriteNetObject(player)
-                                                        .Write((int)ExtendedPlayerControl.SuccessFlags)
-                                                .EndRpc();
+                            .WriteNetObject(player)
+                            .Write((int)ExtendedPlayerControl.SuccessFlags)
+                            .EndRpc();
                         sender.SendMessage();
                         player.NetTransform.SnapTo(targetPos);
                         player.MurderPlayer(player, ExtendedPlayerControl.SuccessFlags);
