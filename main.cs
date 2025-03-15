@@ -60,7 +60,7 @@ namespace TownOfHost
         public const string ModVersion = ".27";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-        public static bool DebugVersion = true;
+        public static bool DebugVersion = false;
 
         // サポートされている最低のAmongUsバージョン
         public static readonly string LowestSupportedVersion = "2024.11.26";
