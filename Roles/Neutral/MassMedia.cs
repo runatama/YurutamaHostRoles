@@ -35,6 +35,7 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     {
         CustomRoleManager.OnMurderPlayerOthers.Add(TageKillCh);
     }
+    public bool CanKill { get; private set; } = false;
     static OptionItem OptionKillCoolDown;
     static OptionItem OptionShikai;
     static OptionItem OptionMeetingReset;

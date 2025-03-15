@@ -78,7 +78,7 @@ namespace TownOfHost
     }
     class RandomSpawn
     {
-        //private static Dictionary<byte, int> NumOfTP = new();
+        private static Dictionary<byte, int> NumOfTP = new();
 
         [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
         public class CustomNetworkTransformHandleRpcPatch
@@ -231,11 +231,10 @@ namespace TownOfHost
             Logger.Info($"Spawn: {player.GetRealName()}", "RandomSpawn");
             if (AmongUsClient.Instance.AmHost)
             {
+                //最初のスポーンと判定
+                player.GetRoleClass().OnSpawn(MeetingStates.FirstMeeting);
+                player.SyncSettings();
                 var roleClass = player.GetRoleClass();
-                (roleClass as Penguin)?.OnSpawnAirship();
-                (roleClass as Alien)?.OnSpawnAirship();
-                (roleClass as JackalAlien)?.OnSpawnAirship();
-                (roleClass as AlienHijack)?.OnSpawnAirship();
                 player.RpcResetAbilityCooldown();
                 if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
                     Options.CurrentGameMode != CustomGameMode.TaskBattle

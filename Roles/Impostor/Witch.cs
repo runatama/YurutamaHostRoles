@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using System;
 using Hazel;
 
 using AmongUs.GameOptions;
@@ -9,7 +10,7 @@ using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Impostor
 {
-    public sealed class Witch : RoleBase, IImpostor, IUsePhantomButton
+    public sealed class Witch : RoleBase, IImpostor, IUsePhantomButton, IDoubleTrigger
     {
         public static readonly SimpleRoleInfo RoleInfo =
             SimpleRoleInfo.Create(
@@ -32,6 +33,7 @@ namespace TownOfHost.Roles.Impostor
             CustomRoleManager.MarkOthers.Add(GetMarkOthers);
             cool = OptionShcool.GetFloat();
             occool = cool;
+            if (NowSwitchTrigger == SwitchTrigger.TriggerDouble) Player.AddDoubleTrigger();
         }
         public override void OnDestroy()
         {
@@ -224,21 +226,13 @@ namespace TownOfHost.Roles.Impostor
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
             var (killer, target) = info.AttemptTuple;
-            if (NowSwitchTrigger == SwitchTrigger.TriggerDouble)
+            if (IsSpellMode)
             {
-                info.DoKill = killer.CheckDoubleTrigger(target, () => { SetSpelled(target); });
+                //呪いならキルしない
+                info.DoKill = false;
+                SetSpelled(target);
             }
-            else
-            {
-                if (IsSpellMode)
-                {//呪いならキルしない
-                    info.DoKill = false;
-                    SetSpelled(target);
-                }
-                SwitchSpellMode(true);
-            }
-            //切れない相手ならキルキャンセル
-            info.DoKill &= info.CanKill;
+            SwitchSpellMode(true);
         }
         public override void AfterMeetingTasks()
         {
@@ -318,6 +312,16 @@ namespace TownOfHost.Roles.Impostor
             {
                 SwitchSpellMode(false);
             }
+            return true;
+        }
+        public bool SingleAction(PlayerControl killer, PlayerControl target)
+        {
+            SetSpelled(target);
+            return false;
+        }
+
+        public bool DoubleAction(PlayerControl killer, PlayerControl target)
+        {
             return true;
         }
     }

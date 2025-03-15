@@ -182,7 +182,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
 
-        if (Main.NormalOptions.MapId != 4) RestartAbduct();
+        RestartAbduct();
 
         modeNone = false;
         modeVampire = false;
@@ -927,14 +927,8 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     {
         if (AbductVictim != null)
         {
-            Player.SyncSettings();
-            Player.RpcResetAbilityCooldown();
             stopCount = false;
         }
-    }
-    public void OnSpawnAirship()
-    {
-        RestartAbduct();
     }
 
     public string Mode(bool gamelog = false)

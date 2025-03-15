@@ -47,7 +47,7 @@ namespace TownOfHost
 
             if (GameStates.IsLobby) return;
 
-            if (Main.introDestroyed)
+            if (GameStates.introDestroyed)
                 foreach (var pp in PlayerCatch.AllPlayerControls)
                 {
                     var str = GetProgressText(pp.PlayerId, Mane: false, gamelog: true);
@@ -189,6 +189,7 @@ namespace TownOfHost
                     var g = "<line-height=85%>";
                     SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString() + "</line-height>");
                     SelfName = "<line-height=85%>" + SelfName + "\r\n";
+                    SelfName = SelfName.RemoveDeltext("color=", "");
 
                     //適用
                     if (seer.SetNameCheck(SelfName, seer, NoCache))
@@ -227,7 +228,7 @@ namespace TownOfHost
                 )
                 {
                     //死者じゃない場合タスクターン中、霊の名前を変更する必要がないので少しでも処理を減らす敵な感じで
-                    var ForeachList = !seerisAlive ? PlayerCatch.AllPlayerControls : PlayerCatch.OldAlivePlayerControles;
+                    var ForeachList = seerisAlive ? PlayerCatch.OldAlivePlayerControles : PlayerCatch.AllPlayerControls;
                     foreach (var target in ForeachList.Where(pc => pc?.PlayerId != seer.PlayerId))
                     {
                         //targetがseer自身の場合は何もしない
@@ -361,6 +362,7 @@ namespace TownOfHost
                             if (!seerisAlive && !((targetrole as Jumper)?.ability == true))
                                 TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
 
+                            TargetName = TargetName.RemoveDeltext("color=", "");
                             //適用
                             if (target.SetNameCheck(TargetName, seer, NoCache))
                             {
@@ -390,7 +392,7 @@ namespace TownOfHost
 
             if (GameStates.IsLobby) return;
 
-            if (Main.introDestroyed)
+            if (GameStates.introDestroyed)
                 foreach (var pp in PlayerCatch.AllPlayerControls)
                 {
                     var str = GetProgressText(pp.PlayerId, Mane: false, gamelog: true);
@@ -408,16 +410,16 @@ namespace TownOfHost
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default && !Main.DontGameSet) return;
 
             /* 会議拡張の奴 */
-            var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+            var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
             Info += $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
             Info += $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
-            var TInfo = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+            var TInfo = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
 
             var IInfo = $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
             IInfo += $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
 
             TInfo += IInfo;
-            var Finfo = $" <size=0.9f>\n</size><color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}>TownOfHost-K\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+            var Finfo = $" <size=0.9f>\n</size><color=#ffffff><size=1.5f>\n\n</size><line-height=0%><size=85%><color={Main.ModColor}>TownOfHost-K</size>\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
             Finfo += IInfo;
 
             //seer:ここで行われた変更を見ることができるプレイヤー

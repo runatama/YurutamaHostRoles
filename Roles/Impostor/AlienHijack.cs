@@ -162,7 +162,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Player.IsAlive()) return;
 
-        if (Main.NormalOptions.MapId != 4) RestartAbduct();
+        RestartAbduct();
 
         if (UetukeNokori <= 0)
         {
@@ -755,14 +755,8 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     {
         if (AbductVictim != null)
         {
-            Player.SyncSettings();
-            Player.RpcResetAbilityCooldown();
             stopCount = false;
         }
-    }
-    public void OnSpawnAirship()
-    {
-        RestartAbduct();
     }
     public string Mode(bool gamelog = false)
     {

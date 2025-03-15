@@ -98,7 +98,7 @@ public sealed class Satellite : RoleBase
         }
     }
 
-    private bool CanUseAbility => Main.introDestroyed && count > 0 && MyTaskState.HasCompletedEnoughCountOfTasks(taskCount);
+    private bool CanUseAbility => GameStates.introDestroyed && count > 0 && MyTaskState.HasCompletedEnoughCountOfTasks(taskCount);
     private static bool CheckComms => Utils.IsActive(SystemTypes.Comms) && !comms;
 
     public static void OnFixedUpdateOthers(PlayerControl player)

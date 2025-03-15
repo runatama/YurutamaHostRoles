@@ -12,6 +12,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
+using System.Linq;
 
 namespace TownOfHost
 {
@@ -116,7 +117,7 @@ namespace TownOfHost
                             del.Add(release);
                             continue;//そのバージョンの奴じゃないなら除外
                         }
-                        if (tag.Contains("5.1."))//今の表記は519とかなので5.1.x表示ならもう表示しない
+                        if (tag.StartsWith("5.") || tag.StartsWith("S5.") || tag.StartsWith("s5.") || tag.Contains("519."))//今の表記は519とかなので5.1.x表示ならもう表示しない
                         {
                             del.Add(release);
                             continue;
@@ -185,7 +186,11 @@ namespace TownOfHost
                         if (assets[i]["name"].ToString() == "TownOfHost-K.dll")
                             downloadUrl = assets[i]["browser_download_url"].ToString();
                     }
-                    hasUpdate = latestVersion.CompareTo(Main.version) > 0 /*|| version.Update.ShowUpdateButton || version.Update.Forced*/;
+                    var b = data["body"].ToString();
+                    bool? check = b?.Contains("IsforceUpdate") ?? null;
+                    hasUpdate = latestVersion.CompareTo(Main.version) > 0 ||
+                    //最後のアプデのcheckが有効で～最終バージョンと現バージョンが一緒じゃない
+                    (check is true && latestVersion.CompareTo(Main.version) is not 0);
                 }
                 if (all) return true;
                 if (downloadUrl == null)

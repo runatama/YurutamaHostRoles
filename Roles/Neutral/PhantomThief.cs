@@ -54,6 +54,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
     CustomRoles tagerole;
     PlayerControl Target;
     bool MeetingNotice;
+    public bool CanKill { get; private set; } = false;
     enum OptionName
     {
         PhantomThiefFarstCoolDown,

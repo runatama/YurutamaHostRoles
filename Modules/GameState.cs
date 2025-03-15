@@ -252,7 +252,7 @@ namespace TownOfHost
         public static bool IsOnlineGame => AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame;
         public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame;
         public static bool IsFreePlay => AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay;
-        public static bool IsInTask => InGame && !MeetingHud.Instance;
+        public static bool IsInTask => task;
         public static bool Meeting;
         public static bool Tuihou;
         public static bool IsMeeting => InGame && MeetingHud.Instance;
@@ -261,6 +261,7 @@ namespace TownOfHost
         public static bool AfterIntro;
         public static bool task;
         public static bool canmusic;
+        public static bool introDestroyed = false;
     }
     public static class MeetingStates
     {

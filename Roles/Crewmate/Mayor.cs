@@ -98,11 +98,11 @@ public sealed class Mayor : RoleBase
         if (LeftButtonCount > 0)
         {
             var user = physics.myPlayer;
-            physics.RpcBootFromVent(ventId);
-            if (user == null) return false;
-            ReportDeadBodyPatch.DieCheckReport(user, null);
+            //ホスト視点、vent処理中に会議を呼ぶとベントの矢印が残るので遅延させる
+            _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(Player, null), 0.1f, "MayerPortableButton");
+            //ポータブルボタン時はベントから追い出す必要はない
+            return true;
         }
-
         return false;
     }
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
@@ -121,12 +121,6 @@ public sealed class Mayor : RoleBase
             numVotes = AdditionalVote + 1;
         }
         return (votedForId, numVotes, doVote);
-    }
-    public override void AfterMeetingTasks()
-    {
-        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        if (HasPortableButton)
-            Player.RpcResetAbilityCooldown();
     }
     public override string GetAbilityButtonText()
     {

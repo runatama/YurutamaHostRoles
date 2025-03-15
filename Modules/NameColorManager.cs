@@ -136,7 +136,7 @@ namespace TownOfHost
             {
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
-                    if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    if (seer.IsModClient()) continue;
                     var clientid = seer.GetClientId();
                     if (clientid == -1) continue;
 
@@ -158,14 +158,21 @@ namespace TownOfHost
             }
             else
             {
+                var sender = CustomRpcSender.Create("MeetingNameColor");
+                sender.StartMessage();
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
-                    if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    if (seer.IsModClient()) continue;
                     string playername = pc.GetRealName(isMeeting: true);
                     playername = playername.ApplyNameColorData(seer, pc, true);
 
-                    pc.RpcSetNamePrivate(playername, true, seer, true);
+                    sender.AutoStartRpc(pc.NetId, RpcCalls.SetName, seer.GetClientId())
+                    .Write(pc.NetId)
+                    .Write(playername)
+                    .EndRpc();
                 }
+                sender.EndMessage();
+                sender.SendMessage();
             }
         }
     }

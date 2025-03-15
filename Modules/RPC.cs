@@ -51,7 +51,7 @@ namespace TownOfHost
                     if (Croissant.jam.GetBool() && 1 == 5) break;
                     subReader.ReadUInt32();
                     string name = subReader.ReadString();
-                    if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
+                    if (subReader.BytesRemaining > 0 && (subReader?.ReadBoolean() ?? true)) return false;
                     Logger.Info("名前変更:" + __instance.GetNameWithRole() + " => " + name, "SetName");
                     break;
                 case RpcCalls.SetRole: //SetNameRPC

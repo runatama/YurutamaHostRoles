@@ -379,7 +379,7 @@ namespace TownOfHost
         {
             if (!GameStates.IsInGame) return;
 
-            Main.introDestroyed = true;
+            GameStates.introDestroyed = true;
             var mapId = Main.NormalOptions.MapId;
             // エアシップではまだ湧かない
             if ((MapNames)mapId != MapNames.Airship)
@@ -478,6 +478,7 @@ namespace TownOfHost
                     PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
                 }
                 GameStates.task = true;
+                Logger.Info("タスクフェイズ開始", "Phase");
 
                 //desyneインポかつ置き換えがimp以外ならそれにする。
                 if ((roleInfo?.IsDesyncImpostor == true || SuddenDeathMode.NowSuddenDeathMode) && roleInfo.BaseRoleType.Invoke() != RoleTypes.Impostor)

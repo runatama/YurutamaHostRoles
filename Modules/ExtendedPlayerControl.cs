@@ -89,7 +89,7 @@ namespace TownOfHost
                     }
                 }
 
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, Hazel.SendOption.None, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
                 writer.Write(player.PlayerId);
                 writer.WritePacked((int)role);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -187,7 +187,7 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, Hazel.SendOption.None, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
                 writer.Write(PlayerId);
                 writer.WritePacked((int)role);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -430,7 +430,7 @@ namespace TownOfHost
             UtilsOption.SyncAllSettings();
             _ = new LateTask(() =>
             {
-                var sender = CustomRpcSender.Create("AllplayerresetAbility");
+                var sender = CustomRpcSender.Create("AllplayerresetAbility", SendOption.Reliable);
                 sender.StartMessage();
                 foreach (var target in PlayerCatch.AllPlayerControls)
                 {
@@ -475,7 +475,7 @@ namespace TownOfHost
                     else
                     {
                         //targetがホスト以外だった場合
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, target.GetClientId());
                         writer.WriteNetObject(target);
                         writer.Write(0);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -491,7 +491,7 @@ namespace TownOfHost
                 else
                 {
                     //targetがホスト以外だった場合
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, target.GetClientId());
                     writer.WriteNetObject(target);
                     writer.Write(0);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -881,6 +881,7 @@ namespace TownOfHost
         {
             if (player.Is(CustomRoles.BakeCat)) return BakeCat.CanKill;
 
+            //return player.Is(CustomRoleTypes.Neutral) && player.GetRoleClass() is IKiller killer && (killer?.IsKiller ?? false);
             return
                 player.GetCustomRole() is
                 CustomRoles.Egoist or
@@ -1021,7 +1022,7 @@ namespace TownOfHost
             }
             return null;
         }
-        public static void RpcSnapToForced(this PlayerControl pc, Vector2 position)
+        public static void RpcSnapToForced(this PlayerControl pc, Vector2 position, SendOption sendOption = SendOption.Reliable)
         {
             var netTransform = pc.NetTransform;
             if (AmongUsClient.Instance.AmClient)
@@ -1029,7 +1030,7 @@ namespace TownOfHost
                 netTransform.SnapTo(position, (ushort)(netTransform.lastSequenceId + 128));
             }
             ushort newSid = (ushort)(netTransform.lastSequenceId + 2);
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(netTransform.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(netTransform.NetId, (byte)RpcCalls.SnapTo, sendOption);
             NetHelpers.WriteVector2(position, messageWriter);
             messageWriter.Write(newSid);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
@@ -1048,20 +1049,20 @@ namespace TownOfHost
         /// 前→変更対象者<br/>
         /// target→視認対象者<br/>
         /// </summary>
-        /// <param name="target">見せる相手</param>
+        /// <param name="seer">見せる相手</param>
         /// <param name="Color">色</param>
-        public static void RpcChColor(this PlayerControl pc, PlayerControl target, byte Color, bool Nomal = false)
+        public static void RpcChColor(this PlayerControl pc, PlayerControl seer, byte Color, bool Nomal = false)
         {
             if (GameStates.IsLobby) return;
-            var sender = CustomRpcSender.Create("DChengeColor");
-            sender.StartMessage(target.GetClientId());
+            var sender = CustomRpcSender.Create("DChengeColor", SendOption.Reliable);
+            sender.StartMessage(seer.GetClientId());
 
             sender.StartRpc(pc.NetId, RpcCalls.SetColor)
             .Write(pc.NetId)
             .Write(Color)
             .EndRpc();
 
-            if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             {
                 pc.SetColor(Color);
                 if (Nomal)

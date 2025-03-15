@@ -172,7 +172,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
 
-        if (Main.NormalOptions.MapId != 4) RestartAbduct();
+        RestartAbduct();
         UetukeUsed = !OptUetuke.GetBool();
 
         modeNone = false;
@@ -851,14 +851,8 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     {
         if (AbductVictim != null)
         {
-            Player.SyncSettings();
-            Player.RpcResetAbilityCooldown();
             stopCount = false;
         }
-    }
-    public void OnSpawnAirship()
-    {
-        RestartAbduct();
     }
     public string Mode(bool gamelog = false)
     {

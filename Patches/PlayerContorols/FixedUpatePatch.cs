@@ -37,8 +37,9 @@ namespace TownOfHost
             }
 
             if (!GameStates.IsModHost) return;
+            if (__instance == null) return;
 
-            if (Main.RTAMode && GameStates.IsInTask && Main.introDestroyed)
+            if (Main.RTAMode && GameStates.IsInTask && GameStates.introDestroyed)
             {
                 if (Main.RTAPlayer != byte.MaxValue && Main.RTAPlayer == player.PlayerId)
                 {
@@ -149,7 +150,7 @@ namespace TownOfHost
                 {
                     FallFromLadder.FixedUpdate(player);
                 }
-                if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && Main.introDestroyed && isAlive && !player.IsModClient())
+                if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && GameStates.introDestroyed && isAlive && !player.IsModClient())
                 {
                     Dictionary<int, float> Distance = new();
                     Vector2 position = player.transform.position;
@@ -454,14 +455,17 @@ namespace TownOfHost
                 }
             }
 
-            if ((GameStates.InGame || GameStates.Intro) && PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Monochromer)))
+            if (GameStates.InGame && GameStates.Intro)
             {
-                if (!Camouflage.PlayerSkins.TryGetValue(__instance.PlayerId, out var outfit))
+                if (PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Monochromer)))
                 {
-                    __instance.Data.DefaultOutfit.ColorId = outfit.ColorId;
-                    __instance.Data.DefaultOutfit.HatId = outfit.HatId;
-                    __instance.Data.DefaultOutfit.SkinId = outfit.SkinId;
-                    __instance.Data.DefaultOutfit.VisorId = outfit.VisorId;
+                    if (!Camouflage.PlayerSkins.TryGetValue(__instance.PlayerId, out var outfit))
+                    {
+                        __instance.Data.DefaultOutfit.ColorId = outfit.ColorId;
+                        __instance.Data.DefaultOutfit.HatId = outfit.HatId;
+                        __instance.Data.DefaultOutfit.SkinId = outfit.SkinId;
+                        __instance.Data.DefaultOutfit.VisorId = outfit.VisorId;
+                    }
                 }
             }
 

@@ -83,6 +83,7 @@ public static class MeetingHudPatch
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             MeetingStates.Sending = true;
+            GameStates.task = false;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             PlayerCatch.OldAlivePlayerControles.Clear();
             var Sender = CustomRpcSender.Create("MeetingSet", Hazel.SendOption.Reliable);
@@ -103,12 +104,12 @@ public static class MeetingHudPatch
                 }//  会議時に生きてたぜリスト追加
                 else
                 {
+                    PlayerCatch.OldAlivePlayerControles.Add(pc);
                     if (AntiBlackout.OverrideExiledPlayer()) continue;
                     Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
                     .Write((ushort)RoleTypes.Crewmate)
                     .Write(true)
                     .EndRpc();
-                    PlayerCatch.OldAlivePlayerControles.Add(pc);
                 }
             }
             Sender.EndMessage();

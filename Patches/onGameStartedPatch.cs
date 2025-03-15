@@ -70,7 +70,7 @@ namespace TownOfHost
             Options.UsedButtonCount = 0;
             Main.RealOptionsData = new OptionBackupData(GameOptionsManager.Instance.CurrentGameOptions);
 
-            Main.introDestroyed = false;
+            GameStates.introDestroyed = false;
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);

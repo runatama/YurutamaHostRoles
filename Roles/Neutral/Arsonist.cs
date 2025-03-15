@@ -190,6 +190,7 @@ public sealed class Arsonist : RoleBase, IKiller
                     {
                         TargetInfo = null;
                         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                        Player.SetKillCooldown(0.1f, kyousei: true);
                         SendRPC(RPC_type.SetCurrentDousingTarget);
 
                         Logger.Info($"Canceled: {Player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");

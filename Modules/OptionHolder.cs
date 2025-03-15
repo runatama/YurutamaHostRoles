@@ -81,6 +81,7 @@ namespace TownOfHost
         // 各役職の詳細設定
         public static OptionItem EnableGM;
         public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 20;
+        public static OptionItem DoubleTriggerThreshold;
         public static OptionItem DefaultShapeshiftCooldown;
         public static OptionItem CanMakeMadmateCount;
         public static OptionItem SkMadCanUseVent;
@@ -678,7 +679,9 @@ namespace TownOfHost
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
             });
-
+            DoubleTriggerThreshold = FloatOptionItem.Create(1101, "DoubleTriggerThreashould", new(0.3f, 1f, 0.1f), 0.5f, TabGroup.ImpostorRoles, false)
+                .SetHeader(true)
+                .SetValueFormat(OptionFormat.Seconds);
             DefaultShapeshiftCooldown = FloatOptionItem.Create(1100, "DefaultShapeshiftCooldown", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Seconds);

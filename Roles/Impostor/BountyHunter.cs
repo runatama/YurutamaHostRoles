@@ -217,12 +217,10 @@ public sealed class BountyHunter : RoleBase, IImpostor
         text = "BountyHunter_Ability";
         return true;
     }
-    public override void AfterMeetingTasks()
+    public override void OnSpawn(bool initialState)
     {
-        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Player.IsAlive())
         {
-            Player.RpcResetAbilityCooldown();
             ChangeTimer = 0f;
         }
     }

@@ -20,6 +20,8 @@ public class MeetingVoteManager
     private static MeetingVoteManager _instance;
     private static LogHandler logger = Logger.Handler(nameof(MeetingVoteManager));
 
+    //private static Dictionary<byte, Vector2> LastPlace = new();
+
     private MeetingVoteManager()
     {
         meetingHud = MeetingHud.Instance;
@@ -28,6 +30,12 @@ public class MeetingVoteManager
 
     public static void Start()
     {
+        /*
+        // プレイヤーの位置を保存
+        foreach (var pc in PlayerCatch.AllPlayerControls)
+        {
+            LastPlace[pc.PlayerId] = pc.transform.position;
+        }*/
         _instance = new();
     }
 
@@ -162,6 +170,16 @@ public class MeetingVoteManager
         var result = CountVotes(applyVoteMode, ClearAndExile);
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole().RemoveHtmlTags();
         logger.Info($"追放者: {logName} で会議を終了します");
+
+        /*// AntiTeleporterのプレイヤーを最後の位置にスポンさせる処理を追加
+        foreach (var pc in PlayerCatch.AllPlayerControls)
+        {
+            if (pc.Is(CustomRoles.AntiTeleporter) && LastPlace.ContainsKey(pc.PlayerId))
+            {
+                Vector2 lastPosition = LastPlace[pc.PlayerId];
+                pc.transform.position = lastPosition; // 最後の位置にスポン
+            }
+        }*/
 
         var r = result.Exiled == null ? (result.IsTie ? UtilsRoleText.GetExpelledText(byte.MaxValue, true, false) : UtilsRoleText.GetExpelledText(byte.MaxValue, false, true)) : UtilsRoleText.GetExpelledText(result.Exiled.PlayerId, false, false);
         if (Voteresult == "")

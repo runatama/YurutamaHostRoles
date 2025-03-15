@@ -117,10 +117,13 @@ public static class CustomRoleManager
 
                 // キラーのキルチェック処理実行
                 if (!attemptKiller.Is(CustomRoles.EarnestWolf))
-                    if (Amnesia.CheckAbility(attemptKiller))
+                {
+                    //ダブルトリガー無効なら通常処理
+                    if (!DoubleTrigger.OnCheckMurderAsKiller(info))
                     {
                         killer.OnCheckMurderAsKiller(info);
                     }
+                }
 
                 if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
                 {

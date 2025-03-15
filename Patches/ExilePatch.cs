@@ -134,7 +134,7 @@ namespace TownOfHost
                                     role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
 
                                 var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
-                                IDesycImpostor = SuddenDeathMode.NowSuddenDeathMode;
+                                IDesycImpostor |= SuddenDeathMode.NowSuddenDeathMode;
 
                                 if (pc.Is(CustomRoles.Amnesia))
                                 {
@@ -251,10 +251,16 @@ namespace TownOfHost
                         break;
                 }
             }
-            GameStates.task = true;
             FallFromLadder.Reset();
             PlayerCatch.CountAlivePlayers(true);
             Utils.AfterMeetingTasks();
+            if (Main.NormalOptions.MapId != 4)
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    pc.GetRoleClass().OnSpawn();
+                }
+            }
             UtilsOption.SyncAllSettings();
         }
 
@@ -267,7 +273,7 @@ namespace TownOfHost
                 {
                     exiled = AntiBlackout_LastExiled;
                     AntiBlackout.SendGameData();
-                }, 0.6f, "Restore IsDead Task");
+                }, 0.7f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
                     if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
@@ -300,6 +306,7 @@ namespace TownOfHost
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
+            GameStates.task = true;
             Logger.Info("タスクフェイズ開始", "Phase");
             //ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
             MeetingStates.First = false;

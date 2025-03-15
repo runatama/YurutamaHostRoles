@@ -55,14 +55,15 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "519.27.11";
-        public const string PluginShowVersion = "519.27<sub>.11</sub>";
-        public const string ModVersion = ".27";
+        public const string PluginVersion = "51.10.28.99";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+        public const string PluginShowVersion = "51.10.28<sub>.99</sub>";
+        public const string ModVersion = ".27";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-        public static bool DebugVersion = false;
+        public static bool DebugVersion = true;
+
         // サポートされている最低のAmongUsバージョン
-        public static readonly string LowestSupportedVersion = "2024.8.13";
+        public static readonly string LowestSupportedVersion = "2024.11.26";
         // このバージョンのみで公開ルームを無効にする場合
         public static readonly bool IsPublicAvailableOnThisVersion = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
@@ -160,7 +161,6 @@ namespace TownOfHost
         public static bool VisibleTasksCount;
         public static string nickName = "";
         public static string lobbyname = "";
-        public static bool introDestroyed = false;
         public static float DefaultCrewmateVision;
         public static float DefaultImpostorVision;
         public static bool DebugAntiblackout = true;

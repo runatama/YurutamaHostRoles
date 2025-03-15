@@ -222,22 +222,18 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         return false;
     }
-    public override void AfterMeetingTasks()
+    public override void OnSpawn(bool initialState)
     {
-        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-
+        if (initialState) return;
         if (CurrentTargetMode == TargetMode.EveryMeeting)
         {
             ReEnableTargeting();
-            Player.MarkDirtySettings();
         }
         var target = PlayerCatch.GetPlayerById(TargetId);
         if (!Player.IsAlive() || !target.IsAlive())
         {
             RemoveTarget();
         }
-        Player.SyncSettings();
-        Player.RpcResetAbilityCooldown();
     }
 
     // 表示系の関数群

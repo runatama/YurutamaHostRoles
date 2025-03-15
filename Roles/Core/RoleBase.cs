@@ -263,6 +263,13 @@ public abstract class RoleBase : IDisposable
     public virtual void AfterMeetingTasks()
     { }
     /// <summary>
+    /// タスクターンにスポーンした時に呼ばれる関数
+    /// 実行後必ず、SyncSettings()、RpcResetAbilityCooldown()が呼ばれる
+    /// </summary>
+    /// <param name="initialState">ゲーム最初のスポーンかどうか</param>
+    public virtual void OnSpawn(bool initialState = false)
+    { }
+    /// <summary>
     /// ゲーム開始のイントロ後に呼ばれる関数。
     /// ※アムネシア制御効かないので個別で処理
     /// </summary>

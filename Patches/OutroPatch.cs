@@ -21,8 +21,12 @@ namespace TownOfHost
         public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
         {
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            GameStates.InGame = false;
+
             GameStates.canmusic = true;
+            GameStates.InGame =
+            GameStates.task =
+            GameStates.Meeting =
+            GameStates.Tuihou = false;
 
             Logger.Info("-----------ゲーム終了-----------", "Phase");
             if (!GameStates.IsModHost) return;
