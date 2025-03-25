@@ -23,7 +23,7 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 
 ## リリース
 
-AmongUsバージョン : **2024.8.13**~<br>
+AmongUsバージョン : **16.0.0**~<br>
 
 **最新版は[こちら](https://github.com/KYMario/TownOfHost-K/releases/latest)**
 
