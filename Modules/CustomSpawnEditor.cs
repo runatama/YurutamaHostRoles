@@ -95,7 +95,7 @@ namespace TownOfHost
             {
                 string name = DataManager.player.Customization.Name;
                 if (Main.nickName != "") name = Main.nickName;
-                player.SetName($"<color={Main.ModColor}>{name}</color>");
+                player.SetName($"<{Main.ModColor}>{name}</color>");
             }
         }
 

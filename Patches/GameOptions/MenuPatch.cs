@@ -140,10 +140,10 @@ namespace TownOfHost
                     search = Object.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
 
                     prisettext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
-                    prisettext.text = "<size=120%><color=#cccccc><b>プリセット名編集</b></color></size>";
+                    prisettext.text = "<size=120%><#cccccc><b>プリセット名編集</b></color></size>";
                     prisettext.transform.localPosition = new Vector3(-2f, -1.1f);
                     searchtext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
-                    searchtext.text = "<size=120%><color=#ffa826><b>検索</b></color></size>";
+                    searchtext.text = "<size=120%><#ffa826><b>検索</b></color></size>";
                     searchtext.transform.localPosition = new Vector3(-2f, -0.3f);
                 }
                 catch (Exception ex)

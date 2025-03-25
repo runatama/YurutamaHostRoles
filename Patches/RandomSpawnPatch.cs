@@ -232,9 +232,9 @@ namespace TownOfHost
             if (AmongUsClient.Instance.AmHost)
             {
                 //最初のスポーンと判定
-                player.GetRoleClass().OnSpawn(MeetingStates.FirstMeeting);
-                player.SyncSettings();
                 var roleClass = player.GetRoleClass();
+                roleClass?.OnSpawn(MeetingStates.FirstMeeting);
+                player.SyncSettings();
                 player.RpcResetAbilityCooldown();
                 if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
                     Options.CurrentGameMode != CustomGameMode.TaskBattle

@@ -14,6 +14,7 @@ using static TownOfHost.Utils;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
 using static TownOfHost.UtilsRoleText;
+using TownOfHost.Attributes;
 
 namespace TownOfHost
 {
@@ -69,7 +70,6 @@ namespace TownOfHost
     public static class UtilsGameLog
     {
         public static int day;
-        public static string gamelog;
         public static Dictionary<byte, string> LastLog = new();
         public static Dictionary<byte, string> LastLogRole = new();
         public static Dictionary<byte, string> LastLogPro = new();
@@ -264,11 +264,11 @@ namespace TownOfHost
             }
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.OneLove && !SuddenDeathMode.NowSuddenDeathMode)
             {
-                CustomWinnerText = $"<color={CustomWinnerColor}>{CustomWinnerText}{AdditionalWinnerText}{GetString("Win")}</color>";
+                CustomWinnerText = $"<{CustomWinnerColor}>{CustomWinnerText}{AdditionalWinnerText}{GetString("Win")}</color>";
             }
             else
             {
-                CustomWinnerText = $"<color={CustomWinnerColor}>{CustomWinnerText}";
+                CustomWinnerText = $"<{CustomWinnerColor}>{CustomWinnerText}";
             }
 
             return (CustomWinnerText, CustomWinnerColor, WinText, barColor, winColor);
@@ -329,7 +329,7 @@ namespace TownOfHost
             }
             sb.Append("</color>   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
             sb.Append(string.Format(GetString("Result.Task"), Main.Alltask));
-            SendMessage(sb.ToString(), PlayerId);
+            SendMessage(sb.ToString().RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
         }
         public static void ShowLastWins(byte PlayerId = byte.MaxValue)
         {
@@ -342,16 +342,79 @@ namespace TownOfHost
                 SendMessage(GetString("CantUse.killlog"), PlayerId);
                 return;
             }
-            SendMessage(EndGamePatch.KillLog, PlayerId);
-        }
+            var daycount = 0;
+            string mes = gamelog;
+            var last = GameLog.Values.LastOrDefault();
+            foreach (var log in GameLog)
+            {
+                mes += log.Value;
+                daycount++;
 
-        public static void AddGameLog(string Name, string Meg) => gamelog += $"\n{DateTime.Now:HH.mm.ss} [{Name}]　" + Meg;
+                if ((last ?? "??") == log.Value)
+                {
+                    var meg = GetString($"{(CustomRoles)CustomWinnerHolder.WinnerTeam}") + GetString("Team") + GetString("Win");
+                    var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? GetRoleColor((CustomRoles)CustomWinnerHolder.WinnerTeam);
+
+                    switch (CustomWinnerHolder.WinnerTeam)
+                    {
+                        case CustomWinner.Draw: meg = GetString("ForceEnd"); break;
+                        case CustomWinner.None: meg = GetString("EveryoneDied"); break;
+                        case CustomWinner.SuddenDeathRed: meg = GetString("SuddenDeathRed"); winnerColor = ModColors.Red; break;
+                        case CustomWinner.SuddenDeathBlue: meg = GetString("SuddenDeathBlue"); winnerColor = ModColors.Blue; break;
+                        case CustomWinner.SuddenDeathYellow: meg = GetString("SuddenDeathYellow"); winnerColor = ModColors.Yellow; break;
+                        case CustomWinner.SuddenDeathGreen: meg = GetString("SuddenDeathGreen"); winnerColor = ModColors.Green; break;
+                        case CustomWinner.SuddenDeathPurple: meg = GetString("SuddenDeathPurple"); winnerColor = ModColors.Purple; break;
+                    }
+
+                    var s = "★".Color(winnerColor);
+                    mes = $"{GetString("GameLog")}\n" + mes + "\n\n" + $"{s}{meg}{s}";
+                    SendMessage(mes.RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
+                    break;
+                }
+
+                if (3 <= daycount)
+                {
+                    daycount = 0;
+                    SendMessage(mes.RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
+                    mes = "<size=60%>";
+                }
+            }
+            //SendMessage(/*EndGamePatch.KillLog*/, PlayerId);
+        }
+        public static void Reset()
+        {
+            GameLog = new();
+            TodayLog = "";
+            var c = string.Format(GetString("log.Start"), Main.GameCount);
+            AddGameLogsub($"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n" + string.Format(GetString("Message.Day").RemoveDeltext("【").RemoveDeltext("】"), day).Color(Palette.Orange));
+
+            Main.showkillbutton = false;
+            day = 1;
+            Main.IntroHyoji = true;
+            Main.NowSabotage = false;
+            Main.FeColl = 0;
+            Main.GameCount++;
+            Main.CanUseAbility = false;
+        }
+        public static void WriteGameLog()
+        {
+            if (!GameLog.TryAdd(day, TodayLog))
+            {
+                Logger.Info("なんかTryAddが失敗に終わったよ!", "WriteGameLog");
+            }
+            TodayLog = "";
+        }
+        public static string gamelog;
+        static string TodayLog;
+        public static Dictionary<int, string> GameLog = new();
+        public static void AddGameLog(string Name, string Meg) => TodayLog += $"\n[{Name}]　" + Meg;
+        public static void AddGameLogsub(string Meg) => TodayLog += Meg;
     }
     #endregion
     #region WebHook
     public static class UtilsWebHook
     {
-        public static void WH_ShowActiveRoles(byte PlayerId = byte.MaxValue)
+        public static void WH_ShowActiveRoles()
         {
             StringBuilder sb;
             if (Options.CurrentGameMode == CustomGameMode.Standard)
@@ -403,7 +466,7 @@ namespace TownOfHost
             sb.Append("\n```");
             Webhook.Send(sb.ToString());
         }
-        public static void WH_ShowLastResult(byte PlayerId = byte.MaxValue)
+        public static void WH_ShowLastResult()
         {
             var sb = new StringBuilder();
 

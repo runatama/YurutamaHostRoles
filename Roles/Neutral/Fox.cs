@@ -139,7 +139,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
                 ChatManager.SendPreviousMessagesToAll();
 
             UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
-            UtilsGameLog.gamelog += $"\n\t\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(player, true)}(<b>{UtilsRoleText.GetTrueRoleName(player.PlayerId, false)}</b>)";
+            UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(player, true)}(<b>{UtilsRoleText.GetTrueRoleName(player.PlayerId, false)}</b>)");
 
             var meetingHud = MeetingHud.Instance;
             var hudManager = DestroyableSingleton<HudManager>.Instance.KillOverlay;
@@ -225,7 +225,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         //4人以上か3人以下でも勝利がOn　　　　　　　　　　　　　　　　　　生存していて　　　　　タスクが完了している
         if ((PlayerCatch.AllAlivePlayersCount > 3 || canwin3player) && Player.IsAlive() && checktaskwinflag)
         {
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
 
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Fox);
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);

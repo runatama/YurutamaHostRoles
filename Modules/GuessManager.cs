@@ -101,12 +101,12 @@ public static class GuessManager
             }
             if (!MsgToPlayerAndRole(msg, out byte targetId, out CustomRoles role, out string error))
             {
-                Utils.SendMessage(error, pc.PlayerId, "<color=#e6b422>" + GetString("GuessErrortitle") + "</color>");
+                Utils.SendMessage(error, pc.PlayerId, "<#e6b422>" + GetString("GuessErrortitle") + "</color>");
                 return true;
             }
             if (MadAvenger.Skill)//マッドアベンジャー中は処理しないぜ★
             {
-                Utils.SendMessage(GetString("GuessErrorMadAvenger"), pc.PlayerId, $"<color=#ff1919>{GetString("GuessErrorMadAvengerTitle")}</color>");
+                Utils.SendMessage(GetString("GuessErrorMadAvenger"), pc.PlayerId, $"<#ff1919>{GetString("GuessErrorMadAvengerTitle")}</color>");
                 return true;
             }
             if (!SelfVoteManager.Canuseability())
@@ -115,7 +115,7 @@ public static class GuessManager
             }
             if (GameStates.Tuihou)
             {
-                Utils.SendMessage(GetString("GuessErrorTuiho"), pc.PlayerId, $"<color=#ab80c2>{GetString("GuessErrorTuihoTitle")}</color>");
+                Utils.SendMessage(GetString("GuessErrorTuiho"), pc.PlayerId, $"<#ab80c2>{GetString("GuessErrorTuihoTitle")}</color>");
                 return true;
             }
             if (Balancer.Id != 255 && !(Balancer.target1 == targetId || Balancer.target2 == targetId) && Balancer.OptionCanMeetingAbility.GetBool()) return true;

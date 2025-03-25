@@ -349,7 +349,7 @@ namespace TownOfHost
             string text = GetProgressText(seen.PlayerId, comms, Mane, hide: seer != seen && seen.Is(CustomRoles.Fox));
 
             if ((Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() || !Options.GhostOptions.GetBool()) && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool()))
-                text += $"<color=#ffff00>[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]</color>";
+                text += $"<#ffff00>[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]</color>";
 
             //seer側による変更
             if (Amnesia.CheckAbility(seer))
@@ -379,7 +379,7 @@ namespace TownOfHost
             if (state == null) return "";
 
             //隠すなら??表示
-            if (hide) return $"<color=#5c5c5c>(??/??)</color>";
+            if (hide) return $"<#5c5c5c>(??/??)</color>";
             Color TextColor = Color.yellow;
             var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(state.MainRole).ShadeColor(0.5f); //タスク完了後の色
             var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
@@ -597,7 +597,7 @@ namespace TownOfHost
                         return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(CustomRoles.Impostor),
                             role.IsImpostor() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
                     case "Neutral":
-                        return string.Format(GetString("fortuihourole"), playername, $"<color=#cccccc>{GetString("Neutral")}</color>",
+                        return string.Format(GetString("fortuihourole"), playername, $"<#cccccc>{GetString("Neutral")}</color>",
                             role.IsNeutral() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
                     case "CrewMate(Mad)":
                         return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(CustomRoles.Crewmate),

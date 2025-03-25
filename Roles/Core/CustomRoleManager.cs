@@ -366,8 +366,8 @@ public static class CustomRoleManager
         //サブロールは表示めんどいしながいから省略★
         if (PlayerState.GetByPlayerId(appearanceTarget.PlayerId).DeathReason != CustomDeathReason.Guess && !GameStates.Meeting)
         {
-            UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false).RemoveSizeTags()}</b>) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
-            if (appearanceKiller != appearanceTarget) UtilsGameLog.gamelog += $"\n\t\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}(<b>{UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)}</b>)";
+            UtilsGameLog.AddGameLog($"Kill", $"{Utils.GetPlayerColor(appearanceTarget, true)}({UtilsRoleText.GetTrueRoleName(appearanceTarget.PlayerId, false).RemoveSizeTags()}) [{Utils.GetVitalText(appearanceTarget.PlayerId, true)}]　{room}");
+            if (appearanceKiller != appearanceTarget) UtilsGameLog.AddGameLogsub($"\n\t⇐ {Utils.GetPlayerColor(appearanceKiller, true)}({UtilsRoleText.GetTrueRoleName(appearanceKiller.PlayerId, false)})");
         }
         //if (info.AppearanceKiller.PlayerId == info.AttemptKiller.PlayerId)
         (killerrole as IUsePhantomButton)?.Init(appearanceKiller);
@@ -759,6 +759,7 @@ public enum CustomRoles
     Eraser,
     QuickKiller,
     //DEBUG only Impostor
+    Assassin,
     //Madmate
     MadGuardian,
     Madmate,
@@ -828,6 +829,7 @@ public enum CustomRoles
     Walker,
     //DEBUG only Crewmate
     Satellite,
+    Merlin,
     //Neutral
     Arsonist,
     Egoist,

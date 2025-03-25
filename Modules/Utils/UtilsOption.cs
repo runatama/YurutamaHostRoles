@@ -175,7 +175,7 @@ namespace TownOfHost
                             else
                             {
                                 //オフならそのままで大丈夫
-                                sb.Append($"\n<size=85%><b>☆{opt.GetName(false)}</b></size>");
+                                sb.Append($"\n<size=85%>☆{opt.GetName(false)}</size>");
                                 sb.Append($"\n {randomOpt.GetName(false)}: {randomOpt.GetString().RemoveSN()}\n");
                             }
                         }
@@ -187,7 +187,7 @@ namespace TownOfHost
                         ShowChildrenSettings(opt, ref s, 1, getbool: true);
                         if (s.ToString().RemoveHtmlTags() == "" && opt.Children.Count != 0) continue;
                         if (opt.Name is "RoleAssigningAlgorithm" or "LimitMeetingTime" or "LowerLimitVotingTime")
-                            sb.Append($"\n<size=65%><b>▶{opt.GetName(false)}</b>: {opt.GetString().RemoveSN()}\n</size>");
+                            sb.Append($"\n<size=65%><b>▶{opt.GetName(false)}: {opt.GetString().RemoveSN()}\n</size>");
                         else
                         if (opt.Name is "KillFlashDuration")
                             sb.Append($"\n<size=65%>◇{opt.GetName(true)}: {opt.GetString().RemoveSN()}\n</size>");
@@ -196,8 +196,8 @@ namespace TownOfHost
                             sb.Append($"\n<size=65%>◆{opt.GetName(true)}\n</size>");
                         else if (opt.Name is "TaskBattleSet" or "ONspecialMode" or "ExperimentalMode" or "MadmateOption" or "GRRoleOptions"
                                 or "MapModification" or "Sabotage" or "RandomMapsMode" or "GhostOptions" or "MeetingAndVoteOpt" or "DevicesOption" or "ConvenientOptions")
-                            sb.Append($"\n<size=85%><b>■{opt.GetName(false)}</b>\n</size>");
-                        else sb.Append($"\n<size=65%><b>・{opt.GetName(false)}</b>\n</size>");
+                            sb.Append($"\n<size=85%>■{opt.GetName(false)}\n</size>");
+                        else sb.Append($"\n<size=65%>・{opt.GetName(false)}\n</size>");
                         ShowChildrenSettings(opt, ref sb, 1, getbool: true);
                         CheckPageChange(PlayerId, sb);
                     }
@@ -211,7 +211,7 @@ namespace TownOfHost
             if (sb.ToString().RemoveHtmlTags() == "") return;
 
             //2Byte文字想定で1000byt越えるならページを変える
-            if (force || sb.Length > 750)
+            if (force || sb.Length > 350)
             {
                 SendMessage(sb.ToString(), PlayerId, title);
                 sb.Clear();
@@ -279,7 +279,7 @@ namespace TownOfHost
                     {
                         var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                         var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "●") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "●") : (role.IsMadmate() ? "<color=#ff7f50>●</color>" : ColorString(Palette.DisabledGrey, "●")));
+                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "●") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "●") : (role.IsMadmate() ? "<#ff7f50>●</color>" : ColorString(Palette.DisabledGrey, "●")));
                         sb.AppendFormat("<line-height=82%>\n" + co + "<line-height=0%>\n○</line-height>{0}<pos={1}em>:{2}x{3}", role.GetCombinationCName(), pos, $"{role.GetChance()}%", role.GetCount() + "</line-height>");
                     }
                 }
@@ -350,7 +350,7 @@ namespace TownOfHost
                         }
                         var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                         var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? ColorString(Palette.Blue, "Ⓒ") : (role.IsMadmate() ? "<color=#ff7f50>Ⓜ</color>" : ColorString(Palette.DisabledGrey, "Ⓝ")));
+                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? ColorString(Palette.Blue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : ColorString(Palette.DisabledGrey, "Ⓝ")));
                         sb.AppendFormat("<line-height=82%>\n<b>" + co + "</b></line-height>{0}<pos={1}em>:{2}x{3}", role.GetCombinationCName(), pos, $"{role.GetChance()}%", role.GetCount() + "</line-height>");
                         P(sb);
                     }
@@ -366,7 +366,7 @@ namespace TownOfHost
                         var m = AdditionalWinnerMark;
                         if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
                         if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
-                        if (Addon.IsGhostRole()) m = "<color=#8989d9>■</color>";
+                        if (Addon.IsGhostRole()) m = "<#8989d9>■</color>";
                         var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                         var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
                         if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n" + m + "{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
@@ -401,7 +401,7 @@ namespace TownOfHost
                 sb.Append('\n');
             }
             sb.Append("</line-height></size>" + GetString("Settings") + "\n<line-height=60%><size=70%>");
-            sb.Append($"Mod:<color={Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginShowVersion} {(Main.DebugVersion ? $"☆{GetString("Debug")}☆" : "")}</color>\n");
+            sb.Append($"Mod:<{Main.ModColor}>" + $"{Main.ModName} v.{Main.PluginShowVersion} {(Main.DebugVersion ? $"☆{GetString("Debug")}☆" : "")}</color>\n");
             sb.Append($"Map:{Constants.MapNames[Main.NormalOptions.MapId]}\n");
             sb.Append($"{GetString(StringNames.GameNumImpostors)}:{Main.NormalOptions.NumImpostors.ToString()}\n");
             sb.Append($"{GetString(StringNames.GameNumMeetings)}:{Main.NormalOptions.NumEmergencyMeetings.ToString()}\n");
@@ -550,7 +550,7 @@ namespace TownOfHost
                     sb.Append(string.Concat(Enumerable.Repeat("┃", Mathf.Max(deep - 1, 0))));
                     sb.Append(opt.Index == option.Children.Count ? "┗ " : "┣ ");
                 }
-                sb.Append($"{opt.Value.GetName(true)}: {opt.Value.GetString().RemoveSN()}\n");
+                sb.Append($"{opt.Value.GetName(true)}: {opt.Value.GetTextString().RemoveSN()}\n");
                 if (opt.Value.GetBool()) ShowChildrenSettings(opt.Value, ref sb, deep + 1);
             }
         }
@@ -592,7 +592,7 @@ namespace TownOfHost
                 var RoleTextData = GetRoleColorCode(role);
                 //var SendRoleInfo = "";
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
                 {
                     SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
                 }
@@ -605,7 +605,7 @@ namespace TownOfHost
             {
                 var RoleTextData = GetRoleColorCode(role);
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
                 SendMessage(description.FullFormatHelp, player.PlayerId, title: RoleInfoTitle);
                 GetAddonsHelp(player);
                 return;
@@ -615,7 +615,7 @@ namespace TownOfHost
                 var RoleTextData = GetRoleColorCode(role);
                 //var SendRoleInfo = "";
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
                 {
                     SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
                 }
@@ -632,7 +632,7 @@ namespace TownOfHost
                 AddRoleTextData = GetRoleColorCode(roleclas.Jikaku());
 
             var AddRoleInfoTitleString = $"{GetString("AddonInfoTitle")}";
-            var AddRoleInfoTitle = $"<color={AddRoleTextData}>{AddRoleInfoTitleString}";
+            var AddRoleInfoTitle = $"<{AddRoleTextData}>{AddRoleInfoTitleString}";
             var s = new StringBuilder();
 
             var k = "<line-height=2.0pic><size=100%>~~~~~~~~~~~~~~~~~~~~~~~~\n\n<size=150%><b>";
@@ -694,7 +694,7 @@ namespace TownOfHost
             if (player == null) return;
             if (!player.IsGhostRole()) return;
 
-            SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId, $"<color=#8989d9>{GetString("GhostRolesIntoTitle")}</color>");
+            SendMessage(GetAddonsHelp(PlayerState.GetByPlayerId(player.PlayerId).GhostRole), player.PlayerId, $"<#8989d9>{GetString("GhostRolesIntoTitle")}</color>");
         }
         public static string GetAddonsHelp(CustomRoles role)
         {
@@ -765,13 +765,13 @@ namespace TownOfHost
             var s = "";
             if (Mark != "") Mark = $" {Mark}";
             if (Options.CustomRoleSpawnChances.TryGetValue(role, out var op)) ShowChildrenSettings(op, ref set, Askesu: true, pc: pc);
-            if (set.ToString().RemoveHtmlTags() != "") s = $"\n\n<size=90%>{GetString("Settings")}\n<size=60%>{set}";
+            if (set.ToString().RemoveHtmlTags() != "") s = $"\n\n<size=45%>{set}";
             if (UtilsOption.GetFrom(from).RemoveHtmlTags() == "") f = "";
 
             var info = ColorString(GetRoleColor(role), GetString($"{role}") + Mark + m + GetString($"{role}Info"));
             if (Mark == "") info = $"<b>{info}</b>";
 
-            return info + $"\n</b></color><size=60%>{f}<line-height=1.3pic>" + GetString($"{role}InfoLong") + s;
+            return info + $"\n</b></color><size=57%>{f}<line-height=1.3pic>" + GetString($"{role}InfoLong") + s;
         }
         public static string GetRoleTypesCount(bool shouryaku = true)
         {
@@ -798,23 +798,23 @@ namespace TownOfHost
             }
             if (shouryaku)
             {
-                if (i != 0) text += $"<color=#ff1919>I:{i}  </color>";
-                if (m != 0) text += $"<color=#ff7f50>M:{m}  </color>";
-                if (c != 0) text += $"<color=#8cffff>C:{c}  </color>";
-                if (n != 0) text += $"<color=#cccccc>N:{n}  </color>";
-                if (a != 0) text += $"<color=#028760>A:{a}  </color>";
-                if (l != 0) text += $"<color=#ff6be4>L:{l}  </color>";
-                if (g != 0) text += $"<color=#8989d9>G:{g}  </color>";
+                if (i != 0) text += $"<#ff1919>I:{i}  </color>";
+                if (m != 0) text += $"<#ff7f50>M:{m}  </color>";
+                if (c != 0) text += $"<#8cffff>C:{c}  </color>";
+                if (n != 0) text += $"<#cccccc>N:{n}  </color>";
+                if (a != 0) text += $"<#028760>A:{a}  </color>";
+                if (l != 0) text += $"<#ff6be4>L:{l}  </color>";
+                if (g != 0) text += $"<#8989d9>G:{g}  </color>";
             }
             else
             {
-                if (i != 0) text += $"<color=#ff1919>Imp:{i}   </color>";
-                if (m != 0) text += $"<color=#ff7f50>Mad:{m}   </color>";
-                if (c != 0) text += $"<color=#8cffff>Crew:{c}   </color>";
-                if (n != 0) text += $"<color=#cccccc>Neu:{n}   </color>";
-                if (a != 0) text += $"<color=#028760>Add:{a}   </color>";
-                if (l != 0) text += $"<color=#ff6be4>Love:{l}   </color>";
-                if (g != 0) text += $"<color=#8989d9>Gost:{g}   </color>";
+                if (i != 0) text += $"<#ff1919>Imp:{i}   </color>";
+                if (m != 0) text += $"<#ff7f50>Mad:{m}   </color>";
+                if (c != 0) text += $"<#8cffff>Crew:{c}   </color>";
+                if (n != 0) text += $"<#cccccc>Neu:{n}   </color>";
+                if (a != 0) text += $"<#028760>Add:{a}   </color>";
+                if (l != 0) text += $"<#ff6be4>Love:{l}   </color>";
+                if (g != 0) text += $"<#8989d9>Gost:{g}   </color>";
             }
             return text;
         }
@@ -857,31 +857,31 @@ namespace TownOfHost
         public static string GetFrom(SimpleRoleInfo info) => GetFrom(info.From, info.RoleName);
         public static string GetFrom(From from, CustomRoles role = CustomRoles.NotAssigned)
         {
-            string Fromtext = "<color=#000000>From:</color>";
+            string Fromtext = "<#000000>From:</color>";
             switch (from)
             {
                 case From.None: Fromtext = ""; break;
-                case From.AmongUs: Fromtext += "<color=#ff1919>Among Us</color>"; break;
-                case From.TheOtherRoles: Fromtext += $"<color=#ff0000>TheOtherRoles</color>"; break;
-                case From.TOR_GM_Edition: Fromtext += $"<color=#ff0000>TOR GM Edition</color>"; break;
-                case From.TOR_GM_Haoming_Edition: Fromtext += $"<color=#ff0000>TOR GM Haoming</color>"; break;
-                case From.SuperNewRoles: Fromtext += "<color=#ffa500>Super</color><color=#ff0000>New</color><color=#00ff00>Roles</color>"; break;
-                case From.ExtremeRoles: Fromtext += $"<color=#d3d3d3>{from}</color>"; break;
-                case From.NebulaontheShip: Fromtext += $"<color=#191970>{from}</color>"; break;
-                case From.au_libhalt_net: Fromtext += $"<color=#ffc0cb>au libhalt net</color>"; break;
-                case From.FoolersMod: Fromtext += $"<color=#006400>{from}</color>"; break;
-                case From.SheriffMod: Fromtext += $"<color=#f8cd46>{from}</color>"; break;
-                case From.Jester: Fromtext += $"<color=#ec62a5>{from}</color>"; break;
-                case From.TownOfUs: Fromtext += $"<color=#daa520>{from}</color>"; break;
-                case From.TownOfHost: Fromtext += $"<color=#00bfff>{from}</color>"; break;
-                case From.TownOfHost_Y: Fromtext += $"<color=#dddd00>TownOfHost_Y</color>"; break;
-                case From.TownOfHost_for_E: Fromtext += $"<color=#18e744>TownOfHost for E</color>"; break;
-                case From.Speyrp: Fromtext = $"<color=#7fffbf>From:Yoran★</color>"; break;
-                case From.TownOfHost_E: Fromtext += $"<color=#ffc0cb>TownOfHost E</color>"; break;
-                case From.RevolutionaryHostRoles: Fromtext += $"<color=#3cb371>RevolutionaryHostRoles</color>"; break;
-                case From.Love_Couple_Mod: Fromtext += "<color=#ff6be4>Love Couple Mod</color>"; break;
+                case From.AmongUs: Fromtext += "<#ff1919>Among Us</color>"; break;
+                case From.TheOtherRoles: Fromtext += $"<#ff0000>TheOtherRoles</color>"; break;
+                case From.TOR_GM_Edition: Fromtext += $"<#ff0000>TOR GM Edition</color>"; break;
+                case From.TOR_GM_Haoming_Edition: Fromtext += $"<#ff0000>TOR GM Haoming</color>"; break;
+                case From.SuperNewRoles: Fromtext += "<#ffa500>Super</color><#ff0000>New</color><#00ff00>Roles</color>"; break;
+                case From.ExtremeRoles: Fromtext += $"<#d3d3d3>{from}</color>"; break;
+                case From.NebulaontheShip: Fromtext += $"<#191970>{from}</color>"; break;
+                case From.au_libhalt_net: Fromtext += $"<#ffc0cb>au libhalt net</color>"; break;
+                case From.FoolersMod: Fromtext += $"<#006400>{from}</color>"; break;
+                case From.SheriffMod: Fromtext += $"<#f8cd46>{from}</color>"; break;
+                case From.Jester: Fromtext += $"<#ec62a5>{from}</color>"; break;
+                case From.TownOfUs: Fromtext += $"<#daa520>{from}</color>"; break;
+                case From.TownOfHost: Fromtext += $"<#00bfff>{from}</color>"; break;
+                case From.TownOfHost_Y: Fromtext += $"<#dddd00>TownOfHost_Y</color>"; break;
+                case From.TownOfHost_for_E: Fromtext += $"<#18e744>TownOfHost for E</color>"; break;
+                case From.Speyrp: Fromtext = $"<#7fffbf>From:Yoran★</color>"; break;
+                case From.TownOfHost_E: Fromtext += $"<#ffc0cb>TownOfHost E</color>"; break;
+                case From.RevolutionaryHostRoles: Fromtext += $"<#3cb371>RevolutionaryHostRoles</color>"; break;
+                case From.Love_Couple_Mod: Fromtext += "<#ff6be4>Love Couple Mod</color>"; break;
             }
-            if (role is CustomRoles.MadSuicide) Fromtext += "  <color=#000000>(<color=#ff1919>崇拝者</color>)</color>";
+            if (role is CustomRoles.MadSuicide) Fromtext += "  <#000000>(<#ff1919>崇拝者</color>)</color>";
             return Fromtext;
         }
         public static void SetVision(this IGameOptions opt, bool HasImpVision)

@@ -97,15 +97,15 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 else Camouflage.RpcSetSkin(target);
                 remove.Add(id);
             }
-            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
 
+            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             if (remove.Count != 0) remove.Do(id => VentPlayers.Remove(id));
         }
         if (Limit <= 0)
         {
             Limit = -100;
             NowUse = false;
-            PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, kyousei: null));
+            PlayerCatch.AllPlayerControls.DoIf(pc => pc.GetCustomRole() is not CustomRoles.Monochromer, pc => Camouflage.RpcSetSkin(pc, kyousei: null));
             _ = new LateTask(() =>
             {
                 if (GameStates.Meeting) return;
@@ -163,7 +163,8 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 .EndRpc();
             sender.SendMessage();
         }
-        if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+
+        if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
         Limit = OptionAblitytime.GetFloat();
         NowUse = true;
         _ = new LateTask(() =>

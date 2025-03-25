@@ -27,6 +27,7 @@ namespace TownOfHost
             GameStates.task =
             GameStates.Meeting =
             GameStates.Tuihou = false;
+            UtilsGameLog.WriteGameLog();
 
             Logger.Info("-----------ゲーム終了-----------", "Phase");
             if (!GameStates.IsModHost) return;
@@ -220,7 +221,7 @@ namespace TownOfHost
             if (Main.RTAMode && Options.CurrentGameMode == CustomGameMode.TaskBattle)
             {
                 sb.Append(UtilsGameLog.GetRTAText());
-                EndGamePatch.KillLog += $"<color=#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}\n" + sb.ToString().Replace("\n", "\n　") + $"\n{"★".Color(Palette.DisabledGrey)}<color=#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}";
+                EndGamePatch.KillLog += $"<#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}\n" + sb.ToString().Replace("\n", "\n　") + $"\n{"★".Color(Palette.DisabledGrey)}<#D4AF37>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</color>{"★".Color(Palette.DisabledGrey)}";
             }
             else
             {
@@ -228,7 +229,7 @@ namespace TownOfHost
                 List<byte> cloneRoles = new(PlayerState.AllPlayerStates.Keys);
                 foreach (var id in Main.winnerList)
                 {
-                    sb.Append($"\n<color={CustomWinnerColor}>★</color> ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append($"\n<{CustomWinnerColor}>★</color> ").Append(EndGamePatch.SummaryText[id]);
                     cloneRoles.Remove(id);
                 }
                 foreach (var id in cloneRoles)

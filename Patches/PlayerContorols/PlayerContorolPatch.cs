@@ -54,7 +54,7 @@ namespace TownOfHost
             var target = __instance;
             var targetName = __instance.GetNameWithRole().RemoveHtmlTags();
             canOverrideRole = true;
-            Logger.Info($"{targetName} =>{roleType}", "PlayerControl.RpcSetRole");
+            Logger.Info($"{targetName} => {roleType}", "PlayerControl.RpcSetRole");
             if (GameStates.IsFreePlay && Main.EditMode)
             {
                 roleType = RoleTypes.Shapeshifter;
@@ -63,40 +63,10 @@ namespace TownOfHost
             if (ShipStatus.Instance == null || !ShipStatus.Instance.enabled) return true;
             if (AntiBlackout.IsSet)
             {
-                Logger.Info($"AntiBlackoutが動作ちゅうだからキャンセル！", "RpcSetRole");
+                Logger.Info($"AntiBlackoutが動作中だからキャンセル！", "RpcSetRole");
                 return false;
             }
-            if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
-            {
-                var targetIsKiller = target.GetRoleClass() is IKiller;
-                var ghostRoles = new Dictionary<PlayerControl, RoleTypes>();
-                foreach (var seer in PlayerCatch.AllPlayerControls)
-                {
-                    var self = seer.PlayerId == target.PlayerId;
-                    var seerIsKiller = seer.GetRoleClass() is IKiller;
 
-                    {
-                        ghostRoles[seer] = RoleTypes.CrewmateGhost;
-                    }
-                }
-                if (ghostRoles.All(kvp => kvp.Value == RoleTypes.CrewmateGhost))
-                {
-                    roleType = RoleTypes.CrewmateGhost;
-                }
-                else if (ghostRoles.All(kvp => kvp.Value == RoleTypes.ImpostorGhost))
-                {
-                    roleType = RoleTypes.ImpostorGhost;
-                }
-                else
-                {
-                    foreach ((var seer, var role) in ghostRoles)
-                    {
-                        Logger.Info($"Desync {targetName} =>{role} for{seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                        target.RpcSetRoleDesync(role, seer.GetClientId());
-                    }
-                    return false;
-                }
-            }
             return true;
         }
     }

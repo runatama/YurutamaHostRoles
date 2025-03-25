@@ -23,6 +23,19 @@ namespace TownOfHost
             cachedPlayers[playerId] = player;
             return player;
         }
+        public static TaskState GetPlayerTaskState(this PlayerControl player)
+        {
+            return PlayerState.GetByPlayerId(player.PlayerId).GetTaskState();
+        }
+        public static PlayerState GetPlayerState(this PlayerControl player)
+        {
+            return PlayerState.GetByPlayerId(player.PlayerId);
+        }
+        public static PlayerState GetPlayerState(this byte player)
+        {
+            return PlayerState.GetByPlayerId(player);
+        }
+
         public static NetworkedPlayerInfo GetPlayerInfoById(int PlayerId) =>
             GameData.Instance.AllPlayers.ToArray().Where(info => info.PlayerId == PlayerId).FirstOrDefault();
 

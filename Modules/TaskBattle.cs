@@ -139,7 +139,7 @@ class TaskBattle
                                 to2 += PlayerCatch.GetPlayerById(id).GetPlayerTaskState().CompletedTasksCount;
                             if (to2 > to) to = to2;
                         }
-                    Mark.Append($"<color=#00f7ff>({to})</color>");
+                    Mark.Append($"<#00f7ff>({to})</color>");
                 }
             }
         }

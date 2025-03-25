@@ -204,6 +204,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
                            (target.Is(CustomRoles.JackalAlien) && JackalAlien.TairoDeathReason ? CustomDeathReason.Revenge1 :
                            (target.Is(CustomRoles.AlienHijack) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire));
 
+                UtilsGameLog.AddGameLog("Sheriff", string.Format(GetString("SheriffMissLog"), Utils.GetPlayerColor(target.PlayerId)));
                 _ = new LateTask(() => killer.RpcMurderPlayer(killer), Main.LagTime, "SwSheMiss");
                 if (!MisfireKillsTarget.GetBool())
                 {

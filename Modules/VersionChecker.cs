@@ -9,13 +9,12 @@ public static class VersionChecker
 
     public static void Check()
     {
-        /*
         var amongUsVersion = Version.Parse(Application.version);
         var lowestSupportedVersion = Version.Parse(Main.LowestSupportedVersion);
         IsSupported = amongUsVersion >= lowestSupportedVersion;
         if (!IsSupported)
         {
             ErrorText.Instance.AddError(ErrorCode.UnsupportedVersion);
-        }*/
+        }
     }
 }

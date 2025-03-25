@@ -25,12 +25,12 @@ public abstract class RoleDescription
         {
             var builder = new StringBuilder(256);
             //役職とイントロ
-            builder.AppendFormat("<b><line-height=2.0pic><size={0}>{1}\n", FirstHeaderSize, Translator.GetRoleString(RoleInfo.RoleName.ToString()).Color(RoleInfo.RoleColor.ToReadableColor()));
-            builder.AppendFormat("<line-height=1.8pic><size={0}>{1}</b>\n", InfoSize, Blurb.Color(RoleInfo.RoleColor.ToReadableColor()));
+            builder.AppendFormat("<{2}><b><line-height=1.3pic><size={0}>{1}\n\n", FirstHeaderSize, Translator.GetRoleString(RoleInfo.RoleName.ToString()), UtilsRoleText.GetRoleColorCode(RoleInfo.RoleName));
+            builder.AppendFormat("<size={0}>{1}</b></color>\n", InfoSize, Blurb);
             // 陣営
             builder.AppendFormat("<size={0}>{1}:", "65%", Translator.GetString("Team"));
             var roleTeam = RoleInfo.CustomRoleType == CustomRoleTypes.Madmate ? CustomRoleTypes.Impostor : RoleInfo.CustomRoleType;
-            builder.AppendFormat("<b>{0}</b>    ", Translator.GetString($"CustomRoleTypes.{roleTeam}"));
+            builder.AppendFormat("{0}    ", Translator.GetString($"CustomRoleTypes.{roleTeam}"));
 
             //カウント
             var count = RoleInfo.CountType;
@@ -44,16 +44,16 @@ public abstract class RoleDescription
                 case CountTypes.Remotekiller: roletext = CustomRoles.Remotekiller; break;
             }
 
-            builder.Append($"{Translator.GetString("Count")}:<b>{Utils.ColorString(UtilsRoleText.GetRoleColor(roletext), Translator.GetString(roletext.ToString()))}</b>    ");
+            builder.Append($"{Translator.GetString("Count")}:{Translator.GetString(roletext.ToString())}    ");
 
             // バニラ置き換え役職
             builder.Append(Translator.GetString("Basis"));
-            builder.AppendFormat("<line-height=1.3pic>:{0}\n", Translator.GetString(RoleInfo.BaseRoleType.Invoke().ToString()));
+            builder.AppendFormat(":{0}\n", Translator.GetString(RoleInfo.BaseRoleType.Invoke().ToString()));
             //From
             if (RoleInfo.From != From.None) builder.AppendFormat("{0}\n", UtilsOption.GetFrom(RoleInfo).RemoveSizeTags());
 
             //説明
-            builder.AppendFormat("<line-height=1.2pic><size={0}>\n", BlankLineSize);
+            builder.AppendFormat("<size={0}>\n", BlankLineSize);
             builder.AppendFormat("<size={0}>{1}\n", BodySize, Description);
             //設定
             var sb = new StringBuilder();
@@ -66,39 +66,36 @@ public abstract class RoleDescription
                 sb.Append($"{Options.MadMateOption.GetName()}: {Options.MadMateOption.GetString().Color(Palette.ImpostorRed)}\n");
                 if (Options.MadMateOption.GetBool())
                 {
-                    sb.Append($"{rule}{Options.MadmateCanFixLightsOut.GetName()}: {Options.MadmateCanFixLightsOut.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateCanFixComms.GetName()}: {Options.MadmateCanFixComms.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateHasLighting.GetName()}: {Options.MadmateHasLighting.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateHasMoon.GetName()}: {Options.MadmateHasMoon.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateCanSeeKillFlash.GetName()}: {Options.MadmateCanSeeKillFlash.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateCanSeeOtherVotes.GetName()}: {Options.MadmateCanSeeOtherVotes.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateCanSeeDeathReason.GetName()}: {Options.MadmateCanSeeDeathReason.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateRevengeCrewmate.GetName()}: {Options.MadmateRevengeCrewmate.GetString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanFixLightsOut.GetName()}: {Options.MadmateCanFixLightsOut.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanFixComms.GetName()}: {Options.MadmateCanFixComms.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateHasLighting.GetName()}: {Options.MadmateHasLighting.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateHasMoon.GetName()}: {Options.MadmateHasMoon.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanSeeKillFlash.GetName()}: {Options.MadmateCanSeeKillFlash.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanSeeOtherVotes.GetName()}: {Options.MadmateCanSeeOtherVotes.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanSeeDeathReason.GetName()}: {Options.MadmateCanSeeDeathReason.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateRevengeCrewmate.GetName()}: {Options.MadmateRevengeCrewmate.GetTextString()}\n");
                     if (Options.MadmateRevengeCrewmate.GetBool())
                     {
-                        sb.Append($"┃ {rule}{Options.MadNekomataCanImp.GetName()}: {Options.MadNekomataCanImp.GetString()}\n");
-                        sb.Append($"┃ {rule}{Options.MadNekomataCanMad.GetName()}: {Options.MadNekomataCanMad.GetString()}\n");
-                        sb.Append($"┃ {rule}{Options.MadNekomataCanCrew.GetName()}: {Options.MadNekomataCanCrew.GetString()}\n");
-                        sb.Append($"┃ {ruleFooter}{Options.MadNekomataCanNeu.GetName()}: {Options.MadNekomataCanNeu.GetString()}\n");
+                        sb.Append($"┃ {rule}{Options.MadNekomataCanImp.GetName()}: {Options.MadNekomataCanImp.GetTextString()}\n");
+                        sb.Append($"┃ {rule}{Options.MadNekomataCanMad.GetName()}: {Options.MadNekomataCanMad.GetTextString()}\n");
+                        sb.Append($"┃ {rule}{Options.MadNekomataCanCrew.GetName()}: {Options.MadNekomataCanCrew.GetTextString()}\n");
+                        sb.Append($"┃ {ruleFooter}{Options.MadNekomataCanNeu.GetName()}: {Options.MadNekomataCanNeu.GetTextString()}\n");
                     }
-                    sb.Append($"{rule}{Options.MadCanSeeImpostor.GetName()}: {Options.MadCanSeeImpostor.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateVentCooldown.GetName()}: {Options.MadmateVentCooldown.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateVentMaxTime.GetName()}: {Options.MadmateVentMaxTime.GetString()}\n");
-                    sb.Append($"{rule}{Options.MadmateCanMovedByVent.GetName()}: {Options.MadmateCanMovedByVent.GetString()}\n");
-                    sb.Append($"{ruleFooter}{Options.MadmateTell.GetName()}: {Options.MadmateTell.GetString()}\n");
+                    sb.Append($"{rule}{Options.MadCanSeeImpostor.GetName()}: {Options.MadCanSeeImpostor.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateVentCooldown.GetName()}: {Options.MadmateVentCooldown.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateVentMaxTime.GetName()}: {Options.MadmateVentMaxTime.GetTextString()}\n");
+                    sb.Append($"{rule}{Options.MadmateCanMovedByVent.GetName()}: {Options.MadmateCanMovedByVent.GetTextString()}\n");
+                    sb.Append($"{ruleFooter}{Options.MadmateTell.GetName()}: {Options.MadmateTell.GetTextString()}\n");
                 }
-            }
-            if (sb.ToString() != "")
-            {
-                builder.AppendFormat("<size={0}>\n", BlankLineSize);
-                builder.AppendFormat("<size={0}>{1}\n", "80%", Translator.GetString("Settings"));
-                builder.AppendFormat("<line-height=0.9pic><size={0}>{1}", "45%", sb);
             }
             var temp = TemplateManager.GetTemplate($"{RoleInfo.RoleName}");
             if (temp != "")
             {
-                builder.AppendFormat("</line-height><line-height=1.3pic>\n<size={0}>{1}</size>\n", InfoSize, Translator.GetString("RoleTemplate"));
-                builder.Append($"{temp}");
+                builder.Append($"\n{temp}");
+            }
+            if (sb.ToString() != "")
+            {
+                builder.AppendFormat("<line-height=0.9pic><size={0}>\n{1}", "45%", sb.ToString().RemoveColorTags());
             }
             return builder.ToString();
         }

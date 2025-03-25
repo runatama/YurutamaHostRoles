@@ -55,6 +55,10 @@ namespace TownOfHost
         {
             return Translator.GetString(OptionMeGetBool() ? TEXT_true : TEXT_false);
         }
+        public override string GetTextString()
+        {
+            return OptionMeGetBool() ? "○" : "×";
+        }
 
         // Setter
         public override void SetValue(int value, bool doSync = true)

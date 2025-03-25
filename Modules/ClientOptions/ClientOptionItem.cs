@@ -39,8 +39,6 @@ public sealed class ClientOptionItem : ClientActionItem
             config.Value = !config.Value;
             item.UpdateToggle();
             additionalOnClickAction?.Invoke();
-            if (name == "CustomSprite")
-                if (GameStates.InGame) CustomButtonHud.BottonHud();
         };
         return item;
     }

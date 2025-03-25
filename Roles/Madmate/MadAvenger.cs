@@ -126,7 +126,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     {
         if (!Skill) return;
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        UtilsNotifyRoles.MeetingMoji = "<color=#ff1919><i><u>★</color>" + GetString("MadAvenger") + "</i></u>";
+        UtilsNotifyRoles.MeetingMoji = "<#ff1919><u>★</color>" + GetString("MadAvenger") + "</u>";
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 1.0f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 2.5f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 4.0f, "Kakumeikaigi");

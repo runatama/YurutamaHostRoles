@@ -180,10 +180,10 @@ namespace TownOfHost
                 {
                     str = str.RemoveGiveAddon();
                     str += "<size=70%> :" + Translator.GetString($"{Name}Info", ReplacementDictionary);
-                    return NameColorCode != "#ffffff" ? $"<color={NameColorCode}>" + str + "</color>" : Utils.ColorString(NameColor, str);
+                    return NameColorCode != "#ffffff" ? $"<{NameColorCode}>" + str + "</color>" : Utils.ColorString(NameColor, str);
                 }
             }
-            return NameColorCode != "#ffffff" ? $"<color={NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>" : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
+            return NameColorCode != "#ffffff" ? $"<{NameColorCode}>" + Translator.GetString(Name, ReplacementDictionary) + "</color>" : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
         public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool() || CheckRoleOption(Parent))
                                         && (GameMode == CustomGameMode.All || GameMode == Options.CurrentGameMode);
@@ -197,6 +197,10 @@ namespace TownOfHost
         public virtual string GetString()
         {
             return ApplyFormat(CurrentValue.ToString());
+        }
+        public virtual string GetTextString()
+        {
+            return GetString();
         }
         public virtual int GetValue() => IsSingleValue ? SingleValue : AllValues[CurrentPreset];
 
@@ -218,16 +222,16 @@ namespace TownOfHost
                 var format = string.Format(Translator.GetString("Format." + ValueFormat), value);
                 switch (value)
                 {
-                    case "10": format = $"<color=#fc7979>{format}</color>"; break;
-                    case "20": format = $"<color=#f7b199>{format}</color>"; break;
-                    case "30": format = $"<color=#fcf479>{format}</color>"; break;
-                    case "40": format = $"<color=#dcfc79>{format}</color>"; break;
-                    case "50": format = $"<color=#b5f77c>{format}</color>"; break;
-                    case "60": format = $"<color=#99f79b>{format}</color>"; break;
-                    case "70": format = $"<color=#87ff9c>{format}</color>"; break;
-                    case "80": format = $"<color=#63ffc6>{format}</color>"; break;
-                    case "90": format = $"<color=#40ffc6>{format}</color>"; break;
-                    case "100": format = $"<color=#79e2fc>{format}</color>"; break;
+                    case "10": format = $"<#fc7979>{format}</color>"; break;
+                    case "20": format = $"<#f7b199>{format}</color>"; break;
+                    case "30": format = $"<#fcf479>{format}</color>"; break;
+                    case "40": format = $"<#dcfc79>{format}</color>"; break;
+                    case "50": format = $"<#b5f77c>{format}</color>"; break;
+                    case "60": format = $"<#99f79b>{format}</color>"; break;
+                    case "70": format = $"<#87ff9c>{format}</color>"; break;
+                    case "80": format = $"<#63ffc6>{format}</color>"; break;
+                    case "90": format = $"<#40ffc6>{format}</color>"; break;
+                    case "100": format = $"<#79e2fc>{format}</color>"; break;
                 }
                 return format;
             }

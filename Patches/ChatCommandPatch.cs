@@ -119,7 +119,7 @@ namespace TownOfHost
                                 {
                                     CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
                                 }
-                                GameManager.Instance.RpcEndGame(GameOverReason.HumansByTask, false);
+                                GameManager.Instance.RpcEndGame(GameOverReason.CrewmatesByTask, false);
                                 break;
                             case "impostor":
                             case "imp":
@@ -132,13 +132,13 @@ namespace TownOfHost
                                 {
                                     CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
                                 }
-                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorsByKill, false);
                                 break;
                             case "none":
                             case "全滅":
                                 GameManager.Instance.enabled = false;
                                 CustomWinnerHolder.WinnerTeam = CustomWinner.None;
-                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorsByKill, false);
                                 break;
                             case "jackal":
                             case "ジャッカル":
@@ -148,19 +148,19 @@ namespace TownOfHost
                                 CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalMafia);
                                 CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalAlien);
                                 CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackaldoll);
-                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorsByKill, false);
                                 break;
                             case "廃村":
                                 GameManager.Instance.enabled = false;
                                 CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
-                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                GameManager.Instance.RpcEndGame(GameOverReason.ImpostorsByKill, false);
                                 break;
                             default:
                                 if (GetRoleByInputName(subArgs, out var role, true))
                                 {
                                     CustomWinnerHolder.WinnerTeam = (CustomWinner)role;
                                     CustomWinnerHolder.WinnerRoles.Add(role);
-                                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorsByKill, false);
                                     break;
                                 }
                                 __instance.AddChat(PlayerControl.LocalPlayer, "次の中から勝利させたい陣営を選んでね\ncrewmate\nクルー\nクルーメイト\nimpostor\nインポスター\njackal\nジャッカル\nnone\n全滅\n廃村");
@@ -247,7 +247,7 @@ namespace TownOfHost
                         {
                             case "crewmate":
                                 GameManager.Instance.enabled = false;
-                                GameManager.Instance.RpcEndGame(GameOverReason.HumansDisconnect, false);
+                                GameManager.Instance.RpcEndGame(GameOverReason.CrewmateDisconnect, false);
                                 break;
 
                             case "impostor":
@@ -383,7 +383,7 @@ namespace TownOfHost
                             }
                             var hRoleTextData = GetRoleColorCode(role);
                             string hRoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                            string hRoleInfoTitle = $"<color={hRoleTextData}>{hRoleInfoTitleString}";
+                            string hRoleInfoTitle = $"<{hRoleTextData}>{hRoleInfoTitleString}";
                             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)//バーニラならこっちで
                             {
                                 SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
@@ -414,7 +414,7 @@ namespace TownOfHost
 
                                         var RoleTextData = GetRoleColorCode(role);
                                         string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                                        string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                                        string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
 
                                         if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
                                         {
@@ -467,7 +467,7 @@ namespace TownOfHost
                                     writer.StartMessage(imp.GetClientId());
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
-                                    .Write($"<line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(PlayerControl.LocalPlayer)}☆</color></line-height>")
+                                    .Write($"<line-height=-18%>\n<#ff1919>☆{GetPlayerColor(PlayerControl.LocalPlayer)}☆</color></line-height>")
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SendChat)
                                     .Write(send.Mark(Palette.ImpostorRed))
@@ -486,6 +486,7 @@ namespace TownOfHost
                     case "/jackalchat":
                     case "/jacct":
                     case "/jc":
+                        if (Assassin.NowUse) break;
                         canceled = true;
                         if (GameStates.InGame && Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien)
                         {
@@ -505,7 +506,7 @@ namespace TownOfHost
                                     writer.StartMessage(jac.GetClientId());
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
-                                    .Write($"<line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(PlayerControl.LocalPlayer)}Φ</color></line-height>")
+                                    .Write($"<line-height=-18%>\n<#00b4eb>Φ{GetPlayerColor(PlayerControl.LocalPlayer)}Φ</color></line-height>")
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SendChat)
                                     .Write(send.Mark(ModColors.JackalColor))
@@ -524,6 +525,7 @@ namespace TownOfHost
                     case "/loverschat":
                     case "/loverchat":
                     case "/lc":
+                        if (Assassin.NowUse) break;
                         canceled = true;
                         if (GameStates.InGame && Options.LoversHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRiaju())
                         {
@@ -565,6 +567,7 @@ namespace TownOfHost
                     case "/Twinschat":
                     case "/twinschet":
                     case "/tc":
+                        if (Assassin.NowUse) break;
                         if (GameStates.InGame && Options.TwinsHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && Twins.TwinsList.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var twinsid))
                         {
                             if (GameStates.Tuihou)
@@ -612,6 +615,7 @@ namespace TownOfHost
                         break;
                     case "/Connectingchat":
                     case "/cc":
+                        if (Assassin.NowUse) break;
                         if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting))
                         {
                             if (GameStates.Tuihou)
@@ -678,7 +682,7 @@ namespace TownOfHost
                     case "/say":
                         canceled = true;
                         if (args.Length > 1)
-                            SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
+                            SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<#ff0000>{GetString("MessageFromTheHost")}</color>");
                         break;
 
                     case "/settask":
@@ -689,19 +693,19 @@ namespace TownOfHost
                         if (args.Length > 1 && int.TryParse(args[1], out var cot))
                             if (ch(cot))
                             {
-                                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumCommonTasks, cot);
+                                Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetInt(Int32OptionNames.NumCommonTasks, cot);
                                 chc += $"通常タスクを{cot}にしました!\n";
                             }
                         if (args.Length > 2 && int.TryParse(args[2], out var lot))
                             if (ch(lot))
                             {
-                                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumLongTasks, lot);
+                                Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetInt(Int32OptionNames.NumLongTasks, lot);
                                 chc += $"ロングタスクを{lot}にしました!\n";
                             }
                         if (args.Length > 3 && int.TryParse(args[3], out var sht))
                             if (ch(sht))
                             {
-                                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumShortTasks, sht);
+                                Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetInt(Int32OptionNames.NumShortTasks, sht);
                                 chc += $"ショートタスクを{sht}にしました!\n";
                             }
                         if (chc == "")
@@ -726,7 +730,7 @@ namespace TownOfHost
                         if (args.Length > 1 && float.TryParse(args[1], out var fl))
                         {
                             if (fl <= 0) fl = 0.00000000000000001f;
-                            Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetFloat(FloatOptionNames.KillCooldown, fl);
+                            Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetFloat(FloatOptionNames.KillCooldown, fl);
                         }
                         GameOptionsSender.RpcSendOptions();
                         break;
@@ -1086,7 +1090,7 @@ namespace TownOfHost
                                     break;
                                 case "win":
                                     GameManager.Instance.LogicFlow.CheckEndCriteria();
-                                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorByKill, false);
+                                    GameManager.Instance.RpcEndGame(GameOverReason.ImpostorsByKill, false);
                                     break;
                                 case "nc":
                                     Main.nickName = "<size=0>";
@@ -1588,7 +1592,7 @@ namespace TownOfHost
 
                         var RoleTextData = GetRoleColorCode(role);
                         string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
-                        string RoleInfoTitle = $"<color={RoleTextData}>{RoleInfoTitleString}";
+                        string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
 
                         if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
                         {
@@ -1701,7 +1705,7 @@ namespace TownOfHost
                                     {
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write($"<align=\"left\"><line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
+                                        .Write($"<align=\"left\"><line-height=-18%>\n<#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                                         .Write($"<align=\"left\">{send.Mark(Palette.ImpostorRed)}")
@@ -1716,7 +1720,7 @@ namespace TownOfHost
                                     }
                                     writer.StartRpc(imp.NetId, (byte)RpcCalls.SetName)
                                     .Write(imp.Data.NetId)
-                                    .Write($"<align=\"left\"><line-height=-18%>\n<color=#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
+                                    .Write($"<align=\"left\"><line-height=-18%>\n<#ff1919>☆{GetPlayerColor(player)}☆</color></line-height>")
                                     .EndRpc();
                                     writer.StartRpc(imp.NetId, (byte)RpcCalls.SendChat)
                                     .Write($"<align=\"left\">{send.Mark(Palette.ImpostorRed)}")
@@ -1738,6 +1742,7 @@ namespace TownOfHost
                 case "/jackalchat":
                 case "/jacct":
                 case "/jc":
+                    if (Assassin.NowUse) break;
                     if (GameStates.InGame && Options.JackalHideChat.GetBool() && player.IsAlive() && player.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien)
                     {
                         var send = "";
@@ -1767,7 +1772,7 @@ namespace TownOfHost
                                     {
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write($"<align=\"left\"><line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
+                                        .Write($"<align=\"left\"><line-height=-18%>\n<#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                                         .Write($"<align=\"left\">{send.Mark(ModColors.JackalColor)}")
@@ -1782,7 +1787,7 @@ namespace TownOfHost
                                     }
                                     writer.StartRpc(jac.NetId, (byte)RpcCalls.SetName)
                                     .Write(jac.Data.NetId)
-                                    .Write($"<align=\"left\"><line-height=-18%>\n<color=#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
+                                    .Write($"<align=\"left\"><line-height=-18%>\n<#00b4eb>Φ{GetPlayerColor(player)}Φ</color></line-height>")
                                     .EndRpc();
                                     writer.StartRpc(jac.NetId, (byte)RpcCalls.SendChat)
                                     .Write($"<align=\"left\">{send.Mark(ModColors.JackalColor)}")
@@ -1803,6 +1808,7 @@ namespace TownOfHost
                 case "/loverschat":
                 case "/loverchat":
                 case "/lc":
+                    if (Assassin.NowUse) break;
                     if (GameStates.InGame && Options.LoversHideChat.GetBool() && player.IsAlive() && player.IsRiaju())
                     {
                         var l = player.GetRiaju();
@@ -1872,6 +1878,7 @@ namespace TownOfHost
                 case "/Twinschat":
                 case "/twinschet":
                 case "/tc":
+                    if (Assassin.NowUse) break;
                     if (GameStates.InGame && Options.TwinsHideChat.GetBool() && player.IsAlive() && Twins.TwinsList.TryGetValue(player.PlayerId, out var twinsid))
                     {
                         if (GameStates.Tuihou)
@@ -1937,6 +1944,7 @@ namespace TownOfHost
                     break;
                 case "/Connectingchat":
                 case "/cc":
+                    if (Assassin.NowUse) break;
                     if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && player.IsAlive() && player.Is(CustomRoles.Connecting))
                     {
                         if (GameStates.Tuihou)
@@ -2096,6 +2104,7 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count < 1 || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
             if (DoBlockChat) return;
             var player = AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
+
             if (player == null) return;
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
             var pcname = DataManager.player.Customization.Name;
@@ -2112,8 +2121,14 @@ namespace TownOfHost
             }
             if (GameStates.IsLobby)
             {
+                if (title.RemoveHtmlTags() != title)
+                {
+                    player = AllAlivePlayerControls.Where(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).OrderBy(x => x.PlayerId).FirstOrDefault();
+                    if (player == null) player = AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
+                }
                 _ = new LateTask(() => ApplySuffix(null, true), 0.24f, "", true);
             }
+            Logger.Info($"{title} , {msg}", "Mes");
             Croissant.ChocolateCroissant = true;
             var name = player.Data.PlayerName;
             if (Options.ExHideChatCommand.GetBool())
@@ -2143,7 +2158,7 @@ namespace TownOfHost
                             .EndRpc();
                             Nwriter.EndMessage();
                             Nwriter.SendMessage();
-                            if (GameStates.Meeting)
+                            if (GameStates.Meeting && Main.MessagesToSend.Count < 1)
                                 _ = new LateTask(() =>
                                     {
                                         NameColorManager.RpcMeetingColorName(player);
@@ -2205,7 +2220,7 @@ namespace TownOfHost
             .EndRpc();
             writer.EndMessage();
             writer.SendMessage();
-            if (GameStates.Meeting)
+            if (GameStates.Meeting && Main.MessagesToSend.Count < 1)
                 _ = new LateTask(() =>
                     {
                         NameColorManager.RpcMeetingColorName(player);

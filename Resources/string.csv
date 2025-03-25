@@ -178,7 +178,9 @@
 "#コンビネーション役職"
 "Driver","Driver","ドライバー","驾驶员","","","",""
 "Braid","Braid","ブレイド","辫子","","","",""
-"DriverandBraid","DriverandBraid","ドライバー</color>と<color=#ff1919>ブレイド</color>","驾驶员</color>和<color=#ff1919>辫子</color>",
+"DriverandBraid","DriverandBraid","ドライバー</color>と<color=#ff1919>ブレイド</color>","驾驶员</color>和<color=#ff1919>辫子</color>"
+"Assassin","Assassin","アサシン"
+"Merlin","Merlin","マーリン"
 "Twins","Twins","双子"
 
 "# HideAndSeek"
@@ -256,10 +258,10 @@
 
 "# その他"
 "Team","Team","陣営"
-"CustomRoleTypes.Crewmate","Crewmate","<color=#8cffff>クルー</color>","船员","","Членов Экипажа","Tripulante",""
-"CustomRoleTypes.Impostor","Impostor","<color=#ff1919>インポスター</color>","内鬼","","Предателей","Impostor",""
-"CustomRoleTypes.Neutral","Neutral","<color=#808080>ニュートラル</color>","独立","","Нейтралов","Neutro",""
-"CustomRoleTypes.Madmate","Mad","<color=#ff7f50>マッド</color>","叛徒","","Безумцев","Louco",""
+"CustomRoleTypes.Crewmate","Crewmate","クルー","船员","","Членов Экипажа","Tripulante",""
+"CustomRoleTypes.Impostor","Impostor","インポスター","内鬼","","Предателей","Impostor",""
+"CustomRoleTypes.Neutral","Neutral","ニュートラル","独立","","Нейтралов","Neutro",""
+"CustomRoleTypes.Madmate","Mad","マッド","叛徒","","Безумцев","Louco",""
 "TeamCrewmate","Team Crewmates","クルー陣営","船员阵营","","Команда Членов Экипажа","Time Tripulantes",""
 "TeamImpostor","Team Impostors","インポスター陣営","内鬼阵营","幫助偽裝者","Команда Предателей","Time Impostor","Time Impostor"
 "TeamEgoist","Team EgoistTeam ","エゴイスト陣営","野心家阵营","利己主義者陣營","Команда Эгоистов","Time Egoísta","Time Egoísta"
@@ -2084,6 +2086,7 @@
 "Meeting.Shoushu","(Reportar:{0})","(招集者:{0})"
 "Message.Day","【========= Day.{0} ========】","【======== Day.{0} ========】"
 "EraserMeg","{0} => {1}","{0} : {1}の役職を消しちゃった!!"
+"SheriffMissLog","","{0}に誤爆しちゃった！"
 
 "## その他"
 

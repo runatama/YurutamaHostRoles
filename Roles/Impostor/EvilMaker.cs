@@ -49,7 +49,7 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
 
         var target = Player.GetKillTarget(true);
         if (target == null) return;
-        if ((target.GetCustomRole() is CustomRoles.SKMadmate || target.GetCustomRole().IsImpostor()) && !SuddenDeathMode.NowSuddenDeathMode) return;
+        if ((target.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.King or CustomRoles.Merlin || target.GetCustomRole().IsImpostor()) && !SuddenDeathMode.NowSuddenDeathMode) return;
 
         Used = true;
         resetkillcooldown = true;
@@ -100,7 +100,7 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
         _ = new LateTask(() => Player.SetKillCooldown(target: target), Main.LagTime, "", true);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
-        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true) + $"({UtilsRoleText.GetTrueRoleName(Player.PlayerId)})"));
+        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true)));
         target.RpcSetCustomRole(CustomRoles.SKMadmate);
         NameColorManager.Add(Player.PlayerId, target.PlayerId, "#ff1919");
         NameColorManager.Add(target.PlayerId, Player.PlayerId, "#ff1919");

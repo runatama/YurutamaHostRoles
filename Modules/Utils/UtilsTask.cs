@@ -110,10 +110,10 @@ namespace TownOfHost
             double ret2 = Math.Round(ret);//四捨五入
             double ret3 = ret2 * 10;//10倍してぽんこつに。
 
-            if ((!GameStates.Meeting && meetingdake) || (comms && !CanSeeComms)) return $"<color=#cee4ae>[??]</color>";
-            else if (!kakuritu) return $"<color=#cee4ae>[{t2}/{t1}]</color>";
-            else if (oomaka) return $"<color=#cee4ae>[{ret3}%]</color>";
-            else return $"<color=#cee4ae>[{ret1}%]</color>";
+            if ((!GameStates.Meeting && meetingdake) || (comms && !CanSeeComms)) return $"<#cee4ae>[??]</color>";
+            else if (!kakuritu) return $"<#cee4ae>[{t2}/{t1}]</color>";
+            else if (oomaka) return $"<#cee4ae>[{ret3}%]</color>";
+            else return $"<#cee4ae>[{ret1}%]</color>";
         }
     }
 }

@@ -37,8 +37,8 @@ namespace TownOfHost
                 sb.Clear();
 
                 var Debugver = "";
-                if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
-                sb.Append("\r\n").Append($"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
+                if (Main.DebugVersion) Debugver = $"<{Main.ModColor}>☆Debug☆</color>";
+                sb.Append("\r\n").Append($"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
 
                 if ((Options.NoGameEnd.OptionMeGetBool() && GameStates.IsLobby) || (Main.DontGameSet && !GameStates.IsLobby)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
@@ -50,20 +50,20 @@ namespace TownOfHost
                 if (DebugModeManager.IsDebugMode)
                 {
                     sb.Append("\r\n");
-                    sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<color=#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
+                    sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
                 }
                 var text = "";
-                //#3d83c5
+                // #ffef39
                 if (Options.ExHideChatCommand.GetBool())
-                    text += $"<color=#ffdfaf>Ⓗ</color> ";
+                    text += $"<#ffdfaf>Ⓗ</color> ";
                 if (Options.ExAftermeetingflash.GetBool())
-                    text += $"<color=#d62c12>Ⓚ</color> ";
+                    text += $"<#d62c12>Ⓚ</color> ";
                 if (Options.FixSpawnPacketSize.GetBool())
-                    text += $"<color=#ffef39>Ⓟ</color> ";
+                    text += $"<#ffef39>Ⓟ</color> ";
                 //if (Options.BlackOutwokesitobasu.GetBool())
-                //    text += $"<color=#8839ff>Ⓑ</color> ";
+                //    text += $"<#8839ff>Ⓑ</color> ";
                 if (Options.ExRpcWeightR.GetBool())
-                    text += $"<color=#3d83c5>Ⓡ</color> ";
+                    text += $"<#3d83c5>Ⓡ</color> ";
 
                 if (text != "")
                 {
@@ -102,13 +102,13 @@ namespace TownOfHost
 
                 TMPTemplate.SetBase(__instance.text);
                 var Debugver = "";
-                if (Main.DebugVersion) Debugver = $"<color={Main.ModColor}>☆Debug☆</color>";
+                if (Main.DebugVersion) Debugver = $"<{Main.ModColor}>☆Debug☆</color>";
                 Subver = "";
                 /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
                 //                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
-                Main.credentialsText = $"<color={Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver;
+                Main.credentialsText = $"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver;
 #if DEBUG
-                if (!GameStates.InGame) Main.credentialsText += $"\n<color={Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
+                if (!GameStates.InGame) Main.credentialsText += $"\n<{Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
 #endif
                 var credentials = TMPTemplate.Create(
                     "TOHCredentialsText",

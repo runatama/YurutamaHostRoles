@@ -1300,7 +1300,7 @@ namespace TownOfHost
                 .SetCustomRole(role)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHeader(true)
-                .SetHidden(role == CustomRoles.NotAssigned)
+                .SetHidden(role == CustomRoles.NotAssigned || (!DebugModeManager.AmDebugger && combination is CombinationRoles.AssassinandMerlin))
                 .SetGameMode(customGameMode) as IntegerOptionItem;
             var hidevalue = role is CustomRoles.Driver || role.IsRiaju() || (assignCountRule.MaxValue == assignCountRule.MinValue);
 

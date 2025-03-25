@@ -33,7 +33,7 @@ namespace TownOfHost
             //sb.AppendFormat("{0}: {1}\n\n", RoleAssignManager.OptionAssignMode.GetName(), RoleAssignManager.OptionAssignMode.GetString());
             if (Options.HideGameSettings.GetBool() && !AmongUsClient.Instance.AmHost)
             {
-                sb.Append($"<color=#ff0000>{GetString("Message.HideGameSettings")}</color>");
+                sb.Append($"<#ff0000>{GetString("Message.HideGameSettings")}</color>");
             }
             else
             {
@@ -44,7 +44,7 @@ namespace TownOfHost
                     var farst = true;
                     var (imp, mad, crew, neu, addon, lover, gorst) = UtilsShowOption.GetRoleTypesCountInt();
                     //有効な役職一覧
-                    sb.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.GM)}>{UtilsRoleText.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
+                    sb.Append($"<{UtilsRoleText.GetRoleColorCode(CustomRoles.GM)}>{UtilsRoleText.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
                     sb.Append(GetString("ActiveRolesList")).Append("<size=90%>");
                     var count = -1;
                     var co = 0;
@@ -101,12 +101,12 @@ namespace TownOfHost
                                 sb.Append(Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n"));
                                 roleType = role.GetCustomRoleTypes();
                             }
-                            var m = role.IsImpostor() ? Utils.ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? Utils.ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<color=#ff7f50>Ⓜ</color>" : (role.IsNeutral() ? Utils.ColorString(ModColors.NeutralGray, "Ⓝ") : "<color=#cccccc>⦿</color>")));
+                            var m = role.IsImpostor() ? Utils.ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? Utils.ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : (role.IsNeutral() ? Utils.ColorString(ModColors.NeutralGray, "Ⓝ") : "<#cccccc>⦿</color>")));
 
                             if (role.IsBuffAddon()) m = Utils.AdditionalWinnerMark;
                             if (role.IsRiaju()) m = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Lovers), "♥");
                             if (role.IsDebuffAddon()) m = Utils.ColorString(Palette.DisabledGrey, "☆");
-                            if (role.IsGhostRole()) m = "<color=#8989d9>■</color>";
+                            if (role.IsGhostRole()) m = "<#8989d9>■</color>";
 
                             if (count == 0) sb.Append($"\n{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
                             else if (count == -1) sb.Append($"{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");

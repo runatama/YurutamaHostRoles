@@ -299,7 +299,7 @@ public sealed class Balancer : RoleBase
             var reporter = PlayerCatch.GetPlayerById(ran == 0 ? Target2 : Target1) ?? PlayerControl.LocalPlayer;
 
             foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId == Target1 || pc.PlayerId == Target2))
-                pc.RpcSetName("<color=red>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</i></u>");
+                pc.RpcSetName("<#ff1919>Ω<i><u>" + Utils.ColorString(RoleInfo.RoleColor, Main.AllPlayerNames[pc.PlayerId]) + "</u>");
             _ = new LateTask(() =>
             {
                 _ = new LateTask(() => Utils.AllPlayerKillFlash(), 1f, "BMkillf", true);

@@ -67,7 +67,11 @@ namespace TownOfHost
             }
             if (CustomSprite == null || CustomSprite.ToggleButton == null)
             {
-                CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance);
+                CustomSprite = ClientOptionItem.Create("CustomSprite", Main.CustomSprite, __instance, () =>
+                {
+                    if (GameStates.InGame)
+                        CustomButtonHud.BottonHud();
+                });
             }
             if (HideSomeFriendCodes == null || HideSomeFriendCodes.ToggleButton == null)
             {

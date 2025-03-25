@@ -62,7 +62,7 @@ public sealed class MadWorker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
             CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return true;
-            GameEndChecker.StartEndGame(GameOverReason.ImpostorByKill);
+            GameEndChecker.StartEndGame(GameOverReason.ImpostorsByKill);
         }
         return true;
     }

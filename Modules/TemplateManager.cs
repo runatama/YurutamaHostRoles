@@ -92,7 +92,7 @@ namespace TownOfHost
                     Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")), PlayerControl.LocalPlayer.PlayerId);
                 else Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
             }
-            else for (int i = 0; i < sendList.Count; i++) Utils.SendMessage(ApplyReplaceDictionary(sendList[i]), playerId, str == "welcome" ? $"<color={Main.ModColor}>【This Room Use \"Town Of Host-K\"】" : "");
+            else for (int i = 0; i < sendList.Count; i++) Utils.SendMessage(ApplyReplaceDictionary(sendList[i]), playerId, str == "welcome" ? $"<{Main.ModColor}>【This Room Use \"Town Of Host-K\"】" : "");
         }
         public static string GetTemplate(string str = "")
         {

@@ -183,7 +183,6 @@ namespace TownOfHost
             IUsePhantomButton.IPPlayerKillCooldown.Clear();
             CustomButtonHud.ch = null;
             Utils.RoleSendList.Clear();
-            Lovers.HaveLoverDontTaskPlayers.Clear();
             UtilsNotifyRoles.MeetingMoji = "";
             Roles.Madmate.MadAvenger.Skill = false;
             JackalDoll.side = 0;
@@ -191,17 +190,9 @@ namespace TownOfHost
             Stolener.Killers.Clear();
             Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !Options.SuddenDeathMode.GetBool();
 
-            Main.showkillbutton = false;
-            UtilsGameLog.day = 1;
-            Main.IntroHyoji = true;
-            Main.NowSabotage = false;
-            Main.FeColl = 0;
-            Main.GameCount++;
-            Main.CanUseAbility = false;
+            UtilsGameLog.Reset();
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
             Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
-            var c = string.Format(GetString("log.Start"), Main.GameCount);
-            UtilsGameLog.gamelog = $"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n</size><size=80%>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</size><size=60%>";
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) Utils.CanVent = true;
             else Utils.CanVent = false;
 
@@ -315,7 +306,7 @@ namespace TownOfHost
 
                     if (Options.EnableGM.GetBool())
                     {
-                        AllPlayers.RemoveAll(x => x == PlayerControl.LocalPlayer);
+                        AllPlayers.RemoveAll(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId);
                         PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
                         PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                         PlayerControl.LocalPlayer.Data.IsDead = true;
@@ -324,7 +315,7 @@ namespace TownOfHost
                     {
                         if (Main.HostRole != CustomRoles.NotAssigned)
                         {
-                            AllPlayers.RemoveAll(x => x == PlayerControl.LocalPlayer);
+                            AllPlayers.RemoveAll(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId);
                             PlayerControl.LocalPlayer.RpcSetCustomRole(Main.HostRole, true);
                             PlayerControl.LocalPlayer.RpcSetRole(Main.HostRole.GetRoleInfo()?.BaseRoleType.Invoke() ?? RoleTypes.Crewmate, Main.SetRoleOverride && Options.CurrentGameMode == CustomGameMode.Standard);
                             PlayerControl.LocalPlayer.Data.IsDead = true;
@@ -476,7 +467,7 @@ namespace TownOfHost
                 foreach (var role in CustomRolesHelper.AllStandardRoles)
                 {
                     if (role.IsVanilla()) continue;
-                    if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor == true) continue;
+                    if (CustomRoleManager.GetRoleInfo(role)?.IsDesyncImpostor is true) continue;
                     if (role.IsMadmate()) continue;
                     if (role.IsNeutral() && role is not CustomRoles.Egoist) continue;
                     if (role is CustomRoles.Amnesiac) continue;
@@ -496,7 +487,6 @@ namespace TownOfHost
                     AssignCustomRolesFromList(role, baseRoleTypes);
                 }
                 Lovers.AssignLoversRoles();
-                RPC.SyncLoversPlayers();
                 AddOnsAssignDataOnlyKiller.AssignAddOnsFromList();
                 AddOnsAssignDataTeamImp.AssignAddOnsFromList();
                 AddOnsAssignData.AssignAddOnsFromList();
@@ -604,7 +594,7 @@ namespace TownOfHost
                         color = UtilsRoleText.GetRoleColor(role);
                         break;
                 }
-                UtilsGameLog.LastLog[pc.PlayerId] = ("<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>")).Mark(color, false);
+                UtilsGameLog.LastLog[pc.PlayerId] = "<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>");
                 UtilsGameLog.LastLogRole[pc.PlayerId] = $"<b>{lov}" + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
                 PlayerCatch.AllPlayerFirstTypes.Add(pc.PlayerId, roletype);
 
@@ -639,6 +629,7 @@ namespace TownOfHost
             //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない！.動くか知らない！
             var host = PlayerControl.LocalPlayer;
 
+            InnerNetClientPatch.DontTouch = true;
             MeetingHudPatch.StartPatch.Serialize = true;
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
@@ -659,7 +650,7 @@ namespace TownOfHost
             stream.EndMessage();
             foreach (var data in GameData.Instance.AllPlayers)
             {
-                data.Disconnected = false;
+                data.Disconnected = !data._object.IsAlive();
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -668,6 +659,7 @@ namespace TownOfHost
             stream.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
+            InnerNetClientPatch.DontTouch = false;
 
             MeetingHudPatch.StartPatch.Serialize = false;
             {
@@ -716,7 +708,6 @@ namespace TownOfHost
 
             new LateTask(() =>
             {
-                UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
@@ -824,46 +815,10 @@ namespace TownOfHost
 
                                     if (outfit == null) return;
 
-                                    var sender = CustomRpcSender.Create();
-
-                                    Player.SetColor(outfit.color);
-                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetColor)
-                                        .Write(Player.Data.NetId)
-                                        .Write(outfit.color)
-                                        .EndRpc();
-
-                                    Player.SetHat(outfit.hat, outfit.color);
-                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetHatStr)
-                                        .Write(outfit.hat)
-                                        .Write(Player.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-                                        .EndRpc();
-
-                                    Player.SetSkin(outfit.skin, outfit.color);
-                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetSkinStr)
-                                        .Write(outfit.skin)
-                                        .Write(Player.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-                                        .EndRpc();
-
-                                    Player.SetVisor(outfit.visor, outfit.color);
-                                    sender.AutoStartRpc(Player.NetId, (byte)RpcCalls.SetVisorStr)
-                                        .Write(outfit.visor)
-                                        .Write(Player.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-                                        .EndRpc();
-
                                     if (Player.IsAlive()) Player.RpcSetPet(outfit.pet);
-
-                                    _ = new LateTask(() => sender.SendMessage(), 0.23f);
                                 }
                             }
-                            _ = new LateTask(() =>
-                            {
-                                foreach (var pc in PlayerCatch.AllPlayerControls)
-                                {
-                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
-                                    if (pc == null) continue;
-                                }
-                                UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-                            }, 0.2f, "ResetCool", true);
+                            UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                         }, 0.2f, "Use On click Shepe", true);
                 }, 2.0f, "Roleset", false);
             }

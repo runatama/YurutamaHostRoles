@@ -1,3 +1,4 @@
+using Sentry.Unity.NativeUtils;
 using UnityEngine;
 using static TownOfHost.StringHelper;
 

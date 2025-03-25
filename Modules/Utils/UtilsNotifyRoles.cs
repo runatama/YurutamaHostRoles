@@ -24,6 +24,7 @@ namespace TownOfHost
 {
     public static class UtilsNotifyRoles
     {
+        const int chengepake = 780;
         private static StringBuilder SelfMark = new(20);
         private static StringBuilder SelfSuffix = new(20);
         private static StringBuilder TargetMark = new(20);
@@ -94,7 +95,6 @@ namespace TownOfHost
                 var sender = CustomRpcSender.Create("NotifyRoles");
                 sender.StartMessage(clientId);
                 string fontSize = Main.RoleTextSize.ToString();
-                Logger.Info($"{seer?.Data?.PlayerName} (Me)", "NotifyRoles");
 
                 var role = seer.GetCustomRole();
                 var seerRole = seer.GetRoleClass();
@@ -156,7 +156,7 @@ namespace TownOfHost
                     if (Options.CanseeVoteresult.GetBool() && MeetingVoteManager.Voteresult != "")
                     {
                         if (SelfSuffix.ToString() != "") SelfSuffix.Append('\n');
-                        SelfSuffix.Append("<color=#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
+                        SelfSuffix.Append("<#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
                     }
                     //seer役職が対象のSuffix
                     if (Amnesiacheck)
@@ -178,18 +178,20 @@ namespace TownOfHost
                     if (MeetingStates.FirstMeeting && (Options.ChangeNameToRoleInfo.GetBool() || SuddenDeathMode.NowSuddenDeathMode) && Main.IntroHyoji)
                         SeerRealName = seer?.GetRoleInfo() ?? "";
 
-                    var colorName = SeerRealName.ApplyNameColorData(seer, seer, false);
+                    var colorName = SeerRealName.ApplyNameColorData(seer, seer, false).RemoveColorTags() + "</color>";
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
                     var (enabled, text) = GetRoleNameAndProgressTextData(seer);
-                    string SelfRoleName = enabled ? $"<size={fontSize}>{text}</size>" : "";
+                    string SelfRoleName = enabled ? $"<size={fontSize}>{text.RemoveDeltext("</color>", "")}</size>" : "";
                     string SelfDeathReason = ((TemporaryName ?? false) && nomarker) ? "" : seer.KnowDeathReason(seer) ? $"<size=75%>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})</size>" : "";
                     string SelfName = $"{colorName}{SelfDeathReason}{(((TemporaryName ?? false) && nomarker) ? "" : SelfMark)}";
                     SelfName = SelfRoleName + "\r\n" + SelfName;
                     var g = "<line-height=85%>";
                     SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString() + "</line-height>");
                     SelfName = "<line-height=85%>" + SelfName + "\r\n";
-                    SelfName = SelfName.RemoveDeltext("color=", "");
+                    SelfName = SelfName.RemoveDeltext("color=#", "#");
+
+                    Logger.Info($"{seer?.Data?.PlayerName} (Me) => {SelfName}", "NotifyRoles");
 
                     //適用
                     if (seer.SetNameCheck(SelfName, seer, NoCache))
@@ -208,6 +210,7 @@ namespace TownOfHost
                     }
                 }
                 var rolech = seerRole?.NotifyRolesCheckOtherName ?? false;
+                bool Sended = false;
 
                 //seerが死んでいる場合など、必要なときのみ第二ループを実行する
                 if (seer.Data.IsDead //seerが死んでいる
@@ -234,7 +237,11 @@ namespace TownOfHost
                         //targetがseer自身の場合は何もしない
                         if (target?.PlayerId == seer?.PlayerId || target == null) continue;
 
-                        Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName ?? "null"}", "NotifyRoles");
+                        if (Sended)
+                        {
+                            sender = CustomRpcSender.Create("NotifyRoles");
+                            sender.StartMessage(clientId);
+                        }
                         var targetisalive = target.IsAlive();
 
                         // 会議じゃなくて，キノコカオス中で，targetが生きていてseerがdesyncインポスターの場合にtargetの名前を消す
@@ -277,12 +284,12 @@ namespace TownOfHost
                             || (seer.Data.IsDead && !seerisone && seenIsOne)
                             || (seerisone && target.PlayerId == Lovers.OneLovePlayer.Ltarget)
                             )
-                                TargetMark.Append("<color=#ff7961>♡</color>");
+                                TargetMark.Append("<#ff7961>♡</color>");
 
                             if (seercone && targetsubrole.Contains(CustomRoles.Connecting) && (role is not CustomRoles.WolfBoy || !seerisAlive)
                             || (seer.Data.IsDead && !seercone && targetsubrole.Contains(CustomRoles.Connecting))
                             ) //狼少年じゃないか死亡なら処理
-                                TargetMark.Append($"<color=#96514d>Ψ</color>");
+                                TargetMark.Append($"<#96514d>Ψ</color>");
 
                             if (Options.CurrentGameMode == CustomGameMode.TaskBattle)
                                 TaskBattle.GetMark(target, seer, ref TargetMark);
@@ -294,7 +301,7 @@ namespace TownOfHost
                                 {
                                     if (role.IsImpostor())
                                     {
-                                        TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().GetNeedCountOrAll()})</color>");
+                                        TargetMark.Append($"<yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().GetNeedCountOrAll()})</color>");
                                     }
                                 }
                             }
@@ -358,12 +365,15 @@ namespace TownOfHost
                             }
                             //全てのテキストを合成します。
                             var g = string.Format("<line-height={0}%>", "85");
-                            string TargetName = $"{g}{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}</line-height>";
-                            if (!seerisAlive && !((targetrole as Jumper)?.ability == true))
-                                TargetName = $"<size=65%><line-height=85%><line-height=-18%>\n</line-height>{TargetRoleText.RemoveSizeTags()}</size><size=70%><line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
+                            string TargetName = $"{g}{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}";
+                            if (!seerisAlive && !((targetrole as Jumper)?.ability == true) && !targetisalive)
+                                TargetName = $"<size=65%><line-height=-18%>\n<line-height=85%>{TargetRoleText.RemoveSizeTags()}<line-height=-17%>\n</line-height>{(TemporaryName ? name.RemoveSizeTags() : TargetPlayerName.RemoveSizeTags())}{((TemporaryName && nomarker) ? "" : TargetDeathReason.RemoveSizeTags() + TargetMark.ToString().RemoveSizeTags() + TargetSuffix.ToString().RemoveSizeTags())}";
 
-                            TargetName = TargetName.RemoveDeltext("color=", "");
+                            TargetName = TargetName.RemoveDeltext("color=#", "#");
+                            if ($"{g}{(TemporaryName ? name : TargetPlayerName)}" == TargetName) TargetName = TargetName.RemoveDeltext("</?line-height[^>]*?>");
                             //適用
+                            Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName ?? "null"} {TargetName}", "NotifyRoles");
+
                             if (target.SetNameCheck(TargetName, seer, NoCache))
                             {
                                 sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
@@ -371,10 +381,18 @@ namespace TownOfHost
                                 .Write(TargetName)
                                 .Write(true)
                                 .EndRpc();
+                                if (sender.stream.Length > chengepake)
+                                {
+                                    sender.EndMessage();
+                                    sender.SendMessage();
+                                    Sended = true;
+                                    Logger.Info($"780超えたから分けるね！", "NotifyRoles");
+                                }
                             }
                         }
                     }
                 }
+                if (!Sended)
                 {
                     sender.EndMessage();
                     sender.SendMessage();
@@ -410,18 +428,21 @@ namespace TownOfHost
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default && !Main.DontGameSet) return;
 
             /* 会議拡張の奴 */
-            var Info = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
-            Info += $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
-            Info += $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
-            var TInfo = $" <color=#ffffff><size=1.5f>\n\n</size><line-height=0%><color={Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
+            var Minfo = $"<voffset=20><line-height=0><{Main.ModColor}><size=85%>TownOfHost-K</size>\t\t \n \t\t</color><size=70%><#ffffff>v{Main.PluginShowVersion}</color></size></voffset>";
+            Minfo += $"<voffset=17.5>\n<#fc9003>Day.{UtilsGameLog.day}</color>" + $"<voffset=15>\n{MeetingMoji}</voffset>";
 
-            var IInfo = $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
-            IInfo += $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
+            /*            var Info = $" <#ffffff><size=1.5f>\n\n</size><line-height=0%><{Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  \n　　\t\t</color><size=70%>";
+                        Info += $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
+                        Info += $"<#fc9003>Day.{UtilsGameLog.day}</color>" + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=250%>\n</line-height></color>";
+                        var TInfo = $" <#ffffff><size=1.5f>\n\n</size><line-height=0%><{Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  \n　　\t\t</color><size=70%>";
 
-            TInfo += IInfo;
-            var Finfo = $" <size=0.9f>\n</size><color=#ffffff><size=1.5f>\n\n</size><line-height=0%><size=85%><color={Main.ModColor}>TownOfHost-K</size>\t\t  <size=60%>　</size>\n　　\t\t</color><size=70%>";
-            Finfo += IInfo;
+                        var IInfo = $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";
+                        IInfo += $"<#fc9003>Day.{UtilsGameLog.day}</color>" + $"\n{MeetingMoji}<line-height=0%>\n</line-height></line-height><line-height=330%>\n</line-height></color> ";
 
+                        TInfo += IInfo;
+                        var Finfo = $" <size=0.9f>\n</size><#ffffff><size=1.5f>\n\n</size><line-height=0%><size=85%><{Main.ModColor}>TownOfHost-K</size>\t\t  \n　　\t\t</color><size=70%>";
+                        Finfo += IInfo;
+            */
             //seer:ここで行われた変更を見ることができるプレイヤー
             //target:seerが見ることができる変更の対象となるプレイヤー
             foreach (var seer in PlayerControl.AllPlayerControls)
@@ -450,6 +471,17 @@ namespace TownOfHost
                 RoleAddAddons.GetRoleAddon(role, out var data, seer, subrole: [CustomRoles.Guesser]);
 
                 {
+                    var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                    var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+                    var list = p.ToArray().AddRangeToArray(a.ToArray());
+
+                    bool isMeMinfo = false;
+                    if (Assassin.NowUse) isMeMinfo = false;
+                    if (list[0] is not null)
+                    {
+                        if (list[0] == seer) isMeMinfo = true;
+                    }
+
                     //名前の後ろに付けるマーカー
                     SelfMark.Clear();
 
@@ -479,15 +511,7 @@ namespace TownOfHost
                         SelfSuffix.Append(seerRole?.GetLowerText(seer, isForMeeting: true) ?? "");
                     //seerに関わらず発動するLowerText
                     SelfSuffix.Append(CustomRoleManager.GetLowerTextOthers(seer, isForMeeting: true));
-                    if (seerSubrole.Contains(CustomRoles.Guesser) ||
-                    (LastNeutral.GiveGuesser.GetBool() && seerSubrole.Contains(CustomRoles.LastNeutral)) ||
-                    (LastImpostor.giveguesser && seerSubrole.Contains(CustomRoles.LastImpostor)) ||
-                    data.GiveGuesser.GetBool()
-                    )
-                    {
-                        var gi = $" <line-height=10%>\n<color=#999900><size=50%>{GetString("GuessInfo")}</color></size></line-height>";
-                        SelfSuffix.Append(gi);
-                    }
+
                     //seer役職が対象のSuffix
                     if (Amnesiacheck)
                         SelfSuffix.Append(seerRole?.GetSuffix(seer, isForMeeting: true) ?? "");
@@ -504,7 +528,7 @@ namespace TownOfHost
                     if (Options.CanSeeNextRandomSpawn.GetBool())
                     {
                         if (SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
-                            next += $"<size=40%><color=#9ae3bd>〔{r}〕</size>";
+                            next += $"<size=40%><#9ae3bd>〔{r}〕</size>";
                     }
                     var colorName = SeerRealName.ApplyNameColorData(seer, seer, true);
 
@@ -515,23 +539,18 @@ namespace TownOfHost
                     string SelfName = $"{colorName}{SelfDeathReason}{(((TemporaryName ?? false) && nomarker) ? "" : SelfMark)}";
                     SelfName = SelfRoleName + "\r\n" + SelfName + next;
                     var g = "<line-height=85%>";
-                    SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString() + "</line-height>");
+                    SelfName += SelfSuffix.ToString() == "" ? "" : (g + "\r\n " + SelfSuffix.ToString());
 
-                    var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                    var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-                    var list = p.ToArray().AddRangeToArray(a.ToArray());
-
-                    if (list[0] != null)
-                        if (list[0] == seer)
-                        {
-                            var Name = (SelfSuffix.ToString() == "" ? "" : (SelfSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + Info + SelfName + Info.RemoveText() + "\r\n<size=1.5> ";
-                            SelfName = Name;
-                        }
-                        else
-                        {
-                            var Name = (SelfSuffix.ToString() == "" ? "" : (SelfSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + SelfName;
-                            SelfName = Name;
-                        }
+                    if (isMeMinfo)
+                    {
+                        var Name = SelfName;
+                        SelfName = Minfo + $"<voffset=10>\n<line-height=85%>{Name.RemoveDeltext("</?line-height[^>]*?>", "")}{(SelfSuffix.ToString().RemoveHtmlTags() == "" ? "\r\n " : "")}</line-height></voffset>";
+                    }
+                    else
+                    {
+                        var Name = (SelfSuffix.ToString() == "" ? "" : (SelfSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + SelfName;
+                        SelfName = Name;
+                    }
 
                     if (list.LastOrDefault() != null)
                         if (list.LastOrDefault() == seer)
@@ -549,6 +568,8 @@ namespace TownOfHost
                                     }
                             }
                         }
+                    SelfName = SelfName.RemoveDeltext("color=#", "#");
+                    Logger.Info($"{seer.Data?.PlayerName ?? "???"}(Me) => {SelfName}", "NotifyRoles");
                     //適用
                     //Logger.Info(SelfName, "Name");
                     sender.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
@@ -558,6 +579,7 @@ namespace TownOfHost
                     .EndRpc();
                 }
                 var rolech = seerRole?.NotifyRolesCheckOtherName ?? false;
+                bool Sended = false;
 
                 {
                     //死者じゃない場合タスクターン中、霊の名前を変更する必要がないので少しでも処理を減らす敵な感じで
@@ -567,9 +589,29 @@ namespace TownOfHost
                         //targetがseer自身の場合は何もしない
                         if (target == seer || target == null) continue;
 
+                        if (Sended)
+                        {
+                            sender = CustomRpcSender.Create("MeetingNotifyRoles");
+                            sender.StartMessage(clientid);
+                            Sended = false;
+                        }
                         var targetisalive = target.IsAlive();
 
                         {
+                            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+                            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+                            var list = p.ToArray().AddRangeToArray(a.ToArray());
+                            bool tageismeI = false;
+
+                            if (Assassin.NowUse) tageismeI = target.PlayerId == PlayerControl.LocalPlayer.PlayerId;
+
+                            if (list[0] != null)
+                            {
+                                if (list[0] == target)
+                                {
+                                    tageismeI = true;
+                                }
+                            }
                             var targetrole = target.GetRoleClass();
                             //名前の後ろに付けるマーカー
                             TargetMark.Clear();
@@ -596,12 +638,12 @@ namespace TownOfHost
                             || (seer.Data.IsDead && !seerisone && seenIsOne)
                             || (seerisone && target.PlayerId == Lovers.OneLovePlayer.Ltarget)
                             )
-                                TargetMark.Append("<color=#ff7961>♡</color>");
+                                TargetMark.Append("<#ff7961>♡</color>");
 
                             if (seercone && targetsubrole.Contains(CustomRoles.Connecting) && (role is not CustomRoles.WolfBoy || !seerisAlive)
                             || (seer.Data.IsDead && !seercone && targetsubrole.Contains(CustomRoles.Connecting))
                             ) //狼少年じゃないか死亡なら処理
-                                TargetMark.Append($"<color=#96514d>Ψ</color>");
+                                TargetMark.Append($"<#96514d>Ψ</color>");
 
                             //インサイダーモードタスク表示
                             if (Options.Taskcheck.GetBool())
@@ -610,7 +652,7 @@ namespace TownOfHost
                                 {
                                     if (role.IsImpostor())
                                     {
-                                        TargetMark.Append($"<color=yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().GetNeedCountOrAll()})</color>");
+                                        TargetMark.Append($"<yellow>({target.GetPlayerTaskState().CompletedTasksCount}/{target.GetPlayerTaskState().GetNeedCountOrAll()})</color>");
                                     }
                                 }
                             }
@@ -630,15 +672,25 @@ namespace TownOfHost
                                     else TargetRoleText = GetRoleColorAndtext(CustomRoles.Twins) + TargetRoleText;
                                 }
                             }
+
+                            if (TargetRoleText is "" && tageismeI)
+                            {
+                                TargetRoleText = $"\r\n";
+                            }
+
                             TargetSuffix.Clear();
                             //seerに関わらず発動するLowerText
                             TargetSuffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target, isForMeeting: true));
 
                             //seerに関わらず発動するSuffix
                             TargetSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, target, isForMeeting: true));
+                            bool HasData = false;
                             // 空でなければ先頭に改行を挿入
                             if (TargetSuffix.Length > 0)
+                            {
                                 TargetSuffix.Insert(0, "\r\n");
+                                HasData = true;
+                            }
 
                             if (Amnesiacheck)
                             {
@@ -681,26 +733,13 @@ namespace TownOfHost
 
                             //全てのテキストを合成します。
                             var g = string.Format("<line-height={0}%>", "90");
-                            string TargetName = $"{g}{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}</line-height>";
+                            string TargetName = $"{g}{TargetRoleText}{(TemporaryName ? name : TargetPlayerName)}{((TemporaryName && nomarker) ? "" : TargetDeathReason + TargetMark + TargetSuffix)}";
 
-                            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-
-                            var list = p.ToArray().AddRangeToArray(a.ToArray());
-                            if (list[0] != null)
-                                if (list[0] == target)
-                                {
-                                    if (meetingageru)
-                                    {
-                                        var Name = (TargetSuffix.ToString() == "" ? "" : (TargetSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + Info + TargetName + Info.RemoveText() + "\r\n<size=1.5> ";
-                                        TargetName = Name;
-                                    }
-                                    else
-                                    {
-                                        var Name = (TargetSuffix.ToString() == "" ? "" : (TargetSuffix.ToString().RemoveText() + g + " \r\n " + "</line-height>")) + TInfo + TargetName + Finfo.RemoveText();
-                                        TargetName = Name;
-                                    }
-                                }
+                            if (tageismeI)
+                            {
+                                var Name = TargetName;
+                                TargetName = Minfo + $"\n<voffset=10>{Name}{(HasData ? "" : "\r\n ")}</line-height></voffset>";
+                            }
                             if (list.LastOrDefault() != null)
                                 if (list.LastOrDefault() == target)
                                 {
@@ -718,14 +757,25 @@ namespace TownOfHost
                                     }
                                 }
                             //適用
+                            TargetName = TargetName.RemoveDeltext("color=#", "#");
+                            Logger.Info($"{target?.Data?.PlayerName ?? "???"} =>{TargetName}", "NotifyRoles");
+
                             sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                             .Write(target.NetId)
                             .Write(TargetName)
                             .Write(true)
                             .EndRpc();
+                            if (sender.stream.Length > chengepake)
+                            {
+                                sender.EndMessage();
+                                sender.SendMessage();
+                                Sended = true;
+                                Logger.Info($"780超えたから分けるね！", "NotifyRoles");
+                            }
                         }
                     }
                 }
+                if (!Sended)
                 {
                     sender.EndMessage();
                     sender.SendMessage();

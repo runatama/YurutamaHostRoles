@@ -170,7 +170,7 @@ namespace TownOfHost
                     if (!canStartGame)
                     {
                         __instance.StartButton.gameObject.SetActive(false);
-                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), String.Join(" ", mismatchedPlayerNameList), $"<color={Main.ModColor}>{Main.ModName}</color>"));
+                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), String.Join(" ", mismatchedPlayerNameList), $"<{Main.ModColor}>{Main.ModName}</color>"));
                     }
 
                     __instance.GameStartText.text += "\n<size=2.5><color=red>(クリックしてキャンセル)</size>";
@@ -203,7 +203,7 @@ namespace TownOfHost
                             SceneChanger.ChangeScene("MainMenu");
                         }
 
-                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(10 - exitTimer).ToString()));
+                        warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.AutoExitAtMismatchedVersion"), $"<{Main.ModColor}>{Main.ModName}</color>", Math.Round(10 - exitTimer).ToString()));
                     }
                 }
                 if (warningMessage == "")
@@ -379,7 +379,7 @@ namespace TownOfHost
                         if (SuddenDeathMode.TeamYellow.Contains(host.Character.PlayerId)) color = ModColors.codeyellow;
                         if (SuddenDeathMode.TeamGreen.Contains(host.Character.PlayerId)) color = ModColors.codegreen;
                         if (SuddenDeathMode.TeamPurple.Contains(host.Character.PlayerId)) color = ModColors.codepurple;
-                        mark = $"  <color={color}>★</color>";
+                        mark = $"  <{color}>★</color>";
                     }
                     var colorid = host?.ColorId ?? 0;
                     var colorr = Palette.PlayerColors.Length > colorid ? Palette.PlayerColors[colorid] : ModColors.White;

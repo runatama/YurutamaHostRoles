@@ -60,6 +60,7 @@ namespace TownOfHost
         public static void ResetAndSetWinner(CustomWinner winner)
         {
             GameStates.Meeting = false;
+            Logger.Info($"{WinnerTeam} => {winner} ", "CustomWinner");
             Reset();
             WinnerTeam = winner;
         }

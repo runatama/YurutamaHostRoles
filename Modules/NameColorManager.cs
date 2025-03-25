@@ -52,7 +52,7 @@ namespace TownOfHost
             {
                 if (!colorCode.StartsWith('#'))
                     colorCode = "#" + colorCode;
-                openTag = $"<color={colorCode}>";
+                openTag = $"<{colorCode}>";
                 closeTag = "</color>";
             }
             return openTag + name + closeTag;

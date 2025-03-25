@@ -39,6 +39,7 @@ namespace TownOfHost
         }
     }
 
+    /*
     [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
     class MMOnlineManagerStartPatch
     {
@@ -110,26 +111,36 @@ namespace TownOfHost
                 }
             }
         }
-    }
-    [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Update))]
-    class MMOnlineManagerUpdataPatch
+    }*/
+    [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.OpenServerDropdown))]
+    class CreateGameOptionsOpenServerDropdown
     {
-        public static void Prefix(MMOnlineManager __instance)
+        public static void Prefix(CreateGameOptions __instance)
         {
-            var obj = GameObject.Find("NormalMenu/Buttons/HostGameButton/CreateGameButton");
+            __instance.serverDropdown.transform.localPosition = new Vector3(2.08f, -1.63f, -15f);
+        }
+    }
+
+    [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.UpdateServerText))]
+    class CreateGameOptionsUpdateServerText
+    {
+        public static void Prefix(CreateGameOptions __instance)
+        {
+            var obj = GameObject.Find("MainMenuManager/MainUI/AspectScaler/CreateGameScreen/ParentContent/Content/CreateGame");
             if (obj == null) return;
             if (ServerManager.Instance?.CurrentRegion?.Name == null) return;
 
             var nowserver = ServerManager.Instance.CurrentRegion.Name;
-            if ((nowserver is "ExROfficialTokyo" || nowserver.Contains("Nebula on the Ship JP") || nowserver.Contains("<color=#ffa500>Super</color>")) && MMOnlineManagerStartPatch.DontCreatetext)
+            // カスサバ解禁時はここどうにかする
+            if (Main.IsCs() || nowserver is "ExROfficialTokyo" || nowserver.Contains("Nebula on the Ship JP") || nowserver.Contains("<color=#ffa500>Super</color>"))
             {
-                obj.transform.localPosition = new Vector3(100f, 100f, 100);
-                MMOnlineManagerStartPatch.DontCreatetext.text = $"<size=2><color=red>{GetString("DontCreatetext")}";
+                obj.transform.localPosition = new Vector3(100f, 100f, 100f);
+                //MMOnlineManagerStartPatch.DontCreatetext.text = $"<size=2><color=red>{GetString("DontCreatetext")}";
             }
             else
             {
-                obj.transform.localPosition = new Vector3(0, -0.31f, -3);
-                MMOnlineManagerStartPatch.DontCreatetext.text = "";
+                obj.transform.localPosition = new Vector3(2.2664f, -4.71f, -12f);
+                //MMOnlineManagerStartPatch.DontCreatetext.text = "";
             }
         }
     }
@@ -212,6 +223,7 @@ namespace TownOfHost
             }*/
             return true;
         }
+        public static bool DontTouch = false;
         static Dictionary<int, int> messageCount = new(10);
         const int warningThreshold = 100;
         static int peak = warningThreshold;
@@ -232,7 +244,7 @@ namespace TownOfHost
         public static bool SendOrDisconnectPatch(InnerNetClient __instance, MessageWriter msg)
         {
             //分割するサイズ。大きすぎるとリトライ時不利、小さすぎると受信パケット取りこぼしが発生しうる。
-            var limitSize = 500;
+            var limitSize = 800;
 
             /*if (DebugModeManager.IsDebugMode)
             {
@@ -257,7 +269,7 @@ namespace TownOfHost
                 {
                     if (peak > totalMessages)
                     {
-                        Logger.Warn($"SendOrDisconnectPatch:Packet Spam Detected ({peak})", "InnerNetClient");
+                        Logger.Warn($"SendOrDisconnectPatch:Packet Spam Detected ({peak})", "");
                         peak = warningThreshold;
                     }
                     else
@@ -267,6 +279,7 @@ namespace TownOfHost
                 }
             }
             if (!Options.FixSpawnPacketSize.GetBool()) return true;
+            if (DontTouch || AntiBlackout.IsCached) return true;
 
             //ラージパケットを分割(9人以上部屋で落ちる現象の対策コード)
 
@@ -341,7 +354,7 @@ namespace TownOfHost
                 var subLength = subMsg.Length;
 
                 //加算すると制限を超える場合は先に送信
-                if (writer.Length + subLength > 500)
+                if (writer.Length + subLength > 800)
                 {
                     writer.EndMessage();
                     Send(__instance, writer);

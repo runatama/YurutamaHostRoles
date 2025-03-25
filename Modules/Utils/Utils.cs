@@ -96,8 +96,9 @@ namespace TownOfHost
         {
             if (player == null) return "";
             var name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var N) ? N : player.Data.PlayerName;
-            if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
-            else return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
+            /*if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
+            else*/
+            return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
         }
         /// <summary></summary>
         /// <param name="player">色表示にするプレイヤー</param>
@@ -107,8 +108,9 @@ namespace TownOfHost
             var pc = PlayerCatch.GetPlayerById(player);
             if (pc == null) return "";
             var name = Main.AllPlayerNames.TryGetValue(player, out var N) ? N : pc.Data.PlayerName;
-            if (borudo) return "<b>" + ColorString(Main.PlayerColors[player], $"{name}</b>");
-            else return ColorString(Main.PlayerColors[player], $"{name}");
+            /*if (borudo) return "<b>" + ColorString(Main.PlayerColors[player], $"{name}</b>");
+            else*/
+            return ColorString(Main.PlayerColors[player], $"{name}");
         }
         /// <summary></summary>
         /// <param name="player">色表示にするプレイヤー</param>
@@ -117,8 +119,9 @@ namespace TownOfHost
         {
             if (player == null) return "";
             var name = player.PlayerName;
-            if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
-            else return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
+            /*if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
+            else*/
+            return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
         }
         public static SystemTypes GetCriticalSabotageSystemType() => (MapNames)Main.NormalOptions.MapId switch
         {
@@ -259,7 +262,7 @@ namespace TownOfHost
                     }
                     break;
                 case null:
-                    deathReason = $"<color=#80ffdd>{deathReason}</color>";
+                    deathReason = $"<#80ffdd>{deathReason}</color>";
                     break;
             }
             return deathReason;
@@ -335,9 +338,11 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
             if (text.RemoveHtmlTags() == "") return;
             Croissant.ChocolateCroissant = true;
-            if (title == "") title = $"<color={Main.ModColor}>" + GetString($"DefaultSystemMessageTitle") + "</color>";
+            if (title == "") title = $"<{Main.ModColor}>" + GetString($"DefaultSystemMessageTitle");// + "</color>";
             //すぐ</align>すると最終行もあれなので。
             var fir = rob ? "" : "<align=\"left\">";
+            text = text.RemoveDeltext("color=#", "#");
+            title = title.RemoveDeltext("color=#", "#");
             Main.MessagesToSend.Add(($"{fir}{text}", sendTo, $"{fir}{title}"));
         }
         /// <param name="pc">seer</param>
@@ -364,19 +369,19 @@ namespace TownOfHost
                         case SuffixModes.None:
                             break;
                         case SuffixModes.TOH:
-                            name += $"</size>\r\n<color={Main.ModColor}>TOH-K v{Main.PluginShowVersion}</color><size=150%>";
+                            name += $"<size=75%>(<{Main.ModColor}>TOH-K v{Main.PluginShowVersion})</color></size>";
                             break;
                         case SuffixModes.Streaming:
-                            name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.Streaming")}</color><size=150%>";
+                            name += $"<size=75%>(<{Main.ModColor}>{GetString("SuffixMode.Streaming")})</color></size>";
                             break;
                         case SuffixModes.Recording:
-                            name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.Recording")}</color><size=150%>";
+                            name += $"<size=75%>(<{Main.ModColor}>{GetString("SuffixMode.Recording")})</color></size>";
                             break;
                         case SuffixModes.RoomHost:
-                            name += $"</size>\r\n<color={Main.ModColor}>{GetString("SuffixMode.RoomHost")}</color><size=150%>";
+                            name += $"<size=75%>(<{Main.ModColor}>{GetString("SuffixMode.RoomHost")})</color></size>";
                             break;
                         case SuffixModes.OriginalName:
-                            name += $"</size>\r\n<color={Main.ModColor}>{DataManager.player.Customization.Name}</color><size=150%>";
+                            name += $"<size=75%>(<{Main.ModColor}>{DataManager.player.Customization.Name})</color></size>";
                             break;
                         case SuffixModes.Timer:
                             if (GameStates.IsLocalGame
@@ -387,25 +392,27 @@ namespace TownOfHost
                             timerValue = GameStartManagerPatch.Timer2;
                             int minutes = (int)timerValue / 60;
                             int seconds = (int)timerValue % 60;
-                            string Color = "<color=#00ffff>";
-                            if (minutes <= 4) Color = "<color=#9acd32>";//5分切ったら
-                            if (minutes <= 2) Color = "<color=#ffa500>";//3分切ったら。
+                            string Color = "<#00ffff>";
+                            if (minutes <= 4) Color = "<#9acd32>";//5分切ったら
+                            if (minutes <= 2) Color = "<#ffa500>";//3分切ったら。
                             if (minutes <= 0) Color = "<color=red>";//1分切ったら。
-                            name += $"</size><size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size><size=150%>";
+                            name += $"<size=75%>({Color}{minutes:00}:{seconds:00}</color>)</size>";
                             RpcTimer = true;
                             break;
                     }
                 }
             }
             //Dataのほう変えるのはなぁっておもいました。うん。
-            if (name != PlayerControl.LocalPlayer.name && !RpcTimer && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
+            if (name != PlayerControl.LocalPlayer.name && !PlayerControl.LocalPlayer.name.Contains("マーリン") && !PlayerControl.LocalPlayer.name.Contains("どちらも") && !RpcTimer && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
+            {
                 PlayerControl.LocalPlayer.RpcSetName(name);
+                _ = new LateTask(() => ApplySuffix(null, force: true), 0.2f, "LobySetName", null);
+            }
 
             if (GameStates.IsLobby && !GameStates.IsCountDown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
             {
-                name = $"<b>{name}</b>";
-
-                var info = "<size=120%>";
+                if (Main.MessagesToSend.Count > 0) return;
+                var info = "<size=80%>";
                 var at = "";
                 if (Options.NoGameEnd.OptionMeGetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
                 if (Options.IsStandardHAS) info += $"\r\n" + ColorString(Color.yellow, GetString("StandardHAS")); else at += "\r\n";
@@ -414,11 +421,11 @@ namespace TownOfHost
                 if (Options.SuddenDeathMode.OptionMeGetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
                 if (Options.EnableGM.OptionMeGetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
                 if (DebugModeManager.IsDebugMode)
-                    info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<color=#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
+                    info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
                 else at += "\r\n";
 
                 info += "</size>";
-                n = "<size=120%><line-height=-1450%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"</line-height><line-height=-1400%>\r\n<size=120%><color={Main.ModColor}>TownOfHost-K <color=#ffffff>v{Main.PluginShowVersion}</size></size></line-height>{info}{at}</b><size=0>　　　　　　　　　　　　　　　　　　　　";
+                n = "<size=120%><line-height=-1450%>\n\r<b></line-height>" + name + "\n<line-height=-100%>" + info.RemoveText() + at + $"<line-height=-1400%>\r\n<size=120%><{Main.ModColor}>TownOfHost-K <#ffffff>v{Main.PluginShowVersion}<size=120%></line-height>{info}{at}</b><size=0>　";
                 if (force)
                     PlayerCatch.AllPlayerControls.DoIf(x => x.name != "Player(Clone)" && x.PlayerId != PlayerControl.LocalPlayer.PlayerId && !x.IsModClient(), x => PlayerControl.LocalPlayer.RpcSetNamePrivate(n, true, x, true));
                 else if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
@@ -464,8 +471,9 @@ namespace TownOfHost
                 {
                     if (AsistingAngel.ch())
                         AsistingAngel.Limit++;
+
                     UtilsGameLog.day++;
-                    UtilsGameLog.gamelog += "\n<size=80%>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</size><size=60%>";
+                    UtilsGameLog.AddGameLogsub("\n" + string.Format(GetString("Message.Day").RemoveDeltext("【").RemoveDeltext("】"), UtilsGameLog.day).Color(Palette.Orange));
                 }
             }
             if (Options.AirShipVariableElectrical.GetBool()) AirShipElectricalDoors.Initialize();
@@ -478,7 +486,7 @@ namespace TownOfHost
                 ventilationSystem.IsDirty = true;
             }
             GuessManager.Reset();//会議後にリセット入れる
-            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             GameStates.Tuihou = false;
         }
         #endregion
@@ -497,7 +505,12 @@ namespace TownOfHost
         }
         #region Remove
         public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", "");
-        public static string RemoveColorTags(this string str) => Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
+        public static string RemoveColorTags(this string str)
+        {
+            var a = Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
+            a = Regex.Replace(a, "<#[^>]*?>", "");
+            return a;
+        }
         public static string RemoveSizeTags(this string str) => Regex.Replace(str, "</?size[^>]*?>", "");
         public static string RemoveGiveAddon(this string str) => Regex.Replace(str, "を付与する", "");
         public static string RemoveSN(this string str) => Regex.Replace(str, "\n", "");
@@ -567,7 +580,7 @@ namespace TownOfHost
             })));
         }
 
-        public static string ColorString(Color32 color, string str) => $"<color=#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>{str}</color>";
+        public static string ColorString(Color32 color, string str) => $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>{str}</color>";
         /// <summary>
         /// Darkness:１の比率で黒色と元の色を混ぜる。マイナスだと白色と混ぜる。
         /// </summary>
@@ -623,7 +636,7 @@ namespace TownOfHost
             casted = obj.TryCast<T>();
             return casted != null;
         }
-        public const string AdditionalWinnerMark = "<color=#dddd00>★</color>";
+        public const string AdditionalWinnerMark = "<#dddd00>★</color>";
 
         public static void SyncAllSettings()
         {

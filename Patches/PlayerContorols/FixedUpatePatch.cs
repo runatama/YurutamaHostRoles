@@ -271,7 +271,7 @@ namespace TownOfHost
                         foreach (var seer in PlayerCatch.AllPlayerControls)
                         {
                             if (pc.name != "Player(Clone)" && seer.name != "Player(Clone)" && seer.PlayerId != PlayerControl.LocalPlayer.PlayerId && !seer.IsModClient())
-                                pc.RpcSetNamePrivate($"<color={color}>{pc.Data.PlayerName}", true, seer, false);
+                                pc.RpcSetNamePrivate($"<{color}>{pc.Data.PlayerName}", true, seer, false);
                         }
                     }
                     if (!SuddenDeathMode.CheckTeam && GameStates.IsCountDown)
@@ -326,7 +326,7 @@ namespace TownOfHost
                     }
                     if (Main.NowSabotage) Main.sabotagetime += Time.fixedDeltaTime;
 
-                    if (!GameStates.Meeting && PlayerControl.LocalPlayer.IsAlive())
+                    if (!GameStates.Meeting && PlayerControl.LocalPlayer.IsAlive() && !ChatUpdatePatch.DoBlockChat)
                     {
                         if (Main.MessagesToSend.Count > 0)
                         {
@@ -440,8 +440,8 @@ namespace TownOfHost
 
                             remove.Add(id);
                         }
-                        if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
-                        remove.ForEach(task => Camouflage.ventplayr.Remove(task));
+
+                        if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet(); remove.ForEach(task => Camouflage.ventplayr.Remove(task));
                     }
                 }
 
@@ -479,10 +479,10 @@ namespace TownOfHost
                     if (Main.playerVersion.TryGetValue(__instance.PlayerId, out var ver))
                     {
                         if (Main.ForkId != ver.forkId) // フォークIDが違う場合
-                            __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
+                            __instance.cosmetics.nameText.text = $"<#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
                         else if (Main.version.CompareTo(ver.version) == 0)
-                            __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#87cefa>{__instance.name}</color>" : $"<color=#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
-                        else __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
+                            __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<#87cefa>{__instance.name}</color>" : $"<#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
+                        else __instance.cosmetics.nameText.text = $"<#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
                     }
                     else __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
 
@@ -500,7 +500,7 @@ namespace TownOfHost
 
                     var client = __instance.GetClient();
                     if (BanManager.CheckWhiteList(client?.FriendCode, client?.ProductUserId))
-                        __instance.cosmetics.nameText.text = "<color=#feffe2>◎</color>" + __instance.cosmetics.nameText.text;
+                        __instance.cosmetics.nameText.text = "<#feffe2>◎</color>" + __instance.cosmetics.nameText.text;
                 }
                 if (GameStates.IsInGame)
                 {
@@ -575,7 +575,7 @@ namespace TownOfHost
                         //追放者
                         if (Options.CanseeVoteresult.GetBool() && MeetingVoteManager.Voteresult != "" && seer.PlayerId == target.PlayerId)
                         {
-                            Suffix.Append("<color=#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
+                            Suffix.Append("<#ffffff><size=75%>" + MeetingVoteManager.Voteresult + "</color></size>");
                         }
                         //seer役職が対象のSuffix
                         if (Amnesia.CheckAbility(player))
@@ -611,7 +611,7 @@ namespace TownOfHost
                     if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
                         target.cosmetics.nameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
                     else
-                        target.cosmetics.nameText.text = $"<color=#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
+                        target.cosmetics.nameText.text = $"<#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
 
                     if (Suffix.ToString() != "" && (!TemporaryName || (TemporaryName && !nomarker)))
                     {

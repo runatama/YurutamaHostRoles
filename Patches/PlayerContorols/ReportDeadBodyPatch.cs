@@ -103,13 +103,13 @@ namespace TownOfHost
                     DieName = output;
                 }
                 MeetingHudPatch.Oniku = (check ? DieName : Utils.GetPlayerColor(target, true)) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
-                UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</i></u></color>";
+                UtilsNotifyRoles.MeetingMoji = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</u></color>";
             }
             else
             {
                 UtilsGameLog.AddGameLog("Meeting", Translator.GetString("Meeting.Button") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true)));
                 MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(__instance.PlayerId, true));
-                UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
+                UtilsNotifyRoles.MeetingMoji = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[__instance.PlayerId].ColorId]) + "<#ffffff>" + Translator.GetString("MI.Bot") + "</u></color>";
             }
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -226,19 +226,19 @@ namespace TownOfHost
                         DieName = output;
                     }
                     MeetingHudPatch.Oniku = (check ? DieName : Utils.GetPlayerColor(target, true)) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
-                    UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</i></u></color>";
+                    UtilsNotifyRoles.MeetingMoji = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</u></color>";
                 }
                 else
                 {
                     UtilsGameLog.AddGameLog("Meeting", Translator.GetString("Meeting.Button") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true)));
                     MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), Utils.GetPlayerColor(repo.PlayerId, true));
-                    UtilsNotifyRoles.MeetingMoji = "<i><u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<color=#ffffff>" + Translator.GetString("MI.Bot") + "</i></u></color>";
+                    UtilsNotifyRoles.MeetingMoji = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<#ffffff>" + Translator.GetString("MI.Bot") + "</u></color>";
                 }
             }
             else
             {
                 MeetingHudPatch.Oniku = Meetinginfo;
-                UtilsNotifyRoles.MeetingMoji = $"<color={colorcode}><i><u>★" + Meetinginfo + "</i></u></color>";
+                UtilsNotifyRoles.MeetingMoji = $"<color={colorcode}><i><u>★" + Meetinginfo + "</u></color>";
             }
 
             if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting)
@@ -276,12 +276,12 @@ namespace TownOfHost
                 {
                     switch (data.reason)
                     {
-                        case DontReportreson.wait: return "<size=120%><color=#91abbd>...</color></size>";
-                        case DontReportreson.NonReport: return "<size=120%><color=#006666>×</color></size>";
-                        case DontReportreson.Transparent: return "<size=120%><color=#7b7c7d>×</color></size>";
-                        case DontReportreson.CantUseButton: return "<size=120%><color=#bdb091>×</color></size>";
-                        case DontReportreson.Other: return "<size=120%><color=#bd9391>×</color></size>";
-                        case DontReportreson.Eat: return "<size=120%><color=#6f4204>×</color></size>";
+                        case DontReportreson.wait: return "<size=120%><#91abbd>...</color></size>";
+                        case DontReportreson.NonReport: return "<size=120%><#006666>×</color></size>";
+                        case DontReportreson.Transparent: return "<size=120%><#7b7c7d>×</color></size>";
+                        case DontReportreson.CantUseButton: return "<size=120%><#bdb091>×</color></size>";
+                        case DontReportreson.Other: return "<size=120%><#bd9391>×</color></size>";
+                        case DontReportreson.Eat: return "<size=120%><#6f4204>×</color></size>";
                     }
                 }
 

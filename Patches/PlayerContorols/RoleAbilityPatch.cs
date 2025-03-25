@@ -77,7 +77,7 @@ namespace TownOfHost
                     //shapeshifter.RpcShapeshift(shapeshifter, false);
                     var min = mpdistance.OrderBy(c => c.Value).FirstOrDefault();//一番値が小さい
                     PlayerControl targetm = min.Key;
-                    if (!targetm.Is(CustomRoles.King))
+                    if (!targetm.Is(CustomRoles.King) && !targetm.Is(CustomRoles.Merlin))
                     {
                         if (SuddenDeathMode.NowSuddenDeathTemeMode)
                         {
@@ -122,7 +122,7 @@ namespace TownOfHost
                                 SuddenDeathMode.TeamPurple.Add(target.PlayerId);
                             }
                         }
-                        UtilsGameLog.AddGameLog("SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(targetm, true) + $"({UtilsRoleText.GetTrueRoleName(targetm.PlayerId)})", Utils.GetPlayerColor(shapeshifter, true) + $"({UtilsRoleText.GetTrueRoleName(shapeshifter.PlayerId)})"));
+                        UtilsGameLog.AddGameLog("SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(targetm, true) + $"({UtilsRoleText.GetTrueRoleName(targetm.PlayerId)})", Utils.GetPlayerColor(shapeshifter, true)));
                         targetm.RpcSetCustomRole(targetRole);
                         Logger.Info($"Make SKMadmate:{targetm.name}", "Shapeshift");
                         PlayerCatch.SKMadmateNowCount++;

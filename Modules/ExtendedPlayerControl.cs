@@ -102,7 +102,7 @@ namespace TownOfHost
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     (roleClass as IUseTheShButton)?.Shape(player);
                     (roleClass as IUsePhantomButton)?.Init(player);
-                    if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                    if (Options.Onlyseepet.GetBool()) AllPlayerOnlySeeMePet();
                     foreach (var r in CustomRoleManager.AllActiveRoles.Values)
                     {
                         r.Colorchnge();
@@ -283,6 +283,7 @@ namespace TownOfHost
 
             if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
             {
+                //Logger.Info($"{seer.name} : {player.name} => {name} , cancel", "aaa");
                 return false;
             }
             {
@@ -561,14 +562,6 @@ namespace TownOfHost
             PlayerGameOptionsSender.SetDirty(player.PlayerId);
             GameOptionsSender.SendAllGameOptions();
         }
-        public static TaskState GetPlayerTaskState(this PlayerControl player)
-        {
-            return PlayerState.GetByPlayerId(player.PlayerId).GetTaskState();
-        }
-        public static PlayerState GetPlayerState(this PlayerControl player)
-        {
-            return PlayerState.GetByPlayerId(player.PlayerId);
-        }
         public static string GetSubRoleName(this PlayerControl player)
         {
             var SubRoles = PlayerState.GetByPlayerId(player.PlayerId).SubRoles;
@@ -843,7 +836,7 @@ namespace TownOfHost
         }
         public static PlayerControl killtarget(this PlayerControl pc, bool IsOneclick = false)//SNR参考!(((
         {
-            float killdis = GameOptionsData.KillDistances[Mathf.Clamp(GameManager.Instance.LogicOptions.currentGameOptions.GetInt(Int32OptionNames.KillDistance), 0, 2)];
+            float killdis = NormalGameOptionsV09.KillDistances[Mathf.Clamp(GameManager.Instance.LogicOptions.currentGameOptions.GetInt(Int32OptionNames.KillDistance), 0, 2)];
 
             if (pc.Data.IsDead || pc.inVent) return null;
 
@@ -1109,7 +1102,7 @@ namespace TownOfHost
             {
                 if (ap.GetClient() == null) continue;
                 sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, ap.GetClientId())
-                .Write("")
+                .Write("pet_EmptyPet")
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
                 .EndRpc();
             }
@@ -1126,7 +1119,31 @@ namespace TownOfHost
             sender.EndMessage();
             sender.SendMessage();
 
-            pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "", pc.Data.DefaultOutfit.ColorId);
+            pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
+        }
+        public static void AllPlayerOnlySeeMePet()
+        {
+            var sender = CustomRpcSender.Create("AllOnlySeeMepet");
+            sender.StartMessage();
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                var petid = Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var cos) ? cos.PetId : "pet_EmptyPet";
+                sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, -1)
+                .Write("pet_EmptyPet")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();
+
+                //ペットないならさいなら
+                if (petid is "" or "pet_EmptyPet" || !pc.IsAlive()) continue;
+                sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, pc.GetClientId())
+                .Write(petid)
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();
+                pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
+            }
+            sender.EndMessage();
+            sender.SendMessage();
+
         }
         public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 

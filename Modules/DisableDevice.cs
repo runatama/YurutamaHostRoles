@@ -101,7 +101,7 @@ namespace TownOfHost
         {
             if (optTimeLimitAdmin == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
-            var a = "<color=#00ff99>Ⓐ";
+            var a = "<#00ff99>Ⓐ";
             if (optTimeLimitAdmin <= GameAdminTimer) return a + "×";
             else return a + ":" + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
         }
@@ -109,15 +109,15 @@ namespace TownOfHost
         {
             if (optTimeLimitCamAndLog == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
-            var a = (MapNames)Main.NormalOptions.MapId is MapNames.Mira ? "<color=#cccccc>Ⓛ" : "<color=#cccccc>Ⓒ";
+            var a = (MapNames)Main.NormalOptions.MapId is MapNames.MiraHQ ? "<#cccccc>Ⓛ" : "<#cccccc>Ⓒ";
             if (optTimeLimitCamAndLog <= GameLogAndCamTimer) return a + "×";
             else return a + ":" + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
         }
         public static string GetVitalTimer()
         {
             if (optTimeLimitVital == 0
-            || (MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.Mira) return "";
-            var a = "<color=#33ccff>Ⓥ";
+            || (MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.MiraHQ) return "";
+            var a = "<#33ccff>Ⓥ";
             if (optTimeLimitVital <= GameVitalTimer) return a + "×";
             else return a + ":" + Math.Round(optTimeLimitVital - GameVitalTimer) + "s";
         }
@@ -143,7 +143,7 @@ namespace TownOfHost
             return Map switch
             {
                 MapNames.Skeld => 1.8f,
-                MapNames.Mira => 2.4f,
+                MapNames.MiraHQ => 2.4f,
                 MapNames.Polus => 1.8f,
                 //MapNames.Dleks => 1.5f,
                 MapNames.Airship => 1.8f,

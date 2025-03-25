@@ -58,7 +58,7 @@ public static class ReactorSystemTypeUpdateSystemPatch
             var duration = (MapNames)Main.NormalOptions.MapId switch
             {
                 MapNames.Skeld => Options.SkeldReactor.GetFloat(),
-                MapNames.Mira => Options.Mirare.GetFloat(),
+                MapNames.MiraHQ => Options.Mirare.GetFloat(),
                 MapNames.Polus => Options.PolusReactorTimeLimit.GetFloat(),
                 MapNames.Fungle => Options.FungleReactorTimeLimit.GetFloat(),
                 _ => float.NaN,

@@ -50,7 +50,7 @@ public static class LifeSuppSystemUpdateSystemPatch
             var duration = (MapNames)Main.NormalOptions.MapId switch
             {
                 MapNames.Skeld => Options.Skeldo2.GetFloat(),
-                MapNames.Mira => Options.MiraO2.GetFloat(),
+                MapNames.MiraHQ => Options.MiraO2.GetFloat(),
                 _ => float.NaN,
             };
             if (!float.IsNaN(duration))

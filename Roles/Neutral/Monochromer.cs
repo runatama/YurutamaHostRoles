@@ -120,7 +120,7 @@ public sealed class Monochromer : RoleBase
                 if (pc.IsAlive())
                 {
                     Win(pc, reason);
-                    return reason != GameOverReason.HumansByTask;
+                    return reason != GameOverReason.CrewmatesByTask;
                 }
             }
         }
@@ -128,7 +128,7 @@ public sealed class Monochromer : RoleBase
     }
     private static void Win(PlayerControl pc, GameOverReason reason)
     {
-        if (reason == GameOverReason.HumansByTask)
+        if (reason == GameOverReason.CrewmatesByTask)
         {
             CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Monochromer);

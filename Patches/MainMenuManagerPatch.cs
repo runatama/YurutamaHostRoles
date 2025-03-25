@@ -384,10 +384,20 @@ namespace TownOfHost
             return button;
         }
 
+        [HarmonyPatch(nameof(MainMenuManager.OpenFindGame))]
+        [HarmonyPatch(nameof(MainMenuManager.OpenEnterCodeMenu))]
+        [HarmonyPrefix]
+        public static bool clickFindGame()
+        {
+            return false;
+        }
         // プレイメニュー，アカウントメニュー，クレジット画面が開かれたらロゴとボタンを消す
         [HarmonyPatch(nameof(MainMenuManager.OpenGameModeMenu))]
         [HarmonyPatch(nameof(MainMenuManager.OpenAccountMenu))]
         [HarmonyPatch(nameof(MainMenuManager.OpenCredits))]
+        [HarmonyPatch(nameof(MainMenuManager.OpenOnlineMenu))]
+        [HarmonyPatch(nameof(MainMenuManager.GoBackCreateGame))]
+        [HarmonyPatch(nameof(MainMenuManager.ClickBackOnline))]
         [HarmonyPostfix]
         public static void OpenMenuPostfix()
         {

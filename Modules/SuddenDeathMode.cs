@@ -402,14 +402,14 @@ namespace TownOfHost.Modules
                 var t3 = PlayerCatch.AllAlivePlayerControls.Where(pc => TeamYellow.Contains(pc.PlayerId)).Count();
                 var t4 = PlayerCatch.AllAlivePlayerControls.Where(pc => TeamGreen.Contains(pc.PlayerId)).Count();
                 var t5 = PlayerCatch.AllAlivePlayerControls.Where(pc => TeamPurple.Contains(pc.PlayerId)).Count();
-                if (t1 > 0) tex += $"<color={ModColors.codered}>({t1})</color>";
-                if (t2 > 0) tex += $"<color={ModColors.codeblue}>({t2})</color>";
-                if (t3 > 0) tex += $"<color={ModColors.codeyellow}>({t3})</color>";
-                if (t4 > 0) tex += $"<color={ModColors.codegreen}>({t4})</color>";
-                if (t5 > 0) tex += $"<color={ModColors.codepurple}>({t5})</color>";
+                if (t1 > 0) tex += $"<{ModColors.codered}>({t1})</color>";
+                if (t2 > 0) tex += $"<{ModColors.codeblue}>({t2})</color>";
+                if (t3 > 0) tex += $"<{ModColors.codeyellow}>({t3})</color>";
+                if (t4 > 0) tex += $"<{ModColors.codegreen}>({t4})</color>";
+                if (t5 > 0) tex += $"<{ModColors.codepurple}>({t5})</color>";
                 return $" <size=70%>{tex}</size>";
             }
-            if (seen == seer) return $"<color=#03fcb6> ({PlayerCatch.AllAlivePlayersCount})</color>";
+            if (seen == seer) return $"<#03fcb6> ({PlayerCatch.AllAlivePlayersCount})</color>";
             return "";
         }
 

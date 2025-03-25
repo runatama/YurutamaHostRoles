@@ -175,6 +175,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
                             (target.Is(CustomRoles.JackalAlien) && JackalAlien.TairoDeathReason ? CustomDeathReason.Revenge1 :
                             (target.Is(CustomRoles.AlienHijack) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire));
                 killer.RpcMurderPlayer(killer);
+                UtilsGameLog.AddGameLog("Sheriff", string.Format(GetString("SheriffMissLog"), Utils.GetPlayerColor(target.PlayerId)));
                 if (!MisfireKillsTarget.GetBool())
                 {
                     info.DoKill = false;

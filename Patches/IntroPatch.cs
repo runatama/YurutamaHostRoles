@@ -248,7 +248,7 @@ namespace TownOfHost
                     var text = numImpostors == 1
                         ? GetString(StringNames.NumImpostorsS)
                         : string.Format(GetString(StringNames.NumImpostorsP), numImpostors);
-                    __instance.ImpostorText.text = text.Replace("[FF1919FF]", "<color=#FF1919FF>").Replace("[]", "</color>");
+                    __instance.ImpostorText.text = text.Replace("[FF1919FF]", "<#FF1919FF>").Replace("[]", "</color>");
                     break;
                 case CustomRoles.WolfBoy:
                     __instance.BackgroundBar.material.color = Palette.CrewmateBlue;
@@ -257,7 +257,7 @@ namespace TownOfHost
                     var Wtext = WnumImpostors == 1
                         ? GetString(StringNames.NumImpostorsS)
                         : string.Format(GetString(StringNames.NumImpostorsP), WnumImpostors);
-                    __instance.ImpostorText.text = Wtext.Replace("[808080]", "<color=#808080>").Replace("[]", "</color>");
+                    __instance.ImpostorText.text = Wtext.Replace("[808080]", "<#808080>").Replace("[]", "</color>");
                     break;
 
                 case CustomRoles.GM:
@@ -487,7 +487,7 @@ namespace TownOfHost
                 if (!Options.EnableGM.GetBool() && Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleCanVent.GetBool())
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
 
-                if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+                if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
 
                 _ = new LateTask(() =>

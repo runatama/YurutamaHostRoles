@@ -10,6 +10,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Crewmate;
+using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.Core.Interfaces;
@@ -52,7 +53,7 @@ public static class MeetingHudPatch
                 if (Balancer.Id != 255 && !(suspectPlayerId == srcPlayerId || suspectPlayerId == Balancer.target1 || suspectPlayerId == Balancer.target2) && !pc.Is(CustomRoles.Balancer) && Balancer.OptionCanMeetingAbility.GetBool()) continue;
                 if (Amnesia.CheckAbilityreturn(pc)) roleClass = null;
 
-                if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254))
+                if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254 && !Assassin.NowUse))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
                     Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
@@ -92,7 +93,7 @@ public static class MeetingHudPatch
             {
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
 
-                if (!pc.IsAlive())
+                if (!pc.IsAlive() && !Assassin.NowUse)
                 {
                     if (AntiBlackout.OverrideExiledPlayer()) continue;
                     Sender.StartRpc(pc.NetId, RpcCalls.Exiled)
@@ -118,7 +119,7 @@ public static class MeetingHudPatch
             MeetingStates.MeetingCalled = true;
             GameStates.Tuihou = false;
 
-            if (Options.ExHideChatCommand.GetBool())
+            if (Options.ExHideChatCommand.GetBool() && !Assassin.NowUse)
             {
                 _ = new LateTask(() =>
                 {
@@ -239,10 +240,10 @@ public static class MeetingHudPatch
                     if (list[0].PlayerId == pc.PlayerId)
                     {
                         MeetingInfo.enabled = true;
-                        MeetingInfo.text = $"<color=#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}";
+                        MeetingInfo.text = $"<#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + $"\n{UtilsNotifyRoles.MeetingMoji}";
                         if (CustomRolesHelper.CheckGuesser() || PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Guesser)))
                         {
-                            MeetingInfo.text = $"<size=50%>\n </size>{MeetingInfo.text}\n<size=50%><color=#999900>{GetString("GuessInfo")}</color></size>";
+                            MeetingInfo.text = $"<size=50%>\n </size>{MeetingInfo.text}\n<size=50%><#999900>{GetString("GuessInfo")}</color></size>";
                         }
                         MeetingInfo.text += "<line-height=0%>\n</line-height></line-height><line-height=300%>\n</line-height></color> ";
                     }
@@ -252,8 +253,8 @@ public static class MeetingHudPatch
             Send = "<size=80%>";
             Title = "";
 
-            if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting) Title += "<b>" + string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "</b>\n";
-            else Title += "<b>" + GetString("Message.first").Color(Palette.Orange) + "</b>\n";
+            if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting) Title += string.Format(GetString("Message.Day"), UtilsGameLog.day).Color(Palette.Orange) + "\n";
+            else Title += GetString("Message.first").Color(Palette.Orange) + "\n";
 
             foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
             {
@@ -267,20 +268,20 @@ public static class MeetingHudPatch
             }
             if (Oniku != "")
             {
-                Send += "<color=#001e43>※" + Oniku + "</color>\n";
+                Send += "<#001e43>※" + Oniku + "</color>\n";
             }
             if (Options.SyncButtonMode.GetBool())
             {
-                Send += "<color=#006e54>★" + string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "</color>\n";
+                Send += "<#006e54>★" + string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "</color>\n";
                 Logger.Info("緊急会議ボタンはあと" + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + "回使用可能です。", "SyncButtonMode");
             }
             if (AntiBlackout.OverrideExiledPlayer())
             {
-                Send += "<color=#640125>！" + GetString("Warning.OverrideExiledPlayer") + "</color>\n";
+                Send += "<#640125>！" + GetString("Warning.OverrideExiledPlayer") + "</color>\n";
             }
             if (!SelfVoteManager.Canuseability())
             {
-                Send += "<color=#998317>◇" + GetString("Warning.CannotUseAbility") + "</color>\n";
+                Send += "<#998317>◇" + GetString("Warning.CannotUseAbility") + "</color>\n";
             }
             if (MeetingVoteManager.Voteresult != "")
             {
@@ -319,7 +320,6 @@ public static class MeetingHudPatch
                     MeetingStates.Sending = false;
                     ChatUpdatePatch.DoBlockChat = false;
                 }, 2f, "Send to Chat", true);
-                _ = new LateTask(() => NameColorManager.RpcMeetingColorName(), 5f, "SetName", true);
                 _ = new LateTask(() => NameColorManager.RpcMeetingColorName(), 10f, "SetName", true);
             }
             Main.NowSabotage =
@@ -408,7 +408,7 @@ public static class MeetingHudPatch
                 if (Options.CanSeeNextRandomSpawn.GetBool() && seer == target)
                 {
                     if (RandomSpawn.SpawnMap.NextSpornName.TryGetValue(seer.PlayerId, out var r))
-                        pva.NameText.text += $"<size=40%><color=#9ae3bd>〔{r}〕</size></color>";
+                        pva.NameText.text += $"<size=40%><#9ae3bd>〔{r}〕</size></color>";
                 }
 
                 //名前の適応　　　　　ゲッサー番号等　　名前　　　　　　　　　ラバー等のマーク
@@ -443,11 +443,19 @@ public static class MeetingHudPatch
             {
                 __instance.playerStates.DoIf(x => x.HighlightedFX.enabled, x =>
                 {
-                    var player = PlayerCatch.GetPlayerById(x.TargetPlayerId);
-                    player.RpcExileV2();
-                    var state = PlayerState.GetByPlayerId(player.PlayerId);
+                    var state = PlayerState.GetByPlayerId(x.TargetPlayerId);
                     state.DeathReason = CustomDeathReason.Execution;
                     state.SetDead();
+                    var player = PlayerCatch.GetPlayerById(x.TargetPlayerId);
+                    if (player is null)
+                    {
+                        var d = GameData.Instance.AllPlayers.ToArray().Where(a => a.PlayerId == x.TargetPlayerId).FirstOrDefault();
+                        if (d is not null) d.Disconnected = true;
+
+                        __instance.CheckForEndVoting();
+                        return;
+                    }
+                    player.RpcExileV2();
                     Utils.SendMessage(string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
                     UtilsGameLog.AddGameLog("Executed", string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
                     Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
@@ -471,6 +479,13 @@ public static class MeetingHudPatch
                 if (!PlayerCatch.GetPlayerById(Balancer.target1).IsAlive()
                     || !PlayerCatch.GetPlayerById(Balancer.target2).IsAlive())
                     MeetingVoteManager.Instance.EndMeeting(false);
+            }
+            if (Assassin.NowUse)
+            {
+                __instance.playerStates.Do(hud =>
+                {
+                    hud.AmDead = false;
+                });
             }
         }
     }

@@ -141,6 +141,8 @@ public sealed class Madonna : RoleBase
             Player.RpcSetCustomRole(CustomRoles.MadonnaLovers);
             Lovers.MaMadonnaLoversPlayers.Add(Player);
             Lovers.MaMadonnaLoversPlayers.Add(target);
+            Lovers.HaveLoverDontTaskPlayers.Add(Player.PlayerId);
+            Lovers.HaveLoverDontTaskPlayers.Add(target.PlayerId);
             RPC.SyncMadonnaLoversPlayers();
             UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("Log.MadonnaCo"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
 

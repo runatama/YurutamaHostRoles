@@ -1,7 +1,9 @@
-/*using System.Linq;
+using System.Linq;
 using AmongUs.GameOptions;
+
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
 public sealed class Merlin : RoleBase, IKillFlashSeeable
@@ -13,10 +15,10 @@ public sealed class Merlin : RoleBase, IKillFlashSeeable
             CustomRoles.Merlin,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            29020,
+            40300,
             null,
             "mer",
-            "#8cffff",
+            "#8cc2ff",
             combination: CombinationRoles.AssassinandMerlin
         );
     public Merlin(PlayerControl player)
@@ -25,13 +27,17 @@ public sealed class Merlin : RoleBase, IKillFlashSeeable
         player
     )
     {
+    }
+
+    public override void Add()
+    {
         foreach (var impostor in PlayerCatch.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
         {
             NameColorManager.Add(Player.PlayerId, impostor.PlayerId, impostor.GetRoleColorCode());
         }
+        Assassin.MarlinIds.Add(Player.PlayerId);
     }
     //もし設定など入れたい場合は
     //あああ = Assassin.設定名
     //って感じにこっちに持ってくればよい(←わかりずらい)
 }
-*/

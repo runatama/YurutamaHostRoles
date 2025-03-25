@@ -24,34 +24,45 @@ public static class SabotageSystemTypeUpdateSystemPatch
         //HASモードではサボタージュ不可
         if (Options.CurrentGameMode == CustomGameMode.HideAndSeek || Options.IsStandardHAS) return false;
 
+        logger.Info("aaa");
         if (SuddenDeathMode.NowSuddenDeathMode) return false;
 
+        logger.Info("bbb");
         if (!CustomRoleManager.OnSabotage(player, nextSabotage))
         {
             return false;
         }
         var roleClass = player.GetRoleClass();
+        logger.Info("ccc");
         if (roleClass is IKiller killer)
         {
             //そもそもサボタージュボタン使用不可ならサボタージュ不可
             if (!killer.CanUseSabotageButton()) return false;
+            logger.Info("ddd");
             //その他処理が必要であれば処理
             if (roleClass.OnInvokeSabotage(nextSabotage))
             {
                 if (AmongUsClient.Instance.AmHost)
                 {
+                    logger.Info("1");
                     Main.SabotageType = (SystemTypes)amount;
+                    logger.Info("2");
                     var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
+                    logger.Info("3");
                     if (!Main.NowSabotage)
-                        UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({UtilsRoleText.GetTrueRoleName(player.PlayerId, false)})", sb));
+                        UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, false), sb));
+                    logger.Info("4");
                     Main.NowSabotage = true;
+                    logger.Info("5");
                     Main.LastSab = player.PlayerId;
                 }
             }
+            logger.Info("eee");
             return roleClass.OnInvokeSabotage(nextSabotage);
         }
         else
         {
+            logger.Info("fff");
             return CanSabotage(player);
         }
     }
@@ -69,7 +80,7 @@ public static class SabotageSystemTypeUpdateSystemPatch
                 Main.SabotageType = (SystemTypes)amount;
                 var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
 
-                UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, true) + $"({UtilsRoleText.GetTrueRoleName(player.PlayerId, false)})", sb));
+                UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, false), sb));
                 Main.NowSabotage = true;
                 Main.LastSab = player.PlayerId;
             }

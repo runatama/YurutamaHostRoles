@@ -199,6 +199,11 @@ namespace TownOfHost
         public static void SyncCustomSettingsRPC()
         {
             if (!AmongUsClient.Instance.AmHost) return;
+
+            // Rpcの送信又考えないとだな。
+            // Modclientがおり、部屋主じゃない時のみ
+            if (!PlayerCatch.AllPlayerControls.Any(pc => pc.IsModClient() && pc.PlayerId is not 0)) return;
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, -1);
             foreach (OptionItem co in OptionItem.AllOptions)
                 //すべてのカスタムオプションについてインデックス値で送信
@@ -317,24 +322,42 @@ namespace TownOfHost
             HudManager.Instance.SetHudActive(true);
             if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();
         }
-        public static void SyncLoversPlayers()
+        public static void SyncLoversPlayers(CustomRoles lover)
         {
             if (!AmongUsClient.Instance.AmHost) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
-            writer.Write(Lovers.LoversPlayers.Count);
-            writer.Write(Lovers.RedLoversPlayers.Count);
-            writer.Write(Lovers.YellowLoversPlayers.Count);
-            writer.Write(Lovers.BlueLoversPlayers.Count);
-            writer.Write(Lovers.GreenLoversPlayers.Count);
-            writer.Write(Lovers.WhiteLoversPlayers.Count);
-            writer.Write(Lovers.PurpleLoversPlayers.Count);
-            foreach (PlayerControl lp in Lovers.LoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.RedLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.YellowLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.BlueLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.GreenLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.WhiteLoversPlayers) writer.Write(lp.PlayerId);
-            foreach (PlayerControl lp in Lovers.PurpleLoversPlayers) writer.Write(lp.PlayerId);
+            writer.Write((int)lover);
+            switch (lover)
+            {
+                case CustomRoles.Lovers:
+                    writer.Write(Lovers.LoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.LoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+                case CustomRoles.RedLovers:
+                    writer.Write(Lovers.RedLoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.RedLoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+                case CustomRoles.YellowLovers:
+                    writer.Write(Lovers.YellowLoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.YellowLoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+                case CustomRoles.BlueLovers:
+                    writer.Write(Lovers.BlueLoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.BlueLoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+                case CustomRoles.GreenLovers:
+                    writer.Write(Lovers.GreenLoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.GreenLoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+                case CustomRoles.WhiteLovers:
+                    writer.Write(Lovers.WhiteLoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.WhiteLoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+                case CustomRoles.PurpleLovers:
+                    writer.Write(Lovers.PurpleLoversPlayers.Count);
+                    foreach (PlayerControl lp in Lovers.PurpleLoversPlayers) writer.Write(lp.PlayerId);
+                    break;
+            }
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void SyncMadonnaLoversPlayers()
@@ -400,7 +423,7 @@ namespace TownOfHost
             foreach (var player in GameData.Instance.AllPlayers)
             {
                 // データを分割して送信
-                if (writer.Length > 1000)
+                if (writer.Length > 1500)
                 {
                     writer.EndMessage();
                     AmongUsClient.Instance.SendOrDisconnect(writer);

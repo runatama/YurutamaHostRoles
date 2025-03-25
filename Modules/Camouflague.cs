@@ -160,7 +160,7 @@ namespace TownOfHost
             foreach (var pc in PlayerCatch.AllPlayerControls)
                 (pc.GetRoleClass() as IUseTheShButton)?.ResetS(pc);
 
-            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
         }
     }
 }

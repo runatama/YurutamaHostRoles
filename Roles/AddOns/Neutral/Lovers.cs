@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using Hazel;
+using TownOfHost.Attributes;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Neutral;
@@ -96,37 +97,68 @@ class Lovers
         PurpleLoversRoleAddwin = BooleanOptionItem.Create(73071, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.PurpleLovers]);
         PurpleLoversSolowin3players = BooleanOptionItem.Create(73072, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.PurpleLovers]);
     }
-    public static void RPCSetLovers(MessageReader reader)
+    [GameModuleInitializer, PluginModuleInitializer]
+    public static void Reset()
     {
         HaveLoverDontTaskPlayers.Clear();
         LoversPlayers.Clear();
+        isLoversDead = false;
         RedLoversPlayers.Clear();
+        isRedLoversDead = false;
         YellowLoversPlayers.Clear();
+        isYellowLoversDead = false;
         BlueLoversPlayers.Clear();
+        isBlueLoversDead = false;
         GreenLoversPlayers.Clear();
+        isGreenLoversDead = false;
         WhiteLoversPlayers.Clear();
+        isWhiteLoversDead = false;
         PurpleLoversPlayers.Clear();
-        int Acount = reader.ReadInt32();
-        int Bcount = reader.ReadInt32();
-        int Ccount = reader.ReadInt32();
-        int Dcount = reader.ReadInt32();
-        int Ecount = reader.ReadInt32();
-        int Fcount = reader.ReadInt32();
-        int Gcount = reader.ReadInt32();
-        for (int i = 0; i < Acount; i++)
-            LoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
-        for (int i = 0; i < Bcount; i++)
-            RedLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
-        for (int i = 0; i < Ccount; i++)
-            YellowLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
-        for (int i = 0; i < Dcount; i++)
-            BlueLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
-        for (int i = 0; i < Ecount; i++)
-            GreenLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
-        for (int i = 0; i < Fcount; i++)
-            WhiteLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
-        for (int i = 0; i < Gcount; i++)
-            PurpleLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+        isPurpleLoversDead = false;
+        OneLovePlayer = (byte.MaxValue, byte.MaxValue, false);
+        isOneLoveDead = false;
+    }
+    public static void RPCSetLovers(MessageReader reader)
+    {
+        CustomRoles role = (CustomRoles)reader.ReadInt32();
+        switch (role)
+        {
+            case CustomRoles.Lovers:
+                int Acount = reader.ReadInt32();
+                for (int i = 0; i < Acount; i++)
+                    LoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+            case CustomRoles.RedLovers:
+                int Bcount = reader.ReadInt32();
+                for (int i = 0; i < Bcount; i++)
+                    RedLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+            case CustomRoles.YellowLovers:
+                int Ccount = reader.ReadInt32();
+                for (int i = 0; i < Ccount; i++)
+                    YellowLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+            case CustomRoles.BlueLovers:
+                int Dcount = reader.ReadInt32();
+                for (int i = 0; i < Dcount; i++)
+                    BlueLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+            case CustomRoles.GreenLovers:
+                int Ecount = reader.ReadInt32();
+                for (int i = 0; i < Ecount; i++)
+                    GreenLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+            case CustomRoles.WhiteLovers:
+                int Fcount = reader.ReadInt32();
+                for (int i = 0; i < Fcount; i++)
+                    WhiteLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+            case CustomRoles.PurpleLovers:
+                int Gcount = reader.ReadInt32();
+                for (int i = 0; i < Gcount; i++)
+                    PurpleLoversPlayers.Add(PlayerCatch.GetPlayerById(reader.ReadByte()));
+                break;
+        }
     }
     public static void AssignLoversRoles(int RawCount = -1)
     {
@@ -177,6 +209,8 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+
+            RPC.SyncLoversPlayers(CustomRoles.Lovers);
         }
         if (CustomRoles.RedLovers.IsPresent())
         {
@@ -195,6 +229,7 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+            RPC.SyncLoversPlayers(CustomRoles.RedLovers);
         }
         if (CustomRoles.YellowLovers.IsPresent())
         {
@@ -213,6 +248,7 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+            RPC.SyncLoversPlayers(CustomRoles.YellowLovers);
         }
         if (CustomRoles.BlueLovers.IsPresent())
         {
@@ -231,6 +267,7 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+            RPC.SyncLoversPlayers(CustomRoles.BlueLovers);
         }
         if (CustomRoles.GreenLovers.IsPresent())
         {
@@ -249,6 +286,7 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+            RPC.SyncLoversPlayers(CustomRoles.GreenLovers);
         }
         if (CustomRoles.WhiteLovers.IsPresent())
         {
@@ -267,6 +305,8 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+
+            RPC.SyncLoversPlayers(CustomRoles.WhiteLovers);
         }
         if (CustomRoles.PurpleLovers.IsPresent())
         {
@@ -285,6 +325,8 @@ class Lovers
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
                 Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
+
+            RPC.SyncLoversPlayers(CustomRoles.PurpleLovers);
         }
         if (CustomRoles.OneLove.IsPresent())
         {
@@ -675,7 +717,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.Lovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!RedLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.RedLovers) && RedLoversPlayers.Count > 0 && RedLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -683,7 +725,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.RedLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!YellowLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.YellowLovers) && YellowLoversPlayers.Count > 0 && YellowLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -691,7 +733,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.YellowLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!BlueLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.BlueLovers) && BlueLoversPlayers.Count > 0 && BlueLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -699,7 +741,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.BlueLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!GreenLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.GreenLovers) && GreenLoversPlayers.Count > 0 && GreenLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -707,7 +749,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.GreenLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!WhiteLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.WhiteLovers) && WhiteLoversPlayers.Count > 0 && WhiteLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -715,7 +757,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.WhiteLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!PurpleLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.PurpleLovers) && PurpleLoversPlayers.Count > 0 && PurpleLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -723,7 +765,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.PurpleLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if ((!Madonna.MadonnaLoverAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.MadonnaLovers) && MaMadonnaLoversPlayers.Count > 0 && MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
@@ -731,7 +773,7 @@ class Lovers
             PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.MadonnaLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorByKill;
+            reason = GameOverReason.ImpostorsByKill;
         }
         if (CustomRoles.OneLove.IsPresent())
             if ((!OneLoveRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove) && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.Ltarget).IsAlive())
@@ -741,7 +783,7 @@ class Lovers
                     .Where(p => p.Is(CustomRoles.OneLove) && p.IsAlive())
                     .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
                 if (!OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);//両片思いじゃなかったら追加
-                reason = GameOverReason.ImpostorByKill;
+                reason = GameOverReason.ImpostorsByKill;
             }
     }
     public static void LoversAddWin()

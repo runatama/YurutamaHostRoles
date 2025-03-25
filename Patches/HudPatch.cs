@@ -456,11 +456,11 @@ namespace TownOfHost
                 if (target.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting)
                 && !target.Is(CustomRoles.WolfBoy) && !PlayerControl.LocalPlayer.Is(CustomRoles.WolfBoy))
                 {
-                    Mark.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                    Mark.Append($"<{UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
                 else if (target.Is(CustomRoles.Connecting) && PlayerControl.LocalPlayer.Data.IsDead)
                 {
-                    Mark.Append($"<color={UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
+                    Mark.Append($"<{UtilsRoleText.GetRoleColorCode(CustomRoles.Connecting)}>Ψ</color>");
                 }
                 //seerに関わらず発動するLowerText
                 Suffix.Append(CustomRoleManager.GetLowerTextOthers(seer, target));
@@ -502,7 +502,7 @@ namespace TownOfHost
                 if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
                     __instance.NameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
                 else
-                    __instance.NameText.text = $"<color=#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
+                    __instance.NameText.text = $"<#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
 
                 if (Suffix.ToString() != "" && (!TemporaryName || (TemporaryName && !nomarker)))
                 {
@@ -602,7 +602,7 @@ namespace TownOfHost
                 var inforole = GameSettingMenuStartPatch.NowRoleTab;
                 var inforoleinfo = inforole.GetRoleInfo();
 
-                text = $"<size=150%><color={UtilsRoleText.GetRoleColorCode(inforole)}>{UtilsRoleText.GetRoleName(inforole)}</color>\n</size>";
+                text = $"<size=150%><{UtilsRoleText.GetRoleColorCode(inforole)}>{UtilsRoleText.GetRoleName(inforole)}</color>\n</size>";
 
                 if (inforoleinfo?.Desc is not null)
                 {
@@ -650,7 +650,7 @@ namespace TownOfHost
                 {
                     task = task.RemoveDeltext(GetString(StringNames.FakeTasks));
                     task = task.RemoveDeltext(GetString(StringNames.ImpostorTask));
-                    task = task.RemoveDeltext("<color=#FF0000FF>\r\n<color=#FF1919FF></color></color>\r\n");
+                    task = task.RemoveDeltext("<#FF0000FF>\r\n<#FF1919FF></color></color>\r\n");
                 }
                 __instance.taskText.text = Utils.ColorString(player.GetRoleColor(), RoleWithInfo) + "\n" + task;
             }

@@ -303,6 +303,7 @@ namespace TownOfHost
                 }, 2f, "AfterMeetingDeathPlayers Task");
             }
 
+            UtilsGameLog.WriteGameLog();
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);

@@ -22,7 +22,7 @@ namespace TownOfHost
         {
             while (!Options.IsLoaded) System.Threading.Tasks.Task.Delay(1);
             if (Main.NormalOptions.NumImpostors == 0 && GameStates.IsOnlineGame)
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.NumImpostors, 1);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetInt(Int32OptionNames.NumImpostors, 1);
 
             ResolutionManager.SetResolution(Screen.width, Screen.height, Screen.fullScreen);
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
@@ -50,15 +50,15 @@ namespace TownOfHost
                 if (AURoleOptions.ShapeshifterCooldown == 0f)
                     AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
-                Main.NormalOptions.roleOptions.TryGetRoleOptions(RoleTypes.GuardianAngel, out GuardianAngelRoleOptionsV08 roleData);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetBool(BoolOptionNames.ConfirmImpostor, false);
-                Main.NormalOptions.TryCast<NormalGameOptionsV08>().SetInt(Int32OptionNames.TaskBarMode, 2);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().RoleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().RoleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().RoleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().RoleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().RoleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
+                Main.NormalOptions.roleOptions.TryGetRoleOptions(RoleTypes.GuardianAngel, out GuardianAngelRoleOptionsV09 roleData);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetBool(BoolOptionNames.ConfirmImpostor, false);
+                Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetInt(Int32OptionNames.TaskBarMode, 2);
                 roleData.ProtectionDurationSeconds = 9999999999;
                 foreach (var option in OptionItem.AllOptions)
                 {
@@ -164,8 +164,7 @@ namespace TownOfHost
                 {
                     if (GameStates.IsInGame)
                     {
-                        if (!SelectRolesPatch.Disconnected.Contains(data.Character.PlayerId))
-                            SelectRolesPatch.Disconnected.Add(data.Character.PlayerId);
+                        SelectRolesPatch.Disconnected.Add(data.Character.PlayerId);
 
                         Lovers.LoverDisconnected(data.Character);
                         var state = PlayerState.GetByPlayerId(data.Character.PlayerId);
@@ -224,11 +223,11 @@ namespace TownOfHost
                     TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
 
                     var varsion = Main.PluginShowVersion;
-                    var text = $"<size=80%>この部屋では\n<color={Main.ModColor}><size=180%><u><b>{Main.ModName}</color></b></size> v.{varsion}</u>\nを導入しております。<size=40%>\n\n</size>現在AmongUsでは、<color=#fc8803>公開ルームでのMod利用はできません</color><size=40%>\n\n";
-                    var text2 = "</size><color=red>公開ルームからMod部屋へ勧誘/誘導をするのは<b>禁止</b>です</color>。<size=40%>\n<color=red>勧誘/誘導行為</color>にあった場合はスクリーンショット等と一緒に開発者にお知らせください。<color=red>Mod使えなくします</color>。";
-                    var text3 = "</size>\n<size=60%>\n☆参加型配信を行ったり、オープンチャットやTwitterで募集するのは?\n<size=50%>→<color=#352ac9>全然大丈夫です!!やっちゃってください!!</color>\n　<color=#fc8803>バニラAmongUsの公開ルーム</color>での<color=red>宣伝/勧誘/誘導</color>がダメなのです!!</size>";
-                    var text4 = "\n☆開発者から許可貰ってるって言ってる?　　\n<size=50%>→<color=#c9145a>個々で許可を出しておりません</color>!!大噓つきですよ!!</size>\n☆公開ルームに参加し、コード宣伝して「来てね～」って言うのは?\n<size=50%>→<color=red>勧誘/誘導</color>に当たるのでダメです。迷惑考えてくださいよ!!";
-                    Utils.SendMessage($"{text}{text2}{text3}{text4}", client.Character.PlayerId, $"<color={Main.ModColor}>【This Room Use \"Town Of Host-K\"】");
+                    var text = $"<size=80%>この部屋では\n<{Main.ModColor}><size=180%><b>{Main.ModName}</color></b></size> v.{varsion}\nを導入しております。<size=40%>\n\n</size>現在AmongUsでは、<#fc8803>公開ルームでのMod利用はできません</color><size=80%>\n";
+                    var text2 = "</size><color=red>公開ルームからMod部屋へ勧誘/誘導をするのは<b>禁止</b>です</color>。<size=40%>\n<color=red>勧誘/誘導行為</color>にあった場合はスクリーンショット等と一緒に開発者にお知らせください。";
+                    var text3 = "";//"</size>\n<size=60%>\n☆参加型配信を行ったり、SNSで募集するのは?\n<size=50%>→<#352ac9>全然大丈夫です!!やっちゃってください!!</color>\n　<#fc8803>バニラAmongUsの公開ルーム</color>での<red>宣伝/勧誘/誘導</color>がダメなのです!!</size>";
+                    var text4 = "";//"\n☆開発者から許可貰ってるって言ってる?　　\n<size=50%>→<#c9145a>個々で許可を出しておりません</color>!!大噓つきですよ!!</size>\n☆公開ルームに参加し、コード宣伝して「来てね～」って言うのは?\n<size=50%>→<color=red>勧誘/誘導</color>に当たるのでダメです。迷惑考えてくださいよ!!";
+                    Utils.SendMessage($"{text}{text2}{text3}{text4}", client.Character.PlayerId, $"<{Main.ModColor}>【This Room Use \"Town Of Host-K\"】");
 
                     if (Options.AutoDisplayLastResult.GetBool() && PlayerState.AllPlayerStates.Count != 0 && Main.clientIdList.Contains(client.Id))
                     {

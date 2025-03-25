@@ -65,7 +65,7 @@ public interface IUseTheShButton
         _ = new LateTask(() =>
         {
             sender.SendMessage();
-            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(NoCache: true), 0.2f, "", true);
         }, 0.23f);
@@ -108,7 +108,7 @@ public interface IUseTheShButton
         _ = new LateTask(() =>
         {
             sender.SendMessage();
-            if (Options.Onlyseepet.GetBool()) PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMePet(pc.Data.DefaultOutfit.PetId));
+            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(NoCache: true), 0.2f, "", true);
         }, 0.23f);
