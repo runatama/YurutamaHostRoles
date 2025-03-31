@@ -280,7 +280,8 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         if (modeNotifier)
         {
             if (!info.IsSuicide)
-                if (IRandom.Instance.Next(1, 101) <= NotifierCance) PlayerCatch.AllPlayerControls.Do(pc => pc.KillFlash());
+                if (IRandom.Instance.Next(1, 101) <= NotifierCance)
+                    Utils.AllPlayerKillFlash();
             return;
         }
         if (modeTimeThief)//タイムシーフはタイムシーフモード中じゃないと会議時間を減らさない。

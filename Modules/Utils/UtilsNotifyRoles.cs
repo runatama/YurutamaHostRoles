@@ -16,7 +16,6 @@ using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.Core.Interfaces;
 
 using static TownOfHost.Utils;
-using static TownOfHost.Translator;
 using static TownOfHost.RandomSpawn;
 using static TownOfHost.UtilsRoleText;
 
@@ -181,8 +180,8 @@ namespace TownOfHost
                     var colorName = SeerRealName.ApplyNameColorData(seer, seer, false).RemoveColorTags() + "</color>";
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
-                    var (enabled, text) = GetRoleNameAndProgressTextData(seer);
-                    string SelfRoleName = enabled ? $"<size={fontSize}>{text.RemoveDeltext("</color>", "")}</size>" : "";
+                    var (enabled, text) = GetRoleNameAndProgressTextData(seer, a: true);
+                    string SelfRoleName = enabled ? $"<size={fontSize}>{text}</size>" : "";
                     string SelfDeathReason = ((TemporaryName ?? false) && nomarker) ? "" : seer.KnowDeathReason(seer) ? $"<size=75%>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId, seer.PlayerId.CanDeathReasonKillerColor()))})</size>" : "";
                     string SelfName = $"{colorName}{SelfDeathReason}{(((TemporaryName ?? false) && nomarker) ? "" : SelfMark)}";
                     SelfName = SelfRoleName + "\r\n" + SelfName;
@@ -191,11 +190,10 @@ namespace TownOfHost
                     SelfName = "<line-height=85%>" + SelfName + "\r\n";
                     SelfName = SelfName.RemoveDeltext("color=#", "#");
 
-                    Logger.Info($"{seer?.Data?.PlayerName} (Me) => {SelfName}", "NotifyRoles");
-
                     //適用
                     if (seer.SetNameCheck(SelfName, seer, NoCache))
                     {
+                        Logger.Info($"{seer?.Data?.GetLogPlayerName()} (Me) => {SelfName}", "NotifyRoles");
                         sender.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
                         .Write(seer.NetId)
                         .Write(SelfName)
@@ -361,7 +359,7 @@ namespace TownOfHost
                             && (!((targetrole as Jumper)?.ability == true)))
                             {
                                 TargetPlayerName = $"<size=0>{TargetPlayerName}</size> ";
-                                name = $"<size=0>{name}</color>";
+                                name = $"<size=0>{name}</size>";
                             }
                             //全てのテキストを合成します。
                             var g = string.Format("<line-height={0}%>", "85");
@@ -372,10 +370,11 @@ namespace TownOfHost
                             TargetName = TargetName.RemoveDeltext("color=#", "#");
                             if ($"{g}{(TemporaryName ? name : TargetPlayerName)}" == TargetName) TargetName = TargetName.RemoveDeltext("</?line-height[^>]*?>");
                             //適用
-                            Logger.Info($"{seer?.Data?.PlayerName ?? "null"} => {target?.Data?.PlayerName ?? "null"} {TargetName}", "NotifyRoles");
 
                             if (target.SetNameCheck(TargetName, seer, NoCache))
                             {
+                                Logger.Info($"{seer?.Data?.GetLogPlayerName() ?? "null"} => {target?.Data?.GetLogPlayerName() ?? "null"} {TargetName}", "NotifyRoles");
+
                                 sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                                 .Write(target.NetId)
                                 .Write(TargetName)
@@ -569,7 +568,7 @@ namespace TownOfHost
                             }
                         }
                     SelfName = SelfName.RemoveDeltext("color=#", "#");
-                    Logger.Info($"{seer.Data?.PlayerName ?? "???"}(Me) => {SelfName}", "NotifyRoles");
+                    Logger.Info($"{seer.Data?.GetLogPlayerName() ?? "???"}(Me) => {SelfName}", "NotifyRoles");
                     //適用
                     //Logger.Info(SelfName, "Name");
                     sender.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
@@ -758,7 +757,7 @@ namespace TownOfHost
                                 }
                             //適用
                             TargetName = TargetName.RemoveDeltext("color=#", "#");
-                            Logger.Info($"{target?.Data?.PlayerName ?? "???"} =>{TargetName}", "NotifyRoles");
+                            Logger.Info($"{target?.Data?.GetLogPlayerName() ?? "???"} =>{TargetName}", "NotifyRoles");
 
                             sender.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                             .Write(target.NetId)

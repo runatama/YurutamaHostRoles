@@ -100,7 +100,7 @@ public sealed class Warlock : RoleBase, IImpostor
                     {
                         distance = Vector2.Distance(cpPos, candidatePC.transform.position);
                         candidateList.Add(candidatePC, distance);
-                        Logger.Info($"{candidatePC?.Data?.PlayerName}の位置{distance}", "Warlock");
+                        Logger.Info($"{candidatePC?.Data?.GetLogPlayerName()}の位置{distance}", "Warlock");
                     }
                 }
                 var nearest = candidateList.OrderBy(c => c.Value).FirstOrDefault();

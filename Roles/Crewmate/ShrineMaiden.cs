@@ -161,9 +161,10 @@ public sealed class ShrineMaiden : RoleBase
         var ta2 = target2.GetCustomRole();
         var t1 = ta1.GetCustomRoleTypes();
         var t2 = ta2.GetCustomRoleTypes();
+        var madmate = Options.MadTellOpt().GetCustomRoleTypes();
         //マッドならimpにする
-        if (t1 == CustomRoleTypes.Madmate) t1 = CustomRoleTypes.Impostor;
-        if (t2 == CustomRoleTypes.Madmate) t2 = CustomRoleTypes.Impostor;
+        if (t1 == CustomRoleTypes.Madmate) t1 = madmate is CustomRoleTypes.Madmate ? madmate : CustomRoleTypes.Impostor;
+        if (t2 == CustomRoleTypes.Madmate) t2 = madmate is CustomRoleTypes.Madmate ? madmate : CustomRoleTypes.Impostor;
 
         if (t1 == t2)
         {

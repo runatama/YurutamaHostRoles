@@ -198,7 +198,7 @@ public sealed class Sniper : RoleBase, IImpostor
             var target_dir = target_pos.normalized;
             //内積を取る
             var target_dot = Vector3.Dot(dir, target_dir);
-            Logger.Info($"{target?.Data?.PlayerName}:pos={target_pos} dir={target_dir}", "Sniper");
+            Logger.Info($"{target?.Data?.GetLogPlayerName()}:pos={target_pos} dir={target_dir}", "Sniper");
             Logger.Info($"  Dot={target_dot}", "Sniper");
 
             //ある程度正確なら登録

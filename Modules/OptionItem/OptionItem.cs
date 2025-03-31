@@ -37,6 +37,7 @@ namespace TownOfHost
         public CustomGameMode GameMode { get; protected set; }
         public bool IsHeader { get; protected set; }
         public bool IsHidden { get; protected set; }
+        public Func<bool> Setcansee { get; protected set; }
         public bool HideValue { get; protected set; }
         public CustomRoles CustomRole { get; protected set; }
         public Dictionary<string, string> ReplacementDictionary
@@ -90,6 +91,7 @@ namespace TownOfHost
             GameMode = CustomGameMode.All;
             IsHeader = false;
             IsHidden = false;
+            Setcansee = () => true;
             Infinity = infinity;
             parented = false;
             CustomRole = CustomRoles.NotAssigned;
@@ -141,6 +143,7 @@ namespace TownOfHost
         public OptionItem SetHeader(bool value) => Do(i => i.IsHeader = value);
         public OptionItem SetCustomRole(CustomRoles role) => Do(i => i.CustomRole = role);
         public OptionItem SetHidden(bool value) => Do(i => i.IsHidden = value);
+        public OptionItem SetCansee(Func<bool> value) => Do(i => i.Setcansee = value);
         public OptionItem SetInfo(string value) => Do(i => i.Fromtext = "<line-height=25%><size=25%>\n</size><size=60%></color> <b>" + value + "</b></size>");
 
         public OptionItem SetParent(OptionItem parent) => Do(i =>
@@ -207,7 +210,9 @@ namespace TownOfHost
         // 旧IsHidden関数
         public virtual bool IsHiddenOn(CustomGameMode mode)
         {
-            return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
+            if (Setcansee == null) return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
+
+            return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode) || !Setcansee();
         }
 
         public string ApplyFormat(string value)

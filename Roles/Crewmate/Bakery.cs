@@ -46,7 +46,6 @@ public sealed class Bakery : RoleBase
         int dore = IRandom.Instance.Next(1, 101);
         int meg = IRandom.Instance.Next(1, 4);
         var kisetu = "";
-        Logger.Info($"{rect},{dore},{meg}", "BakeryMeg");
         if (DateTime.Now.Month is 1 or 2 or 12) kisetu = "winter";
         if (DateTime.Now.Month is 3 or 4 or 5) kisetu = "spring";
         if (DateTime.Now.Month is 6 or 7 or 8) kisetu = "summer";

@@ -88,7 +88,7 @@ public sealed class UltraStar : RoleBase
             else if (colorchange is >= 15 and < 16) player.RpcSetColor(12);
             else if (colorchange is >= 16 and < 17) player.RpcSetColor(9);
             else if (colorchange is >= 17 and < 18) player.RpcSetColor(16);
-            colorchange += Time.fixedDeltaTime * 2;
+            colorchange += Time.fixedDeltaTime * 1.5f;
         }
         if (cankill)
         {

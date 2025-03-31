@@ -90,7 +90,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 {
                     UtilsGameLog.AddGameLog($"Amanojaku", string.Format(GetString("Log.Amanojaku"), Utils.GetPlayerColor(pc)));
                     PlayerState.GetByPlayerId(pc.PlayerId).SetSubRole(role);
-                    Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
+                    Logger.Info("役職設定:" + pc?.Data?.GetLogPlayerName() + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
                     Amanojaku.Add(pc.PlayerId);
                     UtilsGameLog.LastLogRole[pc.PlayerId] = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Amanojaku), GetString("Amanojaku") + GetString($"{pc.GetCustomRole()}"));
                 }

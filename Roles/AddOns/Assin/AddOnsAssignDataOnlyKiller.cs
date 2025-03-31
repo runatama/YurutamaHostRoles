@@ -96,7 +96,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 foreach (var pc in assignTargetList)
                 {
                     PlayerState.GetByPlayerId(pc.PlayerId).SetSubRole(role);
-                    Logger.Info("役職設定:" + pc?.Data?.PlayerName + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
+                    Logger.Info("役職設定:" + pc?.Data?.GetLogPlayerName() + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "AssignCustomSubRoles");
                 }
             }
         }

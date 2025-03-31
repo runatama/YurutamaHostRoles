@@ -81,7 +81,7 @@ public sealed class Turncoat : RoleBase, IAdditionalWinner
         //それでも0の場合、ターゲット無しにする
         if (list.Count() <= 0)
         {
-            Logger.Error($"{Player?.Data?.PlayerName ?? "???"}のターゲットが存在しません", "Turncoat");
+            Logger.Error($"{Player?.Data?.GetLogPlayerName() ?? "???"}のターゲットが存在しません", "Turncoat");
             return;
         }
 
@@ -92,7 +92,7 @@ public sealed class Turncoat : RoleBase, IAdditionalWinner
         PlayerControl RandomPlayer = list.ToArray()[IRandom.Instance.Next(list.Count())];
         Target = RandomPlayer.PlayerId;
         TargetColorcode = Palette.PlayerColors[RandomPlayer.cosmetics.ColorId].ColorCode();
-        Logger.Info($"{Player?.Data?.PlayerName ?? "???"} => {RandomPlayer?.Data?.PlayerName ?? "???"}", "Turncoat");
+        Logger.Info($"{Player?.Data?.GetLogPlayerName() ?? "???"} => {RandomPlayer?.Data?.GetLogPlayerName() ?? "???"}", "Turncoat");
     }
     public override void OnFixedUpdate(PlayerControl player)
     {

@@ -341,7 +341,7 @@ namespace TownOfHost
                                     int clientId = sendpc.GetClientId();
                                     if (sendpc != null)
                                     {
-                                        var name = pc.Data.PlayerName;
+                                        var name = pc.Data.GetLogPlayerName();
                                         if (clientId == -1)
                                         {
                                             pc.SetName(title);
@@ -359,7 +359,7 @@ namespace TownOfHost
                                             .EndRpc();
                                         writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
                                             .Write(player.Data.NetId)
-                                            .Write(pc.Data.PlayerName)
+                                            .Write(pc.Data.GetLogPlayerName())
                                             .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -408,7 +408,7 @@ namespace TownOfHost
 
                             if (Camouflage.IsCamouflage)
                             {
-                                var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+                                var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
                                 byte color = (byte)ModColors.PlayerColor.Gray;
 
                                 target.SetColor(color);

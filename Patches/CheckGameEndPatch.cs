@@ -2,8 +2,6 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
@@ -19,6 +17,7 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Ghost;
+using Rewired;
 
 namespace TownOfHost
 {
@@ -143,7 +142,7 @@ namespace TownOfHost
                     }
                     Lovers.LoversAddWin();
                     //追加勝利陣営
-                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.Is(CustomRoles.PhantomThief) || pc.Is(CustomRoles.Turncoat) || pc.Is(CustomRoles.AsistingAngel)))
+                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.GetCustomRole() is CustomRoles.PhantomThief or CustomRoles.Turncoat or CustomRoles.AllArounder || pc.Is(CustomRoles.AsistingAngel)))
                     {
                         var isAlive = pc.IsAlive();
                         if (Amnesia.CheckAbility(pc))
@@ -236,6 +235,11 @@ namespace TownOfHost
                         }
                     }
                 }
+                foreach (var player in PlayerCatch.AllPlayerControls)
+                {
+                    var roleclass = player.GetRoleClass();
+                    roleclass?.CheckWinner();
+                }
                 ShipStatus.Instance.enabled = false;
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate && (reason.Equals(GameOverReason.CrewmatesByTask) || reason.Equals(GameOverReason.CrewmatesByVote)))
                     reason = GameOverReason.ImpostorsByKill;
@@ -248,72 +252,6 @@ namespace TownOfHost
         }
         public static void StartEndGame(GameOverReason reason)
         {
-            /*if (Options.UseCustomRpcSenderAtGameEnd.GetBool())
-            {
-                var sender = new CustomRpcSender("EndGameSender", SendOption.Reliable, true);
-                sender.StartMessage(-1); // 5: GameData
-                MessageWriter writer = sender.stream;
-
-                // バニラ画面でのアウトロを正しくするために色々
-                var winner = CustomWinnerHolder.WinnerTeam;
-                foreach (var pc in PlayerCatch.AllPlayerControls)
-                {
-                    if (winner == CustomWinner.Draw)
-                    {
-                        SetGhostRole(ToGhostImpostor: true);
-                        continue;
-                    }
-                    bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) ||
-                            CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
-                    bool isCrewmateWin = reason.Equals(GameOverReason.CrewmatesByVote) || reason.Equals(GameOverReason.CrewmatesByTask);
-                    SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin);
-
-                    void SetGhostRole(bool ToGhostImpostor)
-                    {
-                        var isDead = pc.Data.IsDead;
-                        RoleTypes role = ToGhostImpostor ?
-                            isDead ? RoleTypes.ImpostorGhost : RoleTypes.Impostor :
-                            isDead ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
-
-                        sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                            .Write((ushort)role)
-                            .Write(true)
-                            .EndRpc();
-                        pc.StartCoroutine(pc.CoSetRole(role, true));
-                        Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()}: {role}に変更", "ResetRoleAndEndGame");
-                    }
-                }
-
-                // CustomWinnerHolderの情報の同期
-                sender.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame);
-                CustomWinnerHolder.WriteTo(sender.stream);
-                sender.EndRpc();
-
-                sender.EndMessage();
-
-                //Outroのテキストを名前に変換してバニラにも表示
-                sender.StartMessage(-1);
-                SetRoleSummaryText(sender);
-                sender.EndMessage();
-
-                // バニラ側のゲーム終了RPC
-                writer.StartMessage(8); //8: EndGame
-                {
-                    writer.Write(AmongUsClient.Instance.GameId); //GameId
-                    writer.Write((byte)reason); //GameoverReason
-                    writer.Write(false); //showAd
-                }
-                writer.EndMessage();
-
-                sender.SendMessage();
-                _ = new LateTask(() =>
-                {
-                    //3s経ってもアウトロに届いてないから強制終了()
-                    if (GameStates.InGame) GameManager.Instance.RpcEndGame(reason, false);
-                }, 3f, "", true);
-
-            }
-            else*/
             AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
         }
         private static IEnumerator CoEndGame(AmongUsClient self, GameOverReason reason)

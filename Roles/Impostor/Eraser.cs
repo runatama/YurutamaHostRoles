@@ -112,7 +112,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
         foreach (var player in PlayerCatch.AllPlayerControls.Where(x => ErasePlayers.Contains(x.PlayerId)))
         {
             if (player == null) continue;
-            Logger.Info($"{Player?.Data?.PlayerName} => {player?.Data?.PlayerName}を消そうとしてる！", "Eraser");
+            Logger.Info($"{Player?.Data?.GetLogPlayerName()} => {player?.Data?.GetLogPlayerName()}を消そうとしてる！", "Eraser");
 
             var role = player.GetCustomRole();
             //インポスターならキャンセル
@@ -130,7 +130,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
             if (role.IsNeutral() && !CanDelNeu) continue;
 
             UtilsGameLog.AddGameLog("Eraser", string.Format(GetString("EraserMeg"), Utils.GetPlayerColor(Player), Utils.GetPlayerColor(player)));
-            Logger.Info($"{Player?.Data?.PlayerName} => {player?.Data?.PlayerName}をのロールをクルーに", "Eraser");
+            Logger.Info($"{Player?.Data?.GetLogPlayerName()} => {player?.Data?.GetLogPlayerName()}をのロールをクルーに", "Eraser");
 
             player.RpcSetCustomRole(SuddenDeathMode.NowSuddenDeathMode ? CustomRoles.Impostor : CustomRoles.Crewmate, true, null);
         }

@@ -377,11 +377,25 @@ namespace TownOfHost
                     }
                     else if (!IsComms && DesyncComms.Contains(pc.PlayerId))
                     {
+                        var sender = CustomRpcSender.Create("Reset", Hazel.SendOption.None);
                         DesyncComms.Remove(pc.PlayerId);
-                        pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 16);
+                        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, pc.GetClientId())
+                                .Write((byte)SystemTypes.Comms)
+                                .WriteNetObject(pc)
+                                .Write((byte)16)
+                                .EndRpc();
 
                         if (Main.NormalOptions.MapId is 1 or 5)
-                            pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 17);
+                        {
+                            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, pc.GetClientId())
+                                    .Write((byte)SystemTypes.Comms)
+                                    .WriteNetObject(pc)
+                                    .Write((byte)17)
+                                    .EndRpc();
+                        }
+
+                        sender.EndMessage();
+                        sender.SendMessage();
                     }
                 }
                 catch (Exception ex)

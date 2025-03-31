@@ -36,8 +36,10 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
 
     public bool CanKill { get; private set; } = false;
     public List<byte> ChefTarget;
+    static OptionItem OptionCanSeeNowAlivePlayer;
     public static void SetUpOptionItem()
     {
+        OptionCanSeeNowAlivePlayer = BooleanOptionItem.Create(RoleInfo, 11, "ArsonistCanSeeAllplayer", false, false);
         Options.OverrideKilldistance.Create(RoleInfo, 10);
     }
     bool addwincheck;
@@ -104,7 +106,9 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var c = GetCtargetCount();
-        return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({c.Item1}/{c.Item2})");
+        var bunbo = "?";
+        if (OptionCanSeeNowAlivePlayer.GetBool() || GameStates.Meeting) bunbo = $"{c.Item2}";
+        return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({c.Item1}/{bunbo})");
     }
     public (int, int) GetCtargetCount()
     {

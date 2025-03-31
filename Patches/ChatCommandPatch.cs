@@ -457,7 +457,7 @@ namespace TownOfHost
                                 send += ag;
                             }
                             Croissant.ChocolateCroissant = true;
-                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "impostorsChat");
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "impostorsChat");
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
                                 if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
@@ -474,7 +474,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
-                                    .Write(PlayerControl.LocalPlayer.Data.PlayerName)
+                                    .Write(PlayerControl.LocalPlayer.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -497,7 +497,7 @@ namespace TownOfHost
                                 send += ag;
                             }
                             Croissant.ChocolateCroissant = true;
-                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "jackalChat");
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "jackalChat");
                             foreach (var jac in PlayerCatch.AllAlivePlayerControls)
                             {
                                 if (jac && ((jac?.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien) || !jac.IsAlive()))
@@ -513,7 +513,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
-                                    .Write(PlayerControl.LocalPlayer.Data.PlayerName)
+                                    .Write(PlayerControl.LocalPlayer.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -540,7 +540,7 @@ namespace TownOfHost
                                 send += ag;
                             }
                             Croissant.ChocolateCroissant = true;
-                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "loversChat");
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "loversChat");
                             foreach (var lover in AllAlivePlayerControls)
                             {
                                 if (lover && (lover.GetRiaju() == l || !lover.IsAlive()))
@@ -556,7 +556,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
-                                    .Write(PlayerControl.LocalPlayer.Data.PlayerName)
+                                    .Write(PlayerControl.LocalPlayer.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -583,7 +583,7 @@ namespace TownOfHost
                                 send += ag;
                             }
                             Croissant.ChocolateCroissant = true;
-                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "TwinsChat");
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "TwinsChat");
                             foreach (var twins in AllPlayerControls)
                             {
                                 if (twins && (twins.PlayerId == twinsid || twins.PlayerId == PlayerControl.LocalPlayer.PlayerId || !twins.IsAlive()))
@@ -603,7 +603,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
                                         .Write(twins.Data.NetId)
-                                        .Write(twins.Data.PlayerName)
+                                        .Write(twins.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -631,7 +631,7 @@ namespace TownOfHost
                                 send += ag;
                             }
                             Croissant.ChocolateCroissant = true;
-                            Logger.Info($"{PlayerControl.LocalPlayer.Data.PlayerName} : {send}", "Connectingchat");
+                            Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "Connectingchat");
                             foreach (var connect in AllPlayerControls)
                             {
                                 if (connect && (connect.Is(CustomRoles.Connecting) || !connect.IsAlive()))
@@ -651,7 +651,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
                                         .Write(connect.Data.NetId)
-                                        .Write(connect.Data.PlayerName)
+                                        .Write(connect.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -884,7 +884,7 @@ namespace TownOfHost
                             var targetname = args[1];
                             var added = false;
                             //指定がない場合
-                            foreach (var pc in AllPlayerControls.Where(pc => (pc?.Data?.PlayerName ?? "('ω')").RemoveDeltext(" ") == targetname))
+                            foreach (var pc in AllPlayerControls.Where(pc => (pc?.Data?.GetLogPlayerName() ?? "('ω')").RemoveDeltext(" ") == targetname))
                             {
                                 BanManager.AddWhitePlayer(pc.GetClient());
                                 added = true;
@@ -1688,7 +1688,7 @@ namespace TownOfHost
                             send += ag;
                         }
                         Croissant.ChocolateCroissant = true;
-                        Logger.Info($"{player.Data.PlayerName} : {send}", "ImpostorChat");
+                        Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "ImpostorChat");
                         foreach (var imp in AllPlayerControls)
                         {
                             if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false && imp.IsAlive()) continue;
@@ -1712,7 +1712,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
+                                        .Write(player.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -1727,7 +1727,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(imp.NetId, (byte)RpcCalls.SetName)
                                     .Write(imp.Data.NetId)
-                                    .Write(imp.Data.PlayerName)
+                                    .Write(imp.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -1757,7 +1757,7 @@ namespace TownOfHost
                             send += ag;
                         }
                         Croissant.ChocolateCroissant = true;
-                        Logger.Info($"{player.Data.PlayerName} : {send}", "JackalChat");
+                        Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "JackalChat");
                         foreach (var jac in AllPlayerControls)
                         {
                             if (jac && ((jac.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien) || (PlayerControl.LocalPlayer.PlayerId == jac?.PlayerId && !jac.IsAlive())) && jac.PlayerId != player.PlayerId)
@@ -1779,7 +1779,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
+                                        .Write(player.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -1794,7 +1794,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(jac.NetId, (byte)RpcCalls.SetName)
                                     .Write(jac.Data.NetId)
-                                    .Write(jac.Data.PlayerName)
+                                    .Write(jac.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -1827,7 +1827,7 @@ namespace TownOfHost
                             send += ag;
                         }
                         Croissant.ChocolateCroissant = true;
-                        Logger.Info($"{player.Data.PlayerName} : {send}", "LoversChat");
+                        Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "LoversChat");
                         foreach (var lover in AllPlayerControls)
                         {
                             if (lover && (lover.GetRiaju() == l || (PlayerControl.LocalPlayer.PlayerId == lover?.PlayerId && !lover.IsAlive())) && lover.PlayerId != player.PlayerId)
@@ -1849,7 +1849,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
+                                        .Write(player.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -1864,7 +1864,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(lover.NetId, (byte)RpcCalls.SetName)
                                     .Write(lover.Data.NetId)
-                                    .Write(lover.Data.PlayerName)
+                                    .Write(lover.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -1894,7 +1894,7 @@ namespace TownOfHost
                             send += ag;
                         }
                         Croissant.ChocolateCroissant = true;
-                        Logger.Info($"{player.Data.PlayerName} : {send}", "TwinsChat");
+                        Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "TwinsChat");
                         foreach (var twins in AllPlayerControls)
                         {
                             if (twins && (twins.PlayerId == twinsid || (PlayerControl.LocalPlayer.PlayerId == twins?.PlayerId && !twins.IsAlive())) && twins.PlayerId != player.PlayerId)
@@ -1916,7 +1916,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
+                                        .Write(player.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -1931,7 +1931,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
                                     .Write(twins.Data.NetId)
-                                    .Write(twins.Data.PlayerName)
+                                    .Write(twins.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -1960,7 +1960,7 @@ namespace TownOfHost
                             send += ag;
                         }
                         Croissant.ChocolateCroissant = true;
-                        Logger.Info($"{player.Data.PlayerName} : {send}", "Connectingchat");
+                        Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "Connectingchat");
                         foreach (var connect in AllPlayerControls)
                         {
                             if (connect && (connect.Is(CustomRoles.Connecting) || (PlayerControl.LocalPlayer.PlayerId == connect?.PlayerId && !connect.IsAlive())) && connect.PlayerId != player.PlayerId)
@@ -1982,7 +1982,7 @@ namespace TownOfHost
                                         .EndRpc();
                                         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                         .Write(player.Data.NetId)
-                                        .Write(player.Data.PlayerName)
+                                        .Write(player.Data.GetLogPlayerName())
                                         .EndRpc();
                                         writer.EndMessage();
                                         writer.SendMessage();
@@ -1997,7 +1997,7 @@ namespace TownOfHost
                                     .EndRpc();
                                     writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
                                     .Write(connect.Data.NetId)
-                                    .Write(connect.Data.PlayerName)
+                                    .Write(connect.Data.GetLogPlayerName())
                                     .EndRpc();
                                     writer.EndMessage();
                                     writer.SendMessage();
@@ -2128,10 +2128,9 @@ namespace TownOfHost
                 }
                 _ = new LateTask(() => ApplySuffix(null, true), 0.24f, "", true);
             }
-            Logger.Info($"{title} , {msg}", "Mes");
             Croissant.ChocolateCroissant = true;
-            var name = player.Data.PlayerName;
-            if (Options.ExHideChatCommand.GetBool())
+            var name = player.Data.GetLogPlayerName();
+            if (Options.ExHideChatCommand.GetBool() && GameStates.IsLobby)
             {
                 if (clientId == -1)
                 {
@@ -2154,7 +2153,7 @@ namespace TownOfHost
                             .EndRpc();
                             Nwriter.StartRpc(sender.NetId, (byte)RpcCalls.SetName)
                             .Write(sender.Data.NetId)
-                            .Write(sender.Data.PlayerName)
+                            .Write(sender.Data.GetLogPlayerName())
                             .EndRpc();
                             Nwriter.EndMessage();
                             Nwriter.SendMessage();
@@ -2190,7 +2189,7 @@ namespace TownOfHost
                     .EndRpc();
                     Nwriter.StartRpc(sendtopc.NetId, (byte)RpcCalls.SetName)
                     .Write(sendtopc.Data.NetId)
-                    .Write(sendtopc.Data.PlayerName)
+                    .Write(sendtopc.Data.GetLogPlayerName())
                     .EndRpc();
                     Nwriter.EndMessage();
                     Nwriter.SendMessage();
@@ -2216,7 +2215,7 @@ namespace TownOfHost
             .EndRpc();
             writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(player.Data.NetId)
-            .Write(player.Data.PlayerName)
+            .Write(player.Data.GetLogPlayerName())
             .EndRpc();
             writer.EndMessage();
             writer.SendMessage();

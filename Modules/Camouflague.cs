@@ -113,7 +113,7 @@ namespace TownOfHost
             if (target.inVent)
             {
                 ventplayr.Add(target.PlayerId);
-                Logger.Info($"{target.Data.PlayerName} : invent", "camouflague");
+                Logger.Info($"{target.Data.GetLogPlayerName()} : invent", "camouflague");
                 return;
             }
 
@@ -121,7 +121,7 @@ namespace TownOfHost
 
             Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 
-            var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+            var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
 
             target.SetColor(newOutfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)

@@ -207,7 +207,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
 
             RPC.SyncLoversPlayers(CustomRoles.Lovers);
@@ -227,7 +227,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
             RPC.SyncLoversPlayers(CustomRoles.RedLovers);
         }
@@ -246,7 +246,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
             RPC.SyncLoversPlayers(CustomRoles.YellowLovers);
         }
@@ -265,7 +265,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
             RPC.SyncLoversPlayers(CustomRoles.BlueLovers);
         }
@@ -284,7 +284,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
             RPC.SyncLoversPlayers(CustomRoles.GreenLovers);
         }
@@ -303,7 +303,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
 
             RPC.SyncLoversPlayers(CustomRoles.WhiteLovers);
@@ -323,7 +323,7 @@ class Lovers
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 allPlayers.Remove(player);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(loversRole);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + loversRole.ToString(), "AssignLovers");
             }
 
             RPC.SyncLoversPlayers(CustomRoles.PurpleLovers);
@@ -350,10 +350,10 @@ class Lovers
                         d = true;
                         allPlayers.Remove(target);
                         PlayerState.GetByPlayerId(target.PlayerId).SetSubRole(CustomRoles.OneLove);
-                        Logger.Info("両想いだったって！" + target?.Data?.PlayerName + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
+                        Logger.Info("両想いだったって！" + target?.Data?.GetLogPlayerName() + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
                     }
 
-                    Logger.Info($"{player.Data.PlayerName} => {target.Data.PlayerName} {d}", "OneLover");
+                    Logger.Info($"{player.Data.GetLogPlayerName()} => {target.Data.GetLogPlayerName()} {d}", "OneLover");
                     OneLovePlayer = (player.PlayerId, target.PlayerId, d);
                     break;
                 }
@@ -361,7 +361,7 @@ class Lovers
                 allPlayers.Remove(player);
                 HaveLoverDontTaskPlayers.Add(player.PlayerId);
                 PlayerState.GetByPlayerId(player.PlayerId).SetSubRole(CustomRoles.OneLove);
-                Logger.Info("役職設定:" + player?.Data?.PlayerName + " = " + player.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
+                Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
             }
         }
     }

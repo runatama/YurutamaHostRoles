@@ -62,11 +62,12 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     {
         OptWinGivePresentCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SantaClausWinGivePresentCount, new(1, 30, 1), 4, false);
         OptAddWin = BooleanOptionItem.Create(RoleInfo, 15, OptionName.CountKillerAddWin, false, false);
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        Options.OverrideTasksData.Create(RoleInfo, 20, tasks: (true, 2, 2, 2));
     }
+    public override void Add() => SetPresentVent();
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.EngineerCooldown = 3f;
+        AURoleOptions.EngineerCooldown = 1.1f;
         AURoleOptions.EngineerInVentMaxTime = 1;
     }
     public override bool OnCompleteTask(uint taskid)
@@ -75,21 +76,11 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         {
             havepresent++;
             UtilsNotifyRoles.NotifyRoles();
-
-            // プレゼントの配達先リスト
-            List<Vent> AllVents = new(ShipStatus.Instance.AllVents);
-
-            var ev = AllVents[IRandom.Instance.Next(AllVents.Count)];
-
-            EntotuVentId = ev.Id;
-            EntotuVentPos = new Vector3(ev.transform.position.x, ev.transform.position.y);
-            GetArrow.Add(Player.PlayerId, (Vector3)EntotuVentPos);
         }
         return true;
     }
     public override string GetProgressText(bool comms = false, bool GameLog = false)
     {
-        var wariai = 1 - (giftpresent / WinGivePresentCount);
         var win = $"{giftpresent}/{WinGivePresentCount}";
 
         return $" <color=#e05050>({win})</color>";
@@ -155,7 +146,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         GetArrow.Remove(Player.PlayerId, (Vector3)EntotuVentPos);
         if (WinGivePresentCount <= giftpresent)
         {
-            Logger.Info($"{Player?.Data?.PlayerName ?? "null"}が勝利条件達成！", "SantaClaus");
+            Logger.Info($"{Player?.Data?.GetLogPlayerName() ?? "null"}が勝利条件達成！", "SantaClaus");
 
             if (!AddWin)//単独勝利設定なら即勝利で処理終わり
             {
@@ -168,6 +159,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
                 IWinflag = true;
             }
         }
+        SetPresentVent();
         UtilsNotifyRoles.NotifyRoles();
 
         return false;
@@ -181,11 +173,16 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         if (isForMeeting || !Player.IsAlive()) return "";
 
         //配達先が決まっている時
-        if (EntotuVentPos != null && EntotuVentId != null)
+        if (EntotuVentPos != null && EntotuVentId != null && havepresent > 0)
             return $"<color=#e05050>{GetString("SantaClausLower1") + GetArrow.GetArrows(seer, (Vector3)EntotuVentPos)}</color>";
 
         // プレゼントの用意をするんだぜ
-        return $"<color=#e05050>{GetString("SantaClausLower2")}</color>";
+        var pos = "";
+        if (EntotuVentPos != null && EntotuVentId != null)
+        {
+            pos = GetString("SantaClausLower1") + GetArrow.GetArrows(seer, (Vector3)EntotuVentPos);
+        }
+        return $"<color=#e05050>{GetString("SantaClausLower2")}<size=60%>{pos}</size></color>";
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
@@ -199,5 +196,16 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     {
         text = "SantaClaus_Ability";
         return true;
+    }
+    void SetPresentVent()
+    {
+        // プレゼントの配達先リスト
+        List<Vent> AllVents = new(ShipStatus.Instance.AllVents);
+
+        var ev = AllVents[IRandom.Instance.Next(AllVents.Count)];
+
+        EntotuVentId = ev.Id;
+        EntotuVentPos = new Vector3(ev.transform.position.x, ev.transform.position.y);
+        GetArrow.Add(Player.PlayerId, (Vector3)EntotuVentPos);
     }
 }

@@ -118,29 +118,24 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                                     player, target,
                                     target, target, true
                                 );
-                                player.KillFlash();
                             }
                         }
                     }
-                }
-                if (!ability)
-                {
-                    Player.RpcSetColor((byte)PlayerColor);
-                    aname = false;
-                    _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu");
                 }
             }, jampdis - 0.2f, "abo-n", null);
             if (count == jampcount)
             {
                 ability = false;
+                aname = false;
                 x = 0;
                 y = 0;
                 position = new Vector2(999f, 999f);
                 nowposition = new Vector2(999f, 999f);
                 Main.AllPlayerSpeed[Player.PlayerId] = speed;
-                _ = new LateTask(() => player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampowari");
-                UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
+                _ = new LateTask(() => player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampowari", null);
                 player.SetKillCooldown();
+                Player.RpcSetColor((byte)PlayerColor);
+                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu", null);
             }
             count++;
             timer = 0;

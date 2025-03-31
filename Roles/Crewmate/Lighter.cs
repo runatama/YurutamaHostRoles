@@ -100,7 +100,7 @@ public sealed class Lighter : RoleBase
             //進捗率(%) = 完了タスク数 / 全タスク数   例:1/4 = 0.25=> 0.25*100 =>25%
             int progressRate = MyTaskState.CompletedTasksCount * 100 / MyTaskState.AllTasksCount;
             //視野差 = 最大視野 - デフォルト視野     例:(1.25 - 0.25)/100=> 1.00
-            float viewBetween = (MaxVision * 100 - Main.DefaultCrewmateVision * 100) / 100;
+            float viewBetween = (MaxVision * 100 - OptionStartVision.GetFloat() * 100) / 100;
             //例:1.00 * 25 / 100 => 0.25(上昇値)
             CurrentVision += viewBetween * progressRate / 100;
             Logger.Info("viewBetween :" + viewBetween.ToString() + "*" + " progressRate:" + progressRate.ToString() + "%", "Lighter");

@@ -207,7 +207,7 @@ public sealed class Assassin : RoleBase, IImpostor
         || (votedForId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())) return false;
 
         GuessId = votedForId;
-        Logger.Info($"{votedForId.GetPlayerControl()?.Data?.PlayerName ?? "???"} はマーリンかな?", "Assassin");
+        Logger.Info($"{votedForId.GetPlayerControl()?.Data?.GetLogPlayerName() ?? "???"} はマーリンかな?", "Assassin");
         MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, Player.PlayerId);
         return true;
     }

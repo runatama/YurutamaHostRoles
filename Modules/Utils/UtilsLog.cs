@@ -87,7 +87,7 @@ namespace TownOfHost
             var addon = "(´-ω-`)";
             addon = LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
 
-            return name + $"<pos={pos}em>" + pro + $"<pos={pos1}em>" + " : " + GetVitalText(pc, true) + " " + $"<pos={pos2}em>" + role + addon;
+            return name + pro + " : " + GetVitalText(pc, true) + " " + role + addon;
         }
         public static string SummaryTexts(byte id)
         {
@@ -342,13 +342,12 @@ namespace TownOfHost
                 SendMessage(GetString("CantUse.killlog"), PlayerId);
                 return;
             }
-            var daycount = 0;
-            string mes = gamelog;
+            var mes = new StringBuilder();
+            mes.Append($"{GetString("GameLog")}\n{gamelog}");
             var last = GameLog.Values.LastOrDefault();
             foreach (var log in GameLog)
             {
-                mes += log.Value;
-                daycount++;
+                mes.Append(log.Value);
 
                 if ((last ?? "??") == log.Value)
                 {
@@ -366,17 +365,17 @@ namespace TownOfHost
                         case CustomWinner.SuddenDeathPurple: meg = GetString("SuddenDeathPurple"); winnerColor = ModColors.Purple; break;
                     }
 
-                    var s = "★".Color(winnerColor);
-                    mes = $"{GetString("GameLog")}\n" + mes + "\n\n" + $"{s}{meg}{s}";
-                    SendMessage(mes.RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
+                    var s = "★";
+                    var send = mes.ToString() + "\n\n" + $"{s}{meg}{s}".Color(winnerColor);
+                    SendMessage(send.RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
                     break;
                 }
 
-                if (3 <= daycount)
+                if (mes.Length > 700)
                 {
-                    daycount = 0;
-                    SendMessage(mes.RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
-                    mes = "<size=60%>";
+                    SendMessage(mes.ToString().RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
+                    mes = mes.Clear();
+                    mes.Append("<size=60%>");
                 }
             }
             //SendMessage(/*EndGamePatch.KillLog*/, PlayerId);

@@ -17,7 +17,7 @@ public interface IUsePhantomButton
             //Logger.Info($"{player.Data.PlayerName}ファントムワンクリに追加済みなのでリセット", "IusePhantomButton");
             return;
         }
-        Logger.Info($"{player.Data.PlayerName}:ファントムワンクリに追加", "IusePhantomButton");
+        Logger.Info($"{player.Data.GetLogPlayerName()}:ファントムワンクリに追加", "IusePhantomButton");
     }
     //キルクールを...
     public void FixedUpdate(PlayerControl player)

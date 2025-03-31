@@ -123,34 +123,41 @@ namespace TownOfHost
                 var (madcheck, madmax, madmin) = RoleAssignManager.CheckRoleTypeCount(CustomRoleTypes.Madmate);
                 var (crewcheck, crewmax, crewmin) = RoleAssignManager.CheckRoleTypeCount(CustomRoleTypes.Crewmate);
                 var (neucheck, neumax, neumin) = RoleAssignManager.CheckRoleTypeCount(CustomRoleTypes.Neutral);
-                if (nowcount.imp > 0) sb.Append(ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + $"({nowcount.imp})" + (impcheck ? $"　[Min : {impmin}|Max : {impmax} ]" : "") + "</u>\n"));
-                if (nowcount.mad > 0) sb.Append(ColorString(ModColors.MadMateOrenge, "\n<u>☆MadMates☆" + $"({nowcount.mad})" + (madcheck ? $"　[Min : {madmin}|Max : {madmax} ]" : "") + "</u>\n"));
-                if (nowcount.crew > 0) sb.Append(ColorString(Palette.Blue, "\n<u>☆CrewMates☆" + $"({nowcount.crew})" + (crewcheck ? $"　[Min : {crewmin}|Max : {crewmax} ]" : "") + "</u>\n"));
-                if (nowcount.neutral > 0) sb.Append(ColorString(ModColors.Gray, "\n<u>☆Neutrals☆" + $"({nowcount.neutral})" + (neucheck ? $"　[Min : {neumin}|Max : {neumax} ]" : "") + "</u>\n"));
+                if (nowcount.imp > 0) sb.Append(ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + $"({nowcount.imp})" + (impcheck ? $"　[{impmin}～{impmax}]" : "") + "</u>\n"));
+                if (nowcount.mad > 0) sb.Append(ColorString(ModColors.MadMateOrenge, "\n<u>☆MadMates☆" + $"({nowcount.mad})" + (madcheck ? $"　[{madmin}～{madmax}]" : "") + "</u>\n"));
+                if (nowcount.crew > 0) sb.Append(ColorString(Palette.Blue, "\n<u>☆CrewMates☆" + $"({nowcount.crew})" + (crewcheck ? $"　[{crewmin}～{crewmax}]" : "") + "</u>\n"));
+                if (nowcount.neutral > 0) sb.Append(ColorString(ModColors.Gray, "\n<u>☆Neutrals☆" + $"({nowcount.neutral})" + (neucheck ? $"　[{neumin}～{neumax}]" : "") + "</u>\n"));
                 if (nowcount.lovers > 0) sb.Append(ColorString(ModColors.Pink, "\n<u>☆Lovers☆" + $"({nowcount.lovers})" + "</u>\n"));
                 if (nowcount.ghost > 0) sb.Append(ColorString(ModColors.GhostRoleColor, "\n<u>☆GhostRole☆" + $"({nowcount.ghost})" + "</u>\n"));
                 if (nowcount.addon > 0) sb.Append(ColorString(ModColors.AddonsColor, "\n<u>☆Add-Ons☆" + $"({nowcount.addon})" + "</u>\n"));
 
                 sb.Append("\n");
-                foreach (var roleop in Options.CustomRoleCounts)
+                if (Options.CustomRoleCounts.Where(x => x.Key.IsEnable()).Count() > 30)
                 {
-                    var role = roleop.Key;
-                    if (role is not CustomRoles.Jackaldoll || JackalDoll.sidekick.GetFloat() is 0 || CustomRoles.Jackaldoll.GetChance() == 0)
-                        if (!role.IsEnable()) continue;
-                    if (role is CustomRoles.HASFox or CustomRoles.HASTroll) continue;
+                    sb.Append(GetString("Warning.OverRole") + "\n");
+                }
+                else
+                {
+                    foreach (var roleop in Options.CustomRoleCounts)
+                    {
+                        var role = roleop.Key;
+                        if (role is not CustomRoles.Jackaldoll || JackalDoll.sidekick.GetFloat() is 0 || CustomRoles.Jackaldoll.GetChance() == 0)
+                            if (!role.IsEnable()) continue;
+                        if (role is CustomRoles.HASFox or CustomRoles.HASTroll) continue;
 
-                    var mark = "";
-                    if (role.IsCrewmate()) mark = ColorString(Palette.Blue, "<u>Ⓒ");
-                    if (role.IsImpostor()) mark = ColorString(Palette.ImpostorRed, "<u>Ⓘ");
-                    if (role.IsNeutral()) mark = ColorString(ModColors.Gray, "<u>Ⓝ");
-                    if (role.IsMadmate()) mark = ColorString(ModColors.MadMateOrenge, "<u>Ⓜ");
-                    if (role.IsAddOn() || role is CustomRoles.Amanojaku or CustomRoles.Twins) mark = ColorString(ModColors.AddonsColor, "<u>Ⓐ");
-                    if (role.IsGhostRole()) mark = ColorString(ModColors.GhostRoleColor, "<u>Ⓖ");
-                    if (role.IsRiaju()) mark = ColorString(ModColors.Pink, "<u>Ⓛ");
+                        var mark = "";
+                        if (role.IsCrewmate()) mark = "Ⓒ";
+                        if (role.IsImpostor()) mark = "Ⓘ";
+                        if (role.IsNeutral()) mark = "Ⓝ";
+                        if (role.IsMadmate()) mark = "Ⓜ";
+                        if (role.IsAddOn() || role is CustomRoles.Amanojaku or CustomRoles.Twins) mark = "Ⓐ";
+                        if (role.IsGhostRole()) mark = "Ⓖ";
+                        if (role.IsRiaju()) mark = "Ⓛ";
 
-                    sb.Append($"\n<size=90%>{mark}{UtilsRoleText.GetCombinationCName(role)}</size><size=70%>×{role.GetCount()}</size></u>\n\n");
-                    ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, 1);
-                    CheckPageChange(PlayerId, sb);
+                        sb.Append($"\n<{GetRoleColorCode(role, true)}><u>{mark}{UtilsRoleText.GetCombinationCName(role, false)}</color></u>×{role.GetCount()}\n\n");
+                        if (!(role is CustomRoles.Alien or CustomRoles.JackalAlien or CustomRoles.AllArounder)) ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, 1);
+                        CheckPageChange(PlayerId, sb);
+                    }
                 }
                 //sb.Append("</line-hight><line-height=55%>");
                 foreach (var opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id >= 80000 && !x.IsHiddenOn(Options.CurrentGameMode)))
@@ -167,7 +174,7 @@ namespace TownOfHost
                             {
                                 //Onの時は頭に改ページを入れる
                                 CheckPageChange(PlayerId, sb, true);
-                                sb.Append($"\n<size=65%>【{opt.GetName(false)}】</size>");
+                                sb.Append($"\n【{opt.GetName(false)}】");
                                 sb.Append($"\n {randomOpt.GetName(true)}: {randomOpt.GetString().RemoveSN()}\n");
 
                                 ShowChildrenSettings(randomOpt, ref sb, 1, getbool: true);
@@ -175,7 +182,7 @@ namespace TownOfHost
                             else
                             {
                                 //オフならそのままで大丈夫
-                                sb.Append($"\n<size=85%>☆{opt.GetName(false)}</size>");
+                                sb.Append($"\n☆{opt.GetName(false)}");
                                 sb.Append($"\n {randomOpt.GetName(false)}: {randomOpt.GetString().RemoveSN()}\n");
                             }
                         }
@@ -187,17 +194,17 @@ namespace TownOfHost
                         ShowChildrenSettings(opt, ref s, 1, getbool: true);
                         if (s.ToString().RemoveHtmlTags() == "" && opt.Children.Count != 0) continue;
                         if (opt.Name is "RoleAssigningAlgorithm" or "LimitMeetingTime" or "LowerLimitVotingTime")
-                            sb.Append($"\n<size=65%><b>▶{opt.GetName(false)}: {opt.GetString().RemoveSN()}\n</size>");
+                            sb.Append($"\n▶{opt.GetName(true)}: {opt.GetString().RemoveSN()}\n");
                         else
                         if (opt.Name is "KillFlashDuration")
-                            sb.Append($"\n<size=65%>◇{opt.GetName(true)}: {opt.GetString().RemoveSN()}\n</size>");
+                            sb.Append($"\n◇{opt.GetName(true)}: {opt.GetString().RemoveSN()}\n");
                         else
                         if (opt.Name is "KickModClient" or "KickPlayerFriendCodeNotExist" or "ApplyDenyNameList" or "ApplyBanList")
-                            sb.Append($"\n<size=65%>◆{opt.GetName(true)}\n</size>");
+                            sb.Append($"\n◆{opt.GetName(true)}\n");
                         else if (opt.Name is "TaskBattleSet" or "ONspecialMode" or "ExperimentalMode" or "MadmateOption" or "GRRoleOptions"
                                 or "MapModification" or "Sabotage" or "RandomMapsMode" or "GhostOptions" or "MeetingAndVoteOpt" or "DevicesOption" or "ConvenientOptions")
-                            sb.Append($"\n<size=85%>■{opt.GetName(false)}\n</size>");
-                        else sb.Append($"\n<size=65%>・{opt.GetName(false)}\n</size>");
+                            sb.Append($"\n■{opt.GetName(false)}\n");
+                        else sb.Append($"\n・{opt.GetName(true)}\n");
                         ShowChildrenSettings(opt, ref sb, 1, getbool: true);
                         CheckPageChange(PlayerId, sb);
                     }
@@ -211,7 +218,7 @@ namespace TownOfHost
             if (sb.ToString().RemoveHtmlTags() == "") return;
 
             //2Byte文字想定で1000byt越えるならページを変える
-            if (force || sb.Length > 350)
+            if (force || sb.Length > 600)
             {
                 SendMessage(sb.ToString(), PlayerId, title);
                 sb.Clear();
@@ -265,7 +272,7 @@ namespace TownOfHost
             var sb = new StringBuilder().AppendFormat("<line-height={0}>", ActiveSettingsLineHeight);
             sb.AppendFormat("<size={0}>", "70%");
             sb.AppendFormat("\n◆{0}:{1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString());
-            sb.Append("\n<size=100%>\n").Append(GetString("Roles")).Append("</size>");
+            sb.Append("\n<size=100%>\n").Append(GetString("Roles")).Append("</size><line-height=82%>");
             CustomRoles[] roles = null;
             CustomRoles[] addons = null;
             if (Options.CurrentGameMode == CustomGameMode.Standard) roles = CustomRolesHelper.AllStandardRoles;
@@ -278,9 +285,8 @@ namespace TownOfHost
                     if (role.IsEnable())
                     {
                         var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
-                        var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "●") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "●") : (role.IsMadmate() ? "<#ff7f50>●</color>" : ColorString(Palette.DisabledGrey, "●")));
-                        sb.AppendFormat("<line-height=82%>\n" + co + "<line-height=0%>\n○</line-height>{0}<pos={1}em>:{2}x{3}", role.GetCombinationCName(), pos, $"{role.GetChance()}%", role.GetCount() + "</line-height>");
+                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : ColorString(Palette.DisabledGrey, "Ⓝ")));
+                        sb.AppendFormat("\n" + co + "{0}:{1}x{2}", role.GetCombinationCName(), $"{role.GetChance()}%", role.GetCount());
                     }
                 }
             }
@@ -291,7 +297,7 @@ namespace TownOfHost
                 {
                     var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
                     var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                    if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n★{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
+                    if (Addon.IsEnable()) sb.AppendFormat("\n★{0}:{1}x{2}", GetRoleName(Addon).Color(GetRoleColor(Addon)), $"{Addon.GetChance()}%", Addon.GetCount());
                 }
             }
             return sb.ToString();
@@ -307,6 +313,7 @@ namespace TownOfHost
             if (Options.CurrentGameMode == CustomGameMode.Standard) roles = CustomRolesHelper.AllStandardRoles;
             if (Options.CurrentGameMode == CustomGameMode.Standard) addons = CustomRolesHelper.AllAddOns;
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) roles = CustomRolesHelper.AllHASRoles;
+            var nowcount = 3;
             if (roles != null)
             {
                 var roleType = CustomRoleTypes.Impostor;
@@ -323,35 +330,38 @@ namespace TownOfHost
                             var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                             if (che)
                             {
-                                maxtext += $"　[Min : {min}|Max : {max} ]";
+                                maxtext += $"　[{min}～{max}]";
                             }
-                            sb.Append(ColorString(Palette.ImpostorRed, "\n\n<u>☆Impostors☆" + maxtext + "</u>\n"));
+                            sb.Append(ColorString(Palette.ImpostorRed, "\n<b>☆Impostors</b>" + maxtext + "\n"));
                         }
                         farst = false;
                         if (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor)
                         {
+                            nowcount = 3;
                             var s = "";
                             var c = 0;
                             var cor = Color.white;
                             switch (role.GetCustomRoleTypes())
                             {
-                                case CustomRoleTypes.Crewmate: s = "☆CrewMates☆"; c = crew; cor = Palette.Blue; break;
-                                case CustomRoleTypes.Madmate: s = "☆MadMates☆"; c = mad; cor = StringHelper.CodeColor("#ff7f50"); break;
-                                case CustomRoleTypes.Neutral: s = "☆Neutrals☆"; c = neu; cor = Palette.DisabledGrey; break;
+                                case CustomRoleTypes.Crewmate: s = "<b>☆CrewMates</b>"; c = crew; cor = Palette.Blue; break;
+                                case CustomRoleTypes.Madmate: s = "<b>☆MadMates</b>"; c = mad; cor = StringHelper.CodeColor("#ff7f50"); break;
+                                case CustomRoleTypes.Neutral: s = "<b>☆Neutrals</b>"; c = neu; cor = Palette.DisabledGrey; break;
                             }
                             var maxtext = $"({c})";
                             var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                             if (che)
                             {
-                                maxtext += $"　[Min : {min}|Max : {max} ]";
+                                maxtext += $"　[{min}～{max}]";
                             }
-                            sb.Append(ColorString(cor, $"\n\n<u>{s + maxtext}</u>\n"));
+                            sb.Append(ColorString(cor, $"\n{s + maxtext}\n"));
                             roleType = role.GetCustomRoleTypes();
                         }
+                        nowcount++;
                         var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
-                        var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? ColorString(Palette.Blue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : ColorString(Palette.DisabledGrey, "Ⓝ")));
-                        sb.AppendFormat("<line-height=82%>\n<b>" + co + "</b></line-height>{0}<pos={1}em>:{2}x{3}", role.GetCombinationCName(), pos, $"{role.GetChance()}%", role.GetCount() + "</line-height>");
+                        var co = role.IsImpostor() ? "Ⓘ" : (role.IsCrewmate() ? "Ⓒ" : (role.IsMadmate() ? "Ⓜ" : "Ⓝ"));
+                        co = $"<{GetRoleColorCode(role, true)}>{co}";
+                        sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + co + "{0}</color>:{1}", role.GetCombinationCName(false), role.GetChance() is 100 ? role.GetCount() : $"{role.GetChance()}%x{role.GetCount()}");
+                        if (nowcount > 1) nowcount = 0;
                         P(sb);
                     }
                 }
@@ -361,16 +371,19 @@ namespace TownOfHost
                 if (addons.Any(add => add.IsEnable()))
                 {
                     sb.Append("\n<size=100%>\n").Append(GetString("Addons")).Append("</size>");
-                    foreach (CustomRoles Addon in addons)
+
+                    nowcount = 1;
+                    foreach (CustomRoles Addon in addons.Where(a => a.IsEnable()))
                     {
+                        nowcount++;
                         var m = AdditionalWinnerMark;
                         if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
                         if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
                         if (Addon.IsGhostRole()) m = "<#8989d9>■</color>";
                         var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
-                        var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                        if (Addon.IsEnable()) sb.AppendFormat("<line-height=82%>\n" + m + "{0}<pos={1}em>:{2}x{3}", GetRoleName(Addon).Color(GetRoleColor(Addon)), pos, $"{Addon.GetChance()}%", Addon.GetCount() + "</line-height>");
-                        if (Addon.IsEnable()) P(sb);
+                        sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + m + "{0}:{1}", GetRoleColorAndtext(Addon), Addon.GetChance() is 100 ? $"{Addon.GetCount()}" : $"{Addon.GetChance()}%x{Addon.GetCount()}");
+                        if (nowcount > 1) nowcount = 0;
+                        P(sb);
                     }
                 }
             }
@@ -378,15 +391,16 @@ namespace TownOfHost
 
             void P(StringBuilder sb)
             {
-                var n = sb.ToString().Split("\n").Length;
-                if (n >= 60)
+                var n = sb.ToString().Length;
+                if (n > 600)
                 {
+                    nowcount = 3;
                     if (sb.ToString().RemoveHtmlTags() != "")
                     {
                         n = 0;
                         SendMessage(sb.ToString(), pc);
                         sb.Clear();
-                        sb.Append("<size=70%><line-height=55%>");
+                        sb.Append("<line-height=60%><size=70%>");
                     }
                 }
             }
@@ -847,8 +861,8 @@ namespace TownOfHost
             }
             return (i, m, c, n, a, l, g);
         }
-        private const string ActiveSettingsSize = "50%";
-        private const string ActiveSettingsLineHeight = "55%";
+        private const string ActiveSettingsSize = "60%";
+        private const string ActiveSettingsLineHeight = "60%";
     }
     #endregion
     #region  Option

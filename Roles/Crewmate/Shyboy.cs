@@ -32,6 +32,7 @@ public sealed class Shyboy : RoleBase
     }
     private static OptionItem OptionShytime;
     private static OptionItem OptionNotShy;
+    private static OptionItem OptionShyDieBom;
     float Shydeath;
     float Cool;
     float AfterMeeting;
@@ -42,14 +43,18 @@ public sealed class Shyboy : RoleBase
     enum OptionName
     {
         ShyboyShytime,
-        ShyboyAfterMeetingNotShytime
+        ShyboyAfterMeetingNotShytime,
+        ShyboyBooooom
     }
+    // #00fa9aff
     private static float Shytime;
     public override bool CanClickUseVentButton => false;
     private static void SetupOptionItem()
     {
         OptionShytime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ShyboyShytime, new(0f, 15f, 0.5f), 5f, false);
         OptionNotShy = FloatOptionItem.Create(RoleInfo, 11, OptionName.ShyboyAfterMeetingNotShytime, new(0f, 30f, 1f), 10f, false);
+        OptionShyDieBom = BooleanOptionItem.Create(RoleInfo, 12, OptionName.ShyboyBooooom, false, false)
+        .SetInfo(GetString("AprilfoolOnly")).SetCansee(() => Event.April || Event.Special);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -125,6 +130,20 @@ public sealed class Shyboy : RoleBase
                 MyState.DeathReason = CustomDeathReason.Suicide;
                 Player.RpcMurderPlayer(Player);//一定時間周囲に人がいたら恥ずかしくて死ぬ。
                 Shydeath = 0;//0sの無限キル防止(おきないだろうけど)
+                if ((Event.April || Event.Special) && OptionShyDieBom.GetBool())
+                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        if (pc != player)
+                        {
+                            float HitoDistance = Vector2.Distance(GSpos, pc.transform.position);
+                            if (HitoDistance <= Shydeathdi)
+                            {
+                                pc.PlayerId.GetPlayerState().DeathReason = CustomDeathReason.Bombed;
+                                pc.RpcMurderPlayer(pc);
+                                Logger.Info($"Booooooooooooom! => {pc.Data.GetLogPlayerName()}", "ShyboyDie");
+                            }
+                        }
+                    }
             }
         }
     }

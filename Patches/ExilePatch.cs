@@ -103,7 +103,7 @@ namespace TownOfHost
                     {
                         if (Player.GetClient() is null)
                         {
-                            Logger.Error($"{Player?.Data?.PlayerName ?? "???"}のclientがnull", "ExiledSetRole");
+                            Logger.Error($"{Player?.Data?.GetLogPlayerName() ?? "???"}のclientがnull", "ExiledSetRole");
                             continue;
                         }
                         var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
@@ -157,14 +157,11 @@ namespace TownOfHost
                             Player.Revive();
                         }
 
-                        if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) Player.RpcExileV2();
-
                         Player.ResetKillCooldown();
-                        Player.SyncSettings();
                         _ = new LateTask(() =>
                             {
-                                Player.SetKillCooldown(kyousei: true, delay: true);
-                                if (Player.IsAlive())
+                                Player.SetKillCooldown(kyousei: true, delay: true, kousin: false);
+                                if (Player.IsAlive() && !(Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()))
                                 {
                                     var roleclass = Player.GetRoleClass();
                                     (roleclass as IUseTheShButton)?.ResetS(Player);
@@ -175,6 +172,7 @@ namespace TownOfHost
                                     Player.RpcExileV2();
                                     if (Player.IsGhostRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
                                 }
+                                Player.ResetKillCooldown();
                             }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>
@@ -191,43 +189,8 @@ namespace TownOfHost
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
                 }, 0.7f, "", true);
-
-                /*if (Options.BlackOutwokesitobasu.GetBool())
-                {
-                    _ = new LateTask(() =>
-                    {
-                        if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-                        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                        {
-                            if (!pc.IsModClient())
-                            {
-                                var role = pc.GetCustomRole().GetRoleTypes();
-                                var pos = pc.transform.position;
-                                pc.RpcSnapToDesync(pc, new UnityEngine.Vector2(9999, 9999));
-                                pc.ResetPlayerCam();
-                                _ = new LateTask(() =>
-                                {
-                                    pc.ResetPlayerCam();
-                                    _ = new LateTask(() =>
-                                    {
-                                        if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship)
-                                            RandomSpawn.AirshipSpawn(pc);
-                                        else
-                                            pc.RpcSnapToForced(pos);
-                                        PlayerState.GetByPlayerId(pc.PlayerId).HasSpawned = true;
-                                        pc.RpcSetRoleDesync(role, pc.GetClientId());
-                                    }, 0.65f);
-                                }, 0.1f);
-                            }
-                        }
-                    }, 0.25f);
-                }*/
             }
 
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-            {
-                pc.ResetKillCooldown();
-            }
             if (RandomSpawn.IsRandomSpawn())
             {
                 RandomSpawn.SpawnMap map;
@@ -258,10 +221,9 @@ namespace TownOfHost
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    pc.GetRoleClass().OnSpawn();
+                    pc.GetRoleClass()?.OnSpawn();
                 }
             }
-            UtilsOption.SyncAllSettings();
         }
 
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)

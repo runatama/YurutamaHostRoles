@@ -150,6 +150,7 @@ namespace TownOfHost
         public static OptionItem InsiderMode;
         public static OptionItem Taskcheck;
         public static OptionItem RoleImpostor;
+        public static OptionItem AllPlayerSkinShuffle;
         public static OptionItem SuddenDeathMode;
         public static OptionItem SuddenAllRoleonaji;
         public static OptionItem SuddenCannotSeeName;
@@ -590,6 +591,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All);
             RoleImpostor = BooleanOptionItem.Create(200006, "VRoleImpostor", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
                 .SetGameMode(CustomGameMode.Standard);
+            AllPlayerSkinShuffle = BooleanOptionItem.Create(200100, "AllPlayerSkinShuffle", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
+                .SetCansee(() => Event.April || Event.Special).SetInfo(Translator.GetString("AprilfoolOnly"));
             StandardHAS = BooleanOptionItem.Create(200004, "StandardHAS", false, TabGroup.MainSettings, false).SetParent(ONspecialMode)
             .SetGameMode(CustomGameMode.Standard);
             StandardHASWaitingTime = FloatOptionItem.Create(200005, "StandardHASWaitingTime", new(0f, 180f, 2.5f), 10f, TabGroup.MainSettings, false).SetParent(StandardHAS)

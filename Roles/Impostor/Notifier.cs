@@ -51,12 +51,12 @@ public sealed class Notifier : RoleBase, IImpostor
             int chance = IRandom.Instance.Next(1, 101);
             if (chance <= NotifierProbability)
             {
-                Logger.Info($"{killer?.Data?.PlayerName}: フラ全体通知", "Notifier");
-                PlayerCatch.AllPlayerControls.Do(pc => pc.KillFlash());
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}: フラ全体通知", "Notifier");
+                Utils.AllPlayerKillFlash();
             }
             else
             {
-                Logger.Info($"{killer?.Data?.PlayerName}: フラ通知は無し", "Notifier");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}: フラ通知は無し", "Notifier");
             }
         }
     }

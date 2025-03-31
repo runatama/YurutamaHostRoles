@@ -486,6 +486,8 @@ public abstract class RoleBase : IDisposable
     /// <returns></returns>
     public virtual bool CanTask() => UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
 
+    public virtual void CheckWinner()
+    { }
     /// <summary>
     /// 覚醒等で使えたら!<br/>
     /// 自身を別役職だと思い込む。

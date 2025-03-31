@@ -144,7 +144,7 @@ namespace TownOfHost
             int start2 = 0;
             int start3 = 0;
 
-            if ((Options.CommnTaskResetAssing.GetBool() && hasCommonTasks) || (!hasCommonTasks && NumCommonTasks != start1) || Options.CurrentGameMode is CustomGameMode.TaskBattle)
+            if ((Options.CommnTaskResetAssing.GetBool() && hasCommonTasks) || (!hasCommonTasks && (NumCommonTasks != start1 || taskTypeIds.Count == 0)) || Options.CurrentGameMode is CustomGameMode.TaskBattle)
             {
                 //コモンの再割り当て
                 Il2CppSystem.Collections.Generic.List<NormalPlayerTask> CommnTasks = new();

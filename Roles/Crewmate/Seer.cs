@@ -60,13 +60,13 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
             {
                 int ti = IRandom.Instance.Next(0, (int)Maxdelay * 10);
                 tien = ti * 0.1f;
-                Logger.Info($"{Player?.Data?.PlayerName} => {tien}sの追加遅延発生!!", "Seer");
+                Logger.Info($"{Player?.Data?.GetLogPlayerName()} => {tien}sの追加遅延発生!!", "Seer");
             }
             _ = new LateTask(() =>
             {
                 if (GameStates.Meeting || !Player.IsAlive())
                 {
-                    Logger.Info($"{info?.AppearanceTarget?.Data?.PlayerName ?? "???"}のフラッシュを受け取ろうとしたけどなんかし防いだぜ", "seer");
+                    Logger.Info($"{info?.AppearanceTarget?.Data?.GetLogPlayerName() ?? "???"}のフラッシュを受け取ろうとしたけどなんかし防いだぜ", "seer");
                     return;
                 }
                 Player.KillFlash();

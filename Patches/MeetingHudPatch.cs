@@ -337,7 +337,14 @@ public static class MeetingHudPatch
                 var seerRole = seer.GetRoleClass();
 
                 var target = PlayerCatch.GetPlayerById(pva.TargetPlayerId);
-                if (target == null) continue;
+                if (target == null)
+                {
+                    if (Camouflage.PlayerSkins.TryGetValue(pva.TargetPlayerId, out var cosm))
+                    {
+                        pva.NameText.text = cosm.PlayerName;
+                    }
+                    continue;
+                }
 
                 var sb = new StringBuilder();
                 var fsb = new StringBuilder();
@@ -345,7 +352,12 @@ public static class MeetingHudPatch
                 //会議画面での名前変更
                 //自分自身の名前の色を変更
                 //NameColorManager準拠の処理
-                pva.NameText.text = pva.NameText.text.ApplyNameColorData(seer, target, true);
+                var name = pva.NameText.text;
+                if (Camouflage.PlayerSkins.TryGetValue(pva.TargetPlayerId, out var cos))
+                {
+                    name = cos.PlayerName;
+                }
+                pva.NameText.text = name.ApplyNameColorData(seer, target, true);
 
                 //とりあえずSnitchは会議中にもインポスターを確認することができる仕様にしていますが、変更する可能性があります。
 

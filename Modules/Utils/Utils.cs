@@ -135,12 +135,18 @@ namespace TownOfHost
             PlayerControl killer = info.AppearanceKiller, target = info.AttemptTarget;
 
             if (!target.Data.IsDead || GameStates.IsMeeting) return;
+
+            List<PlayerControl> Players = new();
             foreach (var seer in PlayerCatch.AllPlayerControls)
             {
                 if (KillFlashCheck(info, seer))
                 {
-                    seer.KillFlash();
+                    Players.Add(seer);
                 }
+            }
+            if (Players.Count > 0)
+            {
+                KillFlash(Players.ToArray());
             }
         }
         public static bool KillFlashCheck(MurderInfo info, PlayerControl seer)
@@ -204,6 +210,99 @@ namespace TownOfHost
             {
                 state.IsBlackOut = false; //ブラックアウト解除
                 player.MarkDirtySettings();
+            }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
+        }
+        public static void KillFlash(PlayerControl[] players)
+        {
+            if (players.Count() < 1) return;
+            bool ReactorCheck = IsActive(GetCriticalSabotageSystemType());
+            var Duration = Options.KillFlashDuration.GetFloat();
+            var systemtypes = Utils.GetCriticalSabotageSystemType();
+            float FlashDuration = Options.KillFlashDuration.GetFloat();
+
+            if (ReactorCheck) Duration += 0.2f;
+
+            {
+                var sender = CustomRpcSender.Create("KillFlash");
+                bool ch = false;
+                foreach (var player in players)
+                {
+                    //実行
+                    var state = PlayerState.GetByPlayerId(player.PlayerId);
+                    state.IsBlackOut = true; //ブラックアウト
+                    if (player.PlayerId == 0)
+                    {
+                        FlashColor(new(1f, 0f, 0f, 0.5f));
+                        if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
+                    }
+                    else if (!ReactorCheck)
+                    {
+                        if (player == null || GameStates.IsLobby || player.GetClient() == null) continue;
+                        ch = true;
+                        NowKillFlash = true;
+                        {
+                            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
+                                .Write((byte)systemtypes)
+                                .WriteNetObject(player)
+                                .Write((byte)128)
+                                .EndRpc();
+                        }
+                    } //リアクターフラッシュ
+                }
+                UtilsOption.MarkEveryoneDirtySettings();
+                if (ch)
+                {
+                    sender.EndMessage();
+                    sender.SendMessage();
+                }
+            }
+
+            if (!ReactorCheck)
+            {
+                _ = new LateTask(() =>
+                {
+                    bool ch = false;
+                    var sender = CustomRpcSender.Create("RemoveKillFlash");
+                    foreach (var player in players)
+                    {
+                        if (player == null || GameStates.IsLobby || player.GetClient() == null || player.PlayerId == 0) continue;
+
+                        ch = true;
+                        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
+                            .Write((byte)systemtypes)
+                            .WriteNetObject(player)
+                            .Write((byte)16)
+                            .EndRpc();
+
+                        if (Main.NormalOptions.MapId == 4) //Airship用
+                        {
+                            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
+                                .Write((byte)systemtypes)
+                                .WriteNetObject(player)
+                                .Write((byte)17)
+                                .EndRpc();
+                        }
+                    }
+                    if (ch)
+                    {
+                        sender.EndMessage();
+                        sender.SendMessage();
+                    }
+                }, FlashDuration, "Fix Desync Reactor");
+                _ = new LateTask(() => NowKillFlash = false, FlashDuration * 2, "", true);
+            }
+
+            _ = new LateTask(() =>
+            {
+                bool ch = false;
+                foreach (var player in players)
+                {
+                    if (player == null || GameStates.IsLobby) continue;
+                    var state = player.GetPlayerState();
+                    state.IsBlackOut = false; //ブラックアウト解除
+                    ch = true;
+                }
+                if (ch) UtilsOption.MarkEveryoneDirtySettings();
             }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
         }
         public static void AllPlayerKillFlash()
@@ -341,15 +440,16 @@ namespace TownOfHost
             if (title == "") title = $"<{Main.ModColor}>" + GetString($"DefaultSystemMessageTitle");// + "</color>";
             //すぐ</align>すると最終行もあれなので。
             var fir = rob ? "" : "<align=\"left\">";
-            text = text.RemoveDeltext("color=#", "#");
-            title = title.RemoveDeltext("color=#", "#");
+            text = text.RemoveDeltext("color=#", "#").RemoveDeltext("FF>", ">");
+            title = title.RemoveDeltext("color=#", "#").RemoveDeltext("FF>", ">");
             Main.MessagesToSend.Add(($"{fir}{text}", sendTo, $"{fir}{title}"));
         }
         /// <param name="pc">seer</param>
         /// <param name="force">強制かつ全員に送信</param>
-        public static void ApplySuffix(PlayerControl pc, bool force = false)
+        public static void ApplySuffix(PlayerControl pc, bool force = false, bool countdown = false)
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            var Iscountdown = countdown || GameStates.IsCountDown;
             string name = DataManager.player.Customization.Name;
             if (Main.nickName != "") name = Main.nickName;
             string n = name;
@@ -362,7 +462,7 @@ namespace TownOfHost
             }
             else if (GameStates.IsLobby)
             {
-                if (!GameStates.IsCountDown)
+                if (!Iscountdown)
                 {
                     switch (Options.GetSuffixMode())
                     {
@@ -385,7 +485,7 @@ namespace TownOfHost
                             break;
                         case SuffixModes.Timer:
                             if (GameStates.IsLocalGame
-                            || GameStates.IsCountDown) break;
+                            || Iscountdown) break;
                             float timerValue = GameStartManagerPatch.GetTimer();
                             if (timerValue < GameStartManagerPatch.Timer2 - 2 || GameStartManagerPatch.Timer2 < 25)
                                 GameStartManagerPatch.Timer2 = timerValue;
@@ -403,13 +503,13 @@ namespace TownOfHost
                 }
             }
             //Dataのほう変えるのはなぁっておもいました。うん。
-            if (name != PlayerControl.LocalPlayer.name && !PlayerControl.LocalPlayer.name.Contains("マーリン") && !PlayerControl.LocalPlayer.name.Contains("どちらも") && !RpcTimer && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
+            if ((name != PlayerControl.LocalPlayer.name || countdown) && !PlayerControl.LocalPlayer.name.Contains("マーリン") && !PlayerControl.LocalPlayer.name.Contains("どちらも") && !RpcTimer && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
             {
                 PlayerControl.LocalPlayer.RpcSetName(name);
-                _ = new LateTask(() => ApplySuffix(null, force: true), 0.2f, "LobySetName", null);
+                if (!Iscountdown) _ = new LateTask(() => ApplySuffix(null, force: true), 0.2f, "LobySetName", null);
             }
 
-            if (GameStates.IsLobby && !GameStates.IsCountDown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
+            if (GameStates.IsLobby && !Iscountdown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
             {
                 if (Main.MessagesToSend.Count > 0) return;
                 var info = "<size=80%>";

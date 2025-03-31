@@ -158,7 +158,7 @@ namespace TownOfHost
             logger.Info("----------役職割り当て----------");
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                logger.Info($"{(pc.AmOwner ? "[*]" : ""),-3}{pc.PlayerId,-2}:{pc?.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags()}");
+                logger.Info($"{(pc.AmOwner ? "[*]" : ""),-3}{pc.PlayerId,-2}:{pc?.Data?.GetLogPlayerName()?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags()}");
             }
             logger.Info("--------------環境--------------");
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -166,7 +166,7 @@ namespace TownOfHost
                 try
                 {
                     var text = pc.AmOwner ? "[*]" : "   ";
-                    text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString()?.Replace("Standalone", ""),-11}";
+                    text += $"{pc.PlayerId,-2}:{pc.Data?.GetLogPlayerName()?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString()?.Replace("Standalone", ""),-11}";
                     if (Main.playerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
                         text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
                     else text += ":Vanilla";

@@ -200,16 +200,16 @@ namespace TownOfHost
         }
         public static InnerNet.ClientData GetClient(this PlayerControl player)
         {
-            if (player.isDummy) return null;
+            if (player?.isDummy ?? false) return null;
             if (!player) return null;
             var client = AmongUsClient.Instance?.allClients?.ToArray()?.Where(cd => cd?.Character?.PlayerId == player?.PlayerId)?.FirstOrDefault() ?? null;
             return client;
         }
         public static int GetClientId(this PlayerControl player)
         {
-            if (player.isDummy) return -1;
+            if (player?.isDummy ?? false) return -1;
             var client = player?.GetClient();
-            if (client == null) Logger.Error($"{player?.Data?.PlayerName ?? "null"}のclientがnull", "GetClientId");
+            if (client == null) Logger.Error($"{player?.Data?.GetLogPlayerName() ?? "null"}のclientがnull", "GetClientId");
             return client == null ? -1 : client.Id;
         }
         public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
@@ -267,7 +267,7 @@ namespace TownOfHost
             }
             HudManagerPatch.LastSetNameDesyncCount++;
 
-            Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for All", "RpcSetNameEx");
+            Logger.Info($"Set:{player?.Data?.GetLogPlayerName()}:{name} for All", "RpcSetNameEx");
             player.RpcSetName(name);
         }
 
@@ -283,7 +283,6 @@ namespace TownOfHost
 
             if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name)
             {
-                //Logger.Info($"{seer.name} : {player.name} => {name} , cancel", "aaa");
                 return false;
             }
             {
@@ -321,7 +320,7 @@ namespace TownOfHost
 
             if (player == null) return;
 
-            //Logger.Info($"{player?.Data?.PlayerName ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
+            //Logger.Info($"{player?.Data?.GetLogPlayerName() ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
@@ -476,7 +475,7 @@ namespace TownOfHost
                     else
                     {
                         //targetがホスト以外だった場合
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.Reliable, target.GetClientId());
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.ProtectPlayer, SendOption.None, target.GetClientId());
                         writer.WriteNetObject(target);
                         writer.Write(0);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -584,7 +583,7 @@ namespace TownOfHost
         }
         public static string GetNameWithRole(this PlayerControl player)
         {
-            return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame ? $"({player?.GetAllRoleName()})" : "");
+            return $"{player?.Data?.GetLogPlayerName()}" + (GameStates.IsInGame ? $"({player?.GetAllRoleName()})" : "");
         }
         public static string GetRoleColorCode(this PlayerControl player)
         {
@@ -657,6 +656,7 @@ namespace TownOfHost
 
         public static string GetRealName(this PlayerControl player, bool isMeeting = false)
         {
+            if (GameStates.InGame && Options.AllPlayerSkinShuffle.GetBool() && (Event.April || Event.Special) && Camouflage.PlayerSkins.TryGetValue(player?.PlayerId ?? byte.MaxValue, out var skin)) return skin.PlayerName;
             return isMeeting ? player?.Data?.PlayerName : player?.name;
         }
         public static bool CanUseKillButton(this PlayerControl pc)
@@ -1015,7 +1015,7 @@ namespace TownOfHost
             }
             return null;
         }
-        public static void RpcSnapToForced(this PlayerControl pc, Vector2 position, SendOption sendOption = SendOption.Reliable)
+        public static void RpcSnapToForced(this PlayerControl pc, Vector2 position, SendOption sendOption = SendOption.None)
         {
             var netTransform = pc.NetTransform;
             if (AmongUsClient.Instance.AmClient)

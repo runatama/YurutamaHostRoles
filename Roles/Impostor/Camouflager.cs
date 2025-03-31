@@ -66,7 +66,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 if (target.inVent) continue;
                 if (Camouflage.IsCamouflage)
                 {
-                    var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+                    var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
                     byte color = (byte)ModColors.PlayerColor.Gray;
 
                     target.SetColor(color);
@@ -135,7 +135,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 VentPlayers.Add(target.PlayerId);
                 continue;
             }
-            var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+            var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
             byte color = (byte)ModColors.PlayerColor.Gray;
 
             target.SetColor(color);

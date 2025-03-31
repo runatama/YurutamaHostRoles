@@ -77,7 +77,7 @@ namespace TownOfHost.Roles.Impostor
             if (BomberExplosion <= 0) return;
             fall = true;
             var target = Player.GetKillTarget(true);
-            Logger.Info($"{Player?.Data?.PlayerName ?? "???"} => {target?.Data?.PlayerName ?? "失敗"}", "Bomber");
+            Logger.Info($"{Player?.Data?.GetLogPlayerName() ?? "???"} => {target?.Data?.GetLogPlayerName() ?? "失敗"}", "Bomber");
             if (target == null || BomberExplosionPlayers.ContainsKey(target?.PlayerId ?? byte.MaxValue)) return;
 
             resetkillcooldown = true;

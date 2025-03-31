@@ -39,79 +39,16 @@ namespace TownOfHost
         }
     }
 
-    /*
     [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
     class MMOnlineManagerStartPatch
     {
-        public static TMPro.TextMeshPro DontCreatetext;
         public static void Postfix(MMOnlineManager __instance)
         {
             //ローカルのHaS作成ボタン削除
             var delhas = GameObject.Find("CreateHnSGameButton");
             if (delhas) delhas?.SetActive(false);
-
-            DontCreatetext = null;
-            var hostbutton = GameObject.Find("NormalMenu/Buttons/HostGameButton/CreateGameButton");
-            if (hostbutton)
-            {
-                var parentObj = hostbutton.transform.parent.gameObject;
-                DontCreatetext = Object.Instantiate<TMPro.TextMeshPro>(hostbutton.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>());
-                DontCreatetext.transform.position = new Vector3(0.7f, 1.25f, 0);
-                DontCreatetext.name = "DontModOriginalSever";
-                DontCreatetext.DestroyTranslator();
-                DontCreatetext.text = "";
-            }
-            if (!(ModUpdater.hasUpdate || ModUpdater.isBroken || !VersionChecker.IsSupported || !Main.IsPublicAvailableOnThisVersion || !Main.CanModClients)) return;
-            var obj = GameObject.Find("FindGameButton");
-            if (obj)
-            {
-                obj?.SetActive(false);
-                var parentObj = obj.transform.parent.gameObject;
-                var textObj = Object.Instantiate<TMPro.TextMeshPro>(obj.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>());
-                textObj.transform.position = new Vector3(1f, -0.3f, 0);
-                textObj.name = "CanNotJoinPublic";
-                textObj.DestroyTranslator();
-                string message = "";
-                if (ModUpdater.hasUpdate)
-                {
-                    message = GetString("CanNotJoinPublicRoomNoLatest");
-                }
-                else if (ModUpdater.isBroken)
-                {
-                    message = GetString("ModBrokenMessage");
-                }
-                else if (!Main.IsPublicAvailableOnThisVersion)
-                {
-                    message = GetString("PublicNotAvailableOnThisVersion");
-                }
-                else if (!VersionChecker.IsSupported)
-                {
-                    message = GetString("UnsupportedVersion");
-                }
-                else if (!Main.CanModClients)
-                {
-                    message = GetString("CanNotModClientJoin");
-                }
-                textObj.text = $"<size=2>{Utils.ColorString(Color.red, message)}</size>";
-            }
-            var room = GameObject.Find("NormalMenu/Buttons/JoinGameButton/JoinGameButton");
-            if (room)
-            {
-                if (!Main.CanModClients)
-                {
-                    room?.SetActive(false);
-                    var parentObj = room.transform.parent.gameObject;
-                    var textObj = Object.Instantiate<TMPro.TextMeshPro>(room.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>());
-                    textObj.transform.position = new Vector3(1.1f, -1.95f, 0);
-                    textObj.name = "CanNotJoinGame";
-                    textObj.DestroyTranslator();
-                    string message = GetString("CanNotModClientJoin");
-
-                    textObj.text = $"<size=2>{Utils.ColorString(Color.red, message)}</size>";
-                }
-            }
         }
-    }*/
+    }
     [HarmonyPatch(typeof(CreateGameOptions), nameof(CreateGameOptions.OpenServerDropdown))]
     class CreateGameOptionsOpenServerDropdown
     {
@@ -135,12 +72,10 @@ namespace TownOfHost
             if (Main.IsCs() || nowserver is "ExROfficialTokyo" || nowserver.Contains("Nebula on the Ship JP") || nowserver.Contains("<color=#ffa500>Super</color>"))
             {
                 obj.transform.localPosition = new Vector3(100f, 100f, 100f);
-                //MMOnlineManagerStartPatch.DontCreatetext.text = $"<size=2><color=red>{GetString("DontCreatetext")}";
             }
             else
             {
                 obj.transform.localPosition = new Vector3(2.2664f, -4.71f, -12f);
-                //MMOnlineManagerStartPatch.DontCreatetext.text = "";
             }
         }
     }
@@ -253,7 +188,7 @@ namespace TownOfHost
             else*/
             if (msg.Length > limitSize)
             {
-                Logger.Info($"SendOrDisconnectPatch:Large Packet({msg.Length})", "InnerNetClient");
+                Logger.Info($"SendOrDisconnectPatch:Large Packet({msg.Length}) ,SendOption:{msg.SendOption}", "InnerNetClient");
             }
             //メッセージピークのログ出力
             if (msg.SendOption == SendOption.Reliable)
@@ -269,7 +204,7 @@ namespace TownOfHost
                 {
                     if (peak > totalMessages)
                     {
-                        Logger.Warn($"SendOrDisconnectPatch:Packet Spam Detected ({peak})", "");
+                        Logger.Warn($"SendOrDisconnectPatch:Packet Spam Detected ({peak})", "InnerNetClient");
                         peak = warningThreshold;
                     }
                     else
@@ -277,6 +212,11 @@ namespace TownOfHost
                         peak = totalMessages;
                     }
                 }
+                /*
+                else
+                {
+                    Logger.Info($"{totalMessages}", "InnerNetClient");
+                }*/
             }
             if (!Options.FixSpawnPacketSize.GetBool()) return true;
             if (DontTouch || AntiBlackout.IsCached) return true;

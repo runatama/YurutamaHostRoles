@@ -65,6 +65,7 @@
 "Eraser","Eraser","イレイサー"
 "EvilMaker","EvilMaker","イビルメーカー"
 "QuickKiller","QuickKiller","クイックキラー"
+"BorderKiller","BorderKiller","ボーダーキラー"
 "#ImpostorName"
 
 "# マッドメイト系役職"
@@ -129,6 +130,7 @@
 "VentHunter","VentHunter","ベントハンター"
 "Satellite","Satellite","サテライト"
 "Walker","walker","ウォーカー"
+"AllArounder","AllArounder","オールラウンダー"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -321,6 +323,7 @@
 "EraserInfo","Turn it all off","全てを消せ"
 "EvilMakerInfo","","共犯者を増やせ..."
 "QuickKillerInfo","","ｼｭﾊﾟﾊﾟｰﾝ!"
+"BorderKillerInfo","","目標人数を目指して殺せ"
 "#ImpostorInfo"
 
 "# マッドメイト系役職"
@@ -387,6 +390,7 @@
 "VentHunterInfo","","ベントに潜んでる奴は悪に決まってる!"
 "SatelliteInfo","","人工衛星は君たちを監視している"
 "WalkerInfo","","てくてく"
+"AllArounderInfo","","僕、なんでもできます！"
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -546,6 +550,7 @@
 "EraserInfoLong","","ワンクリックボタンを使用することで\n対象の役職をクルーメイトにすることができる。\nただし、設定によって役職を消し損ねたりする。\nターゲットを決めた時、キルクールダウンはリセットされる"
 "EvilMakerInfoLong","","ワンクリックボタンを使用した時のキルターゲットをサイドキックマッドメイトにする。\nサイドキックマッドメイトされた人と親分は通じ合う。"
 "QuickKillerInfoLong","","設定人数以上生存している状態で、キルをすると一定時間クイックモードになる。\nクイックモードはキルクールが0秒。"
+"BorderKillerInfoLong","","設定人数以上自身でキルをしないと、インポスター勝利時でも自身は勝利できない。"
 "#ImpostorInfoLong"
 
 "# マッドメイト系役職"
@@ -611,6 +616,7 @@
 "VentHunterInfoLong","","タスクを一定数完了させた後、\nベントに入ることで、入ったベントに罠を仕掛けることができる\n罠は設定した時間経過すれば消えるが、\nその罠の仕掛けられたベントに入ってしまうと死んでしまう\nまた、罠を仕掛ける時ベント内にキル可能役職がいた場合、\n罠を仕掛けるのに失敗し、陣営関係なく返り討ちにされる。"
 "SatelliteInfoLong","","設定されたタスク数を完了した状態で会議で自投票すると「行動の再生」モードに変更できる。\n「行動の再生」モードで自身以外の誰かに投票すると、会議前、その人が入ったことのある部屋を確認できる。\n通信妨害中は移動は観測されないため通信妨害中の行動を見ることはできない。\nまた通信妨害を直すことはできない。"
 "WalkerInfoLong","","通常のタスクの他に、特定の部屋に行くというタスクが追加される。\n特定の部屋に行くタスクも通常のタスクも、クルーメイト勝利のカウントに含まれる。"
+"AllArounderInfoLong","","ターン毎に設定された確率に応じて、様々な役職や能力に変化する。\n\nマッドメイト、オポチュニストの場合、そのターンの間タスクは勝利カウントに計算されない。\n\n基本通信妨害中は能力が使用できない"
 "#CrewmateInfoLong"
 
 "# ニュートラル役職"
@@ -650,6 +656,7 @@
 
 "# ImpostorDescInfos"
 "QuickKillerDesc","","<b>{0}</b>人以上生存している状態でキルをすると、\n<b>{1}</b>秒間の間、クイックモードになる\nクイックモード中はキルクールが0sになる。\nクイックモード終了時、キルクールが戻る。"
+"BorderKillerDesc","","<b>{0}</b>人以上自身がキルを行わないと、インポスターが勝利しても自身は勝利できない。"
 
 "# MadmateDescInfos"
 
@@ -1233,6 +1240,7 @@
 "EraserCanDelNeutral","","<color=#cccccc>ニュートラル</color>に役職削除できる"
 "QuickKillerCanuseplayercount","","クイックモードに必要な生存人数"
 "QuickKillerTimer","","クイックモードの効果時間"
+"BorderKillerMissionKillcount","Mission KillCount","目標人数"
 
 "## MadMate Role Setting"
 "MadmateOption","MadMate Options","マッドメイト系役職の設定"
@@ -1257,6 +1265,7 @@
 "MadReduecdVote","reduced Vote","減少する投票数"
 "MadAvengerMeetingPlayerCount","Minimum number of people required for revolutionary meetings","革命会議に必要な最低人数"
 "MadAvengerReserveTimeCanVent","Can Use Nomal Vent","革命準備が出来るまでベントが使える"
+"MadAvengerCanSeeImpcont","Can See AlivempostorCount","生存しているインポスターの人数が見える"
 "MadBaitRandomReport","Impostor Kill Random Report","ｲﾝﾎﾟｽﾀｰがキルしたら通報者をランダムにする"
 "MadBaitIgnoreImpostor","IgnoreImpostor","対象からｲﾝﾎﾟｽﾀｰを除外する"
 "MadChangerKillTargetCooldown","KillButton Cooldown","キル選択クールダウン"
@@ -1311,6 +1320,7 @@
 "WhiteHackerCanUseTrackAbility","Can Use Track","トラッカーの能力が使える"
 "ShyboyShytime","Seizure Cool Down","発作クールダウン"
 "ShyboyAfterMeetingNotShytime","AfterMeeting NotShytime","会議後、クールが停滞する時間"
+"ShyboyBooooom","ShyDie Booom!","シャイ死亡時に周囲を巻き込む"
 "BalancerMeetingTime","Voting Time","天秤の投票時間"
 "Balancersbalancer","The ability cannot be activated while everyone is alive.","全員生存している間は能力を発動できない"
 "BalancerCanUseMeetingAbility","ability use to target","天秤会議中は対象者以外に効果を発揮できない"
@@ -1362,6 +1372,19 @@
 "SatelliteComms","","通信妨害中も監視することができる","","","",""
 "SatelliteVent","","ベントにいる人をカウントしない","","","",""
 "WalkerWalkTaskCount","","部屋に行くタスク数"
+"AllArounderRandomBait","Beit rate","<#00f7ff>ベイト</color>になる確率"
+"AllArounderRandomInsender","Insender rate","<#eee8aa>インセンダー</color>になる確率"
+"AllArounderRandomBakery","Bakery rate","<#8f6121>パン屋</color>になる確率"
+"AllArounderRandomDicator","Dicator rate","<#df9b00>ディクテーター</color>になる確率"
+"AllArounderRandomLighter","Lighter rate","<#eee5be>ライター</color>になる確率"
+"AllArounderRandomMeetingSheriff","MeetingSheriff rate","<#f8cd46>ミーティングシェリフ</color>になる確率"
+"AllArounderRandomsabotageMaster","SabotageMaster rate","<#0000ff>サボタージュマスター</color>になる確率"
+"AllArounderRandomSeer","Seer rate","<#61b26c>シーア</color>になる確率"
+"AllArounderRandomTimeManager","TimeManager rate","<#6495ed>タイムマネージャー</color>になる確率"
+"AllArounderRandomTrapper","Trapper rate","<#5a8fd0>トラッパー</color>になる確率"
+"AllArounderRandomMadmate","Madmate rate","<#ff7f50>マッドメイト</color>になる確率"
+"AllArounderRandomOpportunist","Opportunist rate","<#00ff00>オポチュニスト</color>になる確率"
+"AllArounderRandomNone","Crewmate rate","<#8cffff>クルーメイト</color>になる確率"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
@@ -1373,6 +1396,8 @@
 "ExecutionerChangeRolesAfterTargetKilled","Role Changes When Target Dies","ターゲットがキルされた後に変化する役職","处刑人目标死亡后将变为的职业","劊子手的目標被殺後轉變的職業","Роль после смерти его цели","Mudar Classe Caso Alvo Morra",""
 "ArsonistDouseTime","Time Until Douse Complete","塗り時間","涂油所需时间","澆油所需時間","Длительность обливания","Tempo Para Completar Encharque",""
 "ArsonistRange","Wetted range","塗り可能範囲"
+"ArsonistFireOnclick","Fire OnClick","着火をベントからワンクリにする"
+"ArsonistCanSeeAllplayer","in task Cansee Player count","タスクターン中、生存人数が見える"
 "CanTerroristSuicideWin","Can Win By Suicide","死因が自殺でも勝利できる","恐怖分子可以通过自杀获胜","恐怖分子可以自殺來獲勝","Для победы достаточно сделать Суицид","Pode Ganhar Por Suicídio",""
 "JackaldollCanimp","Can SideKick Impostor","インポスターをサイドキックできる"
 "JackalbeforeImpCanSeeImp","Impostor NameColor is White","元仲間のネームカラーが白になる"
@@ -1803,6 +1828,7 @@
 "WitchModeDouble","Double Enable","ダブル有効","双重有效","兩個模式同時啟用","Двойной","Duplo Ativado",""
 "BountyCurrentTarget","Current Target","現在のターゲット","当前目标","目標","Текущая цель","Alvo Atual",""
 "EnterVentToWin","Enter Vent to Win!!","ベントに入って勝利しろ!!","跳管道来获得胜利！","跳管道來獲得勝利!!","Запрыгните в вентиляцию чтобы победить!!","Entre no Duto Para Ganhar!!!",""
+"UseOnclick","OnClicl => Win!","ワンクリを押して勝利しろ!!"
 "FireworksPutPhase","{0} Fireworks Left","<size=50%>ﾌｧﾝﾄﾑﾎﾞﾀﾝ → 設置\n</size>あと{0}個置け","还要安放{0}枚烟花","還需要安裝{0}枚煙火","Осталось {0} Фейерверков","Restam {0} Fogos de Artifício",""
 "FireworksWaitPhase","Wait for it...","時を待て...","耐心等待....","等待時機...","Подожди время...","Espere o momento certo...",""
 "FireworksReadyFirePhase","Fire!","ﾌｧﾝﾄﾑﾎﾞﾀﾝを押して打ち上げろ！","烟花来咯，大型烟花秀开始！","準備就緒，煙火秀開始!","Огонь!","Lançar!",""
@@ -2249,3 +2275,4 @@
 "SoloWin","Solo","単独"
 "AddWin","Add","追加"
 "Statistics","Statistics","統計"
+"AprilfoolOnly","AprilOnly","(エイプリルフール限定)"

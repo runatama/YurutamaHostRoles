@@ -100,14 +100,14 @@ public sealed class BountyHunter : RoleBase, IImpostor
 
             if (GetTarget() == target)
             {//ターゲットをキルした場合
-                Logger.Info($"{killer?.Data?.PlayerName}:ターゲットをキル", "BountyHunter");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}:ターゲットをキル", "BountyHunter");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = SuccessKillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
                 ResetTarget();
             }
             else
             {
-                Logger.Info($"{killer?.Data?.PlayerName}:ターゲット以外をキル", "BountyHunter");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}:ターゲット以外をキル", "BountyHunter");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FailureKillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
             }
@@ -122,14 +122,14 @@ public sealed class BountyHunter : RoleBase, IImpostor
 
             if (GetTarget() == target)
             {//ターゲットをキルした場合
-                Logger.Info($"{killer?.Data?.PlayerName}:ターゲットをキル", "BountyHunter");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}:ターゲットをキル", "BountyHunter");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = SuccessKillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
                 ResetTarget();
             }
             else
             {
-                Logger.Info($"{killer?.Data?.PlayerName}:ターゲット以外をキル", "BountyHunter");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}:ターゲット以外をキル", "BountyHunter");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = FailureKillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
             }

@@ -398,9 +398,26 @@ namespace TownOfHost
         [HarmonyPatch(nameof(MainMenuManager.OpenOnlineMenu))]
         [HarmonyPatch(nameof(MainMenuManager.GoBackCreateGame))]
         [HarmonyPatch(nameof(MainMenuManager.ClickBackOnline))]
+        [HarmonyPatch(nameof(MainMenuManager.OpenEnterCodeMenu))]
         [HarmonyPostfix]
-        public static void OpenMenuPostfix()
+        public static void OpenMenuPostfix(MainMenuManager __instance)
         {
+            var Findbuttongo = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/Scaler/Find Game Button");
+            var Findbutton = Findbuttongo.transform.GetComponent<PassiveButton>();
+            var codebuttongo = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/Scaler/Enter Code Button");
+            var Codebutton = codebuttongo.transform.GetComponent<PassiveButton>();
+
+            if (Findbutton)
+            {
+                var buttonCollider = Findbutton.GetComponent<BoxCollider2D>();
+                buttonCollider.offset = new(100f, 100f);
+            }
+            if (Codebutton)
+            {
+                var buttonCollider = Codebutton.GetComponent<BoxCollider2D>();
+                buttonCollider.offset = new(100f, 100f);
+            }
+
             if (CredentialsPatch.TohkLogo != null)
             {
                 CredentialsPatch.TohkLogo.gameObject.SetActive(false);

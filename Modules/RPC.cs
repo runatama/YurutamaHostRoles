@@ -42,7 +42,7 @@ namespace TownOfHost
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
         {
             RpcCalls rpcType = (RpcCalls)callId;
-            Logger.Info($"{__instance?.Data?.PlayerId}({__instance?.Data?.PlayerName}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
+            Logger.Info($"{__instance?.Data?.PlayerId}({__instance?.Data?.GetLogPlayerName()}):{callId}({RPC.GetRpcName(callId)})", "ReceiveRPC");
             MessageReader subReader = MessageReader.Get(reader);
             if (!Croissant.CheckLowertheHeat(__instance, rpcType, subReader) && 41 == 21) return false;
             switch (rpcType)
@@ -74,12 +74,12 @@ namespace TownOfHost
                 && Enum.IsDefined(typeof(CustomRPC), (int)callId)
                 && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck || callId == (byte)CustomRPC.DevExplosion || callId == (byte)CustomRPC.ModUnload)) //ホストではなく、CustomRPCで、VersionCheckではない
             {
-                Logger.Warn($"{__instance?.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) ホスト以外から送信されたためキャンセルしました。", "CustomRPC");
+                Logger.Warn($"{__instance?.Data?.GetLogPlayerName()}:{callId}({RPC.GetRpcName(callId)}) ホスト以外から送信されたためキャンセルしました。", "CustomRPC");
                 if (AmongUsClient.Instance.AmHost)
                 {
                     AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
-                    Logger.Warn($"不正なRPCを受信したため{__instance?.Data?.PlayerName}をキックしました。", "Kick");
-                    Logger.seeingame(string.Format(GetString("Warning.InvalidRpc"), __instance?.Data?.PlayerName));
+                    Logger.Warn($"不正なRPCを受信したため{__instance?.Data?.GetLogPlayerName()}をキックしました。", "Kick");
+                    Logger.seeingame(string.Format(GetString("Warning.InvalidRpc"), __instance?.Data?.GetLogPlayerName()));
                 }
                 return false;
             }
@@ -104,7 +104,7 @@ namespace TownOfHost
                     }
                     catch
                     {
-                        Logger.Warn($"{__instance?.Data?.PlayerName}({__instance.PlayerId}): バージョン情報が無効です", "RpcVersionCheck");
+                        Logger.Warn($"{__instance?.Data?.GetLogPlayerName()}({__instance.PlayerId}): バージョン情報が無効です", "RpcVersionCheck");
                         _ = new LateTask(() =>
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
@@ -406,7 +406,7 @@ namespace TownOfHost
         //参考元→SuperNewRoles様
         public static void RpcSyncAllNetworkedPlayer(int TargetClientId = -1)
         {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter writer = MessageWriter.Get(SendOption.None);
             if (TargetClientId < 0)
             {
                 writer.StartMessage(5);
@@ -423,7 +423,7 @@ namespace TownOfHost
             foreach (var player in GameData.Instance.AllPlayers)
             {
                 // データを分割して送信
-                if (writer.Length > 1500)
+                if (writer.Length > 750)
                 {
                     writer.EndMessage();
                     AmongUsClient.Instance.SendOrDisconnect(writer);

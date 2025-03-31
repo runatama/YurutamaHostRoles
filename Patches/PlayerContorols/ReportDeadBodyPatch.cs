@@ -177,7 +177,7 @@ namespace TownOfHost
 
             if (repo == null)
             {
-                Logger.Error($"{repo?.Data.PlayerName ?? "???"} がnull!", "DieCheckReport");
+                Logger.Error($"{repo?.Data?.GetLogPlayerName() ?? "???"} がnull!", "DieCheckReport");
             }
             if (GameStates.IsMeeting || GameStates.IsLobby) return;
 

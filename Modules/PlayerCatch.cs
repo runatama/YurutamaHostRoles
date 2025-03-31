@@ -39,6 +39,18 @@ namespace TownOfHost
         public static NetworkedPlayerInfo GetPlayerInfoById(int PlayerId) =>
             GameData.Instance.AllPlayers.ToArray().Where(info => info.PlayerId == PlayerId).FirstOrDefault();
 
+        public static string GetLogPlayerName(this NetworkedPlayerInfo info)
+        {
+            if (info == null) return "";
+            if (GameStates.IsLobby)
+            {
+                return info?.PlayerName;
+            }
+            if (Camouflage.PlayerSkins.TryGetValue(info.PlayerId, out var cos)) return cos.PlayerName;
+
+            return info?.PlayerName;
+        }
+
         public static void CountAlivePlayers(bool sendLog = false)
         {
             int AliveImpostorCount = AllAlivePlayerControls.Count(pc => pc.Is(CustomRoleTypes.Impostor));

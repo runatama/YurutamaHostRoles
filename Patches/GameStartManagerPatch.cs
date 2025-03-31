@@ -304,6 +304,7 @@ namespace TownOfHost
 
                 __instance.ReallyBegin(false);
                 TemplateManager.SendTemplate("Start", noErr: true);
+                PlayerCatch.AllPlayerControls.Do(pc => Utils.ApplySuffix(pc, false, true));
 
                 var check = Statistics.CheckAdd(true);
                 if (check is not "") Logger.seeingame(check);

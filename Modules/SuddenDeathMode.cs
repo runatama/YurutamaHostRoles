@@ -92,7 +92,7 @@ namespace TownOfHost.Modules
                     var pc = Assing[chance];
                     TeamRed.Add(pc.PlayerId);
                     Assing.RemoveAt(chance);
-                    Logger.Info($"{pc?.Data?.PlayerName ?? "?"} => red", "SuddenDeathTeam");
+                    Logger.Info($"{pc?.Data?.GetLogPlayerName() ?? "?"} => red", "SuddenDeathTeam");
                 }
                 for (var i = 0; i < teammax; i++)
                 {
@@ -101,7 +101,7 @@ namespace TownOfHost.Modules
                     var pc = Assing[chance];
                     TeamBlue.Add(pc.PlayerId);
                     Assing.RemoveAt(chance);
-                    Logger.Info($"{pc?.Data?.PlayerName ?? "?"} => Blue", "SuddenDeathTeam");
+                    Logger.Info($"{pc?.Data?.GetLogPlayerName() ?? "?"} => Blue", "SuddenDeathTeam");
                 }
                 for (var i = 0; i < teammax; i++)
                 {
@@ -110,7 +110,7 @@ namespace TownOfHost.Modules
                     var pc = Assing[chance];
                     TeamYellow.Add(pc.PlayerId);
                     Assing.RemoveAt(chance);
-                    Logger.Info($"{pc?.Data?.PlayerName ?? "?"} => Yellow", "SuddenDeathTeam");
+                    Logger.Info($"{pc?.Data?.GetLogPlayerName() ?? "?"} => Yellow", "SuddenDeathTeam");
                 }
                 for (var i = 0; i < teammax; i++)
                 {
@@ -119,7 +119,7 @@ namespace TownOfHost.Modules
                     var pc = Assing[chance];
                     TeamGreen.Add(pc.PlayerId);
                     Assing.RemoveAt(chance);
-                    Logger.Info($"{pc?.Data?.PlayerName ?? "?"} => Green", "SuddenDeathTeam");
+                    Logger.Info($"{pc?.Data?.GetLogPlayerName() ?? "?"} => Green", "SuddenDeathTeam");
                 }
                 for (var i = 0; i < teammax; i++)
                 {
@@ -128,7 +128,7 @@ namespace TownOfHost.Modules
                     var pc = Assing[chance];
                     TeamPurple.Add(pc.PlayerId);
                     Assing.RemoveAt(chance);
-                    Logger.Info($"{pc?.Data?.PlayerName ?? "?"} => Purple", "SuddenDeathTeam");
+                    Logger.Info($"{pc?.Data?.GetLogPlayerName() ?? "?"} => Purple", "SuddenDeathTeam");
                 }
             }
 

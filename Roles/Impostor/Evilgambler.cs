@@ -62,13 +62,13 @@ public sealed class Evilgambler : RoleBase, IImpostor
             int chance = IRandom.Instance.Next(1, 101);
             if (chance < gamblecollect)
             {//gamble成功
-                Logger.Info($"{killer?.Data?.PlayerName}:${chance}成功", "Evilgamble");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}:${chance}成功", "Evilgamble");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = collectkillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
             }
             else
             {
-                Logger.Info($"{killer?.Data?.PlayerName}:${chance}失敗", "Evilgamble");
+                Logger.Info($"{killer?.Data?.GetLogPlayerName()}:${chance}失敗", "Evilgamble");
                 Main.AllPlayerKillCooldown[killer.PlayerId] = notcollectkillCooldown;
                 killer.SyncSettings();//キルクール処理を同期
             }

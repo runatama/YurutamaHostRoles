@@ -66,6 +66,13 @@ namespace TownOfHost
             {
                 Logger.Info($"YRWoKentisitaze", "KeyCommand");
                 Event.Special = GameStates.IsNotJoined;
+                if (Event.Special)
+                {
+                    if (CredentialsPatch.TohkLogo)
+                    {
+                        CredentialsPatch.TohkLogo.sprite = UtilsSprite.LoadSprite("TownOfHost.Resources.TownOfHost-K_A.png", 300f);
+                    }
+                }
             }
             //ログファイルのダンプ
             if (GetKeysDown(KeyCode.F1, KeyCode.LeftControl))

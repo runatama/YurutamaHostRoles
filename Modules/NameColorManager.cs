@@ -14,7 +14,7 @@ namespace TownOfHost
 
             if (!seer || !target)
             {
-                Logger.Error($"{seer?.Data?.PlayerName ?? "seer"} => {target?.Data?.PlayerName ?? "target"}がnull", "ApplyNameColorData");
+                Logger.Error($"{seer?.Data?.GetLogPlayerName() ?? "seer"} => {target?.Data?.GetLogPlayerName() ?? "target"}がnull", "ApplyNameColorData");
                 return name;
             }
             if (!TryGetData(seer, target, out var colorCode))
@@ -111,7 +111,7 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNameColorData, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNameColorData, SendOption.None, -1);
             writer.Write(seerId);
             writer.Write(targetId);
             writer.Write(colorCode);

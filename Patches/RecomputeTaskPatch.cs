@@ -27,6 +27,8 @@ namespace TownOfHost
                         __instance.TotalTasks++;
                         if (task.Complete) __instance.CompletedTasks++;
                     }
+
+                    if (p._object is null) continue;
                     var roleclass = p.Object.GetRoleClass();
                     if (roleclass is Walker walker)
                     {

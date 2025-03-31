@@ -23,7 +23,7 @@ public static class CustomRoleManager
     public static Dictionary<byte, RoleBase> AllActiveRoles = new(15);
 
     public static SimpleRoleInfo GetRoleInfo(this CustomRoles role) => AllRolesInfo.ContainsKey(role) ? AllRolesInfo[role] : null;
-    public static RoleBase GetRoleClass(this PlayerControl player) => GetByPlayerId(player.PlayerId);
+    public static RoleBase GetRoleClass(this PlayerControl player) => player is null ? null : GetByPlayerId(player.PlayerId);
     public static RoleBase GetByPlayerId(byte playerId) => AllActiveRoles.TryGetValue(playerId, out var roleBase) ? roleBase : null;
     public static void Do<T>(this List<T> list, Action<T> action) => list.ToArray().Do(action);
     public static Dictionary<int, CustomRoles> CustomRoleIds = new();
@@ -759,6 +759,7 @@ public enum CustomRoles
     Eraser,
     QuickKiller,
     //DEBUG only Impostor
+    BorderKiller,
     Assassin,
     //Madmate
     MadGuardian,
@@ -828,6 +829,7 @@ public enum CustomRoles
     VentHunter,
     Walker,
     //DEBUG only Crewmate
+    AllArounder,
     Satellite,
     Merlin,
     //Neutral

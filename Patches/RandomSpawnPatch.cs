@@ -423,7 +423,7 @@ namespace TownOfHost
                 {
                     location = NextSporn[player.PlayerId];
                 }
-                Logger.Info($"{player.Data.PlayerName}:{location}", "RandomSpawn");
+                Logger.Info($"{player.Data.GetLogPlayerName()}:{location}", "RandomSpawn");
                 player.RpcSnapToForced(location);
             }
 
@@ -611,7 +611,7 @@ namespace TownOfHost
             {
                 var spawnPoints = CustomNetworkTransformHandleRpcPatch.decupleVanillaSpawnPositions;
                 var location = spawnPoints.ToArray().OrderBy(i => Guid.NewGuid()).First();
-                Logger.Info($"{pc.Data.PlayerName}:{location}", "VpRandomSpawn");
+                Logger.Info($"{pc.Data.GetLogPlayerName()}:{location}", "VpRandomSpawn");
                 pc.RpcSnapToForced(new Vector2(location.x / 10, location.y / 10));
             }
         }

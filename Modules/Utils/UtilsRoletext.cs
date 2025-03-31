@@ -29,10 +29,19 @@ namespace TownOfHost
         /// <param name="seer">見る側</param>
         /// <param name="seen">見られる側</param>
         /// <returns>RoleName + ProgressTextを表示するか、構築する色とテキスト(bool, Color, string)</returns>
-        public static (bool enabled, string text) GetRoleNameAndProgressTextData(PlayerControl seer, PlayerControl seen = null, bool Mane = true)
+        public static (bool enabled, string text) GetRoleNameAndProgressTextData(PlayerControl seer, PlayerControl seen = null, bool Mane = true, bool a = false)
         {
             var roleName = GetDisplayRoleName(seer, seen);
             var progressText = GetProgressText(seer, seen, Mane);
+            if (a)
+            {
+                seen ??= seer;
+                roleName = roleName.RemoveDeltext("</color>");
+                for (var i = 1; i <= seen.GetCustomSubRoles().Count; i++)
+                {
+                    roleName += "</color>";
+                }
+            }
             var text = roleName + (roleName != "" ? " " : "") + progressText;
             return (text != "", text);
         }
@@ -298,10 +307,11 @@ namespace TownOfHost
             _ = ColorUtility.TryParseHtmlString(hexColor, out Color c);
             return c;
         }
-        public static string GetRoleColorCode(CustomRoles role)
+        public static string GetRoleColorCode(CustomRoles role, bool Madcolor = false)
         {
             if (!Main.roleColors.TryGetValue(role, out var hexColor)) hexColor = role.GetRoleInfo()?.RoleColorCode;
             if (role is CustomRoles.Amnesiac && Amnesiac.iamwolf) hexColor = CustomRoles.WolfBoy.GetRoleInfo()?.RoleColorCode ?? "#727171";
+            if (role.IsMadmate() && Madcolor) hexColor = "#ff7f50";
             return hexColor;
         }
         ///<summary>
@@ -349,7 +359,7 @@ namespace TownOfHost
             string text = GetProgressText(seen.PlayerId, comms, Mane, hide: seer != seen && seen.Is(CustomRoles.Fox));
 
             if ((Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() || !Options.GhostOptions.GetBool()) && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GRCanSeeNumberOfButtonsOnOthers.GetBool()))
-                text += $"<#ffff00>[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]</color>";
+                text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";
 
             //seer側による変更
             if (Amnesia.CheckAbility(seer))

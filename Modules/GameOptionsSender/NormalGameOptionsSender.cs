@@ -15,7 +15,7 @@ namespace TownOfHost.Modules
                 {
                     if (!GameManager.Instance) return false;
                     if (GameManager.Instance.LogicComponents == null) return false;
-                    if (_logicOptions == null || (!GameManager.Instance?.LogicComponents?.Contains(_logicOptions) ?? false))
+                    if (_logicOptions == null || !GameManager.Instance?.LogicComponents?.Contains(_logicOptions) == true)
                     {
                         foreach (var glc in GameManager.Instance?.LogicComponents)
                             if (glc.TryCast<LogicOptions>(out var lo))
