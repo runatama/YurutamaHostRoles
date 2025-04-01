@@ -719,7 +719,7 @@ namespace TownOfHost
 
                     pc.RpcSetRoleDesync(roleType, pc.GetClientId());
 
-                    if (role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
+                    if (!Options.SuddenCanSeeKillflash.GetBool() && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
                     {
                         PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId());
                     }

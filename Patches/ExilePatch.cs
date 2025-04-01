@@ -103,7 +103,7 @@ namespace TownOfHost
                     {
                         if (Player.GetClient() is null)
                         {
-                            Logger.Error($"{Player?.Data?.GetLogPlayerName() ?? "???"}のclientがnull", "ExiledSetRole");
+                            Logger.Error($"{Player?.Data?.PlayerName ?? "???"}のclientがnull", "ExiledSetRole");
                             continue;
                         }
                         var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
@@ -158,9 +158,11 @@ namespace TownOfHost
                         }
 
                         Player.ResetKillCooldown();
+                        Player.PlayerId.GetPlayerState().IsBlackOut = false;
+                        Player.SyncSettings();
                         _ = new LateTask(() =>
                             {
-                                Player.SetKillCooldown(kyousei: true, delay: true, kousin: false);
+                                Player.SetKillCooldown(kyousei: true, delay: true);
                                 if (Player.IsAlive() && !(Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()))
                                 {
                                     var roleclass = Player.GetRoleClass();
@@ -172,7 +174,6 @@ namespace TownOfHost
                                     Player.RpcExileV2();
                                     if (Player.IsGhostRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
                                 }
-                                Player.ResetKillCooldown();
                             }, Main.LagTime, "", true);
                     }
                     _ = new LateTask(() =>
@@ -180,17 +181,16 @@ namespace TownOfHost
                             Twins.TwinsSuicide();
                             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                             UtilsNotifyRoles.NotifyRoles(true, true);
-                            foreach (var kvp in PlayerState.AllPlayerStates)
-                            {
-                                kvp.Value.IsBlackOut = false;
-                            }
-                            UtilsOption.SyncAllSettings();
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
                 }, 0.7f, "", true);
             }
 
+            foreach (var pc in PlayerCatch.AllPlayerControls)
+            {
+                pc.ResetKillCooldown();
+            }
             if (RandomSpawn.IsRandomSpawn())
             {
                 RandomSpawn.SpawnMap map;

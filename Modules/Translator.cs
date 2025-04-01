@@ -83,6 +83,8 @@ namespace TownOfHost
             var res = $"<INVALID:{str}>";
             var ch = res;
             if ((Event.OptionLoad.Contains(str) || str is "CakeshopInfoLong" or "CakeshopInfo" or "Cakeshop") && !Event.Special && !Event.NowRoleEvent) return res;
+
+            if (str is "Assassin" or "Merlin" && !DebugModeManager.AmDebugger) return res;
             if (translateMaps.TryGetValue(str, out var dic) && (!dic.TryGetValue((int)langId, out res) || res == "")) //strに該当する&無効なlangIdかresが空
             {
                 res = $"*{dic[0]}";

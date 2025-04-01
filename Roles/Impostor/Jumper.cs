@@ -96,8 +96,6 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         if (timer > jampdis)
         {
             if (count == 1) aname = true;
-            int chance = IRandom.Instance.Next(0, 18);
-            PlayerCatch.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
             player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
             _ = new LateTask(() =>
@@ -182,6 +180,8 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         {
             Player.RpcSetPet("");
             Player.SyncSettings();
+            int chance = IRandom.Instance.Next(0, 18);
+            PlayerCatch.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
         }, 0.4f, "Jumper0Speed");
 

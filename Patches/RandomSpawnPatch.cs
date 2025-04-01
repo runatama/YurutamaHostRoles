@@ -95,7 +95,7 @@ namespace TownOfHost
                 }
                 if (Main.RTAMode && (RpcCalls)callId == RpcCalls.SnapTo)
                 {
-                    HudManagerPatch.TaskBattleTimer = 0.0f; ;
+                    HudManagerPatch.TaskBattleTimer = 0.0f;
                 }
                 if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
                 {
@@ -424,6 +424,10 @@ namespace TownOfHost
                     location = NextSporn[player.PlayerId];
                 }
                 Logger.Info($"{player.Data.GetLogPlayerName()}:{location}", "RandomSpawn");
+                if (Main.NormalOptions.MapId is 0 && GameObject.Find("AprilShip(Clone)") is not null)
+                {
+                    location = new Vector2(location.x * -1, location.y);
+                }
                 player.RpcSnapToForced(location);
             }
 

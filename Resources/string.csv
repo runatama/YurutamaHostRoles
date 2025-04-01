@@ -183,6 +183,7 @@
 "DriverandBraid","DriverandBraid","ドライバー</color>と<color=#ff1919>ブレイド</color>","驾驶员</color>和<color=#ff1919>辫子</color>"
 "Assassin","Assassin","アサシン"
 "Merlin","Merlin","マーリン"
+"AssassinandMerlin","Assassin And Merlin","<color=#ff1919>アサシン</color>と<color=#8cc2ff>マーリン</color>"
 "Twins","Twins","双子"
 
 "# HideAndSeek"
@@ -766,6 +767,7 @@
 "VRoleImpostor","Impostors can check each other's job titles.","インポスターがお互いの役職を確認できる"
 "InsiderMode","InsiderMode","インサイダーモード"
 "Taskcheck","Knowing the number of tasks","タスク完了数を知ることができる"
+"AllPlayerSkinShuffle","AllPlayerSkinShuffle","プレイヤーのスキンをシャッフルする"
 "RandomSpawn","Random Spawn","ランダムスポーン","随机出生点","隨機出生點","Случайный спавн","Spawn Aleatório",""
 "RandomMapsMode","Random Maps Mode","ランダムマップモード","随机地图模式","隨機地圖模式","Случайная карта","Modo de Mapas Aleatórios",""
 "AddedTheSkeld","Include TheSkeld","TheSkeld</color>を追加","添加骷髅舰地图","將The Skeld地圖列入選項","Добавить TheSkeld","Incluir TheSkeld",""
