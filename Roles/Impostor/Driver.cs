@@ -78,7 +78,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         OptionBseeing = BooleanOptionItem.Create(RoleInfo, 19, OptionName.Driverseen, false, false);
         OptionDseeing = BooleanOptionItem.Create(RoleInfo, 21, OptionName.Driverseer, false, false);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BraidCanVent, true, false);
-        Braid.Tasks = Options.OverrideTasksData.Create(RoleInfo, 50, CustomRoles.Braid);
+        Braid.Tasks = OverrideTasksData.Create(RoleInfo, 50, CustomRoles.Braid);
     }
 
     public bool? CheckKillFlash(MurderInfo info) => Braid.DriverseeKillFlash;

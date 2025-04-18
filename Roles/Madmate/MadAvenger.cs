@@ -38,7 +38,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     }
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-    private static Options.OverrideTasksData Tasks;
+    private static OverrideTasksData Tasks;
     private static OptionItem OptionCooldown;
     private static OptionItem OptionCount;
     private static OptionItem OptionVent;
@@ -56,11 +56,12 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
     public static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 10);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.TaskBattleVentCooldown, new(0f, 180f, 0.5f), 45f, false).SetValueFormat(OptionFormat.Seconds);
         OptionCount = FloatOptionItem.Create(RoleInfo, 14, OptionName.MadAvengerMeetingPlayerCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
         OptionVent = BooleanOptionItem.Create(RoleInfo, 15, OptionName.MadAvengerReserveTimeCanVent, true, false);
         OptionCanseeimpostorCount = BooleanOptionItem.Create(RoleInfo, 16, OptionName.MadAvengerCanSeeImpcont, true, false);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
+        Tasks = OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -201,8 +202,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                                         else
                                             RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
                                     }
-                                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-                                    CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+                                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, Player.PlayerId, hantrole: CustomRoles.MadAvenger);
                                 }, 15f, "Kakumeiseikou");
                                 return true;
                             }

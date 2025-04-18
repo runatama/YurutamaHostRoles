@@ -120,7 +120,7 @@ namespace TownOfHost.Roles.Neutral
         private void KillBitten(PlayerControl target, bool isButton = false)
         {
             var Grim = Player;
-            if (target.IsAlive())
+            if (target.IsAlive() && Player.IsAlive())
             {
                 PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Grim;
                 target.SetRealKiller(Grim);

@@ -57,7 +57,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
     {
         KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        Options.OverrideKilldistance.Create(RoleInfo, 8);
+        OverrideKilldistance.Create(RoleInfo, 8);
         ShotLimitOpt = IntegerOptionItem.Create(RoleInfo, 11, OptionName.SheriffShotLimit, new(1, 15, 1), 15, false)
             .SetValueFormat(OptionFormat.Times);
         CanKillAllAlive = BooleanOptionItem.Create(RoleInfo, 12, OptionName.SheriffCanKillAllAlive, true, false);

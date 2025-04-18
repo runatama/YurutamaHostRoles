@@ -17,7 +17,6 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Patches.ISystemType;
 
 using static TownOfHost.Translator;
-using Rewired;
 
 namespace TownOfHost
 {
@@ -41,6 +40,7 @@ namespace TownOfHost
                 }
             }
 
+            UtilsGameLog.Reset();
             PlayerState.Clear();
 
             Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
@@ -130,6 +130,8 @@ namespace TownOfHost
                 {
                     var tageId = IRandom.Instance.Next(players.Count);
                     var pl = players.OrderBy(x => Guid.NewGuid()).ToArray()[tageId];
+                    Logger.Info($"{pc?.Data?.PlayerName} => {pl?.Data?.PlayerName}", "Shuffle");
+                    UtilsGameLog.AddGameLogsub($"{pc?.Data?.PlayerName}のシャッフル先 : {pl?.Data?.PlayerName}");
 
                     var colorId = pl.Data.DefaultOutfit.ColorId;
 
@@ -212,6 +214,7 @@ namespace TownOfHost
             PlayerControlRpcUseZiplinePatch.reset();
             GameStates.Reset();
             TaskBattle.Init();
+            Lovers.Reset();
             MeetingHudPatch.Oniku = "";
             MeetingHudPatch.Send = "";
             MeetingHudPatch.Title = "";
@@ -226,7 +229,6 @@ namespace TownOfHost
             Stolener.Killers.Clear();
             Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !Options.SuddenDeathMode.GetBool();
 
-            UtilsGameLog.Reset();
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
             Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
             if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) Utils.CanVent = true;
@@ -256,7 +258,7 @@ namespace TownOfHost
             Dictionary<byte, CustomRpcSender> senders = new();
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.Reliable, false)
+                senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.None, false)
                         .StartMessage(pc.GetClientId());
             }
             RpcSetRoleReplacer.StartReplace(senders);
@@ -686,7 +688,7 @@ namespace TownOfHost
             stream.EndMessage();
             foreach (var data in GameData.Instance.AllPlayers)
             {
-                data.Disconnected = !data._object.IsAlive();
+                data.Disconnected = data.PlayerId.GetPlayerState().IsDead && data.PlayerId is not 0;
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -717,11 +719,11 @@ namespace TownOfHost
                         roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
                     }
 
-                    pc.RpcSetRoleDesync(roleType, pc.GetClientId());
+                    pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
 
                     if (!Options.SuddenCanSeeKillflash.GetBool() && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
                     {
-                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId());
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.None);
                     }
                 }
             }
@@ -762,7 +764,7 @@ namespace TownOfHost
                     {
                         roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
                     }
-                    pc.RpcSetRoleDesync(roleType, pc.GetClientId());
+                    pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
                 }
                 SuddenDeathMode.ColorSetAndRoleset();
                 senders2 = null;

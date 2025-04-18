@@ -64,7 +64,7 @@ public sealed class Assassin : RoleBase, IImpostor
                 if (NowState is AssassinMeeting.Collected)
                 {
                     MyState.IsDead = false;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, Player.PlayerId, hantrole: CustomRoles.Assassin);
                     Logger.Info("まーりんぱりーん", "Assassin");
                 }
                 else if (NowState is AssassinMeeting.CallMetting)

@@ -38,7 +38,9 @@ public sealed class VentMaster : RoleBase
         {
             foreach (var seer in PlayerCatch.AllPlayerControls)
             {
-                if (seer.Is(CustomRoles.VentMaster) && seer.PlayerId != user.PlayerId) if (!seer.Data.IsDead || !GameStates.IsMeeting) seer.KillFlash(false);
+                if (seer.Is(CustomRoles.VentMaster) && seer.PlayerId != user.PlayerId)
+                    if (!seer.Data.IsDead || !GameStates.IsMeeting)
+                        seer.KillFlash();
             }
         }
         return true;

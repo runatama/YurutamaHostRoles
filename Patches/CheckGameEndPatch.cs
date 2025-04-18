@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 
 using TownOfHost.Roles;
@@ -17,7 +16,6 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Crewmate;
 using TownOfHost.Roles.Ghost;
-using Rewired;
 
 namespace TownOfHost
 {
@@ -45,7 +43,7 @@ namespace TownOfHost
             predicate.CheckForEndGame(out reason);
 
             //ゲーム終了時
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default)
             {
                 //カモフラージュ強制解除
                 PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true));
@@ -94,39 +92,7 @@ namespace TownOfHost
                 //チーム戦で勝者がチームじゃない時(単独勝利とかね)
                 if (SuddenDeathMode.NowSuddenDeathTemeMode && !(CustomWinnerHolder.WinnerTeam is CustomWinner.SuddenDeathRed or CustomWinner.SuddenDeathBlue or CustomWinner.SuddenDeathGreen or CustomWinner.SuddenDeathYellow or CustomWinner.PurpleLovers))
                 {
-                    foreach (var wi in CustomWinnerHolder.WinnerIds)
-                    {
-                        if (SuddenDeathMode.TeamRed.Contains(wi))
-                        {
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathRed);
-                            SuddenDeathMode.TeamRed.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
-                            break;
-                        }
-                        if (SuddenDeathMode.TeamBlue.Contains(wi))
-                        {
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathBlue);
-                            SuddenDeathMode.TeamBlue.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
-                            break;
-                        }
-                        if (SuddenDeathMode.TeamYellow.Contains(wi))
-                        {
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathYellow);
-                            SuddenDeathMode.TeamYellow.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
-                            break;
-                        }
-                        if (SuddenDeathMode.TeamGreen.Contains(wi))
-                        {
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathGreen);
-                            SuddenDeathMode.TeamGreen.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
-                            break;
-                        }
-                        if (SuddenDeathMode.TeamPurple.Contains(wi))
-                        {
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathPurple);
-                            SuddenDeathMode.TeamPurple.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
-                            break;
-                        }
-                    }
+                    SuddenDeathMode.TeamAllWin();
                 }
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None)
                 {
@@ -141,12 +107,14 @@ namespace TownOfHost
                             .Do(p => CustomWinnerHolder.IdRemoveLovers.Add(p.PlayerId));
                     }
                     Lovers.LoversAddWin();
+
                     //追加勝利陣営
                     foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.GetCustomRole() is CustomRoles.PhantomThief or CustomRoles.Turncoat or CustomRoles.AllArounder || pc.Is(CustomRoles.AsistingAngel)))
                     {
                         var isAlive = pc.IsAlive();
-                        if (Amnesia.CheckAbility(pc))
-                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && !pc.Is(CustomRoles.PhantomThief) && !pc.Is(CustomRoles.Turncoat) && !pc.IsRiaju())
+                        if (!pc.IsRiaju())
+                        {
+                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                             {
                                 var winnerRole = pc.GetCustomRole();
                                 if (additionalWinner.CheckWin(ref winnerRole))
@@ -156,95 +124,39 @@ namespace TownOfHost
                                     continue;
                                 }
                             }
-                        if (!pc.Is(CustomRoles.Terrorist) && !pc.Is(CustomRoles.Madonna) && pc.Is(CustomRoles.LastNeutral) && isAlive && LastNeutral.GiveOpportunist.GetBool() && !pc.IsRiaju())
-                        {
-                            if (reason.Equals(GameOverReason.CrewmatesByTask) && !LastNeutral.CanNotTaskWin.GetBool()) continue;
-                            if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate && reason.Equals(GameOverReason.CrewmatesByVote) && !reason.Equals(GameOverReason.CrewmatesByTask) && !LastNeutral.CanNotCrewWin.GetBool()) continue;
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);
-                            continue;
                         }
-                        if (pc.Is(CustomRoles.Amanojaku) && !reason.Equals(GameOverReason.CrewmatesByTask) && !reason.Equals(GameOverReason.CrewmatesByVote)
-                        && (!pc.Is(CustomRoles.LastNeutral) || !LastNeutral.GiveOpportunist.GetBool()) && (isAlive || !Amanojaku.Seizon.GetBool()) && !pc.IsRiaju())
-                        {
-                            CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                            CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
-                            continue;
-                        }
-                        else if (pc.Is(CustomRoles.Amanojaku)) CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
+                        LastNeutral.CheckAddWin(pc, reason);
+                        Amanojaku.CheckWin(pc, reason);
 
-                        if (Amnesia.CheckAbility(pc))
-                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && pc.Is(CustomRoles.PhantomThief))
-                            {
-                                var winnerRole = pc.GetCustomRole();
-                                if (additionalWinner.CheckWin(ref winnerRole))
-                                {
-                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                                    CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
-                                    continue;
-                                }
-                            }
-
-                        if (pc.Is(CustomRoles.AsistingAngel))
+                        if (pc.GetRoleClass() is PhantomThief phantomThief)
                         {
-                            if (AsistingAngel.Asist != null)
-                            {
-                                if (CustomWinnerHolder.WinnerIds.Contains(AsistingAngel.Asist.PlayerId))
-                                {
-                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                                    CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.AsistingAngel);
-                                    continue;
-                                }
-                                else
-                                    CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
-                            }
-                            else
-                                CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
+                            phantomThief.CheckWin();
                         }
 
-                        if (Amnesia.CheckAbility(pc))
-                            if (pc.GetRoleClass() is IAdditionalWinner additionalWinner && pc.Is(CustomRoles.Turncoat))
-                            {
-                                var winnerRole = pc.GetCustomRole();
-                                if (additionalWinner.CheckWin(ref winnerRole))
-                                {
-                                    CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                                    CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
-                                    continue;
-                                }
-                            }
+                        AsistingAngel.CheckAddWin(pc.PlayerId);
                     }
                 }
-                Twins.CheckAddWin();
-                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Draw)
+                if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw)
                 {
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
-                    {
-                        if (pc.Is(CustomRoles.CurseMaker))
-                            foreach (var cm in CurseMaker.curseMakers)
-                            {
-                                if (cm.CanWin)
-                                {
-                                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CurseMaker);
-                                    CustomWinnerHolder.WinnerIds.Add(cm.Player.PlayerId);
-                                }
-                            }
-                        if (pc.GetRoleClass() is Fox fox)
-                        {
-                            if (fox.FoxCheckWin(ref reason)) break;
-                        }
-                    }
+                    CurseMaker.CheckWin();
+                    Fox.SFoxCheckWin(ref reason);
                 }
                 foreach (var player in PlayerCatch.AllPlayerControls)
                 {
                     var roleclass = player.GetRoleClass();
                     roleclass?.CheckWinner();
                 }
+                Twins.CheckAddWin();
+
                 ShipStatus.Instance.enabled = false;
                 if (CustomWinnerHolder.WinnerTeam != CustomWinner.Crewmate && (reason.Equals(GameOverReason.CrewmatesByTask) || reason.Equals(GameOverReason.CrewmatesByVote)))
                     reason = GameOverReason.ImpostorsByKill;
+
+                Logger.Info($"{CustomWinnerHolder.WinnerTeam} ({reason})", "Winner");
+
                 if (Options.OutroCrewWinreasonchenge.GetBool() && (reason.Equals(GameOverReason.CrewmatesByTask) || reason.Equals(GameOverReason.CrewmatesByVote)))
                     reason = GameOverReason.ImpostorsByVote;
+
                 StartEndGame(reason);
                 predicate = null;
             }
@@ -295,9 +207,9 @@ namespace TownOfHost
             }
 
             // CustomWinnerHolderの情報の同期
-            var winnerWriter = self.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame, SendOption.Reliable);
+            /*var winnerWriter = self.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.EndGame, SendOption.Reliable);
             CustomWinnerHolder.WriteTo(winnerWriter);
-            self.FinishRpcImmediately(winnerWriter);
+            self.FinishRpcImmediately(winnerWriter);*/
 
             // 蘇生を確実にゴーストロール設定の後に届けるための遅延
             yield return new WaitForSeconds(EndGameDelay);
@@ -430,144 +342,9 @@ namespace TownOfHost
 
         public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
         public static void SetPredicateToHideAndSeek() => predicate = new HideAndSeekGameEndPredicate();
-        public static void SetPredicateToTaskBattle() => predicate = new TaskBattleGameEndPredicate();
+        public static void SetPredicateToTaskBattle() => predicate = new TaskBattle.TaskBattleGameEndPredicate();
 
         public static void SetPredicateToSadness() => predicate = new SadnessGameEndPredicate();
-        class SadnessGameEndPredicate : GameEndPredicate
-        {
-            public override bool CheckForEndGame(out GameOverReason reason)
-            {
-                reason = GameOverReason.ImpostorsByKill;
-                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
-                if (checkplayer(out reason)) return true;
-                if (CheckGameEndBySabotage(out reason)) return true;
-
-                return false;
-            }
-            public static bool checkplayer(out GameOverReason reason)
-            {
-                reason = GameOverReason.ImpostorsByKill;
-
-
-                if (!PlayerCatch.AllAlivePlayerControls.Any())
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                    return true;
-                }
-                else if (SuddenDeathMode.NowSuddenDeathTemeMode)
-                {
-                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamRed.Contains(pc.PlayerId)))
-                    {
-                        reason = GameOverReason.ImpostorsByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathRed);
-                        SuddenDeathMode.TeamRed.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
-                        return true;
-                    }
-                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamBlue.Contains(pc.PlayerId)))
-                    {
-                        reason = GameOverReason.ImpostorsByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathBlue);
-                        SuddenDeathMode.TeamBlue.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
-                        return true;
-                    }
-                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamYellow.Contains(pc.PlayerId)))
-                    {
-                        reason = GameOverReason.ImpostorsByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathYellow);
-                        SuddenDeathMode.TeamYellow.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
-                        return true;
-                    }
-                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamGreen.Contains(pc.PlayerId)))
-                    {
-                        reason = GameOverReason.ImpostorsByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathGreen);
-                        SuddenDeathMode.TeamGreen.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
-                        return true;
-                    }
-                    if (PlayerCatch.AllAlivePlayerControls.All(pc => SuddenDeathMode.TeamPurple.Contains(pc.PlayerId)))
-                    {
-                        reason = GameOverReason.ImpostorsByKill;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathPurple);
-                        SuddenDeathMode.TeamPurple.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
-                        return true;
-                    }
-                }
-                else if (PlayerCatch.AllAlivePlayersCount == 1)
-                {
-                    var winner = PlayerCatch.AllAlivePlayerControls.FirstOrDefault();
-
-                    CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner.GetCustomRole());
-                    CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)) ||
-                 (Lovers.LoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.LoversPlayers.Count != 0 && Lovers.LoversPlayers.All(pc => pc.IsAlive()))) //ラバーズ勝利
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.RedLovers)) ||
-                (Lovers.RedLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.RedLoversPlayers.Count != 0 && Lovers.RedLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.RedLovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.YellowLovers)) ||
-                (Lovers.YellowLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.YellowLoversPlayers.Count != 0 && Lovers.YellowLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.YellowLovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.BlueLovers)) ||
-                (Lovers.BlueLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.BlueLoversPlayers.Count != 0 && Lovers.BlueLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.BlueLovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.GreenLovers)) ||
-                (Lovers.GreenLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.GreenLoversPlayers.Count != 0 && Lovers.GreenLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GreenLovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.WhiteLovers)) ||
-                (Lovers.WhiteLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.WhiteLoversPlayers.Count != 0 && Lovers.WhiteLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.WhiteLovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PurpleLovers)) ||
-                (Lovers.PurpleLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.PurpleLoversPlayers.Count != 0 && Lovers.PurpleLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PurpleLovers);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.Ltarget || pc.PlayerId == Lovers.OneLovePlayer.OneLove)
-                || (Lovers.OneLoveSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.OneLove)?.IsAlive() == true && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.Ltarget)?.IsAlive() == true))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.OneLove);
-                    if (!Lovers.OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(Lovers.OneLovePlayer.Ltarget);
-                    return true;
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.MadonnaLovers)) ||
-                (Madonna.MaLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.MaMadonnaLoversPlayers.Count != 0 && Lovers.MaMadonnaLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.MadonnaLovers);
-                    return true;
-                }
-                return false;
-            }
-        }
 
         // ===== ゲーム終了条件 =====
         // 通常ゲーム用
@@ -630,78 +407,26 @@ namespace TownOfHost
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                }/* ここら辺のLoversは全員時の処理のはずだから追加勝利考えない */
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)) ||
-                /* 設定がONで、　　　　　　　　　　　　　　　　3人以下で、　　　　　　　　　　　　　　　　ラバーが全員生きてたら */
-                (Lovers.LoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.LoversPlayers.Count != 0 && Lovers.LoversPlayers.All(pc => pc.IsAlive()))) //ラバーズ勝利
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
                 }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.RedLovers)) ||
-                (Lovers.RedLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.RedLoversPlayers.Count != 0 && Lovers.RedLoversPlayers.All(pc => pc.IsAlive())))
+                else if (Lovers.CheckPlayercountWin())
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.RedLovers);
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.YellowLovers)) ||
-                (Lovers.YellowLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.YellowLoversPlayers.Count != 0 && Lovers.YellowLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.YellowLovers);
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.BlueLovers)) ||
-                (Lovers.BlueLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.BlueLoversPlayers.Count != 0 && Lovers.BlueLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.BlueLovers);
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.GreenLovers)) ||
-                (Lovers.GreenLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.GreenLoversPlayers.Count != 0 && Lovers.GreenLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GreenLovers);
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.WhiteLovers)) ||
-                (Lovers.WhiteLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.WhiteLoversPlayers.Count != 0 && Lovers.WhiteLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.WhiteLovers);
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PurpleLovers)) ||
-                (Lovers.PurpleLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.PurpleLoversPlayers.Count != 0 && Lovers.PurpleLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PurpleLovers);
-                }
-                else if (PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.Ltarget || pc.PlayerId == Lovers.OneLovePlayer.OneLove)
-                || (Lovers.OneLoveSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.OneLove)?.IsAlive() == true && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.Ltarget)?.IsAlive() == true))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.OneLove);
-                    if (!Lovers.OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(Lovers.OneLovePlayer.Ltarget);
-                }
-                else if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.MadonnaLovers)) ||
-                (Madonna.MaLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.MaMadonnaLoversPlayers.Count != 0 && Lovers.MaMadonnaLoversPlayers.All(pc => pc.IsAlive())))
-                {
-                    reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.MadonnaLovers);
                 }
                 else if (Imp == 1 && Crew == 0 && GrimReaper == 1)//死神勝利(1)
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
                 else if (Jackal == 0 && Remotekiller == 0 && FoxAndCrew <= Imp) //インポスター勝利
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                 }
                 else if (Imp == 0 && Remotekiller == 0 && FoxAndCrew <= Jackal) //ジャッカル勝利
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jackal);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Jackal, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackal);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalMafia);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalAlien);
@@ -710,19 +435,19 @@ namespace TownOfHost
                 else if (Imp == 0 && Jackal == 0 && FoxAndCrew <= Remotekiller)
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Remotekiller);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Remotekiller, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Remotekiller);
                 }
                 else if (Jackal == 0 && Imp == 0 && GrimReaper == 1 && Remotekiller == 0)//死神勝利(2)
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
                 else if (Jackal == 0 && Remotekiller == 0 && Imp == 0) //クルー勝利
                 {
                     reason = GameOverReason.CrewmatesByVote;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Crewmate, byte.MaxValue);
                 }
                 else return false; //勝利条件未達成
 
@@ -759,12 +484,12 @@ namespace TownOfHost
                 else if (Crew <= 0) //インポスター勝利
                 {
                     reason = GameOverReason.ImpostorsByKill;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                 }
                 else if (Imp == 0) //クルー勝利(インポスター切断など)
                 {
                     reason = GameOverReason.CrewmatesByVote;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Crewmate, byte.MaxValue);
                 }
                 else return false; //勝利条件未達成
 
@@ -772,78 +497,7 @@ namespace TownOfHost
             }
         }
     }
-    // ﾀｽﾊﾞﾄ用
-    class TaskBattleGameEndPredicate : GameEndPredicate
-    {
-        public override bool CheckForEndGame(out GameOverReason reason)
-        {
-            reason = GameOverReason.ImpostorsByKill;
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
 
-            if (CheckGameEndByLivingPlayers(out reason)) return true;
-
-            return false;
-        }
-
-        public bool CheckGameEndByLivingPlayers(out GameOverReason reason)
-        {
-            reason = GameOverReason.ImpostorsByKill;
-
-            if (Main.RTAMode)
-            {
-                var player = PlayerCatch.GetPlayerById(Main.RTAPlayer);
-                if (player.GetPlayerTaskState().IsTaskFinished)
-                {
-                    reason = GameOverReason.CrewmatesByTask;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);
-                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
-                    Main.RTAPlayer = byte.MaxValue;
-                }
-            }
-            else
-            if (!TaskBattle.TaskBattleTeamWinType.GetBool())
-            {
-                int TaskPlayerB = PlayerCatch.AlivePlayersCount(CountTypes.TaskPlayer);
-                bool win = TaskPlayerB <= 1;
-                if (TaskBattle.IsTaskBattleTeamMode)
-                {
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
-                    {
-                        if (pc == null) continue;
-                        if (pc.AllTasksCompleted())
-                            win = true;
-                    }
-                }
-                if (win)
-                {
-                    reason = GameOverReason.CrewmatesByTask;
-                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);
-                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                }
-                else return false; //勝利条件未達成
-            }
-            else
-            {
-                foreach (var t in TaskBattle.TaskBattleTeams.Values)
-                {
-                    if (t == null) continue;
-                    var task = 0;
-                    foreach (var id in t)
-                        task += PlayerState.GetByPlayerId(id).taskState.CompletedTasksCount;
-                    if (TaskBattle.TaskBattleTeamWinTaskc.GetFloat() <= task)
-                    {
-                        reason = GameOverReason.CrewmatesByTask;
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);
-                        foreach (var id in t)
-                            CustomWinnerHolder.WinnerIds.Add(id);
-                    }
-                }
-            }
-
-            return true;
-        }
-    }
     public abstract class GameEndPredicate
     {
         /// <summary>ゲームの終了条件をチェックし、CustomWinnerHolderに値を格納します。</summary>
@@ -860,7 +514,7 @@ namespace TownOfHost
             if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
             {
                 reason = GameOverReason.CrewmatesByTask;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Crewmate, byte.MaxValue);
                 return true;
             }
             return false;
@@ -889,22 +543,22 @@ namespace TownOfHost
                         case CustomRoles.Jackal:
                         case CustomRoles.JackalMafia:
                         case CustomRoles.JackalAlien:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jackal);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Jackal, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackal);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalMafia);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalAlien);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackaldoll);
                             break;
                         case CustomRoles.GrimReaper:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                             break;
                         case CustomRoles.Egoist:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Egoist, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
                             break;
                         default:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                             break;
                     }
                     reason = GameOverReason.ImpostorsBySabotage;
@@ -912,7 +566,7 @@ namespace TownOfHost
                     LifeSupp.Countdown = 10000f;
                     return true;
                 }
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                 Main.NowSabotage = false;
                 reason = GameOverReason.ImpostorsBySabotage;
                 LifeSupp.Countdown = 10000f;
@@ -948,22 +602,22 @@ namespace TownOfHost
                         case CustomRoles.Jackal:
                         case CustomRoles.JackalMafia:
                         case CustomRoles.JackalAlien:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jackal);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Jackal, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackal);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalMafia);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalAlien);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackaldoll);
                             break;
                         case CustomRoles.GrimReaper:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GrimReaper);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                             break;
                         case CustomRoles.Egoist:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Egoist, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
                             break;
                         default:
-                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                             break;
                     }
                     Main.NowSabotage = false;
@@ -971,7 +625,7 @@ namespace TownOfHost
                     critical.ClearSabotage();
                     return true;
                 }
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
+                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                 Main.NowSabotage = false;
                 reason = GameOverReason.ImpostorsBySabotage;
                 critical.ClearSabotage();

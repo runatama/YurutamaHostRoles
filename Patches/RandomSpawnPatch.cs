@@ -234,12 +234,12 @@ namespace TownOfHost
                 //最初のスポーンと判定
                 var roleClass = player.GetRoleClass();
                 roleClass?.OnSpawn(MeetingStates.FirstMeeting);
-                player.SyncSettings();
-                player.RpcResetAbilityCooldown();
+                /*
                 if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
                     Options.CurrentGameMode != CustomGameMode.TaskBattle
                 ) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId], delay: true);
                 else if (Options.CurrentGameMode != CustomGameMode.TaskBattle && MeetingStates.FirstMeeting) player.SetKillCooldown(10f, delay: true);
+                */
                 GameStates.Intro = false;
                 GameStates.AfterIntro = true;
                 if (IsRandomSpawn())

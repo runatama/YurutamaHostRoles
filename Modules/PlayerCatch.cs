@@ -44,7 +44,8 @@ namespace TownOfHost
             if (info == null) return "";
             if (GameStates.IsLobby)
             {
-                return info?.PlayerName;
+                var pc = info?.Object?.GetClient()?.PlayerName;
+                return pc == null ? info?.PlayerName : pc;
             }
             if (Camouflage.PlayerSkins.TryGetValue(info.PlayerId, out var cos)) return cos.PlayerName;
 
@@ -98,5 +99,7 @@ namespace TownOfHost
         public static IEnumerable<PlayerControl> AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive() && p.PlayerId <= 15);
         //1ターン前に生きてた人達のリスト
         public static List<PlayerControl> OldAlivePlayerControles = new();
+
+        public static bool AnyModClient() => AllPlayerControls.Any(pc => pc.PlayerId is not 0 && pc.IsModClient());
     }
 }

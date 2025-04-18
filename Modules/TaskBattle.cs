@@ -202,4 +202,77 @@ class TaskBattle
         MaxAddCount = IntegerOptionItem.Create(200323, "MaxAddCount", new(1, 99, 1), 1, TabGroup.MainSettings, false)
             .SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskAddMode);
     }
+
+    // ﾀｽﾊﾞﾄ用
+    public class TaskBattleGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
+
+            if (CheckGameEndByLivingPlayers(out reason)) return true;
+
+            return false;
+        }
+
+        public bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+
+            if (Main.RTAMode)
+            {
+                var player = PlayerCatch.GetPlayerById(Main.RTAPlayer);
+                if (player.GetPlayerTaskState().IsTaskFinished)
+                {
+                    reason = GameOverReason.CrewmatesByTask;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);
+                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                    Main.RTAPlayer = byte.MaxValue;
+                }
+            }
+            else
+            if (!TaskBattle.TaskBattleTeamWinType.GetBool())
+            {
+                int TaskPlayerB = PlayerCatch.AlivePlayersCount(CountTypes.TaskPlayer);
+                bool win = TaskPlayerB <= 1;
+                if (TaskBattle.IsTaskBattleTeamMode)
+                {
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        if (pc == null) continue;
+                        if (pc.AllTasksCompleted())
+                            win = true;
+                    }
+                }
+                if (win)
+                {
+                    reason = GameOverReason.CrewmatesByTask;
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);
+                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                        CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                }
+                else return false; //勝利条件未達成
+            }
+            else
+            {
+                foreach (var t in TaskBattle.TaskBattleTeams.Values)
+                {
+                    if (t == null) continue;
+                    var task = 0;
+                    foreach (var id in t)
+                        task += PlayerState.GetByPlayerId(id).taskState.CompletedTasksCount;
+                    if (TaskBattle.TaskBattleTeamWinTaskc.GetFloat() <= task)
+                    {
+                        reason = GameOverReason.CrewmatesByTask;
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.TaskPlayerB);
+                        foreach (var id in t)
+                            CustomWinnerHolder.WinnerIds.Add(id);
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
 }

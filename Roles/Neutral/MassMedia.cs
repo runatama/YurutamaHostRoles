@@ -73,6 +73,7 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     public override void OnDestroy() => MassMedias.Clear();
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionShikai = FloatOptionItem.Create(RoleInfo, 11, Option.MassMediaShikai, new(0f, 0.20f, 0.02f), 0.04f, false)
@@ -226,16 +227,17 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Win)
         {
-            foreach (var crew in PlayerCatch.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MassMedia, Player.PlayerId, true))
             {
-                crew.SetRealKiller(Player);
-                crew.RpcMurderPlayer(crew);
-                var state = PlayerState.GetByPlayerId(crew.PlayerId);
-                state.DeathReason = CustomDeathReason.Misfire;
-                state.SetDead();
+                foreach (var crew in PlayerCatch.AllAlivePlayerControls.Where(x => x.GetCustomRole().IsCrewmate()))
+                {
+                    crew.SetRealKiller(Player);
+                    crew.RpcMurderPlayer(crew);
+                    var state = PlayerState.GetByPlayerId(crew.PlayerId);
+                    state.DeathReason = CustomDeathReason.Misfire;
+                    state.SetDead();
+                }
             }
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.MassMedia);
-            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
         }
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
         Makkura = false;

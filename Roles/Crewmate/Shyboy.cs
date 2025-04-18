@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using TownOfHost.Roles.Core;
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Shyboy : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -30,15 +31,14 @@ public sealed class Shyboy : RoleBase
         Shydeath = 0;
         AfterMeeting = 0;
     }
-    private static OptionItem OptionShytime;
-    private static OptionItem OptionNotShy;
+    private static float Shytime; private static OptionItem OptionShytime;
+    private static float Notshy; private static OptionItem OptionNotShy;
     private static OptionItem OptionShyDieBom;
     float Shydeath;
     float Cool;
     float AfterMeeting;
     bool tuuti;
     float Last;
-    private static float Notshy;
     float Shydeathdi;
     enum OptionName
     {
@@ -46,8 +46,7 @@ public sealed class Shyboy : RoleBase
         ShyboyAfterMeetingNotShytime,
         ShyboyBooooom
     }
-    // #00fa9aff
-    private static float Shytime;
+
     public override bool CanClickUseVentButton => false;
     private static void SetupOptionItem()
     {
@@ -63,10 +62,15 @@ public sealed class Shyboy : RoleBase
         AURoleOptions.EngineerCooldown = (float)Coold;
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
-    public override void StartGameTasks() => Shydeathdi = Player.Is(CustomRoles.Lighting) ? 5 * Main.DefaultImpostorVision : 5 * Main.DefaultCrewmateVision;
+    public override void StartGameTasks() => Shydeathdi = MathF.Min(Player.Is(CustomRoles.Lighting) ? 4.5f * Main.DefaultImpostorVision : 4.5f * Main.DefaultCrewmateVision, 4);
+
     public override void OnStartMeeting() => StartGameTasks();
-    public override bool AllEnabledColor => true;
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
+    public override void OnSpawn(bool initialState = false)
+    {
+        tuuti = true;
+        Shydeath = 0;//会議明け修正
+        AfterMeeting = 0;
+    }
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -103,7 +107,9 @@ public sealed class Shyboy : RoleBase
                 if (pc != player)
                 {
                     float HitoDistance = Vector2.Distance(GSpos, pc.transform.position);
-                    if (HitoDistance <= Shydeathdi)
+                    var vector = (Vector2)pc.transform.position - GSpos;
+                    float dis = vector.magnitude;
+                    if (HitoDistance <= Shydeathdi && !PhysicsHelpers.AnyNonTriggersBetween(GSpos, pc.transform.position, dis, Constants.ShadowMask))
                     {
                         Hito = true;
                         break;
@@ -129,14 +135,16 @@ public sealed class Shyboy : RoleBase
                 Logger.Info("もぉみんなかまうからシャイ君しんぢゃったぁ～!", "Shyboy");
                 MyState.DeathReason = CustomDeathReason.Suicide;
                 Player.RpcMurderPlayer(Player);//一定時間周囲に人がいたら恥ずかしくて死ぬ。
-                Shydeath = 0;//0sの無限キル防止(おきないだろうけど)
+                Shydeath = -1;//0sの無限キル防止(おきないだろうけど)
                 if ((Event.April || Event.Special) && OptionShyDieBom.GetBool())
                     foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                     {
                         if (pc != player)
                         {
                             float HitoDistance = Vector2.Distance(GSpos, pc.transform.position);
-                            if (HitoDistance <= Shydeathdi)
+                            var vector = (Vector2)pc.transform.position - GSpos;
+                            float dis = vector.magnitude;
+                            if (HitoDistance <= Shydeathdi && !PhysicsHelpers.AnyNonTriggersBetween(GSpos, pc.transform.position, dis, Constants.ShipAndObjectsMask))
                             {
                                 pc.PlayerId.GetPlayerState().DeathReason = CustomDeathReason.Bombed;
                                 pc.RpcMurderPlayer(pc);
@@ -147,19 +155,12 @@ public sealed class Shyboy : RoleBase
             }
         }
     }
-    public override void AfterMeetingTasks()
-    {
-        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        tuuti = true;
-        Shydeath = 0;//会議明け修正
-        AfterMeeting = 0;
-    }
-
+    public override bool AllEnabledColor => true;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
     public override string GetAbilityButtonText() => GetString("ShyBoyText");
     public override bool OverrideAbilityButton(out string text)
     {
         text = "ShyBoy_Ability";
         return true;
     }
-    //いつか可視化を顔文字でしたい!!!
 }

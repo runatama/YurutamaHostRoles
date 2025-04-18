@@ -45,12 +45,11 @@ public sealed class UltraStar : RoleBase
         UltraStarCanseeallplayer
     }
     float colorchange;
-    float outkill;
     int PlayerColor;
     static bool CanseeAllplayer;
     private static float Speed;
     private static bool cankill;
-    private static float KillCool;
+    float KillCool;
 
     private static void SetupOptionItem()
     {
@@ -92,7 +91,7 @@ public sealed class UltraStar : RoleBase
         }
         if (cankill)
         {
-            outkill += Time.fixedDeltaTime;
+            KillCool -= Time.fixedDeltaTime;
             Vector2 GSpos = player.transform.position;
 
             PlayerControl target = null;
@@ -110,21 +109,19 @@ public sealed class UltraStar : RoleBase
                     }
                 }
             }
-            if (target != null && cankill && (outkill >= KillCool + 5))
+            if (target != null && cankill && KillCool <= 0)
             {
-                outkill = 5;//ラグの調整
+                KillCool = Optionkillcool.GetFloat();
                 if (OptionCheckKill.GetBool())
                 {
                     CustomRoleManager.OnCheckMurder(Player, target, Player, target);
                     UtilsOption.MarkEveryoneDirtySettings();
-                    KillCoolCheck(player.PlayerId);
                     Player.RpcResetAbilityCooldown(kousin: true);
                     return;
                 }
                 target.SetRealKiller(player);
                 player.RpcMurderPlayer(target);
                 UtilsOption.MarkEveryoneDirtySettings();
-                KillCoolCheck(player.PlayerId);
                 Player.RpcResetAbilityCooldown(kousin: true);
             }
         }
@@ -133,11 +130,14 @@ public sealed class UltraStar : RoleBase
     public override bool OnEnterVent(PlayerPhysics physics, int ventId) => false;
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.EngineerCooldown = (KillCool + 5) - outkill;
+        AURoleOptions.EngineerCooldown = KillCool;
     }
-    public override void AfterMeetingTasks()//あのままじゃホストだけキルクール回復するバグあったから
+    public override void OnSpawn(bool initialState = false)
     {
-        if (cankill) outkill = 0;
+        if (cankill)
+        {
+            KillCool = Optionkillcool.GetFloat() + 1.5f;
+        }
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
@@ -150,18 +150,4 @@ public sealed class UltraStar : RoleBase
     public override void StartGameTasks() => Main.AllPlayerSpeed[Player.PlayerId] += Speed;
 
     public override string GetAbilityButtonText() => GetString(StringNames.KillLabel);
-    public static void KillCoolCheck(byte playerId)
-    {
-        cankill = true;
-        float EndTime = KillCool;
-        var pc = PlayerCatch.GetPlayerById(playerId);
-
-        _ = new LateTask(() =>
-        {
-            //ミーティング中なら無視。
-            if (GameStates.IsMeeting) return;
-            pc.RpcProtectedMurderPlayer();
-            cankill = true;
-        }, EndTime, "★", true);
-    }
 }

@@ -49,6 +49,8 @@ namespace TownOfHost
             var (killer, target) = info.AttemptTuple;
 
             if (!DoubleTriggerList.TryGetValue(killer.PlayerId, out var triggerData)) return false;
+            if (killer.GetRoleClass() is not IDoubleTrigger role) return false;
+            if (!role.CheckAction) return false;
 
             if (triggerData.Target == null)
             {

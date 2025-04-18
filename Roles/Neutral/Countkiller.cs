@@ -53,6 +53,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
     bool WinFuragu;
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionVictoryCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.CountKillerVictoryCount, new(1, 10, 1), 5, false)
@@ -113,8 +114,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
     public void Win()
     {
         if (OptionAddWin.GetBool()) return;
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.CountKiller);
-        CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.CountKiller, Player.PlayerId);
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     => Utils.ColorString(RoleInfo.RoleColor, $"({KillCount}/{VictoryCount})");

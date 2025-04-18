@@ -72,7 +72,7 @@ namespace TownOfHost
             int NumLongTasks = Main.NormalOptions.NumLongTasks;
             int NumShortTasks = Main.NormalOptions.NumShortTasks;
 
-            if (Options.OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
+            if (OverrideTasksData.AllData.TryGetValue(role, out var data) && data.doOverride.GetBool())
             {
                 hasCommonTasks = data.numCommonTasks.GetInt() == Main.NormalOptions.NumCommonTasks;
                 NumCommonTasks = data.numCommonTasks.GetInt();

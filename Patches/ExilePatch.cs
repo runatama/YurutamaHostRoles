@@ -95,7 +95,7 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     AntiBlackout.RestoreIsDead(doSend: false);
-                }, 0.5f, "Res");//ラグを考慮して遅延入れる。
+                }, 0.2f, "Res");//ラグを考慮して遅延入れる。
                 _ = new LateTask(() =>
                 {
                     if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
@@ -181,10 +181,10 @@ namespace TownOfHost
                             Twins.TwinsSuicide();
                             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
                             UtilsNotifyRoles.NotifyRoles(true, true);
-                            ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+                            ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer(false);
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 0.7f, "", true);
+                }, 0.3f, "", true);
             }
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -235,7 +235,7 @@ namespace TownOfHost
                 {
                     exiled = AntiBlackout_LastExiled;
                     AntiBlackout.SendGameData();
-                }, 0.7f, "Restore IsDead Task");
+                }, 0.22f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
                     if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
@@ -262,7 +262,7 @@ namespace TownOfHost
                             Executioner.ChangeRoleByTarget(x.Key);
                     });
                     Main.AfterMeetingDeathPlayers.Clear();
-                }, 2f, "AfterMeetingDeathPlayers Task");
+                }, 0.27f, "AfterMeetingDeathPlayers Task");
             }
 
             UtilsGameLog.WriteGameLog();

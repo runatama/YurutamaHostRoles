@@ -176,7 +176,9 @@ public sealed class Balancer : RoleBase
             //二人決まったなら会議を終了
             if (Target1 != 255 && Target2 != 255)
             {
-                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target1), true), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target2), true));
+                byte[] random_target = [Target1, Target2];
+                random_target = [.. random_target.OrderBy(x => Guid.NewGuid())];
+                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(random_target[0]), true), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(random_target[1]), true));
                 used = true;
                 target1 = Target1;
                 target2 = Target2;
@@ -191,6 +193,9 @@ public sealed class Balancer : RoleBase
 
     public override bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
     {
+        //天秤会議開始時は処理スキップ
+        if (Id == 255 && Target1 != 255 && Target2 != 255) return true;
+
         //天秤モードじゃないor自分の天秤じゃないなら実行しない
         if (Id != Player.PlayerId) return false;
 
@@ -290,7 +295,7 @@ public sealed class Balancer : RoleBase
     public override void BalancerAfterMeetingTasks()
     {
         //天秤会議になってない状態なら
-        if (Id == 255 && Target1 is not 255 && Target2 is not 255)
+        if (Id == 255 && Target1 != 255 && Target2 != 255)
         {
             //天秤会議にする
             Id = Player.PlayerId;

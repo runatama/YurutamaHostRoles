@@ -1,4 +1,3 @@
-using System.Linq;
 using Hazel;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
@@ -132,6 +131,7 @@ namespace TownOfHost
         }
         public static void RpcMeetingColorName(PlayerControl pc = null)
         {
+            if (ChatUpdatePatch.BlockSendName) return;
             if (pc == null)//全員に反映させる(会議開始時)
             {
                 foreach (var seer in PlayerCatch.AllPlayerControls)
@@ -158,7 +158,7 @@ namespace TownOfHost
             }
             else
             {
-                var sender = CustomRpcSender.Create("MeetingNameColor");
+                var sender = CustomRpcSender.Create("MeetingNameColor", SendOption.None);
                 sender.StartMessage();
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {

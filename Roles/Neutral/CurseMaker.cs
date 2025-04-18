@@ -78,7 +78,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         NoroiTime = FloatOptionItem.Create(RoleInfo, 13, OptionName.CueseMakerNoroiTime, new(0f, 30f, 0.5f), 3f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         Distance = FloatOptionItem.Create(RoleInfo, 14, OptionName.CueseMakerDicstance, new(1f, 30f, 0.25f), 1.75f, false);
-        Options.OverrideKilldistance.Create(RoleInfo, 15);
+        OverrideKilldistance.Create(RoleInfo, 15);
     }
     public override void Add()
     {
@@ -228,5 +228,19 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
 
         if (isForHud) return GetString("CurseMakerLowerText");
         return $"<size=50%>{GetString("CurseMakerLowerText")}</size>";
+    }
+    public static void CheckWin()
+    {
+        foreach (var pc in PlayerCatch.AllPlayerControls)
+        {
+            if (pc.GetRoleClass() is CurseMaker curseMaker)
+            {
+                if (curseMaker.CanWin)
+                {
+                    if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.CurseMaker, byte.MaxValue))
+                        CustomWinnerHolder.WinnerIds.Add(curseMaker.Player.PlayerId);
+                }
+            }
+        }
     }
 }

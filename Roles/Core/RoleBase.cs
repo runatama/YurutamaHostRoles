@@ -90,7 +90,7 @@ public abstract class RoleBase : IDisposable
         public MessageWriter Writer;
         public RoleRPCSender(RoleBase role)
         {
-            Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CustomRoleSync, SendOption.Reliable, -1);
+            Writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.CustomRoleSync, SendOption.None, -1);
             Writer.Write(role.Player.PlayerId);
         }
         public void Dispose()

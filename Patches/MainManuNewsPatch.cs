@@ -1326,6 +1326,33 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100054,
+                    Title = "4月ももう後半(テンプレ)",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.11.28.23</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.11.28.23</color>",
+                    Text = "<size=80%>ねむい！ねむい！ねむい！あまいのたべたい！\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・ベントマスターのフラッシュで切る音が鳴らない問題の修正\n"
+                    + "・天秤発動時に投票モードが動作する問題の修正\n"
+                    + "・ターン数が誤記される問題の修正\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・シャイボーイの範囲が若干縮まりました。\n"
+                    + "・シャイボーイが壁を挟むと大丈夫なようになりました。\n"
+                    + "\n<size=125%>【マニア向けの機能かな?】</size>\n"
+                    + "勝利優先順位が追加されました。\n"
+                    + "乗っ取り勝利系のものに勝利優先順位設定ができます。\n"
+                    + "同時に勝利 / 他陣営の勝利時に勝利する系の役職\nで効果を発揮します。\n"
+                    + "クルーメイトの勝利 → ラバーズ乗っ取り！\n"
+                    + "は起こるけど\nインポスター勝利 → ラバーズ乗っ取れない！\nができます。"
+                    + "\nなんだい?なにもないよ?　by.ぱーんだ"
+                    ,
+                    Date = "2025-03-31T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

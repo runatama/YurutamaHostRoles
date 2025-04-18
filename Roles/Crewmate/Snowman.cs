@@ -85,7 +85,7 @@ public sealed class Snowman : RoleBase
         OptTaskCompleatAddVision = FloatOptionItem.Create(RoleInfo, 14, OptionName.SnowmanTaskCompAddvision, new(0, 0.03f, 0.001f), 0.01f, false).SetValueFormat(OptionFormat.Multiplier);
         OptAllTaskCompMeltvision = FloatOptionItem.Create(RoleInfo, 15, OptionName.SnowmanAllTaskCompMeltvision, new(0, 0.001f, 0.0001f), 0f, false).SetValueFormat(OptionFormat.Multiplier);
 
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

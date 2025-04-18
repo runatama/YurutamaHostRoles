@@ -63,6 +63,7 @@ namespace TownOfHost
                 foreach (var option in OptionItem.AllOptions)
                 {
                     if (Event.OptionLoad.Contains(option.Name) && !Event.Special) option.SetValue(0);
+                    if (option.CustomRole is CustomRoles.Assassin) option.SetValue(0);
                 }
             }
         }
@@ -123,11 +124,6 @@ namespace TownOfHost
                 BanManager.CheckDenyNamePlayer(client);
             }
             RPC.RpcVersionCheck();
-            if (AmongUsClient.Instance.AmHost)
-            {
-                RPC.RpcSyncRoomTimer();
-                RPC.SyncYomiage();
-            }
         }
     }
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerLeft))]

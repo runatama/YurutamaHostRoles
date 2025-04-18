@@ -65,6 +65,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
 
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
         OptionCanTargetImpostor = BooleanOptionItem.Create(RoleInfo, 10, OptionName.ExecutionerCanTargetImpostor, false, false);
         OptionCanTargetNeutralKiller = BooleanOptionItem.Create(RoleInfo, 12, OptionName.ExecutionerCanTargetNeutralKiller, false, false);
@@ -153,9 +154,11 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
         {
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return; //勝者がいるなら処理をスキップ
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Executioner);
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Executioner, Player.PlayerId))
+            {
+                CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+            }
         }
-        CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
     }
     public bool CheckWin(ref CustomRoles winnerRole)
     {

@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class SantaClaus : RoleBase, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -62,7 +63,8 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     {
         OptWinGivePresentCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SantaClausWinGivePresentCount, new(1, 30, 1), 4, false);
         OptAddWin = BooleanOptionItem.Create(RoleInfo, 15, OptionName.CountKillerAddWin, false, false);
-        Options.OverrideTasksData.Create(RoleInfo, 20, tasks: (true, 2, 2, 2));
+        SoloWinOption.Create(RoleInfo, 16, show: () => !OptAddWin.GetBool(), defo: 1);
+        OverrideTasksData.Create(RoleInfo, 20, tasks: (true, 2, 2, 2));
     }
     public override void Add() => SetPresentVent();
     public override void ApplyGameOptions(IGameOptions opt)
@@ -150,8 +152,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
 
             if (!AddWin)//単独勝利設定なら即勝利で処理終わり
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SantaClaus);
-                CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.SantaClaus, Player.PlayerId, true);
                 return false;
             }
             else

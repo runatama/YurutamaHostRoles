@@ -39,8 +39,9 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 
     public static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
-        Options.OverrideTasksData.Create(RoleInfo, 11);
+        OverrideTasksData.Create(RoleInfo, 11);
     }
 
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
@@ -48,10 +49,8 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
         if (!IsTaskFinished) return;
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Impostor);
-        CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
+        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, Player.PlayerId, hantrole: CustomRoles.MadJester);
         DecidedWinner = true;
-
     }
     public override bool OnCompleteTask(uint taskid)
     {

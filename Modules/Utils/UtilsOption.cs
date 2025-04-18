@@ -225,6 +225,30 @@ namespace TownOfHost
                 sb.AppendFormat("<line-height=45%><size={0}>", ActiveSettingsSize);
             }
         }
+        public static void ShowWinSetting(byte PlayerId = byte.MaxValue)
+        {
+            if ((Options.HideGameSettings.GetBool() || (Options.HideSettingsDuringGame.GetBool() && GameStates.IsInGame)) && PlayerId != byte.MaxValue)
+            {
+                SendMessage(GetString("Message.HideGameSettings"), PlayerId);
+                return;
+            }
+
+            var sb = GetString("ShowwinSetting");
+            Dictionary<CustomRoles, int> sort = new();
+            foreach (var date in SoloWinOption.AllData)
+            {
+                if (date.Key.IsEnable() || date.Key is CustomRoles.Impostor or CustomRoles.Crewmate ||
+                (date.Key is CustomRoles.Jackal) && (CustomRoles.JackalAlien.IsEnable() || CustomRoles.JackalMafia.IsEnable()))
+                {
+                    sort.Add(date.Key, date.Value.OptionWin.GetInt());
+                }
+            }
+            foreach (var s in sort.OrderBy(x => x.Value))
+            {
+                sb += $"\n" + GetRoleColorAndtext(s.Key) + $"{s.Value}";
+            }
+            SendMessage(sb, PlayerId);
+        }
         public static void CopyCurrentSettings()
         {
             var sb = new StringBuilder();

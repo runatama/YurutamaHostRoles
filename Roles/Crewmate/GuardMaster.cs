@@ -49,7 +49,7 @@ public sealed class GuardMaster : RoleBase
             .SetValueFormat(OptionFormat.Times);
         Kakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskKakusei, true, false);
         Task = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        OverrideTasksData.Create(RoleInfo, 20);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {

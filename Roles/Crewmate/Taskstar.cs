@@ -26,7 +26,7 @@ public sealed class TaskStar : RoleBase
     { }
     private static void SetupOptionItem()
     {
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {

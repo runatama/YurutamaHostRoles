@@ -23,7 +23,7 @@ namespace TownOfHost
 {
     public static class UtilsNotifyRoles
     {
-        const int chengepake = 780;
+        const int chengepake = 1000;
         private static StringBuilder SelfMark = new(20);
         private static StringBuilder SelfSuffix = new(20);
         private static StringBuilder TargetMark = new(20);

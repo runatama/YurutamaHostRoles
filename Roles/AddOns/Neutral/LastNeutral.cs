@@ -1,3 +1,4 @@
+using Rewired;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Options;
@@ -119,6 +120,24 @@ namespace TownOfHost.Roles.AddOns.Neutral
                     break;
                 }
             }
+        }
+        public static bool CheckAddWin(PlayerControl pc, GameOverReason reason)
+        {
+            if (!pc.Is(CustomRoles.LastNeutral) || GiveOpportunist.GetBool()) return false;
+            if (reason.Equals(GameOverReason.CrewmatesByTask) && !CanNotTaskWin.GetBool()) return false;
+            if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate
+            && reason.Equals(GameOverReason.CrewmatesByVote) && !reason.Equals(GameOverReason.CrewmatesByTask)
+            && !CanNotCrewWin.GetBool()) return false;
+
+            if (pc.GetCustomRole() is CustomRoles.Terrorist or CustomRoles.Madonna) return false;
+
+            if (pc.IsAlive() && !pc.IsRiaju())
+            {
+                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
+using TownOfHost.Roles.AddOns.Neutral;
 
 namespace TownOfHost.Roles.AddOns.Common
 {
@@ -28,8 +29,27 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
 
+        public static bool CheckWin(PlayerControl pc, GameOverReason reason)
+        {
+            if (pc.IsRiaju()) return false;
+
+            if (playerIdList.Contains(pc.PlayerId))
+            {
+                if (reason.Equals(GameOverReason.CrewmatesByTask) || reason.Equals(GameOverReason.CrewmatesByVote)) goto remove;
+                if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveOpportunist.GetBool()) goto remove;
+                if (pc.IsAlive() || !Seizon.GetBool()) goto remove;
+
+                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
+                return true;
+            }
+
+            return false;
+
+        remove:
+            CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
+            return false;
+        }
     }
 }

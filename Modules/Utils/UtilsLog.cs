@@ -382,11 +382,6 @@ namespace TownOfHost
         }
         public static void Reset()
         {
-            GameLog = new();
-            TodayLog = "";
-            var c = string.Format(GetString("log.Start"), Main.GameCount);
-            AddGameLogsub($"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n" + string.Format(GetString("Message.Day").RemoveDeltext("【").RemoveDeltext("】"), day).Color(Palette.Orange));
-
             Main.showkillbutton = false;
             day = 1;
             Main.IntroHyoji = true;
@@ -394,6 +389,10 @@ namespace TownOfHost
             Main.FeColl = 0;
             Main.GameCount++;
             Main.CanUseAbility = false;
+            GameLog = new();
+            TodayLog = "";
+            var c = string.Format(GetString("log.Start"), Main.GameCount);
+            AddGameLogsub($"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n" + string.Format(GetString("Message.Day").RemoveDeltext("【").RemoveDeltext("】"), day).Color(Palette.Orange));
         }
         public static void WriteGameLog()
         {

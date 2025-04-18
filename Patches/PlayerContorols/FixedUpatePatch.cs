@@ -161,7 +161,7 @@ namespace TownOfHost
                     if (VentDuringDisabling.TryGetValue(player.PlayerId, out var ventId) && (first.Key != ventId || first.Value > 2))
                     {
                         ushort num = (ushort)(VentilationSystemUpdateSystemPatch.last_opId + 1U);
-                        MessageWriter msgWriter = MessageWriter.Get(SendOption.Reliable);
+                        MessageWriter msgWriter = MessageWriter.Get(SendOption.None);
                         msgWriter.Write(num);
                         msgWriter.Write((byte)VentilationSystem.Operation.StopCleaning);
                         msgWriter.Write((byte)ventId);
@@ -173,7 +173,7 @@ namespace TownOfHost
                     else if (first.Value <= 2 && !VentDuringDisabling.ContainsKey(player.PlayerId) && (((roleclass as IKiller)?.CanUseImpostorVentButton() is false) || (roleclass?.CanClickUseVentButton == false)))
                     {
                         ushort num = (ushort)(VentilationSystemUpdateSystemPatch.last_opId + 1U);
-                        MessageWriter msgWriter = MessageWriter.Get(SendOption.Reliable);
+                        MessageWriter msgWriter = MessageWriter.Get(SendOption.None);
                         msgWriter.Write(num);
                         msgWriter.Write((byte)VentilationSystem.Operation.StartCleaning);
                         msgWriter.Write((byte)first.Key);

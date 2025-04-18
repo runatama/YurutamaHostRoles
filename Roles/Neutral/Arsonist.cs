@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -71,6 +72,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
 
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 15, defo: 1);
         OptionCanSeeNowAlivePlayer = BooleanOptionItem.Create(RoleInfo, 8, OptionName.ArsonistCanSeeAllplayer, false, false);
         OptionCanUseVent = BooleanOptionItem.Create(RoleInfo, 9, GeneralOption.CanVent, false, false);
         OptionDouseTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ArsonistDouseTime, new(0.5f, 10f, 0.5f), 3f, false)
@@ -79,7 +81,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
             .SetValueFormat(OptionFormat.Seconds);
         OptionHani = FloatOptionItem.Create(RoleInfo, 12, OptionName.ArsonistRange, new(1.25f, 5f, 0.25f), 1.75f, false)
         .SetValueFormat(OptionFormat.Multiplier);
-        Options.OverrideKilldistance.Create(RoleInfo, 13);
+        OverrideKilldistance.Create(RoleInfo, 13);
         Optionfire = BooleanOptionItem.Create(RoleInfo, 14, OptionName.ArsonistFireOnclick, false, false);
     }
     public override void Add()
@@ -228,8 +230,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                 else
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
             }
-            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist); //焼殺で勝利した人も勝利させる
-            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId); //焼殺で勝利した人も勝利させる
             return false;
         }
         return OptionCanUseVent.GetBool();
@@ -307,8 +308,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                 else
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
             }
-            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist); //焼殺で勝利した人も勝利させる
-            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId); //焼殺で勝利した人も勝利させる
         }
     }
 }

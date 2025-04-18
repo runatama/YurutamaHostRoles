@@ -4,10 +4,9 @@ using System.Linq;
 using UnityEngine;
 
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
-public sealed class Turncoat : RoleBase, IAdditionalWinner
+public sealed class Turncoat : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -113,20 +112,20 @@ public sealed class Turncoat : RoleBase, IAdditionalWinner
             UtilsNotifyRoles.NotifyRoles(Player);
         }
     }
-    public bool CheckWin(ref CustomRoles winnerRole)
+    public override void CheckWinner()
     {
         //生きてないなら負け。
-        if (!Player.IsAlive()) return false;
+        if (!Player.IsAlive()) return;
 
         //勝利IDに含まれていないかつ、勝利役職に含まれてない場合 → かち！
         if (!CustomWinnerHolder.WinnerIds.Contains(Target)
-        && !CustomWinnerHolder.WinnerRoles.Contains(Target.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness)) return true;
+        && !CustomWinnerHolder.WinnerRoles.Contains(Target.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness)) return;
 
         //何が何でも負けるリストに含まれている場合 → かち！
-        if (CustomWinnerHolder.IdRemoveLovers.Contains(Target)) return true;
+        if (CustomWinnerHolder.IdRemoveLovers.Contains(Target)) return;
 
         //上記2つに含まれないなら負け。
-        return false;
+        return;
     }
     //死亡時だけ役職情報を開示する
     //スタンダードなら白位置にねじ込んでキルさせる、強引に吊りに行く等誘導してもらいたい

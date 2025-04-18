@@ -147,11 +147,11 @@ namespace TownOfHost
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
 
-            if (target.IsAlive())
+            if (target.IsAlive() && !GameStates.Meeting)
             {
                 target.SetPet(newOutfit.PetId);
                 sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
-                    .Write(newOutfit.PetId)
+                    .Write(Options.Onlyseepet.GetBool() ? "" : newOutfit.PetId)
                     .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
                     .EndRpc();
             }
@@ -160,7 +160,7 @@ namespace TownOfHost
             foreach (var pc in PlayerCatch.AllPlayerControls)
                 (pc.GetRoleClass() as IUseTheShButton)?.ResetS(pc);
 
-            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+            if (Options.Onlyseepet.GetBool() && !GameStates.Meeting) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
         }
     }
 }

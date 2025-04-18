@@ -8,6 +8,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using Rewired;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -87,6 +88,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
     }
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionInfectLimit = IntegerOptionItem.Create(RoleInfo, 10, OptionName.PlagueDoctorInfectLimit, new(1, 3, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptionInfectWhenKilled = BooleanOptionItem.Create(RoleInfo, 11, OptionName.PlagueDoctorInfectWhenKilled, false, true);
@@ -97,7 +99,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
            .SetValueFormat(OptionFormat.Seconds);
         OptionInfectCanInfectSelf = BooleanOptionItem.Create(RoleInfo, 15, OptionName.PlagueDoctorCanInfectSelf, false, true);
         OptionInfectCanInfectVent = BooleanOptionItem.Create(RoleInfo, 16, OptionName.PlagueDoctorCanInfectVent, false, true);
-        Options.OverrideKilldistance.Create(RoleInfo, 17);
+        OverrideKilldistance.Create(RoleInfo, 17);
     }
 
     private int InfectCount;
@@ -317,9 +319,10 @@ public sealed class PlagueDoctor : RoleBase, IKiller
                 state.DeathReason = CustomDeathReason.Infected;
                 state.SetDead();
             }
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
             foreach (var plagueDoctor in PlayerCatch.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
-                CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
+            {
+                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PlagueDoctor, plagueDoctor.PlayerId, true);
+            }
         }
     }
     public bool OverrideKillButton(out string text)

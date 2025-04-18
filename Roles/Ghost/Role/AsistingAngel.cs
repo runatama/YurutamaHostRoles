@@ -135,5 +135,23 @@ namespace TownOfHost.Roles.Ghost
 
             return "";
         }
+        public static bool CheckAddWin(byte playerid)
+        {
+            if (playerIdList.Contains(playerid))
+            {
+                if (Asist != null)
+                {
+                    if (CustomWinnerHolder.WinnerIds.Contains(Asist.PlayerId))
+                    {
+                        CustomWinnerHolder.WinnerIds.Add(playerid);
+                        CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.AsistingAngel);
+                        return true;
+                    }
+                }
+                CustomWinnerHolder.IdRemoveLovers.Add(playerid);
+            }
+
+            return false;
+        }
     }
 }

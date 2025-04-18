@@ -188,7 +188,7 @@ namespace TownOfHost
             };
         }
         public static bool NowKillFlash = false;
-        public static void KillFlash(this PlayerControl player, bool sound = true, bool kiai = false)
+        public static void KillFlash(this PlayerControl player, bool kiai = false)
         {
             //キルフラッシュ(ブラックアウト+リアクターフラッシュ)の処理
             bool ReactorCheck = IsActive(GetCriticalSabotageSystemType());
@@ -202,7 +202,7 @@ namespace TownOfHost
             if (player.PlayerId == 0 && !kiai)
             {
                 FlashColor(new(1f, 0f, 0f, 0.5f));
-                if (Constants.ShouldPlaySfx() && sound) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
+                if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
             }
             else if (!ReactorCheck) player.ReactorFlash(0f); //リアクターフラッシュ
             player.MarkDirtySettings();
@@ -223,7 +223,7 @@ namespace TownOfHost
             if (ReactorCheck) Duration += 0.2f;
 
             {
-                var sender = CustomRpcSender.Create("KillFlash");
+                var sender = CustomRpcSender.Create("KillFlash", Hazel.SendOption.None);
                 bool ch = false;
                 foreach (var player in players)
                 {
@@ -412,6 +412,7 @@ namespace TownOfHost
             + $"\n/now(/n) - {GetString("Command.now")}"
             + $"\n/now role(/n r) - {GetString("Command.nowrole")}"
             + $"\n/now set(/n s) - {GetString("Command.nowset")}"
+            + $"\n/now w(/n w) - {GetString("Command.nowwin")}"
             + $"\n/h now(/h n) - {GetString("Command.h_now")}"
             + $"\n/h roles(/h r ) {GetString("Command.h_roles")}"
             + $"\n/myrole(/m) - {GetString("Command.m")}"

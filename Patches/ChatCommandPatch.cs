@@ -233,6 +233,9 @@ namespace TownOfHost
                             case "m":
                                 ShowActiveSettings(PlayerControl.LocalPlayer.PlayerId);
                                 break;
+                            case "w":
+                                ShowWinSetting();
+                                break;
                             default:
                                 ShowActiveSettings();
                                 break;
@@ -463,7 +466,7 @@ namespace TownOfHost
                                 if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
                                 if (imp && ((imp?.GetCustomRole().IsImpostor() ?? false) || imp?.GetCustomRole() is CustomRoles.Egoist) || !imp.IsAlive())
                                 {
-                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                                     writer.StartMessage(imp.GetClientId());
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
@@ -502,7 +505,7 @@ namespace TownOfHost
                             {
                                 if (jac && ((jac?.GetCustomRole() is CustomRoles.Jackal or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.JackalAlien) || !jac.IsAlive()))
                                 {
-                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                                     writer.StartMessage(jac.GetClientId());
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
@@ -545,7 +548,7 @@ namespace TownOfHost
                             {
                                 if (lover && (lover.GetRiaju() == l || !lover.IsAlive()))
                                 {
-                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                                     writer.StartMessage(lover.GetClientId());
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
@@ -592,7 +595,7 @@ namespace TownOfHost
                                     {
                                         var clientid = twins.GetClientId();
                                         if (clientid == -1) continue;
-                                        var writer = CustomRpcSender.Create("TwinsChat", SendOption.Reliable);
+                                        var writer = CustomRpcSender.Create("TwinsChat", SendOption.None);
                                         writer.StartMessage(clientid);
                                         writer.StartRpc(twins.NetId, (byte)RpcCalls.SetName)
                                         .Write(twins.Data.NetId)
@@ -640,7 +643,7 @@ namespace TownOfHost
                                     {
                                         var clientid = connect.GetClientId();
                                         if (clientid == -1) continue;
-                                        var writer = CustomRpcSender.Create("Connectingchat", SendOption.Reliable);
+                                        var writer = CustomRpcSender.Create("Connectingchat", SendOption.None);
                                         writer.StartMessage(clientid);
                                         writer.StartRpc(connect.NetId, (byte)RpcCalls.SetName)
                                         .Write(connect.Data.NetId)
@@ -836,7 +839,7 @@ namespace TownOfHost
                         if (GameStates.IsLobby && !GameStates.IsCountDown)
                         {
                             canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && (!Event.IsE(option.Key) || Event.Special)))
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
                             {
                                 var r = option.Key;
                                 if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral()) option.Value.SetValue(10);
@@ -849,7 +852,7 @@ namespace TownOfHost
                         if (GameStates.IsLobby && !GameStates.IsCountDown)
                         {
                             canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && (!Event.IsE(option.Key) || Event.Special)))
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
                             {
                                 option.Value.SetValue(10);
                             }
@@ -1295,7 +1298,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_impostor").Color(Palette.ImpostorRed)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsImpostor()))
                     {
-                        if (im.Key.IsE()) continue;
+                        if (im.Key.IsE() || im.Key is CustomRoles.Assassin) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1310,7 +1313,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_crew").Color(Color.blue)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsCrewmate()))
                     {
-                        if (im.Key.IsE()) continue;
+                        if (im.Key.IsE() || im.Key is CustomRoles.Assassin) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1384,6 +1387,11 @@ namespace TownOfHost
 
                 if (string.Compare(role, roleName, true) == 0 || string.Compare(role, roleShort, true) == 0)
                 {
+                    if (r.Key is CustomRoles.Assassin or CustomRoles.Merlin)
+                    {
+                        goto infosend;
+                    }
+                    if (r.Key.IsE() && !Event.Special) goto infosend;
                     var roleInfo = r.Key.GetRoleInfo();
                     if (roleInfo != null && roleInfo.Description != null)
                     {
@@ -1401,6 +1409,10 @@ namespace TownOfHost
 
             if (GetRoleByInputName(role, out var hr, true))
             {
+                if (hr is CustomRoles.Assassin or CustomRoles.Merlin)
+                {
+                    goto infosend;
+                }
                 if (hr is CustomRoles.Crewmate or CustomRoles.Impostor) SendMessage(msg, player);
                 var roleInfo = hr.GetRoleInfo();
                 if (roleInfo != null && roleInfo.Description != null)
@@ -1415,6 +1427,9 @@ namespace TownOfHost
                 }
                 return;
             }
+            goto infosend;
+
+        infosend:
             msg += rolemsg;
             if (player == byte.MaxValue) player = 0;
             SendMessage(msg, player);
@@ -1540,6 +1555,9 @@ namespace TownOfHost
                         case "s":
                         case "setting":
                             ShowSetting(player.PlayerId);
+                            break;
+                        case "w":
+                            ShowWinSetting(player.PlayerId);
                             break;
                         default:
                             ShowActiveSettings(player.PlayerId);
@@ -1698,7 +1716,7 @@ namespace TownOfHost
                                 {
                                     var clientid = imp.GetClientId();
                                     if (clientid == -1) continue;
-                                    var writer = CustomRpcSender.Create("ImpostorChatSend", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("ImpostorChatSend", SendOption.None);
                                     writer.StartMessage(clientid);
 
                                     if (imp.PlayerId == PlayerControl.LocalPlayer.PlayerId)
@@ -1766,7 +1784,7 @@ namespace TownOfHost
                                 {
                                     var clientid = jac.GetClientId();
                                     if (clientid == -1) continue;
-                                    var writer = CustomRpcSender.Create("JacalSendChat", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("JacalSendChat", SendOption.None);
                                     writer.StartMessage(clientid);
                                     if (jac.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                                     {
@@ -1836,7 +1854,7 @@ namespace TownOfHost
                                 {
                                     var clientid = lover.GetClientId();
                                     if (clientid == -1) continue;
-                                    var writer = CustomRpcSender.Create("LoverChatSend", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("LoverChatSend", SendOption.None);
                                     writer.StartMessage(clientid);
                                     if (lover.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                                     {
@@ -1903,7 +1921,7 @@ namespace TownOfHost
                                 {
                                     var clientid = twins.GetClientId();
                                     if (clientid == -1) continue;
-                                    var writer = CustomRpcSender.Create("TwinsChat", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("TwinsChat", SendOption.None);
                                     writer.StartMessage(clientid);
                                     if (twins.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                                     {
@@ -1969,7 +1987,7 @@ namespace TownOfHost
                                 {
                                     var clientid = connect.GetClientId();
                                     if (clientid == -1) continue;
-                                    var writer = CustomRpcSender.Create("Connectingchat", SendOption.Reliable);
+                                    var writer = CustomRpcSender.Create("Connectingchat", SendOption.None);
                                     writer.StartMessage(clientid);
                                     if (connect.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                                     {
@@ -2099,6 +2117,7 @@ namespace TownOfHost
     class ChatUpdatePatch
     {
         public static bool DoBlockChat = false;
+        public static bool BlockSendName = false;
         public static void Postfix(ChatController __instance)
         {
             if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count < 1 || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
@@ -2126,15 +2145,15 @@ namespace TownOfHost
                     player = AllAlivePlayerControls.Where(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).OrderBy(x => x.PlayerId).FirstOrDefault();
                     if (player == null) player = AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
                 }
-                _ = new LateTask(() => ApplySuffix(null, true), 0.24f, "", true);
+                if (player == PlayerControl.LocalPlayer) _ = new LateTask(() => ApplySuffix(null, true), 0.24f, "", true);
             }
             Croissant.ChocolateCroissant = true;
             var name = player.Data.GetLogPlayerName();
-            if (Options.ExHideChatCommand.GetBool() && GameStates.IsLobby)
+            if (Options.ExHideChatCommand.GetBool() && !GameStates.IsLobby)
             {
                 if (clientId == -1)
                 {
-                    if (player.PlayerId != 0)
+                    if (player.PlayerId is not 0)
                     {
                         foreach (var pc in AllPlayerControls)
                         {

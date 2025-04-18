@@ -47,7 +47,7 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
     }
 
-    public static Options.OverrideTasksData Tasks;
+    public static OverrideTasksData Tasks;
     public static bool TaskFin;
     public static bool DriverseeKillFlash;
     public static bool Driverseedeathreason;

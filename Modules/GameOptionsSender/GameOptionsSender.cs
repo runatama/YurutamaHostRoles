@@ -108,7 +108,7 @@ namespace TownOfHost.Modules
         public static void RpcSendOptions()//SNR様参考
         {
             GameManager gm = GameManager.Instance;
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+            MessageWriter writer = MessageWriter.Get(SendOption.None);
             writer.StartMessage(5);
             writer.Write(AmongUsClient.Instance.GameId);
             {

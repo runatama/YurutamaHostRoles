@@ -36,7 +36,7 @@ public sealed class Gasp : RoleBase
     private static void SetupOptionItem()
     {
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 10, GeneralOption.TaskTrigger, new(0, 99, 1), 7, false).SetValueFormat(OptionFormat.Pieces);
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void Add() => Gasps.Add(this);
     public override void OnDestroy() => Gasps.Clear();

@@ -7,7 +7,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Modules;
-using static TownOfHost.Options.OverrideKilldistance;
+using static TownOfHost.OverrideKilldistance;
 
 namespace TownOfHost.Roles.Impostor;
 public sealed class Puppeteer : RoleBase, IImpostor

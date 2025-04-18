@@ -10,6 +10,7 @@ using TownOfHost.Roles.Neutral;
 using static TownOfHost.Options;
 
 namespace TownOfHost;
+
 class Lovers
 {
     public static List<byte> HaveLoverDontTaskPlayers = new();
@@ -59,42 +60,50 @@ class Lovers
     {
         SetupRoleOptions(50370, TabGroup.Combinations, CustomRoles.OneLove, new(1, 1, 1));
         OneLoveRoleAddwin = BooleanOptionItem.Create(73081, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]);
+        SoloWinOption.Create(73084, TabGroup.Combinations, CustomRoles.OneLove, () => !OneLoveRoleAddwin.GetBool(), defo: 5);
         OneLoveLoversrect = IntegerOptionItem.Create(73082, "OneLoverLovers", new(0, 100, 2), 20, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]).SetValueFormat(OptionFormat.Percent);
         OneLoveSolowin3players = BooleanOptionItem.Create(73083, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]);
 
         SetupRoleOptions(50300, TabGroup.Combinations, CustomRoles.Lovers, assignCountRule: new(2, 2, 2), fromtext: "<color=#000000>From:</color><color=#ff6be4>Love Couple Mod</color></size>");
         LoversRole = BooleanOptionItem.Create(73010, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lovers]);
         LoversRoleAddwin = BooleanOptionItem.Create(73011, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lovers]);
+        SoloWinOption.Create(73013, TabGroup.Combinations, CustomRoles.Lovers, () => !LoversRoleAddwin.GetBool(), defo: 6);
         LoversSolowin3players = BooleanOptionItem.Create(73012, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.Lovers]);
 
         SetupRoleOptions(50310, TabGroup.Combinations, CustomRoles.RedLovers, assignCountRule: new(2, 2, 2));
         RedLoversRole = BooleanOptionItem.Create(73020, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.RedLovers]);
         RedLoversRoleAddwin = BooleanOptionItem.Create(73021, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.RedLovers]);
+        SoloWinOption.Create(73023, TabGroup.Combinations, CustomRoles.RedLovers, () => !RedLoversRoleAddwin.GetBool(), defo: 7);
         RedLoversSolowin3players = BooleanOptionItem.Create(73022, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.RedLovers]);
 
         SetupRoleOptions(50320, TabGroup.Combinations, CustomRoles.YellowLovers, assignCountRule: new(2, 2, 2));
         YellowLoversRole = BooleanOptionItem.Create(73030, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.YellowLovers]);
         YellowLoversRoleAddwin = BooleanOptionItem.Create(73031, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.YellowLovers]);
+        SoloWinOption.Create(73033, TabGroup.Combinations, CustomRoles.YellowLovers, () => !YellowLoversRoleAddwin.GetBool(), defo: 8);
         YellowLoversSolowin3players = BooleanOptionItem.Create(73032, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.YellowLovers]);
 
         SetupRoleOptions(50330, TabGroup.Combinations, CustomRoles.BlueLovers, assignCountRule: new(2, 2, 2));
         BlueLoversRole = BooleanOptionItem.Create(73040, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.BlueLovers]);
         BlueLoversRoleAddwin = BooleanOptionItem.Create(73041, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.BlueLovers]);
+        SoloWinOption.Create(73043, TabGroup.Combinations, CustomRoles.BlueLovers, () => !BlueLoversRoleAddwin.GetBool(), defo: 9);
         BlueLoversSolowin3players = BooleanOptionItem.Create(73042, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.BlueLovers]);
 
         SetupRoleOptions(50340, TabGroup.Combinations, CustomRoles.GreenLovers, assignCountRule: new(2, 2, 2));
         GreenLoversRole = BooleanOptionItem.Create(73050, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.GreenLovers]);
         GreenLoversRoleAddwin = BooleanOptionItem.Create(73051, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.GreenLovers]);
+        SoloWinOption.Create(73053, TabGroup.Combinations, CustomRoles.GreenLovers, () => !GreenLoversRoleAddwin.GetBool(), defo: 10);
         GreenLoversSolowin3players = BooleanOptionItem.Create(73052, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.GreenLovers]);
 
         SetupRoleOptions(50350, TabGroup.Combinations, CustomRoles.WhiteLovers, assignCountRule: new(2, 2, 2));
         WhiteLoversRole = BooleanOptionItem.Create(73060, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.WhiteLovers]);
         WhiteLoversRoleAddwin = BooleanOptionItem.Create(73061, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.WhiteLovers]);
+        SoloWinOption.Create(73063, TabGroup.Combinations, CustomRoles.WhiteLovers, () => !WhiteLoversRoleAddwin.GetBool(), defo: 11);
         WhiteLoversSolowin3players = BooleanOptionItem.Create(73062, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.WhiteLovers]);
 
         SetupRoleOptions(50360, TabGroup.Combinations, CustomRoles.PurpleLovers, assignCountRule: new(2, 2, 2));
         PurpleLoversRole = BooleanOptionItem.Create(73070, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.PurpleLovers]);
         PurpleLoversRoleAddwin = BooleanOptionItem.Create(73071, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.PurpleLovers]);
+        SoloWinOption.Create(73073, TabGroup.Combinations, CustomRoles.PurpleLovers, () => !PurpleLoversRoleAddwin.GetBool(), defo: 12);
         PurpleLoversSolowin3players = BooleanOptionItem.Create(73072, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.PurpleLovers]);
     }
     [GameModuleInitializer, PluginModuleInitializer]
@@ -713,77 +722,123 @@ class Lovers
     {
         if ((!LoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.Lovers) && LoversPlayers.Count > 0 && LoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Lovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.Lovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Lovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.Lovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!RedLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.RedLovers) && RedLoversPlayers.Count > 0 && RedLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.RedLovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.RedLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.RedLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.RedLovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!YellowLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.YellowLovers) && YellowLoversPlayers.Count > 0 && YellowLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.YellowLovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.YellowLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.YellowLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.YellowLovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!BlueLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.BlueLovers) && BlueLoversPlayers.Count > 0 && BlueLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.BlueLovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.BlueLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.BlueLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.BlueLovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!GreenLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.GreenLovers) && GreenLoversPlayers.Count > 0 && GreenLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.GreenLovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.GreenLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GreenLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.GreenLovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!WhiteLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.WhiteLovers) && WhiteLoversPlayers.Count > 0 && WhiteLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.WhiteLovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.WhiteLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.WhiteLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.WhiteLovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!PurpleLoversRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.PurpleLovers) && PurpleLoversPlayers.Count > 0 && PurpleLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PurpleLovers);
-            PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.PurpleLovers) && p.IsAlive())
-                .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PurpleLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
+                    .Where(p => p.Is(CustomRoles.PurpleLovers) && p.IsAlive())
+                    .Do(p =>
+                {
+                    CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
+                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                });
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if ((!Madonna.MadonnaLoverAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.MadonnaLovers) && MaMadonnaLoversPlayers.Count > 0 && MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.MadonnaLovers);
-            PlayerCatch.AllPlayerControls
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MadonnaLovers, byte.MaxValue))
+            {
+                PlayerCatch.AllPlayerControls
                 .Where(p => p.Is(CustomRoles.MadonnaLovers) && p.IsAlive())
                 .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-            reason = GameOverReason.ImpostorsByKill;
+                reason = GameOverReason.ImpostorsByKill;
+            }
         }
         if (CustomRoles.OneLove.IsPresent())
             if ((!OneLoveRoleAddwin.GetBool() || CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove) && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.Ltarget).IsAlive())
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.OneLove);
-                PlayerCatch.AllPlayerControls
-                    .Where(p => p.Is(CustomRoles.OneLove) && p.IsAlive())
-                    .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
-                if (!OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);//両片思いじゃなかったら追加
-                reason = GameOverReason.ImpostorsByKill;
+                if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.OneLove, byte.MaxValue))
+                {
+                    PlayerCatch.AllPlayerControls
+                        .Where(p => p.Is(CustomRoles.OneLove) && p.IsAlive())
+                        .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                    if (!OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);//両片思いじゃなかったら追加
+                    reason = GameOverReason.ImpostorsByKill;
+                }
             }
     }
     public static void LoversAddWin()
@@ -889,5 +944,65 @@ class Lovers
                     CustomWinnerHolder.IdRemoveLovers.Remove(OneLovePlayer.Ltarget);
                 }
             }
+    }
+    //これに関してはゲーム終了勝利開始だから複数同時発生する訳がない...ハズ。
+    public static bool CheckPlayercountWin()
+    {
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)) ||
+         (Lovers.LoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.LoversPlayers.Count != 0 && Lovers.LoversPlayers.All(pc => pc.IsAlive()))) //ラバーズ勝利
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Lovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.RedLovers)) ||
+        (Lovers.RedLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.RedLoversPlayers.Count != 0 && Lovers.RedLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.RedLovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.YellowLovers)) ||
+        (Lovers.YellowLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.YellowLoversPlayers.Count != 0 && Lovers.YellowLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.YellowLovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.BlueLovers)) ||
+        (Lovers.BlueLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.BlueLoversPlayers.Count != 0 && Lovers.BlueLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.BlueLovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.GreenLovers)) ||
+        (Lovers.GreenLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.GreenLoversPlayers.Count != 0 && Lovers.GreenLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GreenLovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.WhiteLovers)) ||
+        (Lovers.WhiteLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.WhiteLoversPlayers.Count != 0 && Lovers.WhiteLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.WhiteLovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PurpleLovers)) ||
+        (Lovers.PurpleLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.PurpleLoversPlayers.Count != 0 && Lovers.PurpleLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PurpleLovers, byte.MaxValue);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.Ltarget || pc.PlayerId == Lovers.OneLovePlayer.OneLove)
+        || (Lovers.OneLoveSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.OneLove)?.IsAlive() == true && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.Ltarget)?.IsAlive() == true))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.OneLove, byte.MaxValue);
+            if (!Lovers.OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(Lovers.OneLovePlayer.Ltarget);
+            return true;
+        }
+        if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.MadonnaLovers)) ||
+        (Madonna.MaLoversSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && Lovers.MaMadonnaLoversPlayers.Count != 0 && Lovers.MaMadonnaLoversPlayers.All(pc => pc.IsAlive())))
+        {
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MadonnaLovers, byte.MaxValue);
+            return true;
+        }
+        return false;
     }
 }

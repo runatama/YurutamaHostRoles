@@ -86,8 +86,8 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     }
     private static void Win()
     {
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Egoist);
-        CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
+        if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Egoist, byte.MaxValue, true))
+            CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
     }
     public bool CanMakeSidekick() => CanCreateSideKick;
     public void ApplySchrodingerCatOptions(IGameOptions option)

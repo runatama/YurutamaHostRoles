@@ -57,6 +57,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
 
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionShepeCoolDown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
@@ -162,8 +163,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         if (Seconds >= OptionWin.GetFloat())
         {
             win = true;
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.DoppelGanger);
-            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.DoppelGanger, Player.PlayerId, false);
             Cankill = false;
             Target = byte.MaxValue;
             Afterkill = false;

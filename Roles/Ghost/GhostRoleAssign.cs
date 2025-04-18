@@ -66,10 +66,13 @@ namespace TownOfHost.Roles.Ghost
 
                     PlayerState.GetByPlayerId(pc.PlayerId).SetGhostRole(role);
                     //非クライアントにもRpcぶっぱ
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, Hazel.SendOption.Reliable, -1);
-                    writer.Write(pc.PlayerId);
-                    writer.WritePacked((int)role);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    if (PlayerCatch.AnyModClient())
+                    {
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, Hazel.SendOption.Reliable, -1);
+                        writer.Write(pc.PlayerId);
+                        writer.WritePacked((int)role);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    }
 
                     Logger.Info("役職設定:" + pc?.Data?.GetLogPlayerName() + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
 

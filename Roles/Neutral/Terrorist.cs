@@ -37,7 +37,7 @@ public sealed class Terrorist : RoleBase
         canSuicideWin = OptionCanSuicideWin.GetBool();
     }
     private static OptionItem OptionCanSuicideWin;
-    private static Options.OverrideTasksData Tasks;
+    private static OverrideTasksData Tasks;
     private enum OptionName
     {
         CanTerroristSuicideWin
@@ -46,9 +46,10 @@ public sealed class Terrorist : RoleBase
 
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionCanSuicideWin = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanTerroristSuicideWin, false, false);
         // 20-23を使用
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
+        Tasks = OverrideTasksData.Create(RoleInfo, 20);
     }
 
     public override void ApplyGameOptions(IGameOptions opt)
@@ -100,7 +101,6 @@ public sealed class Terrorist : RoleBase
             playerState.DeathReason = CustomDeathReason.Bombed;
             playerState.SetDead();
         }
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Terrorist);
-        CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Terrorist, Player.PlayerId, true);
     }
 }

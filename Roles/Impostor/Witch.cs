@@ -314,8 +314,10 @@ namespace TownOfHost.Roles.Impostor
             }
             return true;
         }
+        public bool CheckAction => NowSwitchTrigger is SwitchTrigger.TriggerDouble;
         public bool SingleAction(PlayerControl killer, PlayerControl target)
         {
+            if (NowSwitchTrigger is not SwitchTrigger.TriggerDouble) return true;
             SetSpelled(target);
             return false;
         }

@@ -10,6 +10,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Fox : RoleBase, ISystemTypeUpdateHook
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -80,6 +81,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
 
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 15);
         OptEngVentCoolDown = FloatOptionItem.Create(RoleInfo, 10, StringNames.EngineerCooldown, OptionBaseCoolTime, 10, false).SetValueFormat(OptionFormat.Seconds);
         OptEngVentInmaxtime = FloatOptionItem.Create(RoleInfo, 11, StringNames.EngineerInVentCooldown, new(0.5f, 30, 0.5f), 3, false).SetValueFormat(OptionFormat.Seconds);
         OptGiveGuardTaskCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.FoxGiveGuardTaskcount, new(1, 99, 1), 3, false);
@@ -89,7 +91,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         OptWinTaskCount = IntegerOptionItem.Create(RoleInfo, 20, OptionName.Foxwintaskcount, new(1, 99, 1), 6, false);
         OptCanWin3players = BooleanOptionItem.Create(RoleInfo, 21, OptionName.Fox3playersCanwin, false, false);
 
-        Options.OverrideTasksData.Create(RoleInfo, 25);
+        OverrideTasksData.Create(RoleInfo, 25);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -219,17 +221,29 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         if (isForMeeting || seer != seen || !Player.IsAlive() || FoxRoom == null) return "";
         return $"<color=#d288ee>{string.Format(GetString("FoxRoomMission"), $"<color=#cccccc><b>{GetString($"{FoxRoom}")}<b></color>")}</color>";
     }
+    public static bool SFoxCheckWin(ref GameOverReason reason)
+    {
+        foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.Is(CustomRoles.Fox)))
+        {
+            if (pc.GetRoleClass() is Fox fox)
+            {
+                if (fox.FoxCheckWin(ref reason)) return true;
+            }
+        }
+        return false;
+    }
     public bool FoxCheckWin(ref GameOverReason reason)
     {
         //3人1w1c1foxの状態を避けるために3人以下なら勝てないようにする
         //4人以上か3人以下でも勝利がOn　　　　　　　　　　　　　　　　　　生存していて　　　　　タスクが完了している
         if ((PlayerCatch.AllAlivePlayersCount > 3 || canwin3player) && Player.IsAlive() && checktaskwinflag)
         {
-            reason = GameOverReason.ImpostorsByKill;
 
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Fox);
-            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
-            return true;
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Fox, Player.PlayerId))
+            {
+                reason = GameOverReason.ImpostorsByKill;
+                return true;
+            }
         }
         return false;
     }

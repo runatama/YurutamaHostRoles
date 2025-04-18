@@ -1,0 +1,170 @@
+using System;
+using System.Collections.Generic;
+
+using TownOfHost.Roles.Core;
+using static TownOfHost.Options;
+
+namespace TownOfHost
+{
+    public class OverrideKilldistance
+    {
+        public static Dictionary<CustomRoles, OverrideKilldistance> AllData = new();
+        public CustomRoles Role { get; private set; }
+        public int IdStart { get; private set; }
+        public OptionItem Killdistance;
+        public enum KillDistance
+        {
+            KDShort,//ショート
+            KDMidium,//ミドル
+            KDLong//ロング
+        }
+
+        public OverrideKilldistance(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned)
+        {
+            this.IdStart = idStart;
+            this.Role = role;
+            var r = chrole == CustomRoles.NotAssigned ? role : chrole;
+            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
+            Killdistance = StringOptionItem.Create(IdStart, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, tab, false)
+            .SetParent(CustomRoleSpawnChances[role]);
+            Killdistance.ReplacementDictionary = replacementDic;
+
+            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+
+            if (!AllData.ContainsKey(role)) AllData.Add(role, this);
+            else Logger.Warn("重複したCustomRolesを対象とするOverrideKilldistanceが作成されました", "OverrideKilldistance");
+        }
+        public static OverrideKilldistance Create(int idStart, TabGroup tab, CustomRoles role)
+        {
+            return new OverrideKilldistance(idStart, tab, role);
+        }
+        /// <summary>
+        /// キルディスタンスの上書き設定。
+        /// </summary>
+        /// <param name="idStart">ID</param>
+        /// <param name="tab">タブ</param>
+        /// <param name="role">設定に出すロール</param>
+        /// <param name="chrole">設定名(ユニット用)</param>
+        public static OverrideKilldistance Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned)
+        {
+            return new OverrideKilldistance(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename);
+        }
+    }
+    /// <summary>
+    /// ID+4?まで使うから重複注意
+    /// </summary>
+    public class OverrideTasksData
+    {
+        public static Dictionary<CustomRoles, OverrideTasksData> AllData = new();
+        public static Dictionary<CustomRoles, CustomRoles> chRoles = new(); //1人までしか対応していない、
+        public CustomRoles Role { get; private set; }
+        public int IdStart { get; private set; }
+        public OptionItem doOverride;
+        public OptionItem numCommonTasks;
+        public OptionItem numLongTasks;
+        public OptionItem numShortTasks;
+
+        /// <summary>
+        /// タスクの上書き設定。
+        /// </summary>
+        /// <param name="idStart">ID(+4...?まで使用するので注意)</param>
+        /// <param name="tab">タブ</param>
+        /// <param name="role">設定に出すロール</param>
+        /// <param name="chrole">設定名(ユニット用)</param>
+        public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
+        {
+            this.IdStart = idStart;
+            this.Role = role;
+            var r = chrole == CustomRoles.NotAssigned ? role : chrole;
+            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
+            doOverride = BooleanOptionItem.Create(idStart++, "doOverride", tasks?.defo ?? false, tab, false).SetParent(CustomRoleSpawnChances[role])
+                .SetValueFormat(OptionFormat.None);
+            doOverride.ReplacementDictionary = replacementDic;
+            numCommonTasks = IntegerOptionItem.Create(idStart++, "roleCommonTasksNum", new(0, 99, 1), tasks?.common ?? 3, tab, false).SetParent(doOverride)
+                .SetValueFormat(OptionFormat.Pieces);
+            numCommonTasks.ReplacementDictionary = replacementDic;
+            numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), tasks?.Long ?? 3, tab, false).SetParent(doOverride)
+                .SetValueFormat(OptionFormat.Pieces);
+            numLongTasks.ReplacementDictionary = replacementDic;
+            numShortTasks = IntegerOptionItem.Create(idStart++, "roleShortTasksNum", new(0, 99, 1), tasks?.Short ?? 3, tab, false).SetParent(doOverride)
+                .SetValueFormat(OptionFormat.Pieces);
+            numShortTasks.ReplacementDictionary = replacementDic;
+
+            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+
+            if (!AllData.ContainsKey(role)) AllData.Add(role, this);
+            else Logger.Warn("重複したCustomRolesを対象とするOverrideTasksDataが作成されました", "OverrideTasksData");
+        }
+        /// <summary>
+        /// タスクの上書き設定。
+        /// </summary>
+        /// <param name="idStart">ID(+4..?まで使用するので注意)</param>
+        /// <param name="tab">タブ</param>
+        /// <param name="role">設定に出すロール</param>
+        /// <param name="chrole">設定名(ユニット用)</param>
+        public static OverrideTasksData Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
+        {
+            return new OverrideTasksData(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, tasks);
+        }
+    }
+    public class SoloWinOption
+    {
+        public static Dictionary<CustomRoles, SoloWinOption> AllData = new();
+        public CustomRoles Role { get; private set; }
+        public int IdStart { get; private set; }
+        public OptionItem OptionWin;
+        public SoloWinOption(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, Func<bool> show = null, int defo = 0)
+        {
+            if (show == null)
+            {
+                show = new(() => true);
+            }
+            this.IdStart = idStart;
+            this.Role = role;
+            var r = chrole == CustomRoles.NotAssigned ? role : chrole;
+            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
+            if (tab is TabGroup.MainSettings)
+            {
+                OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
+                .SetCansee(show)
+                .SetColor(UtilsRoleText.GetRoleColor(role));
+            }
+            else
+            {
+                OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
+                .SetParent(CustomRoleSpawnChances[role])
+                .SetCansee(show);
+            }
+            OptionWin.ReplacementDictionary = replacementDic;
+
+            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+
+            if (!AllData.ContainsKey(role)) AllData.Add(role, this);
+            else Logger.Warn("重複したCustomRolesを対象とするSoloWinOptionが作成されました", "SoloWinOption");
+        }
+        public static SoloWinOption Create(int idStart, TabGroup tab, CustomRoles role, Func<bool> show = null, int defo = 0)
+        {
+            return new SoloWinOption(idStart, tab, role, show: show, defo: defo);
+        }
+        /// <summary>
+        /// キルディスタンスの上書き設定。
+        /// </summary>
+        /// <param name="idStart">ID</param>
+        /// <param name="tab">タブ</param>
+        /// <param name="role">設定に出すロール</param>
+        /// <param name="chrole">設定名(ユニット用)</param>
+        public static SoloWinOption Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned, Func<bool> show = null, int defo = 0)
+        {
+            return new SoloWinOption(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, show, defo: defo);
+        }
+    }
+    public class WinOption
+    {
+        public static void SetupCustomOption()
+        {
+            SoloWinOption.Create(1010, TabGroup.MainSettings, CustomRoles.Impostor);
+            SoloWinOption.Create(1011, TabGroup.MainSettings, CustomRoles.Crewmate);
+            SoloWinOption.Create(1012, TabGroup.MainSettings, CustomRoles.Jackal);
+        }
+    }
+}

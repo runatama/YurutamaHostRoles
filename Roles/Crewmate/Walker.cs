@@ -44,7 +44,7 @@ public sealed class Walker : RoleBase
     static void SetupOptionItem()
     {
         WalkTaskCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.WalkerWalkTaskCount, (1, 99, 1), 5, false);
-        Options.OverrideTasksData.Create(RoleInfo, 15, tasks: (true, 1, 0, 0));
+        OverrideTasksData.Create(RoleInfo, 15, tasks: (true, 1, 0, 0));
     }
     public override void OnFixedUpdate(PlayerControl player)
     {

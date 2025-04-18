@@ -41,10 +41,11 @@ public sealed class Workaholic : RoleBase
     private static float ventCooldown;
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
         OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentCooldown, new(0f, 180f, 2.5f), 0f, false, OptionCanVent)
                 .SetValueFormat(OptionFormat.Seconds);
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -55,8 +56,7 @@ public sealed class Workaholic : RoleBase
     {
         if (IsTaskFinished && !(CannotWinAtDeath && !Player.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
-            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Workaholic, Player.PlayerId, true);
             if (!AmongUsClient.Instance.AmHost) return true;
             GameEndChecker.StartEndGame(GameOverReason.ImpostorsByKill);
         }

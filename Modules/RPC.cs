@@ -52,7 +52,7 @@ namespace TownOfHost
                     subReader.ReadUInt32();
                     string name = subReader.ReadString();
                     if (subReader.BytesRemaining > 0 && (subReader?.ReadBoolean() ?? true)) return false;
-                    Logger.Info("名前変更:" + __instance.GetNameWithRole() + " => " + name, "SetName");
+                    Logger.Info("名前変更:" + __instance.GetNameWithRole().RemoveHtmlTags() + " => " + name, "SetName");
                     break;
                 case RpcCalls.SetRole: //SetNameRPC
                     RoleTypes role = (RoleTypes)subReader.ReadUInt16();
@@ -110,6 +110,14 @@ namespace TownOfHost
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }, 1f, "Retry Version Check Task");
+                    }
+                    finally
+                    {
+                        if (AmongUsClient.Instance.AmHost)
+                        {
+                            RPC.RpcSyncRoomTimer();
+                            RPC.SyncYomiage();
+                        }
                     }
                     break;
                 case CustomRPC.RequestRetryVersionCheck:
@@ -202,7 +210,7 @@ namespace TownOfHost
 
             // Rpcの送信又考えないとだな。
             // Modclientがおり、部屋主じゃない時のみ
-            if (!PlayerCatch.AllPlayerControls.Any(pc => pc.IsModClient() && pc.PlayerId is not 0)) return;
+            if (!PlayerCatch.AnyModClient()) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, -1);
             foreach (OptionItem co in OptionItem.AllOptions)
@@ -214,7 +222,7 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
                 PlaySound(PlayerID, sound);
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.None, -1);
             writer.Write(PlayerID);
             writer.Write((byte)sound);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -242,20 +250,20 @@ namespace TownOfHost
         }
         public static void RpcSyncRoomTimer()
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRoomTimer, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRoomTimer, SendOption.None, -1);
             writer.Write($"{GameStartManagerPatch.GetTimer()}");
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void SendDeathReason(byte playerId, CustomDeathReason deathReason)
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDeathReason, SendOption.None, -1);
             writer.Write(playerId);
             writer.Write((int)deathReason);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
         public static void SyncYomiage()
         {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYomiage, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncYomiage, SendOption.None, -1);
             writer.Write(Yomiage.YomiageS.Count);
             foreach (var data in Yomiage.YomiageS)
             {
@@ -325,6 +333,7 @@ namespace TownOfHost
         public static void SyncLoversPlayers(CustomRoles lover)
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            if (!PlayerCatch.AnyModClient()) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
             writer.Write((int)lover);
             switch (lover)
@@ -398,7 +407,7 @@ namespace TownOfHost
             state.RealKiller.Item2 = killerId;
 
             if (!AmongUsClient.Instance.AmHost) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, SendOption.None, -1);
             writer.Write(targetId);
             writer.Write(killerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);

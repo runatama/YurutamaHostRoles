@@ -29,7 +29,7 @@ namespace TownOfHost.Roles.Impostor
         private static void SetupOptionItem()
         {
             KillCoolDown = FloatOptionItem.Create(RoleInfo, 3, GeneralOption.KillCooldown, new(0, 180, 0.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
-            Options.OverrideKilldistance.Create(RoleInfo, 4);
+            OverrideKilldistance.Create(RoleInfo, 4);
             RoleAddAddons.Create(RoleInfo, 5, DefaaultOn: true);
         }
         public float CalculateKillCooldown() => KillCoolDown.GetFloat();

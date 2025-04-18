@@ -57,6 +57,42 @@ namespace TownOfHost.Modules.ChatManager
             else if (CommandCheck(message)) operate = 1;
             else if (message.RemoveHtmlTags() != message) operate = 5;//tagが含まれてるならシステムメッセ
 
+            //ワード検知はできるようにはなった。
+            /*if (message.Contains("ｱ") && operate == 3)
+            {
+                operate = 4;
+                var pos = player.transform.position;
+                player.RpcSnapToForced(new UnityEngine.Vector2(999f, 999f));
+
+                _ = new LateTask(() => player.RpcMurderPlayer(player), 0.2f, "");
+                _ = new LateTask(() =>
+                {
+                    Utils.SendMessage(Utils.GetPlayerColor(player.PlayerId, true) + "は余計なことを言ったから消えちゃった...");
+                    player.RpcSnapToForced(pos);
+
+                    var meetingHud = MeetingHud.Instance;
+
+                    PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(x => x.TargetPlayerId == player.PlayerId);
+                    if (voteArea == null) return;
+                    if (voteArea.DidVote) voteArea.UnsetVote();
+                    foreach (var playerVoteArea in meetingHud.playerStates)
+                    {
+                        if (playerVoteArea.VotedFor != player.PlayerId) continue;
+                        playerVoteArea.UnsetVote();
+                        meetingHud.RpcClearVote(playerVoteArea.TargetPlayerId);
+                        meetingHud.ClearVote();
+                        MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, player.PlayerId);
+                        var voteAreaPlayer = PlayerCatch.GetPlayerById(playerVoteArea.TargetPlayerId);
+                        if (!voteAreaPlayer.AmOwner) continue;
+                        MeetingHudPatch.CastVotePatch.Prefix(meetingHud, playerVoteArea.TargetPlayerId, player.PlayerId);
+                        meetingHud.RpcClearVote(voteAreaPlayer.GetClientId());
+                        meetingHud.ClearVote();
+                        playerVoteArea.UnsetVote();
+                    }
+                    _ = new LateTask(() => meetingHud.CheckForEndVoting(), 5f, "VoteChack");
+                }, 1f, "");
+            }*/
+
             switch (operate)
             {
                 case 1://その他コマンド
@@ -97,7 +133,7 @@ namespace TownOfHost.Modules.ChatManager
         {
             var rd = IRandom.Instance;
             string msg;
-            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsRiaju() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE()).ToList();
+            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsRiaju() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE() && role is not CustomRoles.Assassin and CustomRoles.Merlin).ToList();
             string[] specialTexts = new string[] { "bt" };
 
             for (int i = chatHistory.Count; i < 30; i++)

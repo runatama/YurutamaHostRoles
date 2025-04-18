@@ -5,7 +5,8 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
-public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditionalWinner
+
+public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -71,6 +72,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
     }
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 15);
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, OptionName.PhantomThiefFarstCoolDown, new(0f, 180f, 0.5f), 20f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionCantSetCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.PhantomThiefCantSetCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
@@ -212,7 +214,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
 
         return "";
     }
-    public bool CheckWin(ref CustomRoles winnerRole)
+    public bool CheckWin()
     {
         if (roletarget == byte.MaxValue || !Player.IsAlive()) return false;
         if (CustomWinnerHolder.WinnerIds.Contains(roletarget))
@@ -221,12 +223,14 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable, IAdditi
             if (Targetrole != tagerole && Targetrole != CustomRoles.NotAssigned) tagerole = Targetrole;
             if (OptionTandokuWin.GetBool())
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PhantomThief);
-                CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
-                Player.RpcSetCustomRole(tagerole, log: null);
-                Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
-                CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
-                UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
+                if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PhantomThief, Player.PlayerId, true))
+                {
+                    CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+                    Player.RpcSetCustomRole(tagerole, log: null);
+                    Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
+                    CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
+                    UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
+                }
                 return false;
             }
             Player.RpcSetCustomRole(tagerole, log: null);

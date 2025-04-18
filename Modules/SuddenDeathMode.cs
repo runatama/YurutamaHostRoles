@@ -169,7 +169,7 @@ namespace TownOfHost.Modules
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
-                        pc.RpcSetRoleDesync(TeamRed.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId());
+                        pc.RpcSetRoleDesync(TeamRed.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId(), Hazel.SendOption.None);
                     }
                 }
 
@@ -182,7 +182,7 @@ namespace TownOfHost.Modules
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
-                        pc.RpcSetRoleDesync(TeamBlue.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId());
+                        pc.RpcSetRoleDesync(TeamBlue.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId(), Hazel.SendOption.None);
                     }
                 }
 
@@ -195,7 +195,7 @@ namespace TownOfHost.Modules
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
-                        pc.RpcSetRoleDesync(TeamYellow.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId());
+                        pc.RpcSetRoleDesync(TeamYellow.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId(), Hazel.SendOption.None);
                     }
                 }
 
@@ -208,7 +208,7 @@ namespace TownOfHost.Modules
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
-                        pc.RpcSetRoleDesync(TeamGreen.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId());
+                        pc.RpcSetRoleDesync(TeamGreen.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId(), Hazel.SendOption.None);
                     }
                 }
 
@@ -221,7 +221,7 @@ namespace TownOfHost.Modules
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == myid) continue;
-                        pc.RpcSetRoleDesync(TeamPurple.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId());
+                        pc.RpcSetRoleDesync(TeamPurple.Contains(pc.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate, mypc.GetClientId(), Hazel.SendOption.None);
                     }
                 }
         }
@@ -421,6 +421,116 @@ namespace TownOfHost.Modules
             if (TeamGreen.Contains(pc) && TeamGreen.Contains(tage)) return true;
             if (TeamPurple.Contains(pc) && TeamPurple.Contains(tage)) return true;
 
+            return false;
+        }
+        public static bool CheckTeamWin()
+        {
+            if (NowSuddenDeathTemeMode)
+            {
+                if (PlayerCatch.AllAlivePlayerControls.All(pc => TeamRed.Contains(pc.PlayerId)))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathRed);
+                    TeamRed.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                    return true;
+                }
+                if (PlayerCatch.AllAlivePlayerControls.All(pc => TeamBlue.Contains(pc.PlayerId)))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathBlue);
+                    TeamBlue.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                    return true;
+                }
+                if (PlayerCatch.AllAlivePlayerControls.All(pc => TeamYellow.Contains(pc.PlayerId)))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathYellow);
+                    TeamYellow.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                    return true;
+                }
+                if (PlayerCatch.AllAlivePlayerControls.All(pc => TeamGreen.Contains(pc.PlayerId)))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathGreen);
+                    TeamGreen.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                    return true;
+                }
+                if (PlayerCatch.AllAlivePlayerControls.All(pc => TeamPurple.Contains(pc.PlayerId)))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathPurple);
+                    TeamPurple.Do(r => CustomWinnerHolder.WinnerIds.Add(r));
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static void TeamAllWin()
+        {
+            foreach (var wi in CustomWinnerHolder.WinnerIds)
+            {
+                if (TeamRed.Contains(wi))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathRed);
+                    TeamRed.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                    break;
+                }
+                if (TeamBlue.Contains(wi))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathBlue);
+                    TeamBlue.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                    break;
+                }
+                if (TeamYellow.Contains(wi))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathYellow);
+                    TeamYellow.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                    break;
+                }
+                if (TeamGreen.Contains(wi))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathGreen);
+                    TeamGreen.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                    break;
+                }
+                if (TeamPurple.Contains(wi))
+                {
+                    CustomWinnerHolder.ResetAndSetWinner(CustomWinner.SuddenDeathPurple);
+                    TeamPurple.Do(id => CustomWinnerHolder.WinnerIds.Add(id));
+                    break;
+                }
+            }
+        }
+    }
+
+    public class SadnessGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
+            if (checkplayer(out reason)) return true;
+            if (CheckGameEndBySabotage(out reason)) return true;
+
+            return false;
+        }
+        public static bool checkplayer(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+
+            if (!PlayerCatch.AllAlivePlayerControls.Any())
+            {
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                return true;
+            }
+            if (SuddenDeathMode.CheckTeamWin())
+            {
+                return true;
+            }
+
+            if (PlayerCatch.AllAlivePlayersCount == 1)
+            {
+                var winner = PlayerCatch.AllAlivePlayerControls.FirstOrDefault();
+                CustomWinnerHolder.ResetAndSetWinner((CustomWinner)winner.GetCustomRole());
+                CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
+                return true;
+            }
+            if (Lovers.CheckPlayercountWin()) return true;
             return false;
         }
     }

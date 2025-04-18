@@ -64,7 +64,7 @@ public sealed class Android : RoleBase
         RemoveBattery = BooleanOptionItem.Create(RoleInfo, 13, OptionName.AndroidRemoveBattery, true, false);
         Remove = FloatOptionItem.Create(RoleInfo, 14, OptionName.AndroidRemove, new(1f, 100f, 0.1f), 7.5f, false, RemoveBattery).SetValueFormat(OptionFormat.Percent);
         RemoveTime = FloatOptionItem.Create(RoleInfo, 15, OptionName.AndroidRemoveTime, new(1f, 180f, 0.5f), 4.0f, false, RemoveBattery).SetValueFormat(OptionFormat.Seconds);
-        Options.OverrideTasksData.Create(RoleInfo, 16);
+        OverrideTasksData.Create(RoleInfo, 16);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

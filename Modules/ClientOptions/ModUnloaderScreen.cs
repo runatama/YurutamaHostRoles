@@ -49,16 +49,21 @@ public static class ModUnloaderScreen
         {
             ClientActionItem.CustomBackground.gameObject.SetActive(false);
             ClientActionItem.ModOptionsButton.gameObject.SetActive(false);
-            Logger.Info("ModをUnloadします", nameof(ModUnloaderScreen));
-            if (GameStates.IsModHost && !GameStates.IsNotJoined)
-            {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ModUnload, SendOption.Reliable);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-            }
-
-            Harmony.UnpatchAll();
-            Main.Instance.Unload();
+            Unload();
         }));
+    }
+
+    public static void Unload()
+    {
+        Logger.Info("ModをUnloadします", nameof(ModUnloaderScreen));
+        if (GameStates.IsModHost && !GameStates.IsNotJoined)
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ModUnload, SendOption.Reliable);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+
+        Harmony.UnpatchAll();
+        Main.Instance.Unload();
     }
 
     public static void Show()

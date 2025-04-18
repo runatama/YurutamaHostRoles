@@ -83,6 +83,7 @@ public static class MeetingHudPatch
         {
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
+            ChatUpdatePatch.BlockSendName = true;
             MeetingStates.Sending = true;
             GameStates.task = false;
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
@@ -123,7 +124,6 @@ public static class MeetingHudPatch
             {
                 _ = new LateTask(() =>
                 {
-                    var count = 0;
                     Dictionary<byte, bool> State = new();
                     foreach (var player in PlayerCatch.AllAlivePlayerControls)
                     {
@@ -131,33 +131,25 @@ public static class MeetingHudPatch
                     }
                     foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                     {
-                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) count++;
-
                         if (!State.ContainsKey(pc.PlayerId)) continue;
                         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
                         if (pc.IsModClient()) continue;
 
-                        _ = new LateTask(() =>
+                        foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
                         {
-                            foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
-                            {
-                                if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                if (tg.IsModClient()) continue;
-                                tg.Data.IsDead = true;
-                            }
-                            pc.Data.IsDead = false;
-                            Serialize = true;
-                            RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                            Serialize = false;
-                        }, count * 0.1f, "SetDienoNaka", true);
-                    }
-                    _ = new LateTask(() =>
-                    {
-                        foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
-                        {
-                            player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
+                            if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                            if (tg.IsModClient()) continue;
+                            tg.Data.IsDead = true;
                         }
-                    }, count * 0.1f, "SetDienoNaka", true);
+                        pc.Data.IsDead = false;
+                        Serialize = true;
+                        RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                        Serialize = false;
+                    }
+                    foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
+                    }
                 }, 4f, "SetDie");
             }
         }
@@ -292,6 +284,55 @@ public static class MeetingHudPatch
             TemplateManager.SendTemplate("OnMeeting", noErr: true);
             if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
             if (Send != "") Utils.SendMessage(Send, title: Title);
+
+            if (Options.CanSeeTimeLimit.GetBool())
+            {
+                string limittext = "";
+
+                limittext = GetString("TimeLimit") + "<size=80%>";
+
+                var admins = Check(DisableDevice.GetAddminTimer(false));
+                if (admins is not "") admins = $"\nアドミンの{admins}";
+                var vitals = Check(DisableDevice.GetVitalTimer(false));
+                if (vitals is not "") vitals = $"\nバイタルの{vitals}";
+                var cams = Check(DisableDevice.GetCamTimr(false));
+                if (cams is not "") cams = $"\n{(Main.NormalOptions.MapId is 1 ? "ドアログ" : "カメラ")}の{cams}";
+
+                var lt = admins + vitals + cams;
+
+                if (lt is not "")
+                {
+                    if (Options.CanseeCrewTimeLimit.GetBool() && Options.CanseeImpTimeLimit.GetBool()
+                    && Options.CanseeMadTimeLimit.GetBool() && Options.CanseeNeuTimeLimit.GetBool())
+                    {
+                        Utils.SendMessage(limittext + lt);
+                    }
+                    else
+                    {
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                        {
+                            var team = pc.GetCustomRole().GetCustomRoleTypes();
+                            if ((team == CustomRoleTypes.Impostor && Options.CanseeImpTimeLimit.GetBool()) || (team == CustomRoleTypes.Crewmate && Options.CanseeCrewTimeLimit.GetBool())
+                                    || (team == CustomRoleTypes.Neutral && Options.CanseeNeuTimeLimit.GetBool()) || (team == CustomRoleTypes.Madmate && Options.CanseeMadTimeLimit.GetBool()))
+                            {
+                                Utils.SendMessage(limittext + lt + $"\n{GetString("LimitSendInfo")}", pc.PlayerId);
+                            }
+                        }
+                    }
+                }
+
+                string Check(string text)
+                {
+                    text = text.RemoveColorTags();
+                    switch (text)
+                    {
+                        case "×": text = "使用不可"; break;
+                        case "": text = ""; break;
+                        default: text = $"残り時間{text}"; break;
+                    }
+                    return text;
+                }
+            }
             foreach (var pva in __instance.playerStates)
             {
                 var pc = PlayerCatch.GetPlayerById(pva.TargetPlayerId);
@@ -320,7 +361,11 @@ public static class MeetingHudPatch
                     MeetingStates.Sending = false;
                     ChatUpdatePatch.DoBlockChat = false;
                 }, 2f, "Send to Chat", true);
-                _ = new LateTask(() => NameColorManager.RpcMeetingColorName(), 10f, "SetName", true);
+                _ = new LateTask(() =>
+                {
+                    ChatUpdatePatch.BlockSendName = false;
+                    NameColorManager.RpcMeetingColorName();
+                }, 10f, "SetName", true);
             }
             Main.NowSabotage =
                 Utils.IsActive(SystemTypes.Reactor)

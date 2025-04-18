@@ -12,6 +12,7 @@ using TownOfHost.Roles.Neutral;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSeeable, IMeetingTimeAlterable, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -87,7 +88,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     #region Meeting
     public override string MeetingMeg()
     {
-        if (!CanUseAbility()) return "";
+        if (!CanUseAbility() && NowRole is NowMode.Bakery) return "";
         if (Player.IsAlive())
         {
             string BakeryTitle = $"<size=90%><color=#8f6121>{GetString("Message.BakeryTitle")}</size></color>";
@@ -464,7 +465,15 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
                 return false;
             }
         }
-        if (NowRole is NowMode.Opportunist) return Player.IsAlive();
+        if (NowRole is NowMode.Opportunist)
+        {
+            if (Player.IsAlive())
+            {
+                return true;
+            }
+            CustomWinnerHolder.WinnerIds.Remove(Player.PlayerId);
+            return false;
+        }
 
         return false;
     }
@@ -634,7 +643,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     }
     private static void SetupOptionItem()
     {
-        Options.OverrideTasksData.Create(RoleInfo, 5, tasks: (false, 2, 3, 5));
+        OverrideTasksData.Create(RoleInfo, 5, tasks: (false, 2, 3, 5));
         AbilitycanuseTaskCount = IntegerOptionItem.Create(RoleInfo, 10, GeneralOption.TaskTrigger, new(0, 255, 1), 4, false);
         RandomBait = IntegerOptionItem.Create(RoleInfo, 12, OptionName.AllArounderRandomBait, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RandomInsender = IntegerOptionItem.Create(RoleInfo, 13, OptionName.AllArounderRandomInsender, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);

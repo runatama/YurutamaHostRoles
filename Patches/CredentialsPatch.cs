@@ -101,26 +101,8 @@ namespace TownOfHost
                 if (!__instance) return;
 
                 TMPTemplate.SetBase(__instance.text);
-                var Debugver = "";
-                if (Main.DebugVersion) Debugver = $"<{Main.ModColor}>☆Debug☆</color>";
-                Subver = "";
-                /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
-                //                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
-                Main.credentialsText = $"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver;
-#if DEBUG
-                if (!GameStates.InGame) Main.credentialsText += $"\n<{Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
-#endif
-                var credentials = TMPTemplate.Create(
-                    "TOHCredentialsText",
-                    Main.credentialsText,
-                    fontSize: 2f,
-                    alignment: TextAlignmentOptions.Right,
-                    setActive: true);
-                credentials.transform.position = new Vector3(2.3419f, 2.29f, -5f);
-#if DEBUG
-                if (!GameStates.InGame) credentials.transform.position -= new Vector3(0f, 0.1218f, 0f);
-#endif
-                if (GameObject.Find("FilterSettings")) credentials.transform.position = new Vector3(3.2438f, -2.8192f, 5f);
+
+                CreateText();
 
                 ErrorText.Create(__instance.text);
                 if (Main.hasArgumentException && ErrorText.Instance != null)
@@ -180,6 +162,37 @@ namespace TownOfHost
                 }
 
             }
+        }
+
+        public static TextMeshPro CreateText()
+        {
+            var Debugver = "";
+            if (Main.DebugVersion) Debugver = $"<{Main.ModColor}>☆Debug☆</color>";
+            Subver = "";
+            /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
+            //                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
+            Main.credentialsText = $"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver;
+#if DEBUG
+            if (!GameStates.InGame) Main.credentialsText += $"\n<{Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";
+#endif
+            var credentials = TMPTemplate.Create(
+                "TOHCredentialsText",
+                Main.credentialsText,
+                fontSize: 2f,
+                alignment: TextAlignmentOptions.Right,
+                setActive: true);
+            credentials.transform.position = new Vector3(2.3419f, 2.29f, -5f);
+#if DEBUG
+            if (!GameStates.InGame) credentials.transform.position -= new Vector3(0f, 0.1218f, 0f);
+#endif
+            if (FindAGameManager._instance)
+            {
+                credentials.transform.position = new Vector3(2.5f, -2.858f, 5f);
+#if DEBUG
+                credentials.transform.position += new Vector3(0, 0.185f);
+            }
+#endif
+            return credentials;
         }
 
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]

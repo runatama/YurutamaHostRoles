@@ -42,7 +42,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     private static OptionItem OptionCanAlsoBeExposedToImpostor;
     /// <summary>能力発動タスク数</summary>
     private static OptionItem OptionTaskTrigger;
-    private static Options.OverrideTasksData Tasks;
+    private static OverrideTasksData Tasks;
     enum OptionName
     {
         MadSnitchCanAlsoBeExposedToImpostor
@@ -58,7 +58,7 @@ public sealed class MadSnitch : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
         OptionCanAlsoBeExposedToImpostor = BooleanOptionItem.Create(RoleInfo, 11, OptionName.MadSnitchCanAlsoBeExposedToImpostor, false, false);
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 12, GeneralOption.TaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
-        Tasks = Options.OverrideTasksData.Create(RoleInfo, 20);
+        Tasks = OverrideTasksData.Create(RoleInfo, 20);
     }
 
     private bool KnowsImpostor()

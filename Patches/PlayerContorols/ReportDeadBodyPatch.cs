@@ -238,7 +238,7 @@ namespace TownOfHost
             else
             {
                 MeetingHudPatch.Oniku = Meetinginfo;
-                UtilsNotifyRoles.MeetingMoji = $"<color={colorcode}><i><u>★" + Meetinginfo + "</u></color>";
+                UtilsNotifyRoles.MeetingMoji = $"<color={colorcode}><u>★" + Meetinginfo + "</u></color>";
             }
 
             if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting)

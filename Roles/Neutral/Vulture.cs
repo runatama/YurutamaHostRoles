@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -83,6 +84,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
 
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 8, defo: 1);
         OptionAddWinEatCount = FloatOptionItem.Create(RoleInfo, 9, OptionName.VultrueAddWinEatcount, new(0, 14, 1), 2, false, null, null);
         OptionWinEatCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.VultrueWinEatcount, new(1, 14, 1), 3, false);
         OptionEatShape = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VultrueEatShape, true, false);
@@ -92,7 +94,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
         OptionKillflashtaskcount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.VultrueCanSeeKillFlushTaskCount, new(0, 255, 1), 3, false);
         OptionOnikuArrowtskcount = IntegerOptionItem.Create(RoleInfo, 13, OptionName.VultrueCanSeeOnikuArrowTaskCount, new(0, 255, 1), 5, false);
 
-        Options.OverrideTasksData.Create(RoleInfo, 20);
+        OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -114,8 +116,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
             if (OptWinEatcount <= EatCount)
             {
                 Logger.Info($"ごちそうさまでした！", "Vulture");
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
-                CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Vulture, Player.PlayerId, true);
             }
 
             //食べたときにシェイプを

@@ -39,8 +39,9 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     static OptionItem OptionCanSeeNowAlivePlayer;
     public static void SetUpOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionCanSeeNowAlivePlayer = BooleanOptionItem.Create(RoleInfo, 11, "ArsonistCanSeeAllplayer", false, false);
-        Options.OverrideKilldistance.Create(RoleInfo, 10);
+        OverrideKilldistance.Create(RoleInfo, 10);
     }
     bool addwincheck;
     public override bool NotifyRolesCheckOtherName => true;
@@ -136,10 +137,8 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         var c = GetCtargetCount();
         if (c.Item1 != c.Item2) return;
 
-        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Chef);
-        CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
+        addwincheck = CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Chef, Player.PlayerId);
         DecidedWinner = true;
-        addwincheck = true;
     }
     public bool OverrideKillButton(out string text)
     {

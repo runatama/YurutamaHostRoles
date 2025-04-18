@@ -43,7 +43,7 @@ public sealed class Efficient : RoleBase
     private static void SetupOptionItem()
     {
         CollectRect = FloatOptionItem.Create(RoleInfo, 10, Option.EfficientCollectRect, new(0, 100, 1), 15, false).SetValueFormat(OptionFormat.Percent);
-        Options.OverrideTasksData.Create(RoleInfo, 11);
+        OverrideTasksData.Create(RoleInfo, 11);
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
