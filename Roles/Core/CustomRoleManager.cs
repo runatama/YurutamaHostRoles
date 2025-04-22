@@ -308,13 +308,10 @@ public static class CustomRoleManager
         }
 
         //サブロール処理ができるまではラバーズをここで処理
-        Lovers.LoversSuicide(attemptTarget.PlayerId);
-        Lovers.RedLoversSuicide(attemptTarget.PlayerId);
-        Lovers.YellowLoversSuicide(attemptTarget.PlayerId);
-        Lovers.BlueLoversSuicide(attemptTarget.PlayerId);
-        Lovers.WhiteLoversSuicide(attemptTarget.PlayerId);
-        Lovers.GreenLoversSuicide(attemptTarget.PlayerId);
-        Lovers.PurpleLoversSuicide(attemptTarget.PlayerId);
+        foreach (var data in ColorLovers.Alldatas.Values)
+        {
+            data.LoversSuicide(attemptTarget.PlayerId);
+        }
         Lovers.MadonnLoversSuicide(attemptTarget.PlayerId);
         Lovers.OneLoveSuicide(attemptTarget.PlayerId);
 

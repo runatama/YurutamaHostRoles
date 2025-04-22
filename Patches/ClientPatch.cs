@@ -132,8 +132,7 @@ namespace TownOfHost
             if (ServerManager.Instance?.CurrentRegion?.Name == null) return;
 
             var nowserver = ServerManager.Instance.CurrentRegion.Name;
-            // カスサバ解禁時はここどうにかする
-            if (Main.IsCs() || nowserver is "ExROfficialTokyo" || nowserver.Contains("Nebula on the Ship JP") || nowserver.Contains("<color=#ffa500>Super</color>"))
+            if (nowserver is "ExROfficialTokyo" || nowserver.Contains("Nebula on the Ship JP") || nowserver.Contains("<color=#ffa500>Super</color>"))
             {
                 obj.transform.localPosition = new Vector3(100f, 100f, 100f);
             }

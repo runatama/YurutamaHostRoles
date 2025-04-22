@@ -59,15 +59,13 @@ namespace TownOfHost
             bool enabled = seer == seen
                         || seen.Is(CustomRoles.GM)
                         || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGhostRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
-                        || (Lovers.LoversRole.GetBool() && seer.Is(CustomRoles.Lovers) && seen.Is(CustomRoles.Lovers))
-                        || (Lovers.RedLoversRole.GetBool() && seer.Is(CustomRoles.RedLovers) && seen.Is(CustomRoles.RedLovers))
-                        || (Lovers.YellowLoversRole.GetBool() && seer.Is(CustomRoles.YellowLovers) && seen.Is(CustomRoles.YellowLovers))
-                        || (Lovers.BlueLoversRole.GetBool() && seer.Is(CustomRoles.BlueLovers) && seen.Is(CustomRoles.BlueLovers))
-                        || (Lovers.GreenLoversRole.GetBool() && seer.Is(CustomRoles.GreenLovers) && seen.Is(CustomRoles.GreenLovers))
-                        || (Lovers.WhiteLoversRole.GetBool() && seer.Is(CustomRoles.WhiteLovers) && seen.Is(CustomRoles.WhiteLovers))
-                        || (Lovers.PurpleLoversRole.GetBool() && seer.Is(CustomRoles.PurpleLovers) && seen.Is(CustomRoles.PurpleLovers))
                         || (Options.InsiderMode.GetBool() && seerrole.IsImpostor())
                         || (Options.RoleImpostor.GetBool() && seerrole.IsImpostor() && seen.GetCustomRole().IsImpostor());
+
+            foreach (var data in ColorLovers.Alldatas.Values)
+            {
+                enabled |= data.CheckCanSeeRole(seer, seen);
+            }
 
             //属性が見れるか
             bool addon = seer == seen
@@ -617,6 +615,19 @@ namespace TownOfHost
                             role.IsCrewmate() ? GetString("fortuihouisrole") : GetString("fortuihouisnotrole"));
                     case "Role":
                         return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(role), GetString("fortuihouisrole"));
+                    case "ShowTeam":
+                        string team = "";
+                        switch (role.GetRoleInfo().CountType)
+                        {
+                            case CountTypes.Impostor: team = GetRoleColorAndtext(CustomRoles.Impostor); break;
+                            case CountTypes.Jackal: team = GetRoleColorAndtext(CustomRoles.Jackal); break;
+                            case CountTypes.GrimReaper: team = GetRoleColorAndtext(CustomRoles.GrimReaper); break;
+                            case CountTypes.Crew: team = GetRoleColorAndtext(CustomRoles.Crewmate); break;
+                            case CountTypes.Remotekiller: team = GetRoleColorAndtext(CustomRoles.Remotekiller); break;
+                            case CountTypes.Fox: team = GetRoleColorAndtext(CustomRoles.Fox); break;
+                            default: team = "...?"; break;
+                        }
+                        return string.Format(GetString("fortuihourole"), playername, team, GetString("fortuihouisnotrole"));
                 }
             }
 

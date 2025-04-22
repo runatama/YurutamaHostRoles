@@ -370,7 +370,7 @@ namespace TownOfHost
         public static OptionItem ShowVoteJudgment;
         public static readonly string[] ShowVoteJudgments =
         {
-            "Impostor", "Neutral", "CrewMate(Mad)", "Crewmate","Role"
+            "Impostor","Neutral", "CrewMate(Mad)", "Crewmate","Role","ShowTeam"
         };
         // 投票モード
         public static OptionItem VoteMode;
@@ -1282,17 +1282,19 @@ namespace TownOfHost
         public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: UtilsOption.GetFrom(info), combination: info.Combination);
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
         {
-            if ((role is CustomRoles.Crewmate or CustomRoles.Phantom or CustomRoles.Impostor) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
+            if ((role is CustomRoles.Phantom) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
             if (role.IsVanilla())
             {
                 switch (role)
                 {
+                    case CustomRoles.Impostor: id = 10; break;
                     case CustomRoles.Shapeshifter: id = 30; break;
                     case CustomRoles.Phantom: id = 40; break;
+                    case CustomRoles.Crewmate: id = 11; break;
                     case CustomRoles.Engineer: id = 200; break;
                     case CustomRoles.Scientist: id = 250; break;
                     case CustomRoles.Tracker: id = 300; break;
-                    case CustomRoles.Noisemaker: id = 350; break;  //アプデ対応用
+                    case CustomRoles.Noisemaker: id = 350; break;
                 }
             }
             assignCountRule ??= new(1, 15, 1);
@@ -1304,9 +1306,12 @@ namespace TownOfHost
                 .SetCustomRole(role)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHeader(true)
+                .SetCansee(() => role is not CustomRoles.Crewmate and not CustomRoles.Impostor || ShowFilter.NowSettingRole is not CustomRoles.NotAssigned)
                 .SetHidden(role == CustomRoles.NotAssigned || (!DebugModeManager.AmDebugger && combination is CombinationRoles.AssassinandMerlin))
                 .SetGameMode(customGameMode) as IntegerOptionItem;
             var hidevalue = role is CustomRoles.Driver || role.IsRiaju() || (assignCountRule.MaxValue == assignCountRule.MinValue);
+
+            if (role is CustomRoles.Crewmate or CustomRoles.Impostor) return;
 
             var countOption = IntegerOptionItem.Create(id + 1, "Maximum", assignCountRule, assignCountRule.Step, tab, false, HideValue: hidevalue)
                 .SetParent(spawnOption)

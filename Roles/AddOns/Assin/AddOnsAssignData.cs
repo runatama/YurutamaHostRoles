@@ -19,16 +19,20 @@ namespace TownOfHost.Roles.AddOns.Common
         public int IdStart { get; private set; }
         public OptionItem CrewmateMaximum;
         OptionItem CrewmateFixedRole;
-        OptionItem CrewmateAssignTarget;
+        FilterOptionItem CrewmateAssignTarget;
+        FilterOptionItem CrewmateAssignTarget2;
         public OptionItem ImpostorMaximum;
         OptionItem ImpostorFixedRole;
-        OptionItem ImpostorAssignTarget;
+        FilterOptionItem ImpostorAssignTarget;
+        FilterOptionItem ImpostorAssignTarget2;
         public OptionItem MadmateMaximum;
         OptionItem MadmateFixedRole;
-        OptionItem MadmateAssignTarget;
+        FilterOptionItem MadmateAssignTarget;
+        FilterOptionItem MadmateAssignTarget2;
         public OptionItem NeutralMaximum;
         OptionItem NeutralFixedRole;
-        OptionItem NeutralAssignTarget;
+        FilterOptionItem NeutralAssignTarget;
+        FilterOptionItem NeutralAssingTarget2;
         static readonly CustomRoles[] InvalidRoles =
         {
             CustomRoles.Emptiness,
@@ -42,10 +46,6 @@ namespace TownOfHost.Roles.AddOns.Common
             CustomRoles.TaskPlayerB,
         };
         static readonly IEnumerable<CustomRoles> ValidRoles = CustomRolesHelper.AllRoles.Where(role => !InvalidRoles.Contains(role));
-        static CustomRoles[] CrewmateRoles = ValidRoles.Where(role => role.IsCrewmate()).ToArray();
-        static CustomRoles[] ImpostorRoles = ValidRoles.Where(role => role.IsImpostor()).ToArray();
-        static CustomRoles[] MadmateRoles = ValidRoles.Where(role => role.IsMadmate()).ToArray();
-        static CustomRoles[] NeutralRoles = ValidRoles.Where(role => role.IsNeutral()).ToArray();
 
         public AddOnsAssignData(int idStart, CustomRoles role, bool assignCrewmate, bool assignMadmate, bool assignImpostor, bool assignNeutral)
         {
@@ -59,9 +59,10 @@ namespace TownOfHost.Roles.AddOns.Common
                 CrewmateMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.CrewmateBlue, GetString("TeamCrewmate")) } };
                 CrewmateFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(CrewmateMaximum);
-                var crewmateStringArray = CrewmateRoles.Select(role => role.ToString()).ToArray();
-                CrewmateAssignTarget = StringOptionItem.Create(idStart++, "Role", crewmateStringArray, 0, TabGroup.Addons, false)
+                CrewmateAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, crew: true, notassing: InvalidRoles)
                     .SetParent(CrewmateFixedRole);
+                CrewmateAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, crew: true, notassing: InvalidRoles)
+                    .SetParent(CrewmateFixedRole).SetCansee(() => CrewmateAssignTarget.GetBool());
             }
 
             if (assignImpostor)
@@ -72,9 +73,10 @@ namespace TownOfHost.Roles.AddOns.Common
                 ImpostorMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.ImpostorRed, GetString("TeamImpostor")) } };
                 ImpostorFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(ImpostorMaximum);
-                var impostorStringArray = ImpostorRoles.Select(role => role.ToString()).ToArray();
-                ImpostorAssignTarget = StringOptionItem.Create(idStart++, "Role", impostorStringArray, 0, TabGroup.Addons, false)
+                ImpostorAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
                     .SetParent(ImpostorFixedRole);
+                ImpostorAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
+                    .SetParent(ImpostorFixedRole).SetCansee(() => ImpostorAssignTarget.GetBool());
             }
             if (assignMadmate)
             {
@@ -84,9 +86,10 @@ namespace TownOfHost.Roles.AddOns.Common
                 MadmateMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.ImpostorRed, GetString("Madmate")) } };
                 MadmateFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(MadmateMaximum);
-                var MadmateStringArray = MadmateRoles.Select(role => role.ToString()).ToArray();
-                MadmateAssignTarget = StringOptionItem.Create(idStart++, "Role", MadmateStringArray, 0, TabGroup.Addons, false)
+                MadmateAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, mad: true, notassing: InvalidRoles)
                     .SetParent(MadmateFixedRole);
+                MadmateAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, mad: true, notassing: InvalidRoles)
+                    .SetParent(MadmateFixedRole).SetCansee(() => MadmateAssignTarget.GetBool());
             }
 
             if (assignNeutral)
@@ -97,9 +100,10 @@ namespace TownOfHost.Roles.AddOns.Common
                 NeutralMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.AcceptedGreen, GetString("Neutral")) } };
                 NeutralFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(NeutralMaximum);
-                var neutralStringsArray = NeutralRoles.Where(r => r is not CustomRoles.Fox || role is not CustomRoles.Amnesia).Select(role => role.ToString()).ToArray();
-                NeutralAssignTarget = StringOptionItem.Create(idStart++, "Role", neutralStringsArray, 0, TabGroup.Addons, false)
+                NeutralAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, neu: true, notassing: InvalidRoles)
                     .SetParent(NeutralFixedRole);
+                NeutralAssingTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, neu: true, notassing: InvalidRoles)
+                    .SetParent(NeutralFixedRole).SetCansee(() => NeutralAssignTarget.GetBool());
             }
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
@@ -145,7 +149,8 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (crewmateMaximum > 0)
                 {
                     var crewmates = validPlayers.Where(pc
-                        => data.CrewmateFixedRole.GetBool() ? pc.Is(CrewmateRoles[data.CrewmateAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Crewmate)).ToList();
+                        => data.CrewmateFixedRole.GetBool() ? (pc.Is(data.CrewmateAssignTarget.GetRole()) || pc.Is(data.CrewmateAssignTarget2.GetRole()))
+                        : pc.Is(CustomRoleTypes.Crewmate)).ToList();
                     for (var i = 0; i < crewmateMaximum; i++)
                     {
                         if (crewmates.Count == 0) break;
@@ -167,7 +172,8 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (impostorMaximum > 0)
                 {
                     var impostors = validPlayers.Where(pc
-                        => data.ImpostorFixedRole.GetBool() ? pc.Is(ImpostorRoles[data.ImpostorAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Impostor)).ToList();
+                        => data.ImpostorFixedRole.GetBool() ? (pc.Is(data.ImpostorAssignTarget.GetRole()) || pc.Is(data.ImpostorAssignTarget2.GetRole()))
+                        : pc.Is(CustomRoleTypes.Impostor)).ToList();
                     for (var i = 0; i < impostorMaximum; i++)
                     {
                         if (impostors.Count == 0) break;
@@ -184,7 +190,8 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (MadmateMaximum > 0)
                 {
                     var Madmates = validPlayers.Where(pc
-                        => data.MadmateFixedRole.GetBool() ? pc.Is(MadmateRoles[data.MadmateAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Madmate)).ToList();
+                        => data.MadmateFixedRole.GetBool() ? (pc.Is(data.MadmateAssignTarget.GetRole()) || pc.Is(data.MadmateAssignTarget2.GetRole()))
+                        : pc.Is(CustomRoleTypes.Madmate)).ToList();
                     for (var i = 0; i < MadmateMaximum; i++)
                     {
                         if (Madmates.Count == 0) break;
@@ -201,7 +208,8 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (neutralMaximum > 0)
                 {
                     var neutrals = validPlayers.Where(pc
-                        => data.NeutralFixedRole.GetBool() ? pc.Is(NeutralRoles[data.NeutralAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Neutral)).ToList();
+                        => data.NeutralFixedRole.GetBool() ? (pc.Is(data.NeutralAssignTarget.GetRole()) || pc.Is(data.NeutralAssingTarget2.GetRole()))
+                        : pc.Is(CustomRoleTypes.Neutral)).ToList();
                     for (var i = 0; i < neutralMaximum; i++)
                     {
                         if (neutrals.Count == 0) break;

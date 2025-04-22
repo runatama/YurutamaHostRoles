@@ -1,7 +1,9 @@
 using AmongUs.GameOptions;
 using System.Collections.Generic;
+using System.Linq;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Neutral
 {
@@ -43,6 +45,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
         private static OptionItem OptionGrimReaperCanButtom;
+        private static OptionItem OptionGrimActiveTime;
         private static float KillCooldown;
         public static bool CanVent;
         public static bool CanUseSabotage;
@@ -51,13 +54,16 @@ namespace TownOfHost.Roles.Neutral
         enum OptionName
         {
             GrimReaperCanButtom,
+            GrimReaperGrimActiveTime
         }
 
         Dictionary<byte, float> GrimPlayers = new(14);
         private static void SetupOptionItem()
         {
+            SoloWinOption.Create(RoleInfo, 9, defo: 0);
             OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
+            OptionGrimActiveTime = FloatOptionItem.Create(RoleInfo, 8, OptionName.GrimReaperGrimActiveTime, new(3, 300, 1), 15, false).SetValueFormat(OptionFormat.Seconds);
             OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, true, false);
             OptionCanUseSabotage = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanUseSabotage, false, false);//正味サボ使用不可でもいい気がする
             OptionGrimReaperCanButtom = BooleanOptionItem.Create(RoleInfo, 14, OptionName.GrimReaperCanButtom, false, false);
@@ -92,12 +98,15 @@ namespace TownOfHost.Roles.Neutral
                 }
 
                 if (cankill)
+                {
                     if (!GrimPlayers.ContainsKey(target.PlayerId))
                     {
                         killer.SetKillCooldown(delay: true, kousin: false);
-                        GrimPlayers.Add(target.PlayerId, 0f);
+                        GrimPlayers.Add(target.PlayerId, OptionGrimActiveTime.GetFloat());
                         cankill = false;
                     }
+                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: [Player]);
+                }
             }
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
@@ -116,6 +125,28 @@ namespace TownOfHost.Roles.Neutral
             if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.defaultKillCool.GetBool()) return;
             Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
             Player.SyncSettings();
+        }
+        public override void OnFixedUpdate(PlayerControl player)
+        {
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.Meeting) return;
+
+            List<byte> del = new();
+            foreach (var (targetId, timer) in GrimPlayers)
+            {
+                if (timer < 0)
+                {
+                    del.Add(targetId);
+                    cankill = true;
+                    Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
+                    Player.SetKillCooldown();
+                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
+                }
+                else
+                {
+                    GrimPlayers[targetId] -= Time.fixedDeltaTime;
+                }
+            }
+            del.Do(x => GrimPlayers.Remove(x));
         }
         private void KillBitten(PlayerControl target, bool isButton = false)
         {
@@ -151,6 +182,18 @@ namespace TownOfHost.Roles.Neutral
         {
             text = "Grim_Kill";
             return true;
+        }
+        public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+        {
+            seen ??= seer;
+            if (isForMeeting || !Player.IsAlive() || cankill || GrimPlayers.Count == 0) return "";
+
+            if (seen.PlayerId == Player.PlayerId)
+            {
+                return Utils.ColorString(Main.PlayerColors.TryGetValue(GrimPlayers?.Keys?.FirstOrDefault() ?? byte.MaxValue, out var color) ? color : Color.white, "◆");
+            }
+
+            return GrimPlayers.ContainsKey(seen.PlayerId) ? $"<{RoleInfo.RoleColorCode}>◆</color>" : "";
         }
     }
 }

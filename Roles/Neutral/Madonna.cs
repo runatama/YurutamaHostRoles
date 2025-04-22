@@ -6,6 +6,7 @@ using TownOfHost.Attributes;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Madonna : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -67,6 +68,7 @@ public sealed class Madonna : RoleBase
     };
     private static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, CustomRoles.MadonnaLovers, () => !MadonnaLoverAddwin.GetBool(), defo: 13);
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
         Optionlimit = FloatOptionItem.Create(RoleInfo, 10, Option.Madonnalimit, new(1f, 10f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
         OptionLoverChenge = StringOptionItem.Create(RoleInfo, 11, Option.MadonnaFallChenge, cRolesString, 4, false);

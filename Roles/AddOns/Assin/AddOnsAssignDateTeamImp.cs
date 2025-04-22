@@ -21,10 +21,12 @@ namespace TownOfHost.Roles.AddOns.Common
         OptionItem CrewmateMaximum;
         OptionItem ImpostorMaximum;
         OptionItem ImpostorFixedRole;
-        OptionItem ImpostorAssignTarget;
+        FilterOptionItem ImpostorAssignTarget;
+        FilterOptionItem ImpostorAssignTarget2;
         OptionItem MadmateMaximum;
         OptionItem MadmateFixedRole;
-        OptionItem MadmateAssignTarget;
+        FilterOptionItem MadmateAssignTarget;
+        FilterOptionItem MadmateAssignTarget2;
         static readonly CustomRoles[] InvalidRoles =
         {
             CustomRoles.Phantom,
@@ -59,9 +61,10 @@ namespace TownOfHost.Roles.AddOns.Common
                 ImpostorMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.ImpostorRed, GetString("TeamImpostor")) } };
                 ImpostorFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(ImpostorMaximum);
-                var impostorStringArray = ImpostorRoles.Select(role => role.ToString()).ToArray();
-                ImpostorAssignTarget = StringOptionItem.Create(idStart++, "Role", impostorStringArray, 0, TabGroup.Addons, false)
+                ImpostorAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
                     .SetParent(ImpostorFixedRole);
+                ImpostorAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
+                    .SetParent(ImpostorFixedRole).SetCansee(() => ImpostorAssignTarget.GetBool());
             }
             if (assignMadmate)
             {
@@ -71,9 +74,10 @@ namespace TownOfHost.Roles.AddOns.Common
                 MadmateMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.ImpostorRed, GetString("Madmate")) } };
                 MadmateFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
                     .SetParent(MadmateMaximum);
-                var MadmateStringArray = MadmateRoles.Select(role => role.ToString()).ToArray();
-                MadmateAssignTarget = StringOptionItem.Create(idStart++, "Role", MadmateStringArray, 0, TabGroup.Addons, false)
+                MadmateAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
                     .SetParent(MadmateFixedRole);
+                MadmateAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
+                    .SetParent(MadmateFixedRole).SetCansee(() => MadmateAssignTarget.GetBool());
             }
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
@@ -134,7 +138,8 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (impostorMaximum > 0)
                 {
                     var impostors = validPlayers.Where(pc
-                        => data.ImpostorFixedRole.GetBool() ? pc.Is(ImpostorRoles[data.ImpostorAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Impostor)).ToList();
+                        => data.ImpostorFixedRole.GetBool() ? (pc.Is(data.ImpostorAssignTarget.GetRole()) || pc.Is(data.ImpostorAssignTarget2.GetRole()))
+                        : pc.Is(CustomRoleTypes.Impostor)).ToList();
                     for (var i = 0; i < impostorMaximum; i++)
                     {
                         if (impostors.Count == 0) break;
@@ -151,7 +156,8 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (MadmateMaximum > 0)
                 {
                     var Madmates = validPlayers.Where(pc
-                        => data.MadmateFixedRole.GetBool() ? pc.Is(MadmateRoles[data.MadmateAssignTarget.GetValue()]) : pc.Is(CustomRoleTypes.Madmate)).ToList();
+                        => data.MadmateFixedRole.GetBool() ? (pc.Is(data.MadmateAssignTarget.GetRole()) || pc.Is(data.MadmateAssignTarget2.GetRole()))
+                        : pc.Is(CustomRoleTypes.Madmate)).ToList();
                     for (var i = 0; i < MadmateMaximum; i++)
                     {
                         if (Madmates.Count == 0) break;

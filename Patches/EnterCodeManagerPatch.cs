@@ -18,6 +18,8 @@ namespace TownOfHost
         private static PassiveButton DownloadButton;
         private static PassiveButton UnloadAndJoinButton;
         private static TextMeshPro VersionText;
+        private static GameObject ServerList;
+        private static GameObject ServerListDrop;
         public static string GameId = "";
 
         [HarmonyPatch(nameof(EnterCodeManager.ClickJoin)), HarmonyPrefix]
@@ -117,6 +119,37 @@ namespace TownOfHost
                 );
 
                 VersionText.transform.localPosition += new Vector3(0, -1.62f);
+            }
+
+            if (ServerList.IsDestroyedOrNull())
+            {
+                var moto = GameObject.Find("MainMenuManager/MainUI/AspectScaler/CreateGameScreen/ParentContent/Content/GeneralTab/ServerOption");
+                ServerList = UnityEngine.Object.Instantiate(moto, __instance.joinGamePassiveButton.transform.parent);
+                ServerList.name = "serverlist";
+                var pb = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/EnterCodeButtons/AspectSize/Scaler/serverlist/ServerBox");
+                var button = pb.GetComponent<PassiveButton>();
+                button.OnClick = new();
+                button.OnClick.AddListener(new Action(() =>
+                {
+                    ServerListDrop?.SetActive(true);
+                }));
+                ServerList.transform.localPosition = new(-2.6755f, -1.0297f, -5.3436f);
+                ServerList.transform.localScale = new(0.5f, 0.5f, 1);
+
+                var del = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/EnterCodeButtons/AspectSize/Scaler/serverlist/BlackSquare");
+                del.transform.position = new(100f, 100);
+                var a = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/EnterCodeButtons/AspectSize/Scaler/serverlist/ServerBox/Inactive/ClassicText");
+                var b = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/EnterCodeButtons/AspectSize/Scaler/serverlist/ServerBox/Highlight/ClassicText");
+                a.GetComponent<TMPro.TextMeshPro>().text = b.GetComponent<TMPro.TextMeshPro>().text = "Server";
+            }
+
+            if (ServerListDrop.IsDestroyedOrNull())
+            {
+                var moto = GameObject.Find("MainMenuManager/MainUI/AspectScaler/CreateGameScreen/ParentContent/Content/GeneralTab/ServerDropdown");
+                ServerListDrop = UnityEngine.Object.Instantiate(moto, __instance.joinGamePassiveButton.transform.parent);
+                ServerListDrop?.SetActive(false);
+                ServerListDrop.transform.localPosition = new(-2.0927f, 0.0991f, -15);
+                ServerListDrop.transform.localScale = new(0.4f, 0.4f, 1);
             }
 
             VersionText.text = "";

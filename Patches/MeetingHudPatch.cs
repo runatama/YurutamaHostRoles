@@ -593,20 +593,11 @@ public static class MeetingHudPatch
         foreach (var playerId in playerIds)
         {
             //Loversの後追い
-            if (CustomRoles.Lovers.IsPresent() && !Lovers.isLoversDead && Lovers.LoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.LoversSuicide(playerId, true);
-            if (CustomRoles.RedLovers.IsPresent() && !Lovers.isRedLoversDead && Lovers.RedLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.RedLoversSuicide(playerId, true);
-            if (CustomRoles.YellowLovers.IsPresent() && !Lovers.isYellowLoversDead && Lovers.YellowLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.YellowLoversSuicide(playerId, true);
-            if (CustomRoles.BlueLovers.IsPresent() && !Lovers.isBlueLoversDead && Lovers.BlueLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.BlueLoversSuicide(playerId, true);
-            if (CustomRoles.GreenLovers.IsPresent() && !Lovers.isGreenLoversDead && Lovers.GreenLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.GreenLoversSuicide(playerId, true);
-            if (CustomRoles.WhiteLovers.IsPresent() && !Lovers.isWhiteLoversDead && Lovers.WhiteLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.WhiteLoversSuicide(playerId, true);
-            if (CustomRoles.PurpleLovers.IsPresent() && !Lovers.isPurpleLoversDead && Lovers.PurpleLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
-                Lovers.PurpleLoversSuicide(playerId, true);
+            foreach (var data in ColorLovers.Alldatas.Values)
+            {
+                if (!data.IsLoversDead && data.LoverPlayer.Find(lp => lp.PlayerId == playerId) != null)
+                    data.LoversSuicide(playerId, true);
+            }
             if (CustomRoles.MadonnaLovers.IsPresent() && !Lovers.isMadonnaLoversDead && Lovers.MaMadonnaLoversPlayers.Find(lp => lp.PlayerId == playerId) != null)
                 Lovers.MadonnLoversSuicide(playerId, true);
             if (CustomRoles.OneLove.IsPresent() && !Lovers.isOneLoveDead)

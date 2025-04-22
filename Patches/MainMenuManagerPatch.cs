@@ -432,6 +432,16 @@ namespace TownOfHost
                 TuginoButton.Button.gameObject.SetActive(false);
             if (ModoruButton != null)
                 ModoruButton.Button.gameObject.SetActive(false);
+
+            {
+                var warning = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/CrossplayWarning");
+                warning.SetActive(true);
+                var wt = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/CrossplayWarning/CrossPlayText/Text_TMP");
+
+                var a = wt.transform.GetComponent<TextMeshPro>();
+                a.SetText(Translator.GetString("CantPublickAndJoin"));
+                _ = new LateTask(() => a.SetText(Translator.GetString("CantPublickAndJoin")), 0.05f, "Set", true);
+            }
         }
         [HarmonyPatch(nameof(MainMenuManager.ResetScreen)), HarmonyPostfix]
         public static void ResetScreenPostfix()

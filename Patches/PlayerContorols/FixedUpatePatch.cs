@@ -371,14 +371,10 @@ namespace TownOfHost
                     }
                     if (!GameStates.IsMeeting)
                     {
-                        //ラバーズ
-                        Lovers.LoversSuicide();
-                        Lovers.RedLoversSuicide();
-                        Lovers.YellowLoversSuicide();
-                        Lovers.BlueLoversSuicide();
-                        Lovers.GreenLoversSuicide();
-                        Lovers.WhiteLoversSuicide();
-                        Lovers.PurpleLoversSuicide();
+                        foreach (var data in ColorLovers.Alldatas.Values)
+                        {
+                            data.LoversSuicide();
+                        }
                         Lovers.MadonnLoversSuicide();
                         Lovers.OneLoveSuicide();
                     }

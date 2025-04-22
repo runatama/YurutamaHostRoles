@@ -336,36 +336,11 @@ namespace TownOfHost
             if (!PlayerCatch.AnyModClient()) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable, -1);
             writer.Write((int)lover);
-            switch (lover)
+            ColorLovers.Alldatas.TryGetValue(lover, out var data);
             {
-                case CustomRoles.Lovers:
-                    writer.Write(Lovers.LoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.LoversPlayers) writer.Write(lp.PlayerId);
-                    break;
-                case CustomRoles.RedLovers:
-                    writer.Write(Lovers.RedLoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.RedLoversPlayers) writer.Write(lp.PlayerId);
-                    break;
-                case CustomRoles.YellowLovers:
-                    writer.Write(Lovers.YellowLoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.YellowLoversPlayers) writer.Write(lp.PlayerId);
-                    break;
-                case CustomRoles.BlueLovers:
-                    writer.Write(Lovers.BlueLoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.BlueLoversPlayers) writer.Write(lp.PlayerId);
-                    break;
-                case CustomRoles.GreenLovers:
-                    writer.Write(Lovers.GreenLoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.GreenLoversPlayers) writer.Write(lp.PlayerId);
-                    break;
-                case CustomRoles.WhiteLovers:
-                    writer.Write(Lovers.WhiteLoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.WhiteLoversPlayers) writer.Write(lp.PlayerId);
-                    break;
-                case CustomRoles.PurpleLovers:
-                    writer.Write(Lovers.PurpleLoversPlayers.Count);
-                    foreach (PlayerControl lp in Lovers.PurpleLoversPlayers) writer.Write(lp.PlayerId);
-                    break;
+                writer.Write(data.LoverPlayer.Count);
+                foreach (var pc in data.LoverPlayer)
+                    writer.Write(pc.PlayerId);
             }
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }

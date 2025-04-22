@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -70,6 +71,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     }
     static void SetupOptionItem()
     {
+        SoloWinOption.Create(RoleInfo, 9, defo: 15);
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionShepeCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)

@@ -45,7 +45,6 @@ namespace TownOfHost.Roles.AddOns.Common
                     .SetParent(CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.Players);
                 CrewmateMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.CrewmateBlue, GetString("TeamCrewmate")) } };
-
             }
 
             if (assignImpostor)
@@ -115,7 +114,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (crewmateMaximum > 0)
                 {
                     var crewmates = validPlayers.Where(pc
-                        => pc.Is(CustomRoles.Sheriff)).ToList();
+                        => pc.GetCustomRole() is CustomRoles.Sheriff or CustomRoles.SwitchSheriff or CustomRoles.WolfBoy).ToList();
                     for (var i = 0; i < crewmateMaximum; i++)
                     {
                         if (crewmates.Count == 0) break;

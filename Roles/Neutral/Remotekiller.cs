@@ -48,6 +48,7 @@ namespace TownOfHost.Roles.Neutral
 
         private static void SetupOptionItem()
         {
+            SoloWinOption.Create(RoleInfo, 9, defo: 0);
             RKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
             RKillAnimation = BooleanOptionItem.Create(RoleInfo, 11, OptionName.KillAnimation, true, false);

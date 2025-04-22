@@ -44,6 +44,7 @@ public class MeetingVoteManager
     /// </summary>
     public void ClearVotes()
     {
+        allVotes = new(15);
         foreach (var voteArea in meetingHud.playerStates)
         {
             allVotes[voteArea.TargetPlayerId] = new(voteArea.TargetPlayerId);
@@ -259,16 +260,18 @@ public class MeetingVoteManager
             }
 
             var voter = PlayerCatch.GetPlayerById(vote.Voter);
-            /*if (!voter.IsAlive()) continue;//投票者が死亡済み、投票相手がスキップじゃなく、投票先が死んでる...!?なら票数えない
-            if (!PlayerCatch.GetPlayerById(vote.VotedFor).IsAlive() && vote.VotedFor is not Skip) continue;*/
+            if (voter == null) continue;
 
             if (votes.ContainsKey(vote.VotedFor))
             {
                 votes[vote.VotedFor] += vote.NumVotes;
             }
-            else votes.TryAdd(vote.VotedFor, vote.NumVotes);
+            else
+            {
+                votes.TryAdd(vote.VotedFor, vote.NumVotes);
+            }
 
-            if (vote.NumVotes != 0)
+            if (vote.NumVotes is not 0)
             {
                 if (voter.Is(CustomRoles.Tiebreaker)
                 || (voter.Is(CustomRoles.LastImpostor) && LastImpostor.GiveTiebreaker.GetBool())
@@ -285,6 +288,11 @@ public class MeetingVoteManager
             }
         }
 
+        foreach (var vote in votes.OrderBy(x => x.Value))
+        {
+            if (vote.Value == 0) continue;
+            Logger.Info($"{vote.Key} => {vote.Value}", "VoteCount");
+        }
         return new VoteResult(votes, Tie, ClearAndExile);
     }
     /// <summary>
@@ -377,6 +385,7 @@ public class MeetingVoteManager
         public bool HasVoted => HasVotedCheck();
         public bool HasVotedCheck()
         {
+            if (!PlayerCatch.GetPlayerById(Voter)) return true;
             if (PlayerState.GetByPlayerId(Voter) == null) return true;
             if (PlayerState.GetByPlayerId(Voter).IsDead || VotedFor == Skip) return true;
             if (VotedFor is /*Skip or*/ NoVote) return false;//ここのスキップいらなくね?

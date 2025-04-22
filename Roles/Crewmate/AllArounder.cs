@@ -498,73 +498,73 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
 
         if (chance <= RBait)
         {
-            Logger.Info($"{Player.Data.name}はライター", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はライター", "AllArounder");
             NowRole = NowMode.Bait;
         }
         else if (chance <= RBait + RInsender)
         {
-            Logger.Info($"{Player.Data.name}はインセンダー", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はインセンダー", "AllArounder");
             NowRole = NowMode.Insender;
         }
         else if (chance <= RBait + RInsender + RBakery)
         {
-            Logger.Info($"{Player.Data.name}はパン屋", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はパン屋", "AllArounder");
             NowRole = NowMode.Bakery;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator)
         {
-            Logger.Info($"{Player.Data.name}はディク", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はディク", "AllArounder");
             NowRole = NowMode.Dictator;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter)
         {
-            Logger.Info($"{Player.Data.name}はライター", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はライター", "AllArounder");
             NowRole = NowMode.Lighter;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff)
         {
-            Logger.Info($"{Player.Data.name}はミーシェ", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はミーシェ", "AllArounder");
             NowRole = NowMode.MeetingSheriff;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff
         + RSabotageMaster)
         {
-            Logger.Info($"{Player.Data.name}はサボマス", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はサボマス", "AllArounder");
             NowRole = NowMode.SabotageMaster;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff
         + RSabotageMaster + RSeer)
         {
-            Logger.Info($"{Player.Data.name}はシーア", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はシーア", "AllArounder");
             NowRole = NowMode.Seer;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff
         + RSabotageMaster + RSeer + RTimeManager)
         {
-            Logger.Info($"{Player.Data.name}はタイマネ！", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はタイマネ！", "AllArounder");
             NowRole = NowMode.TimeManager;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff
         + RSabotageMaster + RSeer + RTimeManager + RTarapper)
         {
-            Logger.Info($"{Player.Data.name}はトラッパー！", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はトラッパー！", "AllArounder");
             NowRole = NowMode.Trapper;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff
         + RSabotageMaster + RSeer + RTimeManager + RTarapper + ROpportunist)
         {
-            Logger.Info($"{Player.Data.name}はオポチュニスト", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はオポチュニスト", "AllArounder");
             NowRole = NowMode.Opportunist;
         }
         else if (chance <= RBait + RInsender + RBakery + RDicator + RLighter + RMeetingSheriff
         + RSabotageMaster + RSeer + RTimeManager + RTarapper + ROpportunist + RMadmate)
         {
-            Logger.Info($"{Player.Data.name}はマッドメイト！", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はマッドメイト！", "AllArounder");
             NowRole = NowMode.Madmate;
         }
         else
         {
-            Logger.Info($"{Player.Data.name}はむーしょく！", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はむーしょく！", "AllArounder");
             NowRole = NowMode.None;
         }
 

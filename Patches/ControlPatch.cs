@@ -132,7 +132,23 @@ namespace TownOfHost
             //ミーティングを終了
             if (GetKeysDown(KeyCode.Return, KeyCode.N, KeyCode.LeftShift) && GameStates.IsMeeting)
             {
-                MeetingVoteManager.Instance.EndMeeting(true);
+                try
+                {
+                    MeetingVoteManager.Instance.EndMeeting(true);
+                }
+                catch
+                {
+                    try
+                    {
+                        var ex = MeetingVoteManager.Instance.CountVotes(true, false);
+                        Logger.seeingame($"本来の追放者:{ex.Exiled?.GetLogPlayerName() ?? $"{(ex.IsTie ? "同数" : "スキップ")}"}");
+                    }
+                    catch
+                    {
+                        Logger.seeingame("集計でエラーが...!");
+                    }
+                    Logger.seeingame("なんかエラーが起こってるよ！");
+                }
             }
             //即スタート
             if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown)

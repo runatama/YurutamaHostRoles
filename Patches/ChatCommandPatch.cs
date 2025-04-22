@@ -739,6 +739,7 @@ namespace TownOfHost
                         break;
                     case "/exile":
                         canceled = true;
+                        if (GameStates.IsLobby) break;
                         if (args.Length < 2 || !int.TryParse(args[1], out int id)) break;
                         GetPlayerById(id)?.RpcExileV2();
                         break;
@@ -2030,7 +2031,7 @@ namespace TownOfHost
                 default:
                     if (args[0].StartsWith("/"))
                     {
-                        canceled = true;
+                        canceled = Options.ExHideChatCommand.GetBool() && GameStates.Meeting;
                         if (GameStates.Tuihou)
                         {
                             ChatManager.SendPreviousMessagesToAll(); break;

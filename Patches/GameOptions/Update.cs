@@ -1,3 +1,4 @@
+using System.Linq;
 using HarmonyLib;
 using TownOfHost.Roles.Core;
 using UnityEngine;
@@ -117,18 +118,18 @@ namespace TownOfHost
                         }
                     }
                     enabled = AmongUsClient.Instance.AmHost && !option.IsHiddenOn(Options.CurrentGameMode);
-                    opt.color = new Color32(200, 200, 200, 255);
-                    opt.size = new(5.0f * w, 0.68f * h);
+                    Color color = new Color32(200, 200, 200, 255);
+                    Vector2 size = new(5.0f * w, 0.68f * h);
 
                     if (option.Tab is TabGroup.MainSettings && (option.NameColor != Color.white || option.NameColorCode != "#ffffff"))
                     {
-                        var color = option.NameColor == Color.white ? StringHelper.CodeColor(option.NameColorCode) : option.NameColor;
+                        color = option.NameColor == Color.white ? StringHelper.CodeColor(option.NameColorCode) : option.NameColor;
 
-                        opt.color = color.ShadeColor(-6);
+                        color = color.ShadeColor(-6);
                     }
                     if (isroleoption)
                     {
-                        opt.color = option.NameColor.ShadeColor(-5);
+                        color = option.NameColor.ShadeColor(-5);
                     }
 
                     Transform titleText = option.OptionBehaviour.transform.Find("Title Text");
@@ -147,26 +148,26 @@ namespace TownOfHost
                         case 0:
                             break;
                         case 1:
-                            opt.color = new Color32(40, 50, 80, 255);
-                            opt.size = new(4.6f * w, 0.68f * h);
+                            color = new Color32(40, 50, 80, 255);
+                            size = new(4.6f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.8566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.4f, 0.6f);
                             break;
                         case 2:
-                            opt.color = new Color32(20, 60, 40, 255);
-                            opt.size = new(4.4f * w, 0.68f * h);
+                            color = new Color32(20, 60, 40, 255);
+                            size = new(4.4f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.7566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.35f, 0.6f);
                             break;
                         case 3:
-                            opt.color = new Color32(60, 20, 40, 255);
-                            opt.size = new(4.2f * w, 0.68f * h);
+                            color = new Color32(60, 20, 40, 255);
+                            size = new(4.2f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.3f, 0.6f);
                             break;
                         case 4:
-                            opt.color = new Color32(60, 40, 10, 255);
-                            opt.size = new(4.0f * w, 0.68f * h);
+                            color = new Color32(60, 40, 10, 255);
+                            size = new(4.0f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.25f, 0.6f);
                             break;
@@ -175,6 +176,9 @@ namespace TownOfHost
                     option.OptionBehaviour.gameObject.SetActive(enabled);
                     if (enabled)
                     {
+                        opt.color = color;
+                        opt.size = size;
+
                         offset -= option.IsHeader ? (0.68f * h) : (0.45f * h);
                         option.OptionBehaviour.transform.localPosition = new Vector3(
                             option.OptionBehaviour.transform.localPosition.x,//0.952f,
@@ -252,7 +256,7 @@ namespace TownOfHost
                     //起動時以外で表示/非表示を切り替える際に使う
                     if (enabled)
                     {
-                        if (ActiveOnlyMode)
+                        if (ActiveOnlyMode || ShowFilter.NowSettingRole is not CustomRoles.NotAssigned)
                         {
                             if (isroleoption)
                             {
@@ -286,18 +290,29 @@ namespace TownOfHost
                         }
                     }
 
-                    opt.color = new Color32(200, 200, 200, 255);
-                    opt.size = new(5.0f * w, 0.68f * h);
+                    Color color = new Color32(200, 200, 200, 255);
+                    Vector2 size = new(5.0f * w, 0.68f * h);
 
                     if (option.Tab is TabGroup.MainSettings && (option.NameColor != Color.white || option.NameColorCode != "#ffffff"))
                     {
-                        var color = option.NameColor == Color.white ? StringHelper.CodeColor(option.NameColorCode) : option.NameColor;
+                        color = option.NameColor == Color.white ? StringHelper.CodeColor(option.NameColorCode) : option.NameColor;
 
-                        opt.color = color.ShadeColor(-6);
+                        color = color.ShadeColor(-6);
                     }
                     if (isroleoption)
                     {
-                        opt.color = option.NameColor.ShadeColor(-5);
+                        color = option.NameColor.ShadeColor(-5);
+                    }
+                    if (!isroleoption && ShowFilter.NowSettingRole is not CustomRoles.NotAssigned)
+                    {
+                        enabled = false;
+                    }
+                    if (isroleoption && ShowFilter.NosetOptin is FilterOptionItem filterOption)
+                    {
+                        if (filterOption.NotAssin.Contains(option.CustomRole))
+                        {
+                            enabled = false;
+                        }
                     }
 
                     Transform titleText = option.OptionBehaviour.transform.Find("Title Text");
@@ -316,26 +331,26 @@ namespace TownOfHost
                         case 0:
                             break;
                         case 1:
-                            opt.color = new Color32(40, 50, 80, 255);
-                            opt.size = new(4.6f * w, 0.68f * h);
+                            color = new Color32(40, 50, 80, 255);
+                            size = new(4.6f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.8566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.4f, 0.6f);
                             break;
                         case 2:
-                            opt.color = new Color32(20, 60, 40, 255);
-                            opt.size = new(4.4f * w, 0.68f * h);
+                            color = new Color32(20, 60, 40, 255);
+                            size = new(4.4f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.7566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.35f, 0.6f);
                             break;
                         case 3:
-                            opt.color = new Color32(60, 20, 40, 255);
-                            opt.size = new(4.2f * w, 0.68f * h);
+                            color = new Color32(60, 20, 40, 255);
+                            size = new(4.2f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.3f, 0.6f);
                             break;
                         case 4:
-                            opt.color = new Color32(60, 40, 10, 255);
-                            opt.size = new(4.0f * w, 0.68f * h);
+                            color = new Color32(60, 40, 10, 255);
+                            size = new(4.0f * w, 0.68f * h);
                             titleText.transform.localPosition = new Vector3(-1.6566f * w, 0f);
                             titleTextRect.sizeDelta = new Vector2(6.25f, 0.6f);
                             break;
@@ -344,6 +359,8 @@ namespace TownOfHost
                     option.OptionBehaviour.gameObject.SetActive(enabled);
                     if (enabled)
                     {
+                        opt.color = color;
+                        opt.size = size;
                         offset -= option.IsHeader ? (0.68f * h) : (0.45f * h);
                         option.OptionBehaviour.transform.localPosition = new Vector3(
                             option.OptionBehaviour.transform.localPosition.x,//0.952f,

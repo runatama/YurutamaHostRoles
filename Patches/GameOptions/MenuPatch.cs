@@ -43,6 +43,7 @@ namespace TownOfHost
             roleInfobutton = new();
             ModoruTabu = (TabGroup.MainSettings, 0);
             timer = -100;
+            ShowFilter.CheckAndReset();
         }
     }
 
@@ -61,7 +62,7 @@ namespace TownOfHost
         public static TMPro.TextMeshPro prisettext;
         public static FreeChatInputField search;
         public static TMPro.TextMeshPro searchtext;
-        static Il2CppSystem.Collections.Generic.List<PassiveButton> tabButtons;
+        public static Il2CppSystem.Collections.Generic.List<PassiveButton> tabButtons;
         public static CustomRoles NowRoleTab;
         public static Dictionary<TabGroup, GameOptionsMenu> list = new();
         public static Dictionary<TabGroup, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> scOptions = new();
@@ -74,6 +75,7 @@ namespace TownOfHost
         public static float timer;
         public static void Postfix(GameSettingMenu __instance)
         {
+            ShowFilter.CheckAndReset();
             timer = -100;
             ModoruTabu = (TabGroup.MainSettings, 0);
             roleopts = new();
@@ -301,6 +303,28 @@ namespace TownOfHost
                             stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
                             stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
                         }
+                        if (option is FilterOptionItem)
+                        {
+                            stringOption.MinusBtn.OnClick = new();
+                            stringOption.MinusBtn.OnClick.AddListener((Action)(() =>
+                            {
+                                if (option is FilterOptionItem filterOptionItem) filterOptionItem.SetRoleValue(role);
+                            }));
+                            stringOption.PlusBtn.OnClick = new();
+                            stringOption.PlusBtn.OnClick.AddListener((Action)(() =>
+                            {
+                                if (rolebutton.TryGetValue(role, out var button))
+                                {
+                                    button?.OnClick?.Invoke();
+                                }
+                                _ = new LateTask(() =>
+                                {
+                                    ShowFilter.NosetOptin = option;
+                                    ShowFilter.NowSettingRole = role;
+                                    GameSettingMenuChangeTabPatch.meg = GetString("ShowFilters");
+                                }, 0.2f, "Set", true);
+                            }));
+                        }
 
                         var transform = stringOption.ValueText.transform;
                         var pos = transform.localPosition;
@@ -341,6 +365,11 @@ namespace TownOfHost
 
                             button.OnClick.AddListener((Action)(() =>
                             {
+                                if (ShowFilter.NowSettingRole is not CustomRoles.NotAssigned)
+                                {
+                                    ShowFilter.SetRoleAndReset(option.CustomRole);
+                                    return;
+                                }
                                 if (NowRoleTab is not CustomRoles.NotAssigned)
                                 {
                                     var atabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
