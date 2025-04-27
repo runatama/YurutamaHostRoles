@@ -1379,6 +1379,24 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100055,
+                    Title = "GW...今年は特に何もないさ...",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.11.28.25</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.11.28.25</color>",
+                    Text = "<size=80%>だって去年のくそ疲れたもん...\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・ウィッチが死亡したターンでも呪い表示が起こる問題の修正\n"
+                    + "・ゲーム開始後、ホストがキックされる問題の対応\n"
+                    + "！↑ まだ不具合が残ってる場合があります。その場合はDiscordからバグ報告してください。\n\n"
+                    + "珍しくウィッチ以外パンダはほぼ手を付けてません。\nたぶんだいじょうぶっしょ()ってけーわいさんが言ってました..."
+                    ,
+                    Date = "2025-04-28T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

@@ -128,8 +128,9 @@ namespace TownOfHost
 
                 if (roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode)
                 {
+                    var subSenders = new List<CustomRpcSender>();
                     var sender = CustomRpcSender.Create("SetCustomRole", SendOption.Reliable);
-                    sender.StartMessage();
+                    sender.StartMessage(player.GetClientId());
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
@@ -145,10 +146,14 @@ namespace TownOfHost
                         }
                         else
                         {
-                            sender.AutoStartRpc(player.NetId, RpcCalls.SetRole, pc.GetClientId())
-                            .Write((ushort)(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : (RoleTypes.Crewmate)))
+                            var subSender = CustomRpcSender.Create("SetCustomRole Sub", SendOption.Reliable);
+                            subSender.StartMessage(pc.GetClientId())
+                            .AutoStartRpc(player.NetId, RpcCalls.SetRole, pc.GetClientId())
+                            .Write((ushort)(pc.PlayerId == player.PlayerId ? role.GetRoleTypes() : RoleTypes.Crewmate))
                             .Write(true)
-                            .EndRpc();
+                            .EndRpc()
+                            .EndMessage();
+                            subSenders.Add(subSender);
                             if (player != pc)
                             {
                                 sender.AutoStartRpc(pc.NetId, RpcCalls.SetRole, player.GetClientId())
@@ -160,6 +165,7 @@ namespace TownOfHost
                     }
                     sender.EndMessage();
                     sender.SendMessage();
+                    subSenders.Do(x => x.SendMessage());
                     if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                     {
                         if ((roleInfo?.IsDesyncImpostor ?? false || SuddenDeathMode.NowSuddenDeathMode) && roleInfo?.BaseRoleType.Invoke() != RoleTypes.Impostor)
@@ -436,26 +442,28 @@ namespace TownOfHost
             if (Sync) UtilsOption.SyncAllSettings();
             _ = new LateTask(() =>
             {
-                var sender = CustomRpcSender.Create("AllplayerresetAbility", SendOption.Reliable);
-                sender.StartMessage();
+                /*var sender = CustomRpcSender.Create("AllplayerresetAbility", SendOption.None);
+                sender.StartMessage();*/
                 foreach (var target in PlayerCatch.AllPlayerControls)
                 {
-                    if (PlayerControl.LocalPlayer == target)
-                    {
-                        //targetがホストだった場合
-                        PlayerControl.LocalPlayer?.Data?.Role?.SetCooldown();
-                    }
-                    else
-                    {
-                        //targetがホスト以外だった場合
-                        sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.GetClientId())
-                        .WriteNetObject(target)
-                        .Write(0)
-                        .EndRpc();
-                    }
+                    /* if (PlayerControl.LocalPlayer == target)
+                     {
+                         //targetがホストだった場合
+                         PlayerControl.LocalPlayer?.Data?.Role?.SetCooldown();
+                     }
+                     else
+                     {
+                         //targetがホスト以外だった場合
+                         sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.GetClientId())
+                         .WriteNetObject(target)
+                         .Write(0)
+                         .EndRpc();
+                     }*/
+                    target.RpcResetAbilityCooldown();
                 }
-                sender.EndMessage();
-                sender.SendMessage();
+                /*sender.EndMessage();
+                sender.SendMessage(); */
+
                 Main.CanUseAbility = true;
             }
             , 0.2f, "AllPlayerResetAbilityCoolDown", null);
@@ -1102,50 +1110,42 @@ namespace TownOfHost
         {
             //PlayerCatch.AllPlayerControls.Do(p => p.RpcSetPet("")); //ペットを全員視点消して本人視点のみ付けるRPCを送信
             //↑バニラ視点自身の消えるから戻す。
-            var sender = CustomRpcSender.Create("OnlySeeMepet");
-            sender.StartMessage();
+            pc.RpcSetPet("");
             foreach (var ap in PlayerCatch.AllPlayerControls)
             {
                 if (ap.GetClient() == null) continue;
-                sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, ap.GetClientId())
-                .Write("pet_EmptyPet")
-                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                .EndRpc();
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, ap.GetClientId());
+                writer.Write("pet_EmptyPet");
+                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+
             }
-            if (!pc.IsAlive() || pc.GetClient() == null)
+            if (pc.IsAlive() && pc.GetClient() != null)
             {
-                sender.EndMessage();
-                sender.SendMessage();
-                return;
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, pc.GetClientId());
+                writer.Write(petid);
+                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
             }
-            sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, pc.GetClientId())
-            .Write(petid)
-            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-            .EndRpc();
-            sender.EndMessage();
-            sender.SendMessage();
 
             pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
         }
         public static void AllPlayerOnlySeeMePet()
         {
-            var sender = CustomRpcSender.Create("AllOnlySeeMepet");
-            sender.StartMessage();
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 var petid = Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var cos) ? cos.PetId : "pet_EmptyPet";
 
                 //ペットないならさいなら
                 if (petid is "" or "pet_EmptyPet" || !pc.IsAlive()) continue;
-                sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, pc.GetClientId())
-                .Write(petid)
-                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                .EndRpc();
+
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, pc.GetClientId());
+                writer.Write(petid);
+                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+
                 pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
             }
-            sender.EndMessage();
-            sender.SendMessage();
-
         }
         public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 

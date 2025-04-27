@@ -80,7 +80,6 @@ namespace TownOfHost.Roles.Impostor
             NowSwitchTrigger = (SwitchTrigger)OptionModeSwitchAction.GetValue();
             Witches.Add(this);
             Player.AddDoubleTrigger();
-
         }
         private void SendRPC(bool doSpell, byte target = 255)
         {
@@ -144,7 +143,7 @@ namespace TownOfHost.Roles.Impostor
             {
                 if (target == 255 && witch.SpelledPlayer.Count != 0) return true;
 
-                if (witch.SpelledPlayer.Contains(target))
+                if (witch.SpelledPlayer.Contains(target) && witch.Player.IsAlive())
                 {
                     return true;
                 }
@@ -155,6 +154,13 @@ namespace TownOfHost.Roles.Impostor
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
             if (SpelledPlayer.Count == 0) return "";
+
+            //ウィッチ本人が会議前に死んでたら削除
+            if (!Player.IsAlive())
+            {
+                SpelledPlayer.Clear();
+                return "";
+            }
 
             var r = GetString("Skill.Witchf").Color(Palette.ImpostorRed) + "\n";
             var tg = new List<byte>();
@@ -321,7 +327,6 @@ namespace TownOfHost.Roles.Impostor
             SetSpelled(target);
             return false;
         }
-
         public bool DoubleAction(PlayerControl killer, PlayerControl target)
         {
             return true;

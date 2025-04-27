@@ -158,21 +158,23 @@ namespace TownOfHost
             }
             else
             {
-                var sender = CustomRpcSender.Create("MeetingNameColor", SendOption.None);
-                sender.StartMessage();
+
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
                     if (seer.IsModClient()) continue;
+                    var clientId = seer.GetClientId();
                     string playername = pc.GetRealName(isMeeting: true);
                     playername = playername.ApplyNameColorData(seer, pc, true);
 
-                    sender.AutoStartRpc(pc.NetId, RpcCalls.SetName, seer.GetClientId())
+                    var sender = CustomRpcSender.Create("MeetingNameColor", SendOption.None);
+                    sender.StartMessage(clientId);
+                    sender.AutoStartRpc(pc.NetId, RpcCalls.SetName, clientId)
                     .Write(pc.NetId)
                     .Write(playername)
                     .EndRpc();
+                    sender.EndMessage();
+                    sender.SendMessage();
                 }
-                sender.EndMessage();
-                sender.SendMessage();
             }
         }
     }

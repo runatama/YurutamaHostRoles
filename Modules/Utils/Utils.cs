@@ -219,14 +219,18 @@ namespace TownOfHost
             var Duration = Options.KillFlashDuration.GetFloat();
             var systemtypes = Utils.GetCriticalSabotageSystemType();
             float FlashDuration = Options.KillFlashDuration.GetFloat();
+            List<CustomRpcSender> senders = new();
 
             if (ReactorCheck) Duration += 0.2f;
 
             {
-                var sender = CustomRpcSender.Create("KillFlash", Hazel.SendOption.None);
                 bool ch = false;
                 foreach (var player in players)
                 {
+                    //sender
+                    var sender = CustomRpcSender.Create("KillFlash", Hazel.SendOption.None);
+                    senders.Add(sender);
+
                     //実行
                     var state = PlayerState.GetByPlayerId(player.PlayerId);
                     state.IsBlackOut = true; //ブラックアウト
@@ -252,8 +256,12 @@ namespace TownOfHost
                 UtilsOption.MarkEveryoneDirtySettings();
                 if (ch)
                 {
-                    sender.EndMessage();
-                    sender.SendMessage();
+                    senders.Do(x =>
+                    {
+                        x.EndMessage();
+                        x.SendMessage();
+                    });
+                    senders.Clear();
                 }
             }
 
@@ -262,10 +270,12 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     bool ch = false;
-                    var sender = CustomRpcSender.Create("RemoveKillFlash");
                     foreach (var player in players)
                     {
                         if (player == null || GameStates.IsLobby || player.GetClient() == null || player.PlayerId == 0) continue;
+
+                        var sender = CustomRpcSender.Create("RemoveKillFlash");
+                        senders.Add(sender);
 
                         ch = true;
                         sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
@@ -285,8 +295,11 @@ namespace TownOfHost
                     }
                     if (ch)
                     {
-                        sender.EndMessage();
-                        sender.SendMessage();
+                        senders.Do(x =>
+                        {
+                            x.EndMessage();
+                            x.SendMessage();
+                        });
                     }
                 }, FlashDuration, "Fix Desync Reactor");
                 _ = new LateTask(() => NowKillFlash = false, FlashDuration * 2, "", true);

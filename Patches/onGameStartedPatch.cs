@@ -916,9 +916,9 @@ namespace TownOfHost
             var hostId = PlayerControl.LocalPlayer.PlayerId;
             foreach (var seer in PlayerCatch.AllPlayerControls)
             {
-                var sender = senders[seer.PlayerId];
                 foreach (var target in PlayerCatch.AllPlayerControls)
                 {
+                    var sender = senders[target.PlayerId];
                     if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out var role))
                     {
                         //本人はイントロ表示後に再度SetRoleする

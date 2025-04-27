@@ -357,8 +357,7 @@ namespace TownOfHost
                 {
                     if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                     //一番遠いベントに追い出す
-                    var sender = CustomRpcSender.Create("Farthest Vent", SendOption.None)
-                        .StartMessage();
+
                     foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
                         if (pc == user || pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue; //本人とホストは別の処理
@@ -368,13 +367,16 @@ namespace TownOfHost
                         foreach (var vent in ShipStatus.Instance.AllVents)
                             Distance.Add(vent.Id, Vector2.Distance(position, vent.transform.position));
                         var ventid = Distance.OrderByDescending(x => x.Value).First().Key;
-                        sender.AutoStartRpc(__instance.NetId, (byte)RpcCalls.BootFromVent, pc.GetClientId())
+                        var sender = CustomRpcSender.Create("Farthest Vent", SendOption.None)
+                            .StartMessage(pc.GetClientId())
+                            .AutoStartRpc(__instance.NetId, (byte)RpcCalls.BootFromVent, pc.GetClientId())
                             .Write(ventid)
-                            .EndRpc();
+                            .EndRpc()
+                            .EndMessage();
+                        sender.SendMessage();
                         __instance.myPlayer.RpcSnapToForced(pos);
                     }
-                    sender.EndMessage();
-                    sender.SendMessage(); //多分負荷あれだし、テープで無理やり戻した感じだから参考にしない方がいい、
+                    //多分負荷あれだし、テープで無理やり戻した感じだから参考にしない方がいい、
 
                     /*MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.None, -1);
                     writer.WritePacked(127);
