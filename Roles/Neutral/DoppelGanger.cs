@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -89,7 +90,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         }
         Cankill = true;
         Target = target.PlayerId;
-        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 1f, "", true);
+        _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 1f, "DoppelSetNotify", true);
         return true;
     }
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)

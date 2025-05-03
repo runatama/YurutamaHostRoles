@@ -85,6 +85,8 @@ namespace TownOfHost
             || (GameStates.IsLobby)
             || (target == null)) return;
 
+            if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
             var id = target.PlayerId;
 
             if (IsCamouflage && kyousei is true)

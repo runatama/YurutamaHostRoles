@@ -17,6 +17,7 @@ using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Patches.ISystemType;
 
 using static TownOfHost.Translator;
+using TownOfHost.Roles.AddOns.Neutral;
 
 namespace TownOfHost
 {
@@ -529,6 +530,7 @@ namespace TownOfHost
                 AddOnsAssignDataTeamImp.AssignAddOnsFromList();
                 AddOnsAssignData.AssignAddOnsFromList();
                 Twins.AssingAndReset();
+                Faction.AssingFaction();
 
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
@@ -655,7 +657,7 @@ namespace TownOfHost
                 if (Lovers.OneLovePlayer.doublelove) UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
             }
 
-            if (Options.CurrentGameMode != CustomGameMode.TaskBattle)
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
                 CoResetRoleY();
 
             PlayerCatch.CountAlivePlayers(true);
@@ -688,7 +690,7 @@ namespace TownOfHost
             stream.EndMessage();
             foreach (var data in GameData.Instance.AllPlayers)
             {
-                data.Disconnected = data.PlayerId.GetPlayerState().IsDead && data.PlayerId is not 0;
+                data.Disconnected = false;
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -791,6 +793,10 @@ namespace TownOfHost
 
                     PlayerCatch.AllPlayerControls.Do(Player => PlayerOutfitManager.Save(Player));
                     if (Options.CurrentGameMode == CustomGameMode.Standard)
+                    {
+                        //初手強制会議あるなら戻さない
+                        if (!SuddenDeathMode.NowSuddenDeathMode && Options.FirstTurnMeeting.GetBool()) return;
+
                         if (GameStates.InGame)
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
@@ -836,6 +842,7 @@ namespace TownOfHost
                                 if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && (!Options.SuddenAllRoleonaji.GetBool() || !Options.SuddenTeamRole.GetBool())) continue;
                                 pc.RpcSetRoleDesync(roleinfo.BaseRoleType.Invoke(), pc.GetClientId());
                             }
+                    }
 
                     if (Options.CurrentGameMode == CustomGameMode.Standard)
                         _ = new LateTask(() =>

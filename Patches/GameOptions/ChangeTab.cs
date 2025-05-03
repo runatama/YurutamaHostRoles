@@ -77,6 +77,7 @@ namespace TownOfHost
             {
                 _ = new LateTask(() =>
                 {
+                    if (__instance?.GameSettingsTab?.Children is null) return;
                     foreach (var ob in __instance.GameSettingsTab.Children)
                     {
                         switch (ob.Title)

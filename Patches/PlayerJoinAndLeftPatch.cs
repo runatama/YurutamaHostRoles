@@ -59,6 +59,10 @@ namespace TownOfHost
                 Main.NormalOptions.roleOptions.TryGetRoleOptions(RoleTypes.GuardianAngel, out GuardianAngelRoleOptionsV09 roleData);
                 Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetBool(BoolOptionNames.ConfirmImpostor, false);
                 Main.NormalOptions.TryCast<NormalGameOptionsV09>().SetInt(Int32OptionNames.TaskBarMode, 2);
+                if (Main.NormalOptions.MaxPlayers > 15)
+                {
+                    Main.NormalOptions.SetInt(Int32OptionNames.MaxPlayers, 15);
+                }
                 roleData.ProtectionDurationSeconds = 9999999999;
                 foreach (var option in OptionItem.AllOptions)
                 {
@@ -73,7 +77,7 @@ namespace TownOfHost
     {
         public static void Prefix(InnerNetClient __instance, DisconnectReasons reason, string stringReason)
         {
-            Logger.Info($"切断(理由:{reason}:{stringReason}, ping:{__instance.Ping},FriendCode:{__instance?.GetClient(__instance.ClientId)?.FriendCode},PUID{__instance?.GetClient(__instance.ClientId)?.ProductUserId})", "Session");
+            Logger.Info($"切断(理由:{reason}:{stringReason}, ping:{__instance.Ping},FriendCode:{__instance?.GetClient(__instance.ClientId)?.FriendCode},PUID:{__instance?.GetClient(__instance.ClientId)?.ProductUserId})", "Session");
 
             if (GameStates.IsFreePlay && Main.EditMode)
             {

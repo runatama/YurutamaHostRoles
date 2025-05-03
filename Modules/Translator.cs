@@ -170,13 +170,18 @@ namespace TownOfHost
                 {
                     res = str switch
                     {
-                        "Bakery" => "鯉のぼり作りのパン屋...?",
+                        "Bakery" => "鯉のぼり作りのパン屋",
                         "BakeryInfo" => "今回はパンではなくこいのぼり制作！",
                         "Message.Bakery1" => "パン屋がこいのぼりを大量に制作したよ...?",
                         "ShyboyInfo" => "人だかりが多いよぉ...",
                         "JesterInfo" => "あ～した天気になぁれ",
                         "MadJesterInfo" => "あ～した雨になぁれ",
                         "EfficientInfo" => "あそこも行って..こっちにも...",
+                        "JumperInfo" => "春は過ぎ去った...",
+                        "EraserInfo" => "宿題終わらないよぉ...",
+                        "QuickKillerInfo" => "3分前のバスに...",
+                        "WalkerInfo" => "歩き疲れたよ!",
+                        "OneLoveInfo" => "今度...水族館行かない?",
                         _ => res
                     };
                 }

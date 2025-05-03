@@ -36,7 +36,7 @@ namespace TownOfHost
             if (time <= 0)//0s以下ならその場で処理したまえ。
             {
                 try { action(); }
-                catch (Exception ex) { Logger.Error($"{ex}", "LateTaskNattenaiyatu"); }
+                catch (Exception ex) { Logger.Error($"{ex}", "LateTask0sError"); }
                 return;
             }
             Tasks.Add(this);
@@ -54,7 +54,7 @@ namespace TownOfHost
                     if (task.Run(deltaTime))
                     {
                         if (task.name != "" && task.NoLog is false or null)
-                            Logger.Info($"\"{task.name}\"{(task.NoLog is null ? "" : "is finished")}", "LateTask");
+                            Logger.Info($"\"{task.name}\"{(task.NoLog is null ? "is end" : "is finished")}", "LateTask");
                         TasksToRemove.Add(task);
                     }
                 }

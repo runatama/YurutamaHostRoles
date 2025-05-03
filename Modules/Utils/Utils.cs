@@ -141,12 +141,8 @@ namespace TownOfHost
             {
                 if (KillFlashCheck(info, seer))
                 {
-                    Players.Add(seer);
+                    seer.KillFlash();
                 }
-            }
-            if (Players.Count > 0)
-            {
-                KillFlash(Players.ToArray());
             }
         }
         public static bool KillFlashCheck(MurderInfo info, PlayerControl seer)
@@ -212,7 +208,7 @@ namespace TownOfHost
                 player.MarkDirtySettings();
             }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
         }
-        public static void KillFlash(PlayerControl[] players)
+        /*public static void KillFlash(PlayerControl[] players)
         {
             if (players.Count() < 1) return;
             bool ReactorCheck = IsActive(GetCriticalSabotageSystemType());
@@ -317,7 +313,7 @@ namespace TownOfHost
                 }
                 if (ch) UtilsOption.MarkEveryoneDirtySettings();
             }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
-        }
+        }*/
         public static void AllPlayerKillFlash()
         {
             if (SuddenDeathMode.NowSuddenDeathMode) return;

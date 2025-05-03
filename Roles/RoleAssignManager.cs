@@ -392,6 +392,7 @@ namespace TownOfHost.Roles
                 CustomRoles.GreenLovers => new CustomRoles[2] { CustomRoles.GreenLovers, CustomRoles.GreenLovers },
                 CustomRoles.WhiteLovers => new CustomRoles[2] { CustomRoles.WhiteLovers, CustomRoles.WhiteLovers },
                 CustomRoles.PurpleLovers => new CustomRoles[2] { CustomRoles.PurpleLovers, CustomRoles.PurpleLovers },
+                CustomRoles.Faction => [],
                 _ => new CustomRoles[1] { role },
             };
         public static bool IsPresent(this CustomRoles role) => AssignRoleList.Any(x => x == role);

@@ -1,4 +1,5 @@
 using Hazel;
+using System.Linq;
 using AmongUs.GameOptions;
 using UnityEngine;
 
@@ -47,6 +48,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem OptionDieKiller;
         public static OptionItem OptionDieKillerTIme;
         static OptionItem OptionCountChenge;
+        static OptionItem OptionCanSeeKillableTeammate;
         PlayerControl Killer;
         /// <summary>
         /// 自分をキルしてきた人のロール
@@ -70,7 +72,7 @@ namespace TownOfHost.Roles.Neutral
         private static LogHandler logger = Logger.Handler(nameof(BakeCat));
         enum Op
         {
-            BakeCatDieKiller, BakeCatDieKillerTime, BakeCatCountChenge
+            BakeCatDieKiller, BakeCatDieKillerTime, BakeCatCountChenge, SchrodingerCatCanSeeKillableTeammate
         }
         public static void SetupOptionItem()
         {
@@ -82,6 +84,7 @@ namespace TownOfHost.Roles.Neutral
             OptionDieKiller = BooleanOptionItem.Create(RoleInfo, 14, Op.BakeCatDieKiller, true, false);
             OptionDieKillerTIme = FloatOptionItem.Create(RoleInfo, 15, Op.BakeCatDieKillerTime, new(0, 180, 1), 1, false, OptionDieKiller).SetValueFormat(OptionFormat.Seconds);
             OptionCountChenge = BooleanOptionItem.Create(RoleInfo, 16, Op.BakeCatCountChenge, false, false);
+            OptionCanSeeKillableTeammate = BooleanOptionItem.Create(RoleInfo, 17, Op.SchrodingerCatCanSeeKillableTeammate, false, false);
         }
         public override void ApplyGameOptions(IGameOptions opt)
         {
@@ -219,12 +222,32 @@ namespace TownOfHost.Roles.Neutral
         }
         private void RevealNameColors(PlayerControl killer)
         {
-            var c = RoleInfo.RoleColorCode;
-            if (killer.Is(CustomRoles.WolfBoy))
-                c = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
-
-            NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
-            NameColorManager.Add(Player.PlayerId, killer.PlayerId);
+            if (OptionCanSeeKillableTeammate.GetBool())
+            {
+                var killerRoleId = killer.GetCustomRole();
+                var killerTeam = PlayerCatch.AllPlayerControls.Where(player => (_team is TeamType.Mad && (player.Is(CustomRoleTypes.Impostor) || player.Is(CustomRoles.WolfBoy))) || player.Is(killerRoleId));
+                foreach (var member in killerTeam)
+                {
+                    if (member.GetCustomRole().IsMadmate()) continue;
+                    var c = RoleInfo.RoleColorCode;
+                    if (member.Is(CustomRoles.WolfBoy))
+                    {
+                        c = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+                    }
+                    NameColorManager.Add(member.PlayerId, Player.PlayerId, c);
+                    NameColorManager.Add(Player.PlayerId, member.PlayerId);
+                }
+            }
+            else
+            {
+                var c = RoleInfo.RoleColorCode;
+                if (killer.Is(CustomRoles.WolfBoy))
+                {
+                    c = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+                }
+                NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
+                NameColorManager.Add(Player.PlayerId, killer.PlayerId);
+            }
 
             UtilsGameLog.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             UtilsGameLog.LastLogRole[Player.PlayerId] = UtilsGameLog.LastLogRole[Player.PlayerId].RemoveColorTags().Color(DisplayRoleColor);

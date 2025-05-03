@@ -8,6 +8,7 @@ using UnityEngine;
 using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Neutral;
 using static TownOfHost.Croissant;
 
 namespace TownOfHost
@@ -736,6 +737,7 @@ namespace TownOfHost
             MadmateCanMovedByVent = BooleanOptionItem.Create(101013, "MadmateCanMovedByVent", true, TabGroup.MadmateRoles, false).SetColorcode("#8cffff").SetParent(MadMateOption);
 
             //Com
+            Faction.SetUpOption();
             Twins.SetUpTwinsOptions();
             Lovers.SetLoversOptions();
             GhostRoleCore.SetupCustomOptionAddonAndIsGhostRole();
@@ -1280,7 +1282,7 @@ namespace TownOfHost
         }
         private static List<CombinationRoles> Combinations = new();
         public static void SetupRoleOptions(SimpleRoleInfo info) => SetupRoleOptions(info.ConfigId, info.Tab, info.RoleName, info.AssignInfo.AssignCountRule, fromtext: UtilsOption.GetFrom(info), combination: info.Combination);
-        public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None)
+        public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, IntegerValueRule assignCountRule = null, CustomGameMode customGameMode = CustomGameMode.Standard, string fromtext = "", CombinationRoles combination = CombinationRoles.None, int defo = -1)
         {
             if ((role is CustomRoles.Phantom) || (combination != CombinationRoles.None && Combinations.Contains(combination))) return;
             if (role.IsVanilla())
@@ -1313,7 +1315,7 @@ namespace TownOfHost
 
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor) return;
 
-            var countOption = IntegerOptionItem.Create(id + 1, "Maximum", assignCountRule, assignCountRule.Step, tab, false, HideValue: hidevalue)
+            var countOption = IntegerOptionItem.Create(id + 1, "Maximum", assignCountRule, defo is -1 ? assignCountRule.Step : defo, tab, false, HideValue: hidevalue)
                 .SetParent(spawnOption)
                 .SetValueFormat(assignCountRule.MaxValue is 7 ? OptionFormat.Set : OptionFormat.Players)
                 .SetGameMode(customGameMode)

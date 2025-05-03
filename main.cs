@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "51.11.28.25";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-        public const string PluginShowVersion = "51.11.28<sub>.25</sub>";
+        public const string PluginVersion = "51.12.28.31";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+        public const string PluginShowVersion = "51.12.28<sub>.31</sub>";
         public const string ModVersion = ".28";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -291,6 +291,7 @@ namespace TownOfHost
 
                     //第三属性
                     {CustomRoles.Amanojaku,"#005243"},
+                    {CustomRoles.Faction,"#695328"},
                     {CustomRoles.Lovers, "#ff6be4"},
                     {CustomRoles.RedLovers, "#d70035"},
                     {CustomRoles.YellowLovers, "#fac559"},
@@ -435,7 +436,6 @@ namespace TownOfHost
         Vulture = CustomRoles.Vulture,
         CurseMaker = CustomRoles.CurseMaker,
         Fox = CustomRoles.Fox,
-        Ventoman = CustomRoles.Ventoman,
         PhantomThief = CustomRoles.PhantomThief,
 
         HASTroll = CustomRoles.HASTroll,

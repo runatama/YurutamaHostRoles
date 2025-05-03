@@ -457,8 +457,8 @@ public abstract class RoleBase : IDisposable
     /// 名前を一時的に変更する時に使う<br/>
     /// NotifyRoles時に呼び出される
     /// </summary>
-    /// <param name = "name" > 変更する名前 </ param >
-    /// <param name = "NoMarker" > マーカーや追加情報を表示しない </ param >
+    /// <param name = "name" > 変更する名前 </param>
+    /// <param name = "NoMarker" > マーカーや追加情報を表示しない </param>
     /// <returns>名前を変更するかどうか</returns>
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
     public virtual void OnLeftPlayer(PlayerControl player) { }
@@ -470,13 +470,6 @@ public abstract class RoleBase : IDisposable
     /// <param name="killer"></param>
     /// <returns></returns>
     public virtual bool? CheckGuess(PlayerControl killer) => true;
-    /// <summary>
-    /// ペットを撫でようとしたとき呼び出される。<br/>
-    /// falseを返すとキャンセルされる<br/>
-    /// 自分自身について呼ばれるため本人確認不要
-    /// Host以外も呼ばれるので注意
-    /// </summary>
-    public virtual bool OnPet() => true;
 
     /// <summary>
     /// Host用。

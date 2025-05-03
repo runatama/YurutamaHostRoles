@@ -184,7 +184,7 @@ namespace TownOfHost
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer(false);
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 0.3f, "", true);
+                }, 0.4f, "", true);
             }
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -235,7 +235,7 @@ namespace TownOfHost
                 {
                     exiled = AntiBlackout_LastExiled;
                     AntiBlackout.SendGameData();
-                }, 0.22f, "Restore IsDead Task");
+                }, 0.28f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
                     if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
@@ -262,7 +262,7 @@ namespace TownOfHost
                             Executioner.ChangeRoleByTarget(x.Key);
                     });
                     Main.AfterMeetingDeathPlayers.Clear();
-                }, 0.27f, "AfterMeetingDeathPlayers Task");
+                }, 0.34f, "AfterMeetingDeathPlayers Task");
             }
 
             UtilsGameLog.WriteGameLog();

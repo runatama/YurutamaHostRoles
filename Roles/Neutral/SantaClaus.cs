@@ -44,13 +44,18 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         giftpresent = 0;
         EntotuVentId = null;
         EntotuVentPos = null;
+        meetinggift = 0;
+        GiftedPlayers.Clear();
+        Memo = "";
     }
     static OptionItem OptWinGivePresentCount; static int WinGivePresentCount;
     static OptionItem OptAddWin; static bool AddWin;
+    static OptionItem Optpresent;
     enum OptionName
     {
         SantaClausWinGivePresentCount,
-        CountKillerAddWin//追加勝利
+        CountKillerAddWin,//追加勝利
+        SantaClausGivePresent
     }
     bool IWinflag;
     bool MeetingNotify;
@@ -58,12 +63,16 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     int havepresent;
     int giftpresent;
     int? EntotuVentId;
+    int meetinggift;
     Vector3? EntotuVentPos;
+    string Memo;
+    static List<byte> GiftedPlayers = new();
     private static void SetupOptionItem()
     {
         OptWinGivePresentCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SantaClausWinGivePresentCount, new(1, 30, 1), 4, false);
         OptAddWin = BooleanOptionItem.Create(RoleInfo, 15, OptionName.CountKillerAddWin, false, false);
         SoloWinOption.Create(RoleInfo, 16, show: () => !OptAddWin.GetBool(), defo: 1);
+        Optpresent = BooleanOptionItem.Create(RoleInfo, 17, OptionName.SantaClausGivePresent, true, false);
         OverrideTasksData.Create(RoleInfo, 20, tasks: (true, 2, 2, 2));
     }
     public override void Add() => SetPresentVent();
@@ -87,21 +96,38 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
 
         return $" <color=#e05050>({win})</color>";
     }
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
+    {
+        Memo = "";
+        if (!MeetingNotify || !Player.IsAlive() || MeetingNotifyRoom == "") return;
+
+        var text = "";
+        while (meetinggift > 0)
+        {
+            var chance = IRandom.Instance.Next(0, 20);
+            var mesnumber = 0;
+
+            if (chance > 18) mesnumber = 2;
+            if (chance > 15) mesnumber = 1;
+
+            var msg = string.Format(GetString($"SantaClausMeetingMeg{mesnumber}"), MeetingNotifyRoom);
+
+            MeetingNotifyRoom = "";
+            MeetingNotify = false;
+            text += $"<size=60%><color=#e05050>{msg}</color></size>";
+
+            if (Optpresent.GetBool())
+            {
+                GiftPresent();
+            }
+            meetinggift--;
+        }
+        meetinggift = 0;
+        Memo = text;
+    }
     public override string MeetingMeg()
     {
-        if (!MeetingNotify || !Player.IsAlive() || MeetingNotifyRoom == "") return "";
-
-        var chance = IRandom.Instance.Next(0, 20);
-        var mesnumber = 0;
-
-        if (chance > 18) mesnumber = 2;
-        if (chance > 15) mesnumber = 1;
-
-        var msg = string.Format(GetString($"SantaClausMeetingMeg{mesnumber}"), MeetingNotifyRoom);
-
-        MeetingNotifyRoom = "";
-        MeetingNotify = false;
-        return $"<size=60%><color=#e05050>{msg}</color></size>";
+        return Memo;
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
@@ -114,6 +140,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         Player.Data.RpcSetTasks(Array.Empty<byte>());
         MyTaskState.CompletedTasksCount = 0;
         giftpresent++;
+        meetinggift++;
         Player.SyncSettings();
         EntotuVentId = null;
         MeetingNotify = true;
@@ -208,5 +235,55 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         EntotuVentId = ev.Id;
         EntotuVentPos = new Vector3(ev.transform.position.x, ev.transform.position.y);
         GetArrow.Add(Player.PlayerId, (Vector3)EntotuVentPos);
+    }
+    CustomRoles[] giveaddons =
+    {
+        CustomRoles.Autopsy,
+        CustomRoles.Lighting,
+        CustomRoles.Moon,
+        CustomRoles.Guesser,
+        CustomRoles.Tiebreaker,
+        CustomRoles.Opener,
+        CustomRoles.Management,
+        CustomRoles.Speeding,
+        CustomRoles.MagicHand,
+        CustomRoles.Serial,
+        CustomRoles.Transparent,//なんでデバグがあるのかって?悪いサンタもおるやろ。
+        CustomRoles.InfoPoor,//   というか天邪鬼付与させたいとても(?)
+        CustomRoles.Water,
+        CustomRoles.Clumsy
+    };
+    void GiftPresent()
+    {
+        List<PlayerControl> GiftTargets = new();
+        foreach (var player in PlayerCatch.AllAlivePlayerControls)
+        {
+            if (!player.IsAlive()) continue;
+            if (GiftedPlayers.Contains(player.PlayerId)) continue;
+            GiftTargets.Add(player);
+        }
+        if (GiftTargets.Count < 1)
+        {
+            Logger.Info($"ギフトのターゲットがいないって伝えなきゃ!", "SantaClaus");
+            return;
+        }
+
+        var target = GiftTargets[IRandom.Instance.Next(GiftTargets.Count)];
+        if (!target)
+        {
+            return;
+        }
+        var roles = giveaddons.Where(role => !target.Is(role)).ToList();
+        if (roles.Count() < 1)
+        {
+            Logger.Info($"{target.Data.GetLogPlayerName()}には付与できないって伝えなきゃ！", "SantaClaus");
+            GiftedPlayers.Add(target.PlayerId);
+            return;
+        }
+
+        var giftrole = roles[IRandom.Instance.Next(roles.Count())];
+        target.RpcSetCustomRole(giftrole);
+        Logger.Info($"{Player.Data.GetLogPlayerName()}:gift=>{target.Data.GetLogPlayerName()}({giftrole})", "SantaClaus");
+        _ = new LateTask(() => Utils.SendMessage(string.Format(GetString("SantaGiftAddonMessage"), UtilsRoleText.GetRoleColorAndtext(giftrole)), target.PlayerId), 5f, "SantaGiftMeg", true);
     }
 }

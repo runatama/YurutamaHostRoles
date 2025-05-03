@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -40,6 +41,9 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     static OptionItem OptionShikai;
     static OptionItem OptionMeetingReset;
     static OptionItem OptionCanSeeKillflash;
+    static OptionItem OptionCriminalprofile;
+    List<byte> SesshokuPlayer;
+    bool Search;
     static bool MeetingReset;
     static float KillCooldown;
     static bool Canseekillflash;
@@ -54,7 +58,8 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     {
         MassMediaShikai,
         MassMediaMeetingReset,
-        MassMediaCanSeeKillflash
+        MassMediaCanSeeKillflash,
+        MassMediaCriminalprofile
     }
     public override void Add()
     {
@@ -67,6 +72,8 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
         Winchance = false;
         Win = false;
         Guees = byte.MaxValue;
+        SesshokuPlayer = new();
+        Search = false;
 
         MassMedias.Add(this);
     }
@@ -80,24 +87,28 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
                 .SetValueFormat(OptionFormat.Multiplier);
         OptionMeetingReset = BooleanOptionItem.Create(RoleInfo, 12, Option.MassMediaMeetingReset, false, false);
         OptionCanSeeKillflash = BooleanOptionItem.Create(RoleInfo, 13, Option.MassMediaCanSeeKillflash, false, false);
+        OptionCriminalprofile = BooleanOptionItem.Create(RoleInfo, 14, Option.MassMediaCriminalprofile, false, false);
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
+        if (!player.IsAlive()) return;
 
         var tg = PlayerCatch.GetPlayerById(Target);
         if (tg == null) return;
 
-        if (!player.IsAlive()) return;
-
         //範囲
         Vector2 GSpos = player.transform.position;
-        var Mieruhani = 7.5f * Main.DefaultCrewmateVision;
-        if (player.Is(CustomRoles.Lighting)) Mieruhani = 7.5f * Main.DefaultImpostorVision;
+        var Mieruhani = 6.5f * Main.DefaultCrewmateVision;
+        if (player.Is(CustomRoles.Lighting)) Mieruhani = 6.5f * Main.DefaultImpostorVision;
 
         //position
         float HitoDistance = Vector2.Distance(GSpos, tg.transform.position);
-        if (!tg.IsAlive()) HitoDistance = Vector2.Distance(GSpos, TagePo);
+        if (!tg.IsAlive())
+        {
+            HitoDistance = Vector2.Distance(GSpos, TagePo);
+            Mieruhani *= 0.4f;
+        }
 
         if (HitoDistance <= Mieruhani)//更新があるなら～
         {
@@ -113,6 +124,19 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
             {
                 Makkura = false;
                 Player.MarkDirtySettings();
+            }
+        }
+
+        if (OptionCriminalprofile.GetBool() && tg.IsAlive())
+        {
+            foreach (var otherpc in PlayerCatch.AllAlivePlayerControls.Where(pc => pc.PlayerId != Target && pc.PlayerId != Player.PlayerId))
+            {
+                if (SesshokuPlayer.Contains(otherpc.PlayerId)) continue;
+                float distance = Vector2.Distance(tg.transform.position, otherpc.GetTruePosition());
+                if (distance <= 4.5f && Search)
+                {
+                    SesshokuPlayer.Add(otherpc.PlayerId);
+                }
             }
         }
     }
@@ -167,8 +191,13 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
-        if (Target == byte.MaxValue) return "";
         seen ??= seer;
+        if (isForMeeting && SesshokuPlayer.Contains(seen.PlayerId))
+        {
+            return "<#512513>〇</color>";
+        }
+
+        if (Target == byte.MaxValue) return "";
 
         if (seen == seer && Is(seen))
         {
@@ -241,7 +270,9 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
         }
         Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
         Makkura = false;
+        SesshokuPlayer = new();
         Player.SyncSettings();
+        _ = new LateTask(() => Search = true, 10, "MassMediaSearch");
     }
     public bool CanUseKillButton() => true;
     public bool CanUseImpostorVentButton() => false;

@@ -139,7 +139,7 @@ namespace TownOfHost
                     while (parent != null && enabled)
                     {
                         i++;
-                        enabled = parent.GetBool();
+                        enabled = parent.GetBool() || (parent.CustomRole.IsAddOn() && option.Name is not "%roleTypes%Maximum" and not "Maximum" and not "FixedRole");
                         parent = parent.Parent;
                     }
 

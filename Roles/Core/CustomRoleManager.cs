@@ -881,7 +881,7 @@ public enum CustomRoles
     Twins,
     //第三属性
     Lovers, RedLovers, YellowLovers, BlueLovers, GreenLovers, WhiteLovers, PurpleLovers,
-    MadonnaLovers, OneLove, Amanojaku,
+    MadonnaLovers, OneLove, Amanojaku, Faction,
     //AddMadmate,
     //バフ
     Guesser,

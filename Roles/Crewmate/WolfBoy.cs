@@ -8,6 +8,7 @@ using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -138,7 +139,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
         {
             if (schrodingerCat.Team == SchrodingerCat.TeamType.None)
             {
-                Logger.Warn($"シェリフ({player.GetRealName()})にキルされたシュレディンガーの猫のロールが変化していません", nameof(Sheriff));
+                Logger.Warn($"狼少年({player.GetRealName()})にキルされたシュレディンガーの猫のロールが変化していません", nameof(WolfBoy));
                 return false;
             }
         }

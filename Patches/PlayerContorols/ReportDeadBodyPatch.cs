@@ -114,7 +114,6 @@ namespace TownOfHost
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                if (!pc) continue;
                 var roleClass = pc.GetRoleClass();
                 roleClass?.OnReportDeadBody(__instance, target);
             }

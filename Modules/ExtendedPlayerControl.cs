@@ -442,28 +442,10 @@ namespace TownOfHost
             if (Sync) UtilsOption.SyncAllSettings();
             _ = new LateTask(() =>
             {
-                /*var sender = CustomRpcSender.Create("AllplayerresetAbility", SendOption.None);
-                sender.StartMessage();*/
                 foreach (var target in PlayerCatch.AllPlayerControls)
                 {
-                    /* if (PlayerControl.LocalPlayer == target)
-                     {
-                         //targetがホストだった場合
-                         PlayerControl.LocalPlayer?.Data?.Role?.SetCooldown();
-                     }
-                     else
-                     {
-                         //targetがホスト以外だった場合
-                         sender.AutoStartRpc(target.NetId, RpcCalls.ProtectPlayer, target.GetClientId())
-                         .WriteNetObject(target)
-                         .Write(0)
-                         .EndRpc();
-                     }*/
                     target.RpcResetAbilityCooldown();
                 }
-                /*sender.EndMessage();
-                sender.SendMessage(); */
-
                 Main.CanUseAbility = true;
             }
             , 0.2f, "AllPlayerResetAbilityCoolDown", null);

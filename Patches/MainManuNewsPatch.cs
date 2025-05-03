@@ -1397,6 +1397,31 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100056,
+                    Title = "そろそろGWだねっ!!()",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.12.28.31</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.12.28.31</color>",
+                    Text = "<size=80%>結局そこそこのアプデはするんだね。\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・キルフラッシュ後、視界が戻らない問題の対応\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・ベントマスターのベント検知を生存中のみ出すように\n"
+                    + "\n<size=125%>【新機能】</size>\n"
+                    + "・マスメディアに犯人候補を表示させる設定を追加\n"
+                    + "・サンタクロースに属性をランダムにプレゼントする設定を追加\n"
+                    + "・バケネコに自チームのキラーが見える設定の追加\n"
+                    + "・ベントマスターにベント使用可能設定の追加\n"
+                    + "\n<size=125%>【新役職】</size>\n"
+                    + "・徒党(ととう)\n設定されたニュートラルに付与されます。徒党が勝利すると他の徒党も勝利します。\n"
+                    + "今週休日ほぼない...11連休とか言わないでほしいぜ... by.Yoran"
+                    ,
+                    Date = "2025-05-02T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class QuickKiller : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =

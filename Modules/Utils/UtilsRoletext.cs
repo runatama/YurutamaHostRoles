@@ -131,6 +131,9 @@ namespace TownOfHost
                         case CustomRoles.Twins:
                             roleText = GetRoleColorAndtext(CustomRoles.Twins) + roleText;
                             break;
+                        case CustomRoles.Faction:
+                            roleText = GetRoleColorAndtext(CustomRoles.Faction) + roleText;
+                            break;
                     }
                 }
             }

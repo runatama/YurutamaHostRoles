@@ -22,11 +22,6 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 ## [Wiki](https://github.com/KYMario/TownOfHost-K/wiki)もあるよ!
 
 ## リリース
-> [!Note]
-> AmongUsのInnerslothサーバー側に変更があったとみられ、<br>
-> ゲーム開始 / イントロでホストがキックされるため<br>
-> TownOfHost-Kを含むHostModは、<br>
-> バニラ鯖で正常に動作しません。<br>
 
 AmongUsバージョン : **16.0.0**~<br>
 
