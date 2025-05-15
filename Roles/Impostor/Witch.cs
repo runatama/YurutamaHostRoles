@@ -215,7 +215,7 @@ namespace TownOfHost.Roles.Impostor
                         }
                     }
 
-                    SetSpelled(target);
+                    _ = new LateTask(() => SetSpelled(target), 0.35f, "WhichSetKIll", true);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
                 fall = target is null;

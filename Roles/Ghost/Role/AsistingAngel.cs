@@ -10,7 +10,7 @@ namespace TownOfHost.Roles.Ghost
     public class AsistingAngel
     {
         private static readonly int Id = 60400;
-        public static List<byte> playerIdList = new();
+        public static byte AsistingAngelId = byte.MaxValue;
         public static OptionItem CoolDown;
         public static OptionItem AddClowDown;
         public static OptionItem Guardtime;
@@ -36,7 +36,7 @@ namespace TownOfHost.Roles.Ghost
         }
         public static void Init()
         {
-            playerIdList = new();
+            AsistingAngelId = byte.MaxValue;
             Asist = null;
             Track = byte.MaxValue;
             Count = 0;
@@ -47,7 +47,7 @@ namespace TownOfHost.Roles.Ghost
         }
         public static void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            AsistingAngelId = playerId;
         }
 
         public static bool ch()
@@ -73,6 +73,7 @@ namespace TownOfHost.Roles.Ghost
                     Asist = target;
                     pc.RpcResetAbilityCooldown();
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: [target, pc]);
+                    Logger.Info($"Set:{pc.Data.GetLogPlayerName()} => {target.Data.GetLogPlayerName()}", "AsistingAngel");
                 }
                 else
                 {
@@ -89,7 +90,7 @@ namespace TownOfHost.Roles.Ghost
                         {
                             Guard = false;
                             pc.RpcResetAbilityCooldown(kousin: true);//成功の有無にかかわらずリセットさせる。
-                        }, Guardtime.GetFloat(), "", true);
+                        }, Guardtime.GetFloat(), "AsistingAngelSetGuard", true);
                     }
                     else//違うなら対象の位置を矢印で教えないとねっ
                     {
@@ -137,7 +138,7 @@ namespace TownOfHost.Roles.Ghost
         }
         public static bool CheckAddWin(byte playerid)
         {
-            if (playerIdList.Contains(playerid))
+            if (playerid.GetPlayerState().GhostRole is CustomRoles.AsistingAngel)
             {
                 if (Asist != null)
                 {
@@ -145,9 +146,12 @@ namespace TownOfHost.Roles.Ghost
                     {
                         CustomWinnerHolder.WinnerIds.Add(playerid);
                         CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.AsistingAngel);
+                        Logger.Info($"{playerid} => Asist対象が勝利したので自身も勝利", "AsistingAngel");
                         return true;
                     }
+                    Logger.Info($"{playerid} => Asist対象が負けてるので負け。", "AsistingAngel");
                 }
+                Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
                 CustomWinnerHolder.IdRemoveLovers.Add(playerid);
             }
 

@@ -1,4 +1,5 @@
 using HarmonyLib;
+using UnityEngine;
 
 namespace TownOfHost.Patches;
 
@@ -63,4 +64,35 @@ public static class MovingPlatformBehaviourPatch
     }
     [HarmonyPatch(nameof(MovingPlatformBehaviour.SetSide)), HarmonyPrefix]
     public static bool SetSidePrefix() => !isDisabled;
+
+    public static void SetPlatfrom()
+    {
+        if (Main.NormalOptions.MapId is not 4) return;
+        AirshipStatus airshipStatus = GameObject.FindObjectOfType<AirshipStatus>();
+        if (airshipStatus && Options.AirShipPlatform.GetBool())
+        {
+            switch (Options.AirShipPlatform.GetValue())
+            {
+                //0(OFF) (来るわけないけど...)
+                case 0: break;
+                //ランダム
+                case 1:
+                    bool left = IRandom.Instance.Next(2) is 0;
+                    airshipStatus.GapPlatform.SetSide(left);
+                    Logger.Info($"ぬーんを{(left ? "左" : "右")}にセット(Random)", "SetPlatfrom");
+                    break;
+                //左
+                case 2:
+                    Logger.Info($"ぬーんを左にセット", "SetPlatfrom");
+                    airshipStatus.GapPlatform.SetSide(true);
+                    break;
+                //右
+                case 3:
+                    Logger.Info($"ぬーんを右にセット", "SetPlatfrom");
+                    airshipStatus.GapPlatform.SetSide(false);
+                    break;
+                default: Logger.Error($"予期せぬ値...{Options.AirShipPlatform.GetValue()}", "SetPlatfrom"); break;
+            }
+        }
+    }
 }

@@ -67,6 +67,7 @@ public sealed class Monochromer : RoleBase
     {
         //seenが省略の場合seer
         seen ??= seer;
+        if (Options.firstturnmeeting && MeetingStates.FirstMeeting) return "";
         if (!CanseeKiller || GameStates.Meeting) return "";
         if (seer.Is(CustomRoles.Monochromer) && (seen.GetCustomRole().IsImpostor() || seen.IsNeutralKiller() || seen.Is(CustomRoles.WolfBoy) || seen.Is(CustomRoles.Sheriff) || seen.Is(CustomRoles.GrimReaper)))
         {

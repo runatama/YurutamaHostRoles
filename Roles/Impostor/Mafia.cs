@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -12,7 +13,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
             typeof(Mafia),
             player => new Mafia(player),
             CustomRoles.Mafia,
-            () => CanmakeSidekickMadMate.GetBool() && Options.CanMakeMadmateCount.GetInt() != 0 ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
+            () => CanmakeSidekickMadMate.GetBool() && Options.CanMakeMadmateCount.GetInt() != 0 ? RoleTypes.Phantom : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             8600,
             SetupCustomOption,

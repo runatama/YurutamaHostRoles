@@ -20,6 +20,7 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.Ghost;
 using static TownOfHost.Translator;
 using static TownOfHost.UtilsRoleText;
+using TownOfHost.Patches;
 
 namespace TownOfHost
 {
@@ -547,6 +548,7 @@ namespace TownOfHost
         public static List<byte> RoleSendList = new();
         public static void AfterMeetingTasks()
         {
+            MovingPlatformBehaviourPatch.SetPlatfrom();
             GameStates.Meeting = false;
             //天秤会議だと送らない
             if (Balancer.Id == 255 && Balancer.target1 != 255 && Balancer.target2 != 255 && (!Options.firstturnmeeting || !MeetingStates.First))

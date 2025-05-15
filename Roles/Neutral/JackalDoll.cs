@@ -6,6 +6,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class JackalDoll : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -33,6 +34,7 @@ public sealed class JackalDoll : RoleBase
         Oyabun.Clear();
         shoukaku = false;
         role.Clear();
+        Ex = null;
     }
     static OptionItem JackaldieMode;
     static OptionItem RoleChe;
@@ -40,6 +42,7 @@ public sealed class JackalDoll : RoleBase
     static OptionItem CanVent;
     static OptionItem VentCool;
     static OptionItem VentIntime;
+    static NetworkedPlayerInfo Ex;
     enum Option
     {
         JackaldolldieMode, JackaldollRoleChe, SideKickJackaldollMacCount
@@ -192,11 +195,17 @@ public sealed class JackalDoll : RoleBase
         //どっちにしろ更新を
         UtilsNotifyRoles.NotifyRoles();
     }
+    public override bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
+    {
+        Ex = Exiled;
+        return false;
+    }
     public override void AfterMeetingTasks()
     {
         if (Oyabun.ContainsKey(Player.PlayerId)) return;
+        var id = Ex?.PlayerId ?? byte.MaxValue;
 
-        if (PlayerCatch.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien))) return;
+        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien)) && x.PlayerId != id)) return;
 
         foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
         {

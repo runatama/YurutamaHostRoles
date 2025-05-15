@@ -613,7 +613,7 @@
 "StolenerInfoLong","","自身がキルされると、設定で付与している属性がキラーに付与される。\n自身が属性を使えるかは設定による。"
 "SnowmanInfoLong","","タスクターン中、視界がだんだん狭くなる。\nタスクを完了させるたびに視界が広がる。"
 "GaspInfoLong","","タスクを一定数完了させ、\n誰かにキルされると次の会議が始まるまでキラーの名前に★マークがつく。\n死体が残らない死に方をした場合でもマークがつく"
-"VentOpenerInfoLong","","タスクを一定数完了させた後、\nベントに入ることで、全プレイヤーをベントから追い出すことができる。","","","","",""
+"VentOpenerInfoLong","","タスクを一定数完了させた後、\nベントに入ることで、全プレイヤーをベントから追い出すことができる。\nまた、成功するとフラッシュが見える","","","","",""
 "VentHunterInfoLong","","タスクを一定数完了させた後、\nベントに入ることで、入ったベントに罠を仕掛けることができる\n罠は設定した時間経過すれば消えるが、\nその罠の仕掛けられたベントに入ってしまうと死んでしまう\nまた、罠を仕掛ける時ベント内にキル可能役職がいた場合、\n罠を仕掛けるのに失敗し、陣営関係なく返り討ちにされる。"
 "SatelliteInfoLong","","設定されたタスク数を完了した状態で会議で自投票すると「行動の再生」モードに変更できる。\n「行動の再生」モードで自身以外の誰かに投票すると、会議前、その人が入ったことのある部屋を確認できる。\n通信妨害中は移動は観測されないため通信妨害中の行動を見ることはできない。\nまた通信妨害を直すことはできない。"
 "WalkerInfoLong","","通常のタスクの他に、特定の部屋に行くというタスクが追加される。\n特定の部屋に行くタスクも通常のタスクも、クルーメイト勝利のカウントに含まれる。"
@@ -833,6 +833,7 @@
 "MaxInVentTime","Vent Max Time","ベント内の最大時間"
 "CantUseZipLineTotop","Can't Use ZipLine To top  <#ff9900>Ⓕ</color>","ジップライン(上昇)が使えない  <#ff9900>Ⓕ</color>"
 "CantUseZipLineTodown","Can't Use ZipLine To down  <#ff9900>Ⓕ</color>","ジップライン(下降)が使えない  <#ff9900>Ⓕ</color>"
+"AirShipPlatform","AfterMeeting Set Platform","会議後、昇降機のリフトを移動させる  <#ff3300>Ⓐ</color>"
 
 "## サボタージュ"
 "Sabotage","SabotageOption","サボタージュ設定"
@@ -2293,3 +2294,5 @@
 "LimitSendInfo","※Only Can See You","※あなたの陣営のみに見えています。"
 "TimeLimit","Device TimeLimit","情報機器の制限時間"
 "ShowFilters","This Option Set Value Click Role Button!","ここの設定に適応する役職を左クリックしてね！"
+"PlatfromRight","Set Rigth","右に固定"
+"PlatfromLeft","Set Left","左に固定"

@@ -1042,14 +1042,8 @@ namespace TownOfHost
         /// <param name="Color">色</param>
         public static void RpcChColor(this PlayerControl pc, PlayerControl seer, byte Color, bool Nomal = false)
         {
+            if (Options.firstturnmeeting && MeetingStates.FirstMeeting) return;
             if (GameStates.IsLobby) return;
-            var sender = CustomRpcSender.Create("DChengeColor", SendOption.Reliable);
-            sender.StartMessage(seer.GetClientId());
-
-            sender.StartRpc(pc.NetId, RpcCalls.SetColor)
-            .Write(pc.NetId)
-            .Write(Color)
-            .EndRpc();
 
             if (seer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             {
@@ -1060,10 +1054,16 @@ namespace TownOfHost
                     pc.SetHat("", Color);
                     pc.SetVisor("", Color);
                     pc.SetPet("", Color);
+                    return;
                 }
-
-                return;
             }
+            var sender = CustomRpcSender.Create("DChengeColor", SendOption.Reliable);
+            sender.StartMessage(seer.GetClientId());
+
+            sender.StartRpc(pc.NetId, RpcCalls.SetColor)
+            .Write(pc.NetId)
+            .Write(Color)
+            .EndRpc();
 
             if (Nomal)
             {

@@ -451,11 +451,11 @@ namespace TownOfHost
                 }
             }
 
-            if (GameStates.InGame && GameStates.Intro)
+            if (GameStates.InGame && !GameStates.Intro)
             {
                 if (PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Monochromer)))
                 {
-                    if (!Camouflage.PlayerSkins.TryGetValue(__instance.PlayerId, out var outfit))
+                    if (Camouflage.PlayerSkins.TryGetValue(__instance.PlayerId, out var outfit))
                     {
                         __instance.Data.DefaultOutfit.ColorId = outfit.ColorId;
                         __instance.Data.DefaultOutfit.HatId = outfit.HatId;

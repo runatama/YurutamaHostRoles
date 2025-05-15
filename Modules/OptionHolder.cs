@@ -454,6 +454,7 @@ namespace TownOfHost
         public static OptionItem Sabotage;
         public static OptionItem MapModification;
         public static OptionItem AirShipVariableElectrical;
+        public static OptionItem AirShipPlatform;
         public static OptionItem DisableAirshipMovingPlatform;
         public static OptionItem CuseVent;
         public static OptionItem CuseVentCount;
@@ -464,6 +465,10 @@ namespace TownOfHost
         public static OptionItem DisableFungleSporeTrigger;
         public static OptionItem CantUseZipLineTotop;
         public static OptionItem CantUseZipLineTodown;
+        public static string[] PlatformOption =
+        {
+            "ColoredOff" , "AssignAlgorithm.Random" , "PlatfromLeft" , "PlatfromRight"
+        };
         // その他
         public static OptionItem ConvenientOptions;
         public static OptionItem FirstTurnMeeting;
@@ -803,12 +808,20 @@ namespace TownOfHost
             MapModification = BooleanOptionItem.Create(102000, "MapModification", false, TabGroup.MainSettings, false)
                 .SetHeader(true)
                 .SetColorcode("#ccff66");
-            AirShipVariableElectrical = BooleanOptionItem.Create(101600, "AirShipVariableElectrical", false, TabGroup.MainSettings, false).SetParent(MapModification);
-            DisableAirshipMovingPlatform = BooleanOptionItem.Create(101700, "DisableAirshipMovingPlatform", false, TabGroup.MainSettings, false).SetParent(MapModification);
-            DisableFungleSporeTrigger = BooleanOptionItem.Create(101900, "DisableFungleSporeTrigger", false, TabGroup.MainSettings, false).SetParent(MapModification);
-            CantUseZipLineTotop = BooleanOptionItem.Create(101901, "CantUseZipLineTotop", false, TabGroup.MainSettings, false).SetParent(MapModification);
-            CantUseZipLineTodown = BooleanOptionItem.Create(101902, "CantUseZipLineTodown", false, TabGroup.MainSettings, false).SetParent(MapModification);
-            ResetDoorsEveryTurns = BooleanOptionItem.Create(101800, "ResetDoorsEveryTurns", false, TabGroup.MainSettings, false).SetParent(MapModification);
+            AirShipVariableElectrical = BooleanOptionItem.Create(101600, "AirShipVariableElectrical", false, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveAirship);
+            AirShipPlatform = StringOptionItem.Create(101601, "AirShipPlatform", PlatformOption, 0, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveAirship);
+            DisableAirshipMovingPlatform = BooleanOptionItem.Create(101700, "DisableAirshipMovingPlatform", false, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveAirship);
+            DisableFungleSporeTrigger = BooleanOptionItem.Create(101900, "DisableFungleSporeTrigger", false, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveFungle);
+            CantUseZipLineTotop = BooleanOptionItem.Create(101901, "CantUseZipLineTotop", false, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveFungle);
+            CantUseZipLineTodown = BooleanOptionItem.Create(101902, "CantUseZipLineTodown", false, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveFungle);
+            ResetDoorsEveryTurns = BooleanOptionItem.Create(101800, "ResetDoorsEveryTurns", false, TabGroup.MainSettings, false).SetParent(MapModification)
+                .SetCansee(() => IsActiveAirship || IsActiveFungle || IsActivePolus);
             DoorsResetMode = StringOptionItem.Create(101810, "DoorsResetMode", EnumHelper.GetAllNames<DoorsReset.ResetMode>(), 0, TabGroup.MainSettings, false).SetParent(ResetDoorsEveryTurns);
             CuseVent = BooleanOptionItem.Create(101701, "Can'tUseVent", false, TabGroup.MainSettings, false).SetParent(MapModification);
             CuseVentCount = FloatOptionItem.Create(101702, "CuseVentCount", new(1f, 15f, 1f), 5f, TabGroup.MainSettings, false).SetValueFormat(OptionFormat.Players).SetParent(CuseVent);
@@ -863,7 +876,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#00ff99");
             DisableSkeldDevices = BooleanOptionItem.Create(101210, "DisableSkeldDevices", false, TabGroup.MainSettings, false).SetParent(DisableDevices)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveSkeld);
             DisableSkeldAdmin = BooleanOptionItem.Create(101211, "DisableSkeldAdmin", false, TabGroup.MainSettings, false).SetParent(DisableSkeldDevices)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#00ff99");
@@ -871,7 +885,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#cccccc");
             DisableMiraHQDevices = BooleanOptionItem.Create(101220, "DisableMiraHQDevices", false, TabGroup.MainSettings, false).SetParent(DisableDevices)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveMiraHQ);
             DisableMiraHQAdmin = BooleanOptionItem.Create(101221, "DisableMiraHQAdmin", false, TabGroup.MainSettings, false).SetParent(DisableMiraHQDevices)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#00ff99");
@@ -879,7 +894,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#cccccc");
             DisablePolusDevices = BooleanOptionItem.Create(101230, "DisablePolusDevices", false, TabGroup.MainSettings, false).SetParent(DisableDevices)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActivePolus);
             DisablePolusAdmin = BooleanOptionItem.Create(101231, "DisablePolusAdmin", false, TabGroup.MainSettings, false).SetParent(DisablePolusDevices)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#00ff99");
@@ -890,7 +906,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#33ccff");
             DisableAirshipDevices = BooleanOptionItem.Create(101240, "DisableAirshipDevices", false, TabGroup.MainSettings, false).SetParent(DisableDevices)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveAirship);
             DisableAirshipCockpitAdmin = BooleanOptionItem.Create(101241, "DisableAirshipCockpitAdmin", false, TabGroup.MainSettings, false).SetParent(DisableAirshipDevices)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#00ff99");
@@ -904,7 +921,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#33ccff");
             DisableFungleDevices = BooleanOptionItem.Create(101250, "DisableFungleDevices", false, TabGroup.MainSettings, false).SetParent(DisableDevices)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveFungle);
             DisableFungleVital = BooleanOptionItem.Create(101251, "DisableFungleVital", false, TabGroup.MainSettings, false).SetParent(DisableFungleDevices)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColorcode("#33ccff");
@@ -970,28 +988,36 @@ namespace TownOfHost
                 .SetColorcode("#f22c50");
             SkeldReactor = FloatOptionItem.Create(100802, "SkeldReactorTimeLimit", new(1f, 90f, 1f), 30f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveSkeld);
             Skeldo2 = FloatOptionItem.Create(100803, "SkeldO2TimeLimit", new(1f, 90f, 1f), 30f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveSkeld);
             Mirare = FloatOptionItem.Create(100804, "MiraReactorTimeLimit", new(1f, 90f, 1f), 30f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveMiraHQ);
             MiraO2 = FloatOptionItem.Create(100805, "MiraO2TimeLimit", new(1f, 90f, 1f), 30f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveMiraHQ);
             PolusReactorTimeLimit = FloatOptionItem.Create(100806, "PolusReactorTimeLimit", new(1f, 90f, 1f), 30f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActivePolus);
             AirshipReactorTimeLimit = FloatOptionItem.Create(100807, "AirshipReactorTimeLimit", new(1f, 90f, 1f), 60f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveAirship);
             FungleReactorTimeLimit = FloatOptionItem.Create(100808, "FungleReactorTimeLimit", new(1f, 90f, 1f), 60f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveFungle);
             FungleMushroomMixupDuration = FloatOptionItem.Create(100809, "FungleMushroomMixupDuration", new(1f, 20f, 1f), 10f, TabGroup.MainSettings, false).SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveFungle);
             // 他
             Chcabowin = BooleanOptionItem.Create(100813, "Chcabowin", false, TabGroup.MainSettings, false).SetParent(Sabotage)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1023,13 +1049,17 @@ namespace TownOfHost
             LightOutDonttouchTime = FloatOptionItem.Create(101510, "LightOutDonttouchTime", new(0f, 180f, 0.5f), 3.0f, TabGroup.MainSettings, false).SetParent(LightOutDonttouch)
             .SetGameMode(CustomGameMode.Standard).SetValueFormat(OptionFormat.Seconds);
             DisableAirshipViewingDeckLightsPanel = BooleanOptionItem.Create(101511, "DisableAirshipViewingDeckLightsPanel", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveAirship);
             DisableAirshipGapRoomLightsPanel = BooleanOptionItem.Create(101512, "DisableAirshipGapRoomLightsPanel", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveAirship);
             DisableAirshipCargoLightsPanel = BooleanOptionItem.Create(101513, "DisableAirshipCargoLightsPanel", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveAirship);
             BlockDisturbancesToSwitches = BooleanOptionItem.Create(101514, "BlockDisturbancesToSwitches", false, TabGroup.MainSettings, false).SetParent(LightsOutSpecialSettings)
-                .SetGameMode(CustomGameMode.Standard);
+                .SetGameMode(CustomGameMode.Standard)
+                .SetCansee(() => IsActiveAirship);
             AllowCloseDoors = BooleanOptionItem.Create(101670, "AllowCloseDoors", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All).SetParent(Sabotage);
             // ランダムマップ

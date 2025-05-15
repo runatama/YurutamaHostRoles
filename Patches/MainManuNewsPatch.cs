@@ -1422,6 +1422,35 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100057,
+                    Title = "ムシトリアミ～(?)",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.12.28.32</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.12.28.32</color>",
+                    Text = "<size=80%>バグ修正だぜ！\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・マフィアがシェイプシフター置き換えになってる問題の修正\n"
+                    + "・シェイプ中に会議が始まると名前が正常にならない問題の修正\n"
+                    + "・ホストがバケネコの時、暗室の処理がクルー処理にならない問題の修正\n"
+                    + "・アシスティングエンジェルが正常に勝利しない問題の修正\n"
+                    + "・モノクラーが他人に反映される問題の修正\n"
+                    + "・ジャッカル追放時ジャッカルドールが後追いしない問題の修正\n"
+                    + "・ジャンパーの終着点がおかしくなる問題の対応?\n"
+                    + "・ウィッチのキルクールが10sになる問題の対応\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・マップ改造の設定の表示/非表示を調整\n"
+                    + "・属性付与設定のボタンテキスト変更\n"
+                    + "・会議開始時の処理を一部変更\n"
+                    + "\n<size=125%>【新機能】</size>\n"
+                    + "・会議後ぬーんを移動させる設定を追加\n"
+                    + "もう冬は終わった...夏より冬が好きなのに！ by.Panda"
+                    ,
+                    Date = "2025-05-15T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

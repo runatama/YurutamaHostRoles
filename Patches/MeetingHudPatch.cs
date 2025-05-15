@@ -93,25 +93,34 @@ public static class MeetingHudPatch
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
+                if (pc?.GetCustomRole().GetRoleInfo()?.BaseRoleType?.Invoke() is RoleTypes.Shapeshifter)
+                {
+                    Sender.StartRpc(pc.NetId, RpcCalls.Shapeshift)
+                    .WriteNetObject(pc)
+                    .Write(false)
+                    .EndRpc();
+                    Sender.StartRpc(pc.NetId, RpcCalls.RejectShapeshift)
+                    .EndRpc();
+                }
 
                 if (!pc.IsAlive() && !Assassin.NowUse)
                 {
                     if (AntiBlackout.OverrideExiledPlayer()) continue;
                     Sender.StartRpc(pc.NetId, RpcCalls.Exiled)
                     .EndRpc();
-                    Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                    /*Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
                     .Write((ushort)RoleTypes.CrewmateGhost)
                     .Write(true)
-                    .EndRpc();
+                    .EndRpc();*/
                 }//  会議時に生きてたぜリスト追加
                 else
                 {
                     PlayerCatch.OldAlivePlayerControles.Add(pc);
                     if (AntiBlackout.OverrideExiledPlayer()) continue;
-                    Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                    /*Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
                     .Write((ushort)RoleTypes.Crewmate)
                     .Write(true)
-                    .EndRpc();
+                    .EndRpc();*/
                 }
             }
             Sender.EndMessage();

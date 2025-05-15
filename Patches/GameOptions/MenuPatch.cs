@@ -299,6 +299,7 @@ namespace TownOfHost
                         var role = CustomRoles.NotAssigned;
                         var ropt = option;
 
+                        //親オプションが役職なのか
                         while (ropt.Parent != null)
                         {
                             ropt = ropt.Parent;
@@ -306,6 +307,7 @@ namespace TownOfHost
                         role = ropt.CustomRole;
                         if (ropt == option) role = CustomRoles.NotAssigned;
 
+                        //役職設定の場合
                         if (role is not CustomRoles.NotAssigned)
                         {
                             var optionsMenu = crlist[role];
@@ -323,6 +325,7 @@ namespace TownOfHost
                                 stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
                                 stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
                             }
+                            // フィルターオプション、属性設定なら
                             if (option is FilterOptionItem)
                             {
                                 stringOption.MinusBtn.OnClick = new();
@@ -330,6 +333,8 @@ namespace TownOfHost
                                 {
                                     if (option is FilterOptionItem filterOptionItem) filterOptionItem.SetRoleValue(role);
                                 }));
+                                stringOption.MinusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<size=80%>←";
+                                stringOption.PlusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<rotate=-20>ρ";
                                 stringOption.PlusBtn.OnClick = new();
                                 stringOption.PlusBtn.OnClick.AddListener((Action)(() =>
                                 {

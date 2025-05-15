@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -97,26 +98,24 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         {
             if (count == 1) aname = true;
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-            player.RpcSnapToForced(new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
+            player.RpcSnapToForced(count == jampcount ? position : new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
             _ = new LateTask(() =>
             {
-                if (!GameStates.Meeting && player.IsAlive())
+                if (!GameStates.IsMeeting && player.IsAlive())
                 {
                     foreach (var target in PlayerCatch.AllAlivePlayerControls)
                     {
-                        if (target.Is(CustomRoles.King)) continue;
-                        if (target != player)
+                        if (target.Is(CustomRoles.King) || target.PlayerId == player.PlayerId) continue;
+
+                        float Distance = Vector2.Distance(player.transform.position, target.transform.position);
+                        if (Distance <= (jampdistance == 1 ? 1.22f : (jampdistance == 2 ? 1.82f : 2.2)))
                         {
-                            float Distance = Vector2.Distance(player.transform.position, target.transform.position);
-                            if (Distance <= (jampdistance == 1 ? 1.22f : (jampdistance == 2 ? 1.82f : 2.2)))
-                            {
-                                PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                                target.SetRealKiller(player);
-                                CustomRoleManager.OnCheckMurder(
-                                    player, target,
-                                    target, target, true
-                                );
-                            }
+                            PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                            target.SetRealKiller(player);
+                            CustomRoleManager.OnCheckMurder(
+                                player, target,
+                                target, target, true
+                            );
                         }
                     }
                 }

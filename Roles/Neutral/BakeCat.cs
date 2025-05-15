@@ -179,6 +179,11 @@ namespace TownOfHost.Roles.Neutral
 
             UtilsNotifyRoles.NotifyRoles();
             UtilsOption.MarkEveryoneDirtySettings();
+
+            if (PlayerControl.LocalPlayer.PlayerId == Player.PlayerId)
+            {
+                PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
+            }
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo sitai)
         {

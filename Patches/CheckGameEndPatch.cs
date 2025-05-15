@@ -113,7 +113,6 @@ namespace TownOfHost
                     //追加勝利陣営
                     foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.GetCustomRole() is CustomRoles.PhantomThief or CustomRoles.Turncoat or CustomRoles.AllArounder || pc.Is(CustomRoles.AsistingAngel)))
                     {
-                        var isAlive = pc.IsAlive();
                         if (!pc.IsRiaju())
                         {
                             if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)

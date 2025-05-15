@@ -2067,7 +2067,7 @@ namespace TownOfHost
                                     string playername = player.GetRealName(isMeeting: true);
                                     playername = playername.ApplyNameColorData(pc, player, true);
 
-                                    var sender = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                    var sender = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
                                     sender.StartMessage(pc.GetClientId());
 
                                     MeetingHudPatch.StartPatch.Serialize = true;
