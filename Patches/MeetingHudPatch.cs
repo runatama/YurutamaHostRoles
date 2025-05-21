@@ -93,38 +93,19 @@ public static class MeetingHudPatch
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
-                if (pc?.GetCustomRole().GetRoleInfo()?.BaseRoleType?.Invoke() is RoleTypes.Shapeshifter)
+                if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var nowuse) && nowuse is true)
                 {
-                    Sender.StartRpc(pc.NetId, RpcCalls.Shapeshift)
-                    .WriteNetObject(pc)
-                    .Write(false)
-                    .EndRpc();
-                    Sender.StartRpc(pc.NetId, RpcCalls.RejectShapeshift)
-                    .EndRpc();
+                    pc.RpcShapeshift(pc, false);
+                    pc.RpcRejectShapeshift();
                 }
 
                 if (!pc.IsAlive() && !Assassin.NowUse)
-                {
-                    if (AntiBlackout.OverrideExiledPlayer()) continue;
-                    Sender.StartRpc(pc.NetId, RpcCalls.Exiled)
-                    .EndRpc();
-                    /*Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                    .Write((ushort)RoleTypes.CrewmateGhost)
-                    .Write(true)
-                    .EndRpc();*/
-                }//  会議時に生きてたぜリスト追加
+                { }//  会議時に生きてたぜリスト追加
                 else
                 {
                     PlayerCatch.OldAlivePlayerControles.Add(pc);
-                    if (AntiBlackout.OverrideExiledPlayer()) continue;
-                    /*Sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                    .Write((ushort)RoleTypes.Crewmate)
-                    .Write(true)
-                    .EndRpc();*/
                 }
             }
-            Sender.EndMessage();
-            Sender.SendMessage();
             ReportDeadBodyPatch.DontReport.Clear();
             MeetingStates.MeetingCalled = true;
             GameStates.Tuihou = false;

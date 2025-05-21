@@ -1176,7 +1176,7 @@ namespace TownOfHost
             }
             if (AmongUsClient.Instance.AmHost && GameStates.IsLobby && !canceled)
             {
-                SendMessage(text, title: Main.nickName == "" ? PlayerControl.LocalPlayer.name : Main.nickName, rob: true);
+                SendMessage(text, title: Main.nickName == "" ? DataManager.player.Customization.Name : Main.nickName, rob: true);
                 __instance.freeChatField.textArea.Clear();
                 return false;
             }
@@ -2278,7 +2278,7 @@ namespace TownOfHost
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
             if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase))
                 DestroyableSingleton<UnityTelemetry>.Instance.SendWho();
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpc(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.None);
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.None);
             messageWriter.Write(chatText);
             messageWriter.EndMessage();
             __result = true;

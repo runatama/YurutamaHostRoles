@@ -16,7 +16,7 @@ namespace TownOfHost
                 {
                     flag = true;
                     writer.StartMessage((byte)index);
-                    var hasBody = logicComponent.Serialize(writer, initialState);
+                    var hasBody = logicComponent.Serialize(writer);
                     if (hasBody) writer.EndMessage();
                     else writer.CancelMessage();
                     logicComponent.ClearDirtyFlag();
@@ -30,15 +30,16 @@ namespace TownOfHost
     [HarmonyPatch(typeof(LogicOptions), nameof(LogicOptions.Serialize))]
     class LogicOptionsSerializePatch
     {
-        public static bool Prefix(LogicOptions __instance, ref bool __result, MessageWriter writer, bool initialState)
+        public static bool Prefix(LogicOptions __instance, ref bool __result, MessageWriter writer)
         {
             // 初回以外はブロックし、CustomSyncSettingsでのみ同期する
-            if (!initialState)
+            if (GameStates.InGame || !GameStates.IsLobby)
             {
                 __result = false;
                 return false;
             }
-            else return true;
+
+            return true;
         }
     }
 }

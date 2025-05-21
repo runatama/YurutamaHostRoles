@@ -137,4 +137,6 @@ public sealed class Monochromer : RoleBase
         }
         CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Monochromer, pc.PlayerId, true);
     }
+
+    public override void ChengeRoleAdd() => Colorchnge();
 }

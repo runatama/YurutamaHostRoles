@@ -77,6 +77,11 @@ public abstract class RoleBase : IDisposable
     public virtual void Add()
     { }
     /// <summary>
+    /// ゲーム開始後にインスタンス作成された時に呼ばれる関数
+    /// </summary>
+    public virtual void ChengeRoleAdd()
+    { }
+    /// <summary>
     /// ロールベースが破棄されるときに呼ばれる関数
     /// </summary>
     public virtual void OnDestroy()

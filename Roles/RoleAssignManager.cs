@@ -204,7 +204,6 @@ namespace TownOfHost.Roles
         ///</summary>
         private static void SetRandomAssignCount()
         {
-
             var rand = IRandom.Instance;
             int numImpostors = Math.Min(GameData.Instance.PlayerCount, Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors));
             //インポスター以外の人数

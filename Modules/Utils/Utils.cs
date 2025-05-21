@@ -460,6 +460,8 @@ namespace TownOfHost
         public static void ApplySuffix(PlayerControl pc, bool force = false, bool countdown = false)
         {
             if (!AmongUsClient.Instance.AmHost) return;
+            if (GameStates.IsOutro) return;
+
             var Iscountdown = countdown || GameStates.IsCountDown;
             string name = DataManager.player.Customization.Name;
             if (Main.nickName != "") name = Main.nickName;

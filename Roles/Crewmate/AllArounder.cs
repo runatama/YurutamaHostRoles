@@ -189,7 +189,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         }
         else
         {
-            var f = MyTaskState.CompletedTasksCount / MyTaskState.AllTasksCount;
+            var f = MyTaskState.CompletedTasksCount + 1 / MyTaskState.AllTasksCount + 1;
             wariai = f * 100;
         }
         wariai = Math.Clamp(wariai, 5, 100);

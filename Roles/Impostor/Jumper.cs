@@ -119,8 +119,8 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                         }
                     }
                 }
-            }, jampdis - 0.2f, "abo-n", null);
-            if (count == jampcount)
+            }, jampdis - 0.19f, "abo-n", null);
+            if (jampcount <= count)
             {
                 ability = false;
                 aname = false;
@@ -162,7 +162,8 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             resetkillcooldown = false;
             Player.RpcSpecificRejectShapeshift(Player, false);
             Player.RpcResetAbilityCooldown(kousin: true);
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "Jumperset");
+            Logger.Info($"Set:{position.x}-{position.y} (${Player.PlayerId})", "Jumper");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "Jumperset", true);
             return;
         }
         timer = 0;
@@ -175,6 +176,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         addx = x / Jampcount.GetInt();
         addy = y / Jampcount.GetInt();
         Main.AllPlayerSpeed[Player.PlayerId] = Main.MinSpeed;
+        Logger.Info($"{Player?.Data?.GetLogPlayerName()}Jump!", "Jumper");
         _ = new LateTask(() =>
         {
             Player.RpcSetPet("");
@@ -182,7 +184,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             int chance = IRandom.Instance.Next(0, 18);
             PlayerCatch.AllPlayerControls.Do(pc => Player.RpcChColor(pc, (byte)chance));
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-        }, 0.4f, "Jumper0Speed");
+        }, 0.4f, "Jumper0Speed", true);
 
     }
     public override bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null)

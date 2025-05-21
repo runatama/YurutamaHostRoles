@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =

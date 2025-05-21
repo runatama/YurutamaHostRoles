@@ -252,9 +252,10 @@ namespace TownOfHost
         public static List<byte> Disconnected = new();
         public static bool roleAssigned = false;
         public static Dictionary<byte, CustomRpcSender> senders2 = new();
-        public static void Prefix()
+        public static bool Prefix()
         {
-            if (!AmongUsClient.Instance.AmHost) return;
+            //Logger.Warn("!!!", "SR");
+            if (!AmongUsClient.Instance.AmHost) return true;
             //CustomRpcSenderとRpcSetRoleReplacerの初期化
             Dictionary<byte, CustomRpcSender> senders = new();
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -377,9 +378,28 @@ namespace TownOfHost
                 }
             }
             //以下、バニラ側の役職割り当てが入る
+
+            {
+                //動かないのでTOH対応くるまでにこれで...
+                Il2CppSystem.Collections.Generic.List<NetworkedPlayerInfo> playerInfos = new();
+                foreach (NetworkedPlayerInfo data in GameData.Instance.AllPlayers)
+                {
+                    if (data.Object != null && !data.IsDead && !data.Disconnected)
+                        playerInfos.Add(data);
+                }
+                IGameOptions currentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
+                int adjustedNumImpostors = GameOptionsManager.Instance.CurrentGameOptions.GetAdjustedNumImpostors(playerInfos.Count);
+                //一応呼ぶ....呼ぶ..
+                RoleManager.Instance.DebugRoleAssignments(playerInfos, ref adjustedNumImpostors);
+
+                GameManager.Instance.LogicRoleSelection.AssignRolesForTeam(playerInfos, currentGameOptions, RoleTeamTypes.Impostor, adjustedNumImpostors, new Il2CppSystem.Nullable<RoleTypes>(RoleTypes.Impostor));
+                GameManager.Instance.LogicRoleSelection.AssignRolesForTeam(playerInfos, currentGameOptions, RoleTeamTypes.Crewmate, int.MaxValue, new Il2CppSystem.Nullable<RoleTypes>(RoleTypes.Crewmate));
+            }
+            return false;
         }
         public static void Postfix()
         {
+            //Logger.Warn("!!!2", "SR");
             if (!AmongUsClient.Instance.AmHost) return;
             RpcSetRoleReplacer.Release(); //保存していたSetRoleRpcを一気に書く
             RpcSetRoleReplacer.senders.Do(kvp => kvp.Value.SendMessage());

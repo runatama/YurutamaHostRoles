@@ -2,10 +2,12 @@ using HarmonyLib;
 
 namespace TownOfHost.Patches;
 
-[HarmonyPatch(typeof(HauntMenuMinigame), nameof(HauntMenuMinigame.SetFilterText))]
-public static class HauntMenuMinigameSetFilterTextPatch
+[HarmonyPatch(typeof(HauntMenuMinigame))]
+public static class HauntMenuMinigamePatch
 {
-    public static bool Prefix(HauntMenuMinigame __instance)
+    //1回選択しないといけない いつか直す
+    [HarmonyPatch(nameof(HauntMenuMinigame.SetHauntTarget)), HarmonyPrefix]
+    public static bool SetHauntTargetPrefix(HauntMenuMinigame __instance)
     {
         if (__instance.HauntTarget != null && (!PlayerControl.LocalPlayer.IsGhostRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()) && !PlayerControl.LocalPlayer.Is(Roles.Core.CustomRoles.AsistingAngel))
         {

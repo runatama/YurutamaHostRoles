@@ -216,7 +216,6 @@ public static class GuessManager
                     MeetingVoteManager.ResetVoteManager(dp.PlayerId);
 
                     //死者检查
-                    //Utils.AfterPlayerDeathTasks(dp, true);
                     if (!dp.IsModClient() && !dp.AmOwner) pc.RpcMeetingKill(dp);
                     CustomRoleManager.OnMurderPlayer(pc, target);
 

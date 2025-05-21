@@ -8,8 +8,10 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
 using static TownOfHost.Modules.MeetingTimeManager;
+using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Balancer : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -266,8 +268,10 @@ public sealed class Balancer : RoleBase
                         .FirstOrDefault();
         Exiled = GameData.Instance.GetPlayerById(exileId);
         var ex = PlayerCatch.GetPlayerById(exileId);
+        //どちらも追放の時?
         if (data.Values.Distinct().Count() == 1)
         {
+            Exiled = null;
             //追放画面が出てくるちょい前に名前を変える
             _ = new LateTask(() =>
             {
@@ -281,6 +285,7 @@ public sealed class Balancer : RoleBase
                     ex.RpcSetName(GetString("Balancer.Executad") + "<size=0>");
             }, 4f, "dotiramotuihou☆");
             var toExile = data.Keys.ToArray();
+            bool winnoyatu = false;
             foreach (var playerId in toExile)
             {
                 ex?.SetRealKiller(null);
@@ -288,6 +293,11 @@ public sealed class Balancer : RoleBase
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Vote, toExile);
             Voteresult = GetString("Balancer.Executad");
             UtilsGameLog.AddGameLog($"Vote", GetString("Balancer.Executad"));
+
+            foreach (var playerId in toExile)
+            {
+                CustomRoleManager.GetByPlayerId(playerId)?.OnExileWrapUp(PlayerCatch.GetPlayerInfoById(playerId), ref winnoyatu);
+            }
         }
         return true;
     }

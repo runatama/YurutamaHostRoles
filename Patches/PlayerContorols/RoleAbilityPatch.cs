@@ -223,6 +223,7 @@ namespace TownOfHost
             Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
             Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
 
+            if (GameStates.IsMeeting) return;
             shapeshifter.GetRoleClass()?.OnShapeshift(target);
 
             if (!AmongUsClient.Instance.AmHost) return;

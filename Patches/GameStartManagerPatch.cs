@@ -415,7 +415,7 @@ namespace TownOfHost
     }
 
     [HarmonyPatch(typeof(LobbyTimerExtensionUI), nameof(LobbyTimerExtensionUI.ShowLobbyTimer))]
-    class ShowLobbyTimerPatch
+    class ShowLobbyTimerPatch //呼ばれてるか不明
     {
         public static void Postfix(LobbyTimerExtensionUI __instance, [HarmonyArgument(0)] int timeRemainingSeconds)
         {

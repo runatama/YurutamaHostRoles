@@ -14,12 +14,13 @@ using static TownOfHost.Translator;
 
 namespace TownOfHost
 {
-    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
+    [HarmonyPatch(typeof(IntroCutscene._ShowRole_d__41), nameof(IntroCutscene._ShowRole_d__41.MoveNext))]
     class SetUpRoleTextPatch
     {
-        public static void Postfix(IntroCutscene __instance)
+        public static void Postfix(IntroCutscene._ShowRole_d__41 __instance)
         {
             if (!GameStates.IsModHost) return;
+            var _instance = __instance.__4__this;
             _ = new LateTask(() =>
             {
                 CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
@@ -27,36 +28,36 @@ namespace TownOfHost
 
                 if (!role.IsVanilla() && !PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                 {
-                    __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
-                    __instance.RoleText.text = UtilsRoleText.GetRoleName(role);
-                    __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
-                    __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
+                    _instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                    _instance.RoleText.text = UtilsRoleText.GetRoleName(role);
+                    _instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                    _instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
 
-                    __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
+                    _instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
 
                     //Amnesiacだった場合シェリフと表示させる
                     if (role == CustomRoles.Amnesiac)
                     {
-                        __instance.RoleText.text = Amnesiac.iamwolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
-                        __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
-                        __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
-                        __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
+                        _instance.RoleText.text = Amnesiac.iamwolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        _instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                        _instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                        _instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
                     }
                 }
                 else
                 if (role.IsVanilla())
                 {
-                    __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
-                    __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
-                    __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
+                    _instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
+                    _instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
+                    _instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
                 }
 
                 foreach (var subRole in PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).SubRoles)
                 {
                     if (subRole == CustomRoles.Amnesia) continue;
-                    __instance.RoleBlurbText.text += "<size=75%>\n" + Utils.ColorString(UtilsRoleText.GetRoleColor(subRole), GetString($"{subRole}Info"));
+                    _instance.RoleBlurbText.text += "<size=75%>\n" + Utils.ColorString(UtilsRoleText.GetRoleColor(subRole), GetString($"{subRole}Info"));
                 }
-                __instance.RoleText.text += UtilsRoleText.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, amkesu: true);
+                _instance.RoleText.text += UtilsRoleText.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, amkesu: true);
 
             }, 0.01f, "Override Role Text", null);
 
@@ -107,7 +108,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
     class CoBeginPatch
     {
-        public static void Prefix()
+        public static void Prefix(IntroCutscene __instance)
         {
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {

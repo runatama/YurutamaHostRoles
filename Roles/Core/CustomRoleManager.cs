@@ -459,11 +459,12 @@ public static class CustomRoleManager
             CreateInstance(pc.GetCustomRole(), pc);
         }
     }
-    public static void CreateInstance(CustomRoles role, PlayerControl player)
+    public static void CreateInstance(CustomRoles role, PlayerControl player, bool IsGame = false)
     {
         if (AllRolesInfo.TryGetValue(role, out var roleInfo))
         {
             roleInfo.CreateInstance(player).Add();
+            if (IsGame) roleInfo.CreateInstance(player).ChengeRoleAdd();
         }
         else
         {

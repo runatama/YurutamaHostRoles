@@ -498,8 +498,13 @@ public class MeetingVoteManager
                         Voteresult = string.Join('\n', mostVotedPlayers.Select(id => UtilsRoleText.GetExpelledText(id, false, false)));
                         UtilsGameLog.AddGameLog("Vote", Voteresult);
 
+                        bool winnoyatu = false;
                         Exiled = null;
                         logger.Info("全員追放します");
+                        foreach (var playerId in toExile)
+                        {
+                            CustomRoleManager.GetByPlayerId(playerId)?.OnExileWrapUp(PlayerCatch.GetPlayerInfoById(playerId), ref winnoyatu);
+                        }
                         break;
                     case TieMode.Random:
                         var exileId = mostVotedPlayers.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();

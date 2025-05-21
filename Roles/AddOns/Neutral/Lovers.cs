@@ -85,6 +85,7 @@ class Lovers
         ColorLovers.Alldatas.Do(data => data.Value.AssingOther());
         ColorLovers.Alldatas.Do(data => data.Value.AssingCheck());
 
+        allPlayers = allPlayers.Where(x => !x.IsRiaju()).ToList();
         if (CustomRoles.OneLove.IsPresent())
         {
             var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -295,7 +296,7 @@ class Lovers
         {
             if (data.CheckCountWin()) return true;
         }
-        if (PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.Ltarget || pc.PlayerId == Lovers.OneLovePlayer.OneLove)
+        if ((PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.Ltarget || pc.PlayerId == Lovers.OneLovePlayer.OneLove))
         || (Lovers.OneLoveSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.OneLove)?.IsAlive() == true && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.Ltarget)?.IsAlive() == true))
         {
             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.OneLove, byte.MaxValue);
