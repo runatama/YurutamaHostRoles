@@ -22,6 +22,9 @@ TOH-Kで起きたバグは本家や他MODには報告しないでまずはkに�
 ## [Wiki](https://github.com/KYMario/TownOfHost-K/wiki)もあるよ!
 
 ## リリース
+> [!Note]
+> 最新版16.0.5を導入していると、
+> 正常に動作しません。_(:3 」∠)_ < まっててネ
 
 AmongUsバージョン : **16.0.5**<br>
 
