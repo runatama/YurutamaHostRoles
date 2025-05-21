@@ -70,7 +70,7 @@ namespace TownOfHost
                     _ => CustomRoles.Crewmate,
                 };
         }
-        public void SetMainRole(CustomRoles role)
+        public void SetMainRole(CustomRoles role, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             MainRole = role;
 
