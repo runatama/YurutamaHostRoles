@@ -31,10 +31,13 @@ namespace TownOfHost
         }
 
         [HarmonyPatch(typeof(AirshipExileController._WrapUpAndSpawn_d__11), nameof(AirshipExileController._WrapUpAndSpawn_d__11.MoveNext))]
-        class AirshipExileControllerPatch
+        public class AirshipExileControllerPatch
         {
+            public static bool check;
             public static void Postfix(AirshipExileController._WrapUpAndSpawn_d__11 __instance)
             {
+                if (check) return;
+                check = true;
                 try
                 {
                     WrapUpPostfix(__instance.__4__this.initData.networkedPlayer);

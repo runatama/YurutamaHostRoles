@@ -1451,28 +1451,17 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
-            {
-                var news = new ModNews
-                {
-                    Number = 100058,
-                    Title = "●～*　ﾄﾞｯｶｰﾝ!",
-                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.12.29</color>",
-                    ShortTitle = "<color=#00c1ff>◆TOH-K v.51.12.29</color>",
-                    Text = "<size=80%>けーわいさんが7割対応してくれました。僕は1割です。\n\n自動アップデートは使用できません。zipファイルから導入しなおしてください。\n★まだ完全に対応できたか怪しいです。バグがあれば報告ください★\n<size=125%>【バグ修正】</size>\n・バニラ16.0.5に対応\n\n・名前の二行目がONの時、ctが正常に表示されない問題の修正\n・非クライアント視点会議後もシェイプの名前がそのままの問題の対応\n・モノクラーに途中でなった時に上手く変身しない問題の対応?\n・一定条件下の時、追放されても勝利できない問題の修正\n・その他直ったか怪しいKのバグの対応()\nお肉アップデートだね。ｼﾞｭﾙﾘ...by.熊猫",
-                    Date = "2025-05-21T20:00:00Z"
-                };
-                AllModNews.Add(news);
-            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }
     //ここもTownOfHost_Y様を参考に..!
     public const string ModNewsURL = "https://raw.githubusercontent.com/KYMario/TownOfHost-K/refs/heads/main/ModNews.json";
     static bool downloaded = false;
-    [HarmonyPatch(typeof(AnnouncementPopUp), nameof(AnnouncementPopUp.Init)), HarmonyPostfix]
-    public static void Initialize(ref Il2CppSystem.Collections.IEnumerator __result)
+
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
+    public static void StartPostfix(MainMenuManager __instance)
     {
-        static IEnumerator FetchBlacklist()
+        static IEnumerator FetchModNews()
         {
             if (downloaded)
             {
@@ -1495,7 +1484,7 @@ public class ModNewsHistory
                     news["Body"]?.ToString(), news["Date"]?.ToString());
             }
         }
-        __result = Effects.Sequence(FetchBlacklist().WrapToIl2Cpp(), __result);
+        __instance.StartCoroutine(FetchModNews().WrapToIl2Cpp());
     }
 
     [HarmonyPatch(typeof(PlayerAnnouncementData), nameof(PlayerAnnouncementData.SetAnnouncements)), HarmonyPrefix]

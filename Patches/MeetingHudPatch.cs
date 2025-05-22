@@ -81,6 +81,7 @@ public static class MeetingHudPatch
         public static bool Serialize = false;
         public static void Prefix()
         {
+            ExileControllerWrapUpPatch.AirshipExileControllerPatch.check = false;
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             ChatUpdatePatch.BlockSendName = true;

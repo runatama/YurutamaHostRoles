@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class AmateurTeller : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -180,12 +181,13 @@ public sealed class AmateurTeller : RoleBase
             if (seer.PlayerId == tell.UseTarget && seer == seen)
             {
                 var ar = "";
-                if (seer.GetCustomRole().GetCustomRoleTypes() != CustomRoleTypes.Crewmate)
+                if (seer.GetCustomRole().GetCustomRoleTypes() is not CustomRoleTypes.Crewmate)
+                {
                     if (targetcanseearrow) ar = $"\n{TargetArrow.GetArrows(seer, tell.Player.PlayerId)}";
-                return $"<color=#6b3ec3>★{ar}</color>";
+                    return $"<color=#6b3ec3>★{ar}</color>";
+                }
             }
-            else
-            if (seer.PlayerId == tell.UseTarget && seen == tell.Player)
+            else if (seer.PlayerId == tell.UseTarget && seen == tell.Player)
                 return "<color=#6b3ec3>★</color>";
         }
         return "";
