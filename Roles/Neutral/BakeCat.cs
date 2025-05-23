@@ -24,11 +24,7 @@ namespace TownOfHost.Roles.Neutral
                 "bk",
                 "#ededc7",
                 true,
-                countType: CountTypes.Crew,
-                assignInfo: new RoleAssignInfo(CustomRoles.BakeCat, CustomRoleTypes.Neutral)
-                {
-                    AssignCountRule = new(1, 1, 1)
-                }
+                countType: CountTypes.Crew
             );
         public BakeCat(PlayerControl player)
         : base(
@@ -40,7 +36,7 @@ namespace TownOfHost.Roles.Neutral
             CanKill = false;
             Killer = null;
         }
-        public static bool CanKill;
+        public bool CanKill;
         private static OptionItem OptionKillCooldown;
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
@@ -187,13 +183,14 @@ namespace TownOfHost.Roles.Neutral
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo sitai)
         {
+            Player.RpcSetRoleDesync(RoleTypes.Crewmate, Player.GetClientId());
             if (OptionDieKiller.GetBool())
             {
                 if (!Killer.IsAlive()) return;
                 Killer.RpcMurderPlayerV2(Killer);
             }
         }
-        public override void AfterMeetingTasks()
+        public override void OnSpawn(bool initialState = false)
         {
             if (!CanKill) return;
             if (!Player.IsAlive()) return;
@@ -220,10 +217,10 @@ namespace TownOfHost.Roles.Neutral
 
                 _ = new LateTask(() =>
                 {
-                    Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
+                    Player.SetKillCooldown(OptionKillCooldown.GetFloat() - 5, kyousei: true);
                     CanKill = true;
                 }, 0.3f, "ResetKillCooldown", true);
-            }, 3f, "Bakecatkillbutton");
+            }, 5f, "Bakecatkillbutton");
         }
         private void RevealNameColors(PlayerControl killer)
         {

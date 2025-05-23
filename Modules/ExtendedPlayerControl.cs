@@ -89,13 +89,10 @@ namespace TownOfHost
                     }
                 }
 
-                if (PlayerCatch.AnyModClient())
-                {
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
-                    writer.Write(player.PlayerId);
-                    writer.WritePacked((int)role);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);
-                }
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
+                writer.Write(player.PlayerId);
+                writer.WritePacked((int)role);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 if (GameStates.IsInTask && !GameStates.Meeting && GameStates.AfterIntro && (role.IsGhostRole() || role < CustomRoles.NotAssigned))
                 {
@@ -197,7 +194,7 @@ namespace TownOfHost
         }
         public static void RpcSetCustomRole(byte PlayerId, CustomRoles role)
         {
-            if (AmongUsClient.Instance.AmHost && PlayerCatch.AnyModClient())
+            if (AmongUsClient.Instance.AmHost)
             {
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable, -1);
                 writer.Write(PlayerId);
@@ -868,7 +865,7 @@ namespace TownOfHost
         }
         public static bool IsNeutralKiller(this PlayerControl player)
         {
-            if (player.Is(CustomRoles.BakeCat)) return BakeCat.CanKill;
+            if (player.GetRoleClass() is BakeCat bakeCat) return bakeCat.Team is not BakeCat.TeamType.None;
 
             //return player.Is(CustomRoleTypes.Neutral) && player.GetRoleClass() is IKiller killer && (killer?.IsKiller ?? false);
             return

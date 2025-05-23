@@ -482,9 +482,9 @@ public static class CustomRoleManager
         }
     }
 
-    public static void OtherRolesAdd(PlayerControl pc)
+    public static void OtherRolesAdd(PlayerControl pc, CustomRoles role = CustomRoles.NotAssigned)
     {
-        foreach (var subRole in pc.GetCustomSubRoles())
+        foreach (var subRole in role is CustomRoles.NotAssigned ? pc.GetCustomSubRoles() : [role])
         {
             switch (subRole)
             {

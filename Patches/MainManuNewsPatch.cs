@@ -1451,6 +1451,31 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100059,
+                    Title = "バグ修正祭り開催中()",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.12.29.1x</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.12.29.1x</color>",
+                    Text = "<size=80%>バグ修正の一覧とかそこらへんを載せまする。\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・アムネシアが正常に動作しない問題の修正(.13)\n"
+                    + "・憑依ができない問題の対応(.13)\n"
+                    + "・バケネコの処理をすこ～し変更(.13)\n"
+                    + "\n～～～～～～～～～～～～～～～～～～\n"
+                    + "・AirShipでキルクール半減する問題の修正(.12)\n"
+                    + "・かけだし占い師のマークがクルーにも見える問題の修正(.12)\n"
+                    + "・一部ニュースが見えなかった問題の修正(.12)\n"
+                    + "・ホストのチャットが試合中届かない問題の修正(.11)\n"
+                    //+ "\n<size=125%>【仕様変更】</size>\n"
+                    + "\n\nバグが発生した場合、<nobr><link=\"https://discord.gg/5DPqH8seFq\">Discord</nobr></link>から報告してください。\n"
+                    + "\nりす → すき焼き → きつね → ねこ → こあら → らっかせい → いんげんまめ → めだか →"
+                    ,
+                    Date = "2025-05-24T00:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }
