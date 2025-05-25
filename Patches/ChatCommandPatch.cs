@@ -1648,7 +1648,7 @@ namespace TownOfHost
 
 
                 case "/tp":
-                    if (!GameStates.IsLobby || !Options.sotodererukomando.GetBool()) break;
+                    if (!GameStates.IsLobby || !Options.sotodererukomando.GetBool() || args.Length < 1) break;
                     canceled = true;
                     subArgs = args[1];
                     switch (subArgs)

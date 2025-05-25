@@ -68,6 +68,7 @@ namespace TownOfHost
                     //非導入者が遥か彼方へ行かないように。
                     if (!player.IsModClient())
                     {
+                        if (player?.transform?.position is null) return;
                         Vector2 c = new(0f, 0f);
                         Vector2 pj = player.transform.position;
                         if (pj.y < -8) player.RpcSnapToForced(c);

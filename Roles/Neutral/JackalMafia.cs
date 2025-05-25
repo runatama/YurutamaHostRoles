@@ -109,7 +109,7 @@ namespace TownOfHost.Roles.Neutral
         public override void ApplyGameOptions(IGameOptions opt)
         {
             opt.SetVision(OptionHasImpostorVision.GetBool());
-            AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : Cooldown);
+            AURoleOptions.PhantomCooldown = JackalDoll.GetSideKickCount() <= JackalDoll.side ? 200f : (Fall ? 0f : Cooldown);
         }
         public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
         public bool UseOneclickButton => SK;
@@ -124,7 +124,7 @@ namespace TownOfHost.Roles.Neutral
             resetkillcooldown = false;
             if (!SK) return;
 
-            if (JackalDoll.sidekick.GetInt() <= JackalDoll.side)
+            if (JackalDoll.GetSideKickCount() <= JackalDoll.side)
             {
                 SK = false;
                 return;
@@ -242,7 +242,7 @@ namespace TownOfHost.Roles.Neutral
         {
             seen ??= seer;
             if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive()
-            || JackalDoll.sidekick.GetInt() <= JackalDoll.side || !SK) return "";
+            || JackalDoll.GetSideKickCount() <= JackalDoll.side || !SK) return "";
 
             if (isForHud) return GetString("PhantomButtonSideKick");
             return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";

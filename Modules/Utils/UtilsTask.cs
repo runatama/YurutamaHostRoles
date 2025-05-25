@@ -8,86 +8,95 @@ namespace TownOfHost
     {
         public static bool HasTasks(NetworkedPlayerInfo p, bool ForRecompute = true)
         {
-            if (GameStates.IsLobby) return false;
-            //Tasksがnullの場合があるのでその場合タスク無しとする
-            if (p.Tasks == null
-            || p.Role == null
-            || p.Disconnected) return false;
+            try
+            {
+                if (GameStates.IsLobby) return false;
+                //Tasksがnullの場合があるのでその場合タスク無しとする
+                if (p?.Tasks == null
+                || p?.Role == null
+                || (p?.Disconnected ?? true)) return false;
 
-            var hasTasks = true;
-            var States = PlayerState.GetByPlayerId(p.PlayerId);
-            if (p.Role.IsImpostor)
-                hasTasks = false; //タスクはCustomRoleを元に判定する
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
-            {
-                if (p.IsDead) hasTasks = false;
-                if (States.MainRole is CustomRoles.HASFox or CustomRoles.HASTroll) hasTasks = false;
-            }
-            else
-            {
-                // 死んでいて，死人のタスク免除が有効なら確定でfalse
-                if (p.IsDead && Options.GhostIgnoreTasks.GetBool())
+                var hasTasks = true;
+                var States = PlayerState.GetByPlayerId(p.PlayerId);
+                if (States is null) return false;
+                if (p.Role.IsImpostor)
+                    hasTasks = false; //タスクはCustomRoleを元に判定する
+                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
                 {
-                    return false;
+                    if (p.IsDead) hasTasks = false;
+                    if (States.MainRole is CustomRoles.HASFox or CustomRoles.HASTroll) hasTasks = false;
                 }
-                var role = States.MainRole;
-                var roleClass = CustomRoleManager.GetByPlayerId(p.PlayerId);
-                if (roleClass != null)
+                else
                 {
-                    switch (roleClass.HasTasks)
+                    // 死んでいて，死人のタスク免除が有効なら確定でfalse
+                    if (p.IsDead && Options.GhostIgnoreTasks.GetBool())
                     {
-                        case HasTask.True:
-                            hasTasks = true;
-                            break;
-                        case HasTask.False:
+                        return false;
+                    }
+                    var role = States.MainRole;
+                    var roleClass = CustomRoleManager.GetByPlayerId(p.PlayerId);
+                    if (roleClass != null)
+                    {
+                        switch (roleClass.HasTasks)
+                        {
+                            case HasTask.True:
+                                hasTasks = true;
+                                break;
+                            case HasTask.False:
+                                hasTasks = false;
+                                break;
+                            case HasTask.ForRecompute:
+                                hasTasks = !ForRecompute;
+                                break;
+                        }
+                    }
+                    switch (role)
+                    {
+                        case CustomRoles.GM:
+                        case CustomRoles.SKMadmate:
                             hasTasks = false;
                             break;
-                        case HasTask.ForRecompute:
-                            hasTasks = !ForRecompute;
+                        default:
+                            if (role.IsImpostor()) hasTasks = false;
                             break;
                     }
-                }
-                switch (role)
-                {
-                    case CustomRoles.GM:
-                    case CustomRoles.SKMadmate:
-                        hasTasks = false;
-                        break;
-                    default:
-                        if (role.IsImpostor()) hasTasks = false;
-                        break;
-                }
 
-                foreach (var subRole in States.SubRoles)
-                    switch (subRole)
-                    {
-                        case CustomRoles.Amanojaku: hasTasks &= !ForRecompute; break;
-                        case CustomRoles.Amnesia:
-                            {
-                                var ch = false;
-                                switch (role.GetRoleInfo()?.BaseRoleType.Invoke())
+                    foreach (var subRole in States.SubRoles)
+                        switch (subRole)
+                        {
+                            case CustomRoles.Amanojaku: hasTasks &= !ForRecompute; break;
+                            case CustomRoles.Amnesia:
                                 {
-                                    case RoleTypes.Crewmate:
-                                    case RoleTypes.Engineer:
-                                    case RoleTypes.Scientist:
-                                    case RoleTypes.Noisemaker:
-                                    case RoleTypes.Tracker:
-                                        ch = true;
-                                        break;
+                                    var ch = false;
+                                    switch (role.GetRoleInfo()?.BaseRoleType.Invoke())
+                                    {
+                                        case RoleTypes.Crewmate:
+                                        case RoleTypes.Engineer:
+                                        case RoleTypes.Scientist:
+                                        case RoleTypes.Noisemaker:
+                                        case RoleTypes.Tracker:
+                                            ch = true;
+                                            break;
+                                    }
+                                    hasTasks = role.IsCrewmate() && ch ? hasTasks : (!ForRecompute && !States.MainRole.IsImpostor());
                                 }
-                                hasTasks = role.IsCrewmate() && ch ? hasTasks : (!ForRecompute && !States.MainRole.IsImpostor());
-                            }
-                            break;
-                    }
+                                break;
+                        }
 
-                if (States.GhostRole is CustomRoles.AsistingAngel) hasTasks = false;
+                    if (States.GhostRole is CustomRoles.AsistingAngel) hasTasks = false;
 
-                //ラバーズはタスクを勝利用にカウントしない
-                //回線落ちになってもタスクは復活しない
-                if (Lovers.HaveLoverDontTaskPlayers.Contains(p.PlayerId))
-                    hasTasks &= !ForRecompute;
+                    //ラバーズはタスクを勝利用にカウントしない
+                    //回線落ちになってもタスクは復活しない
+                    if (Lovers.HaveLoverDontTaskPlayers.Contains(p.PlayerId))
+                        hasTasks &= !ForRecompute;
+                }
+                return hasTasks;
             }
-            return hasTasks;
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString(), "HasTask");
+                return false;
+            }
         }
         public static string AllTaskstext(bool kakuritu, bool oomaka, bool meetingdake, bool comms, bool CanSeeComms)
         {

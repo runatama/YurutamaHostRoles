@@ -17,11 +17,11 @@ namespace TownOfHost
                 var hasTasks = UtilsTask.HasTasks(p) && PlayerState.GetByPlayerId(p.PlayerId).GetTaskState().AllTasksCount > 0;
                 if (hasTasks)
                 {
-                    // if (p.Tasks == null)
-                    // {
-                    //     Logger.warn("警告:" + p.PlayerName + "のタスクがnullです");
-                    //     continue;//これより下を実行しない
-                    // }
+                    if (p.Tasks == null)
+                    {
+                        Logger.Warn("警告:" + p.PlayerName + "のタスクがnullです", "RecompteTaskPatch");
+                        continue;//これより下を実行しない
+                    }
                     foreach (var task in p.Tasks)
                     {
                         __instance.TotalTasks++;

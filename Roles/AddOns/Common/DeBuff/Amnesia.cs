@@ -51,7 +51,18 @@ namespace TownOfHost.Roles.AddOns.Common
             var a = langId == SupportedLangs.English ? "Loss of memory" : "Amnesia";
             UtilsGameLog.AddGameLog($"{a}", string.Format(Translator.GetString("Am.log"), Utils.GetPlayerColor(playerId)));
         }
-        public static bool CheckAbilityreturn(PlayerControl player) => player == null || playerIdList.Contains(player?.PlayerId ?? byte.MaxValue) && dontcanUseability;
-        public static bool CheckAbility(PlayerControl player) => player == null || !playerIdList.Contains(player?.PlayerId ?? byte.MaxValue) || !dontcanUseability || playerIdList.Count == 0;
+        /// <summary>
+        /// アムネシアの能力削除が適応されている状態か
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns>trueなら使用不可</returns>
+        public static bool CheckAbilityreturn(PlayerControl player) => player is null || (playerIdList.Contains(player?.PlayerId ?? byte.MaxValue) && dontcanUseability);
+
+        /// <summary>
+        /// 能力が使用できる状態か
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns>trueなら使用可能</returns>
+        public static bool CheckAbility(PlayerControl player) => player == null || playerIdList.Contains(player?.PlayerId ?? byte.MaxValue) is false || !dontcanUseability || playerIdList.Count == 0;
     }
 }

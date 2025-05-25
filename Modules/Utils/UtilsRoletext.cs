@@ -33,15 +33,6 @@ namespace TownOfHost
         {
             var roleName = GetDisplayRoleName(seer, seen);
             var progressText = GetProgressText(seer, seen, Mane);
-            if (a)
-            {
-                seen ??= seer;
-                roleName = roleName.RemoveDeltext("</color>");
-                for (var i = 1; i <= seen.GetCustomSubRoles().Count; i++)
-                {
-                    roleName += "</color>";
-                }
-            }
             var text = roleName + (roleName != "" ? " " : "") + progressText;
             return (text != "", text);
         }

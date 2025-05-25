@@ -81,7 +81,6 @@ public static class MeetingHudPatch
         public static bool Serialize = false;
         public static void Prefix()
         {
-            ExileControllerWrapUpPatch.AirshipExileControllerPatch.check = false;
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
             ChatUpdatePatch.DoBlockChat = true;
             ChatUpdatePatch.BlockSendName = true;
@@ -101,7 +100,9 @@ public static class MeetingHudPatch
                 }
 
                 if (!pc.IsAlive() && !Assassin.NowUse)
-                { }//  会議時に生きてたぜリスト追加
+                {
+                    pc.RpcExileV2();
+                }//  会議時に生きてたぜリスト追加
                 else
                 {
                     PlayerCatch.OldAlivePlayerControles.Add(pc);
@@ -115,10 +116,12 @@ public static class MeetingHudPatch
             {
                 _ = new LateTask(() =>
                 {
+                    if (AntiBlackout.IsCached || AntiBlackout.IsSet) return;
+
                     Dictionary<byte, bool> State = new();
                     foreach (var player in PlayerCatch.AllAlivePlayerControls)
                     {
-                        State.TryAdd(player.PlayerId, player.Data.IsDead);
+                        State.TryAdd(player.PlayerId, player.IsAlive());
                     }
                     foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                     {
@@ -139,7 +142,8 @@ public static class MeetingHudPatch
                     }
                     foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
                     {
-                        player.Data.IsDead = State.TryGetValue(player.PlayerId, out var data) && data;
+                        var a = State.TryGetValue(player.PlayerId, out var data) ? data : false;
+                        player.Data.IsDead = !a;
                     }
                 }, 4f, "SetDie");
             }

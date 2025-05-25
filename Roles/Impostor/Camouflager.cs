@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -99,16 +100,27 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             }
 
             if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
-            if (remove.Count != 0) remove.Do(id => VentPlayers.Remove(id));
+            if (remove.Count != 0)
+            {
+                remove.Do(id => VentPlayers.Remove(id));
+                foreach (var pl in PlayerCatch.AllPlayerControls)
+                {
+                    pl?.GetRoleClass()?.Colorchnge();
+                }
+            }
         }
         if (Limit <= 0)
         {
             Limit = -100;
             NowUse = false;
-            PlayerCatch.AllPlayerControls.DoIf(pc => pc.GetCustomRole() is not CustomRoles.Monochromer, pc => Camouflage.RpcSetSkin(pc, kyousei: null));
+            PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, kyousei: null));
             _ = new LateTask(() =>
             {
                 if (GameStates.Meeting) return;
+                foreach (var pl in PlayerCatch.AllPlayerControls)
+                {
+                    pl?.GetRoleClass()?.Colorchnge();
+                }
                 UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                 Player.RpcResetAbilityCooldown(log: false, kousin: true);
             }, 0.4f, "", true);

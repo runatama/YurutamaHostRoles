@@ -71,12 +71,27 @@ public sealed class JackalDoll : RoleBase
     {
         CustomRoles.Crewmate, CustomRoles.Madmate , CustomRoles.Jester, CustomRoles.Opportunist,CustomRoles.Monochromer
     };
+    public static int GetSideKickCount()
+    {
+        if (CustomRoles.Jackal.IsEnable() || CustomRoles.JackalAlien.IsEnable() || CustomRoles.JackalMafia.IsEnable())
+        {
+            // 0%以上なら確認する。
+            if (Options.GetRoleChance(CustomRoles.Jackaldoll) > 0)
+            {
+                return sidekick.GetInt();
+            }
+            // 0%でサイドキックあり得るなら1は返してあげる。
+            return 1;
+        }
+        else return 0;
+    }
     private static void SetupOptionItem()
     {
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
         sidekick = IntegerOptionItem.Create(RoleInfo, 9, Option.SideKickJackaldollMacCount, new(0, 15, 1), 1, false);
         JackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<diemode>(), 0, false);
-        RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false);
+        RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false)
+        .SetCansee(() => JackaldieMode.GetValue() is 2);
         CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
         VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
         VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentCooldown, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);

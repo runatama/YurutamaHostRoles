@@ -390,6 +390,7 @@ namespace TownOfHost
         //参考元→SuperNewRoles様
         public static void RpcSyncAllNetworkedPlayer(int TargetClientId = -1)
         {
+            if (AntiBlackout.IsCached || AntiBlackout.IsSet) return;
             MessageWriter writer = MessageWriter.Get(SendOption.None);
             if (TargetClientId < 0)
             {

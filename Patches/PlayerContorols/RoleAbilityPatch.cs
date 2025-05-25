@@ -264,7 +264,7 @@ namespace TownOfHost
         public static bool Prefix(PlayerControl __instance)
         {
             if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId) return false;
-            //Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
+            Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
             var resetkillcooldown = false;
             bool? fall = false;
 
@@ -328,6 +328,32 @@ namespace TownOfHost
     }
     #endregion
     #region  Vent
+    [HarmonyPatch(typeof(PlayerPhysics._CoEnterVent_d__47), nameof(PlayerPhysics._CoEnterVent_d__47.MoveNext))]
+    class OcCoEnterVentPatch
+    {
+        public static void Prefix(PlayerPhysics._CoEnterVent_d__47 __instance)
+        {
+            if (__instance.__1__state is not 1) return;
+            if (__instance.__4__this.myPlayer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                CoEnterVentPatch.Prefix(__instance.__4__this, __instance.id);
+            }
+        }
+    }
+    [HarmonyPatch(typeof(PlayerPhysics._CoExitVent_d__48), nameof(PlayerPhysics._CoExitVent_d__48.MoveNext))]
+    class OcCoExitVentPath
+    {
+        public static void Prefix(PlayerPhysics._CoExitVent_d__48 __instance)
+        {
+            if (__instance.__1__state is not 1) return;
+
+            if (__instance.__4__this.myPlayer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            {
+                ExitVentPatch.Prefix(__instance.__4__this);
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
     class CoEnterVentPatch
     {

@@ -743,9 +743,9 @@ namespace TownOfHost
 
                     pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
 
-                    if (!Options.SuddenCanSeeKillflash.GetBool() && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
+                    if (!SuddenDeathMode.NowSuddenDeathMode && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
                     {
-                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.None);
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable);
                     }
                 }
             }
@@ -859,8 +859,10 @@ namespace TownOfHost
                                         }
                                     }
                                 }
-                                if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && (!Options.SuddenAllRoleonaji.GetBool() || !Options.SuddenTeamRole.GetBool())) continue;
-                                pc.RpcSetRoleDesync(roleinfo.BaseRoleType.Invoke(), pc.GetClientId());
+                                if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && !(Options.SuddenAllRoleonaji.GetBool() && Options.SuddenTeamRole.GetBool())) continue;
+                                {
+                                    pc.RpcSetRoleDesync(roleinfo.BaseRoleType.Invoke(), pc.GetClientId());
+                                }
                             }
                     }
 

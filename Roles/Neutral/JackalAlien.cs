@@ -664,7 +664,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.sidekick.GetInt() <= JackalDoll.side || !SK) return "";
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.GetSideKickCount() <= JackalDoll.side || !SK) return "";
 
         if (isForHud) return GetString("PhantomButtonSideKick");
         return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";
@@ -788,7 +788,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(OptionHasImpostorVision.GetBool());
-        AURoleOptions.PhantomCooldown = JackalDoll.sidekick.GetInt() <= JackalDoll.side ? 200f : (Fall ? 0f : OptionCooldown.GetFloat());
+        AURoleOptions.PhantomCooldown = JackalDoll.GetSideKickCount() <= JackalDoll.side ? 200f : (Fall ? 0f : OptionCooldown.GetFloat());
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
     public bool UseOneclickButton => SK;
@@ -799,7 +799,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         resetkillcooldown = false;
         if (!SK) return;
 
-        if (JackalDoll.sidekick.GetInt() <= JackalDoll.side)
+        if (JackalDoll.GetSideKickCount() <= JackalDoll.side)
         {
             SK = false;
             return;

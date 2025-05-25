@@ -177,7 +177,7 @@ namespace TownOfHost
                     if (MeetingStates.FirstMeeting && (Options.ChangeNameToRoleInfo.GetBool() || SuddenDeathMode.NowSuddenDeathMode) && Main.IntroHyoji)
                         SeerRealName = seer?.GetRoleInfo() ?? "";
 
-                    var colorName = SeerRealName.ApplyNameColorData(seer, seer, false).RemoveColorTags() + "</color>";
+                    var colorName = SeerRealName.ApplyNameColorData(seer, seer, false);
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
                     var (enabled, text) = GetRoleNameAndProgressTextData(seer, a: true);

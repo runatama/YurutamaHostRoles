@@ -141,7 +141,7 @@ namespace TownOfHost
                     foreach (var roleop in Options.CustomRoleCounts)
                     {
                         var role = roleop.Key;
-                        if (role is not CustomRoles.Jackaldoll || JackalDoll.sidekick.GetFloat() is 0 || CustomRoles.Jackaldoll.GetChance() == 0)
+                        if (role is not CustomRoles.Jackaldoll || JackalDoll.GetSideKickCount() is 0)
                             if (!role.IsEnable()) continue;
                         if (role is CustomRoles.HASFox or CustomRoles.HASTroll) continue;
 

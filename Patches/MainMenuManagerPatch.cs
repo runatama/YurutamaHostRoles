@@ -448,7 +448,7 @@ namespace TownOfHost
         {
             if (CredentialsPatch.TohkLogo != null)
             {
-                CredentialsPatch.TohkLogo.gameObject.SetActive(true);
+                CredentialsPatch.TohkLogo?.gameObject?.SetActive(true);
             }
             if (VersionMenu != null)
                 VersionMenu.SetActive(false);
@@ -457,9 +457,9 @@ namespace TownOfHost
             if (Tokei != null)
                 Tokei.gameObject.SetActive(false);
             if (TuginoButton != null)
-                TuginoButton.Button.gameObject.SetActive(false);
+                TuginoButton?.Button?.gameObject.SetActive(false);
             if (ModoruButton != null)
-                ModoruButton.Button.gameObject.SetActive(false);
+                ModoruButton?.Button?.gameObject.SetActive(false);
         }
     }
     public class ModNews

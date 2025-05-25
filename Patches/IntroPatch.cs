@@ -19,6 +19,7 @@ namespace TownOfHost
     {
         public static void Postfix(IntroCutscene._ShowRole_d__41 __instance)
         {
+            if (__instance.__1__state != 1) return;
             if (!GameStates.IsModHost) return;
             var _instance = __instance.__4__this;
             _ = new LateTask(() =>
