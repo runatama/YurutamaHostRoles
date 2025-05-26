@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class BorderKiller : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -47,7 +48,7 @@ public sealed class BorderKiller : RoleBase, IImpostor
     public override void CheckWinner()
     {
         //目標キルカウント ＞ 現在のキルカウント
-        if (OptionMissionKillcount.GetInt() > MyState.GetKillCount(false))
+        if (OptionMissionKillcount.GetInt() > MyState.GetKillCount(false) && CustomWinnerHolder.WinnerTeam is CustomWinner.Impostor)
         {
             CustomWinnerHolder.IdRemoveLovers.Add(Player.PlayerId);
             CustomWinnerHolder.WinnerIds.Remove(Player.PlayerId);

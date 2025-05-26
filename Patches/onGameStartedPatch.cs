@@ -116,8 +116,10 @@ namespace TownOfHost
             }
             List<PlayerControl> players = new();
             PlayerCatch.AllPlayerControls.Do(x => players.Add(x));
+            PlayerCatch.AllPlayerNetId = new();
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                PlayerCatch.AllPlayerNetId.TryAdd(pc.PlayerId, pc.NetId);
                 PlayerState.Create(pc.PlayerId);
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod); //移動速度をデフォルトの移動速度に変更
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
@@ -745,7 +747,9 @@ namespace TownOfHost
 
                     if (!SuddenDeathMode.NowSuddenDeathMode && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
                     {
-                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable);
+                        _ = new LateTask(() =>
+                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable)
+                        , Main.LagTime, "SetHostImpostor", null);
                     }
                 }
             }

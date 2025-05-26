@@ -99,6 +99,7 @@ namespace TownOfHost
         public static IEnumerable<PlayerControl> AllAlivePlayerControls => PlayerControl.AllPlayerControls.ToArray().Where(p => p != null && p.IsAlive() && p.PlayerId <= 15);
         //1ターン前に生きてた人達のリスト
         public static List<PlayerControl> OldAlivePlayerControles = new();
+        public static Dictionary<byte, uint> AllPlayerNetId = new();
 
         public static bool AnyModClient() => AllPlayerControls.Any(pc => pc.PlayerId is not 0 && pc.IsModClient());
     }

@@ -164,6 +164,7 @@ namespace TownOfHost
                 {
                     if (GameStates.IsInGame)
                     {
+                        //data.Character.Data.Role.Role = RoleTypes.CrewmateGhost;
                         SelectRolesPatch.Disconnected.Add(data.Character.PlayerId);
 
                         Lovers.LoverDisconnected(data.Character);

@@ -513,7 +513,7 @@ public static class MeetingHudPatch
                     Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
 
-                    if (Options.ExHideChatCommand.GetBool())
+                    if (Options.ExHideChatCommand.GetBool() && !AntiBlackout.IsCached)
                     {
                         StartPatch.Serialize = true;
                         foreach (var pc in PlayerCatch.AllAlivePlayerControls)

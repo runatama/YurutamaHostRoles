@@ -6,6 +6,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Turncoat : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -60,6 +61,7 @@ public sealed class Turncoat : RoleBase
         {
             if (pc.PlayerId == Player.PlayerId) return false;
             if (pc.Is(CustomRoles.GM)) return false;
+            if (pc.Is(CustomRoles.Turncoat)) return false;
 
             var role = pc.GetCustomRole().GetCustomRoleTypes();
 
@@ -119,13 +121,25 @@ public sealed class Turncoat : RoleBase
 
         //勝利IDに含まれていないかつ、勝利役職に含まれてない場合 → かち！
         if (!CustomWinnerHolder.WinnerIds.Contains(Target)
-        && !CustomWinnerHolder.WinnerRoles.Contains(Target.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness)) return;
+        && !CustomWinnerHolder.WinnerRoles.Contains(Target.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness))
+        {
+            Win();
+            return;
+        }
 
         //何が何でも負けるリストに含まれている場合 → かち！
-        if (CustomWinnerHolder.IdRemoveLovers.Contains(Target)) return;
-
+        if (CustomWinnerHolder.IdRemoveLovers.Contains(Target))
+        {
+            Win();
+            return;
+        }
         //上記2つに含まれないなら負け。
         return;
+    }
+    public void Win()
+    {
+        CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Turncoat);
+        CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
     }
     //死亡時だけ役職情報を開示する
     //スタンダードなら白位置にねじ込んでキルさせる、強引に吊りに行く等誘導してもらいたい

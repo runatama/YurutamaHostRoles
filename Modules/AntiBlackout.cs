@@ -33,7 +33,7 @@ namespace TownOfHost
         ///</summary>
         public static bool OverrideExiledPlayer()
         {
-            if (4 <= PlayerCatch.AllPlayerControls.Count()) return false;
+            if (4 <= PlayerCatch.AllPlayersCount) return false;
             if (ModClientOnly is true) return false;
             //if (!Options.BlackOutwokesitobasu.GetBool()) return false;
 
@@ -57,7 +57,7 @@ namespace TownOfHost
             {
                 isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
                 //情報が無い　　　   4人以上正常者がいる場合は役職変えるので回線切断者を生存擬装する必要が多分ない。
-                if (info == null || ((info?.Disconnected == true) && 4 <= nowcount)) continue;
+                if (info == null/* || ((info?.Disconnected == true) && 4 <= nowcount)*/) continue;
                 info.IsDead = false;
                 info.Disconnected = false;
             }
@@ -119,13 +119,14 @@ namespace TownOfHost
             {
                 IsSet = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
-                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId || !PlayerControl.LocalPlayer.IsAlive())
+                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                 {
                     byte[] DontImpostrTargetIds = [PlayerControl.LocalPlayer.PlayerId, (result?.Exiled?.PlayerId ?? byte.MaxValue)];
                     var impostortarget = PlayerCatch.AllAlivePlayerControls.Where(pc => !DontImpostrTargetIds.Contains(pc.PlayerId)).FirstOrDefault();
                     ImpostorId = impostortarget == null ?
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
                 }
+                bool check = false;
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
                     //clientがnull or ホスト視点のお話なら無し
@@ -134,18 +135,25 @@ namespace TownOfHost
 
                     var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
                     sender.StartMessage(seer.GetClientId());
-                    foreach (var target in PlayerCatch.AllPlayerControls)
+                    foreach (var target in GameData.Instance.AllPlayers)
                     {
+                        if (target == null) continue;
+                        if (!PlayerCatch.AllPlayerNetId.TryGetValue(target.PlayerId, out var netid)) continue;
                         RoleTypes setrole = target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                        sender.StartRpc(target.NetId, RpcCalls.SetRole)
+                        sender.StartRpc(netid, RpcCalls.SetRole)
                         .Write((ushort)setrole)
                         .Write(true)
                         .EndRpc();
+
+                        if (check is false)
+                        {
+                            Logger.Info($"{target.GetLogPlayerName()} => {setrole}", "AntiBlackout");
+                        }
                     }
+                    check = true;
                     sender.EndMessage();
                     sender.SendMessage();
                 }
-
             }
         }
 

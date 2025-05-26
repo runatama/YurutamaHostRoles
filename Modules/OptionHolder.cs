@@ -84,6 +84,7 @@ namespace TownOfHost
         public static float DefaultKillCooldown = Main.NormalOptions?.KillCooldown ?? 20;
         public static OptionItem DoubleTriggerThreshold;
         public static OptionItem DefaultShapeshiftCooldown;
+        public static OptionItem DefaultShapeshiftDuration;
         public static OptionItem CanMakeMadmateCount;
         public static OptionItem SkMadCanUseVent;
         public static OptionItem MadMateOption;
@@ -694,6 +695,8 @@ namespace TownOfHost
                 .SetValueFormat(OptionFormat.Seconds);
             DefaultShapeshiftCooldown = FloatOptionItem.Create(1100, "DefaultShapeshiftCooldown", new(1f, 999f, 1f), 15f, TabGroup.ImpostorRoles, false)
                 .SetHeader(true)
+                .SetValueFormat(OptionFormat.Seconds);
+            DefaultShapeshiftDuration = FloatOptionItem.Create(1102, "DefaultShapeshiftDuration", new(1, 300, 1f), 10, TabGroup.ImpostorRoles, false)
                 .SetValueFormat(OptionFormat.Seconds);
 
             // Madmate, Crewmate, Neutral

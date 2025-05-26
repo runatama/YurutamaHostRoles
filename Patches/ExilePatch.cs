@@ -73,8 +73,8 @@ namespace TownOfHost
                 var role = exiled.GetCustomRole();
                 var info = role.GetRoleInfo();
                 //霊界用暗転バグ対処
-                if (!AntiBlackout.OverrideExiledPlayer() && info?.IsDesyncImpostor == true)
-                    exiled.Object?.ResetPlayerCam(3f);
+                /*if (!AntiBlackout.OverrideExiledPlayer() && info?.IsDesyncImpostor == true)
+                    exiled.Object?.ResetPlayerCam(3f);*/
 
                 exiled.IsDead = true;
                 PlayerState.GetByPlayerId(exiled.PlayerId).DeathReason = CustomDeathReason.Vote;
@@ -93,10 +93,7 @@ namespace TownOfHost
             //霊界用暗転バグ処置(移設)
             if (AmongUsClient.Instance.AmHost)
             {
-                _ = new LateTask(() =>
-                {
-                    AntiBlackout.RestoreIsDead(doSend: false);
-                }, 0.2f, "Res");//ラグを考慮して遅延入れる。
+                AntiBlackout.RestoreIsDead(doSend: false);
                 _ = new LateTask(() =>
                 {
                     if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
@@ -185,7 +182,7 @@ namespace TownOfHost
                             ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer(false);
                             if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
                         }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 0.4f, "", true);
+                }, 0.5f, "", true);
             }
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -236,7 +233,7 @@ namespace TownOfHost
                 {
                     exiled = AntiBlackout_LastExiled;
                     AntiBlackout.SendGameData();
-                }, 0.28f, "Restore IsDead Task");
+                }, 0.32f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
                     if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)

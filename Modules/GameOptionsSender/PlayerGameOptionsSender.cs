@@ -171,6 +171,7 @@ namespace TownOfHost.Modules
             {
                 case CustomRoleTypes.Impostor:
                     AURoleOptions.ShapeshifterCooldown = DefaultShapeshiftCooldown.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = DefaultShapeshiftDuration.GetFloat();
                     break;
                 case CustomRoleTypes.Madmate:
                     AURoleOptions.EngineerCooldown = MadmateVentCooldown.GetFloat();
@@ -181,7 +182,11 @@ namespace TownOfHost.Modules
                         opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                     break;
             }
-
+            if (role is CustomRoles.Egoist)
+            {
+                AURoleOptions.ShapeshifterCooldown = DefaultShapeshiftCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = DefaultShapeshiftDuration.GetFloat();
+            }
             var roleClass = player.GetRoleClass();
             if (roleClass == null)
             {

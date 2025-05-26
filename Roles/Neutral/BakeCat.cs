@@ -183,7 +183,6 @@ namespace TownOfHost.Roles.Neutral
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo sitai)
         {
-            Player.RpcSetRoleDesync(Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost, Player.GetClientId());
             if (OptionDieKiller.GetBool())
             {
                 if (!Killer.IsAlive()) return;

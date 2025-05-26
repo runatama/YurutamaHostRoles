@@ -329,7 +329,9 @@ namespace TownOfHost
 
             if (player == null) return;
 
-            //Logger.Info($"{player?.Data?.GetLogPlayerName() ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
+            var pc = AmongUsClient.Instance.allClients.ToArray().Where(x => x.Id == clientId).FirstOrDefault();
+
+            Logger.Info($"({pc?.PlayerName ?? "???"}){player?.Data?.GetLogPlayerName() ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
@@ -1150,11 +1152,6 @@ namespace TownOfHost
             if (PlayerState.GetByPlayerId(target.PlayerId) is not PlayerState state)
             {
                 return true;
-            }
-            if (AntiBlackout.IsCached)
-            {
-                if (AntiBlackout.isDeadCache.TryGetValue(target.PlayerId, out var isDead))
-                    return !isDead.Disconnected && !isDead.isDead;
             }
             return !state.IsDead;
         }

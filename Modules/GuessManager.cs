@@ -219,7 +219,7 @@ public static class GuessManager
                     if (!dp.IsModClient() && !dp.AmOwner) pc.RpcMeetingKill(dp);
                     CustomRoleManager.OnMurderPlayer(pc, target);
 
-                    if (Options.ExHideChatCommand.GetBool())
+                    if (Options.ExHideChatCommand.GetBool() && !AntiBlackout.IsCached)
                     {
                         MeetingHudPatch.StartPatch.Serialize = true;
                         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
