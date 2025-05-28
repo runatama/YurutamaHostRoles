@@ -94,7 +94,8 @@ public static class ElectricTaskInitializePatch
     public static void Postfix()
     {
         UtilsOption.MarkEveryoneDirtySettings();
-        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 6f, "5Elec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 3.1f, "3sElec", true);
+        _ = new LateTask(() => UtilsOption.MarkEveryoneDirtySettings(), 5.1f, "5sElec", true);
         if (!GameStates.IsMeeting)
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
     }

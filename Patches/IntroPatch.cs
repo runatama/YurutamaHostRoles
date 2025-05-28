@@ -395,6 +395,14 @@ namespace TownOfHost
             {
                 if (mapId != 4)
                 {
+                    if (Options.SuddenKillcooltime.GetBool() && SuddenDeathMode.NowSuddenDeathMode)
+                    {
+                        _ = new LateTask(() =>
+                        {
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.SuddenKillcooltime.GetFloat() - 0.7f, delay: true));
+                        }, 0.7f, "FixKillCooldownTask", null);
+                    }
+                    else
                     if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {

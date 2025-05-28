@@ -18,6 +18,7 @@ using static TownOfHost.Utils;
 using static TownOfHost.PlayerCatch;
 using static TownOfHost.UtilsTask;
 using TownOfHost.Roles.Core.Descriptions;
+using TownOfHost.Roles.Neutral;
 namespace TownOfHost
 {
     public static class UtilsRoleText
@@ -339,6 +340,11 @@ namespace TownOfHost
                 ProgressText.Append(roleClass.GetProgressText(comms, gamelog));
             }
             if (player.CanMakeMadmate()) ProgressText.Append(ColorString(Palette.ImpostorRed.ShadeColor(0.5f), $"[{Options.CanMakeMadmateCount.GetInt() - PlayerCatch.SKMadmateNowCount}]"));
+            if (player.GetCustomRole() is CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.JackalMafia && JackalDoll.GetSideKickCount() > 0)
+            {
+                ProgressText.Append(ColorString(GetRoleColor(CustomRoles.Jackal), $"[{JackalDoll.GetSideKickCount() - JackalDoll.side}]"));
+            }
+
             return ProgressText.ToString();
         }
         public static string GetProgressText(PlayerControl seer, PlayerControl seen = null, bool Mane = true)

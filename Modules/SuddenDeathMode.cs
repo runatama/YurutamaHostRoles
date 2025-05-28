@@ -505,6 +505,7 @@ namespace TownOfHost.Modules
             reason = GameOverReason.ImpostorsByKill;
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
             if (checkplayer(out reason)) return true;
+            if (FinishTaskCheck(out reason)) return true;
             if (CheckGameEndBySabotage(out reason)) return true;
 
             return false;
@@ -531,6 +532,32 @@ namespace TownOfHost.Modules
                 return true;
             }
             if (Lovers.CheckPlayercountWin()) return true;
+            return false;
+        }
+        public static bool FinishTaskCheck(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorsByKill;
+            if (Options.SuddenfinishTaskWin.GetBool() is false) return false;
+
+            foreach (var player in PlayerCatch.AllAlivePlayerControls)
+            {
+                if (player.GetPlayerState() is not PlayerState state) continue;
+
+                if (!player.IsAlive() || !state.taskState.hasTasks) continue;
+
+                if (state.taskState.IsTaskFinished)
+                {
+                    CustomWinnerHolder.ResetAndSetWinner((CustomWinner)player.GetCustomRole());
+                    CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
+                    foreach (var dead in PlayerCatch.AllPlayerControls.Where(x => x.PlayerId != player.PlayerId))
+                    {
+                        if (dead.IsAlive()) dead.RpcMurderPlayerV2(dead);
+                        dead.SetRealKiller(player);
+                        dead.GetPlayerState().DeathReason = CustomDeathReason.Vote;
+                    }
+                    return true;
+                }
+            }
             return false;
         }
     }

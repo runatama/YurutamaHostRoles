@@ -55,8 +55,8 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "51.12.29.15";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-        public const string PluginShowVersion = "51.12.29<sub>.15</sub>";
+        public const string PluginVersion = "51.12.29.16";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+        public const string PluginShowVersion = "51.12.29<sub>.16</sub>";
         public const string ModVersion = ".29";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -95,6 +95,7 @@ namespace TownOfHost
         public static ConfigEntry<bool> ViewPingDetails { get; private set; }
         public static ConfigEntry<bool> DebugChatopen { get; private set; }
         public static ConfigEntry<bool> DebugSendAmout { get; private set; }
+        public static ConfigEntry<bool> DebugTours { get; private set; }
         public static ConfigEntry<bool> ShowDistance { get; private set; }
         public static Dictionary<byte, PlayerVersion> playerVersion = new();
         //Preset Name Options
@@ -190,6 +191,7 @@ namespace TownOfHost
             ViewPingDetails = Config.Bind("Client Options", "View Ping Details", false);
             DebugChatopen = Config.Bind("Client Options", "Debug Chat open", false);
             DebugSendAmout = Config.Bind("Client Options", "Debug Send Amout", false);
+            DebugTours = Config.Bind("Client Options", "DebugTours", false);
             ShowDistance = Config.Bind("Client Options", "Show Distance", false);
             DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
             ExplosionKeyInput = Config.Bind("Authentication", "Explosion Key", "");

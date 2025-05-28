@@ -215,6 +215,17 @@ public sealed class JackalDoll : RoleBase
         Ex = Exiled;
         return false;
     }
+    public override bool OnCheckMurderAsTarget(MurderInfo info)
+    {
+        var (killer, target) = info.AppearanceTuple;
+        if (Oyabun.TryGetValue(target.PlayerId, out var oya))
+        {//サイドキックされて親分に殺されそうとか言う事になるとキルガード
+            info.CanKill = false;
+            killer.RpcProtectedMurderPlayer(target);
+            return oya != killer.PlayerId;
+        }
+        return true;
+    }
     public override void AfterMeetingTasks()
     {
         if (Oyabun.ContainsKey(Player.PlayerId)) return;

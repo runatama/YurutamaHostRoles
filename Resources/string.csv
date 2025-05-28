@@ -999,6 +999,8 @@
 "SuddenItijohoSenddis","Arrow update interval","位置情報更新間隔"
 "SuddenNokoriPlayerCount","Can See Alive PlayerCount","残り人数が見える"
 "SuddenCanSeeKillflash","Can See KillFlash","誰かが死亡した時キルフラッシュが見える"
+"SuddenKillcooltime","First KillCooldown","スポーン後のキルクールダウン"
+"SuddenfinishTaskWin","Can't Kill Role Finish Task Win","タスク完了で勝利する"
 "SuddenTeam","Team Mode","チーム戦にする"
 "SuddenTeamYellow","Team Yellow","黄チームを有効にする"
 "SuddenTeamGreen","Team Green","緑チームを有効にする"
@@ -1972,6 +1974,7 @@
 "DebugChatopen","Use Chat","常にチャットを開放する"
 "DebugSendAmout","right shift Send Amout","Amout"
 "ShowDistance","Show Distance","距離を表示"
+"DebugTours","DebugTours","DebugTours"
 "AutoSaveScreenShot","Auto Save ScreenShot","試合結果のスクショを自動保存する"
 
 "## ヘルプテキスト"

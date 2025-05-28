@@ -947,7 +947,7 @@ namespace TownOfHost
                 {
                     opt.SetFloat(
                     FloatOptionNames.ImpostorLightMod,
-                    opt.GetFloat(FloatOptionNames.ImpostorLightMod) / AURoleOptions.ElectricalCrewVision);
+                    opt.GetFloat(FloatOptionNames.ImpostorLightMod) / 5);
                 }
                 return;
             }

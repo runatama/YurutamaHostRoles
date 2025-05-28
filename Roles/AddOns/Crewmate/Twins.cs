@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 
 namespace TownOfHost;
+
 class Twins
 {
     public static Dictionary<byte, byte> TwinsList = new();
@@ -108,10 +109,10 @@ class Twins
             TwinsList.Remove(id);
         }
     }
-    public static void TwinsSuicide()
+    public static void TwinsSuicide(bool isExiled = false)
     {
         if (!OptionTwinsDiefollow.GetBool() || !CustomRoles.Twins.IsPresent()) return;
-        bool isExiled = AntiBlackout.IsCached || GameStates.Meeting || GameStates.Tuihou;
+        isExiled |= AntiBlackout.IsCached || GameStates.Meeting || GameStates.Tuihou;
         var list = TwinsList.Where(x => !DieTwinsList.Contains(x.Key));
         foreach (var twins in list)
         {

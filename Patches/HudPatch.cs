@@ -108,7 +108,6 @@ namespace TownOfHost
             }
             //ゲーム中でなければ以下は実行されない
             if (!AmongUsClient.Instance.IsGameStarted) return;
-
             PlayerCatch.CountAlivePlayers();
 
             if (SetHudActivePatch.IsActive)
@@ -659,6 +658,18 @@ namespace TownOfHost
             if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
                 __instance.taskText.text = RepairSender.GetText();
+            }
+
+            if (Main.DebugTours.Value && AmongUsClient.Instance.NetworkMode is not NetworkModes.OnlineGame)
+            {
+                __instance.taskText.text = "";
+                var a = "";
+                foreach (var pl in PlayerCatch.AllPlayerControls)
+                {
+                    a += $"{Utils.GetPlayerColor(pl)}({(pl.IsAlive() ? "<#3cff63>●</color>" : $"{Utils.GetVitalText(pl.PlayerId, true)}")}) : "
+                    + $"{UtilsRoleText.GetTrueRoleName(pl.PlayerId)} (pos:{pl.GetTruePosition()})\n";
+                }
+                __instance.taskText.text = a;
             }
         }
     }

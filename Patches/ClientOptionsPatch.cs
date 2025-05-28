@@ -23,6 +23,7 @@ namespace TownOfHost
         private static ClientActionItem ViewPingDetails;
         private static ClientActionItem DebugChatopen;
         private static ClientActionItem DebugSendAmout;
+        private static ClientActionItem DebugTours;
         private static ClientActionItem ShowDistance;
         private static ClientActionItem AutoSaveScreenShot;
 
@@ -97,6 +98,10 @@ namespace TownOfHost
             if (ShowDistance == null || ShowDistance.ToggleButton == null)
             {
                 ShowDistance = ClientOptionItem.Create("ShowDistance", Main.ShowDistance, __instance);
+            }
+            if (DebugTours == null || DebugTours.ToggleButton == null)
+            {
+                DebugTours = ClientOptionItem.Create("DebugTours", Main.DebugTours, __instance);
             }
 #endif
             if ((CustomName == null || CustomName.ToggleButton == null) && Event.IsEventDay)

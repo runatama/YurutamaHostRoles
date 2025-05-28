@@ -66,8 +66,7 @@ namespace TownOfHost
 
             bool DecidedWinner = false;
             if (!AmongUsClient.Instance.AmHost) return; //ホスト以外はこれ以降の処理を実行しません
-            //AntiBlackout.RestoreIsDead(doSend: false);
-            //AntiBlackout.RestoreSetRole();
+            AntiBlackout.RestoreIsDead(doSend: false);
             if (exiled != null)
             {
                 var role = exiled.GetCustomRole();
@@ -93,137 +92,47 @@ namespace TownOfHost
             //霊界用暗転バグ処置(移設)
             if (AmongUsClient.Instance.AmHost)
             {
-                AntiBlackout.RestoreIsDead(doSend: false);
-                _ = new LateTask(() =>
-                {
-                    if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-                    foreach (var Player in PlayerCatch.AllPlayerControls)//役職判定を戻す。
-                    {
-                        if (Player.GetClient() is null)
-                        {
-                            Logger.Error($"{Player?.Data?.PlayerName ?? "???"}のclientがnull", "ExiledSetRole");
-                            continue;
-                        }
-                        var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
-                        sender.StartMessage(Player.GetClientId());
-                        if (Player != PlayerControl.LocalPlayer)
-                        {
-                            foreach (var pc in PlayerCatch.AllPlayerControls)
-                            {
-                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
-                                {
-                                    sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                                    .Write((ushort)RoleTypes.Crewmate)
-                                    .Write(true)
-                                    .EndRpc();
-                                    continue;
-                                }
-                                var customrole = pc.GetCustomRole();
-                                var roleinfo = customrole.GetRoleInfo();
-                                var role = roleinfo?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
-                                var isalive = pc.IsAlive();
-                                if (!isalive)
-                                {
-                                    role = customrole.IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false) ?
-                                            RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost;
-                                }
+                if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
 
-                                if (Player != pc && (roleinfo?.IsDesyncImpostor ?? false))
-                                    role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
-
-                                var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
-                                IDesycImpostor |= SuddenDeathMode.NowSuddenDeathMode;
-
-                                if (pc.Is(CustomRoles.Amnesia))
-                                {
-                                    if (roleinfo?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
-                                        role = RoleTypes.Crewmate;
-                                    if (Amnesia.dontcanUseability)
-                                    {
-                                        role = pc.Is(CustomRoleTypes.Impostor) ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                                    }
-                                }
-                                var setrole = (IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role;
-
-                                sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                                .Write((ushort)setrole)
-                                .Write(true)
-                                .EndRpc();
-                            }
-                            sender.EndMessage();
-                            sender.SendMessage();
-                            Player.Revive();
-                        }
-
-                        Player.ResetKillCooldown();
-                        Player.PlayerId.GetPlayerState().IsBlackOut = false;
-                        Player.SyncSettings();
-                        _ = new LateTask(() =>
-                            {
-                                Player.SetKillCooldown(kyousei: true, delay: true);
-                                if (Player.IsAlive() && !(Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()))
-                                {
-                                    var roleclass = Player.GetRoleClass();
-                                    (roleclass as IUseTheShButton)?.ResetS(Player);
-                                    (roleclass as IUsePhantomButton)?.Init(Player);
-                                }
-                                else
-                                {
-                                    Player.RpcExileV2();
-                                    if (Player.IsGhostRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
-                                }
-                            }, Main.LagTime, "", true);
-                    }
-                    _ = new LateTask(() =>
-                        {
-                            Twins.TwinsSuicide();
-                            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-                            UtilsNotifyRoles.NotifyRoles(true, true);
-                            ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer(false);
-                            if (Options.ExAftermeetingflash.GetBool()) Utils.AllPlayerKillFlash();
-                        }, Main.LagTime * 2, "AfterMeetingNotifyRoles");
-                }, 0.5f, "", true);
-            }
-
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-            {
-                pc.ResetKillCooldown();
-            }
-            if (RandomSpawn.IsRandomSpawn())
-            {
-                RandomSpawn.SpawnMap map;
-                switch (Main.NormalOptions.MapId)
-                {
-                    case 0:
-                        map = new RandomSpawn.SkeldSpawnMap();
-                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                    case 1:
-                        map = new RandomSpawn.MiraHQSpawnMap();
-                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                    case 2:
-                        map = new RandomSpawn.PolusSpawnMap();
-                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                    case 5:
-                        map = new RandomSpawn.FungleSpawnMap();
-                        PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
-                        break;
-                }
-            }
-            FallFromLadder.Reset();
-            PlayerCatch.CountAlivePlayers(true);
-            Utils.AfterMeetingTasks();
-            if (Main.NormalOptions.MapId != 4)
-            {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    pc.GetRoleClass()?.OnSpawn();
+                    pc.ResetKillCooldown();
+                }
+                if (RandomSpawn.IsRandomSpawn())
+                {
+                    RandomSpawn.SpawnMap map;
+                    switch (Main.NormalOptions.MapId)
+                    {
+                        case 0:
+                            map = new RandomSpawn.SkeldSpawnMap();
+                            PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
+                            break;
+                        case 1:
+                            map = new RandomSpawn.MiraHQSpawnMap();
+                            PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
+                            break;
+                        case 2:
+                            map = new RandomSpawn.PolusSpawnMap();
+                            PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
+                            break;
+                        case 5:
+                            map = new RandomSpawn.FungleSpawnMap();
+                            PlayerCatch.AllPlayerControls.Do(map.RandomTeleport);
+                            break;
+                    }
+                }
+                FallFromLadder.Reset();
+                PlayerCatch.CountAlivePlayers(true);
+                Utils.AfterMeetingTasks();
+                if (Main.NormalOptions.MapId != 4)
+                {
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        pc.GetRoleClass()?.OnSpawn();
+                    }
                 }
             }
         }
-
         static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
         {
             //WrapUpPostfixで例外が発生しても、この部分だけは確実に実行されます。
@@ -232,8 +141,8 @@ namespace TownOfHost
                 _ = new LateTask(() =>
                 {
                     exiled = AntiBlackout_LastExiled;
-                    AntiBlackout.SendGameData();
-                }, 0.32f, "Restore IsDead Task");
+                    //AntiBlackout.SendGameData();
+                }, 0.5f, "Restore IsDead Task");
                 _ = new LateTask(() =>
                 {
                     if (AntiBlackout.OverrideExiledPlayer() && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
@@ -260,7 +169,15 @@ namespace TownOfHost
                             Executioner.ChangeRoleByTarget(x.Key);
                     });
                     Main.AfterMeetingDeathPlayers.Clear();
-                }, 0.34f, "AfterMeetingDeathPlayers Task");
+
+                    if (Options.ExAftermeetingflash.GetBool())
+                        Utils.AllPlayerKillFlash();
+
+                    if (Main.NormalOptions.MapId is not 4)
+                    {
+                        PlayerCatch.AllPlayerControls.Do(pc => AntiBlackout.ResetSetRole(pc));
+                    }
+                }, 0.52f, "AfterMeetingDeathPlayers Task");
             }
 
             UtilsGameLog.WriteGameLog();

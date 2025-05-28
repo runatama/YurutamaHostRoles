@@ -7,7 +7,9 @@ using Hazel;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
+using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.MeetingVoteManager;
 
 namespace TownOfHost
@@ -17,6 +19,7 @@ namespace TownOfHost
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
+        public static List<byte> isRoleCache = new();
         //private static Dictionary<(byte, byte), RoleTypes> RoleTypeCache = new();
         private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
 
@@ -33,7 +36,7 @@ namespace TownOfHost
         ///</summary>
         public static bool OverrideExiledPlayer()
         {
-            if (4 <= PlayerCatch.AllPlayersCount) return false;
+            if (/*4*/3 <= PlayerCatch.AllPlayersCount) return false;
             if (ModClientOnly is true) return false;
             //if (!Options.BlackOutwokesitobasu.GetBool()) return false;
 
@@ -117,6 +120,7 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
+                isRoleCache.Clear();
                 IsSet = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
                 if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId)
@@ -131,6 +135,8 @@ namespace TownOfHost
                 {
                     //clientがnull or ホスト視点のお話なら無し
                     if (seer?.GetClient() == null) continue;
+
+                    isRoleCache.Add(seer.PlayerId);
                     if (seer?.PlayerId == PlayerControl.LocalPlayer?.PlayerId) continue;
 
                     var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
@@ -154,6 +160,92 @@ namespace TownOfHost
                     sender.EndMessage();
                     sender.SendMessage();
                 }
+            }
+        }
+
+        public static void ResetSetRole(PlayerControl Player)
+        {
+            if (Player) isRoleCache.Remove(Player.PlayerId);
+            if (Player.GetClient() is null)
+            {
+                Logger.Error($"{Player?.Data?.PlayerName ?? "???"}のclientがnull", "ExiledSetRole");
+                return;
+            }
+            var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
+            sender.StartMessage(Player.GetClientId());
+            if (Player != PlayerControl.LocalPlayer)
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
+                    {
+                        sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                        .Write((ushort)RoleTypes.Crewmate)
+                        .Write(true)
+                        .EndRpc();
+                        continue;
+                    }
+                    var customrole = pc.GetCustomRole();
+                    var roleinfo = customrole.GetRoleInfo();
+                    var role = roleinfo?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
+                    var isalive = pc.IsAlive();
+                    if (!isalive)
+                    {
+                        role = customrole.IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false) ?
+                                RoleTypes.ImpostorGhost : RoleTypes.CrewmateGhost;
+                    }
+
+                    if (Player != pc && (roleinfo?.IsDesyncImpostor ?? false))
+                        role = !isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate;
+
+                    var IDesycImpostor = Player.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false;
+                    IDesycImpostor |= SuddenDeathMode.NowSuddenDeathMode;
+
+                    if (pc.Is(CustomRoles.Amnesia))
+                    {
+                        if (roleinfo?.IsDesyncImpostor == true && !pc.Is(CustomRoleTypes.Impostor))
+                            role = RoleTypes.Crewmate;
+                        if (Amnesia.dontcanUseability)
+                        {
+                            role = pc.Is(CustomRoleTypes.Impostor) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                        }
+                    }
+                    var setrole = (IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role;
+
+                    sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                    .Write((ushort)setrole)
+                    .Write(true)
+                    .EndRpc();
+                }
+                sender.EndMessage();
+                sender.SendMessage();
+                Player.Revive();
+            }
+
+            Player.ResetKillCooldown();
+            Player.PlayerId.GetPlayerState().IsBlackOut = false;
+            Player.SyncSettings();
+            _ = new LateTask(() =>
+                {
+                    Player.SetKillCooldown(kyousei: true, delay: true);
+                    if (Player.IsAlive() && !(Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()))
+                    {
+                        var roleclass = Player.GetRoleClass();
+                        (roleclass as IUseTheShButton)?.ResetS(Player);
+                        (roleclass as IUsePhantomButton)?.Init(Player);
+                    }
+                    else
+                    {
+                        Player.RpcExileV2();
+                        if (Player.IsGhostRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
+                    }
+                }, Main.LagTime, "", true);
+
+            {
+                Twins.TwinsSuicide(true);
+                if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
+                Player.RpcResetAbilityCooldown();
+                UtilsNotifyRoles.NotifyRoles(true, true, SpecifySeer: Player);
             }
         }
 
@@ -188,7 +280,8 @@ namespace TownOfHost
         {
             logger.Info("==Reset==");
             if (isDeadCache == null) isDeadCache = new();
-            //if (RoleTypeCache == null) RoleTypeCache = new();
+            if (isRoleCache == null) isRoleCache = new();
+            isRoleCache.Clear();
             isDeadCache.Clear();
             //RoleTypeCache.Clear();
             IsCached = false;

@@ -34,6 +34,7 @@ namespace TownOfHost
 #if RELEASE
             Main.ViewPingDetails.Value = false; 
             Main.DebugSendAmout.Value = false;
+            Main.DebugTours.Value = false;
             Main.ShowDistance.Value = false;
             Main.DebugChatopen.Value  =false;
 #endif
@@ -163,6 +164,8 @@ namespace TownOfHost
         public static OptionItem SuddenItijohoSenddis;
         public static OptionItem SuddenNokoriPlayerCount;
         public static OptionItem SuddenCanSeeKillflash;
+        public static OptionItem SuddenKillcooltime;
+        public static OptionItem SuddenfinishTaskWin;
         public static OptionItem SuddenTeam;
         public static OptionItem SuddenTeamYellow;
         public static OptionItem SuddenTeamGreen;
@@ -614,6 +617,8 @@ namespace TownOfHost
             .SetGameMode(CustomGameMode.Standard);
             SuddenNokoriPlayerCount = BooleanOptionItem.Create(200015, "SuddenNokoriPlayerCount", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode);
             SuddenCanSeeKillflash = BooleanOptionItem.Create(200016, "SuddenCanSeeKillflash", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode);
+            SuddenKillcooltime = FloatOptionItem.Create(200034, "SuddenKillcooltime", RoleBase.OptionBaseCoolTime, 15f, TabGroup.MainSettings, false, null).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds);
+            SuddenfinishTaskWin = BooleanOptionItem.Create(200035, "SuddenfinishTaskWin", true, TabGroup.MainSettings, false).SetParent(SuddenDeathMode);
             SuddenDeathTimeLimit = FloatOptionItem.Create(200010, "SuddenDeathTimeLimit", new(0, 300, 1f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)
             .SetGameMode(CustomGameMode.Standard);
             SuddenDeathReactortime = FloatOptionItem.Create(200011, "SuddenDeathReactortime", new(1, 300, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathMode).SetValueFormat(OptionFormat.Seconds)

@@ -89,6 +89,10 @@ namespace TownOfHost
                 {
                     return true;
                 }
+                if (AntiBlackout.isRoleCache.Contains(__instance?.myPlayer?.PlayerId ?? byte.MaxValue) && (RpcCalls)callId == RpcCalls.SnapTo)
+                {
+                    AntiBlackout.ResetSetRole(__instance.myPlayer);
+                }
                 if (!__instance.isActiveAndEnabled)
                 {
                     return false;
@@ -234,10 +238,18 @@ namespace TownOfHost
                 //最初のスポーンと判定
                 var roleClass = player.GetRoleClass();
                 roleClass?.OnSpawn(MeetingStates.FirstMeeting);
-                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
-                    Options.CurrentGameMode != CustomGameMode.TaskBattle
-                ) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId], delay: true);
-                else if (Options.CurrentGameMode != CustomGameMode.TaskBattle && MeetingStates.FirstMeeting) player.SetKillCooldown(10f, delay: true);
+
+                if (Options.SuddenKillcooltime.GetBool() && Modules.SuddenDeathMode.NowSuddenDeathMode)
+                {
+                    PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.SuddenKillcooltime.GetFloat(), delay: true));
+                }
+                else
+                {
+                    if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled &&
+                        Options.CurrentGameMode != CustomGameMode.TaskBattle
+                    ) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId], delay: true);
+                    else if (Options.CurrentGameMode != CustomGameMode.TaskBattle && MeetingStates.FirstMeeting) player.SetKillCooldown(10f, delay: true);
+                }
                 GameStates.Intro = false;
                 GameStates.AfterIntro = true;
                 if (IsRandomSpawn())
