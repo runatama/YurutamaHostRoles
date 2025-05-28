@@ -463,8 +463,9 @@ public static class CustomRoleManager
     {
         if (AllRolesInfo.TryGetValue(role, out var roleInfo))
         {
-            roleInfo.CreateInstance(player).Add();
-            if (IsGame) roleInfo.CreateInstance(player).ChengeRoleAdd();
+            var roleClass = roleInfo.CreateInstance(player);
+            roleClass.Add();
+            if (IsGame) roleClass.ChengeRoleAdd();
         }
         else
         {
@@ -875,6 +876,8 @@ public enum CustomRoles
     //Combination
     Driver,
     Braid,
+    Vega,
+    Altair,
     // Sub-roll after 500
     NotAssigned = 500,
     LastImpostor,
