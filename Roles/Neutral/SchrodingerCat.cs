@@ -219,6 +219,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             TeamType.CountKiller => CustomWinnerHolder.WinnerTeam == CustomWinner.CountKiller,
             TeamType.Remotekiller => CustomWinnerHolder.WinnerTeam == CustomWinner.Remotekiller,
             TeamType.DoppelGanger => CustomWinnerHolder.WinnerTeam == CustomWinner.DoppelGanger,
+            TeamType.MilkyWay => CustomWinnerHolder.WinnerTeam == CustomWinner.MilkyWay,
             _ => null,
         };
         if (!won.HasValue)
@@ -291,6 +292,10 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
         /// ドッペルゲンガーに所属する状態
         /// </summary>
         DoppelGanger,
+        /// <summary>
+        /// 天の川陣営に所属する状態
+        /// </summary>
+        MilkyWay,
     }
     public static Color GetCatColor(TeamType catType)
     {
@@ -304,6 +309,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             TeamType.Remotekiller => UtilsRoleText.GetRoleColor(CustomRoles.Remotekiller),
             TeamType.CountKiller => UtilsRoleText.GetRoleColor(CustomRoles.CountKiller),
             TeamType.DoppelGanger => UtilsRoleText.GetRoleColor(CustomRoles.DoppelGanger),
+            TeamType.MilkyWay => StringHelper.CodeColor(Vega.TeamColor),
             _ => null,
         };
         if (!color.HasValue)
