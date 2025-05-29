@@ -270,10 +270,11 @@ public static class CustomRoleManager
         if (!Main.AllPlayerLastkillpos.TryAdd(appearanceKiller.PlayerId, info.killerpos))
             Main.AllPlayerLastkillpos[appearanceKiller.PlayerId] = info.killerpos;
 
+        /*
         if (Camouflage.IsCamouflage || Camouflager.NowUse)
         {
             ReportDeadBodyPatch.ChengeMeetingInfo.TryAdd(appearanceTarget.PlayerId, Translator.GetString("CamouflagerMeetingInfo"));
-        }
+        }*/
 
         Main.KillCount[appearanceKiller.PlayerId]++;
 

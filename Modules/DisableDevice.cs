@@ -276,12 +276,13 @@ namespace TownOfHost
                     bool RoleDisable = false;
                     bool IsComms = Utils.IsActive(SystemTypes.Comms);
                     Vector2 PlayerPos = pc.GetTruePosition();
-                    bool ignore = !DoDisable &&
-                            ((DisableDevicesIgnoreImpostors && pc.Is(CustomRoleTypes.Impostor)) ||
-                            (DisableDevicesIgnoreMadmates && pc.Is(CustomRoleTypes.Madmate)) ||
-                            (DisableDevicesIgnoreNeutrals && pc.Is(CustomRoleTypes.Neutral)) ||
-                            (DisableDevicesIgnoreCrewmates && pc.Is(CustomRoleTypes.Crewmate)) ||
-                            (DisableDevicesIgnoreAfterAnyoneDied && GameStates.AlreadyDied));
+                    bool check = false;
+
+                    if (DisableDevicesIgnoreImpostors && pc.Is(CustomRoleTypes.Impostor)) check |= true;
+                    if (DisableDevicesIgnoreMadmates && pc.Is(CustomRoleTypes.Madmate)) check |= true;
+                    if (DisableDevicesIgnoreNeutrals && pc.Is(CustomRoleTypes.Neutral)) check |= true;
+                    if (DisableDevicesIgnoreCrewmates && pc.Is(CustomRoleTypes.Crewmate)) check |= true;
+                    if (DisableDevicesIgnoreAfterAnyoneDied && GameStates.AlreadyDied) check |= true;
 
                     if (pc.IsAlive() && !IsComms)
                     {
@@ -369,7 +370,7 @@ namespace TownOfHost
                                 break;
                         }
                     }
-                    doComms &= !ignore;
+                    if (check) doComms = false;
                     if ((RoleDisable || doComms) && !pc.inVent && GameStates.IsInTask)
                     {
                         if (!DesyncComms.Contains(pc.PlayerId))

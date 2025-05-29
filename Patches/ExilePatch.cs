@@ -173,7 +173,7 @@ namespace TownOfHost
                     if (Options.ExAftermeetingflash.GetBool())
                         Utils.AllPlayerKillFlash();
 
-                    if (Main.NormalOptions.MapId is not 4)
+                    if (Main.NormalOptions.MapId is not 4 || AntiBlackout.OverrideExiledPlayer())
                     {
                         PlayerCatch.AllPlayerControls.Do(pc => AntiBlackout.ResetSetRole(pc));
                     }

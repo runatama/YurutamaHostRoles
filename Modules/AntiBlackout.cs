@@ -18,6 +18,7 @@ namespace TownOfHost
     {
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
+        public static bool Iswaitsend { get; private set; } = false;
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
         public static List<byte> isRoleCache = new();
         //private static Dictionary<(byte, byte), RoleTypes> RoleTypeCache = new();
@@ -36,7 +37,7 @@ namespace TownOfHost
         ///</summary>
         public static bool OverrideExiledPlayer()
         {
-            if (/*4*/3 <= PlayerCatch.AllPlayersCount) return false;
+            if (4 <= PlayerCatch.AllPlayersCount) return false;
             if (ModClientOnly is true) return false;
             //if (!Options.BlackOutwokesitobasu.GetBool()) return false;
 
@@ -60,7 +61,7 @@ namespace TownOfHost
             {
                 isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
                 //情報が無い　　　   4人以上正常者がいる場合は役職変えるので回線切断者を生存擬装する必要が多分ない。
-                if (info == null/* || ((info?.Disconnected == true) && 4 <= nowcount)*/) continue;
+                if (info == null || ((info?.Disconnected == true) && 4 <= nowcount)) continue;
                 info.IsDead = false;
                 info.Disconnected = false;
             }
@@ -122,6 +123,7 @@ namespace TownOfHost
             {
                 isRoleCache.Clear();
                 IsSet = true;
+                Iswaitsend = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
                 if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId)
                 {
@@ -170,6 +172,13 @@ namespace TownOfHost
             {
                 Logger.Error($"{Player?.Data?.PlayerName ?? "???"}のclientがnull", "ExiledSetRole");
                 return;
+            }
+            if (Iswaitsend)
+            {
+                Iswaitsend = false;
+                //個々視点のみになってるっぽい。会議時とかそういう場で相互性が取れなくなる。
+                //1000msとか行ったら暗転するけどそこまで考えるのは...
+                _ = new LateTask(() => SendGameData(), 1f, "SetAllPlayerData", true);
             }
             var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
             sender.StartMessage(Player.GetClientId());
@@ -285,6 +294,7 @@ namespace TownOfHost
             isDeadCache.Clear();
             //RoleTypeCache.Clear();
             IsCached = false;
+            Iswaitsend = false;
             IsSet = false;
         }
     }
