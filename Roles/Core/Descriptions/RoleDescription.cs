@@ -34,17 +34,22 @@ public abstract class RoleDescription
 
             //カウント
             var count = RoleInfo.CountType;
-            var roletext = CustomRoles.Crewmate;
+            var overrideRoleText = CustomRoles.NotAssigned;
+            var countText = Translator.GetString(count.ToString());
             switch (count)
             {
-                case CountTypes.Impostor: roletext = CustomRoles.Impostor; break;
-                case CountTypes.Jackal: roletext = CustomRoles.Jackal; break;
-                case CountTypes.Fox: roletext = CustomRoles.Fox; break;
-                case CountTypes.GrimReaper: roletext = CustomRoles.GrimReaper; break;
-                case CountTypes.Remotekiller: roletext = CustomRoles.Remotekiller; break;
+                case CountTypes.Impostor: overrideRoleText = CustomRoles.Impostor; break;
+                case CountTypes.Jackal: overrideRoleText = CustomRoles.Jackal; break;
+                case CountTypes.Fox: overrideRoleText = CustomRoles.Fox; break;
+                case CountTypes.GrimReaper: overrideRoleText = CustomRoles.GrimReaper; break;
+                case CountTypes.Remotekiller: overrideRoleText = CustomRoles.Remotekiller; break;
+                case CountTypes.MilkyWay: countText = Neutral.Vega.TeamText; break;
+                default: overrideRoleText = CustomRoles.Crewmate; break;
             }
 
-            builder.Append($"{Translator.GetString("Count")}:{Translator.GetString(roletext.ToString())}    ");
+            if (overrideRoleText != CustomRoles.NotAssigned) countText = Translator.GetString(overrideRoleText.ToString());
+
+            builder.Append($"{Translator.GetString("Count")}:{countText}    ");
 
             // バニラ置き換え役職
             builder.Append(Translator.GetString("Basis"));

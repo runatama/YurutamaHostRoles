@@ -133,7 +133,7 @@ public sealed class Madonna : RoleBase
             UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("Log.MadoonaFa"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)));
         }
         else
-        if (!target.IsRiaju())
+        if (!target.IsRiaju() && !target.Is(CustomRoles.Vega) && !target.Is(CustomRoles.Altair))
         {
             Limitd = false;
             Logger.Info($"Player: {Player.name},Target: {target.name}", "Madonna");

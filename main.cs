@@ -439,6 +439,7 @@ namespace TownOfHost
         CurseMaker = CustomRoles.CurseMaker,
         Fox = CustomRoles.Fox,
         PhantomThief = CustomRoles.PhantomThief,
+        MilkyWay = CustomRoles.Vega,
 
         HASTroll = CustomRoles.HASTroll,
         TaskPlayerB = CustomRoles.TaskPlayerB,
@@ -479,6 +480,7 @@ namespace TownOfHost
     {
         None,
         AssassinandMerlin,
-        DriverandBraid
+        DriverandBraid,
+        VegaandAltair
     }
 }

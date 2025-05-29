@@ -63,7 +63,8 @@ namespace TownOfHost
                 || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)
                 && (!seer.Is(CustomRoles.Amnesiac) || ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita ?? false)))
                 || Mare.KnowTargetRoleColor(target, isMeeting)
-                || ((seer.Is(CountTypes.Jackal) || seer.Is(CustomRoles.Jackaldoll)) && (target.Is(CountTypes.Jackal) || target.Is(CustomRoles.Jackaldoll)));
+                || ((seer.Is(CountTypes.Jackal) || seer.Is(CustomRoles.Jackaldoll)) && (target.Is(CountTypes.Jackal) || target.Is(CustomRoles.Jackaldoll)))
+                || (seer.Is(CountTypes.MilkyWay) && target.Is(CountTypes.MilkyWay));
         }
         public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
         {

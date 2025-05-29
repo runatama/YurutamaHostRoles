@@ -618,17 +618,18 @@ namespace TownOfHost
                         return string.Format(GetString("fortuihourole"), playername, GetRoleColorAndtext(role), GetString("fortuihouisrole"));
                     case "ShowTeam":
                         string team = "";
-                        switch (role.GetRoleInfo().CountType)
+                        team = role.GetRoleInfo().CountType switch
                         {
-                            case CountTypes.Impostor: team = GetRoleColorAndtext(CustomRoles.Impostor); break;
-                            case CountTypes.Jackal: team = GetRoleColorAndtext(CustomRoles.Jackal); break;
-                            case CountTypes.GrimReaper: team = GetRoleColorAndtext(CustomRoles.GrimReaper); break;
-                            case CountTypes.Crew: team = GetRoleColorAndtext(CustomRoles.Crewmate); break;
-                            case CountTypes.Remotekiller: team = GetRoleColorAndtext(CustomRoles.Remotekiller); break;
-                            case CountTypes.Fox: team = GetRoleColorAndtext(CustomRoles.Fox); break;
-                            default: team = "...?"; break;
-                        }
-                        return string.Format(GetString("fortuihourole"), playername, team, GetString("fortuihouisrole"));
+                            CountTypes.Impostor => GetRoleColorAndtext(CustomRoles.Impostor),
+                            CountTypes.Jackal => GetRoleColorAndtext(CustomRoles.Jackal),
+                            CountTypes.GrimReaper => GetRoleColorAndtext(CustomRoles.GrimReaper),
+                            CountTypes.Crew => GetRoleColorAndtext(CustomRoles.Crewmate),
+                            CountTypes.Remotekiller => GetRoleColorAndtext(CustomRoles.Remotekiller),
+                            CountTypes.Fox => GetRoleColorAndtext(CustomRoles.Fox),
+                            CountTypes.MilkyWay => Roles.Neutral.Vega.TeamText,
+                            _ => "...?",
+                        };
+                        return string.Format(GetString("fortuihourole"), playername, team, GetString("fortuihouisnotrole"));
                 }
             }
 

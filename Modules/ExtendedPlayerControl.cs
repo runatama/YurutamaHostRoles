@@ -878,7 +878,8 @@ namespace TownOfHost
                 CustomRoles.JackalMafia or
                 CustomRoles.JackalAlien or
                 CustomRoles.Remotekiller or
-                CustomRoles.CountKiller;
+                CustomRoles.CountKiller or
+                CustomRoles.Altair;
         }
         public static bool KnowDeathReason(this PlayerControl seer, PlayerControl seen)
         {

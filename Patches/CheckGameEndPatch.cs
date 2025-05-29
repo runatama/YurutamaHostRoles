@@ -371,6 +371,7 @@ namespace TownOfHost
                 int Crew = 0;
                 int Remotekiller = 0;
                 int GrimReaper = 0;
+                int MilkyWay = 0;
                 int Fox = 0;
                 int FoxAndCrew = 0;
 
@@ -383,6 +384,7 @@ namespace TownOfHost
                         case CountTypes.Jackal: Jackal++; break;
                         case CountTypes.Remotekiller: Remotekiller++; break;
                         case CountTypes.GrimReaper: GrimReaper++; break;
+                        case CountTypes.MilkyWay: MilkyWay++; break;
                         case CountTypes.Fox:
                             if (pc.GetRoleClass() is Fox fox)
                             {
@@ -404,7 +406,7 @@ namespace TownOfHost
                         }
                     }
 
-                if (Imp == 0 && FoxAndCrew == 0 && Jackal == 0 && Remotekiller == 0) //全滅
+                if (Imp == 0 && FoxAndCrew == 0 && Jackal == 0 && Remotekiller == 0 && MilkyWay == 0) //全滅
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
@@ -419,12 +421,12 @@ namespace TownOfHost
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
-                else if (Jackal == 0 && Remotekiller == 0 && FoxAndCrew <= Imp) //インポスター勝利
+                else if (Jackal == 0 && Remotekiller == 0 && MilkyWay == 0 && FoxAndCrew <= Imp) //インポスター勝利
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                 }
-                else if (Imp == 0 && Remotekiller == 0 && FoxAndCrew <= Jackal) //ジャッカル勝利
+                else if (Imp == 0 && Remotekiller == 0 && MilkyWay == 0 && FoxAndCrew <= Jackal) //ジャッカル勝利
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Jackal, byte.MaxValue);
@@ -433,19 +435,26 @@ namespace TownOfHost
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.JackalAlien);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Jackaldoll);
                 }
-                else if (Imp == 0 && Jackal == 0 && FoxAndCrew <= Remotekiller)
+                else if (Imp == 0 && Jackal == 0 && MilkyWay == 0 && FoxAndCrew <= Remotekiller)
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Remotekiller, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Remotekiller);
                 }
-                else if (Jackal == 0 && Imp == 0 && GrimReaper == 1 && Remotekiller == 0)//死神勝利(2)
+                else if (Jackal == 0 && Imp == 0 && GrimReaper == 1 && Remotekiller == 0 && MilkyWay == 0)//死神勝利(2)
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
                 }
-                else if (Jackal == 0 && Remotekiller == 0 && Imp == 0) //クルー勝利
+                else if (Imp == 0 && Jackal == 0 && Remotekiller == 0 && FoxAndCrew <= MilkyWay)
+                {
+                    reason = GameOverReason.ImpostorsByKill;
+                    CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MilkyWay, byte.MaxValue);
+                    CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Vega);
+                    CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Altair);
+                }
+                else if (Jackal == 0 && Remotekiller == 0 && MilkyWay == 0 && Imp == 0) //クルー勝利
                 {
                     reason = GameOverReason.CrewmatesByVote;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Crewmate, byte.MaxValue);

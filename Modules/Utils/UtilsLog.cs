@@ -165,6 +165,7 @@ namespace TownOfHost
                 case CustomWinner.PurpleLovers: barColor = GetRoleColor(CustomRoles.PurpleLovers); break;
                 case CustomWinner.MadonnaLovers: barColor = GetRoleColor(CustomRoles.MadonnaLovers); break;
                 case CustomWinner.OneLove: CustomWinnerText = ColorString(GetRoleColor(CustomRoles.OneLove), GetString("OneLoveWin")); barColor = GetRoleColor(CustomRoles.OneLove); break;
+                case CustomWinner.MilkyWay: var MilkyWayColor = StringHelper.CodeColor(Roles.Neutral.Vega.TeamColor); CustomWinnerText = ColorString(MilkyWayColor, GetString("TeamMilkyWay")); barColor = MilkyWayColor; break;
                 case CustomWinner.TaskPlayerB:
                     if (winnerList.Count is 0) break;
                     if (winnerList.Count == 1)

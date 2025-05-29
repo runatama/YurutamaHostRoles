@@ -33,7 +33,9 @@ class ColorLovers
         CustomRoles.Limiter,
         CustomRoles.Madonna,
         CustomRoles.King,
-        CustomRoles.GM
+        CustomRoles.GM,
+        CustomRoles.Vega,
+        CustomRoles.Altair
     };
     public ColorLovers(CustomRoles role, int id)
     {

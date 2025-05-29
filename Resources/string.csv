@@ -187,6 +187,9 @@
 "AssassinandMerlin","Assassin And Merlin","<#ff1919>アサシン</color>と<#8cc2ff>マーリン</color>"
 "Twins","Twins","双子"
 "Faction","Faction","徒党"
+"Vega","Vega","織姫"
+"Altair","Altair","彦星"
+"VegaandAltair","Vega And Altair","織姫と彦星"
 
 "# HideAndSeek"
 "HASFox","Fox","狐","狐狸","狐妖","Лис","Raposa","Raposa"
@@ -271,7 +274,10 @@
 "TeamImpostor","Team Impostors","インポスター陣営","内鬼阵营","幫助偽裝者","Команда Предателей","Time Impostor","Time Impostor"
 "TeamEgoist","Team EgoistTeam ","エゴイスト陣営","野心家阵营","利己主義者陣營","Команда Эгоистов","Time Egoísta","Time Egoísta"
 "TeamJackal","Team Jackal","ジャッカル陣営","豺狼阵营","豺狼陣營","Команда Шакалов","Time Guará","Time Chacal"
+"TeamMilkyWay","Team MilkyWay","天の川陣営","","","","",""
 "Team2","Team{0}","チーム{0}の"
+"MilkyWay","MilkyWay","天の川"
+
 
 "## 役職説明ショート"
 "NeutralInfo","Independent forces unaffiliated with any other teams","他のどの陣営にも属さない孤高の陣営","不属于其他阵营的独立阵营","你屬於一個獨立陣營且不受其他陣營或職業的獲勝條件引響","Команда которая не принадлежит ни к каким другим командам","Forças independentes que não pertencem a nenhuma outra equipe","Um time solitário que não pertence a nenhum outro time"
@@ -1497,6 +1503,16 @@
 "TurncoatCanTargetImpostor","Can Target Impostor","<#ff1919>インポスター</color>をターゲットにできる"
 "TurncoatCanTargetMadmate","Can Target Madmate","<#ff7f50>マッドメイト</color>をターゲットにできる"
 "TurncoatCanTargetNeutral","Can Target Neutral","<#cccccc>ニュートラル</color>をターゲットにできる"
+"VegaRendezvousCooldown",""Rendezvous Cooldown","逢い引きのクールダウン",""",""
+"VegaCanUseVent","","織姫がベントを使えるか"
+"VegaAltairCanUseVent","","彦星がベントを使えるか"
+"VegaBuffThreshold","","バフが貰える逢い引き回数"
+"VegaKillCooldownThreshold","","キルクールが短縮される逢い引き回数"
+"VegaKillCooldownAmount","","短縮されるキルクール"
+"VegaMinimumKillCooldown","","最短のキルクール"
+"VegaRevealKillableFactions","","キル可能陣営がわかるか"
+"VegaRKFThreshold","","必要な逢い引き回数"
+"VegaFactionBasedStarColor","","陣営毎に星の色が変わる"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール"

@@ -235,7 +235,8 @@ namespace TownOfHost
                     __instance.TeamTitle.color = Palette.DisabledGrey;
                     __instance.ImpostorText.gameObject.SetActive(true);
                     __instance.ImpostorText.text = GetString("NeutralInfo");
-                    if (!pc.Is(CustomRoles.Amnesia)) StartFadeIntro(__instance, Palette.DisabledGrey, UtilsRoleText.GetRoleColor(role), 2000);
+                    if (pc.Is(CountTypes.MilkyWay)) StartFadeIntro(__instance, Palette.DisabledGrey, StringHelper.CodeColor(Roles.Neutral.Vega.TeamColor), 2000);
+                    else if (!pc.Is(CustomRoles.Amnesia)) StartFadeIntro(__instance, Palette.DisabledGrey, UtilsRoleText.GetRoleColor(role), 2000);
                     else __instance.BackgroundBar.material.color = Palette.DisabledGrey;
                     break;
                 case CustomRoleTypes.Madmate:
