@@ -187,6 +187,7 @@ namespace TownOfHost
             GameStates.task = true;
             Logger.Info("タスクフェイズ開始", "Phase");
             //ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+            Main.CanUseAbility = true;
             MeetingStates.First = false;
             _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }

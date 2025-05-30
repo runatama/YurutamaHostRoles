@@ -627,7 +627,7 @@ namespace TownOfHost
                             case CountTypes.Fox: team = GetRoleColorAndtext(CustomRoles.Fox); break;
                             default: team = "...?"; break;
                         }
-                        return string.Format(GetString("fortuihourole"), playername, team, GetString("fortuihouisnotrole"));
+                        return string.Format(GetString("fortuihourole"), playername, team, GetString("fortuihouisrole"));
                 }
             }
 

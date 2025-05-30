@@ -402,8 +402,7 @@ namespace TownOfHost
                             PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.SuddenKillcooltime.GetFloat() - 0.7f, delay: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     }
-                    else
-                    if (Options.FixFirstKillCooldown.GetBool())
+                    else if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {
                             PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 0.7f, delay: true));
