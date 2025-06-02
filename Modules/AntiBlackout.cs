@@ -134,14 +134,11 @@ namespace TownOfHost
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
                     HostRole = null;
                 }
-                bool check = false;/*
-                foreach (var seer in PlayerCatch.AllPlayerControls)
+                bool check = false;
+                foreach (var player in PlayerCatch.AllPlayerControls)
                 {
-                    //clientがnull or ホスト視点のお話なら無し
-                    if (seer?.GetClient() == null) continue;
-
-                    isRoleCache.Add(seer.PlayerId);
-                    if (seer?.PlayerId == PlayerControl.LocalPlayer?.PlayerId) continue;*/
+                    AntiBlackout.isRoleCache.Add(player.PlayerId);
+                }
 
                 var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
                 sender.StartMessage();
