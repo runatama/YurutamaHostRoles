@@ -496,7 +496,7 @@ namespace TownOfHost
                 if (!Options.EnableGM.GetBool() && Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleCanVent.GetBool())
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
 
-                if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+                ExtendedPlayerControl.AllPlayerOnlySeeMePet();
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
 
                 _ = new LateTask(() =>

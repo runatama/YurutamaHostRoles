@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -61,7 +62,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         AURoleOptions.KillDistance = OverKillMode ? OptionOverKillDistance.GetInt() : OptionNomalKillDistance.GetInt();
         AURoleOptions.PhantomCooldown = 0;
     }
-    public void OnCheckMurderAsKiller(MurderInfo info)
+    public void OnCheckMurderAsEarnestWolf(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
 

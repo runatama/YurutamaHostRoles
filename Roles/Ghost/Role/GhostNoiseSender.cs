@@ -17,9 +17,9 @@ namespace TownOfHost.Roles.Ghost
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.GhostNoiseSender);
             GhostRoleAssingData.Create(Id + 1, CustomRoles.GhostNoiseSender, CustomRoleTypes.Crewmate);
             CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
-                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostNoiseSender]);
+                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostNoiseSender]).SetParentRole(CustomRoles.GhostNoiseSender);
             Time = FloatOptionItem.Create(Id + 3, "GhostNoiseSenderTime", new(1f, 180, 1), 7, TabGroup.GhostRoles, false)
-                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostNoiseSender]);
+                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostNoiseSender]).SetParentRole(CustomRoles.GhostNoiseSender);
         }
         public static void Init()
         {

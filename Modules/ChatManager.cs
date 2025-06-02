@@ -50,8 +50,7 @@ namespace TownOfHost.Modules.ChatManager
             message = message.ToLower().TrimStart().TrimEnd();
             var isalive = player.IsAlive();
             if (!isalive || !AmongUsClient.Instance.AmHost) return;
-            if (GameStates.IsInGame) operate = 3;
-            if (!GameStates.IsInGame) operate = 6;
+            operate = GameStates.IsInGame ? 3 : 6;
             if (msg.StartsWith("<size=0>.</size>")) operate = 3;//投票の記録
             else if (CheckCommond(ref msg, "bt", false)) operate = 2;
             else if (CommandCheck(message)) operate = 1;

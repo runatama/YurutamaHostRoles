@@ -20,6 +20,7 @@ namespace TownOfHost
         public TaskState taskState;
         public bool IsBlackOut { get; set; }
         private bool _canUseMovingPlatform = true;
+        public string KillRoom;
         public bool CanUseMovingPlatform
         {
             get => _canUseMovingPlatform;
@@ -50,6 +51,7 @@ namespace TownOfHost
             LastRoom = null;
             TargetColorData = new();
             NumberOfRemainingButtons = Main.NormalOptions.NumEmergencyMeetings;
+            KillRoom = "";
         }
         public CustomRoles GetCustomRole()
         {

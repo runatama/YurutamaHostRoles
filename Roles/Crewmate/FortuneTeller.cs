@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class FortuneTeller : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =

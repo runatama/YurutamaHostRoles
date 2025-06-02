@@ -23,7 +23,8 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.NonReport, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.NonReport, true, true, true, true);
-            OptionConvener = StringOptionItem.Create(50, "ConverMode", EnumHelper.GetAllNames<Convener>(), 0, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.NonReport]);
+            OptionConvener = StringOptionItem.Create(50, "ConverMode", EnumHelper.GetAllNames<Convener>(), 0, TabGroup.Addons, false)
+            .SetParentRole(CustomRoles.NonReport).SetParent(CustomRoleSpawnChances[CustomRoles.NonReport]);
         }
         public static void Init()
         {

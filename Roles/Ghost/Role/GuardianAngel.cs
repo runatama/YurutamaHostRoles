@@ -21,11 +21,11 @@ namespace TownOfHost.Roles.Ghost
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.GuardianAngel, fromtext: UtilsOption.GetFrom(From.AmongUs));
             Data = GhostRoleAssingData.Create(Id + 1, CustomRoles.GuardianAngel, CustomRoleTypes.Crewmate);
             CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.GhostRoles, false)
-                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]);
+                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]).SetParentRole(CustomRoles.GuardianAngel);
             GuardTime = FloatOptionItem.Create(Id + 3, "GuardianAngelGuardTime", new(0.5f, 180, 0.5f), 5f, TabGroup.GhostRoles, false)
-            .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]);
+            .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]).SetParentRole(CustomRoles.GuardianAngel);
             AssingMadmate = BooleanOptionItem.Create(Id + 4, "AssgingMadmate", false, TabGroup.GhostRoles, false)
-                                .SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]);
+                                .SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]).SetParentRole(CustomRoles.GuardianAngel);
         }
 
         public static void Init()

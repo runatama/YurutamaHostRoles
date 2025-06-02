@@ -40,6 +40,7 @@ namespace TownOfHost
         public Func<bool> Setcansee { get; protected set; }
         public bool HideValue { get; protected set; }
         public CustomRoles CustomRole { get; protected set; }
+        public CustomRoles ParentRole { get; protected set; }
         public Dictionary<string, string> ReplacementDictionary
         {
             get => _replacementDictionary;
@@ -95,6 +96,7 @@ namespace TownOfHost
             Infinity = infinity;
             parented = false;
             CustomRole = CustomRoles.NotAssigned;
+            ParentRole = CustomRoles.NotAssigned;
 
             // オブジェクト初期化
             Children = new();
@@ -157,6 +159,7 @@ namespace TownOfHost
             i.Parent = parent;
             parent.SetChild(i);
         });
+        public OptionItem SetParentRole(CustomRoles parentrole) => Do(i => i.ParentRole = parentrole);
         public OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
         public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
             => Do(i => UpdateValueEvent += handler);

@@ -30,10 +30,10 @@ class Lovers
     public static void SetLoversOptions()
     {
         SetupRoleOptions(50370, TabGroup.Combinations, CustomRoles.OneLove, new(1, 1, 1));
-        OneLoveRoleAddwin = BooleanOptionItem.Create(73081, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]);
+        OneLoveRoleAddwin = BooleanOptionItem.Create(73081, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]).SetParentRole(CustomRoles.OneLove);
         SoloWinOption.Create(73084, TabGroup.Combinations, CustomRoles.OneLove, () => !OneLoveRoleAddwin.GetBool(), defo: 5);
-        OneLoveLoversrect = IntegerOptionItem.Create(73082, "OneLoverLovers", new(0, 100, 2), 20, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]).SetValueFormat(OptionFormat.Percent);
-        OneLoveSolowin3players = BooleanOptionItem.Create(73083, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]);
+        OneLoveLoversrect = IntegerOptionItem.Create(73082, "OneLoverLovers", new(0, 100, 2), 20, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]).SetValueFormat(OptionFormat.Percent).SetParentRole(CustomRoles.OneLove);
+        OneLoveSolowin3players = BooleanOptionItem.Create(73083, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[CustomRoles.OneLove]).SetParentRole(CustomRoles.OneLove);
 
         new ColorLovers(CustomRoles.Lovers, 50300);
         new ColorLovers(CustomRoles.RedLovers, 50400);
@@ -225,6 +225,11 @@ class Lovers
                 lv.GetPlayerState().RemoveSubRole(CustomRoles.MadonnaLovers);
             }
             MaMadonnaLoversPlayers.Clear();
+        }
+
+        foreach (var data in ColorLovers.Alldatas.Values)
+        {
+            data.Disconnected(player);
         }
     }
     public static void LoversSoloWin(ref GameOverReason reason)

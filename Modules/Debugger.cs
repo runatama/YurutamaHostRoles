@@ -136,6 +136,16 @@ namespace TownOfHost
             SendToFile(text, LogLevel.Message, tag, escapeCRLF, lineNumber, fileName);
         public static void Exception(Exception ex, string tag, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
             SendToFile(ex.ToString(), LogLevel.Error, tag, false, lineNumber, fileName);
+        static float mae = -1;
+        public static void CheckTime(string tag)
+        {
+            var a = DateTime.Now;
+            var imano = a.Millisecond + a.Second * 1000 + a.Minute * 100000 + a.Hour * 10000000;
+            var maenoyatu = mae < 0 ? "null" : $"{imano - mae}";
+
+            SendToFile($"{DateTime.Now:HH.mm.ss.fff} ({maenoyatu})", LogLevel.Info, tag);
+            mae = a.Millisecond + a.Second * 1000 + a.Minute * 100000 + a.Hour * 10000000;
+        }
         public static void CurrentMethod([CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "")
         {
             StackFrame stack = new(1);

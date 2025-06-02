@@ -21,10 +21,10 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Management, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.Management, true, true, true, true);
-            OptionPercentGage = BooleanOptionItem.Create(Id + 50, "PercentGage", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]);
-            PonkotuPercernt = BooleanOptionItem.Create(Id + 51, "PonkotuPercernt", true, TabGroup.Addons, false).SetParent(OptionPercentGage);
-            Optioncomms = BooleanOptionItem.Create(Id + 55, "CanseeComms", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]);
-            Meeting = BooleanOptionItem.Create(Id + 56, "CanseeMeeting", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]);
+            OptionPercentGage = BooleanOptionItem.Create(Id + 50, "PercentGage", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]).SetParentRole(CustomRoles.Management);
+            PonkotuPercernt = BooleanOptionItem.Create(Id + 51, "PonkotuPercernt", true, TabGroup.Addons, false).SetParent(OptionPercentGage).SetParentRole(CustomRoles.Management);
+            Optioncomms = BooleanOptionItem.Create(Id + 55, "CanseeComms", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]).SetParentRole(CustomRoles.Management);
+            Meeting = BooleanOptionItem.Create(Id + 56, "CanseeMeeting", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Management]).SetParentRole(CustomRoles.Management);
         }
         public static void Init()
         {

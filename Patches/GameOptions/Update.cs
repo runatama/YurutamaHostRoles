@@ -77,27 +77,26 @@ namespace TownOfHost
                 foreach (var option in OptionItem.AllOptions)
                 {
                     if (option?.OptionBehaviour == null || option.OptionBehaviour.gameObject == null) continue;
+                    if (option.CustomRole != NowRoleTab && option.ParentRole != NowRoleTab) continue;
 
                     var p = option;
-                    var customrole = CustomRoles.NotAssigned;
+                    var parentrole = option.ParentRole;
                     while (p.Parent != null)
                     {
                         p = p.Parent;
                     }
-                    customrole = p.CustomRole;
-                    if (customrole != NowRoleTab) continue;
-                    if (p.CustomRole == NowRoleTab)
+                    if (option.ParentRole == NowRoleTab)
                     {
                         if (!crOptions[NowRoleTab].Contains(p.OptionBehaviour))
                         {
-                            p.OptionBehaviour.transform.parent = crlist[customrole].transform;
+                            p.OptionBehaviour.transform.parent = crlist[option.ParentRole].transform;
                             crOptions[NowRoleTab].Add(p.OptionBehaviour);
                             scOptions[p.Tab].Remove(p.OptionBehaviour);
                         }
                     }
                     if (!crOptions[NowRoleTab].Contains(option.OptionBehaviour) && option.Name == "Maximum")
                     {
-                        option.OptionBehaviour.transform.parent = crlist[customrole].transform;
+                        option.OptionBehaviour.transform.parent = crlist[parentrole].transform;
                         crOptions[NowRoleTab].Add(option.OptionBehaviour);
                         scOptions[option.Tab].Remove(option.OptionBehaviour);
                     }
@@ -110,7 +109,7 @@ namespace TownOfHost
                     {
                         button.gameObject.SetActive(false);
                     }*/
-                    if (isroleoption && roleInfobutton.TryGetValue(option.CustomRole, out var infobutton))
+                    if (roleInfobutton.TryGetValue(option.CustomRole, out var infobutton))
                     {
                         if (!infobutton.isActiveAndEnabled)
                         {
@@ -200,6 +199,7 @@ namespace TownOfHost
                 return;
             }
 
+            #region  Tab
             foreach (var tab in EnumHelper.GetAllValues<TabGroup>())
             {
                 if (__instance.gameObject.name != tab + "-Stg") continue;
@@ -218,19 +218,14 @@ namespace TownOfHost
                     enabled = AmongUsClient.Instance.AmHost && !option.IsHiddenOn(Options.CurrentGameMode);
 
                     var isroleoption = option.CustomRole is not CustomRoles.NotAssigned;
-                    var p = option;
-                    var customrole = CustomRoles.NotAssigned;
-                    while (p.Parent != null)
-                    {
-                        p = p.Parent;
-                    }
-                    customrole = p.CustomRole;
-                    if (p == option)
-                    {
-                        customrole = CustomRoles.NotAssigned;
-                    }
+
                     if (option.CustomRole is not CustomRoles.NotAssigned)
                     {
+                        var p = option;
+                        while (p.Parent != null)
+                        {
+                            p = p.Parent;
+                        }
                         if (!scOptions[option.Tab].Contains(p.OptionBehaviour))
                         {
                             p.OptionBehaviour.transform.parent = list[option.Tab].transform;
@@ -244,10 +239,10 @@ namespace TownOfHost
                         {
                             option.OptionBehaviour.transform.parent = list[option.Tab].transform;
                             scOptions[option.Tab].Add(option.OptionBehaviour);
-                            crOptions[customrole].Remove(option.OptionBehaviour);
+                            crOptions[option.ParentRole].Remove(option.OptionBehaviour);
                         }
                     }
-                    if (!isroleoption && customrole is not CustomRoles.NotAssigned && option.Name is not "Maximum")
+                    if (!isroleoption && option.ParentRole is not CustomRoles.NotAssigned && option.Name is not "Maximum")
                     {
                         option.OptionBehaviour?.gameObject?.SetActive(false);
                         continue;
@@ -286,7 +281,7 @@ namespace TownOfHost
 
                         if (roleInfobutton.TryGetValue(option.CustomRole, out var infobutton))
                         {
-                            infobutton.gameObject.SetActive(false);
+                            if (!infobutton.isActiveAndEnabled) infobutton.gameObject.SetActive(true);
                         }
                     }
 
@@ -380,6 +375,7 @@ namespace TownOfHost
                 }
                 __instance.GetComponentInParent<Scroller>().ContentYBounds.max = -(offset * 3 - (h * offset * (h == 1 ? 2f : 2.2f))) + 0.75f;
             }
+            #endregion
         }
     }
     [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.FixedUpdate))]

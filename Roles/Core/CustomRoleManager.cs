@@ -70,9 +70,9 @@ public static class CustomRoleManager
             {
                 if (killer.IsKiller)//一応今は属性ガード有線にしてますが
                 {
-                    if (attemptKiller.Is(CustomRoles.EarnestWolf))//最優先
+                    if (killerRole is EarnestWolf earnestWolf)//最優先
                     {
-                        if (Amnesia.CheckAbility(attemptKiller)) killer.OnCheckMurderAsKiller(info);
+                        if (Amnesia.CheckAbility(attemptKiller)) earnestWolf.OnCheckMurderAsEarnestWolf(info);
                         if (!info.DoKill || !info.CanKill)
                         {
                             killer.OnCheckMurderDontKill(info);
@@ -116,13 +116,11 @@ public static class CustomRoleManager
                         info.IsGuard = true;
 
                 // キラーのキルチェック処理実行
-                if (!attemptKiller.Is(CustomRoles.EarnestWolf))
+
+                //ダブルトリガー無効なら通常処理
+                if (!DoubleTrigger.OnCheckMurderAsKiller(info))
                 {
-                    //ダブルトリガー無効なら通常処理
-                    if (!DoubleTrigger.OnCheckMurderAsKiller(info))
-                    {
-                        killer.OnCheckMurderAsKiller(info);
-                    }
+                    killer.OnCheckMurderAsKiller(info);
                 }
 
                 if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
@@ -349,6 +347,7 @@ public static class CustomRoleManager
             room = $"〔{room}〕";
         }
         else room = "〔???〕";
+        targetState.KillRoom = room;
 
         targetState.SetDead();
         attemptTarget.SetRealKiller(attemptKiller, true);
@@ -475,7 +474,6 @@ public static class CustomRoleManager
         if (player.Data.Role.Role == RoleTypes.Shapeshifter || role.GetRoleInfo()?.BaseRoleType?.Invoke() == RoleTypes.Shapeshifter)
         {
             Main.CheckShapeshift.TryAdd(player.PlayerId, false);
-            (roleclass as IUseTheShButton)?.Shape(player);
         }
         if (player.Data.Role.Role == RoleTypes.Phantom || role.GetRoleTypes() == RoleTypes.Phantom)
         {

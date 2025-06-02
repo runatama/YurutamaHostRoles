@@ -214,8 +214,8 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
-                if (client?.Character?.PlayerId == 0)
-                    _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check", true);
+                /*if (client?.Character?.PlayerId == 0)
+                    _ = new LateTask(() => CheckPingPatch.Check = true, 10f, "Start Ping Check", true);*/
                 OptionItem.SyncAllOptions();
 
                 _ = new LateTask(() =>

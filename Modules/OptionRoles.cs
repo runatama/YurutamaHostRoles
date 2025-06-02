@@ -26,7 +26,7 @@ namespace TownOfHost
             var r = chrole == CustomRoles.NotAssigned ? role : chrole;
             Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
             Killdistance = StringOptionItem.Create(IdStart, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, tab, false)
-            .SetParent(CustomRoleSpawnChances[role]);
+            .SetParent(CustomRoleSpawnChances[role]).SetParentRole(role);
             Killdistance.ReplacementDictionary = replacementDic;
 
             role = chrole == CustomRoles.NotAssigned ? role : chrole;
@@ -77,16 +77,16 @@ namespace TownOfHost
             this.Role = role;
             var r = chrole == CustomRoles.NotAssigned ? role : chrole;
             Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
-            doOverride = BooleanOptionItem.Create(idStart++, "doOverride", tasks?.defo ?? false, tab, false).SetParent(CustomRoleSpawnChances[role])
+            doOverride = BooleanOptionItem.Create(idStart++, "doOverride", tasks?.defo ?? false, tab, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role)
                 .SetValueFormat(OptionFormat.None);
             doOverride.ReplacementDictionary = replacementDic;
-            numCommonTasks = IntegerOptionItem.Create(idStart++, "roleCommonTasksNum", new(0, 99, 1), tasks?.common ?? 3, tab, false).SetParent(doOverride)
+            numCommonTasks = IntegerOptionItem.Create(idStart++, "roleCommonTasksNum", new(0, 99, 1), tasks?.common ?? 3, tab, false).SetParent(doOverride).SetParentRole(role)
                 .SetValueFormat(OptionFormat.Pieces);
             numCommonTasks.ReplacementDictionary = replacementDic;
-            numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), tasks?.Long ?? 3, tab, false).SetParent(doOverride)
+            numLongTasks = IntegerOptionItem.Create(idStart++, "roleLongTasksNum", new(0, 99, 1), tasks?.Long ?? 3, tab, false).SetParent(doOverride).SetParentRole(role)
                 .SetValueFormat(OptionFormat.Pieces);
             numLongTasks.ReplacementDictionary = replacementDic;
-            numShortTasks = IntegerOptionItem.Create(idStart++, "roleShortTasksNum", new(0, 99, 1), tasks?.Short ?? 3, tab, false).SetParent(doOverride)
+            numShortTasks = IntegerOptionItem.Create(idStart++, "roleShortTasksNum", new(0, 99, 1), tasks?.Short ?? 3, tab, false).SetParent(doOverride).SetParentRole(role)
                 .SetValueFormat(OptionFormat.Pieces);
             numShortTasks.ReplacementDictionary = replacementDic;
 
@@ -133,6 +133,7 @@ namespace TownOfHost
             {
                 OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
                 .SetParent(CustomRoleSpawnChances[role])
+                .SetParentRole(role)
                 .SetCansee(show);
             }
             OptionWin.ReplacementDictionary = replacementDic;

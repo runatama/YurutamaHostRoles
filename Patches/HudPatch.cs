@@ -82,7 +82,7 @@ namespace TownOfHost
                 GameSettings.fontSizeMin =
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
 
-                var b = GameStates.IsLobby && !GameStates.IsCountDown && !GameStates.InGame && (GameSettingMenuStartPatch.ModSettingsButton?.selected ?? false) && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned;
+                var b = GameStates.IsLobby && !GameStates.IsCountDown && !GameStates.InGame && (GameSettingMenuStartPatch.ModSettingsButton?.selected ?? false);// && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned;
                 GameObject.Find("Main Camera/Hud/TaskDisplay")?.SetActive(b);
                 GameObject.Find("Main Camera/Hud/TaskDisplay")?.transform.SetLocalZ(b ? -500 : 5);
 
@@ -594,14 +594,14 @@ namespace TownOfHost
         // タスク表示の文章が更新・適用された後に実行される
         public static void Postfix(TaskPanelBehaviour __instance)
         {
-            if (GameStates.IsLobby && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned)
+            if (GameStates.IsLobby && (GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned || GameSettingMenuStartPatch.Nowinfo is not CustomRoles.NotAssigned))
             {
                 var text = "";
                 var desc = "";
-                var inforole = GameSettingMenuStartPatch.NowRoleTab;
+                var inforole = GameSettingMenuStartPatch.NowRoleTab is CustomRoles.NotAssigned ? GameSettingMenuStartPatch.Nowinfo : GameSettingMenuStartPatch.NowRoleTab;
                 var inforoleinfo = inforole.GetRoleInfo();
 
-                text = $"<size=150%><{UtilsRoleText.GetRoleColorCode(inforole)}>{UtilsRoleText.GetRoleName(inforole)}</color>\n</size>";
+                text = $"<size=150%><{UtilsRoleText.GetRoleColorCode(inforole)}>{UtilsRoleText.GetRoleName(inforole)}\n</size>";
 
                 if (inforoleinfo?.Desc is not null)
                 {
@@ -622,8 +622,8 @@ namespace TownOfHost
                 desc = desc.RemoveDeltext("、", "、\n");
                 desc = desc.RemoveDeltext("。", "。\n");
 
-                __instance.taskText.text = $"{text}{desc}";
-                __instance.background.color = new Color32(20, 20, 20, 220);
+                __instance.taskText.text = $"{text}</color>{desc}";
+                __instance.background.color = new Color32(15, 15, 15, 220);
                 return;
             }
             if (!GameStates.IsModHost || GameStates.IsLobby) return;

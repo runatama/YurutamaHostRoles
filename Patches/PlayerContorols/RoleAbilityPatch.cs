@@ -11,6 +11,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Ghost;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Patches.ISystemType;
 
 namespace TownOfHost
 
@@ -41,13 +42,6 @@ namespace TownOfHost
             {
                 __instance.RpcRejectShapeshift();
                 return false;
-            }
-
-            var button = (roleclass as IUseTheShButton)?.CheckShapeshift(__instance, target);
-            if (button.HasValue)
-            {
-                shouldAnimate = false;
-                return button.Value;
             }
 
             var shapeshifter = __instance;
@@ -223,8 +217,8 @@ namespace TownOfHost
             Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
             Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
 
-            if (GameStates.IsMeeting) return;
             shapeshifter.GetRoleClass()?.OnShapeshift(target);
+            if (GameStates.IsMeeting) return;
 
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -239,10 +233,7 @@ namespace TownOfHost
             if (!shapeshifting)
             {
                 Camouflage.RpcSetSkin(shapeshifter);
-                if (Options.Onlyseepet.GetBool())
-                {
-                    shapeshifter.OnlySeeMePet(shapeshifter.Data.DefaultOutfit.PetId);
-                }
+                shapeshifter.OnlySeeMePet(shapeshifter.Data.DefaultOutfit.PetId);
             }
             //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
             if (!shapeshifting)
@@ -331,9 +322,10 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerPhysics._CoEnterVent_d__47), nameof(PlayerPhysics._CoEnterVent_d__47.MoveNext))]
     class OcCoEnterVentPatch
     {
-        public static void Prefix(PlayerPhysics._CoEnterVent_d__47 __instance)
+        public static void Prefix(PlayerPhysics._CoEnterVent_d__47 __instance, ref bool __result)
         {
             if (__instance.__1__state is not 1) return;
+            if (CoEnterVentPatch.VentPlayers.ContainsKey(__instance.__4__this.myPlayer.PlayerId)) return;
             if (__instance.__4__this.myPlayer.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             {
                 CoEnterVentPatch.Prefix(__instance.__4__this, __instance.id);
@@ -435,6 +427,7 @@ namespace TownOfHost
                     }, 0.1f, "Vent- BootFromVent", true);
                     _ = new LateTask(() =>
                     {
+                        VentPlayers.TryAdd(__instance.myPlayer.PlayerId, 0);
                         MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.EnterVent, SendOption.None, clientId);
                         writer2.Write(id);
                         AmongUsClient.Instance.FinishRpcImmediately(writer2);
@@ -443,8 +436,8 @@ namespace TownOfHost
                 }
                 CustomRoleManager.OnEnterVent(__instance, id);
             }
-            if (Options.MaxInVentMode.GetBool())
-                VentPlayers.TryAdd(__instance.myPlayer.PlayerId, 0);
+            //if (Options.MaxInVentMode.GetBool())
+            VentPlayers.TryAdd(__instance.myPlayer.PlayerId, 0);
             return true;
         }
         static bool CanUse(PlayerPhysics pp, int id)

@@ -121,6 +121,7 @@ namespace TownOfHost
         {
             if (AmongUsClient.Instance.AmHost)
             {
+                RoleTypes? HostRole = PlayerControl.LocalPlayer.Data.RoleType;
                 isRoleCache.Clear();
                 IsSet = true;
                 Iswaitsend = true;
@@ -131,37 +132,38 @@ namespace TownOfHost
                     var impostortarget = PlayerCatch.AllAlivePlayerControls.Where(pc => !DontImpostrTargetIds.Contains(pc.PlayerId)).FirstOrDefault();
                     ImpostorId = impostortarget == null ?
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
+                    HostRole = null;
                 }
-                bool check = false;
+                bool check = false;/*
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
                     //clientがnull or ホスト視点のお話なら無し
                     if (seer?.GetClient() == null) continue;
 
                     isRoleCache.Add(seer.PlayerId);
-                    if (seer?.PlayerId == PlayerControl.LocalPlayer?.PlayerId) continue;
+                    if (seer?.PlayerId == PlayerControl.LocalPlayer?.PlayerId) continue;*/
 
-                    var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
-                    sender.StartMessage(seer.GetClientId());
-                    foreach (var target in GameData.Instance.AllPlayers)
+                var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
+                sender.StartMessage();
+                foreach (var target in GameData.Instance.AllPlayers)
+                {
+                    if (target == null) continue;
+                    if (!PlayerCatch.AllPlayerNetId.TryGetValue(target.PlayerId, out var netid)) continue;
+                    RoleTypes setrole = target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                    sender.StartRpc(netid, RpcCalls.SetRole)
+                    .Write((ushort)setrole)
+                    .Write(true)
+                    .EndRpc();
+
+                    if (check is false)
                     {
-                        if (target == null) continue;
-                        if (!PlayerCatch.AllPlayerNetId.TryGetValue(target.PlayerId, out var netid)) continue;
-                        RoleTypes setrole = target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                        sender.StartRpc(netid, RpcCalls.SetRole)
-                        .Write((ushort)setrole)
-                        .Write(true)
-                        .EndRpc();
-
-                        if (check is false)
-                        {
-                            Logger.Info($"{target.GetLogPlayerName()} => {setrole}", "AntiBlackout");
-                        }
+                        Logger.Info($"{target.GetLogPlayerName()} => {setrole}", "AntiBlackout");
                     }
-                    check = true;
-                    sender.EndMessage();
-                    sender.SendMessage();
                 }
+                check = true;
+                sender.EndMessage();
+                sender.SendMessage();
+                //}
             }
         }
 
@@ -179,12 +181,12 @@ namespace TownOfHost
                 Main.CanUseAbility = true;
                 //個々視点のみになってるっぽい。会議時とかそういう場で相互性が取れなくなる。
                 //1000msとか行ったら暗転するけどそこまで考えるのは...
-                _ = new LateTask(() => SendGameData(), 1f, "SetAllPlayerData", true);
+                //_ = new LateTask(() => SendGameData(), 1f, "SetAllPlayerData", true);
             }
-            var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
-            sender.StartMessage(Player.GetClientId());
             if (Player != PlayerControl.LocalPlayer)
             {
+                var sender = CustomRpcSender.Create("ExiledSetRole", Hazel.SendOption.Reliable);
+                sender.StartMessage(Player.GetClientId());
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
@@ -241,7 +243,6 @@ namespace TownOfHost
                     if (Player.IsAlive() && !(Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()))
                     {
                         var roleclass = Player.GetRoleClass();
-                        (roleclass as IUseTheShButton)?.ResetS(Player);
                         (roleclass as IUsePhantomButton)?.Init(Player);
                     }
                     else
@@ -249,7 +250,7 @@ namespace TownOfHost
                         Player.RpcExileV2();
                         if (Player.IsGhostRole()) Player.RpcSetRole(RoleTypes.GuardianAngel, true);
                     }
-                }, Main.LagTime, "", true);
+                }, Main.LagTime, "Re-SetRole", true);
 
             {
                 Twins.TwinsSuicide(true);

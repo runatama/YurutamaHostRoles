@@ -60,8 +60,8 @@ namespace TownOfHost
                     text += $"<#d62c12>Ⓚ</color> ";
                 if (Options.FixSpawnPacketSize.GetBool())
                     text += $"<#ffef39>Ⓟ</color> ";
-                //if (Options.BlackOutwokesitobasu.GetBool())
-                //    text += $"<#8839ff>Ⓑ</color> ";
+                if (Options.ExIntroWeight.GetBool())
+                    text += $"<#8839ff>Ⓘ</color> ";
                 if (Options.ExRpcWeightR.GetBool())
                     text += $"<#3d83c5>Ⓡ</color> ";
 

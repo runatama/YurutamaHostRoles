@@ -19,10 +19,10 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Revenger, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
             AddOnsAssignData.Create(Id + 10, CustomRoles.Revenger, true, true, true, true);
-            Imp = BooleanOptionItem.Create(Id + 50, "NekoKabochaImpostorsGetRevenged", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
-            Crew = BooleanOptionItem.Create(Id + 51, "NekomataCanCrew", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
-            Mad = BooleanOptionItem.Create(Id + 52, "NekoKabochaMadmatesGetRevenged", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
-            Neu = BooleanOptionItem.Create(Id + 53, "NekomataCanNeu", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
+            Imp = BooleanOptionItem.Create(Id + 50, "NekoKabochaImpostorsGetRevenged", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Revenger).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
+            Crew = BooleanOptionItem.Create(Id + 51, "NekomataCanCrew", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Revenger).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
+            Mad = BooleanOptionItem.Create(Id + 52, "NekoKabochaMadmatesGetRevenged", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Revenger).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
+            Neu = BooleanOptionItem.Create(Id + 53, "NekomataCanNeu", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Revenger).SetParent(CustomRoleSpawnChances[CustomRoles.Revenger]);
         }
         public static void Init()
         {

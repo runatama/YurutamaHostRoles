@@ -88,7 +88,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     #region Meeting
     public override string MeetingMeg()
     {
-        if (!CanUseAbility() && NowRole is NowMode.Bakery) return "";
+        if (!CanUseAbility() || NowRole is not NowMode.Bakery) return "";
         if (Player.IsAlive())
         {
             string BakeryTitle = $"<size=90%><color=#8f6121>{GetString("Message.BakeryTitle")}</size></color>";

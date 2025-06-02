@@ -68,21 +68,12 @@ namespace TownOfHost
             //=============================================
 
             GameStates.task = false;
-            //Pos.Clear();
 
             DisableDevice.StartMeeting();
             foreach (var kvp in PlayerState.AllPlayerStates)
             {
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
                 kvp.Value.LastRoom = pc?.GetPlainShipRoom();
-                if (pc == null) continue;
-
-                foreach (var pl in PlayerCatch.AllAlivePlayerControls)
-                {
-                    if (pl == null) continue;
-                    if (pl.PlayerId == pc.PlayerId) continue;
-                    pl.RpcSnapToDesync(pc, new Vector2(999f, 999f));
-                }
             }
 
             UtilsOption.MarkEveryoneDirtySettings();
@@ -118,12 +109,19 @@ namespace TownOfHost
                 roleClass?.OnReportDeadBody(__instance, target);
             }
 
-            foreach (var pc in PlayerCatch.AllPlayerControls)
+            _ = new LateTask(() =>
             {
-                if (!pc) continue;
-
-                Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
-            }
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (!pc) continue;
+                    if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var nowuse) && nowuse is true)
+                    {
+                        pc.RpcShapeshift(pc, false);
+                        pc.RpcRejectShapeshift();
+                    }
+                    Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
+                }
+            }, 1f, "SetSkin", false);
 
             // var State = PlayerState.GetByPlayerId(__instance.PlayerId);
             if (State.NumberOfRemainingButtons > 0 && target is null)
@@ -196,14 +194,6 @@ namespace TownOfHost
             {
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
                 kvp.Value.LastRoom = pc?.GetPlainShipRoom();
-
-                if (pc == null) continue;
-                foreach (var pl in PlayerCatch.AllAlivePlayerControls)
-                {
-                    if (pl == null) continue;
-                    if (pl.PlayerId == pc.PlayerId) continue;
-                    pl.RpcSnapToDesync(pc, new Vector2(999f, 999f));
-                }
             }
 
             UtilsOption.MarkEveryoneDirtySettings();
@@ -246,12 +236,19 @@ namespace TownOfHost
                     var roleClass = pc.GetRoleClass();
                     roleClass?.OnReportDeadBody(repo, target);
                 }
-
-            foreach (var pc in PlayerCatch.AllPlayerControls)
+            _ = new LateTask(() =>
             {
-                if (!pc) continue;
-                Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
-            }
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (!pc) continue;
+                    if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var nowuse) && nowuse is true)
+                    {
+                        pc.RpcShapeshift(pc, false);
+                        pc.RpcRejectShapeshift();
+                    }
+                    Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
+                }
+            }, 1f, "SetSkin", false);
 
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
             UtilsNotifyRoles.NotifyMeetingRoles();

@@ -19,8 +19,8 @@ namespace TownOfHost.Roles.Ghost
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.GhostRumour);
             Data = GhostRoleAssingData.Create(Id + 1, CustomRoles.GhostRumour, CustomRoleTypes.Crewmate);
             CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
-                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostRumour]);
-            AssingMadmate = BooleanOptionItem.Create(Id + 5, "AssgingMadmate", false, TabGroup.GhostRoles, false)
+                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GhostRumour]).SetParentRole(CustomRoles.GhostRumour);
+            AssingMadmate = BooleanOptionItem.Create(Id + 5, "AssgingMadmate", false, TabGroup.GhostRoles, false).SetParentRole(CustomRoles.GhostRumour)
                         .SetParent(CustomRoleSpawnChances[CustomRoles.GhostRumour]);
         }
 

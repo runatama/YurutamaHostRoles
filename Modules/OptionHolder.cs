@@ -126,7 +126,7 @@ namespace TownOfHost
         public static OptionItem ExAftermeetingflash;
         public static OptionItem ExHideChatCommand;
         public static OptionItem FixSpawnPacketSize;
-        public static OptionItem BlackOutwokesitobasu;
+        public static OptionItem ExIntroWeight;
         public static OptionItem ExRpcWeightR;
 
         //幽霊役職
@@ -482,7 +482,7 @@ namespace TownOfHost
         public static OptionItem FixZeroKillCooldown;
         public static OptionItem CanseeVoteresult;
         public static OptionItem VRcanseemitidure;
-        public static OptionItem Onlyseepet;
+        //public static OptionItem Onlyseepet;
         public static OptionItem CommnTaskResetAssing;
         public static OptionItem OutroCrewWinreasonchenge;
         public static OptionItem TeamHideChat;
@@ -687,6 +687,10 @@ namespace TownOfHost
                 .SetColor(new Color32(255, 255, 0, 255))
                 .SetGameMode(CustomGameMode.All)
                 .SetInfo(Translator.GetString("FixSpawnPacketSizeInfo"));
+            ExIntroWeight = BooleanOptionItem.Create(300005, "ExIntroWeight", false, TabGroup.MainSettings, false)
+                .SetColor(new Color32(byte.MaxValue, byte.MaxValue, 0, byte.MaxValue))
+                .SetGameMode(CustomGameMode.All)
+                .SetInfo(Translator.GetString("ExIntroWeightInfo"));
 
             // Impostor
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
@@ -1217,10 +1221,10 @@ namespace TownOfHost
                 .SetColorcode("#4fd6a7")
                 .SetParent(ConvenientOptions);
             FirstTurnMeetingCantability = BooleanOptionItem.Create(900_012, "FirstTurnMeetingCantability", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.Standard).SetParent(FirstTurnMeeting);
-            Onlyseepet = BooleanOptionItem.Create(900_004, "Onlyseepet", true, TabGroup.MainSettings, false)
+            /*Onlyseepet = BooleanOptionItem.Create(900_004, "Onlyseepet", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#e6dfc1")
-                .SetParent(ConvenientOptions);
+                .SetParent(ConvenientOptions);*/
             FixFirstKillCooldown = BooleanOptionItem.Create(900_000, "FixFirstKillCooldown", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#fa7373")
@@ -1357,7 +1361,8 @@ namespace TownOfHost
                 .SetParent(spawnOption)
                 .SetValueFormat(assignCountRule.MaxValue is 7 ? OptionFormat.Set : OptionFormat.Players)
                 .SetGameMode(customGameMode)
-                .SetHidden(hidevalue);
+                .SetHidden(hidevalue)
+                .SetParentRole(role);
 
             if (combination != CombinationRoles.None) Combinations.Add(combination);
             CustomRoleSpawnChances.Add(role, spawnOption);

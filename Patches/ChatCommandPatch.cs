@@ -2226,6 +2226,7 @@ namespace TownOfHost
             }
             var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
             writer.StartMessage(clientId);
+
             writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(player.Data.NetId)
             .Write(title)

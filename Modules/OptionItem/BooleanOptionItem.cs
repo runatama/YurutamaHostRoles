@@ -37,6 +37,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name.ToString(), defaultValue, roleInfo.Tab, isSingleValue
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
         public static BooleanOptionItem Create(
@@ -47,6 +48,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name.ToString(), defaultValue, roleInfo.Tab, isSingleValue
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
 

@@ -46,6 +46,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name.ToString(), defaultValue, roleInfo.Tab, isSingleValue, rule, infinity: infinity
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
 

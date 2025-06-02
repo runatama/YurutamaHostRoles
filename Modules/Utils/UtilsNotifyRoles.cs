@@ -164,7 +164,7 @@ namespace TownOfHost
                     SelfSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, isForMeeting: false));
 
                     //RealNameを取得 なければ現在の名前をRealNamesに書き込む
-                    string SeerRealName = (seerRole is IUseTheShButton) ? Main.AllPlayerNames[seer.PlayerId] : seer.GetRealName(false);
+                    string SeerRealName = seer.GetRealName(false);
 
                     if (SuddenDeathMode.SuddenCannotSeeName)
                     {
@@ -223,7 +223,6 @@ namespace TownOfHost
                     || isMushroomMixupActive
                     || rolech
                     || Options.CurrentGameMode == CustomGameMode.TaskBattle
-                    //|| (seerRole is IUseTheShButton) //ﾜﾝｸﾘｯｸシェイプボタン持ち
                     || NoCache
                     || ForceLoop
                 )
@@ -343,7 +342,7 @@ namespace TownOfHost
                             }
 
                             //RealNameを取得 なければ現在の名前をRealNamesに書き込む
-                            string TargetPlayerName = (seerRole is IUseTheShButton) ? Main.AllPlayerNames[target.PlayerId] : target.GetRealName(false);
+                            string TargetPlayerName = target.GetRealName(false);
 
                             //ターゲットのプレイヤー名の色を書き換えます。
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, false);
@@ -518,7 +517,7 @@ namespace TownOfHost
                     SelfSuffix.Append(CustomRoleManager.GetSuffixOthers(seer, isForMeeting: true));
 
                     //RealNameを取得 なければ現在の名前をRealNamesに書き込む
-                    string SeerRealName = (seerRole is IUseTheShButton) ? Main.AllPlayerNames[seer.PlayerId] : seer.GetRealName(true);
+                    string SeerRealName = seer.GetRealName(true);
 
                     if (TemporaryName ?? false)
                         SeerRealName = name;
@@ -710,7 +709,7 @@ namespace TownOfHost
                             }
 
                             //RealNameを取得 なければ現在の名前をRealNamesに書き込む
-                            string TargetPlayerName = (seerRole is IUseTheShButton) ? Main.AllPlayerNames[target.PlayerId] : target.GetRealName(true);
+                            string TargetPlayerName = target.GetRealName(true);
 
                             //ターゲットのプレイヤー名の色を書き換えます。
                             TargetPlayerName = TargetPlayerName.ApplyNameColorData(seer, target, true);

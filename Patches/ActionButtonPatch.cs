@@ -56,12 +56,6 @@ public static class AbilityButtonDoClickPatch
             CloseVitals.Ability = true;
             return true;
         }
-        if (roleclas is IUseTheShButton sb && sb.UseOCButton)
-        {
-            player.Data.Role.SetCooldown();
-            sb.OnClick();
-            return false;
-        }
         if (roleclas is IUsePhantomButton pb && pb.UseOneclickButton)
         {
             //Shと違い、クリックしたときクールが発生しないことがあるため、

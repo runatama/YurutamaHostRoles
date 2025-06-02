@@ -17,8 +17,8 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Amanojaku);
             AmanojakuAssing.Create(Id + 10, CustomRoles.Amanojaku, true, true);
-            Amaday = IntegerOptionItem.Create(Id + 50, "Amanojakut", new(1, 99, 1), 4, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amanojaku]).SetValueFormat(OptionFormat.day);
-            Seizon = BooleanOptionItem.Create(Id + 51, "AmanojakuSeizon", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amanojaku]);
+            Amaday = IntegerOptionItem.Create(Id + 50, "Amanojakut", new(1, 99, 1), 4, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amanojaku]).SetParentRole(CustomRoles.Amanojaku).SetValueFormat(OptionFormat.day);
+            Seizon = BooleanOptionItem.Create(Id + 51, "AmanojakuSeizon", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amanojaku).SetParent(CustomRoleSpawnChances[CustomRoles.Amanojaku]);
         }
 
         public static void Init()

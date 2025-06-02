@@ -283,25 +283,28 @@ namespace TownOfHost
                 }
                 if (GameStates.InGame)
                 {
-                    List<byte> del = new();
-                    foreach (var ventpc in CoEnterVentPatch.VentPlayers)
+                    if (Options.MaxInVentMode.GetBool())
                     {
-                        var pc = PlayerCatch.GetPlayerById(ventpc.Key);
-                        if (pc == null) continue;
-
-                        if (ventpc.Value > Options.MaxInVentTime.GetFloat())
+                        List<byte> del = new();
+                        foreach (var ventpc in CoEnterVentPatch.VentPlayers)
                         {
-                            if (!CoEnterVentPatch.VentPlayers.TryGetValue(ventpc.Key, out var a))
+                            var pc = PlayerCatch.GetPlayerById(ventpc.Key);
+                            if (pc == null) continue;
+
+                            if (ventpc.Value > Options.MaxInVentTime.GetFloat())
                             {
+                                if (!CoEnterVentPatch.VentPlayers.TryGetValue(ventpc.Key, out var a))
+                                {
+                                    del.Add(ventpc.Key);
+                                    continue;
+                                }
+                                pc.MyPhysics.RpcBootFromVent(VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(ventpc.Key, out var r) ? r : 0);
                                 del.Add(ventpc.Key);
-                                continue;
                             }
-                            pc.MyPhysics.RpcBootFromVent(VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(ventpc.Key, out var r) ? r : 0);
-                            del.Add(ventpc.Key);
+                            CoEnterVentPatch.VentPlayers[ventpc.Key] += Time.fixedDeltaTime;
                         }
-                        CoEnterVentPatch.VentPlayers[ventpc.Key] += Time.fixedDeltaTime;
+                        del.Do(id => CoEnterVentPatch.VentPlayers.Remove(id));
                     }
-                    del.Do(id => CoEnterVentPatch.VentPlayers.Remove(id));
                     DisableDevice.FixedUpdate();
                     //情報機器制限
                     var nowuseing = true;
@@ -438,7 +441,7 @@ namespace TownOfHost
                             remove.Add(id);
                         }
 
-                        if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet(); remove.ForEach(task => Camouflage.ventplayr.Remove(task));
+                        ExtendedPlayerControl.AllPlayerOnlySeeMePet(); remove.ForEach(task => Camouflage.ventplayr.Remove(task));
                     }
                 }
 

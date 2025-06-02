@@ -93,11 +93,6 @@ public static class MeetingHudPatch
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
-                if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var nowuse) && nowuse is true)
-                {
-                    pc.RpcShapeshift(pc, false);
-                    pc.RpcRejectShapeshift();
-                }
 
                 if (!pc.IsAlive() && !Assassin.NowUse)
                 {
@@ -553,8 +548,6 @@ public static class MeetingHudPatch
                 AntiBlackout.SetIsDead();
                 foreach (var p in SelfVoteManager.CheckVote)
                     SelfVoteManager.CheckVote[p.Key] = false;
-                foreach (var pc in PlayerCatch.AllPlayerControls)
-                    (pc.GetRoleClass() as IUseTheShButton)?.ResetS(pc);
             }
             // MeetingVoteManagerを通さずに会議が終了した場合の後処理
             MeetingVoteManager.Instance?.Destroy();

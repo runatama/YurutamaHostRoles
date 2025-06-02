@@ -103,7 +103,7 @@ namespace TownOfHost
             {
                 //コミュサボ解除または強制解除
 
-                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) /*&& target.GetRoleClass() is not IUseTheShButton */ && shapeshifting && !RevertToDefault && kyousei is not null)
+                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && shapeshifting && !RevertToDefault && kyousei is not null)
                 {
                     //シェイプシフターなら今の姿のidに変更
                     id = Main.ShapeshiftTarget[id];
@@ -153,16 +153,13 @@ namespace TownOfHost
             {
                 target.SetPet(newOutfit.PetId);
                 sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
-                    .Write(Options.Onlyseepet.GetBool() ? "" : newOutfit.PetId)
+                    .Write("")
                     .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
                     .EndRpc();
             }
             sender.SendMessage();
 
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-                (pc.GetRoleClass() as IUseTheShButton)?.ResetS(pc);
-
-            if (Options.Onlyseepet.GetBool() && !GameStates.Meeting) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+            if (!GameStates.Meeting) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
         }
     }
 }

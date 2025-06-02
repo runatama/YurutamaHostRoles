@@ -127,5 +127,6 @@ public sealed class Warlock : RoleBase, IImpostor
     {
         CursedPlayer = null;
         IsCursed = false;
+        Shapeshifting = false;
     }
 }

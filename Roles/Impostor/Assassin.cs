@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-
+using InnerNet;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Assassin : RoleBase, IImpostor
 {
     //ここに書いておこう！
@@ -20,7 +21,7 @@ public sealed class Assassin : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             40200,
-            null,
+            SetupOptionItem,
             "as",
             tab: TabGroup.Combinations,
             assignInfo: new RoleAssignInfo(CustomRoles.Assassin, CustomRoleTypes.Impostor)
@@ -46,6 +47,8 @@ public sealed class Assassin : RoleBase, IImpostor
     public static List<byte> MarlinIds = new();
     AssassinMeeting NowState;
     static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
+
+    static OptionItem DieCallMeeting;
     enum AssassinMeeting
     {
         WaitMeeting,
@@ -53,6 +56,32 @@ public sealed class Assassin : RoleBase, IImpostor
         Guessing,
         Collected,
         EndMeeting
+    }
+    public static void SetupOptionItem()
+    {
+        DieCallMeeting = BooleanOptionItem.Create(RoleInfo, 10, "DieCallMeeting", false, false);
+    }
+    public override void OnFixedUpdate(PlayerControl player)
+    {
+        if (!DieCallMeeting.GetBool() || player.IsAlive() || player == null || GameStates.IsMeeting) return;
+
+        if (NowState is AssassinMeeting.WaitMeeting)
+        {
+            NowState = AssassinMeeting.CallMetting;
+            Logger.Info("死んじゃった。", "Assassin");
+            foreach (var info in GameData.Instance.AllPlayers)
+            {
+                isDeadCache[info.PlayerId] = (info.PlayerId.GetPlayerState().IsDead, info.Disconnected);
+
+                info.IsDead = false;
+                info.Disconnected = false;
+            }
+            NowUse = true;
+            NowState = AssassinMeeting.Guessing;
+            AntiBlackout.SendGameData();
+            _ = new LateTask(() =>
+            ReportDeadBodyPatch.DieCheckReport(Player, null, false, "アサシン会議", "#ff1919"), 3, "", true);
+        }
     }
     public override void OnSpawn(bool initialState = false)
     {

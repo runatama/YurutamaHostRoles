@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -166,7 +167,6 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
         KillList.Clear();
         killc -= rt;
         Player.SetKillCooldown();
-        //_ = new LateTask(() => (Player.GetRoleClass() as IUseTheShButton)?.ResetS(Player), 0.3f);
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.1f);
     }
 

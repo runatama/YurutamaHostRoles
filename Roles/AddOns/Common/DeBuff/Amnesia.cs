@@ -22,14 +22,14 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Amnesia);
             AddOnsAssignData.Create(Id + 10, CustomRoles.Amnesia, true, true, true, true);
-            DontCanUseAbility = BooleanOptionItem.Create(Id + 40, "Am.DontCanUseAbility", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            defaultKillCool = BooleanOptionItem.Create(Id + 41, "Am.defaultKillCool", true, TabGroup.Addons, false).SetParent(DontCanUseAbility);
-            TriggerDay = BooleanOptionItem.Create(Id + 50, "Am.TriggerDay", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            Modoru = IntegerOptionItem.Create(Id + 51, "Am.modru", new(1, 99, 1), 4, TabGroup.Addons, false).SetParent(TriggerDay).SetValueFormat(OptionFormat.day);
-            TriggerTask = BooleanOptionItem.Create(Id + 52, "Am.TriggerTask", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            Task = IntegerOptionItem.Create(Id + 53, "Am.Task", new(1, 255, 1), 4, TabGroup.Addons, false).SetParent(TriggerTask);
-            TriggerKill = BooleanOptionItem.Create(Id + 54, "Am.TriggerKill", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            KillCount = IntegerOptionItem.Create(Id + 55, "Am.KillCount", new(1, 15, 1), 2, TabGroup.Addons, false).SetParent(TriggerKill);
+            DontCanUseAbility = BooleanOptionItem.Create(Id + 40, "Am.DontCanUseAbility", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            defaultKillCool = BooleanOptionItem.Create(Id + 41, "Am.defaultKillCool", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(DontCanUseAbility);
+            TriggerDay = BooleanOptionItem.Create(Id + 50, "Am.TriggerDay", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            Modoru = IntegerOptionItem.Create(Id + 51, "Am.modru", new(1, 99, 1), 4, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(TriggerDay).SetValueFormat(OptionFormat.day);
+            TriggerTask = BooleanOptionItem.Create(Id + 52, "Am.TriggerTask", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            Task = IntegerOptionItem.Create(Id + 53, "Am.Task", new(1, 255, 1), 4, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(TriggerTask);
+            TriggerKill = BooleanOptionItem.Create(Id + 54, "Am.TriggerKill", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            KillCount = IntegerOptionItem.Create(Id + 55, "Am.KillCount", new(1, 15, 1), 2, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(TriggerKill);
         }
 
         public static void Init()

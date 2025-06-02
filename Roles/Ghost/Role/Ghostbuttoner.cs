@@ -19,11 +19,11 @@ namespace TownOfHost.Roles.Ghost
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.Ghostbuttoner);
             Data = GhostRoleAssingData.Create(Id + 1, CustomRoles.Ghostbuttoner, CustomRoleTypes.Crewmate);
             CoolDown = FloatOptionItem.Create(Id + 2, "Cooldown", new(0f, 180f, 0.5f), 25f, TabGroup.GhostRoles, false)
-                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
+                .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]).SetParentRole(CustomRoles.Ghostbuttoner);
             Count = IntegerOptionItem.Create(Id + 3, "GhostButtonerCount", new(1, 9, 1), 1, TabGroup.GhostRoles, false)
-                .SetValueFormat(OptionFormat.Times).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
+                .SetValueFormat(OptionFormat.Times).SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]).SetParentRole(CustomRoles.Ghostbuttoner);
             AssingMadmate = BooleanOptionItem.Create(Id + 4, "AssgingMadmate", false, TabGroup.GhostRoles, false)
-                                .SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]);
+                                .SetParent(CustomRoleSpawnChances[CustomRoles.Ghostbuttoner]).SetParentRole(CustomRoles.Ghostbuttoner);
         }
         public static void Init()
         {

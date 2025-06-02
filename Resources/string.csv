@@ -813,6 +813,8 @@
 "ExHideChatCommandInfo","(Can't Use Voice,BetterCrew Room)","(CT卓でのみONにしてください)"
 "FixSpawnPacketSize","Set When Disconnect above 8-9 People","8～9人以上で切断される現象の修正"
 "FixSpawnPacketSizeInfo","<color=red>Disconnect Player","<color=red>切断者が発生した場合のみ"
+"ExIntroWeight","Intro Disconnect Rpc Weight","イントロの通信量を改善してみる"
+"ExIntroWeightInfo","Only Disconnect player on Intor.","イントロ落ちが発生した時のみ"
 "ExRpcWeightR","Rpc Weight","Rpcの送信頻度を制限する"
 "UseZoom","UseZoom (ModClient Only)","ズームを有効にする(ModClient Only)"
 "SoloWinOption","%role%SoloWin","%role%の勝利優先順位"
@@ -976,7 +978,6 @@
 "FixZeroKillCooldown","Fix Zero Kill Cooldown","キルクール0秒でキルが出来る"
 "CanseeVoteresult","Can See Voteresult","投票結果を表示する"
 "CanseeMeetingAfterMitidure","Can See Revenge","道連れされたプレイヤーを表示する"
-"Onlyseepet","They Can't see My pet","他人のペットが見えない"
 "CommnTaskResetAssing","Common Task Reset Assing","通常タスクを共通にしない"
 "TeamHideChat","Team Hide Chat","秘匿チャット"
 "ImpostorHideChat","Impostor Hide Chat (/ic)","インポスター秘匿チャット(/ic)"
@@ -1339,6 +1340,7 @@
 "TellerCollectRect","Rect","占い成功率"
 "PonkotuTellerFTOption","dont option FortuneTeller","占い師と設定をそろえない"
 "PonkotuTellerMyisFT","Ponkotu Teller is FortuneTeller","占い師と錯覚する"
+"PonkotuDontChengeGame","Dont Chenge Game","占い結果が変わらない"
 "NiceLoggerCoolTime","sensor cool","センサーのクールタイム"
 "AndroidAddTaskBattery","task complete add battery","タスク完了毎の充電量"
 "AndroidRemoveBattery","remove battery","バッテリーが減少する"
@@ -1719,7 +1721,6 @@
 "SantaClausMeetingMeg0","I got a present for {0}!!","{0}のベントにプレゼントがあったよ!!"
 "SantaClausMeetingMeg1","I got a present for {0}!!","{0}にある靴下にプレゼントがあったよ!"
 "SantaClausMeetingMeg2","I got a present for {0}!!","皆がお願いしてたプレゼントが{0}のベントに！"
-
 "OnePlayer","the first person","一人目"
 "TowPlayer","second person","二人目"
 

@@ -77,58 +77,58 @@ namespace TownOfHost
             this.IsImpostor = role.IsImpostor();
             this.IdStart = idStart;
             this.Role = role;
-            GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn || NeutralKiller, tab, false).SetParent(Options.CustomRoleSpawnChances[role])
-                    .SetValueFormat(OptionFormat.None);
-            GiveGuesser = BooleanOptionItem.Create(idStart++, "GiveGuesser", false, tab, false).SetParent(GiveAddons);
-            CanGuessTime = FloatOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser)
+            GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn || NeutralKiller, tab, false).SetParent(Options.CustomRoleSpawnChances[role]).SetParentRole(role)
+                    .SetValueFormat(OptionFormat.None).SetParentRole(role);
+            GiveGuesser = BooleanOptionItem.Create(idStart++, "GiveGuesser", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            CanGuessTime = FloatOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser).SetParentRole(role)
                 .SetValueFormat(OptionFormat.Players);
-            AddTama = BooleanOptionItem.Create(idStart++, "Addtama", false, tab, false).SetParent(GiveGuesser);
-            OwnCanGuessTime = FloatOptionItem.Create(idStart++, "OwnCanGuessTime", new(1, 15, 1), 1, tab, false).SetParent(GiveGuesser)
+            AddTama = BooleanOptionItem.Create(idStart++, "Addtama", false, tab, false).SetParent(GiveGuesser).SetParentRole(role);
+            OwnCanGuessTime = FloatOptionItem.Create(idStart++, "OwnCanGuessTime", new(1, 15, 1), 1, tab, false).SetParent(GiveGuesser).SetParentRole(role)
                     .SetValueFormat(OptionFormat.Players);
-            ICanGuessVanilla = BooleanOptionItem.Create(idStart++, "CanGuessVanilla", true, tab, false).SetParent(GiveGuesser);
-            ICanGuessNakama = BooleanOptionItem.Create(idStart++, "CanGuessNakama", true, tab, false).SetParent(GiveGuesser);
-            ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(idStart++, "CanGuessTaskDoneSnitch", false, tab, false).SetParent(GiveGuesser);
-            ICanWhiteCrew = BooleanOptionItem.Create(idStart++, "CanWhiteCrew", false, tab, false).SetParent(GiveGuesser);
-            GiveWatching = BooleanOptionItem.Create(idStart++, "GiveWatching", false, tab, false).SetParent(GiveAddons);
-            GivePlusVote = BooleanOptionItem.Create(idStart++, "GivePlusVote", false, tab, false).SetParent(GiveAddons);
-            AdditionalVote = IntegerOptionItem.Create(idStart++, "MayorAdditionalVote", new(1, 99, 1), 1, tab, false).SetValueFormat(OptionFormat.Votes).SetParent(GivePlusVote);
-            GiveTiebreaker = BooleanOptionItem.Create(idStart++, "GiveTiebreaker", false, tab, false).SetParent(GiveAddons);
-            GiveAutopsy = BooleanOptionItem.Create(idStart++, "GiveAutopsy", false, tab, false).SetParent(GiveAddons);
-            ACanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(GiveAutopsy);
-            GiveRevenger = BooleanOptionItem.Create(idStart++, "GiveRevenger", false, tab, false).SetParent(GiveAddons);
-            Imp = BooleanOptionItem.Create(idStart++, "NekoKabochaImpostorsGetRevenged", true, tab, false).SetParent(GiveRevenger);
-            Crew = BooleanOptionItem.Create(idStart++, "NekomataCanCrew", true, tab, false).SetParent(GiveRevenger);
-            Mad = BooleanOptionItem.Create(idStart++, "NekoKabochaMadmatesGetRevenged", true, tab, false).SetParent(GiveRevenger);
-            Neu = BooleanOptionItem.Create(idStart++, "NekomataCanNeu", true, tab, false).SetParent(GiveRevenger);
-            GiveSpeeding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons);
-            Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding);
-            GiveGuarding = BooleanOptionItem.Create(idStart++, "GiveGuarding", false, tab, false).SetParent(GiveAddons);
-            Guard = FloatOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding);
-            GiveManagement = BooleanOptionItem.Create(idStart++, "GiveManagement", false, tab, false).SetParent(GiveAddons);
-            PercentGage = BooleanOptionItem.Create(idStart++, "PercentGage", false, tab, false).SetParent(GiveManagement);
-            PonkotuPercernt = BooleanOptionItem.Create(idStart++, "PonkotuPercernt", false, tab, false).SetParent(PercentGage);
-            comms = BooleanOptionItem.Create(idStart++, "CanseeComms", false, tab, false).SetParent(GiveManagement);
-            Meeting = BooleanOptionItem.Create(idStart++, "CanseeMeeting", false, tab, false).SetParent(GiveManagement);
-            Giveseeing = BooleanOptionItem.Create(idStart++, "Giveseeing", false, tab, false).SetParent(GiveAddons);
-            SCanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(Giveseeing);
-            GiveOpener = BooleanOptionItem.Create(idStart++, "GiveOpener", false, tab, false).SetParent(GiveAddons);
+            ICanGuessVanilla = BooleanOptionItem.Create(idStart++, "CanGuessVanilla", true, tab, false).SetParent(GiveGuesser).SetParentRole(role);
+            ICanGuessNakama = BooleanOptionItem.Create(idStart++, "CanGuessNakama", true, tab, false).SetParent(GiveGuesser).SetParentRole(role);
+            ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(idStart++, "CanGuessTaskDoneSnitch", false, tab, false).SetParent(GiveGuesser).SetParentRole(role);
+            ICanWhiteCrew = BooleanOptionItem.Create(idStart++, "CanWhiteCrew", false, tab, false).SetParent(GiveGuesser).SetParentRole(role);
+            GiveWatching = BooleanOptionItem.Create(idStart++, "GiveWatching", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            GivePlusVote = BooleanOptionItem.Create(idStart++, "GivePlusVote", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            AdditionalVote = IntegerOptionItem.Create(idStart++, "MayorAdditionalVote", new(1, 99, 1), 1, tab, false).SetParentRole(role).SetValueFormat(OptionFormat.Votes).SetParent(GivePlusVote);
+            GiveTiebreaker = BooleanOptionItem.Create(idStart++, "GiveTiebreaker", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            GiveAutopsy = BooleanOptionItem.Create(idStart++, "GiveAutopsy", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            ACanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(GiveAutopsy).SetParentRole(role);
+            GiveRevenger = BooleanOptionItem.Create(idStart++, "GiveRevenger", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            Imp = BooleanOptionItem.Create(idStart++, "NekoKabochaImpostorsGetRevenged", true, tab, false).SetParentRole(role).SetParent(GiveRevenger);
+            Crew = BooleanOptionItem.Create(idStart++, "NekomataCanCrew", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
+            Mad = BooleanOptionItem.Create(idStart++, "NekoKabochaMadmatesGetRevenged", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
+            Neu = BooleanOptionItem.Create(idStart++, "NekomataCanNeu", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
+            GiveSpeeding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding).SetParentRole(role);
+            GiveGuarding = BooleanOptionItem.Create(idStart++, "GiveGuarding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            Guard = FloatOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding).SetParentRole(role);
+            GiveManagement = BooleanOptionItem.Create(idStart++, "GiveManagement", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            PercentGage = BooleanOptionItem.Create(idStart++, "PercentGage", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
+            PonkotuPercernt = BooleanOptionItem.Create(idStart++, "PonkotuPercernt", false, tab, false).SetParent(PercentGage).SetParentRole(role);
+            comms = BooleanOptionItem.Create(idStart++, "CanseeComms", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
+            Meeting = BooleanOptionItem.Create(idStart++, "CanseeMeeting", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
+            Giveseeing = BooleanOptionItem.Create(idStart++, "Giveseeing", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            SCanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(Giveseeing).SetParentRole(role);
+            GiveOpener = BooleanOptionItem.Create(idStart++, "GiveOpener", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             //GiveAntiTeleporter = BooleanOptionItem.Create(idStart++, "GiveAntiTeleporter", false, tab, false).SetParent(GiveAddons);
             if (!IsImpostor)
             {
-                GiveLighting = BooleanOptionItem.Create(idStart++, "GiveLighting", NeutralKiller, tab, false).SetParent(GiveAddons);
-                GiveMoon = BooleanOptionItem.Create(idStart++, "GiveMoon", NeutralKiller || MadMate, tab, false).SetParent(GiveAddons);
+                GiveLighting = BooleanOptionItem.Create(idStart++, "GiveLighting", NeutralKiller, tab, false).SetParentRole(role).SetParent(GiveAddons);
+                GiveMoon = BooleanOptionItem.Create(idStart++, "GiveMoon", NeutralKiller || MadMate, tab, false).SetParentRole(role).SetParent(GiveAddons);
             }
             //デバフ
-            GiveNotvoter = BooleanOptionItem.Create(idStart++, "GiveNotvoter", false, tab, false).SetParent(GiveAddons);
-            GiveElector = BooleanOptionItem.Create(idStart++, "GiveElector", false, tab, false).SetParent(GiveAddons);
-            GiveInfoPoor = BooleanOptionItem.Create(idStart++, "GiveInfoPoor", false, tab, false).SetParent(GiveAddons);
-            GiveNonReport = BooleanOptionItem.Create(idStart++, "GiveNonReport", false, tab, false).SetParent(GiveAddons);
-            OptionConvener = StringOptionItem.Create(idStart++, "ConverMode", EnumHelper.GetAllNames<cop>(), 0, tab, false).SetParent(GiveNonReport);
+            GiveNotvoter = BooleanOptionItem.Create(idStart++, "GiveNotvoter", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            GiveElector = BooleanOptionItem.Create(idStart++, "GiveElector", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            GiveInfoPoor = BooleanOptionItem.Create(idStart++, "GiveInfoPoor", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            GiveNonReport = BooleanOptionItem.Create(idStart++, "GiveNonReport", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            OptionConvener = StringOptionItem.Create(idStart++, "ConverMode", EnumHelper.GetAllNames<cop>(), 0, tab, false).SetParentRole(role).SetParent(GiveNonReport);
 
-            GiveTransparent = BooleanOptionItem.Create(idStart++, "GiveTransparent", false, tab, false).SetParent(GiveAddons);
-            GiveWater = BooleanOptionItem.Create(idStart++, "GiveWater", MadMate, tab, false).SetParent(GiveAddons);
-            GiveClumsy = BooleanOptionItem.Create(idStart++, "GiveClumsy", MadMate, tab, false).SetParent(GiveAddons);
-            GiveSlacker = BooleanOptionItem.Create(idStart++, "GiveSlacker", false, tab, false).SetParent(GiveAddons);
+            GiveTransparent = BooleanOptionItem.Create(idStart++, "GiveTransparent", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            GiveWater = BooleanOptionItem.Create(idStart++, "GiveWater", MadMate, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            GiveClumsy = BooleanOptionItem.Create(idStart++, "GiveClumsy", MadMate, tab, false).SetParentRole(role).SetParent(GiveAddons);
+            GiveSlacker = BooleanOptionItem.Create(idStart++, "GiveSlacker", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
 
             role = chrole == CustomRoles.NotAssigned ? role : chrole;
 

@@ -264,6 +264,7 @@ namespace TownOfHost
             {
                 senders[pc.PlayerId] = new CustomRpcSender($"{pc.name}'s SetRole Sender", SendOption.None, false)
                         .StartMessage(pc.GetClientId());
+
             }
             RpcSetRoleReplacer.StartReplace(senders);
 
@@ -681,6 +682,7 @@ namespace TownOfHost
 
             if (Options.CurrentGameMode == CustomGameMode.Standard)
                 CoResetRoleY();
+            RPC.RpcSyncAllNetworkedPlayer();
 
             PlayerCatch.CountAlivePlayers(true);
             UtilsOption.SyncAllSettings();
@@ -688,7 +690,7 @@ namespace TownOfHost
         }
         private static void CoResetRoleY()
         {
-            //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない！.動くか知らない！
+            //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない←重いよ?
             var host = PlayerControl.LocalPlayer;
 
             InnerNetClientPatch.DontTouch = true;
@@ -696,9 +698,10 @@ namespace TownOfHost
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
-            foreach (var data in GameData.Instance.AllPlayers)
+            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
             {
                 data.Disconnected = true;
+                CheckLarge();
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -713,6 +716,7 @@ namespace TownOfHost
             foreach (var data in GameData.Instance.AllPlayers)
             {
                 data.Disconnected = false;
+                CheckLarge();
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -722,6 +726,20 @@ namespace TownOfHost
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
             InnerNetClientPatch.DontTouch = false;
+
+            void CheckLarge()
+            {
+                if (stream.Length > 750 && Options.ExIntroWeight.GetBool())
+                {
+                    stream.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(stream);
+                    stream.Recycle();
+
+                    stream = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
+                }
+            }
 
             MeetingHudPatch.StartPatch.Serialize = false;
             {
@@ -876,8 +894,6 @@ namespace TownOfHost
                             foreach (var Player in PlayerCatch.AllPlayerControls)
                             {
                                 if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
-                                if (Player.GetRoleClass() is IUseTheShButton useshe) useshe.Shape(Player);
-                                else
                                 {
                                     if (!AmongUsClient.Instance.AmHost) return;
                                     if (Camouflage.IsCamouflage) return;

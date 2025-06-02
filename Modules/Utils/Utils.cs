@@ -524,7 +524,7 @@ namespace TownOfHost
 
             if (GameStates.IsLobby && !Iscountdown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
             {
-                if (Main.MessagesToSend.Count > 0) return;
+                //if (Main.MessagesToSend.Count > 0) return;
                 var info = "<size=80%>";
                 var at = "";
                 if (Options.NoGameEnd.OptionMeGetBool()) info += $"\r\n" + ColorString(Color.red, GetString("NoGameEnd")); else at += "\r\n";
@@ -600,7 +600,7 @@ namespace TownOfHost
                 ventilationSystem.IsDirty = true;
             }
             GuessManager.Reset();//会議後にリセット入れる
-            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+            ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             GameStates.Tuihou = false;
         }
         #endregion

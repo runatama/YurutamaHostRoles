@@ -40,6 +40,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name.ToString(), defaultIndex, roleInfo.Tab, isSingleValue, selections
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
         public static StringOptionItem Create(
@@ -50,6 +51,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name, defaultIndex, roleInfo.Tab, isSingleValue, selections
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
 

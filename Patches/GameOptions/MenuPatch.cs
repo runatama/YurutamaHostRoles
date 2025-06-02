@@ -64,6 +64,7 @@ namespace TownOfHost
         public static TMPro.TextMeshPro searchtext;
         public static Il2CppSystem.Collections.Generic.List<PassiveButton> tabButtons;
         public static CustomRoles NowRoleTab;
+        public static CustomRoles Nowinfo;
         public static Dictionary<TabGroup, GameOptionsMenu> list = new();
         public static Dictionary<TabGroup, Il2CppSystem.Collections.Generic.List<OptionBehaviour>> scOptions = new();
         public static Dictionary<CustomRoles, GameOptionsMenu> crlist = new();
@@ -113,7 +114,138 @@ namespace TownOfHost
                     activeonly.buttonText.DestroyTranslator();
                 }
 
-                GamePresetButton.gameObject.SetActive(false);
+                GamePresetButton.transform.localScale = new(0.45f, 0.45f);
+                GamePresetButton.transform.localPosition = new Vector3(-3.76f, -0.62f, -2);
+
+                var AlternateRules = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/PRESETS TABS/AlternateRules");
+                AlternateRules.transform.localScale = new(0.6f, 0.6f);
+                AlternateRules.transform.localPosition = new(-0.638f, 0.8f);//StandardRules
+                var StandardRules = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/PRESETS TABS/StandardRules");
+                StandardRules.transform.localScale = new(0.6f, 0.6f);
+                StandardRules.transform.localPosition = new(-2.38f, 0.8f, 0);
+
+
+                var RoleReset = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (RoleReset)
+                {
+                    RoleReset.buttonText.text = $"役職をリセットする";
+                    RoleReset.buttonText.DestroyTranslator();
+                    RoleReset.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    RoleReset.activeSprites.GetComponent<SpriteRenderer>().color =
+                    RoleReset.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 100, 255, byte.MaxValue);
+                    RoleReset.transform.localPosition = new Vector3(5.561f, 1.7467f, 0);
+                    RoleReset.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    RoleReset.OnClick = new();
+                    RoleReset.OnClick.AddListener((Action)(() =>
+                    {
+                        foreach (var roleopt in Options.CustomRoleSpawnChances)
+                        {
+                            roleopt.Value.SetValue(0);
+                        }
+                    }));
+                }
+                var SheriffAndMad = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (SheriffAndMad)
+                {
+                    SheriffAndMad.buttonText.text = $"<#f8cd46>シェリ</color><#ff1919>マ <#ffffff>+ </color>イビハカトラ</color>構成";
+                    SheriffAndMad.buttonText.DestroyTranslator();
+                    SheriffAndMad.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    SheriffAndMad.activeSprites.GetComponent<SpriteRenderer>().color =
+                    SheriffAndMad.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 178, 40, byte.MaxValue);
+                    SheriffAndMad.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f), 0);
+                    SheriffAndMad.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    SheriffAndMad.OnClick = new();
+                    SheriffAndMad.OnClick.AddListener((Action)(() =>
+                    {
+                        foreach (var roleopt in Options.CustomRoleSpawnChances)
+                        {
+                            bool IsShrima = roleopt.Key is CustomRoles.Sheriff or CustomRoles.MadSnitch or CustomRoles.EvilHacker or CustomRoles.EvilTracker;
+                            roleopt.Value.SetValue(IsShrima ? 10 : 0);
+                        }
+                    }));
+                }
+                var Majimerura = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (Majimerura)
+                {
+                    Majimerura.buttonText.text = $"多役構成";
+                    Majimerura.buttonText.DestroyTranslator();
+                    Majimerura.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    Majimerura.activeSprites.GetComponent<SpriteRenderer>().color =
+                    Majimerura.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 0, 40, byte.MaxValue);
+                    Majimerura.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 2), 0);
+                    Majimerura.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    Majimerura.OnClick = new();
+                    Majimerura.OnClick.AddListener((Action)(() =>
+                    {
+                        foreach (var roleopt in Options.CustomRoleSpawnChances)
+                        {
+                            bool IsShrima = roleopt.Key is CustomRoles.Jumper or CustomRoles.EvilSatellite or CustomRoles.MadGuardian or CustomRoles.SwitchSheriff or CustomRoles.PonkotuTeller or CustomRoles.Insider
+                            or CustomRoles.Stolener or CustomRoles.Snowman or CustomRoles.Walker or CustomRoles.Jackal or CustomRoles.Jester;
+                            if ((IsShrima ? 10 : 0) != roleopt.Value.GetValue()) roleopt.Value.SetValue(IsShrima ? 10 : 0);
+                        }
+                    }));
+                }
+                var Yaminabe = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (Yaminabe)
+                {
+                    Yaminabe.buttonText.text = $"<#aa84f0>闇鍋</color>";
+                    Yaminabe.buttonText.DestroyTranslator();
+                    Yaminabe.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    Yaminabe.activeSprites.GetComponent<SpriteRenderer>().color =
+                    Yaminabe.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(69, 24, 153, byte.MaxValue);
+                    Yaminabe.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 3), 0);
+                    Yaminabe.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    Yaminabe.OnClick = new();
+                    Yaminabe.OnClick.AddListener((Action)(() =>
+                    {
+                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                        {
+                            var r = option.Key;
+                            if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral()) option.Value.SetValue(10);
+                        }
+                    }));
+                }
+                var Sugoiyaminabe = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (Sugoiyaminabe)
+                {
+                    Sugoiyaminabe.buttonText.text = $"<#aa84f0>属性,幽霊役職入り闇鍋</color>";
+                    Sugoiyaminabe.buttonText.DestroyTranslator();
+                    Sugoiyaminabe.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    Sugoiyaminabe.activeSprites.GetComponent<SpriteRenderer>().color =
+                    Sugoiyaminabe.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(60, 60, 60, byte.MaxValue);
+                    Sugoiyaminabe.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 4), 0);
+                    Sugoiyaminabe.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    Sugoiyaminabe.OnClick = new();
+                    Sugoiyaminabe.OnClick.AddListener((Action)(() =>
+                    {
+                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                        {
+                            option.Value.SetValue(10);
+                        }
+                    }));
+                }
+                var SadondesuMode = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (SadondesuMode)
+                {
+                    SadondesuMode.buttonText.text = $"<#ffaf8a>サドンデス用！</color>";
+                    SadondesuMode.buttonText.DestroyTranslator();
+                    SadondesuMode.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    SadondesuMode.activeSprites.GetComponent<SpriteRenderer>().color =
+                    SadondesuMode.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(242, 125, 70, byte.MaxValue);
+                    SadondesuMode.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 5), 0);
+                    SadondesuMode.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    SadondesuMode.OnClick = new();
+                    SadondesuMode.OnClick.AddListener((Action)(() =>
+                    {
+                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                        {
+                            int IsShrima = option.Key is CustomRoles.Jumper or CustomRoles.Evilgambler or CustomRoles.EvilHacker or CustomRoles.Mole or CustomRoles.QuickKiller or CustomRoles.Sniper
+                            or CustomRoles.UltraStar or CustomRoles.Shyboy or CustomRoles.DoppelGanger or CustomRoles.Terrorist or CustomRoles.Vulture ? 10 : 0;
+                            if (option.Value.GetValue() != IsShrima) option.Value.SetValue(IsShrima);
+                        }
+                    }));
+                }
+
                 RoleSettingsButton.gameObject.SetActive(false);
 
                 ModSettingsButton.gameObject.name = "TownOfHostSetting";
@@ -165,6 +297,7 @@ namespace TownOfHost
                         Logger.Exception(ex, "OptionsManager");
                     }
                 }
+
                 ErrorNumber = 3;
                 if (priset)
                 {
@@ -296,23 +429,13 @@ namespace TownOfHost
                 {
                     if (option.OptionBehaviour == null)
                     {
-                        var role = CustomRoles.NotAssigned;
-                        var ropt = option;
-
-                        //親オプションが役職なのか
-                        while (ropt.Parent != null)
-                        {
-                            ropt = ropt.Parent;
-                        }
-                        role = ropt.CustomRole;
-                        if (ropt == option) role = CustomRoles.NotAssigned;
-
+                        var parentrole = option.ParentRole;
                         //役職設定の場合
-                        if (role is not CustomRoles.NotAssigned)
+                        if (parentrole is not CustomRoles.NotAssigned && option.CustomRole is CustomRoles.NotAssigned)
                         {
-                            var optionsMenu = crlist[role];
+                            var optionsMenu = crlist[parentrole];
                             var stringOption = Object.Instantiate(template, optionsMenu.transform);
-                            crOptions[role].Add(stringOption);
+                            crOptions[parentrole].Add(stringOption);
                             roleopts.Add(option);
                             stringOption.TitleText.text = $"<b>{option.Name}</b>";
                             stringOption.Value = stringOption.oldValue = option.CurrentValue;
@@ -331,21 +454,21 @@ namespace TownOfHost
                                 stringOption.MinusBtn.OnClick = new();
                                 stringOption.MinusBtn.OnClick.AddListener((Action)(() =>
                                 {
-                                    if (option is FilterOptionItem filterOptionItem) filterOptionItem.SetRoleValue(role);
+                                    if (option is FilterOptionItem filterOptionItem) filterOptionItem.SetRoleValue(parentrole);
                                 }));
                                 stringOption.MinusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<size=80%>←";
                                 stringOption.PlusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<rotate=-20>ρ";
                                 stringOption.PlusBtn.OnClick = new();
                                 stringOption.PlusBtn.OnClick.AddListener((Action)(() =>
                                 {
-                                    if (rolebutton.TryGetValue(role, out var button))
+                                    if (rolebutton.TryGetValue(parentrole, out var button))
                                     {
                                         button?.OnClick?.Invoke();
                                     }
                                     _ = new LateTask(() =>
                                     {
                                         ShowFilter.NosetOptin = option;
-                                        ShowFilter.NowSettingRole = role;
+                                        ShowFilter.NowSettingRole = parentrole;
                                         GameSettingMenuChangeTabPatch.meg = GetString("ShowFilters");
                                     }, 0.2f, "Set", true);
                                 }));
@@ -465,9 +588,11 @@ namespace TownOfHost
                                     {
                                         infobutton.gameObject.name = $"{option.Name}-InfoButton";
                                         infobutton.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "?";
+
                                         infobutton.OnClick = new();
                                         infobutton.OnClick.AddListener((Action)(() =>
                                         {
+                                            Nowinfo = option.CustomRole;
                                             HudManager.Instance.TaskPanel.ToggleOpen();
                                         }));
                                         infobutton.gameObject.transform.SetLocalX(0);
@@ -487,6 +612,7 @@ namespace TownOfHost
                     option.OptionBehaviour.gameObject.active = true;
                 }
 
+                Object.Destroy(template);
                 ErrorNumber = 7;
                 var templateTabButton = ModSettingsTab.AllButton;
                 {

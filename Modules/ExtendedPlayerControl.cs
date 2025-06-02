@@ -99,9 +99,8 @@ namespace TownOfHost
                     player.SetKillCooldown(delay: true, kyousei: true, kousin: true);
                     player.RpcResetAbilityCooldown();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-                    (roleClass as IUseTheShButton)?.Shape(player);
                     (roleClass as IUsePhantomButton)?.Init(player);
-                    if (Options.Onlyseepet.GetBool()) AllPlayerOnlySeeMePet();
+                    AllPlayerOnlySeeMePet();
                     foreach (var r in CustomRoleManager.AllActiveRoles.Values)
                     {
                         r.Colorchnge();
@@ -845,7 +844,7 @@ namespace TownOfHost
                 var tage = playerInfo.Object;
 
                 if (tage == null || tage.inVent) continue;
-                if (!SuddenDeathMode.NowSuddenDeathTemeMode && IsOneclick && tage.GetCustomRole().GetCustomRoleTypes() == roletype) continue;
+                if (!SuddenDeathMode.NowSuddenDeathTemeMode && IsOneclick && tage.GetCustomRole().GetCustomRoleTypes() == roletype && roletype is CustomRoleTypes.Impostor) continue;
                 if (SuddenDeathMode.NowSuddenDeathTemeMode)
                 {
                     if (SuddenDeathMode.IsOnajiteam(pc.PlayerId, tage.PlayerId)) continue;

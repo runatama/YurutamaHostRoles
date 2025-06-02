@@ -7,6 +7,7 @@ using System;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class PonkotuTeller : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -49,6 +50,7 @@ public sealed class PonkotuTeller : RoleBase
             kakusei = !FortuneTeller.Kakusei.GetBool();
             Max = FortuneTeller.OptionMaximum.GetFloat();
         }
+        GameTell = new();
     }
     static OptionItem FTOption;
     private static OptionItem Optioncollect;
@@ -58,6 +60,7 @@ public sealed class PonkotuTeller : RoleBase
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
     private static OptionItem Optionrolename;
+    private static OptionItem OptionDontChengeGame;
     static OptionItem Kakusei;
     static OptionItem MeisFT;
     bool kakusei;
@@ -71,6 +74,7 @@ public sealed class PonkotuTeller : RoleBase
     float onemeetingmaximum;
     float mcount;
     Dictionary<byte, CustomRoles> Divination = new();
+    Dictionary<byte, CustomRoles> GameTell = new();
 
     enum Option
     {
@@ -80,7 +84,8 @@ public sealed class PonkotuTeller : RoleBase
         rolename,
         tRole,
         PonkotuTellerFTOption,
-        PonkotuTellerMyisFT
+        PonkotuTellerMyisFT,
+        PonkotuDontChengeGame
     }
     public enum VoteMode
     {
@@ -103,6 +108,7 @@ public sealed class PonkotuTeller : RoleBase
             .SetValueFormat(OptionFormat.Times);
         Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false, FTOption);
         MeisFT = BooleanOptionItem.Create(RoleInfo, 18, Option.PonkotuTellerMyisFT, false, false);
+        OptionDontChengeGame = BooleanOptionItem.Create(RoleInfo, 20, Option.PonkotuDontChengeGame, false, true);
     }
     public override void Add() => AddS(Player);
     private void SendRPC()
@@ -160,6 +166,14 @@ public sealed class PonkotuTeller : RoleBase
         int chance = IRandom.Instance.Next(1, 101);
         var target = PlayerCatch.GetPlayerById(votedForId);
         if (!target.IsAlive()) return;
+        if (GameTell.TryGetValue(votedForId, out var telledrole) && OptionDontChengeGame.GetBool())
+        {
+            Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(再掲)", "PonkotuTeller");
+            var s = GetString("Skill.Tellerfin") + (telledrole.IsCrewmate() ? "!" : "...");
+            if (MeisFT.GetBool()) Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{telledrole}").Color(UtilsRoleText.GetRoleColor(telledrole)) + "</b>" : GetString($"{telledrole.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
+            else Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{telledrole}").Color(UtilsRoleText.GetRoleColor(telledrole)) + "</b>" : GetString($"{telledrole.GetCustomRoleTypes()}")) + $"..?" + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
+            return;
+        }
         count++;
         mcount++;
         if (chance < collect)
@@ -168,6 +182,7 @@ public sealed class PonkotuTeller : RoleBase
             var FtR = target.GetRoleClass()?.GetFtResults(Player); //結果を変更するかチェック
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : target.GetCustomRole();
             SendRPC();
+            GameTell.TryAdd(votedForId, role);
             var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");
             if (MeisFT.GetBool()) Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(UtilsRoleText.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + s + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
             else Utils.SendMessage(string.Format(GetString("Skill.Teller"), Utils.GetPlayerColor(target, true), srole ? "<b>" + GetString($"{role}").Color(UtilsRoleText.GetRoleColor(role)) + "</b>" : GetString($"{role.GetCustomRoleTypes()}")) + $"..?" + $"\n\n" + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : "")), Player.PlayerId);
@@ -179,6 +194,8 @@ public sealed class PonkotuTeller : RoleBase
             var P = tage[rand.Next(0, tage.Count)];
             var FtR = target.GetRoleClass()?.GetFtResults(null); //結果を変更するかチェック
             var role = FtR is not CustomRoles.NotAssigned ? FtR.Value : P.GetCustomRole();
+
+            GameTell.TryAdd(votedForId, role);
             Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(失敗)", "PonkotuTeller");
             var s = GetString("Skill.Tellerfin") + (role.IsCrewmate() ? "!" : "...");
             SendRPC();

@@ -189,6 +189,11 @@ namespace TownOfHost
             //ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
             Main.CanUseAbility = true;
             MeetingStates.First = false;
+
+            var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
+            var role = (roleInfo?.IsDesyncImpostor == true) && roleInfo.BaseRoleType.Invoke() is RoleTypes.Impostor ? RoleTypes.Crewmate : roleInfo.BaseRoleType.Invoke();
+            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
+
             _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
     }

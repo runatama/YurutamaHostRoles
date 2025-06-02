@@ -66,7 +66,6 @@ public sealed class Auction : RoleBase, IKiller
         if (Target == byte.MaxValue || !Is(seen))
             return "";
         var target = PlayerCatch.GetPlayerById(Target);
-        string RealName = (target is IUseTheShButton) ? Main.AllPlayerNames[Target] : target.GetRealName(isForMeeting);
         return Utils.ColorString(Color.red, $"対象: {RealName}");
     }
 

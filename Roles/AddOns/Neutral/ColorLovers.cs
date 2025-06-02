@@ -40,17 +40,17 @@ class ColorLovers
         LoverRole = role;
         Id = id;
         SetupRoleOptions(id, TabGroup.Combinations, role, assignCountRule: new(2, 2, 2), fromtext: role is CustomRoles.Lovers ? "<color=#000000>From:</color><color=#ff6be4>Love Couple Mod</color></size>" : "");
-        LoverCanSeeRole = BooleanOptionItem.Create(id + 5, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]);
-        LoverCanAddWin = BooleanOptionItem.Create(id + 6, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]);
+        LoverCanSeeRole = BooleanOptionItem.Create(id + 5, "LoversRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role);
+        LoverCanAddWin = BooleanOptionItem.Create(id + 6, "LoversRoleAddwin", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role);
         SoloWinOption.Create(id + 7, TabGroup.Combinations, role, () => !LoverCanAddWin.GetBool(), defo: 6);
-        Win3player = BooleanOptionItem.Create(id + 8, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]);
-        LoverSetRole = BooleanOptionItem.Create(id + 9, "FixedRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]);
-        LoversRole1 = (FilterOptionItem)FilterOptionItem.Create(id + 10, "Role", 0, TabGroup.Combinations, false, true, true, true, true, Loverremove).SetParent(LoverSetRole);
-        LoversRole2 = (FilterOptionItem)FilterOptionItem.Create(id + 11, "Role", 0, TabGroup.Combinations, false, true, true, true, true, Loverremove).SetParent(LoverSetRole);
-        AssingImpostor = BooleanOptionItem.Create(id + 12, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
-        AssingMadmate = BooleanOptionItem.Create(id + 13, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
-        AssingCrewmate = BooleanOptionItem.Create(id + 14, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
-        AssingNeutral = BooleanOptionItem.Create(id + 15, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
+        Win3player = BooleanOptionItem.Create(id + 8, "LoverSoloWin3players", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role);
+        LoverSetRole = BooleanOptionItem.Create(id + 9, "FixedRole", false, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role);
+        LoversRole1 = (FilterOptionItem)FilterOptionItem.Create(id + 10, "Role", 0, TabGroup.Combinations, false, true, true, true, true, Loverremove).SetParent(LoverSetRole).SetParentRole(role);
+        LoversRole2 = (FilterOptionItem)FilterOptionItem.Create(id + 11, "Role", 0, TabGroup.Combinations, false, true, true, true, true, Loverremove).SetParent(LoverSetRole).SetParentRole(role);
+        AssingImpostor = BooleanOptionItem.Create(id + 12, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
+        AssingMadmate = BooleanOptionItem.Create(id + 13, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
+        AssingCrewmate = BooleanOptionItem.Create(id + 14, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
+        AssingNeutral = BooleanOptionItem.Create(id + 15, "AssingroleType", true, TabGroup.Combinations, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role).SetCansee(() => !LoversRole1.GetBool() || !LoversRole2.GetBool());
         AssingImpostor.ReplacementDictionary = new Dictionary<string, string> { { "%roletype%", Utils.ColorString(Palette.ImpostorRed, Translator.GetString("TeamImpostor")) } };
         AssingMadmate.ReplacementDictionary = new Dictionary<string, string> { { "%roletype%", Utils.ColorString(Palette.ImpostorRed, Translator.GetString("Madmate")) } };
         AssingCrewmate.ReplacementDictionary = new Dictionary<string, string> { { "%roletype%", Utils.ColorString(Palette.CrewmateBlue, Translator.GetString("TeamCrewmate")) } };
@@ -199,7 +199,7 @@ class ColorLovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet || GameStates.Tuihou)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;

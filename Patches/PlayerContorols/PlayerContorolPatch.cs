@@ -87,19 +87,17 @@ namespace TownOfHost
 
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Default)
                 {
-                    if (!SuddenDeathMode.NowSuddenDeathMode)
-                        if (__instance.PlayerId != PlayerControl.LocalPlayer.PlayerId)//サボ可能役職のみインポスターゴーストにする
-                            if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
-                                _ = new LateTask(() =>
+                    if (!SuddenDeathMode.NowSuddenDeathMode && __instance.PlayerId != PlayerControl.LocalPlayer.PlayerId)//サボ可能役職のみインポスターゴーストにする
+                    {
+                        if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
+                            _ = new LateTask(() =>
+                            {
+                                if (!GameStates.Meeting)
                                 {
-                                    if (!GameStates.Meeting)
-                                        foreach (var Player in PlayerCatch.AllPlayerControls)
-                                        {
-                                            if (Player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                                            __instance.RpcSetRoleDesync(RoleTypes.ImpostorGhost, Player.GetClientId());
-                                        }
-                                }, 1.4f, "Fix sabotage", true);
-
+                                    __instance.RpcSetRole(RoleTypes.ImpostorGhost, true);
+                                }
+                            }, 1.4f, "Fix sabotage", true);
+                    }
                     _ = new LateTask(() => GhostRoleAssingData.AssignAddOnsFromList(), 1.4f, "Fix sabotage", true);
                 }
             }

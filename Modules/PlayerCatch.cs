@@ -41,6 +41,14 @@ namespace TownOfHost
 
         public static string GetLogPlayerName(this NetworkedPlayerInfo info)
         {
+            if (info.trygetname().Contains("<"))
+            {
+                return info.name.RemoveDeltext("data");
+            }
+            return info.trygetname();
+        }
+        static string trygetname(this NetworkedPlayerInfo info)
+        {
             if (info == null) return "";
             if (GameStates.IsLobby)
             {

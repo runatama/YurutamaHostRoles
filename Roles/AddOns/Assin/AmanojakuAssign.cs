@@ -48,29 +48,29 @@ namespace TownOfHost.Roles.AddOns.Common
             if (assignCrewmate)
             {
                 CrewmateMaximum = IntegerOptionItem.Create(idStart++, "%roleTypes%Maximum", new(0, 15, 1), 15, TabGroup.Addons, false)
-                    .SetParent(CustomRoleSpawnChances[role])
+                    .SetParent(CustomRoleSpawnChances[role]).SetParentRole(role)
                     .SetValueFormat(OptionFormat.Players);
                 CrewmateMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.CrewmateBlue, GetString("TeamCrewmate")) } };
                 CrewmateFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
-                    .SetParent(CrewmateMaximum);
+                    .SetParent(CrewmateMaximum).SetParentRole(role);
                 CrewmateAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, crew: true, notassing: InvalidRoles)
-                    .SetParent(CrewmateFixedRole);
+                    .SetParent(CrewmateFixedRole).SetParentRole(role);
                 CrewmateAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, crew: true, notassing: InvalidRoles)
-                    .SetParent(CrewmateFixedRole).SetCansee(() => CrewmateAssignTarget.GetBool());
+                    .SetParent(CrewmateFixedRole).SetParentRole(role).SetCansee(() => CrewmateAssignTarget.GetBool());
             }
 
             if (assignNeutral)
             {
                 NeutralMaximum = IntegerOptionItem.Create(idStart++, "%roleTypes%Maximum", new(0, 15, 1), 15, TabGroup.Addons, false)
-                    .SetParent(CustomRoleSpawnChances[role])
+                    .SetParent(CustomRoleSpawnChances[role]).SetParentRole(role)
                     .SetValueFormat(OptionFormat.Players);
                 NeutralMaximum.ReplacementDictionary = new Dictionary<string, string> { { "%roleTypes%", Utils.ColorString(Palette.AcceptedGreen, GetString("Neutral")) } };
                 NeutralFixedRole = BooleanOptionItem.Create(idStart++, "FixedRole", false, TabGroup.Addons, false)
-                    .SetParent(NeutralMaximum);
+                    .SetParent(NeutralMaximum).SetParentRole(role);
                 NeutralAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, neu: true, notassing: InvalidRoles)
-                    .SetParent(NeutralFixedRole);
+                    .SetParent(NeutralFixedRole).SetParentRole(role);
                 NeutralAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, neu: true, notassing: InvalidRoles)
-                    .SetParent(NeutralFixedRole).SetCansee(() => NeutralAssignTarget.GetBool());
+                    .SetParent(NeutralFixedRole).SetParentRole(role).SetCansee(() => NeutralAssignTarget.GetBool());
             }
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);

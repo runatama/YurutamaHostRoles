@@ -63,6 +63,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name.ToString(), defaultIndex, roleInfo.Tab, isSingleValue, imp, mad, crew, neu, notassing
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
         public static FilterOptionItem Create(
@@ -73,6 +74,7 @@ namespace TownOfHost
                 roleInfo.ConfigId + idOffset, name, defaultIndex, roleInfo.Tab, isSingleValue, imp, mad, crew, neu, notassing
             );
             opt.SetParent(parent ?? roleInfo.RoleOption);
+            opt.SetParentRole(roleInfo.RoleName);
             return opt;
         }
 

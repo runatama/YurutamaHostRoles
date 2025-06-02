@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.AddOns.Neutral;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -267,6 +268,16 @@ public sealed class JackalDoll : RoleBase
                 shoukaku = true;
                 if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
                 player.RpcSetCustomRole(jacrole, true);
+
+                //徒党が存在していて、ジャッカルの徒党がON
+                if (PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Faction)) && Faction.OptionRole.TryGetValue(CustomRoles.Jackal, out var option))
+                {
+                    if (option.GetBool())
+                    {
+                        player.RpcSetCustomRole(CustomRoles.Faction);
+                        Logger.Info($"{player.Data.GetLogPlayerName()} => 昇格徒党", "Faction");
+                    }
+                }
             }
             shoukaku = false;
         }

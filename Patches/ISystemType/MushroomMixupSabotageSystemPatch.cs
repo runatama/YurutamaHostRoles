@@ -43,18 +43,6 @@ public static class MushroomMixupSabotageSystemDeterioratePatch
         {
             // Desyncインポスター目線のプレイヤー名の表示/非表示を反映
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-
-            if (!__instance.IsActive)
-            {
-                _ = new LateTask(() =>
-                {
-                    //ワンクリックを使う人のシェイプをリセット
-                    PlayerCatch.AllPlayerControls.Do(pc =>
-                    {
-                        (pc.GetRoleClass() as IUseTheShButton)?.ResetSkin(pc);
-                    });
-                }, 1.1f);
-            }
         }
     }
 }

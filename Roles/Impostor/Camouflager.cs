@@ -99,7 +99,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 remove.Add(id);
             }
 
-            if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+            ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             if (remove.Count != 0)
             {
                 remove.Do(id => VentPlayers.Remove(id));
@@ -176,7 +176,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             sender.SendMessage();
         }
 
-        if (Options.Onlyseepet.GetBool()) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+        ExtendedPlayerControl.AllPlayerOnlySeeMePet();
         Limit = OptionAblitytime.GetFloat();
         NowUse = true;
         _ = new LateTask(() =>
