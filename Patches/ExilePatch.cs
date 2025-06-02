@@ -175,7 +175,15 @@ namespace TownOfHost
 
                     if (Main.NormalOptions.MapId is not 4 || AntiBlackout.OverrideExiledPlayer())
                     {
-                        PlayerCatch.AllPlayerControls.Do(pc => AntiBlackout.ResetSetRole(pc));
+                        PlayerCatch.AllPlayerControls.Do(pc =>
+                        {
+                            if (PlayerState.GetByPlayerId(pc.PlayerId).IsDead)
+                            {
+                                pc.Die(DeathReason.Kill, false);
+                                pc.RpcExileV2();
+                            }
+                            AntiBlackout.ResetSetRole(pc);
+                        });
                     }
                 }, 0.52f, "AfterMeetingDeathPlayers Task");
             }
@@ -192,9 +200,20 @@ namespace TownOfHost
 
             var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
             var role = (roleInfo?.IsDesyncImpostor == true) && roleInfo.BaseRoleType.Invoke() is RoleTypes.Impostor ? RoleTypes.Crewmate : roleInfo.BaseRoleType.Invoke();
+            if (PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).IsDead)
+            {
+                role = RoleTypes.Crewmate;
+            }
             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
 
-            _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
+            _ = new LateTask(() =>
+            {
+                GameStates.Tuihou = false;
+                if (PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).IsDead)
+                {
+                    PlayerControl.LocalPlayer.Die(DeathReason.Kill, false);
+                }
+            }, 3f + Main.LagTime, "Tuihoufin");
         }
     }
 
