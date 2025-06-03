@@ -198,20 +198,14 @@ namespace TownOfHost
 
             var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
             var role = (roleInfo?.IsDesyncImpostor == true) && roleInfo.BaseRoleType.Invoke() is RoleTypes.Impostor ? RoleTypes.Crewmate : roleInfo.BaseRoleType.Invoke();
-            if (PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).IsDead)
+
+            if (!PlayerControl.LocalPlayer.IsAlive())
             {
-                role = RoleTypes.Crewmate;
+                role = role.IsCrewmate() ? RoleTypes.CrewmateGhost : RoleTypes.ImpostorGhost;
             }
             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
 
-            _ = new LateTask(() =>
-            {
-                GameStates.Tuihou = false;
-                if (PlayerState.GetByPlayerId(PlayerControl.LocalPlayer.PlayerId).IsDead)
-                {
-                    PlayerControl.LocalPlayer.Die(DeathReason.Kill, false);
-                }
-            }, 3f + Main.LagTime, "Tuihoufin");
+            _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
     }
 
