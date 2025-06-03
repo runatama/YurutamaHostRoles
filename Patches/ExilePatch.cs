@@ -220,7 +220,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.Begin))]
     class ExileControllerBeginPatch
     {
-        public static bool SecondBegin;
+        public static bool SecondBegin = false;
         public static bool Prefix(ExileController __instance, ExileController.InitProperties init)
         {
             var result = AntiBlackout.voteresult;
@@ -243,11 +243,28 @@ namespace TownOfHost
                     __instance.Begin(modinit);
                     return false;
                 }
-                else if (result.Value.IsTie)
-                    __instance.completeString = Translator.GetString(StringNames.NoExileTie);
-                else __instance.completeString = Translator.GetString(StringNames.NoExileSkip);
             }
             return true;
+        }
+        public static void Postfix(ExileController __instance)
+        {
+            var result = AntiBlackout.voteresult;
+
+            if (result.HasValue)
+            {
+                if (result.Value.Exiled is null)
+                {
+                    if (result.Value.IsTie)
+                    {
+                        __instance.completeString = Translator.GetString(StringNames.NoExileTie);
+                    }
+                    else
+                    {
+                        __instance.completeString = Translator.GetString(StringNames.NoExileSkip);
+                    }
+                }
+            }
+            SecondBegin = false;
         }
     }
 }
