@@ -122,6 +122,7 @@ namespace TownOfHost
 
                 var Dummy = new Dictionary<byte, int>();
                 AntiBlackout.SetRole();
+                AntiBlackout.voteresult = null;
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
                 UtilsGameLog.AddGameLog("Vote", Translator.GetString("voteskip") + "※Host");
                 GameStates.Meeting = false;
