@@ -1521,6 +1521,23 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100061,
+                    Title = "梅雨入りももう近いかな...?",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.12.29.22</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.12.29.22</color>",
+                    Text = "<size=80%>九州勢から突っ込まれそうだな。\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・ホストが死亡後、成仏してない問題の修正\n"
+                    + "・オートミュートの相性を改善。(kyさんがちゃんと確認してくれた!!ﾊｽﾞ!!)\n"
+                    + "\n少しだけ賢くなった、パンダより。"
+                    ,
+                    Date = "2025-06-03T21:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }
