@@ -2,10 +2,7 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using HarmonyLib;
 
-using TownOfHost.Modules;
-using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost
@@ -22,6 +19,7 @@ namespace TownOfHost
                 try
                 {
                     WrapUpPostfix(__instance.initData.networkedPlayer);
+                    Logger.Info($"{__instance.initData.networkedPlayer}", "aaa");
                 }
                 finally
                 {
@@ -223,6 +221,39 @@ namespace TownOfHost
         public static void Prefix(PbExileController __instance)
         {
             __instance.Player.cosmetics.hat.transform.localPosition = new(-0.2f, 0.6f, 1.1f);
+        }
+    }
+    [HarmonyPatch(typeof(ExileController), nameof(ExileController.Begin))]
+    class ExileControllerBeginPatch
+    {
+        public static bool SecondBegin;
+        public static bool Prefix(ExileController __instance, ExileController.InitProperties init)
+        {
+            var result = AntiBlackout.voteresult;
+            var modinit = init;
+
+            if (result.HasValue)
+            {
+                if (result.Value.Exiled is not null)
+                {
+                    if (SecondBegin)
+                    {
+                        __instance.completeString = string.Format(Translator.GetString(StringNames.ExileTextNonConfirm), result.Value.Exiled.GetLogPlayerName());
+                        SecondBegin = false;
+                        return true;
+                    }
+                    modinit.networkedPlayer = result.Value.Exiled;
+                    modinit.outfit = Camouflage.PlayerSkins.TryGetValue(result.Value.Exiled.PlayerId, out var skin) ? skin : result.Value.Exiled.DefaultOutfit;
+                    modinit.voteTie = false;
+                    SecondBegin = true;
+                    __instance.Begin(modinit);
+                    return false;
+                }
+                else if (result.Value.IsTie)
+                    __instance.completeString = Translator.GetString(StringNames.NoExileTie);
+                else __instance.completeString = Translator.GetString(StringNames.NoExileSkip);
+            }
+            return true;
         }
     }
 }

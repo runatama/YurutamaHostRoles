@@ -21,6 +21,7 @@ namespace TownOfHost
         public static bool Iswaitsend { get; private set; } = false;
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
         public static List<byte> isRoleCache = new();
+        public static VoteResult? voteresult;
         //private static Dictionary<(byte, byte), RoleTypes> RoleTypeCache = new();
         private readonly static LogHandler logger = Logger.Handler("AntiBlackout");
 
@@ -292,6 +293,7 @@ namespace TownOfHost
             isRoleCache.Clear();
             isDeadCache.Clear();
             //RoleTypeCache.Clear();
+            voteresult = null;
             IsCached = false;
             Iswaitsend = false;
             IsSet = false;

@@ -171,6 +171,7 @@ public class MeetingVoteManager
         var result = CountVotes(applyVoteMode, ClearAndExile);
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole().RemoveHtmlTags();
         logger.Info($"追放者: {logName} で会議を終了します");
+        AntiBlackout.voteresult = result;
 
         /*// AntiTeleporterのプレイヤーを最後の位置にスポンさせる処理を追加
         foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -219,7 +220,27 @@ public class MeetingVoteManager
         }
         else
         {
-            meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
+            foreach (var player in PlayerCatch.AllPlayerControls)
+            {
+                if (player.GetClient() is null || player.IsModClient() || player.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                var sender = CustomRpcSender.Create("DeMeetingEndRpc");
+                sender.StartMessage(player.GetClientId());
+                sender.StartRpc(meetingHud.NetId, RpcCalls.VotingComplete)
+                .WritePacked(states.ToArray().Length);
+                foreach (MeetingHud.VoterState voterState in states)
+                {
+                    voterState.Serialize(sender.stream);
+                }
+                if (result.Exiled == null)
+                    sender.Write(byte.MaxValue);
+                else
+                    sender.Write(result.Exiled.PlayerId);
+                sender.Write(result.IsTie);
+                sender.EndRpc();
+                sender.SendMessage();
+            }
+            meetingHud.VotingComplete(states.ToArray(), null, true);
+            //meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
             //AntiBlackout.SetRole(result.Exiled?.Object);
         }
         if (result.Exiled != null)
