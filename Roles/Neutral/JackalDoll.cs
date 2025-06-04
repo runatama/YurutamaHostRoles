@@ -221,9 +221,12 @@ public sealed class JackalDoll : RoleBase
         var (killer, target) = info.AppearanceTuple;
         if (Oyabun.TryGetValue(target.PlayerId, out var oya))
         {//サイドキックされて親分に殺されそうとか言う事になるとキルガード
-            info.CanKill = false;
-            killer.RpcProtectedMurderPlayer(target);
-            return oya != killer.PlayerId;
+            if (oya == killer.PlayerId)
+            {
+                info.CanKill = false;
+                killer.RpcProtectedMurderPlayer(target);
+                return false;
+            }
         }
         return true;
     }
