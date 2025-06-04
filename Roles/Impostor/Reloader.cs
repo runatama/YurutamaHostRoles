@@ -57,6 +57,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = Count > 0 ? Cooldown : 200f;
     public float CalculateKillCooldown() => KillCooldown;
     public override bool CanUseAbilityButton() => Count > 0;
+    bool IUsePhantomButton.IsPhantomRole => Count > 0;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;

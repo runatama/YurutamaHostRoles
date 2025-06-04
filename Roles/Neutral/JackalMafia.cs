@@ -119,6 +119,7 @@ namespace TownOfHost.Roles.Neutral
             Fall = false;
             Player.MarkDirtySettings();
         }
+        bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.side;
         public void OnClick(ref bool resetkillcooldown, ref bool? fall)
         {
             resetkillcooldown = false;

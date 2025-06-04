@@ -127,8 +127,10 @@ namespace TownOfHost
 
                                 if (roleClass.HasAbility)
                                 {
+                                    bool Visible = roleClass.CanUseAbilityButton() && GameStates.IsInTask;
+                                    if ((roleClass as IUsePhantomButton)?.IsPhantomRole is false) Visible = false;
                                     __instance.AbilityButton.OverrideText(roleClass.GetAbilityButtonText());
-                                    __instance.AbilityButton.ToggleVisible(roleClass.CanUseAbilityButton() && GameStates.IsInTask);
+                                    __instance.AbilityButton.ToggleVisible(Visible);
                                     if (roleClass.AllEnabledColor)
                                     {
                                         __instance.AbilityButton.graphic.color = __instance.AbilityButton.buttonLabelText.color = Palette.EnabledColor;

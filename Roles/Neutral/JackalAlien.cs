@@ -793,6 +793,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
     public bool UseOneclickButton => SK;
     public override bool CanUseAbilityButton() => SK;
+    bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.side;
 
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {

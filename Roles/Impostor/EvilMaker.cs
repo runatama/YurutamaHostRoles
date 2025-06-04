@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -40,6 +41,7 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
                 .SetValueFormat(OptionFormat.Seconds);
     }
     public float CalculateKillCooldown() => KillCooldown;
+    bool IUsePhantomButton.IsPhantomRole => Used;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = AbilityCooldown;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {

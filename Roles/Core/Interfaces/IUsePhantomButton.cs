@@ -58,4 +58,6 @@ public interface IUsePhantomButton
     { }
     /// <summary>ワンクリックボタンが使えるか</summary>
     public bool UseOneclickButton => true;
+    /// <summary>ファントム置き換えにするかどうか</summary>
+    public bool IsPhantomRole => true;
 }

@@ -68,6 +68,7 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
 
         if (CanKillDay.GetFloat() <= UtilsGameLog.day) canusekill = true;
     }
+    bool IUsePhantomButton.IsPhantomRole => SKMad && Options.CanMakeMadmateCount.GetInt() > PlayerCatch.SKMadmateNowCount;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;

@@ -99,6 +99,7 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
     }
 
     public void OnMurderPlayerAsKiller(MurderInfo info) => killc++;
+    bool IUsePhantomButton.IsPhantomRole => count < Maximum || Maximum is 0;
     public void OnClick(ref bool resetkillcooldown, ref bool? fall)
     {
         resetkillcooldown = false;

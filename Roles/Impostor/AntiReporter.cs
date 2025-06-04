@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -105,6 +106,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
         if (AntiReporterResetMeeting == true) mg.Clear();
     }
     public override bool CanUseAbilityButton() => Use > 0;
+    bool IUsePhantomButton.IsPhantomRole => Use > 0;
     public override void OnFixedUpdate(PlayerControl _)
     {
         if (!AmongUsClient.Instance.AmHost || AntiReporterResetse == 0) return;

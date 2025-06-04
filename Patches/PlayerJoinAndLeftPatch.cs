@@ -253,6 +253,7 @@ namespace TownOfHost
                         */
                         Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。\nバグが発生した場合はDiscordで報告すること!{kigen}", client.Character.PlayerId, "<color=red>【=====　これはデバッグ版です　=====】</color>");
                     }
+                    Utils.ApplySuffix(client.Character, true);
                 }, 3.0f, "Welcome Meg");
             }
         }

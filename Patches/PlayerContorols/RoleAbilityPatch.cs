@@ -291,10 +291,13 @@ namespace TownOfHost
                     .Write((ushort)RoleTypes.Impostor)
                     .Write(true)
                     .EndRpc();
-                writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
-                    .Write((ushort)RoleTypes.Phantom)
-                    .Write(true)
-                    .EndRpc();
+                if ((__instance.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is true)
+                {
+                    writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
+                        .Write((ushort)RoleTypes.Phantom)
+                        .Write(true)
+                        .EndRpc();
+                }
             }
             if (!resetkillcooldown && !(cooldown < 10))
             {
@@ -303,7 +306,7 @@ namespace TownOfHost
                     .Write((int)MurderResultFlags.FailedProtected)
                     .EndRpc();
             }
-            if (fall == false)
+            if (fall == false && (__instance.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is true)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.ProtectPlayer)
                     .WriteNetObject(__instance)

@@ -346,6 +346,10 @@ namespace TownOfHost
                     Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
                     PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
                 }
+                else
+                {
+                    Utils.ApplySuffix(null, true);
+                }
             }
         }
         [HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.Update))]

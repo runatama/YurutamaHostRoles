@@ -89,6 +89,7 @@ namespace TownOfHost.Roles.Impostor
             Player.SetKillCooldown(target: target);
             UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
+        bool IUsePhantomButton.IsPhantomRole => BomberExplosion > 0;
         public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(0 < BomberExplosion ? Color.red : Color.gray, $"({BomberExplosion})");
         public override void OnFixedUpdate(PlayerControl _)
         {

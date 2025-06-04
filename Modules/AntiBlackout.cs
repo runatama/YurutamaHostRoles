@@ -222,6 +222,12 @@ namespace TownOfHost
                     }
                     var setrole = (IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role;
 
+                    if ((pc.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is false && setrole is RoleTypes.Phantom)
+                    {
+                        //使えないならインポスターに戻す
+                        setrole = RoleTypes.Impostor;
+                    }
+
                     sender.StartRpc(pc.NetId, RpcCalls.SetRole)
                     .Write((ushort)setrole)
                     .Write(true)

@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -106,6 +107,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
 
         UtilsNotifyRoles.NotifyRoles(Player);
     }
+    bool IUsePhantomButton.IsPhantomRole => MaxUseCount > UseCount;
     void ErasePlayer()
     {
         if (!Player.IsAlive()) return;
