@@ -13,7 +13,6 @@ using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Impostor;
-using TownOfHost.Roles.Core.Interfaces;
 
 using static TownOfHost.Utils;
 using static TownOfHost.RandomSpawn;
@@ -23,7 +22,7 @@ namespace TownOfHost
 {
     public static class UtilsNotifyRoles
     {
-        const int chengepake = 1000;
+        const int chengepake = 800;
         private static StringBuilder SelfMark = new(20);
         private static StringBuilder SelfSuffix = new(20);
         private static StringBuilder TargetMark = new(20);
