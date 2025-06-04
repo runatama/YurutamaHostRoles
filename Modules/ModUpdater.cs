@@ -117,7 +117,7 @@ namespace TownOfHost
                             del.Add(release);
                             continue;//そのバージョンの奴じゃないなら除外
                         }
-                        if (tag.StartsWith("5.") || tag.StartsWith("S5.") || tag.StartsWith("s5.") || tag.Contains("519."))//今の表記は519とかなので5.1.x表示ならもう表示しない
+                        if (tag.StartsWith("5.") || tag.StartsWith("S5.") || tag.StartsWith("s5.") || tag.Contains("519.") || tag.Contains("S519."))//今の表記は519とかなので5.1.x表示ならもう表示しない
                         {
                             del.Add(release);
                             continue;
