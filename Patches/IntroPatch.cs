@@ -111,6 +111,13 @@ namespace TownOfHost
     {
         public static void Prefix(IntroCutscene __instance)
         {
+            /* Kは一応movenextで動く状態なのでコメントアウトだけ。
+            var patcher = new CoroutinPatcher(__result);
+            //ShowRoleはステートマシンクラスになっているためその実行前にパッチを当てる
+            //元々Postfixだが、タイミング的にはPrefixの方が適切なのでPrefixに当てる
+            patcher.AddPrefix(typeof(IntroCutscene._ShowRole_d__41), () => SetUpRoleTextPatch.Postfix(__instance));Add commentMore actions
+            __result = patcher.EnumerateWithPatch();
+            */
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc.Is(CustomRoles.Amnesia))

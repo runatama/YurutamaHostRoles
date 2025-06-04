@@ -242,7 +242,7 @@ namespace TownOfHost
         public static bool SendOrDisconnectPatch(InnerNetClient __instance, MessageWriter msg)
         {
             //分割するサイズ。大きすぎるとリトライ時不利、小さすぎると受信パケット取りこぼしが発生しうる。
-            var limitSize = 800;
+            var limitSize = 1000;
 
             /*if (DebugModeManager.IsDebugMode)
             {

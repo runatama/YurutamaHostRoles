@@ -442,15 +442,7 @@ namespace TownOfHost
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }
-    }/*
-    [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.startrpc))]
-    internal class StartRpcPatch
-    {
-        public static void Prefix(InnerNet.InnerNetClient __instance, [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
-        {
-            RPC.SendRpcLogger(targetNetId, callId);
-        }
-    }*/
+    }
     [HarmonyPatch(typeof(InnerNet.InnerNetClient), nameof(InnerNet.InnerNetClient.StartRpcImmediately))]
     internal class StartRpcImmediatelyPatch
     {
