@@ -39,6 +39,7 @@ namespace TownOfHost
                 if (task.TaskType == TaskTypes.VentCleaning && Options.disableVentCleaning.GetBool()) disabledTasks.Add(task);//ベント掃除
                 if (task.TaskType == TaskTypes.HelpCritter && Options.disableHelpCritter.GetBool()) disabledTasks.Add(task);//卵
                 if (task.TaskType == TaskTypes.FixWiring && Options.disablefixwiring.GetBool()) disabledTasks.Add(task);//配線タスク
+                if (task.TaskType == TaskTypes.FixWeatherNode && Options.DisableFixWeatherNode.GetBool()) disabledTasks.Add(task);//気象ノードタスク
             }
             disabledTasks.ForEach(task => unusedTasks.Remove(task));
         }

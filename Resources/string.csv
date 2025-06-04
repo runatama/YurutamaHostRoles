@@ -911,6 +911,7 @@
 "disableVentCleaning","Disable VentCleaning Task","ベント掃除タスク"
 "disableHelpCritter","Disable HelpCritter Task","孵化タスク"
 "disablefixwiring","Disable Fixwiring Task","配線タスク"
+"DisableFixWeatherNodeTask","Disable FixWeatherNode Tasks","気象ノードタスク","","","","",""
 "UploadDataIsLongTask","DownLoad Task is All LongTask","DLタスクを全てロングタスクに分類する"
 
 "### 幽霊"

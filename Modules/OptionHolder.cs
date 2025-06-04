@@ -206,6 +206,7 @@ namespace TownOfHost
         public static OptionItem DisableFuelEngins;
         public static OptionItem DisableInspectSample;
         public static OptionItem DisableRebootWifi;
+        public static OptionItem DisableFixWeatherNode;
         //
         public static OptionItem DisableInseki;
         public static OptionItem disableCalibrateDistributor;
@@ -879,6 +880,8 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All);
             disablefixwiring = BooleanOptionItem.Create(100316, "disablefixwiring", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
                 .SetGameMode(CustomGameMode.All);
+            DisableFixWeatherNode = BooleanOptionItem.Create(100317, "DisableFixWeatherNodeTask", false, TabGroup.MainSettings, false).SetParent(DisableTasks)
+                            .SetGameMode(CustomGameMode.All);
 
             //デバイス設定
             DevicesOption = BooleanOptionItem.Create(101000, "DevicesOption", false, TabGroup.MainSettings, false)
