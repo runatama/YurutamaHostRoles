@@ -322,6 +322,31 @@ namespace TownOfHost
     }
     #endregion
     #region  Vent
+
+    [HarmonyPatch(typeof(Vent), nameof(Vent.Use))]
+    class OcCoVentUsePatch
+    {
+        public static bool Prefix(Vent __instance)
+        {
+            var user = PlayerControl.LocalPlayer;
+            var id = __instance.Id;
+
+            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
+                return false;
+
+            if (user.Is(CustomRoles.DemonicVenter)) return true;
+
+            var roleClass = user.GetRoleClass();
+            var pos = __instance.transform.position;
+            if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
+            if ((!roleClass?.OnEnterVent(user.MyPhysics, id) ?? false) || !CoEnterVentPatch.CanUse(user.MyPhysics, id))
+            {
+                return Options.CurrentGameMode == CustomGameMode.TaskBattle;
+            }
+            return true;
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerPhysics._CoEnterVent_d__47), nameof(PlayerPhysics._CoEnterVent_d__47.MoveNext))]
     class OcCoEnterVentPatch
     {
@@ -375,44 +400,47 @@ namespace TownOfHost
                 var pos = __instance.transform.position;
                 if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
 
-                if ((!roleClass?.OnEnterVent(__instance, id) ?? false) || !CanUse(__instance, id))
+                if (user.IsModClient() is false)
                 {
-                    if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
-                    //一番遠いベントに追い出す
-
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    if ((!roleClass?.OnEnterVent(__instance, id) ?? false) || !CanUse(__instance, id))
                     {
-                        if (pc == user || pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue; //本人とホストは別の処理
-                        Dictionary<int, float> Distance = new();
-                        Vector2 position = pc.transform.position;
-                        //一番遠いベントを調べて送る
-                        foreach (var vent in ShipStatus.Instance.AllVents)
-                            Distance.Add(vent.Id, Vector2.Distance(position, vent.transform.position));
-                        var ventid = Distance.OrderByDescending(x => x.Value).First().Key;
-                        var sender = CustomRpcSender.Create("Farthest Vent", SendOption.None)
-                            .StartMessage(pc.GetClientId())
-                            .AutoStartRpc(__instance.NetId, (byte)RpcCalls.BootFromVent, pc.GetClientId())
-                            .Write(ventid)
-                            .EndRpc()
-                            .EndMessage();
-                        sender.SendMessage();
-                        __instance.myPlayer.RpcSnapToForced(pos);
+                        if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
+                        //一番遠いベントに追い出す
+
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
+                        {
+                            if (pc == user || pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue; //本人とホストは別の処理
+                            Dictionary<int, float> Distance = new();
+                            Vector2 position = pc.transform.position;
+                            //一番遠いベントを調べて送る
+                            foreach (var vent in ShipStatus.Instance.AllVents)
+                                Distance.Add(vent.Id, Vector2.Distance(position, vent.transform.position));
+                            var ventid = Distance.OrderByDescending(x => x.Value).First().Key;
+                            var sender = CustomRpcSender.Create("Farthest Vent", SendOption.None)
+                                .StartMessage(pc.GetClientId())
+                                .AutoStartRpc(__instance.NetId, (byte)RpcCalls.BootFromVent, pc.GetClientId())
+                                .Write(ventid)
+                                .EndRpc()
+                                .EndMessage();
+                            sender.SendMessage();
+                            __instance.myPlayer.RpcSnapToForced(pos);
+                        }
+                        //多分負荷あれだし、テープで無理やり戻した感じだから参考にしない方がいい、
+
+                        /*MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.None, -1);
+                        writer.WritePacked(127);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);*/
+
+                        _ = new LateTask(() =>
+                        {
+                            int clientId = user.GetClientId();
+                            MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.None, clientId);
+                            writer2.Write(id);
+                            AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                            __instance.myPlayer.RpcSnapToForced(pos);
+                        }, 0.8f, "Fix DesyncImpostor Stuck", null);
+                        return false;
                     }
-                    //多分負荷あれだし、テープで無理やり戻した感じだから参考にしない方がいい、
-
-                    /*MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.None, -1);
-                    writer.WritePacked(127);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);*/
-
-                    _ = new LateTask(() =>
-                    {
-                        int clientId = user.GetClientId();
-                        MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.None, clientId);
-                        writer2.Write(id);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                        __instance.myPlayer.RpcSnapToForced(pos);
-                    }, __instance.myPlayer != PlayerControl.LocalPlayer ? 0.8f : 0.3f, "Fix DesyncImpostor Stuck", null);
-                    return false;
                 }
 
                 //マッドでベント移動できない設定なら矢印を消す
@@ -443,7 +471,7 @@ namespace TownOfHost
             VentPlayers.TryAdd(__instance.myPlayer.PlayerId, 0);
             return true;
         }
-        static bool CanUse(PlayerPhysics pp, int id)
+        public static bool CanUse(PlayerPhysics pp, int id)
         {
             //役職処理はここで行ってしまうと色々とめんどくさくなるので上で。
             var user = pp.myPlayer;
