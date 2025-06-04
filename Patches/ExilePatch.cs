@@ -202,6 +202,7 @@ namespace TownOfHost
             }
             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
             if (isDead) PlayerControl.LocalPlayer.RpcExileV2();
+            PlayerControl.LocalPlayer.RpcResetAbilityCooldown();
 
             _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
