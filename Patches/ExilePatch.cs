@@ -192,7 +192,7 @@ namespace TownOfHost
             MeetingStates.First = false;
 
             var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
-            var role = (roleInfo?.IsDesyncImpostor == true) && roleInfo.BaseRoleType.Invoke() is RoleTypes.Impostor ? RoleTypes.Crewmate : roleInfo.BaseRoleType.Invoke();
+            var role = (roleInfo?.IsDesyncImpostor == true) && roleInfo.BaseRoleType.Invoke() is RoleTypes.Impostor ? RoleTypes.Crewmate : (roleInfo?.BaseRoleType?.Invoke() ?? RoleTypes.Crewmate);
             bool isDead = false;
 
             if (!PlayerControl.LocalPlayer.IsAlive())
