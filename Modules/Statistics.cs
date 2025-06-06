@@ -259,8 +259,7 @@ namespace TownOfHost
 #endif
             if (GameStates.IsLocalGame) return "ローカルの為、統計されません";
             if (UtilsGameLog.LastLogRole.Count <= 4 && !InLoby) return "人数不足の為、統計されません";
-            if (InLoby && AllPlayerControls.Count() <= 4) return "人数不足の為、統計されません";
-            if (Options.CurrentGameMode is not CustomGameMode.Standard) return "スタンダードじゃないため、統計されません";
+            if (InLoby && AllPlayerControls.Count() <= 4) return "人数不足の為、統計されません\n又、暗転が起こる可能性が高いです。";
 
             return "";
         }
