@@ -32,7 +32,8 @@ public static class HqHudSystemTypeUpdateSystemPatch
             player.Is(CustomRoleTypes.Madmate) ||
             // マッド属性化時に削除
             (playerRole is SchrodingerCat schrodingerCat && schrodingerCat.AmMadmate);
-        if (tags == HqHudSystemType.Tags.FixBit && isMadmate && !Options.MadmateCanFixComms.GetBool())
+
+        if (isMadmate && !Options.MadmateCanFixComms.GetBool())
         {
             return false;
         }
