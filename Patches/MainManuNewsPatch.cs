@@ -1538,6 +1538,29 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100062,
+                    Title = "そろそろ役職が欲しいって...?",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.13.29.23</color>",
+                    ShortTitle = "<color=#00c1ff>●TOH-K v.51.13.29.23</color>",
+                    Text = "<size=80%>考えたっちゃかんがえた。\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・ホストのクールダウンが会議後おかしくなる問題の修正\n"
+                    + "・昇格予定のジャッカルドールが無敵になってる問題の修正\n"
+                    + "\n<size=125%>【変更点】</size>\n"
+                    + "・能力使用不可の時はファントムからインポスター置き換えにするように\n"
+                    + "・ペスト医師の感染のゲームログを追加\n"
+                    + "\n<size=125%>【新機能】</size>\n"
+                    + "・TownOfHost v5.1.13に対応。\n"
+                    + "┗  ポーラスの気象ノード無効化設定の追加\n"
+                    + "\nオートミュート動いてそうでよかったぁ...by夜藍"
+                    ,
+                    Date = "2025-06-06T18:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }
