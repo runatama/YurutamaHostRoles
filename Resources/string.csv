@@ -131,6 +131,7 @@
 "Satellite","Satellite","サテライト"
 "Walker","walker","ウォーカー"
 "AllArounder","AllArounder","オールラウンダー"
+"Inspector","Inspector","捜査官"
 "#CrewmateName"
 
 "# ニュートラル役職"
@@ -392,6 +393,7 @@
 "SatelliteInfo","The satellites are watching you","人工衛星は君たちを監視している"
 "WalkerInfo","Walk a lot!","てくてく"
 "AllArounderInfo","I can do anything!","僕、なんでもできます！"
+"InspectorInfo","","全てわかりました...犯人は..."
 "#CrewmateInfo"
 
 "# ニュートラル役職"
@@ -618,6 +620,7 @@
 "SatelliteInfoLong","","設定されたタスク数を完了した状態で会議で自投票すると「行動の再生」モードに変更できる。\n「行動の再生」モードで自身以外の誰かに投票すると、会議前、その人が入ったことのある部屋を確認できる。\n通信妨害中は移動は観測されないため通信妨害中の行動を見ることはできない。\nまた通信妨害を直すことはできない。"
 "WalkerInfoLong","","通常のタスクの他に、特定の部屋に行くというタスクが追加される。\n特定の部屋に行くタスクも通常のタスクも、クルーメイト勝利のカウントに含まれる。"
 "AllArounderInfoLong","","ターン毎に設定された確率に応じて、様々な役職や能力に変化する。\n\nマッドメイト、オポチュニストの場合、そのターンの間タスクは勝利カウントに計算されない。\n\n基本通信妨害中は能力が使用できない"
+"InspectorInfoLong","","会議で自投票すると捜査モードに変更できる。\n捜査モードの状態で誰かに投票するとその人の事を次のターンの間、捜査することができる。\n\n捜査相手が死亡すると、捜査相手や捜査相手を殺した犯人についての情報を手に入れることができる。\n\n会議が始まると捜査はリセットされる。\nまた、複数人同時捜査はできない。"
 "#CrewmateInfoLong"
 
 "# ニュートラル役職"
@@ -1656,6 +1659,7 @@
 "VoteSkillFin","Change VoteMode","投票モードに変更されました","","","",""
 
 "Mode.Divied","Divid Mode","<#6b3ec3>占い</color>モード"
+"Mode.Inspect","Inspect Mode","<#977b48>捜査</color>モード"
 "Mode.Balancer","Balancer Mode","<#cff100>天秤</color>モード"
 "Mode.MeetingSheriff","Sheriff Mode","<#f8cd46>正義執行</color>モード"
 "Mode.Satellite","Satellite Mode","<#ff1919>サテライト</color>モード"
@@ -1667,6 +1671,7 @@
 "Mode.CrewSatellite","??? Mode","行動の再生モード","","","","",""
 
 "Vote.Divied","Vote→Divination ability to activate","誰かに投票→占い能力発動"
+"Vote.Inspect","Vote→Inspecter ability to activate","誰かに投票→対象が死亡時に情報を送信"
 "Vote.Balancer","Vote(Select two)→Balancer ability to activate","誰かに投票(2人選択)→天秤の能力発動"
 "Vote.MeetingSheriff","Vote→Sheriff ability to activate","誰かに投票→シェリフの能力発動"
 "Vote.Satellite","Vote → UseAbility","誰かに投票 → 対象の経路を表示"
@@ -1722,6 +1727,15 @@
 "SantaClausMeetingMeg0","I got a present for {0}!!","{0}のベントにプレゼントがあったよ!!"
 "SantaClausMeetingMeg1","I got a present for {0}!!","{0}にある靴下にプレゼントがあったよ!"
 "SantaClausMeetingMeg2","I got a present for {0}!!","皆がお願いしてたプレゼントが{0}のベントに！"
+"Skill.Inspector","{0} was Inspector.","{0}を調査します。\n対象が死亡時、情報を送信します。"
+"Inspector.InfoColor","{0} killer color is {1}","{0}を殺害した犯人は{1}っぽい色をしていた。\n<size=50%><#ee54bb>ピンク</color>,<#f07d0d>オレンジ</color>,<#f6f657>イエロー</color>,<#d7e1f1>ホワイト</color>,<#38ffdd>シアン</color>,<#50f039>ライム</color>,<#ecc0d3>ローズ</color>,<#f0e7a8>バナナ</color>,<#d76464>コーラル</color>→白\n<#c61111>レッド</color>,<#132ed2>ブルー</color>,<#11802d>グリーン</color>,<#3f474e>ブラック</color>,<#6b2fbc>パープル</color>,<#71491e>ブラウン</color>,<#5f1d2e>マルーン</color>,<#758593>グレー</color>,<#918877>タン</color>→黒"
+"Inspector.InfoDeathReason","{0} DeathReason is {1}.","{0}の死因は...{1}だ！"
+"Inspector.InfoTimer","{0} Deathed {1}s.","{0}は{1}秒前に亡くなったようだ。"
+"Inspector.InfoRole","{0} Killer Role is {1}","{0}を殺害した犯人の役職は...{1}だな。"
+"Inspector.InfoTeam","{0} was {1}","{0}は{1}だった。"
+"Inspector.InfoRoom","{0} on {1}.","{0}は{1}で死亡した。"
+"Inspector.Title","【===== Inspector Search =====】","【===== 捜査結果 =====】"
+
 "OnePlayer","the first person","一人目"
 "TowPlayer","second person","二人目"
 
