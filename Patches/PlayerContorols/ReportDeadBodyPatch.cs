@@ -141,14 +141,6 @@ namespace TownOfHost
             __instance.RpcStartMeeting(target);
 
             if (__instance.Data.IsDead) return true;
-
-            /* AntiTeleporter.SetLastPlace();
-             PlayerCatch.AllPlayerControls
-                 .Where(pc => Main.CheckShapeshift.ContainsKey(pc.PlayerId))
-                 .Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true));
-
-             Utils.SyncAllSettings();
-             */
             return true;
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)

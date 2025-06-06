@@ -174,16 +174,6 @@ public class MeetingVoteManager
         logger.Info($"追放者: {logName} で会議を終了します");
         AntiBlackout.voteresult = result;
 
-        /*// AntiTeleporterのプレイヤーを最後の位置にスポンさせる処理を追加
-        foreach (var pc in PlayerCatch.AllPlayerControls)
-        {
-            if (pc.Is(CustomRoles.AntiTeleporter) && LastPlace.ContainsKey(pc.PlayerId))
-            {
-                Vector2 lastPosition = LastPlace[pc.PlayerId];
-                pc.transform.position = lastPosition; // 最後の位置にスポン
-            }
-        }*/
-
         var r = result.Exiled == null ? (result.IsTie ? UtilsRoleText.GetExpelledText(byte.MaxValue, true, false) : UtilsRoleText.GetExpelledText(byte.MaxValue, false, true)) : UtilsRoleText.GetExpelledText(result.Exiled.PlayerId, false, false);
         if (Voteresult == "")
         {
