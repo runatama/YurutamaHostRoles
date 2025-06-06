@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
+using HarmonyLib;
 
 namespace TownOfHost.Modules;
 
@@ -217,6 +218,7 @@ public class MeetingVoteManager
         {
             meetingHud.RpcVotingComplete(states.ToArray(), null, true);
             ExileControllerWrapUpPatch.AntiBlackout_LastExiled = result.Exiled;
+            PlayerCatch.AllPlayerControls.Do(pc => AntiBlackout.isRoleCache.Add(pc.PlayerId));
         }
         else
         {

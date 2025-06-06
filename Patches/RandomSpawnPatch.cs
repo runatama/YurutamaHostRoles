@@ -89,7 +89,7 @@ namespace TownOfHost
                 {
                     return true;
                 }
-                if (AntiBlackout.isRoleCache.Contains(__instance?.myPlayer?.PlayerId ?? byte.MaxValue) && (RpcCalls)callId == RpcCalls.SnapTo)
+                if (AntiBlackout.isRoleCache.Contains(__instance?.myPlayer?.PlayerId ?? byte.MaxValue) && (MapNames)Main.NormalOptions.MapId is MapNames.Airship && (RpcCalls)callId == RpcCalls.SnapTo)
                 {
                     AntiBlackout.ResetSetRole(__instance.myPlayer);
                 }
@@ -235,10 +235,17 @@ namespace TownOfHost
             Logger.Info($"Spawn: {player.GetRealName()}", "RandomSpawn");
             if (AmongUsClient.Instance.AmHost)
             {
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                {
+                    if (AntiBlackout.isRoleCache.Contains(player.PlayerId))
+                    {
+                        AntiBlackout.ResetSetRole(player);
+                    }
+                }
+
                 //最初のスポーンと判定
                 var roleClass = player.GetRoleClass();
                 roleClass?.OnSpawn(MeetingStates.FirstMeeting);
-
                 if (Options.SuddenKillcooltime.GetBool() && Modules.SuddenDeathMode.NowSuddenDeathMode)
                 {
                     PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.SuddenKillcooltime.GetFloat(), delay: true));
@@ -250,6 +257,7 @@ namespace TownOfHost
                     ) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId], delay: true);
                     else if (Options.CurrentGameMode != CustomGameMode.TaskBattle && MeetingStates.FirstMeeting) player.SetKillCooldown(10f, delay: true);
                 }
+                if (MeetingStates.FirstMeeting) player.RpcResetAbilityCooldown();
                 GameStates.Intro = false;
                 GameStates.AfterIntro = true;
                 if (IsRandomSpawn())
