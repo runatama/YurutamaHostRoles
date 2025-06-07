@@ -60,7 +60,7 @@ public sealed class Comebacker : RoleBase
             var tp = Tp;
             _ = new LateTask(() =>
             {
-                Player.RpcSnapToForced(tp);
+                Player.RpcSnapToForced(tp + new Vector2(0f, 0.1f));
                 Logger.Info("ベントに飛ぶよ!", "Comebacker");
             }, 1f, "TP");
         }

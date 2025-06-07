@@ -678,7 +678,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
             var tp = Tp;
             _ = new LateTask(() =>
             {
-                Player.RpcSnapToForced(tp);
+                Player.RpcSnapToForced(tp + new Vector2(0f, 0.1f));
             }, 1f, "TP");
         }
         ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
