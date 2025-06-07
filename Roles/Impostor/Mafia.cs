@@ -134,6 +134,12 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
     }
     public override string GetAbilityButtonText() => GetString("Sidekick");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Impostor_Side";
+        return true;
+    }
+
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;

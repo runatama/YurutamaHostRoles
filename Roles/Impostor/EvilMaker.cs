@@ -121,6 +121,12 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
         resetkillcooldown = true;
     }
     public override string GetAbilityButtonText() => GetString("Sidekick");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "Impostor_Side";
+        return true;
+    }
+
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;

@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class VentHunter : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -168,4 +169,9 @@ public sealed class VentHunter : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 1;
     }
     public override string GetAbilityButtonText() => GetString("VentHunterAbility");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "VentHunter_Ability";
+        return true;
+    }
 }

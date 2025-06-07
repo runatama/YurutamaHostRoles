@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core.Interfaces;
 /// 転がる設定ONの時、転がりながらひき殺しも考えた。
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class ProBowler : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -174,5 +175,11 @@ public sealed class ProBowler : RoleBase, IImpostor
         }
 
         return "";
+    }
+    public override string GetAbilityButtonText() => GetString("ProBowler_Ability");
+    public override bool OverrideAbilityButton(out string text)
+    {
+        text = "ProBowler_Ability";
+        return true;
     }
 }

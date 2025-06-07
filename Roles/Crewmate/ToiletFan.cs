@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class ToiletFan : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
