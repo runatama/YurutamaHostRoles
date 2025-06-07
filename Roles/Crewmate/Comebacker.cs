@@ -8,6 +8,7 @@ using HarmonyLib;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Comebacker : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -49,7 +50,7 @@ public sealed class Comebacker : RoleBase
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.EngineerCooldown = Cooldown;
-        AURoleOptions.EngineerInVentMaxTime = 1f;
+        AURoleOptions.EngineerInVentMaxTime = 1.5f;
     }
     public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
@@ -61,7 +62,7 @@ public sealed class Comebacker : RoleBase
             {
                 Player.RpcSnapToForced(tp);
                 Logger.Info("ベントに飛ぶよ!", "Comebacker");
-            }, 0.7f, "TP");
+            }, 1f, "TP");
         }
         ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
         Logger.Info("ベントを設定するよ!", "Comebacker");

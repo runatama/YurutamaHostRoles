@@ -651,7 +651,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
             _ = new LateTask(() =>
             {
                 Player.RpcSnapToForced(tp);
-            }, 0.7f, "TP");
+            }, 1f, "TP");
         }
         ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
 

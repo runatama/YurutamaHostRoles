@@ -619,7 +619,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
             _ = new LateTask(() =>
             {
                 Player.RpcSnapToForced(tp);
-            }, 0.7f, "TP");
+            }, 1f, "TP");
         }
         ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
 

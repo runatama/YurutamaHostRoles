@@ -330,6 +330,7 @@ namespace TownOfHost
         {
             var user = PlayerControl.LocalPlayer;
             var id = __instance.Id;
+            if (CoEnterVentPatch.VentPlayers.ContainsKey(user.PlayerId)) return true;
 
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                 return false;
