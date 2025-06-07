@@ -192,15 +192,13 @@ namespace TownOfHost
 
             var roleInfo = PlayerControl.LocalPlayer.GetCustomRole().GetRoleInfo();
             var role = (roleInfo?.IsDesyncImpostor == true) && roleInfo.BaseRoleType.Invoke() is RoleTypes.Impostor ? RoleTypes.Crewmate : (roleInfo?.BaseRoleType?.Invoke() ?? RoleTypes.Crewmate);
-            bool isDead = false;
 
             if (!PlayerControl.LocalPlayer.IsAlive())
             {
                 role = role.IsCrewmate() ? RoleTypes.CrewmateGhost : RoleTypes.ImpostorGhost;
-                isDead = true;
             }
             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
-            if (isDead) PlayerControl.LocalPlayer.RpcExileV2();
+            //ここで処刑処理を入れると暗転が起こる?
 
             _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
         }
