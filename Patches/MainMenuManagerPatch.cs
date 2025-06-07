@@ -11,6 +11,7 @@ using Assets.InnerNet;
 using TownOfHost.Templates;
 using static TownOfHost.GameSettingMenuStartPatch;
 using Object = UnityEngine.Object;
+using UnityEngine.Bindings;
 
 namespace TownOfHost
 {
@@ -391,13 +392,18 @@ namespace TownOfHost
         {
             return false;
         }
+        [HarmonyPatch(nameof(MainMenuManager.ClickBackOnline))]
+        [HarmonyPostfix]
+        public static void ClickBackOnline(MainMenuManager __instance)
+        {
+            __instance.ResetScreen();
+        }
         // プレイメニュー，アカウントメニュー，クレジット画面が開かれたらロゴとボタンを消す
         [HarmonyPatch(nameof(MainMenuManager.OpenGameModeMenu))]
         [HarmonyPatch(nameof(MainMenuManager.OpenAccountMenu))]
         [HarmonyPatch(nameof(MainMenuManager.OpenCredits))]
         [HarmonyPatch(nameof(MainMenuManager.OpenOnlineMenu))]
         [HarmonyPatch(nameof(MainMenuManager.GoBackCreateGame))]
-        [HarmonyPatch(nameof(MainMenuManager.ClickBackOnline))]
         [HarmonyPatch(nameof(MainMenuManager.OpenEnterCodeMenu))]
         [HarmonyPostfix]
         public static void OpenMenuPostfix(MainMenuManager __instance)
