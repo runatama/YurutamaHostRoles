@@ -1022,11 +1022,11 @@ namespace TownOfHost
             messageWriter.Write(newSid);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
         }
-        public static void RpcSnapToDesync(this PlayerControl pc, PlayerControl target, Vector2 position)
+        public static void RpcSnapToDesync(this PlayerControl pc, PlayerControl seer, Vector2 position)
         {
             var net = pc.NetTransform;
             var num = (ushort)(net.lastSequenceId + 2);
-            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(net.NetId, (byte)RpcCalls.SnapTo, SendOption.None, target.GetClientId());
+            MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(net.NetId, (byte)RpcCalls.SnapTo, SendOption.None, seer.GetClientId());
             NetHelpers.WriteVector2(position, messageWriter);
             messageWriter.Write(num);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);

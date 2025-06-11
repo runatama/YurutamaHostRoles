@@ -231,6 +231,7 @@ namespace TownOfHost
             Balancer.Id = 255;
             Stolener.Killers.Clear();
             Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !Options.SuddenDeathMode.GetBool();
+            CoEnterVentPatch.OldOnEnterVent = new();
 
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
             Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);

@@ -379,6 +379,7 @@ namespace TownOfHost
     class CoEnterVentPatch
     {
         public static Dictionary<byte, float> VentPlayers = new();
+        public static Dictionary<byte, bool> OldOnEnterVent = new();
         static bool MadBool = false;
         public static bool Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] int id)
         {
@@ -389,17 +390,32 @@ namespace TownOfHost
                 if (MadBool)
                 {
                     MadBool = false;
+                    if (!OldOnEnterVent.TryAdd(user.PlayerId, true))
+                    {
+                        OldOnEnterVent[user.PlayerId] = true;
+                    }
                     return true;
                 }
 
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && Options.IgnoreVent.GetBool())
                     __instance.RpcBootFromVent(id);
 
-                if (user.Is(CustomRoles.DemonicVenter)) return true;
-
+                if (user.Is(CustomRoles.DemonicVenter))
+                {
+                    if (!OldOnEnterVent.TryAdd(user.PlayerId, true))
+                    {
+                        OldOnEnterVent[user.PlayerId] = true;
+                    }
+                    return true;
+                }
                 var roleClass = user.GetRoleClass();
                 var pos = __instance.transform.position;
                 if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
+
+                if (!VentilationSystemUpdateSystemPatch.NowVentId.TryAdd(user.PlayerId, (byte)id))
+                {
+                    VentilationSystemUpdateSystemPatch.NowVentId[user.PlayerId] = (byte)id;
+                }
 
                 if (user.IsModClient() is false)
                 {
@@ -407,6 +423,11 @@ namespace TownOfHost
                     {
                         if (Options.CurrentGameMode == CustomGameMode.TaskBattle) return true;
                         //一番遠いベントに追い出す
+                        var canuse = CanUse(__instance, id, false);
+                        if (!OldOnEnterVent.TryAdd(user.PlayerId, canuse))
+                        {
+                            OldOnEnterVent[user.PlayerId] = canuse;
+                        }
 
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
@@ -472,7 +493,7 @@ namespace TownOfHost
             VentPlayers.TryAdd(__instance.myPlayer.PlayerId, 0);
             return true;
         }
-        public static bool CanUse(PlayerPhysics pp, int id)
+        public static bool CanUse(PlayerPhysics pp, int id, bool log = true)
         {
             //役職処理はここで行ってしまうと色々とめんどくさくなるので上で。
             var user = pp.myPlayer;
@@ -481,13 +502,13 @@ namespace TownOfHost
             {
                 if (!user.CanUseImpostorVentButton()) //インポスターベントも使えない
                 {
-                    Logger.Info($"{pp.name}はエンジニアでもインポスターベントも使えないため弾きます。", "OnenterVent");
+                    if (log) Logger.Info($"{pp.name}はエンジニアでもインポスターベントも使えないため弾きます。", "OnenterVent");
                     return false;
                 }
             }
             if (Utils.CanVent)
             {
-                Logger.Info($"{pp.name}がベントに入ろうとしましたがベントが無効化されているので弾きます。", "OnenterVent");
+                if (log) Logger.Info($"{pp.name}がベントに入ろうとしましたがベントが無効化されているので弾きます。", "OnenterVent");
                 return false;
             }
             return true;
@@ -497,9 +518,47 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoExitVent))]
     class ExitVentPatch
     {
-        public static void Prefix(PlayerPhysics __instance)
+        public static bool Prefix(PlayerPhysics __instance)
         {
             CoEnterVentPatch.VentPlayers.Remove(__instance.myPlayer.PlayerId);
+
+            var player = __instance.myPlayer;
+            if (CoEnterVentPatch.OldOnEnterVent.TryGetValue(player.PlayerId, out var canuse))
+            {
+                if (canuse)
+                {
+                    ReMove();
+                    return false;
+                }
+            }
+            if (!(player.Data.Role.Role == RoleTypes.Engineer || player.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Engineer))//エンジニアでなく
+            {
+                if (!player.CanUseImpostorVentButton()) //インポスターベントも使えない
+                {
+                    ReMove();
+                    return false;
+                }
+            }
+            if (Utils.CanVent)
+            {
+                ReMove();
+                return false;
+            }
+            void ReMove()
+            {
+                if (VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(player.PlayerId, out var id))
+                {
+                    var vent = ShipStatus.Instance.AllVents.Where(x => x.Id == id).FirstOrDefault();
+                    if (vent is null)
+                    {
+                        player.RpcSnapToForced(new UnityEngine.Vector2(100f, 100f));
+                        Logger.Error($"無効なベントid{id}。(てか移動するなし)", "Vent");
+                        return;
+                    }
+                    player.RpcSnapToForced(vent.transform.position + new UnityEngine.Vector3(0f, 0.1f));
+                }
+            }
+            return true;
         }
     }
     #endregion

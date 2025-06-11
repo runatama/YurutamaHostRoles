@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Patches.ISystemType;
@@ -23,6 +27,7 @@ class VentilationSystemUpdateSystemPatch
             newReader.Recycle();
         }
         last_opId = opId;
+
 
         if (!NowVentId.TryAdd(player.PlayerId, ventId))
         {
