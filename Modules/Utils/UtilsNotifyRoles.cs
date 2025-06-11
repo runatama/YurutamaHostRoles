@@ -17,6 +17,7 @@ using TownOfHost.Roles.AddOns.Impostor;
 using static TownOfHost.Utils;
 using static TownOfHost.RandomSpawn;
 using static TownOfHost.UtilsRoleText;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost
 {
@@ -426,7 +427,7 @@ namespace TownOfHost
 
             /* 会議拡張の奴 */
             var Minfo = $"<voffset=20><line-height=0><{Main.ModColor}><size=85%>TownOfHost-K</size>\t\t \n \t\t</color><size=70%><#ffffff>v{Main.PluginShowVersion}</color></size></voffset>";
-            Minfo += $"<voffset=17.5>\n<#fc9003>Day.{UtilsGameLog.day}</color>" + $"<voffset=15>\n{MeetingMoji}</voffset>";
+            Minfo += $"<voffset=17.5>\n<#fc9003>Day.{UtilsGameLog.day}</color>" + Bakery.BakeryMark() + $"<voffset=15>\n{MeetingMoji}</voffset>";
 
             /*            var Info = $" <#ffffff><size=1.5f>\n\n</size><line-height=0%><{Main.ModColor}><size=85%>TownOfHost-K</size>\t\t  \n　　\t\t</color><size=70%>";
                         Info += $"v{Main.PluginShowVersion}</size>\n　</line-height></color><line-height=50%>\n</line-height><line-height=95%>";

@@ -1,9 +1,11 @@
 using System;
+using System.Linq;
 using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Bakery : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -108,5 +110,12 @@ public sealed class Bakery : RoleBase
         }
         //ここまで来たらバグじゃ!!
         return "なんかエラー起きてるよ(´-ω-`)\nホストさんログ取って提出して☆";
+    }
+    public static string BakeryMark()
+    {
+        var bakerys = PlayerCatch.AllPlayerControls.Where(pc => pc.GetCustomRole() is CustomRoles.Bakery);
+        if (bakerys.Count() <= 0) return "";
+
+        return $" <#8f6121><rotate=-20>§</rotate></color>{(bakerys.Count() > 1 ? $"×{bakerys.Count()}" : "")}";
     }
 }
