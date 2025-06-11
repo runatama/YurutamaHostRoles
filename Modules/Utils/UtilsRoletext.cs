@@ -372,6 +372,7 @@ namespace TownOfHost
         }
         public static string GetTaskProgressText(byte playerId, bool comms = false, bool Mane = true, bool hide = false)
         {
+            if (GameStates.introDestroyed is false) return "";
             var pc = GetPlayerById(playerId);
             if (pc == null) return "";
             var cr = pc.GetCustomRole();
