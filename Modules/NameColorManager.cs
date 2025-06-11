@@ -158,7 +158,6 @@ namespace TownOfHost
             }
             else
             {
-
                 foreach (var seer in PlayerCatch.AllPlayerControls)
                 {
                     if (seer.IsModClient()) continue;

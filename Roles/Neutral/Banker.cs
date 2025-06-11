@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
 {
     //Memo
@@ -95,7 +96,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     {
         seen ??= seer;
         if (Player.IsAlive() || DieCanWin.GetBool())
-            if (seen && seer)
+            if (seen == seer && Is(seen))
             {
                 if (AddWinCoin.GetInt() <= Coin) return Utils.AdditionalWinnerMark;
             }
@@ -129,6 +130,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     }
     public override void AfterMeetingTasks()
     {
+        TaskMode = true;
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
 
         _ = new LateTask(() =>
@@ -145,7 +147,6 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
                     else
                         Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
                 }
-                TaskMode = true;
             }
             _ = new LateTask(() =>
             {
