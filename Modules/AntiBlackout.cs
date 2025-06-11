@@ -38,10 +38,8 @@ namespace TownOfHost
         ///</summary>
         public static bool OverrideExiledPlayer()
         {
-            if (4 <= PlayerCatch.AllPlayersCount) return false;
+            if (4 <= PlayerCatch.AllPlayerControls.Count()) return false;
             if (ModClientOnly is true) return false;
-            //if (!Options.BlackOutwokesitobasu.GetBool()) return false;
-
             return (Options.NoGameEnd.GetBool() || GetA()) && (Main.DebugAntiblackout || !DebugModeManager.EnableDebugMode.GetBool());
         }
 

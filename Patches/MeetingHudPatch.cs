@@ -545,7 +545,7 @@ public static class MeetingHudPatch
             Logger.Info("------------会議終了------------", "Phase");
             if (AmongUsClient.Instance.AmHost)
             {
-                if (AntiBlackout.IsSet) AntiBlackout.SetIsDead();
+                if (!AntiBlackout.IsCached) AntiBlackout.SetIsDead();
                 foreach (var p in SelfVoteManager.CheckVote)
                     SelfVoteManager.CheckVote[p.Key] = false;
             }
