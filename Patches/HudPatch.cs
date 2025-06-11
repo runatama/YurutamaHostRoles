@@ -268,10 +268,6 @@ namespace TownOfHost
         //カスタムぼたーん。
         public static bool? ch;
         public static Sprite MotoKillButton = null;
-        public static Sprite ShepeButton = null;
-        public static Sprite PhButton = null;
-        public static Sprite EngButton = null;
-        public static Sprite HyoiButton = null;
         public static Sprite ImpVentButton = null;
         static bool? OldValue = null;
         public static void BottonHud(bool reset = false)
@@ -292,60 +288,17 @@ namespace TownOfHost
                     var customrole = player.GetCustomRole();
                     var isalive = player.IsAlive();
                     if (!__instance) return;
+                    player.Data.Role.InitializeAbilityButton();
                     //定義
                     if (MotoKillButton == null && __instance.KillButton.graphic.sprite) MotoKillButton = __instance.KillButton.graphic.sprite;
                     if (ImpVentButton == null && __instance.ImpostorVentButton.graphic.sprite) ImpVentButton = __instance.ImpostorVentButton.graphic.sprite;
-                    if ((roleClass?.HasAbility ?? false) || !isalive)
-                    {
-                        if (player?.Data?.Role?.Ability?.Image ?? false)
-                        {
-                            if (player?.Data?.Role?.Ability?.name is not null and not "ModRoleAbilityButton" and not "")
-                            {
-                                if (EngButton == null && player.Data.Role.Role is RoleTypes.Engineer)
-                                    EngButton = player.Data.Role.Ability.Image;
-                                if (ShepeButton == null && player.Data.Role.Role is RoleTypes.Shapeshifter)
-                                    ShepeButton = player.Data.Role.Ability.Image;
-                                if (PhButton == null && player.Data.Role.Role is RoleTypes.Phantom)
-                                {
-                                    PhButton = player.Data.Role.Ability.Image;
-                                }
-                                if (HyoiButton == null && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
-                                    HyoiButton = player.Data.Role.Ability.Image;
-                            }
-                        }
-                    }
+
                     if (player == !GameStates.IsModHost) return;
                     //リセット
                     if (__instance.KillButton.graphic.sprite && MotoKillButton) __instance.KillButton.graphic.sprite = MotoKillButton;
                     if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
-                    if ((roleClass?.HasAbility ?? false) || !isalive)
-                    {
-                        var reseted = false;
-                        if (EngButton && player.Data.Role.Role is RoleTypes.Engineer)
-                        {
-                            reseted = true;
-                            player.Data.Role.Ability.Image = EngButton;
-                        }
-                        if (ShepeButton && player.Data.Role.Role is RoleTypes.Shapeshifter)
-                        {
-                            reseted = true;
-                            player.Data.Role.Ability.Image = ShepeButton;
-                        }
-                        if (PhButton && player.Data.Role.Role is RoleTypes.Phantom)
-                        {
-                            reseted = true;
-                            player.Data.Role.Ability.SecondImage = player.Data.Role.Ability.Image = PhButton;
-                        }
-                        if (HyoiButton && !isalive && player.Data.Role.Role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
-                        {
-                            reseted = true;
-                            player.Data.Role.Ability.Image = HyoiButton;
-                        }
-                        if (reseted)
-                        {
-                            player.Data.Role.Ability.name = $"{player.Data.Role.Role}";
-                        }
-                    }
+                    player.Data.Role.Ability.Image = player.Data.Role.Ability.SecondImage;
+                    player.Data.Role.InitializeAbilityButton();
                     if (CustomRoles.Amnesia.IsPresent()) return;
                     if (ch == null)
                         foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -363,16 +316,18 @@ namespace TownOfHost
                             {
                                 if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
                                 {
-                                    player.Data.Role.Ability.SecondImage = player.Data.Role.Ability.Image = CustomButton.Get(abname);
+                                    Logger.seeingame($"{Main.CustomSprite.Value}");
+                                    player.Data.Role.Ability.Image = CustomButton.Get(abname);
 
                                     player.Data.Role.Ability.name = "ModRoleAbilityButton";
-                                    if (reset && OldValue == Main.CustomSprite.Value)
-                                    {
-                                        var role = customrole.GetRoleTypes();
-                                        if (customrole.GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
-                                        RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
-                                    }
+                                    player.Data.Role.InitializeAbilityButton();
                                 }
+                            }
+                            if (reset && OldValue == Main.CustomSprite.Value)
+                            {
+                                var role = customrole.GetRoleTypes();
+                                if (customrole.GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
+                                RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
                             }
 
                             // Memo
