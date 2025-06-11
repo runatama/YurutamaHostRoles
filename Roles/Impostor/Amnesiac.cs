@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Amnesiac : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -164,6 +165,10 @@ public sealed class Amnesiac : RoleBase, IImpostor
         {
             roleColor = iamwolf ? WolfBoy.RoleInfo.RoleColor : Sheriff.RoleInfo.RoleColor;
             roleText = omoidasita ? roleText : (iamwolf ? GetString(CustomRoles.WolfBoy.ToString()) : GetString(CustomRoles.Sheriff.ToString()));
+        }
+        if (!seer.IsAlive() && !omoidasita)
+        {
+            roleText += $"(<#ff1919>{GetString("Amnesiac")}</color>)";
         }
     }
     public bool OverrideKillButton(out string text)
