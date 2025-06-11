@@ -17,55 +17,59 @@ namespace TownOfHost
             if (_timer < 0.1f) return;
             _timer = 0f;
 
-            if (priset)
+            try
             {
-                priset.transform.localPosition = new Vector3(0f, 3.2f);
-                search.transform.localPosition = new Vector3(0f, 3.5f);
-                search.transform.localScale = priset.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
+                if (priset)
+                {
+                    priset.transform.localPosition = new Vector3(0f, 3.2f);
+                    search.transform.localPosition = new Vector3(0f, 3.5f);
+                    search.transform.localScale = priset.transform.localScale = new Vector3(0.4f, 0.4f, 0f);
 
-                activeonly.transform.localPosition = new Vector3(-2.05f, 3.3f);
-                activeonly.transform.localScale = new Vector3(0.6f, 0.6f, 0f);
+                    activeonly.transform.localPosition = new Vector3(-2.05f, 3.3f);
+                    activeonly.transform.localScale = new Vector3(0.6f, 0.6f, 0f);
 
-                searchtext.enabled = search.textArea.text == "";
-                prisettext.enabled = priset.textArea.text == "";
+                    searchtext.enabled = search.textArea.text == "";
+                    prisettext.enabled = priset.textArea.text == "";
 
-                var active = ModSettingsButton?.selected ?? false;
+                    var active = ModSettingsButton?.selected ?? false;
 
-                searchtext.gameObject.SetActive(active);
-                prisettext.gameObject.SetActive(active);
-                search.gameObject.SetActive(active);
-                priset.gameObject.SetActive(active);
-                activeonly.gameObject.SetActive(active);
+                    searchtext.gameObject.SetActive(active);
+                    prisettext.gameObject.SetActive(active);
+                    search.gameObject.SetActive(active);
+                    priset.gameObject.SetActive(active);
+                    activeonly.gameObject.SetActive(active);
+                }
+                if (timer > 0)
+                {
+                    timer -= Time.fixedDeltaTime;
+                }
+                else if (timer > -10)
+                {
+                    timer = -100;
+
+                    var rand = IRandom.Instance;
+                    int rect = IRandom.Instance.Next(1, 101);
+                    if (rect < 40)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo0");
+                    else if (rect < 50)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo10");
+                    else if (rect < 60)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo1");
+                    else if (rect < 70)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo2");
+                    else if (rect < 80)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo3");
+                    else if (rect < 90)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo4");
+                    else if (rect < 95)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo5");
+                    else if (rect < 99)
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo6");
+                    else
+                        GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo7");
+                }
             }
-            if (timer > 0)
-            {
-                timer -= Time.fixedDeltaTime;
-            }
-            else if (timer > -10)
-            {
-                timer = -100;
-
-                var rand = IRandom.Instance;
-                int rect = IRandom.Instance.Next(1, 101);
-                if (rect < 40)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo0");
-                else if (rect < 50)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo10");
-                else if (rect < 60)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo1");
-                else if (rect < 70)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo2");
-                else if (rect < 80)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo3");
-                else if (rect < 90)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo4");
-                else if (rect < 95)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo5");
-                else if (rect < 99)
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo6");
-                else
-                    GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo7");
-            }
+            catch { }
 
             if (__instance.transform.name == "GAME SETTINGS TAB") return;
 
