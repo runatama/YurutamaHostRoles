@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -114,6 +115,10 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlas
         Player.RpcMurderPlayer(Player);
     }
     public bool OverrideKillButtonText(out string text) { text = GetString("Suicide"); return true; }
+    public override string GetAbilityButtonText()
+    {
+        return GetString("Suicide");
+    }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
