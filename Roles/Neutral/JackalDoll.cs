@@ -74,7 +74,9 @@ public sealed class JackalDoll : RoleBase
     };
     public static int GetSideKickCount()
     {
-        if (CustomRoles.Jackal.IsEnable() || CustomRoles.JackalAlien.IsEnable() || CustomRoles.JackalMafia.IsEnable())
+        if ((CustomRoles.Jackal.IsEnable() && Jackal.CanmakeSK.GetBool())
+        || (CustomRoles.JackalAlien.IsEnable() && JackalAlien.CanmakeSK.GetBool())
+        || (CustomRoles.JackalMafia.IsEnable() && JackalMafia.CanmakeSK.GetBool()))
         {
             // 0%以上なら確認する。
             if (Options.GetRoleChance(CustomRoles.Jackaldoll) > 0)

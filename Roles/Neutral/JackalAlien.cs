@@ -1258,7 +1258,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     static OptionItem CanImpSK;
     public static OptionItem SKcanImp;
     public static OptionItem SKimpwocanimp;
-    static OptionItem CanmakeSK;
+    public static OptionItem CanmakeSK;
     public static OptionItem OptionDoll;
     static OptionItem OptionHasImpostorVision;
     bool SK;

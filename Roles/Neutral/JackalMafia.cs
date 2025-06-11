@@ -61,7 +61,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem SKcanImp;
         //元仲間impがサイドキック相手の名前の色を見える
         public static OptionItem SKimpwocanimp;
-        static OptionItem CanmakeSK;
+        public static OptionItem CanmakeSK;
         public static OptionItem OptionDoll;
         private static float KillCooldown;
         private static float Cooldown;

@@ -51,7 +51,7 @@ namespace TownOfHost.Roles.Neutral
         public static OptionItem OptionCanVent;
         public static OptionItem OptionCanUseSabotage;
         static OptionItem OptionHasImpostorVision;
-        static OptionItem CanmakeSK;
+        public static OptionItem CanmakeSK;
         static OptionItem CanImpSK;
         //サイドキックが元仲間の色を見える
         public static OptionItem SKcanImp;
