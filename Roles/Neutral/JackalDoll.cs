@@ -235,16 +235,16 @@ public sealed class JackalDoll : RoleBase
         if (Oyabun.ContainsKey(Player.PlayerId)) return;
         var id = Ex?.PlayerId ?? byte.MaxValue;
 
-        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien)) && x.PlayerId != id)) return;
+        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien) || role.ContainsKey(x.PlayerId)) && x.PlayerId != id)) return;
 
-        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll)))
+        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll) && !role.ContainsKey(x.PlayerId)))
         {
             if ((diemode)JackaldieMode.GetValue() == diemode.FollowingSuicide)
             {
                 //ガードなどは無視
                 PlayerState.GetByPlayerId(Jd.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                Player.RpcExileV2();
-                MyState.SetDead();
+                Jd.RpcExileV2();
+                PlayerState.GetByPlayerId(Jd.PlayerId).SetDead();
             }
             if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
             {
