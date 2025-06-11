@@ -38,7 +38,7 @@ namespace TownOfHost.Roles.AddOns.Common
             {
                 if (reason.Equals(GameOverReason.CrewmatesByTask) || reason.Equals(GameOverReason.CrewmatesByVote)) goto remove;
                 if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveOpportunist.GetBool()) goto remove;
-                if (pc.IsAlive() || !Seizon.GetBool()) goto remove;
+                if (!pc.IsAlive() && Seizon.GetBool()) goto remove;
 
                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
