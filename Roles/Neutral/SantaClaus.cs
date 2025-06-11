@@ -127,7 +127,9 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     }
     public override string MeetingMeg()
     {
-        return Memo;
+        var send = Memo;
+        Memo = "";
+        return send;
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
