@@ -144,9 +144,19 @@ namespace TownOfHost
                 foreach (var target in GameData.Instance.AllPlayers)
                 {
                     if (target == null) continue;
-                    if (!PlayerCatch.AllPlayerNetId.TryGetValue(target.PlayerId, out var netid)) continue;
+                    uint? netid = PlayerCatch.AllPlayerNetId.TryGetValue(target.PlayerId, out var id) ? id : (target?._object?.NetId ?? null);
+
+                    if (netid.HasValue is false) continue;
                     RoleTypes setrole = target.PlayerId == ImpostorId ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                    sender.StartRpc(netid, RpcCalls.SetRole)
+
+                    if (sender.stream.Length > 750 && Options.ExRpcWeightR.GetBool())
+                    {
+                        sender.EndMessage();
+                        sender.SendMessage();
+                        sender = CustomRpcSender.Create("AntiBlackoutSetRole+2", SendOption.Reliable);
+                        sender.StartMessage();
+                    }
+                    sender.StartRpc(netid.Value, RpcCalls.SetRole)
                     .Write((ushort)setrole)
                     .Write(true)
                     .EndRpc();
