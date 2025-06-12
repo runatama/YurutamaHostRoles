@@ -269,6 +269,9 @@ namespace TownOfHost
         public static bool? ch;
         public static Sprite MotoKillButton = null;
         public static Sprite ImpVentButton = null;
+        public static Sprite ShapeShiftButton = null;
+        public static Sprite EngButton = null;
+        public static Sprite PhantomButton = null;
         static bool? OldValue = null;
         public static void BottonHud(bool reset = false)
         {
@@ -299,8 +302,33 @@ namespace TownOfHost
                     if (__instance.ImpostorVentButton.graphic.sprite && ImpVentButton) __instance.ImpostorVentButton.graphic.sprite = ImpVentButton;
                     if (roleClass.HasAbility)
                     {
-                        player.Data.Role.Ability.Image = player.Data.Role.Ability.SecondImage;
-                        player.Data.Role.InitializeAbilityButton();
+                        Sprite abilitybutton = null;
+                        switch (player.Data.Role.Role)
+                        {
+                            case RoleTypes.Engineer:
+                                if (EngButton == null)
+                                    EngButton = player.Data.Role.Ability.Image;
+                                abilitybutton = EngButton;
+                                break;
+                            case RoleTypes.Shapeshifter:
+                                if (ShapeShiftButton == null)
+                                    ShapeShiftButton = player.Data.Role.Ability.Image;
+                                abilitybutton = ShapeShiftButton;
+                                break;
+                            case RoleTypes.Phantom:
+                                if (PhantomButton == null)
+                                    PhantomButton = player.Data.Role.Ability.Image;
+                                abilitybutton = PhantomButton;
+                                break;
+                            default:
+                                abilitybutton = null;
+                                break;
+                        }
+                        if (abilitybutton is not null)
+                        {
+                            player.Data.Role.Ability.Image = abilitybutton;
+                            player.Data.Role.InitializeAbilityButton();
+                        }
                     }
                     if (CustomRoles.Amnesia.IsPresent()) return;
                     if (ch == null)
@@ -319,7 +347,6 @@ namespace TownOfHost
                             {
                                 if (roleClass.OverrideAbilityButton(out string abname) == true && Main.CustomSprite.Value)
                                 {
-                                    Logger.seeingame($"{Main.CustomSprite.Value}");
                                     player.Data.Role.Ability.Image = CustomButton.Get(abname);
 
                                     player.Data.Role.Ability.name = "ModRoleAbilityButton";
@@ -329,6 +356,7 @@ namespace TownOfHost
                                         var role = customrole.GetRoleTypes();
                                         if (customrole.GetRoleInfo().IsDesyncImpostor && role is RoleTypes.Impostor) role = RoleTypes.Crewmate;
                                         RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
+                                        player.RpcResetAbilityCooldown();
                                     }
                                 }
                             }
