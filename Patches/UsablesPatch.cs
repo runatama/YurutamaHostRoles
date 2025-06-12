@@ -3,7 +3,6 @@ using HarmonyLib;
 using UnityEngine;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
-using Rewired;
 
 namespace TownOfHost
 {

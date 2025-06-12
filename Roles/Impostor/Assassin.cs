@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using InnerNet;
 using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;

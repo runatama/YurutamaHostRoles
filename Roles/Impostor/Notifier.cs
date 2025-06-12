@@ -1,10 +1,10 @@
 using AmongUs.GameOptions;
-using HarmonyLib;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Notifier : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =

@@ -8,7 +8,6 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 using static TownOfHost.Modules.MeetingVoteManager;
 using static TownOfHost.Modules.MeetingTimeManager;
-using TownOfHost.Roles.Neutral;
 
 namespace TownOfHost.Roles.Crewmate;
 

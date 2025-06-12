@@ -3,7 +3,6 @@ using Hazel;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Impostor;
 

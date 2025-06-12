@@ -11,7 +11,6 @@ using Assets.InnerNet;
 using TownOfHost.Templates;
 using static TownOfHost.GameSettingMenuStartPatch;
 using Object = UnityEngine.Object;
-using UnityEngine.Bindings;
 
 namespace TownOfHost
 {

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Hazel;
-using Iced.Intel;
 using TownOfHost.Attributes;
 using TownOfHost.Roles.Core;
 

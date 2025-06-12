@@ -12,8 +12,6 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
-using System.Linq;
-
 namespace TownOfHost
 {
     [HarmonyPatch]

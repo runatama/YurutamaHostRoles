@@ -2,7 +2,6 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
-using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Impostor;
 
