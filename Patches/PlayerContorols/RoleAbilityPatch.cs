@@ -142,6 +142,7 @@ namespace TownOfHost
                 {
                     if (roleclass.CanDesyncShapeshift)
                     {
+                        shouldAnimate &= !MeetingHud.Instance;
                         shapeshifter.RpcSpecificRejectShapeshift(target, shouldAnimate);
                     }
                     else
@@ -150,13 +151,14 @@ namespace TownOfHost
                     }
                     return false;
                 }
+            shouldAnimate &= !MeetingHud.Instance;
 
             shapeshifter.RpcShapeshift(target, shouldAnimate);
             return false;
         }
         private static bool CheckInvalidShapeshifting(PlayerControl instance, PlayerControl target, bool animate)
         {
-            logger.Info($"Checking shapeshift {instance.GetNameWithRole().RemoveHtmlTags()} -> {(target == null || target.Data == null ? "(null)" : target.GetNameWithRole().RemoveHtmlTags())}");
+            logger.Info($"Checking shapeshift {instance.GetNameWithRole().RemoveHtmlTags()} -> {(target == null || target.Data == null ? "(null)" : target.GetNameWithRole().RemoveHtmlTags())} (animate:{animate})");
 
             if (!target || target.Data == null)
             {

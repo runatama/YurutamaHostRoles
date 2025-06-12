@@ -111,11 +111,6 @@ namespace TownOfHost
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (!pc) continue;
-                    if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var nowuse) && nowuse is true)
-                    {
-                        pc.RpcShapeshift(pc, false);
-                        pc.RpcRejectShapeshift();
-                    }
                     Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
                 }
             }, 1f, "SetSkin", false);
@@ -230,11 +225,6 @@ namespace TownOfHost
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     if (!pc) continue;
-                    if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var nowuse) && nowuse is true)
-                    {
-                        pc.RpcShapeshift(pc, false);
-                        pc.RpcRejectShapeshift();
-                    }
                     Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
                 }
             }, 1f, "SetSkin", false);
