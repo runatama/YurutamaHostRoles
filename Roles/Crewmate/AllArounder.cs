@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
+using UnityEngine;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
@@ -172,8 +173,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     #region RoleOpt
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        var vision = Player.Is(CustomRoles.Lighting) ?
-        Main.NormalOptions.GetFloat(FloatOptionNames.ImpostorLightMod) : Main.NormalOptions.GetFloat(FloatOptionNames.CrewLightMod);
+        var vision = Player.Is(CustomRoles.Lighting) ? Main.DefaultImpostorVision : Main.DefaultCrewmateVision;
 
         if (NowRole is not NowMode.Lighter || !CanUseAbility())
         {
@@ -181,19 +181,13 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             return;
         }
 
+        {
+            float wariai = (float)MyTaskState.CompletedTasksCount / (float)MyTaskState.AllTasksCount;
+            wariai += 0.35f;
 
-        int wariai = 100;
-        if (MyTaskState.AllTasksCount is 0)
-        {
-            wariai = 100;
+            wariai = Mathf.Clamp(wariai, 0.35f, 1.35f);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, vision * wariai);
         }
-        else
-        {
-            var f = MyTaskState.CompletedTasksCount + 1 / MyTaskState.AllTasksCount + 1;
-            wariai = f * 100;
-        }
-        wariai = Math.Clamp(wariai, 5, 100);
-        opt.SetFloat(FloatOptionNames.CrewLightMod, vision * (float)(wariai * 0.01f));
     }
     #endregion
     #region Task
@@ -498,7 +492,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
 
         if (chance <= RBait)
         {
-            Logger.Info($"{Player.Data.GetLogPlayerName()}はライター", "AllArounder");
+            Logger.Info($"{Player.Data.GetLogPlayerName()}はベイト", "AllArounder");
             NowRole = NowMode.Bait;
         }
         else if (chance <= RBait + RInsender)
