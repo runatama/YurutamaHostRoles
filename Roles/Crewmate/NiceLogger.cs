@@ -140,6 +140,7 @@ namespace TownOfHost.Roles.Crewmate
 
                 if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
                 if (Player.IsAlive())
+                {
                     if (AmongUsClient.Instance.AmHost)
                     {
                         foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -151,7 +152,9 @@ namespace TownOfHost.Roles.Crewmate
                         }
                         Taskmode = false;
                     }
-            }, 10, "NiceLoggerReset", null);
+                }
+                else Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, Player.GetClientId());
+            }, 5, "NiceLoggerReset", null);
         }
         public override bool CanTask() => Taskmode;
         public override void OnFixedUpdate(PlayerControl player)
