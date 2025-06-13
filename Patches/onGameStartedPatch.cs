@@ -40,6 +40,32 @@ namespace TownOfHost
                     Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
                 }
             }
+            // イントロ通信分割
+            if (Options.ExIntroWeight.GetBool())
+            {
+                InnerNetClientPatch.DontTouch = true;
+                MeetingHudPatch.StartPatch.Serialize = true;
+                var stream = MessageWriter.Get(SendOption.Reliable);
+                stream.StartMessage(5);
+                stream.Write(AmongUsClient.Instance.GameId);
+                foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
+                {
+                    data.Disconnected = true;
+                    stream.StartMessage(1);
+                    stream.WritePacked(data.NetId);
+                    data.Serialize(stream, false);
+                    stream.EndMessage();
+                }
+                stream.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(stream);
+                stream.Recycle();
+                InnerNetClientPatch.DontTouch = false;
+                MeetingHudPatch.StartPatch.Serialize = false;
+                foreach (var data in GameData.Instance.AllPlayers)
+                {
+                    data.Disconnected = false;
+                }
+            }
 
             UtilsGameLog.Reset();
             PlayerState.Clear();
@@ -696,125 +722,123 @@ namespace TownOfHost
 
             InnerNetClientPatch.DontTouch = true;
             MeetingHudPatch.StartPatch.Serialize = true;
+            if (Options.ExIntroWeight.GetBool())
+            {
+                foreach (var data in GameData.Instance.AllPlayers) data.Disconnected = true;
+            }
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
-            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
+            if (Options.ExIntroWeight.GetBool() is false)
             {
-                data.Disconnected = true;
-                CheckLarge();
-                stream.StartMessage(1);
-                stream.WritePacked(data.NetId);
-                data.Serialize(stream, false);
-                stream.EndMessage();
-            }
-            stream.StartMessage(2);
-            stream.WritePacked(PlayerControl.LocalPlayer.NetId);
-            stream.Write((byte)RpcCalls.SetRole);
-            stream.Write((ushort)RoleTypes.Crewmate);
-            stream.Write(true);
-            stream.EndMessage();
-            foreach (var data in GameData.Instance.AllPlayers)
-            {
-                data.Disconnected = false;
-                CheckLarge();
-                stream.StartMessage(1);
-                stream.WritePacked(data.NetId);
-                data.Serialize(stream, false);
-                stream.EndMessage();
-            }
-            stream.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
-            InnerNetClientPatch.DontTouch = false;
-
-            void CheckLarge()
-            {
-                if (stream.Length > 750 && Options.ExIntroWeight.GetBool())
+                foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
                 {
+                    data.Disconnected = true;
+                    stream.StartMessage(1);
+                    stream.WritePacked(data.NetId);
+                    data.Serialize(stream, false);
                     stream.EndMessage();
-                    AmongUsClient.Instance.SendOrDisconnect(stream);
-                    stream.Recycle();
-
-                    stream = MessageWriter.Get(SendOption.Reliable);
-                    stream.StartMessage(5);
-                    stream.Write(AmongUsClient.Instance.GameId);
                 }
             }
-
-            MeetingHudPatch.StartPatch.Serialize = false;
+            _ = new LateTask(() =>
             {
-                foreach (var pc in PlayerCatch.AllPlayerControls)
+                stream.StartMessage(2);
+                stream.WritePacked(PlayerControl.LocalPlayer.NetId);
+                stream.Write((byte)RpcCalls.SetRole);
+                stream.Write((ushort)RoleTypes.Crewmate);
+                stream.Write(true);
+                stream.EndMessage();
+                foreach (var data in GameData.Instance.AllPlayers)
                 {
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (pc.GetClientId() == -1) continue;
-                    var role = pc.GetCustomRole();
-                    var roleType = role.GetRoleTypes();
-
-                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
-                    {
-                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
-                        if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
-                    }
-                    if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
-                    if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
-                    {
-                        roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                    }
-
-                    pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
-
-                    if (!SuddenDeathMode.NowSuddenDeathMode && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor))
-                    {
-                        _ = new LateTask(() =>
-                        PlayerControl.LocalPlayer.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable)
-                        , Main.LagTime, "SetHostImpostor", null);
-                    }
+                    data.Disconnected = false;
+                    stream.StartMessage(1);
+                    stream.WritePacked(data.NetId);
+                    data.Serialize(stream, false);
+                    stream.EndMessage();
                 }
-            }
+                stream.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(stream);
+                stream.Recycle();
+                InnerNetClientPatch.DontTouch = false;
 
-            new LateTask(() =>
-            {
-                PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));
-                PlayerControl.LocalPlayer.StopAllCoroutines();
-                HudManagerCoShowIntroPatch.Cancel = false;
-                DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
-                DestroyableSingleton<HudManager>.Instance.HideGameLoader();
-                UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-            }, 0.2f, "", true);
+                MeetingHudPatch.StartPatch.Serialize = false;
 
-            if (!Main.IsroleAssigned)
-            {
-                roleAssigned = true;
-                PlayerCatch.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
-            }
-
-            new LateTask(() =>
-            {
-                foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (pc.GetClientId() == -1) continue;
-                    var role = pc.GetCustomRole();
-                    var roleType = role.GetRoleTypes();
-                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
                     {
-                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Crewmate : roleType));
-                        if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
-                    }
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        if (pc.GetClientId() == -1) continue;
+                        var role = pc.GetCustomRole();
+                        var roleType = role.GetRoleTypes();
 
-                    if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
+                        if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
+                        {
+                            roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
+                            if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
+                        }
+                        if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
+                        if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
+                        {
+                            roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                        }
 
-                    if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
-                    {
-                        roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                        pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
+
+                        foreach (var seen in PlayerCatch.AllPlayerControls)
+                        {
+                            if (!SuddenDeathMode.NowSuddenDeathMode && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && seen.GetCustomRole().GetCustomRoleTypes() is CustomRoleTypes.Impostor)
+                            {
+                                _ = new LateTask(() =>
+                                seen.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable)
+                                , Main.LagTime, "SetHostImpostor", null);
+                            }
+                        }
                     }
-                    pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
                 }
-                SuddenDeathMode.ColorSetAndRoleset();
-                senders2 = null;
-            }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
-            _ = new LateTask(() => SetRole(), 5.5f, "", true);
+
+                new LateTask(() =>
+                {
+                    PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(pc => PlayerNameColor.Set(pc)));
+                    PlayerControl.LocalPlayer.StopAllCoroutines();
+                    HudManagerCoShowIntroPatch.Cancel = false;
+                    DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+                    DestroyableSingleton<HudManager>.Instance.HideGameLoader();
+                    UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
+                }, 0.2f, "", true);
+
+                if (!Main.IsroleAssigned)
+                {
+                    roleAssigned = true;
+                    PlayerCatch.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
+                }
+
+                new LateTask(() =>
+                {
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        if (pc.GetClientId() == -1) continue;
+                        var role = pc.GetCustomRole();
+                        var roleType = role.GetRoleTypes();
+                        if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
+                        {
+                            roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Crewmate : roleType));
+                            if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
+                        }
+
+                        if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
+
+                        if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
+                        {
+                            roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                        }
+                        pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
+                    }
+                    SuddenDeathMode.ColorSetAndRoleset();
+                    senders2 = null;
+                }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
+                _ = new LateTask(() => SetRole(), 5.5f, "", true);
+            }, Options.ExIntroWeight.GetBool() ? 1f : 0f, "gamestartsetrole");
         }
         public static void SetRole()
         {
@@ -1061,7 +1085,14 @@ namespace TownOfHost
             }
             public static void Release()
             {
-
+                if (Options.ExIntroWeight.GetBool())
+                {
+                    foreach (var pair in StoragedData)
+                    {
+                        pair.Item1.StartCoroutine(pair.Item1.CoSetRole(pair.Item2, Main.SetRoleOverride && Options.CurrentGameMode is CustomGameMode.Standard));
+                    }
+                    return;
+                }
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
@@ -1084,6 +1115,7 @@ namespace TownOfHost
                     }
                     sender.Value.EndMessage();
                 }
+
                 doReplace = false;
             }
             public static void StartReplace(Dictionary<byte, CustomRpcSender> senders)
