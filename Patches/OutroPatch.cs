@@ -27,6 +27,7 @@ namespace TownOfHost
             GameStates.task =
             GameStates.Meeting =
             GameStates.Tuihou = false;
+            UtilsGameLog.day++;
             UtilsGameLog.WriteGameLog();
 
             Logger.Info("-----------ゲーム終了-----------", "Phase");

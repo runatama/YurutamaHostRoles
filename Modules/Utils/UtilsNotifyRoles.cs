@@ -278,8 +278,7 @@ namespace TownOfHost
                                 TargetMark.Append(ColorString(GetRoleColor(tageri), "♥"));
 
                             if ((seerisone && seenIsOne)
-                            || (seer.Data.IsDead && !seerisone && seenIsOne)
-                            || (seerisone && target.PlayerId == Lovers.OneLovePlayer.Ltarget)
+                            || ((seer.Data.IsDead || seerisone) && target.PlayerId == Lovers.OneLovePlayer.Ltarget)
                             )
                                 TargetMark.Append("<#ff7961>♡</color>");
 
@@ -633,8 +632,7 @@ namespace TownOfHost
                                 TargetMark.Append(ColorString(GetRoleColor(tageri), "♥"));
 
                             if ((seerisone && seenIsOne)
-                            || (seer.Data.IsDead && !seerisone && seenIsOne)
-                            || (seerisone && target.PlayerId == Lovers.OneLovePlayer.Ltarget)
+                            || ((seer.Data.IsDead || seerisone) && target.PlayerId == Lovers.OneLovePlayer.Ltarget)
                             )
                                 TargetMark.Append("<#ff7961>♡</color>");
 
