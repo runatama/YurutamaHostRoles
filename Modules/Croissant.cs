@@ -1,4 +1,4 @@
-using AmongUs.GameOptions;
+/*using AmongUs.GameOptions;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -96,13 +96,13 @@ class Croissant
                 if (breakfast.RemoveColorTags() != breakfast && !breakfast.Contains("\n")) break;
                 if (!GameStates.Meeting && breakfast.RemoveColorTags() != breakfast) break;
 
-                /* 
+                
                 WorthEating = true;
                 var santi = butter.Data.PlayerName;
                 if (santi.RemoveColorTags() != santi && !santi.Contains("\n")) santi = Main.AllPlayerNames.TryGetValue(butter.PlayerId, out var a) ? a : santi;
                 butter.RpcSetName(santi.RemoveColorTags());
                 if (!GameStates.Meeting) _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "", true);
-                */
+                
                 receipt.Info($"<(ω)>{(GameStates.IsInGame ? "<着地を>試<みたんだけど>合<わなくて...>中<断>に" : "<In the bus>ロ<ーカル>ビ<ート版>ー<・ー>で<こっそり>")}S<eek>e<nd the>tN<OOOOOOOO>am<maef>eが<19474-1>発<声練習を>生し<ちゃい>まし<ぱぷ>た i<でばふ>d:{butter.PlayerId} n<通 報>am<追加>e:{breakfast}".RemoveHtmlTags());
                 break;
             case 8:
@@ -454,4 +454,4 @@ class Croissant
             }
         }
     }
-}
+}*/

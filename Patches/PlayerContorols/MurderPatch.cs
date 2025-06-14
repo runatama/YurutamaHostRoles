@@ -177,6 +177,7 @@ namespace TownOfHost
             CustomRoleManager.OnMurderPlayer(__instance, target);
         }
     }
+    /*
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ProtectPlayer))]
     class PlayerControlProtectPlayerPatch
     {
@@ -186,7 +187,6 @@ namespace TownOfHost
             Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "ProtectPlayer");
         }
     }
-    /*
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RemoveProtection))]
     class PlayerControlRemoveProtectionPatch
     {

@@ -27,7 +27,6 @@ namespace TownOfHost
             ResolutionManager.SetResolution(Screen.width, Screen.height, Screen.fullScreen);
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
             GameStates.IsOutro = false;
-            CheckPingPatch.Check = false;
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();
             RPC.RpcVersionCheck();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -185,9 +184,9 @@ namespace TownOfHost
                         PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
                         UtilsNotifyRoles.NotifyRoles(NoCache: true);
                     }
-                    Croissant.diaries.Remove($"{data.Character.PlayerId}");
+                    /*Croissant.diaries.Remove($"{data.Character.PlayerId}");
                     var diary = Croissant.diaries.Where(x => x.Value.day == data.Character.PlayerId).FirstOrDefault().Value;
-                    if (diary != null) diary.day = byte.MaxValue;
+                    if (diary != null) diary.day = byte.MaxValue;*/
                     Main.playerVersion.Remove(data.Character.PlayerId);
                     Logger.Info($"{data?.PlayerName ?? "('ω')"}(ClientID:{data.Id})が切断(理由:{reason}, ping:{AmongUsClient.Instance.Ping}), Platform:{data?.PlatformData?.Platform} , friendcode:{data?.FriendCode ?? "???"} , PuId:{data?.ProductUserId ?? "???"}", "Session");
                 }
@@ -257,19 +256,5 @@ namespace TownOfHost
                 }, 3.0f, "Welcome Meg");
             }
         }
-    }
-    //[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Update))]
-    class CheckPingPatch
-    {
-        public static bool Check;
-        /*public static void Postfix(InnerNetClient __instance)
-        {
-            if (Check)
-                if (__instance.Ping >= 750)
-                {
-                    Logger.Warn($"接続が不安定", "Ping");
-                    ErrorText.Instance.AddError(ErrorCode.CommunicationisUnstable);
-                }
-        }*/
     }
 }

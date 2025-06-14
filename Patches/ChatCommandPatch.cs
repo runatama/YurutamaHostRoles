@@ -459,7 +459,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
-                            Croissant.ChocolateCroissant = true;
+
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "impostorsChat");
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
@@ -499,7 +499,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
-                            Croissant.ChocolateCroissant = true;
+
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "jackalChat");
                             foreach (var jac in PlayerCatch.AllAlivePlayerControls)
                             {
@@ -542,7 +542,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
-                            Croissant.ChocolateCroissant = true;
+
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "loversChat");
                             foreach (var lover in AllAlivePlayerControls)
                             {
@@ -585,7 +585,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
-                            Croissant.ChocolateCroissant = true;
+
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "TwinsChat");
                             foreach (var twins in AllPlayerControls)
                             {
@@ -633,7 +633,7 @@ namespace TownOfHost
                                 if (ag.StartsWith("/")) continue;
                                 send += ag;
                             }
-                            Croissant.ChocolateCroissant = true;
+
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "Connectingchat");
                             foreach (var connect in AllPlayerControls)
                             {
@@ -1706,7 +1706,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
-                        Croissant.ChocolateCroissant = true;
+
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "ImpostorChat");
                         foreach (var imp in AllPlayerControls)
                         {
@@ -1775,7 +1775,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
-                        Croissant.ChocolateCroissant = true;
+
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "JackalChat");
                         foreach (var jac in AllPlayerControls)
                         {
@@ -1845,7 +1845,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
-                        Croissant.ChocolateCroissant = true;
+
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "LoversChat");
                         foreach (var lover in AllPlayerControls)
                         {
@@ -1912,7 +1912,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
-                        Croissant.ChocolateCroissant = true;
+
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "TwinsChat");
                         foreach (var twins in AllPlayerControls)
                         {
@@ -1978,7 +1978,7 @@ namespace TownOfHost
                             if (ag.StartsWith("/")) continue;
                             send += ag;
                         }
-                        Croissant.ChocolateCroissant = true;
+
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "Connectingchat");
                         foreach (var connect in AllPlayerControls)
                         {
@@ -2148,7 +2148,7 @@ namespace TownOfHost
                 }
                 if (player == PlayerControl.LocalPlayer) _ = new LateTask(() => ApplySuffix(null, true), 0.24f, "", true);
             }
-            Croissant.ChocolateCroissant = true;
+
             var name = player.Data.GetLogPlayerName();
             if (Options.ExHideChatCommand.GetBool() && !GameStates.IsLobby)
             {

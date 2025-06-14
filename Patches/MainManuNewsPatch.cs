@@ -126,6 +126,7 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+
             {
                 var news = new ModNews
                 {

@@ -41,11 +41,4 @@ namespace TownOfHost
             return false;
         }
     }
-    [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
-    class CompleteTaskPatch
-    {
-        public static void Postfix(GameData __instance)
-        {
-        }
-    }
 }

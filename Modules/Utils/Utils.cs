@@ -447,7 +447,6 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (text.RemoveHtmlTags() == "") return;
-            Croissant.ChocolateCroissant = true;
             if (title == "") title = $"<{Main.ModColor}>" + GetString($"DefaultSystemMessageTitle");// + "</color>";
             //すぐ</align>すると最終行もあれなので。
             var fir = rob ? "" : "<align=\"left\">";

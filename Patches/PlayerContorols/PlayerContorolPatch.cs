@@ -23,8 +23,6 @@ namespace TownOfHost
             roleText.text = "RoleText";
             roleText.gameObject.name = "RoleText";
             roleText.enabled = false;
-
-            Croissant.BaketheDough(__instance);
         }
     }
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]

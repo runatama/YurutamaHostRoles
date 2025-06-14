@@ -9,7 +9,6 @@ using TownOfHost.Modules;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Neutral;
-using static TownOfHost.Croissant;
 
 namespace TownOfHost
 {
@@ -1310,12 +1309,6 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All)
                 .SetInfo(Translator.GetString("KickBanOptionWhiteList"))
                 .SetColor(Color.red);
-
-            jam = BooleanOptionItem.Create(1_000_112, "AntiCheat", true, TabGroup.MainSettings, true)
-                .SetGameMode(CustomGameMode.All)
-                .SetColor(Color.gray)
-                .SetInfo("...今は動かないよ...ごめんネ")
-                .SetHidden(true);
 
             DebugModeManager.SetupCustomOption();
 
