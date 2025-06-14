@@ -106,7 +106,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var validPlayers = PlayerCatch.AllPlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
+            var validPlayers = PlayerCatch.AllAlivePlayerControls.Where(pc => ValidRoles.Contains(pc.GetCustomRole()));
 
             if (data.CrewmateMaximum != null)
             {
