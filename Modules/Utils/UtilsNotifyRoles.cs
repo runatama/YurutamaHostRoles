@@ -628,7 +628,7 @@ namespace TownOfHost
                             var seenIsOne = targetsubrole.Contains(CustomRoles.OneLove);
                             if (seerri == tageri && seer.IsRiaju() && !seerisone)
                                 TargetMark.Append(ColorString(GetRoleColor(seerri), "♥"));
-                            else if (seer.Data.IsDead && !seer.Is(tageri) && tageri != CustomRoles.NotAssigned && !seerisone)
+                            else if (seer.Data.IsDead && !seer.Is(tageri) && tageri is not CustomRoles.NotAssigned and not CustomRoles.OneLove && !seerisone)
                                 TargetMark.Append(ColorString(GetRoleColor(tageri), "♥"));
 
                             if ((seerisone && seenIsOne)
