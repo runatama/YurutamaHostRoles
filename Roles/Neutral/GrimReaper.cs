@@ -138,7 +138,7 @@ namespace TownOfHost.Roles.Neutral
                     del.Add(targetId);
                     cankill = true;
                     Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
-                    Player.SetKillCooldown();
+                    Player.SetKillCooldown(KillCooldown * 0.5f);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
                 else
