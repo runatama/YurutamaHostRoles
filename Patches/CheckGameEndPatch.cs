@@ -324,7 +324,7 @@ namespace TownOfHost
                 if (pc == null) continue;
                 var target = (winnerList.Contains(pc.PlayerId) ? pc : (winnerList.Count == 0 ? pc : PlayerCatch.GetPlayerById(winnerList.OrderBy(pc => pc).FirstOrDefault()) ?? pc)) ?? pc;
                 var targetname = Main.AllPlayerNames[target.PlayerId].Color(UtilsRoleText.GetRoleColor(target.GetCustomRole()));
-                var text = $"<voffset=23>{CustomWinnerText}\n<voffset=30>{targetname}";// sb.ToString() +$"\n</align><voffset=23>{CustomWinnerText}\n<voffset=45><size=1.75>{targetname}";
+                var text = $"<voffset=25>{CustomWinnerText}\n<voffset=24>{targetname}";// sb.ToString() +$"\n</align><voffset=23>{CustomWinnerText}\n<voffset=45><size=1.75>{targetname}";
                 if (sender == null)
                 {
                     target.RpcSetNamePrivate(text, true, pc, true);
