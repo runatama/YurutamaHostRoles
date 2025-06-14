@@ -43,6 +43,7 @@ public sealed class JackalDoll : RoleBase
     static OptionItem CanVent;
     static OptionItem VentCool;
     static OptionItem VentIntime;
+    static OptionItem CanVentMove;
     static NetworkedPlayerInfo Ex;
     enum Option
     {
@@ -98,9 +99,10 @@ public sealed class JackalDoll : RoleBase
         CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
         VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
         VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentCooldown, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
+        CanVentMove = BooleanOptionItem.Create(RoleInfo, 19, "MadmateCanMovedByVent", false, false, CanVent);
         RoleAddAddons.Create(RoleInfo, 20, MadMate: true);
     }
-
+    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => CanVentMove.GetBool();
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.EngineerCooldown = VentCool.GetFloat();
