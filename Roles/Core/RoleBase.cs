@@ -483,7 +483,11 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     /// <returns></returns>
     public virtual bool CanTask() => UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);
-
+    /// <summary>
+    /// 会議後の置き換え役職の変更。<br/>
+    /// 生存中しか適応されない
+    /// </summary>
+    public virtual RoleTypes? AfterMeetingRole => null;
     public virtual void CheckWinner()
     { }
     /// <summary>

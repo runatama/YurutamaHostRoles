@@ -133,29 +133,12 @@ namespace TownOfHost.Roles.Crewmate
         }
         public override void AfterMeetingTasks()
         {
-            new LateTask(() =>
-            {
-                Log.Clear();
-                LogPos = new(999f, 999f);
-
-                if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-                if (Player.IsAlive())
-                {
-                    if (AmongUsClient.Instance.AmHost)
-                    {
-                        foreach (var pc in PlayerCatch.AllPlayerControls)
-                        {
-                            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                                Player.StartCoroutine(Player.CoSetRole(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, true));
-                            if (pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-                                Player.RpcSetRoleDesync(pc == Player ? RoleTypes.Phantom : RoleTypes.Crewmate, pc.GetClientId());
-                        }
-                        Taskmode = false;
-                    }
-                }
-                else Player.RpcSetRoleDesync(RoleTypes.CrewmateGhost, Player.GetClientId());
-            }, 5, "NiceLoggerReset", null);
+            Log.Clear();
+            LogPos = new(999f, 999f);
+            Taskmode = false;
         }
+
+        public override RoleTypes? AfterMeetingRole => RoleTypes.Phantom;
         public override bool CanTask() => Taskmode;
         public override void OnFixedUpdate(PlayerControl player)
         {

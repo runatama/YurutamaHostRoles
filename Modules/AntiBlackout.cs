@@ -230,7 +230,11 @@ namespace TownOfHost
                     }
                     var setrole = (IDesycImpostor && Player != pc) ? (!isalive ? RoleTypes.CrewmateGhost : RoleTypes.Crewmate) : role;
 
-                    if ((pc.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is false && setrole is RoleTypes.Phantom)
+                    if (pc.PlayerId == Player.PlayerId && pc.GetRoleClass()?.AfterMeetingRole is not null && pc.IsAlive())
+                    {
+                        setrole = pc.GetRoleClass().AfterMeetingRole.Value;
+                    }
+                    if ((pc.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is false && setrole is RoleTypes.Phantom && pc.IsAlive())
                     {
                         //使えないならインポスターに戻す
                         setrole = RoleTypes.Impostor;

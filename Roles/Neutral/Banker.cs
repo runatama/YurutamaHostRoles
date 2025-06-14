@@ -128,32 +128,13 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             }
         }
     }
+    public override RoleTypes? AfterMeetingRole => TaskMode ? RoleTypes.Engineer : RoleTypes.Impostor;
     public override void AfterMeetingTasks()
     {
-        TaskMode = true;
-        if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
+        if (Player.IsAlive()) Coin -= TurnRemoveCoin.GetInt();
+        else Coin -= DieRemoveTurn.GetInt();
 
-        _ = new LateTask(() =>
-        {
-            if (Player.IsAlive()) Coin -= TurnRemoveCoin.GetInt();
-            else Coin -= DieRemoveTurn.GetInt();
-
-            if (AmongUsClient.Instance.AmHost && Player.IsAlive())
-            {
-                foreach (var pc in PlayerCatch.AllPlayerControls)
-                {
-                    if (pc == PlayerControl.LocalPlayer)
-                        Player.StartCoroutine(Player.CoSetRole(RoleTypes.Engineer, true));
-                    else
-                        Player.RpcSetRoleDesync(RoleTypes.Engineer, pc.GetClientId());
-                }
-            }
-            _ = new LateTask(() =>
-            {
-                Player.SetKillCooldown();
-                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
-            }, Main.LagTime, "Bankerchenge");
-        }, 10f, "BankerChange", null);
+        UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {

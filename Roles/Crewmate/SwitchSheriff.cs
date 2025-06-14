@@ -226,6 +226,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             ModeSwitching(true);
         Player.RpcResetAbilityCooldown(kousin: true);
     }
+    public override RoleTypes? AfterMeetingRole => RoleTypes.Engineer;
     public override void AfterMeetingTasks()
     {
         if (!Player.IsAlive()) return;

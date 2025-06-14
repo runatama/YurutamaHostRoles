@@ -189,38 +189,7 @@ namespace TownOfHost.Roles.Neutral
                 Killer.RpcMurderPlayerV2(Killer);
             }
         }
-        public override void OnSpawn(bool initialState = false)
-        {
-            if (!CanKill) return;
-            if (!Player.IsAlive()) return;
-
-            _ = new LateTask(() =>
-            {
-                if (AmongUsClient.Instance.AmHost)
-                {
-                    Player.RpcSetRoleDesync(RoleTypes.Impostor, Player.GetClientId());
-                    foreach (var pc in PlayerCatch.AllPlayerControls)
-                    {
-                        if (pc == PlayerControl.LocalPlayer)
-                        {
-                            Player.StartCoroutine(Player.CoSetRole(Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost, Main.SetRoleOverride));
-                            if (Player != pc) pc.RpcSetRoleDesync(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost, Player.GetClientId());
-                        }
-                        else
-                        {
-                            Player.RpcSetRoleDesync(pc == Player ? (Player.IsAlive() ? RoleTypes.Impostor : RoleTypes.ImpostorGhost) : (Player.IsAlive() ? RoleTypes.Crewmate : RoleTypes.CrewmateGhost), pc.GetClientId());
-                            if (Player != pc) pc.RpcSetRoleDesync(pc.IsAlive() ? RoleTypes.Scientist : RoleTypes.CrewmateGhost, Player.GetClientId());
-                        }
-                    }
-                }
-
-                _ = new LateTask(() =>
-                {
-                    Player.SetKillCooldown(OptionKillCooldown.GetFloat() - 5, kyousei: true);
-                    CanKill = true;
-                }, 0.3f, "ResetKillCooldown", true);
-            }, 5f, "Bakecatkillbutton");
-        }
+        public override RoleTypes? AfterMeetingRole => CanKill ? RoleTypes.Impostor : RoleTypes.Crewmate;
         private void RevealNameColors(PlayerControl killer)
         {
             if (OptionCanSeeKillableTeammate.GetBool())
