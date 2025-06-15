@@ -51,7 +51,7 @@ public sealed class Inspector : RoleBase
 
     enum OptionName
     {
-        Votemode
+        InspectVoteMode
     }
 
     enum Infom
@@ -68,7 +68,7 @@ public sealed class Inspector : RoleBase
     {
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.OptionCount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, OptionName.Votemode, EnumHelper.GetAllNames<FortuneTeller.VoteMode>(), 1, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, OptionName.InspectVoteMode, EnumHelper.GetAllNames<FortuneTeller.VoteMode>(), 1, false);
         OptKakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskKakusei, true, false);
         Task = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Kakuseitask, new(1f, 99f, 1f), 5f, false, OptKakusei);
     }

@@ -1410,6 +1410,7 @@
 "AllArounderRandomMadmate","Madmate rate","<#ff7f50>マッドメイト</color>になる確率"
 "AllArounderRandomOpportunist","Opportunist rate","<#00ff00>オポチュニスト</color>になる確率"
 "AllArounderRandomNone","Crewmate rate","<#8cffff>クルーメイト</color>になる確率"
+"InspectVoteMode","VoteMode","捜査方法"
 
 "## Neutral Role Setting"
 "SchrodingerCatExiledTeamChanges","Team Changes When Ejected","吊られた際、陣営が変化する","薛定谔的猫被放逐时会加入其他阵营","薛定諤的貓被丟出時陣營會轉變","Команда меняется после его Изгнания","Time Muda Quando Exilado",""
