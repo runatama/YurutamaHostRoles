@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using HarmonyLib;
 
 namespace TownOfHost.Roles.Neutral;
 
@@ -39,7 +40,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
 
         IWinflag = false;
         MeetingNotify = false;
-        MeetingNotifyRoom = "";
+        MeetingNotifyRoom = new();
         havepresent = 0;
         giftpresent = 0;
         EntotuVentId = null;
@@ -59,7 +60,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     }
     bool IWinflag;
     bool MeetingNotify;
-    string MeetingNotifyRoom;
+    List<string> MeetingNotifyRoom;
     int havepresent;
     int giftpresent;
     int? EntotuVentId;
@@ -99,21 +100,23 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         Memo = "";
-        if (!MeetingNotify || !Player.IsAlive() || MeetingNotifyRoom == "") return;
+        if (!MeetingNotify || !Player.IsAlive() || MeetingNotifyRoom.Count <= 0) return;
 
         var text = "";
+        var count = 0;
         while (meetinggift > 0)
         {
+            var room = MeetingNotifyRoom[count++];
             var chance = IRandom.Instance.Next(0, 20);
             var mesnumber = 0;
 
             if (chance > 18) mesnumber = 2;
             if (chance > 15) mesnumber = 1;
 
-            var msg = string.Format(GetString($"SantaClausMeetingMeg{mesnumber}"), MeetingNotifyRoom);
+            var msg = string.Format(GetString($"SantaClausMeetingMeg{mesnumber}"), room);
 
-            MeetingNotifyRoom = "";
             MeetingNotify = false;
+            if (text is not "") text += "\n";
             text += $"<size=60%><color=#e05050>{msg}</color></size>";
 
             if (Optpresent.GetBool())
@@ -123,6 +126,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
             meetinggift--;
         }
         meetinggift = 0;
+        MeetingNotifyRoom.Clear();
         Memo = text;
     }
     public override string MeetingMeg()
@@ -170,9 +174,9 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
             {
                 now = near + now;
             }
-            MeetingNotifyRoom = now;
+            MeetingNotifyRoom.Add(now);
         }
-        else MeetingNotifyRoom = string.Format(GetString($"SantaClausnear"), $"{near}");
+        else MeetingNotifyRoom.Add(string.Format(GetString($"SantaClausnear"), $"{near}"));
 
         GetArrow.Remove(Player.PlayerId, (Vector3)EntotuVentPos);
         if (WinGivePresentCount <= giftpresent)
