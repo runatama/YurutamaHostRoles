@@ -112,9 +112,12 @@ namespace TownOfHost
 
             if (target.inVent)
             {
-                ventplayr.Add(target.PlayerId);
-                Logger.Info($"{target.Data.GetLogPlayerName()} : invent", "camouflague");
-                return;
+                if (kyousei is not null)
+                {
+                    ventplayr.Add(target.PlayerId);
+                    Logger.Info($"{target.Data.GetLogPlayerName()} : invent", "camouflague");
+                    return;
+                }
             }
 
             if (newOutfit.Compare(target.Data.DefaultOutfit) && kyousei is false) return;
