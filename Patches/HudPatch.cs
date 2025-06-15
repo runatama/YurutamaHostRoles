@@ -116,7 +116,16 @@ namespace TownOfHost
                 {
                     __instance.AdminButton.Hide();
                     var roleClass = player.GetRoleClass();
-                    if (Main.CustomSprite.Value)
+                    if (roleClass is not null)
+                    {
+                        if (roleClass.HasAbility)
+                        {
+                            bool Visible = roleClass.CanUseAbilityButton() && GameStates.IsInTask;
+                            if ((roleClass as IUsePhantomButton)?.IsPhantomRole is false) Visible = false;
+                            __instance.AbilityButton.ToggleVisible(Visible);
+                        }
+                    }
+                    if (Main.CustomSprite.Value && CustomButtonHud.CantJikakuIsPresent is not true)
                     {
                         if (roleClass != null)
                         {
@@ -127,10 +136,7 @@ namespace TownOfHost
 
                                 if (roleClass.HasAbility)
                                 {
-                                    bool Visible = roleClass.CanUseAbilityButton() && GameStates.IsInTask;
-                                    if ((roleClass as IUsePhantomButton)?.IsPhantomRole is false) Visible = false;
                                     __instance.AbilityButton.OverrideText(roleClass.GetAbilityButtonText());
-                                    __instance.AbilityButton.ToggleVisible(Visible);
                                     if (roleClass.AllEnabledColor)
                                     {
                                         __instance.AbilityButton.graphic.color = __instance.AbilityButton.buttonLabelText.color = Palette.EnabledColor;
@@ -266,7 +272,7 @@ namespace TownOfHost
     class CustomButtonHud
     {
         //カスタムぼたーん。
-        public static bool? ch;
+        public static bool? CantJikakuIsPresent;
         public static Sprite MotoKillButton = null;
         public static Sprite ImpVentButton = null;
         public static Sprite ShapeShiftButton = null;
@@ -331,12 +337,12 @@ namespace TownOfHost
                         }
                     }
                     if (CustomRoles.Amnesia.IsPresent()) return;
-                    if (ch == null)
+                    if (CantJikakuIsPresent == null)
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
-                            if (pc.GetRoleClass()?.Jikaku() is not null and not CustomRoles.NotAssigned) ch = true;
+                            if (pc.GetRoleClass()?.Jikaku() is not null and not CustomRoles.NotAssigned and not CustomRoles.Crewmate) CantJikakuIsPresent = true;
                         }
-                    if (ch == true) return;
+                    if (CantJikakuIsPresent == true) return;
                     if (customrole.IsVanilla()) return;
                     if (roleClass == null) return;
                     if (Main.CustomSprite.Value)

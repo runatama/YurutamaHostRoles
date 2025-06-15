@@ -249,7 +249,7 @@ namespace TownOfHost
             MeetingHudPatch.Title = "";
             MeetingVoteManager.Voteresult = "";
             IUsePhantomButton.IPPlayerKillCooldown.Clear();
-            CustomButtonHud.ch = null;
+            CustomButtonHud.CantJikakuIsPresent = null;
             Utils.RoleSendList.Clear();
             UtilsNotifyRoles.MeetingMoji = "";
             Roles.Madmate.MadAvenger.Skill = false;
