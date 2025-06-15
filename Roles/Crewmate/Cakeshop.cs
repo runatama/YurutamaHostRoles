@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Cakeshop : RoleBase, INekomata
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -18,7 +19,7 @@ public sealed class Cakeshop : RoleBase, INekomata
             CustomRoles.Cakeshop,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21600,
+            14950,
             null,
             "cs",
             "#aacbff",

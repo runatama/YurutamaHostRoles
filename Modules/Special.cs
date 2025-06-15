@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost;
+
 static class Event
 {
     public static bool IsChristmas = DateTime.Now.Month == 12 && DateTime.Now.Day is 24 or 25;
@@ -18,7 +19,7 @@ static class Event
     public static bool April = DateTime.Now.Month == 4 && DateTime.Now.Day is 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8;
     public static bool IsEventDay => IsChristmas || White || IsInitialRelease || IsHalloween || GoldenWeek || April;
     public static bool Special = false;
-    public static bool NowRoleEvent => DateTime.Now.Month == 1 && DateTime.Now.Day <= 8;
+    public static bool NowRoleEvent => DateTime.Now.Month == 6 && DateTime.Now.Day is 15 or 16 or 17 or 18 or 19 or 20 or 21 or 22;
     public static List<string> OptionLoad = new();
     public static bool IsE(this CustomRoles role) => role is CustomRoles.SpeedStar or CustomRoles.Chameleon;
 }
