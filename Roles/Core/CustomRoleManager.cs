@@ -756,6 +756,7 @@ public enum CustomRoles
     Eraser,
     QuickKiller,
     //DEBUG only Impostor
+   Ballooner,
     BorderKiller,
     Assassin,
     //Madmate

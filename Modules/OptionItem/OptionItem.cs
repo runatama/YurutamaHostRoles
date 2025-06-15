@@ -220,6 +220,7 @@ namespace TownOfHost
 
         public string ApplyFormat(string value)
         {
+            if (value == "-0") value = "0";
             if (value == "0")
             {
                 if (Infinity != false) return Infinity == true ? "∞" : "<b>―</b>";
@@ -376,6 +377,7 @@ namespace TownOfHost
         Seconds,
         Percent,
         Times,
+        /// <summary>x</summary>
         Multiplier,
         Votes,
         Pieces,

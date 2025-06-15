@@ -66,6 +66,7 @@
 "EvilMaker","EvilMaker","イビルメーカー"
 "QuickKiller","QuickKiller","クイックキラー"
 "BorderKiller","BorderKiller","ボーダーキラー"
+"Ballooner","Ballooner","バルーナー"
 "#ImpostorName"
 
 "# マッドメイト系役職"
@@ -326,6 +327,7 @@
 "EvilMakerInfo","Make Madmate","共犯者を増やせ..."
 "QuickKillerInfo","Quickly and a lot","ｼｭﾊﾟﾊﾟｰﾝ!"
 "BorderKillerInfo","Kill a certain number of Crew","目標人数を目指して殺せ"
+"BalloonerInfo","Shu...Boooooom!","膨らませて...ドッカーン！"
 "#ImpostorInfo"
 
 "# マッドメイト系役職"
@@ -554,6 +556,7 @@
 "EvilMakerInfoLong","Make SidekickMadmate the kill target when using the one-click button. \nThe master communicates with the person who became the sidekick mad mate.","ワンクリックボタンを使用した時のキルターゲットをサイドキックマッドメイトにする。\nサイドキックマッドメイトされた人と親分は通じ合う。"
 "QuickKillerInfoLong","With at least a set number of people alive, a kill will enter quick mode for a certain amount of time. \nDuring the quick mode, the kill cool time is 0 seconds.","設定人数以上生存している状態で、キルをすると一定時間クイックモードになる。\nクイックモード中はキルクールが0秒。"
 "BorderKillerInfoLong","If you do not kill at least a set number of people yourself, you will not win even if you are the imposter winner.","設定人数以上自身でキルをしないと、インポスター勝利時でも自身は勝利できない。"
+"BalloonerInfoLong","","ワンクリックボタンを使用することで風船が破裂し周囲のプレイヤーを爆破できる。\n\nまた、タスクターン中に歩くことで\n風船が膨らみ爆破範囲が広がる。"
 "#ImpostorInfoLong"
 
 "# マッドメイト系役職"
@@ -1255,6 +1258,13 @@
 "QuickKillerCanuseplayercount","Quickmode Must playercount","クイックモードに必要な生存人数"
 "QuickKillerTimer","QuickTime","クイックモードの効果時間"
 "BorderKillerMissionKillcount","Mission KillCount","目標人数"
+"BalloonerMinBoomDis","MinBoomDis","最小爆破範囲"
+"BalloonerMaxBoomDis","MaxBoomDis","最大爆破範囲"
+"BalloonerChargeWalk","Charge WalkStep","膨らむのに必要な移動距離"
+"BalloonerChargeStep","Charge Step","加算される爆破範囲"
+"BalloonerSuicide","Used Suicide","使用後自殺する"
+"BalloonerAfterMeetingRemoveCharge","AfterMeeting Remove","会議後、減算される爆破範囲"
+"BalloonerTargetImpostor","Target Impostor","インポスターを巻き込む"
 
 "## MadMate Role Setting"
 "MadmateOption","MadMate Options","マッドメイト系役職の設定"
@@ -1886,7 +1896,9 @@
 "MadSuicideLowerInfo","PhantomButton/KillButton → Suicide","ファントムボタン/キル → 自殺"
 "StealthLowerInfo","UsePhantomButton → AddRoom","ファントムボタン → 暗転部屋追加"
 "CurseMakerLowerText","Kill → Curse , PhantomButton → CurseKill","キル → 呪う　ファントムボタン → 呪殺"
-"ComebackLowerText","{0}","カムバック先:{0}"
+"ComebackLowerText","SnapTo:{0}","カムバック先:{0}"
+"BalloonerLowerText1","add Bomdistance to walk","歩いて爆破範囲を広げよう"
+"BalloonerLowerText2","UsePhantomButton → Bom!","ファントムボタン → 破裂!"
 
 "## かくれんぼ設定"
 "HideAndSeekOptions","Hide and Seek Settings","かくれんぼの設定","躲猫猫设置","躲貓貓設定","Настройки Пряток","Configurações do Esconde-Esconde",""
@@ -1967,6 +1979,7 @@
 "VentHunterAbility","Set a trap","仕掛ける"
 "EraserAbility","Erase","役職を消す"
 "ProBowler_Ability","Dig","穴を掘る"
+"BalloonerAbility","Rupture","破裂"
 
 "## クライアント設定"
 "Close","Close","閉じる","关闭","","Закрыть","Fechar",""

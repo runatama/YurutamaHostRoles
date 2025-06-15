@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class TeleportKiller : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
