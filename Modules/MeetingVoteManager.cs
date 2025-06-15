@@ -199,7 +199,7 @@ public class MeetingVoteManager
             }
         }
         Main.CanUseAbility = false;
-        if (!AntiBlackout.OverrideExiledPlayer())// && !Options.BlackOutwokesitobasu.GetBool())
+        if (!AntiBlackout.OverrideExiledPlayer())
         {
             AntiBlackout.SetIsDead();
             AntiBlackout.SetRole(result);

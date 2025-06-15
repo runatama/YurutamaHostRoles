@@ -23,6 +23,7 @@ using static TownOfHost.UtilsRoleText;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
 using TownOfHost.Roles.Core.Descriptions;
+using Rewired;
 
 namespace TownOfHost
 {
@@ -1168,6 +1169,7 @@ namespace TownOfHost
                         break;
                 }
             }
+            canceled |= AntiBlackout.IsCached;
             if (canceled)
             {
                 Logger.Info("Command Canceled", "ChatCommand");
@@ -2032,10 +2034,6 @@ namespace TownOfHost
                     if (args[0].StartsWith("/"))
                     {
                         canceled = Options.ExHideChatCommand.GetBool() && GameStates.Meeting;
-                        if (GameStates.Tuihou)
-                        {
-                            ChatManager.SendPreviousMessagesToAll(); break;
-                        }
                         break;
                     }
                     canceled = false;
@@ -2110,6 +2108,10 @@ namespace TownOfHost
                         }, Main.LagTime, "", true);
                     }
                     break;
+            }
+            if (AntiBlackout.IsCached && !player.IsAlive())
+            {
+                ChatManager.SendPreviousMessagesToAll();
             }
             canceled &= Options.ExHideChatCommand.GetBool();
         }
