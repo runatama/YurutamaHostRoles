@@ -138,7 +138,7 @@ namespace TownOfHost
             }
             // 役職の処理
             if (Amnesia.CheckAbility(shapeshifter))
-                if (roleclass?.CheckShapeshift(target, ref shouldAnimate) == false)
+                if (roleclass?.CheckShapeshift(target, ref shouldAnimate) == false && !MeetingHud.Instance)
                 {
                     if (roleclass.CanDesyncShapeshift)
                     {

@@ -238,6 +238,7 @@ namespace TownOfHost
                         {
                             sender = CustomRpcSender.Create("NotifyRoles");
                             sender.StartMessage(clientId);
+                            Sended = false;
                         }
                         var targetisalive = target.IsAlive();
 
