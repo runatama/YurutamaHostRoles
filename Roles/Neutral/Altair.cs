@@ -18,7 +18,7 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner
             40130,
             null,
             "alt",
-            "#b3b3b3",
+            "#b0c4de",
             true,
             countType: CountTypes.MilkyWay,
             combination: CombinationRoles.VegaandAltair

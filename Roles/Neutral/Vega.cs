@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using Hazel;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -85,7 +86,7 @@ public sealed class Vega : RoleBase, IKiller
     public bool CanSeeKiller;
     private PlayerControl Altair;
 
-    public static readonly string TeamColor = "#191970";
+    public static readonly string TeamColor = "#f0e7a8";
     public static string TeamText => $"<color={TeamColor}>{GetString(CountTypes.MilkyWay.ToString())}</color>";
 
     enum OptionName
@@ -138,6 +139,7 @@ public sealed class Vega : RoleBase, IKiller
     public override void AfterMeetingTasks() => CheckAlive();
 
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner) => CheckAlive(exiled?.Object);
+    public override void ReceiveRPC(MessageReader reader) => Rendezvous();
 
     public void OnCheckMurderAsKiller(MurderInfo info)
     {

@@ -132,7 +132,7 @@ namespace TownOfHost.Modules.ChatManager
         {
             var rd = IRandom.Instance;
             string msg;
-            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsRiaju() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE() && role is not CustomRoles.Assassin and CustomRoles.Merlin).ToList();
+            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsRiaju() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE() && Event.CheckRole(role) && role is not CustomRoles.Assassin and CustomRoles.Merlin).ToList();
             string[] specialTexts = new string[] { "bt" };
 
             for (int i = chatHistory.Count; i < 30; i++)

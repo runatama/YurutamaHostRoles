@@ -841,7 +841,7 @@ namespace TownOfHost
                         if (GameStates.IsLobby && !GameStates.IsCountDown)
                         {
                             canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && Event.CheckRole(option.Key) && (!Event.IsE(option.Key) || Event.Special)))
                             {
                                 var r = option.Key;
                                 if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral()) option.Value.SetValue(10);
@@ -854,7 +854,7 @@ namespace TownOfHost
                         if (GameStates.IsLobby && !GameStates.IsCountDown)
                         {
                             canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && Event.CheckRole(option.Key) && (!Event.IsE(option.Key) || Event.Special)))
                             {
                                 option.Value.SetValue(10);
                             }
@@ -1301,7 +1301,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_impostor").Color(Palette.ImpostorRed)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsImpostor()))
                     {
-                        if (im.Key.IsE() || im.Key is CustomRoles.Assassin) continue;
+                        if (im.Key.IsE() || !Event.CheckRole(im.Key) || im.Key is CustomRoles.Assassin) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1316,7 +1316,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_crew").Color(Color.blue)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsCrewmate()))
                     {
-                        if (im.Key.IsE() || im.Key is CustomRoles.Assassin) continue;
+                        if (im.Key.IsE() || !Event.CheckRole(im.Key) || im.Key is CustomRoles.Assassin) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1332,7 +1332,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_Neutral").Color(Palette.DisabledGrey)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsNeutral()))
                     {
-                        if (im.Key.IsE()) continue;
+                        if (im.Key.IsE() || !Event.CheckRole(im.Key)) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1346,7 +1346,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_MadMate").Color(ModColors.MadMateOrenge)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsMadmate()))
                     {
-                        if (im.Key.IsE()) continue;
+                        if (im.Key.IsE() || !Event.CheckRole(im.Key)) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1362,7 +1362,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_Addon").Color(ModColors.AddonsColor)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsAddOn() || r.Key is CustomRoles.Amanojaku))
                     {
-                        if (im.Key.IsE()) continue;
+                        if (im.Key.IsE() || !Event.CheckRole(im.Key)) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1376,7 +1376,7 @@ namespace TownOfHost
                     rolemsg = $"{GetString("h_r_GhostRole").Color(ModColors.GhostRoleColor)}</u><size=50%>";
                     foreach (var im in roleCommands.Where(r => r.Key.IsGhostRole()))
                     {
-                        if (im.Key.IsE()) continue;
+                        if (im.Key.IsE() || !Event.CheckRole(im.Key)) continue;
                         rolemsg += $"\n{GetString($"{im.Key}")}({im.Value})";
                     }
                     if (player == byte.MaxValue) player = 0;
@@ -1394,7 +1394,7 @@ namespace TownOfHost
                     {
                         goto infosend;
                     }
-                    if (r.Key.IsE() && !Event.Special) goto infosend;
+                    if ((r.Key.IsE() && !Event.Special) || !Event.CheckRole(r.Key)) goto infosend;
                     var roleInfo = r.Key.GetRoleInfo();
                     if (roleInfo != null && roleInfo.Description != null)
                     {
@@ -1479,6 +1479,9 @@ namespace TownOfHost
                 "ヴァルチャー" or "バルチャー" => GetString("Vulture"),
 
                 "ドライバーとブレイド" => GetString("Driver"),
+                "" => GetString("Driver"),
+
+                "織姫と彦星" => GetString("Vega"),
                 _ => text,
             };
         }

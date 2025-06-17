@@ -189,7 +189,7 @@
 "Faction","Faction","徒党"
 "Vega","Vega","織姫"
 "Altair","Altair","彦星"
-"VegaandAltair","Vega And Altair","織姫と彦星"
+"VegaandAltair","Vega And Altair","織姫</color>と<color=#b0c4de>彦星</color>"
 
 "# HideAndSeek"
 "HASFox","Fox","狐","狐狸","狐妖","Лис","Raposa","Raposa"
@@ -450,6 +450,8 @@
 "SantaClausInfo","A gift for everyone!","皆にプレゼントを！"
 "VultureInfo","I'm hungry...","お腹が空いた..."
 "TurncoatInfo","It's all your fault...","全部キミが悪いんだよ..."
+"VegaInfo","","彦星に会いたくて"
+"AltairInfo","","この船を流れ星にしよう"
 "#NeutralInfo"
 
 "# HideAndSeek"
@@ -665,6 +667,8 @@
 "VultureInfoLong","","通報ボタンを押すことで死体をつまみぐいする事ができる。\n一定回数つまみぐいを行うと勝利。\nタスクを行うことでキルフラッシュが見えたり、死体への矢印を受け取ることができる\n\nそのターンにつまみぐいされた死体は会議で<#6f4204>×</color>がつく。"
 "TurncoatInfoLong","","ターゲットに<#371a1a>★</color>マークがついている。\n\nゲーム終了時、ターゲットが敗北し、自身が生存していると追加勝利。\nターゲットが死亡すると裏切者視点ターゲットの役職が分かるようになる。"
 "VentomanInfoLong","","設定数ベントに入ると勝利するただそれだけだ\nベント開閉やばれないようにベントに入ろう!"
+"VegaInfoLong","","彦星に会いたい健気な織姫。\n1ターンに一度、彦星と合流しキルボタンを押すことで逢い引き出来る。\n一定回数逢い引きすると彦星にランダムなバフ属性がつく。\n彦星が死亡、または役職変化した場合会議後に後追いする"
+"AltairInfoLong","","織姫のために船を沈めようとする彦星。\nキルボタンを持ちベントを使える。\n織姫と合流し逢い引きする事で様々なバフ属性を貰える。\nまた、逢い引き回数に応じてキルクール短縮、キル可能役職がわかる等の強化が施される。"
 "#NeutralInfoLong"
 
 "# ImpostorDescInfos"

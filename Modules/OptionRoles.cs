@@ -122,7 +122,7 @@ namespace TownOfHost
             this.IdStart = idStart;
             this.Role = role;
             var r = chrole == CustomRoles.NotAssigned ? role : chrole;
-            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
+            Dictionary<string, string> replacementDic = new() { { "%role%", UtilsRoleText.GetCombinationName(r) } };
             if (tab is TabGroup.MainSettings)
             {
                 OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)

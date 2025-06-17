@@ -696,6 +696,7 @@ namespace TownOfHost
             sortedRoleInfo.Where(role => role.CustomRoleType == CustomRoleTypes.Impostor).Do(info =>
             {
                 if (info.RoleName is CustomRoles.AlienHijack) return;
+                if (!Event.CheckRole(info.RoleName)) return;
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
             });
@@ -712,7 +713,8 @@ namespace TownOfHost
             sortedRoleInfo.Where(role => role.CustomRoleType != CustomRoleTypes.Impostor).Do(info =>
             {
                 //#if RELEASE
-                if (info.RoleName == CustomRoles.Cakeshop && !Event.NowRoleEvent) return;
+                if (info.RoleName == CustomRoles.Cakeshop && Event.IsEventDay is false) return;
+                if (!Event.CheckRole(info.RoleName)) return;
                 //#endif
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
