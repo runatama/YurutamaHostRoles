@@ -311,19 +311,19 @@ namespace TownOfHost
         /// コンビネーション役職だと専用の名前を返す<br>
         /// それ以外は通常と同じ名前になる</br>
         ///</summary>
-        public static string GetCombinationCName(this CustomRoles role, bool color = true)
+        public static string GetCombinationName(this CustomRoles role, bool color = true)
         {
             var roleinfo = role.GetRoleInfo();
             if (roleinfo is null || roleinfo?.Combination is null)
             {
                 if (color)
-                    return GetRoleName(role).Color(GetRoleColor(role));
+                    return ColorString(GetRoleColor(role), GetRoleName(role));
                 else
                     return GetRoleName(role);
             }
 
             if (color)
-                return roleinfo?.Combination == CombinationRoles.None ? GetRoleName(role).Color(GetRoleColor(role)) : GetString(roleinfo.Combination.ToString()).Color(GetRoleColor(role));
+                return roleinfo?.Combination == CombinationRoles.None ? ColorString(GetRoleColor(role), GetRoleName(role)) : ColorString(GetRoleColor(role), GetString(roleinfo.Combination.ToString()));
             return roleinfo?.Combination == CombinationRoles.None ? GetRoleName(role) : GetString(roleinfo.Combination.ToString());
         }
         public static string GetProgressText(byte playerId, bool comms = false, bool Mane = true, bool gamelog = false, bool hide = false)

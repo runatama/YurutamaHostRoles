@@ -452,7 +452,7 @@ namespace TownOfHost
                         else if (role.IsGhostRole()) mark = "Ⓖ";
                         else mark = "〇";
                     }
-                    if (role.IsEnable()) sb.AppendFormat($"\n {mark}" + "\"{0}\"   {1}×{2}", role.GetCombinationCName(false), $"{role.GetChance()}%", role.GetCount());
+                    if (role.IsEnable()) sb.AppendFormat($"\n {mark}" + "\"{0}\"   {1}×{2}", role.GetCombinationName(false), $"{role.GetChance()}%", role.GetCount());
                 }
             }
             else

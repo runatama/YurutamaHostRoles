@@ -108,9 +108,9 @@ namespace TownOfHost
                             if (role.IsDebuffAddon()) m = Utils.ColorString(Palette.DisabledGrey, "☆");
                             if (role.IsGhostRole()) m = "<#8989d9>■</color>";
 
-                            if (count == 0) sb.Append($"\n{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
-                            else if (count == -1) sb.Append($"{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
-                            else sb.Append($"<pos=39%>{m}{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
+                            if (count == 0) sb.Append($"\n{m}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else if (count == -1) sb.Append($"{m}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else sb.Append($"<pos=39%>{m}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
 
                             if (count == 0) co++;
                             count = count is 0 or -1 ? 1 : 0;
@@ -138,7 +138,7 @@ namespace TownOfHost
                     {
                         if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
                         sb.Append('\n');
-                        sb.Append($"</size><size=100%>{UtilsRoleText.GetCombinationCName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
+                        sb.Append($"</size><size=100%>{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</size>\n<size=80%>");
                         ShowChildren(kvp.Value, ref sb, UtilsRoleText.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
                         string rule = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┣ ");
                         string ruleFooter = Utils.ColorString(Palette.ImpostorRed.ShadeColor(-0.5f), "┗ ");

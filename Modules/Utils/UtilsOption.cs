@@ -154,7 +154,7 @@ namespace TownOfHost
                         if (role.IsGhostRole()) mark = "Ⓖ";
                         if (role.IsRiaju()) mark = "Ⓛ";
 
-                        sb.Append($"\n<{GetRoleColorCode(role, true)}><u>{mark}{UtilsRoleText.GetCombinationCName(role, false)}</color></u>×{role.GetCount()}\n\n");
+                        sb.Append($"\n<{GetRoleColorCode(role, true)}><u>{mark}{UtilsRoleText.GetCombinationName(role, false)}</color></u>×{role.GetCount()}\n\n");
                         if (!(role is CustomRoles.Alien or CustomRoles.JackalAlien or CustomRoles.AllArounder)) ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, 1);
                         CheckPageChange(PlayerId, sb);
                     }
@@ -245,7 +245,7 @@ namespace TownOfHost
             }
             foreach (var s in sort.OrderBy(x => x.Value))
             {
-                sb += $"\n" + GetRoleColorAndtext(s.Key) + $"{s.Value}";
+                sb += $"\n" + UtilsRoleText.GetCombinationName(s.Key, true) + $"{s.Value}";
             }
             SendMessage(sb, PlayerId);
         }
@@ -261,7 +261,7 @@ namespace TownOfHost
             foreach (var role in Options.CustomRoleCounts)
             {
                 if (!role.Key.IsEnable()) continue;
-                sb.Append($"\n【{UtilsRoleText.GetCombinationCName(role.Key)}×{role.Key.GetCount()}】\n");
+                sb.Append($"\n【{UtilsRoleText.GetCombinationName(role.Key)}×{role.Key.GetCount()}】\n");
                 ShowChildrenSettings(Options.CustomRoleSpawnChances[role.Key], ref sb);
                 var text = sb.ToString();
                 sb.Clear().Append(text.RemoveHtmlTags());
@@ -308,9 +308,9 @@ namespace TownOfHost
                 {//Roles
                     if (role.IsEnable())
                     {
-                        var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
+                        var longestNameByteCount = roles.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
                         var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : ColorString(Palette.DisabledGrey, "Ⓝ")));
-                        sb.AppendFormat("\n" + co + "{0}:{1}x{2}", role.GetCombinationCName(), $"{role.GetChance()}%", role.GetCount());
+                        sb.AppendFormat("\n" + co + "{0}:{1}x{2}", role.GetCombinationName(), $"{role.GetChance()}%", role.GetCount());
                     }
                 }
             }
@@ -319,7 +319,7 @@ namespace TownOfHost
                 sb.Append("\n<size=100%>\n").Append(GetString("Addons")).Append("</size>");
                 foreach (CustomRoles Addon in addons)
                 {
-                    var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
+                    var longestNameByteCount = addons.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
                     var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
                     if (Addon.IsEnable()) sb.AppendFormat("\n★{0}:{1}x{2}", GetRoleName(Addon).Color(GetRoleColor(Addon)), $"{Addon.GetChance()}%", Addon.GetCount());
                 }
@@ -381,10 +381,10 @@ namespace TownOfHost
                             roleType = role.GetCustomRoleTypes();
                         }
                         nowcount++;
-                        var longestNameByteCount = roles.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
+                        var longestNameByteCount = roles.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
                         var co = role.IsImpostor() ? "Ⓘ" : (role.IsCrewmate() ? "Ⓒ" : (role.IsMadmate() ? "Ⓜ" : "Ⓝ"));
                         co = $"<{GetRoleColorCode(role, true)}>{co}";
-                        sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + co + "{0}</color>:{1}", role.GetCombinationCName(false), role.GetChance() is 100 ? role.GetCount() : $"{role.GetChance()}%x{role.GetCount()}");
+                        sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + co + "{0}</color>:{1}", role.GetCombinationName(false), role.GetChance() is 100 ? role.GetCount() : $"{role.GetChance()}%x{role.GetCount()}");
                         if (nowcount > 1) nowcount = 0;
                         P(sb);
                     }
@@ -404,7 +404,7 @@ namespace TownOfHost
                         if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
                         if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
                         if (Addon.IsGhostRole()) m = "<#8989d9>■</color>";
-                        var longestNameByteCount = addons.Select(x => x.GetCombinationCName().Length).OrderByDescending(x => x).FirstOrDefault();
+                        var longestNameByteCount = addons.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
                         sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + m + "{0}:{1}", GetRoleColorAndtext(Addon), Addon.GetChance() is 100 ? $"{Addon.GetCount()}" : $"{Addon.GetChance()}%x{Addon.GetCount()}");
                         if (nowcount > 1) nowcount = 0;
                         P(sb);
