@@ -253,10 +253,7 @@ public sealed class Vega : RoleBase, IKiller
             //死亡or切断済みor役職が変化している
             if (Altair == null || target == Altair || !Altair.IsAlive() || Altair.GetCustomRole() != CustomRoles.Altair)
             {
-                Player.RpcExileV2();
-                var state = PlayerState.GetByPlayerId(Player.PlayerId);
-                state.DeathReason = CustomDeathReason.FollowingSuicide;
-                state.SetDead();
+                MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, Player.PlayerId);
             }
         }
     }
