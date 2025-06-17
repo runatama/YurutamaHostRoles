@@ -38,6 +38,9 @@ public sealed class VentOpener : RoleBase
         Crew = OptionCrew.GetBool();
         Neutral = OptionNeutral.GetBool();
         taskc = OptionCanTaskcount.GetFloat();
+        BlockKill = OptionBlockKill.GetBool();
+        BlockVent = OptionBlockVent.GetBool();
+        BlockSabotage = OptionBlockSabotage.GetBool();
     }
 
     private static OptionItem OptionCount;
@@ -48,6 +51,10 @@ public sealed class VentOpener : RoleBase
     private static OptionItem OptionMad;
     private static OptionItem OptionNeutral;
     private static OptionItem OptionCanTaskcount;
+    public static OptionItem OptionBlockKill;
+    public static OptionItem OptionBlockVent;
+    public static OptionItem OptionBlockSabotage;
+
     static int cooldown;
     static bool fuhatu;
     static bool Imp;
@@ -56,9 +63,13 @@ public sealed class VentOpener : RoleBase
     static bool Neutral;
     static bool Defo;
     static float taskc;
+    static bool BlockKill;
+    static bool BlockVent;
+    static bool BlockSabotage;
     int count;
 
     static Dictionary<byte, int> currentVent;
+    List<byte> expelledPlayers;
 
     enum OptionName
     {
@@ -69,7 +80,10 @@ public sealed class VentOpener : RoleBase
         VentOpenerMad,
         VentOpenerCrew,
         VentOpenerNeutral,
-        VentOpenerCount
+        VentOpenerCount,
+        VentOpenerBlockKill,
+        VentOpenerBlockVent,
+        VentOpenerBlockSabotage
     }
 
     private static void SetupOptionItem()
@@ -82,6 +96,9 @@ public sealed class VentOpener : RoleBase
         OptionCrew = BooleanOptionItem.Create(RoleInfo, 15, OptionName.VentOpenerCrew, true, false);
         OptionNeutral = BooleanOptionItem.Create(RoleInfo, 16, OptionName.VentOpenerNeutral, true, false);
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 17, OptionName.cantaskcount, new(0, 99, 1), 5, false);
+        OptionBlockKill = BooleanOptionItem.Create(RoleInfo, 18, OptionName.VentOpenerBlockKill, false, false);
+        OptionBlockVent = BooleanOptionItem.Create(RoleInfo, 19, OptionName.VentOpenerBlockVent, false, false);
+        OptionBlockSabotage = BooleanOptionItem.Create(RoleInfo, 20, OptionName.VentOpenerBlockSabotage, false, false);
     }
 
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
@@ -154,6 +171,16 @@ public sealed class VentOpener : RoleBase
         if (Operation == VentilationSystem.Operation.Move)
             currentVent[user.PlayerId] = ventId;
     }
+
+    public override bool OnCheckMurderAsTarget(MurderInfo info)
+    {
+        info.CanKill = !BlockKill || !expelledPlayers.Contains(info.AttemptKiller.PlayerId);
+        return true;
+    }
+
+    public override bool OnSabotage(PlayerControl player, SystemTypes systemType) => !BlockSabotage || !expelledPlayers.Contains(player.PlayerId);
+    public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) => expelledPlayers.Clear();
+
 
     public override void ApplyGameOptions(IGameOptions opt)
     {
