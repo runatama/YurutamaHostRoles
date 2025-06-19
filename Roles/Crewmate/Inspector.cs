@@ -173,6 +173,7 @@ public sealed class Inspector : RoleBase
                 , 3, "InspectorSend", true);
         }
         timer = 0;
+        Isdie = false;
         TargetPlayerId = byte.MaxValue;
     }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
