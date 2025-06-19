@@ -6,6 +6,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class VentOpener : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -41,6 +42,8 @@ public sealed class VentOpener : RoleBase
         BlockKill = OptionBlockKill.GetBool();
         BlockVent = OptionBlockVent.GetBool();
         BlockSabotage = OptionBlockSabotage.GetBool();
+
+        expelledPlayers = new();
     }
 
     private static OptionItem OptionCount;
