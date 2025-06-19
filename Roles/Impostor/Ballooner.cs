@@ -158,6 +158,7 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
             ResetBalloon();
             UtilsNotifyRoles.NotifyRoles();
         }
+        Player.SetKillCooldown(delay: true);
     }
 
     public override void AfterMeetingTasks()
