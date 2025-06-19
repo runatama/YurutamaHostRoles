@@ -455,6 +455,7 @@ namespace TownOfHost
                         writer.WritePacked(127);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);*/
 
+                        __instance.myPlayer.inVent = false;
                         _ = new LateTask(() =>
                         {
                             int clientId = user.GetClientId();
@@ -462,10 +463,12 @@ namespace TownOfHost
                             writer2.Write(id);
                             AmongUsClient.Instance.FinishRpcImmediately(writer2);
                             __instance.myPlayer.RpcSnapToForced(pos);
+                            __instance.myPlayer.inVent = false;
                         }, 0.8f, "Fix DesyncImpostor Stuck", null);
                         return false;
                     }
                 }
+                if (OldOnEnterVent.TryAdd(__instance.myPlayer.PlayerId, true)) OldOnEnterVent[__instance.myPlayer.PlayerId] = true;
 
                 //マッドでベント移動できない設定なら矢印を消す
                 if ((!roleClass?.CantVentIdo(__instance, id) ?? false) ||
@@ -527,7 +530,7 @@ namespace TownOfHost
             var player = __instance.myPlayer;
             if (CoEnterVentPatch.OldOnEnterVent.TryGetValue(player.PlayerId, out var canuse))
             {
-                if (canuse)
+                if (canuse is false)
                 {
                     ReMove();
                     return false;
@@ -546,6 +549,8 @@ namespace TownOfHost
                 ReMove();
                 return false;
             }
+            return true;
+
             void ReMove()
             {
                 if (VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(player.PlayerId, out var id))
@@ -560,7 +565,6 @@ namespace TownOfHost
                     player.RpcSnapToForced(vent.transform.position + new UnityEngine.Vector3(0f, 0.1f));
                 }
             }
-            return true;
         }
     }
     #endregion

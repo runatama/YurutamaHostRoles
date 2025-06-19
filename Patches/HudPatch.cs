@@ -661,7 +661,7 @@ namespace TownOfHost
                 foreach (var pl in PlayerCatch.AllPlayerControls)
                 {
                     a += $"{Utils.GetPlayerColor(pl)}({(pl.IsAlive() ? "<#3cff63>●</color>" : $"{Utils.GetVitalText(pl.PlayerId, true)}")}) : "
-                    + $"{UtilsRoleText.GetTrueRoleName(pl.PlayerId)} (pos:{pl.GetTruePosition()})\n";
+                    + $"{UtilsRoleText.GetTrueRoleName(pl.PlayerId)} (pos:{pl.GetTruePosition()}) ({(pl.inVent ? "Vent" : "Walk")}) ({pl.Data.RoleType})\n";
                 }
                 __instance.taskText.text = a;
             }
