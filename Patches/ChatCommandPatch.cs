@@ -1169,7 +1169,7 @@ namespace TownOfHost
                         break;
                 }
             }
-            canceled |= AntiBlackout.IsCached;
+            canceled |= AntiBlackout.IsCached && GameStates.InGame;
             if (canceled)
             {
                 Logger.Info("Command Canceled", "ChatCommand");
@@ -2112,7 +2112,7 @@ namespace TownOfHost
                     }
                     break;
             }
-            if (AntiBlackout.IsCached && !player.IsAlive())
+            if (AntiBlackout.IsCached && !player.IsAlive() && GameStates.InGame)
             {
                 ChatManager.SendPreviousMessagesToAll();
             }
