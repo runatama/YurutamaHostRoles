@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -75,7 +76,7 @@ namespace TownOfHost
             bool updateCheck = version != null && version.Update.Version != null;
             //string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (updateCheck ? "/tags/" + version.Update.Version : (all ? "" : "/latest"));
             string url = beta ? Main.BetaBuildURL.Value : URL + "/releases" + (all ? "" : "/latest");
-            if (snap) url = url + "?page=1";
+            if (snap || all) url = url + "?page=1";
             try
             {
                 string result;
