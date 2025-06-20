@@ -713,8 +713,8 @@ namespace TownOfHost
             sortedRoleInfo.Where(role => role.CustomRoleType != CustomRoleTypes.Impostor).Do(info =>
             {
                 //#if RELEASE
-                if (info.RoleName == CustomRoles.Cakeshop && Event.IsEventDay is false) return;
                 if (!Event.CheckRole(info.RoleName)) return;
+                if (info.RoleName == CustomRoles.Cakeshop && !Event.NowRoleEvent) return;
                 //#endif
                 SetupRoleOptions(info);
                 info.OptionCreator?.Invoke();
