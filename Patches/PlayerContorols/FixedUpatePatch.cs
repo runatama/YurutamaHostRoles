@@ -328,8 +328,25 @@ namespace TownOfHost
                             DisableDevice.UseCount = 0;
                         }
                     }
-                    if (Main.NowSabotage) Main.sabotagetime += Time.fixedDeltaTime;
+                    if (Main.NowSabotage)
+                    {
+                        Main.sabotagetime += Time.fixedDeltaTime;
+                        if (!Utils.IsActive(Main.SabotageType))
+                        {
+                            var sb = Translator.GetString($"sb.{Main.SabotageType}");
 
+                            if (Main.SabotageType == SystemTypes.MushroomMixupSabotage)
+                                UtilsGameLog.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
+                            else UtilsGameLog.AddGameLog($"{Main.SabotageType}", string.Format(Translator.GetString("Log.FixSab"), sb));
+                            Main.NowSabotage = false;
+                            Main.sabotagetime = 0;
+
+                            foreach (var role in Roles.Core.CustomRoleManager.AllActiveRoles.Values)
+                            {
+                                role.AfterSabotage(Main.SabotageType);
+                            }
+                        }
+                    }
                     if (!GameStates.Meeting && PlayerControl.LocalPlayer.IsAlive() && !ChatUpdatePatch.DoBlockChat)
                     {
                         if (Main.MessagesToSend.Count > 0)
