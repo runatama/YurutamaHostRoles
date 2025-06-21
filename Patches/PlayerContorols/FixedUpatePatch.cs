@@ -476,6 +476,8 @@ namespace TownOfHost
             {
                 if (GameStates.IsLobby)
                 {
+                    if (PlayerControl.LocalPlayer.PlayerId == __instance.PlayerId)
+                        PlayerControl.LocalPlayer.cosmetics.nameText.text = Main.lobbyname == "" ? DataManager.player.Customization.Name : Main.lobbyname;
                     if (Main.playerVersion.TryGetValue(__instance.PlayerId, out var ver))
                     {
                         if (Main.ForkId != ver.forkId) // フォークIDが違う場合
@@ -627,8 +629,6 @@ namespace TownOfHost
                 }
                 else
                 {
-                    if (PlayerControl.LocalPlayer.PlayerId == __instance.PlayerId)
-                        PlayerControl.LocalPlayer.cosmetics.nameText.text = Main.lobbyname == "" ? DataManager.player.Customization.Name : Main.lobbyname;
                     //役職テキストの座標を初期値に戻す
                     RoleText.transform.SetLocalY(0.2f);
                 }
