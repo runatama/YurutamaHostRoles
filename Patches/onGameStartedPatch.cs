@@ -784,13 +784,15 @@ namespace TownOfHost
 
                         pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
 
+                        if (pc.Is(CustomRoles.Amnesiac)) continue;
                         foreach (var seen in PlayerCatch.AllPlayerControls)
                         {
-                            if (!SuddenDeathMode.NowSuddenDeathMode && role.GetCustomRoleTypes() is CustomRoleTypes.Impostor && seen.GetCustomRole().GetCustomRoleTypes() is CustomRoleTypes.Impostor)
+                            if (!SuddenDeathMode.NowSuddenDeathMode && (role.GetCustomRoleTypes() is CustomRoleTypes.Impostor || role is CustomRoles.Egoist)
+                            && (seen.GetCustomRole().GetCustomRoleTypes() is CustomRoleTypes.Impostor || seen.GetCustomRole() is CustomRoles.Egoist))
                             {
                                 _ = new LateTask(() =>
                                 seen.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable)
-                                , Main.LagTime, "SetHostImpostor", null);
+                                , Main.LagTime, "SetHostImpostor", true);
                             }
                         }
                     }
