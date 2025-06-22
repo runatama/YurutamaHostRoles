@@ -319,6 +319,14 @@ namespace TownOfHost
         {
             if (SuddenDeathMode.NowSuddenDeathMode) return;
 
+            if (IsActive(SystemTypes.Reactor) || IsActive(SystemTypes.HeliSabotage))
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    pc.KillFlash(true);
+                }
+                return;
+            }
             var systemtypes = GetCriticalSabotageSystemType();
             ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
 
