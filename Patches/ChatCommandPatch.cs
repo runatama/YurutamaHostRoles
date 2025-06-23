@@ -2049,7 +2049,7 @@ namespace TownOfHost
 
                     if (!Options.ExHideChatCommand.GetBool()) break;
 
-                    if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsCached && !canceled)
+                    if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsSet && !AntiBlackout.IsCached && !canceled)
                     {
                         if (GameStates.Tuihou) break;
 
