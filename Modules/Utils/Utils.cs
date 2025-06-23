@@ -586,7 +586,7 @@ namespace TownOfHost
                 {
                     var roleClass = pc.GetRoleClass();
                     if (!Options.firstturnmeeting || !MeetingStates.First) roleClass?.AfterMeetingTasks();
-                    roleClass?.Colorchnge();
+                    pc.GetRoleClass()?.Colorchnge();//会議後、役職変更されてものやつ。
                 }
                 if (!Options.firstturnmeeting || !MeetingStates.First)
                 {
