@@ -41,7 +41,7 @@ namespace TownOfHost
                 }
             }
             // イントロ通信分割
-            if (Options.ExIntroWeight.GetBool())
+            if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
             {
                 InnerNetClientPatch.DontTouch = true;
                 MeetingHudPatch.StartPatch.Serialize = true;
@@ -1088,7 +1088,7 @@ namespace TownOfHost
             }
             public static void Release()
             {
-                if (Options.ExIntroWeight.GetBool())
+                if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
                 {
                     foreach (var pair in StoragedData)
                     {
