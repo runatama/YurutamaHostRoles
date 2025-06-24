@@ -226,5 +226,51 @@ namespace TownOfHost.Modules.ChatManager
                 }
             }
         }
+        public static void IntaskCheckSendMessage(PlayerControl player)
+        {
+            if (!GameStates.Meeting && PlayerControl.LocalPlayer.IsAlive() && !ChatUpdatePatch.DoBlockChat)
+            {
+                if (Main.MessagesToSend.Where(x => x.Item2 is not byte.MaxValue).Count() > 0)
+                {
+                    var pc = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
+                    if (pc != null)
+                    {
+                        (string msg, byte sendTo, string title) = Main.MessagesToSend.Where(x => x.Item2 is not byte.MaxValue).FirstOrDefault();
+                        if (sendTo != byte.MaxValue && Main.MegCount < 50)
+                        {
+                            Main.MessagesToSend.Remove((msg, sendTo, title));
+                            var sendpc = PlayerCatch.GetPlayerById(sendTo);
+                            int clientId = sendpc.GetClientId();
+                            if (sendpc != null)
+                            {
+                                var name = pc.Data.GetLogPlayerName();
+                                if (clientId == -1)
+                                {
+                                    pc.SetName(title);
+                                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(pc, msg);
+                                    pc.SetName(name);
+                                }
+                                var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                                writer.StartMessage(clientId);
+                                writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
+                                    .Write(player.Data.NetId)
+                                    .Write(title)
+                                    .EndRpc();
+                                writer.StartRpc(pc.NetId, (byte)RpcCalls.SendChat)
+                                    .Write(msg)
+                                    .EndRpc();
+                                writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
+                                    .Write(player.Data.NetId)
+                                    .Write(pc.Data.GetLogPlayerName())
+                                    .EndRpc();
+                                writer.EndMessage();
+                                writer.SendMessage();
+                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) Main.MegCount++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
