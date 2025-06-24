@@ -230,7 +230,7 @@ namespace TownOfHost
             LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
             LastKickModClient = Config.Bind("Other", "LastKickModClientValue", false);
 
-            PluginModuleInitializerAttribute.InitializeAll();
+            PluginModuleInitializerAttribute.InitializeAll(true);
             Blacklist.FetchBlacklist();
 
             IRandom.SetInstance(new NetRandomWrapper());

@@ -47,6 +47,7 @@ namespace TownOfHost.Modules
             TeamGreen.Clear();
             TeamPurple.Clear();
         }
+        [Attributes.GameModuleInitializer]
         public static void Reset()
         {
             NowSuddenDeathTemeMode = Options.SuddenTeam.GetBool();

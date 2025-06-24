@@ -43,6 +43,7 @@ class Lovers
         new ColorLovers(CustomRoles.WhiteLovers, 50800);
         new ColorLovers(CustomRoles.PurpleLovers, 50900);
     }
+    [Attributes.GameModuleInitializer]
     public static void Reset()
     {
         ColorLovers.Alldatas.Values.Do(data => data.Reset());

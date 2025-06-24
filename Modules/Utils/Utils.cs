@@ -766,5 +766,32 @@ namespace TownOfHost
             Logger.Info("Syncing all settings...", "Utils");
             // 実際の同期処理をここに実装
         }
+        public static void Init()
+        {
+            Camouflage.ventplayr.Clear();
+            PlayerCatch.OldAlivePlayerControles.Clear();
+            ReportDeadBodyPatch.DontReport.Clear();
+            RandomSpawn.SpawnMap.NextSporn.Clear();
+            RandomSpawn.SpawnMap.NextSpornName.Clear();
+            Patches.ISystemType.VentilationSystemUpdateSystemPatch.NowVentId.Clear();
+            CoEnterVentPatch.VentPlayers.Clear();
+            MeetingHudPatch.Oniku = "";
+            MeetingHudPatch.Send = "";
+            MeetingHudPatch.Title = "";
+            MeetingVoteManager.Voteresult = "";
+            IUsePhantomButton.IPPlayerKillCooldown.Clear();
+            CustomButtonHud.CantJikakuIsPresent = null;
+            Utils.RoleSendList.Clear();
+            UtilsNotifyRoles.MeetingMoji = "";
+            Roles.Madmate.MadAvenger.Skill = false;
+            Roles.Neutral.JackalDoll.side = 0;
+            Balancer.Id = 255;
+            Stolener.Killers.Clear();
+            Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !Options.SuddenDeathMode.GetBool();
+            CoEnterVentPatch.OldOnEnterVent = new();
+
+            if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) Utils.CanVent = true;
+            else Utils.CanVent = false;
+        }
     }
 }

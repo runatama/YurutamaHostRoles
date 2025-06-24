@@ -45,6 +45,7 @@ namespace TownOfHost
         public static bool DisableDevicesIgnoreNeutrals;
         public static bool DisableDevicesIgnoreCrewmates;
         public static bool DisableDevicesIgnoreAfterAnyoneDied;
+        [Attributes.GameModuleInitializer]
         public static void Reset()
         {
             DesyncComms.Clear();
