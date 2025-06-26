@@ -814,10 +814,12 @@ public enum CustomRoles
     Stolener,
     VentOpener,
     VentHunter,
+    Walker,
+    CandleLighter,
     Inspector,
     AllArounder,
+    //DEBUG only Crewmate
     Satellite,
-    Walker,
     //DEBUG only Crewmate
     Merlin,
     //Neutral
