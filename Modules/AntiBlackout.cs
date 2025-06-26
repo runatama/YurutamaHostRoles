@@ -223,6 +223,10 @@ namespace TownOfHost
                     var roleinfo = customrole.GetRoleInfo();
                     var role = roleinfo?.BaseRoleType.Invoke() ?? RoleTypes.Scientist;
                     var isalive = pc.IsAlive();
+                    if (customrole is CustomRoles.SKMadmate)
+                    {
+                        role = Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate;
+                    }
                     if (!isalive)
                     {
                         role = customrole.IsImpostor() || ((pc.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false) ?
