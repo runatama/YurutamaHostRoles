@@ -191,6 +191,7 @@ namespace TownOfHost
 
         public static void ResetSetRole(PlayerControl Player)
         {
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default && !Main.DontGameSet) return;
             if (Player) isRoleCache.Remove(Player.PlayerId);
             if (Player.GetClient() is null)
             {
