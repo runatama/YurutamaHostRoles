@@ -21,6 +21,7 @@ using TownOfHost.Roles.Ghost;
 using static TownOfHost.Translator;
 using static TownOfHost.UtilsRoleText;
 using TownOfHost.Patches;
+using TownOfHost.Attributes;
 
 namespace TownOfHost
 {
@@ -766,6 +767,7 @@ namespace TownOfHost
             Logger.Info("Syncing all settings...", "Utils");
             // 実際の同期処理をここに実装
         }
+        [GameModuleInitializerAttribute]
         public static void Init()
         {
             Camouflage.ventplayr.Clear();
