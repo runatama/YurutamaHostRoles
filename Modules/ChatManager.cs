@@ -233,41 +233,34 @@ namespace TownOfHost.Modules.ChatManager
             {
                 if (Main.MessagesToSend.Where(x => x.Item2 is not byte.MaxValue).Count() > 0)
                 {
-                    var pc = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
-                    if (pc != null)
+                    (string msg, byte sendTo, string title) = Main.MessagesToSend.Where(x => x.Item2 is not byte.MaxValue).FirstOrDefault();
+                    if (sendTo is not byte.MaxValue && Main.MegCount < 50)
                     {
-                        (string msg, byte sendTo, string title) = Main.MessagesToSend.Where(x => x.Item2 is not byte.MaxValue).FirstOrDefault();
-                        if (sendTo != byte.MaxValue && Main.MegCount < 50)
+                        Main.MessagesToSend.Remove((msg, sendTo, title));
+                        var sendpc = PlayerCatch.GetPlayerById(sendTo);
+                        int clientId = sendpc.GetClientId();
+                        if (sendpc != null)
                         {
-                            Main.MessagesToSend.Remove((msg, sendTo, title));
-                            var sendpc = PlayerCatch.GetPlayerById(sendTo);
-                            int clientId = sendpc.GetClientId();
-                            if (sendpc != null)
+                            var name = sendpc.Data.GetLogPlayerName();
+                            if (clientId == -1)
                             {
-                                var name = pc.Data.GetLogPlayerName();
-                                if (clientId == -1)
-                                {
-                                    pc.SetName(title);
-                                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(pc, msg);
-                                    pc.SetName(name);
-                                }
-                                var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-                                writer.StartMessage(clientId);
-                                writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                                    .Write(player.Data.NetId)
-                                    .Write(title)
-                                    .EndRpc();
-                                writer.StartRpc(pc.NetId, (byte)RpcCalls.SendChat)
-                                    .Write(msg)
-                                    .EndRpc();
-                                writer.StartRpc(pc.NetId, (byte)RpcCalls.SetName)
-                                    .Write(player.Data.NetId)
-                                    .Write(pc.Data.GetLogPlayerName())
-                                    .EndRpc();
-                                writer.EndMessage();
-                                writer.SendMessage();
-                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) Main.MegCount++;
+                                sendpc.SetName(title);
+                                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(sendpc, msg);
+                                sendpc.SetName(name);
                             }
+                            var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                            writer.StartMessage(clientId);
+                            writer.StartRpc(sendpc.NetId, (byte)RpcCalls.SetName)
+                                .Write(player.Data.NetId)
+                                .Write(title)
+                                .EndRpc();
+                            writer.StartRpc(sendpc.NetId, (byte)RpcCalls.SendChat)
+                                .Write(msg)
+                                .EndRpc();
+                            writer.EndMessage();
+                            writer.SendMessage();
+                            UtilsNotifyRoles.NotifyRoles(true, false, true, [sendpc]);
+                            if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) Main.MegCount++;
                         }
                     }
                 }
@@ -295,6 +288,7 @@ namespace TownOfHost.Modules.ChatManager
             {
                 Main.MessagesToSend.RemoveAt(0);
                 // ホスト視点でのチャット送信
+                if (sendTo == byte.MaxValue)
                 {
                     senderplayer.SetName(title);
                     DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderplayer, msg);
@@ -336,6 +330,10 @@ namespace TownOfHost.Modules.ChatManager
                     int seerclientid = seer.GetClientId();
                     string playername = seer.GetRealName(isMeeting: true);
                     playername = playername.ApplyNameColorData(seer, seer, true);
+                    if (!GameStates.IsMeeting && Main.LastNotifyNames.TryGetValue((seer.PlayerId, seer.PlayerId), out var lastname))
+                    {
+                        playername = lastname;
+                    }
 
                     var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                     Nwriter.StartMessage(seerclientid);

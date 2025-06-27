@@ -84,7 +84,6 @@ public sealed class Monochromer : RoleBase
     }
     public override void Colorchnge()
     {
-        Logger.Info($"aaa", "aaa");
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
         foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -92,7 +91,6 @@ public sealed class Monochromer : RoleBase
             if (pc == Player) continue;
             if (pc == null) continue;
             if (pc.Is(CustomRoles.UltraStar)) continue;
-            Logger.Info($"{pc.PlayerId}", "aaa");
             var id = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
             if (Kurosiro.GetBool())
             {
