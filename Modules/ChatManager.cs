@@ -283,8 +283,43 @@ namespace TownOfHost.Modules.ChatManager
                 return;
             }
 
+            // タスク中で送信者が生きてて全員に表示 => 個別送信に切り替え、名前をその人視点の者に戻す
+            if (GameStates.Meeting is false && senderplayer.IsAlive() && sendTo == byte.MaxValue)
+            {
+                Main.MessagesToSend.RemoveAt(0);
+
+                foreach (var seer in PlayerCatch.AllPlayerControls)
+                {
+                    int seerclientid = seer.GetClientId();
+                    string playername = seer.GetRealName(isMeeting: true);
+                    playername = playername.ApplyNameColorData(seer, seer, true);
+                    if (Main.LastNotifyNames.TryGetValue((seer.PlayerId, seer.PlayerId), out var lastname))
+                    {
+                        playername = lastname;
+                    }
+
+                    var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
+                    Nwriter.StartMessage(seerclientid);
+                    Nwriter.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
+                    .Write(seer.Data.NetId)
+                    .Write(title)
+                    .EndRpc();
+                    Nwriter.StartRpc(seer.NetId, (byte)RpcCalls.SendChat)
+                    .Write(msg)
+                    .EndRpc();
+                    Nwriter.StartRpc(seer.NetId, (byte)RpcCalls.SetName)
+                    .Write(seer.Data.NetId)
+                    .Write(playername)
+                    .EndRpc();
+                    Nwriter.EndMessage();
+                    Nwriter.SendMessage();
+                    UtilsNotifyRoles.NotifyRoles();
+                }
+                return;
+            }
+
             if (Options.ExHideChatCommand.GetBool() is false ||//秘匿Off
-                (senderplayer.PlayerId == 0 && sendTo == byte.MaxValue))//秘匿Onだけど、Snedplayrがホストかつ全員に送信
+                    (senderplayer.PlayerId == 0 && sendTo == byte.MaxValue))//秘匿Onだけど、Snedplayrがホストかつ全員に送信
             {
                 Main.MessagesToSend.RemoveAt(0);
                 // ホスト視点でのチャット送信

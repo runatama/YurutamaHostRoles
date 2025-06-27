@@ -767,7 +767,7 @@ namespace TownOfHost
             Logger.Info("Syncing all settings...", "Utils");
             // 実際の同期処理をここに実装
         }
-        [GameModuleInitializerAttribute]
+        [GameModuleInitializer]
         public static void Init()
         {
             Camouflage.ventplayr.Clear();
