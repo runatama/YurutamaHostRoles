@@ -390,17 +390,24 @@ namespace TownOfHost.Modules.ChatManager
         }
         public static void SendmessageInLobby()
         {
-            PlayerControl senderplayer = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).OrderBy(x => x.PlayerId is not 0).FirstOrDefault();
-            if (senderplayer == null) return;
-
+            PlayerControl senderplayer = PlayerCatch.AllAlivePlayerControls.Where(x => x.PlayerId is not 0).OrderBy(x => x.PlayerId).FirstOrDefault();
+            if (senderplayer == null)
+            {
+                if (PlayerControl.LocalPlayer is not null)
+                {
+                    senderplayer = PlayerControl.LocalPlayer;
+                }
+                else
+                { return; }
+            }
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
             var name = senderplayer.Data.GetLogPlayerName();
             var SendToPlayerControl = PlayerCatch.GetPlayerById(sendTo);
             int clientId = sendTo == byte.MaxValue ? -1 : SendToPlayerControl.GetClientId();
 
-            if (title.RemoveHtmlTags() != title) // ホストが送信した場合、
+            if (title.RemoveHtmlTags() == title) // ホストが送信した場合、
             {
-                senderplayer = PlayerCatch.AllAlivePlayerControls.Where(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).OrderBy(x => x.PlayerId).FirstOrDefault();
+                senderplayer = PlayerControl.LocalPlayer;
                 if (senderplayer == null) senderplayer = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
             }
             if (senderplayer == PlayerControl.LocalPlayer) _ = new LateTask(() => Utils.ApplySuffix(null, true), 0.24f, "", true);
@@ -425,7 +432,7 @@ namespace TownOfHost.Modules.ChatManager
             .EndRpc();
             Nwriter.StartRpc(senderplayer.NetId, (byte)RpcCalls.SetName)
             .Write(senderplayer.Data.NetId)
-            .Write(senderplayer.Data.GetLogPlayerName())
+            .Write(name)
             .EndRpc();
             Nwriter.EndMessage();
             Nwriter.SendMessage();
