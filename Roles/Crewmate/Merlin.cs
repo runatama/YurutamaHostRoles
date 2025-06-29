@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Merlin : RoleBase, IKillFlashSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -15,7 +16,8 @@ public sealed class Merlin : RoleBase, IKillFlashSeeable
             CustomRoles.Merlin,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            40300,
+            15900,
+            (2, 1),
             null,
             "mer",
             "#8cc2ff",

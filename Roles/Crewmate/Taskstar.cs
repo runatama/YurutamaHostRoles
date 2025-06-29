@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class TaskStar : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class TaskStar : RoleBase
             CustomRoles.TaskStar,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            19500,
+            10000,
+            (4, 1),
             SetupOptionItem,
             "ts",
             "#FFD700"

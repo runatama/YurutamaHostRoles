@@ -7,7 +7,7 @@ namespace TownOfHost.Roles.AddOns.Common
     //いつかクソゲーにはなるけど全員の役職分からない状態で試合させたい。
     public static class Amnesia
     {
-        private static readonly int Id = 71300;
+        private static readonly int Id = 18200;
         public static List<byte> playerIdList = new();
         public static OptionItem Modoru;
         public static OptionItem TriggerDay;

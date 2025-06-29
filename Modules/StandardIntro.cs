@@ -234,7 +234,7 @@ class StandardIntro
                                     }
                                 }
                             }
-                            if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && !(Options.SuddenAllRoleonaji.GetBool() && Options.SuddenTeamRole.GetBool())) continue;
+                            if (pc == PlayerControl.LocalPlayer && (roleinfo?.IsDesyncImpostor ?? false) && !(Options.SuddenSharingRoles.GetBool() && Options.SuddenTeamRole.GetBool())) continue;
                             {
                                 pc.RpcSetRoleDesync(roleinfo.BaseRoleType.Invoke(), pc.GetClientId());
                             }

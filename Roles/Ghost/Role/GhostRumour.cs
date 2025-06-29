@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.Ghost
     public class GhostRumour
     {
         static GhostRoleAssingData Data;
-        private static readonly int Id = 60900;
+        private static readonly int Id = 16500;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         static OptionItem AssingMadmate;

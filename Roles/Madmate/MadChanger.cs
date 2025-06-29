@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class MadChanger : RoleBase, IKiller, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class MadChanger : RoleBase, IKiller, IKillFlashSeeable, IDeathRea
             CustomRoles.MadChanger,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Madmate,
-            11100,
+            7900,
+            (2, 3),
             SetupOptionItem,
             "Mc",
             isDesyncImpostor: true,

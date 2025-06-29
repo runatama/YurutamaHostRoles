@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Vega : RoleBase, IKiller
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -16,7 +17,8 @@ public sealed class Vega : RoleBase, IKiller
             CustomRoles.Vega,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            40115,
+            16300,
+            (3, 0),
             SetupOptionItems,
             "vg",
             "#f1d9d9",

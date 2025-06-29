@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.Madmate;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -14,7 +15,8 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
             CustomRoles.Driver,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            40000,
+            16000,
+            (0, 0),
             SetupOptionItems,
             "dr",
             tab: TabGroup.Combinations,

@@ -122,7 +122,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (!role.IsPresent()) continue;
                 var assignTargetList = AssignTargetList(data);
 
-                if (SuddenDeathMode.GetBool() && SuddenAllRoleonaji.GetBool() && assignTargetList.Count != 0)
+                if (SuddenDeathMode.GetBool() && SuddenSharingRoles.GetBool() && assignTargetList.Count != 0)
                 {
                     assignTargetList.Clear();
                     PlayerCatch.AllPlayerControls.Do(p => assignTargetList.Add(p));

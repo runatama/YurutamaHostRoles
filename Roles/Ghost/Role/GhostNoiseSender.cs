@@ -7,7 +7,7 @@ namespace TownOfHost.Roles.Ghost
 {
     public class GhostNoiseSender
     {
-        private static readonly int Id = 60500;
+        private static readonly int Id = 16300;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static OptionItem Time;

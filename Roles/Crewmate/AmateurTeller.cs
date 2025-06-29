@@ -15,7 +15,8 @@ public sealed class AmateurTeller : RoleBase
             CustomRoles.AmateurTeller,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            18100,
+            9400,
+            (3, 2),
             SetupOptionItem,
             "AT",
             "#6b3ec3"

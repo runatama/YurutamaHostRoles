@@ -16,7 +16,8 @@ class Penguin : RoleBase, IImpostor
             CustomRoles.Penguin,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            8700,
+            4100,
+            (4, 0),
             SetupOptionItem,
             "pe",
             from: From.SuperNewRoles

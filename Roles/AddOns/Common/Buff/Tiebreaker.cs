@@ -7,7 +7,7 @@ namespace TownOfHost.Roles.AddOns.Common
 {
     public static class Tiebreaker
     {
-        private static readonly int Id = 75600;
+        private static readonly int Id = 18000;
         private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Tiebreaker);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "т");
         public static List<byte> playerIdList = new();

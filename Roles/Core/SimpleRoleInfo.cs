@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core.Descriptions;
 using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.Core;
+
 public enum From
 {
     None,
@@ -61,7 +62,8 @@ public class SimpleRoleInfo
     public RoleDescription Description { get; private set; }
     /// <summary>チームを視認することができない</summary>
     public bool IsCantSeeTeammates;
-
+    /// <summary>オプションの順序低い順に並べられる。(大まかな順番 , 細かな順番)</summary>
+    public (int TabNumber, int SortNumber) OptionSort;
     private SimpleRoleInfo(
         Type classType,
         Func<PlayerControl, RoleBase> createInstance,
@@ -70,6 +72,7 @@ public class SimpleRoleInfo
         CustomRoleTypes customRoleType,
         CountTypes countType,
         int configId,
+        (int TabNumber, int SortNumber) OptionSort,
         OptionCreatorDelegate optionCreator,
         string chatCommand,
         string colorCode,
@@ -91,6 +94,7 @@ public class SimpleRoleInfo
         CustomRoleType = customRoleType;
         CountType = countType;
         ConfigId = configId;
+        this.OptionSort = OptionSort;
         OptionCreator = optionCreator;
         IsDesyncImpostor = isDesyncImpostor;
         this.introSound = introSound;
@@ -134,6 +138,7 @@ public class SimpleRoleInfo
         Func<RoleTypes> baseRoleType,
         CustomRoleTypes customRoleType,
         int configId,
+        (int TabNumber, int SortNumber) OptionSort,
         OptionCreatorDelegate optionCreator,
         string chatCommand,
         string colorCode = "",
@@ -162,6 +167,7 @@ public class SimpleRoleInfo
             customRoleType,
             countType.Value,
             configId,
+            OptionSort,
             optionCreator,
             chatCommand,
             colorCode,
@@ -194,6 +200,7 @@ public class SimpleRoleInfo
         CustomRoleTypes customRoleType;
         CountTypes countType = CountTypes.Crew;
         int configId = -1;
+        (int TabNumber, int SortNumber) OptionSort = (0, 0);
 
         switch (baseRoleType)
         {
@@ -201,21 +208,25 @@ public class SimpleRoleInfo
                 roleName = CustomRoles.Engineer;
                 customRoleType = CustomRoleTypes.Crewmate;
                 configId = 200;
+                OptionSort = (0, 1);
                 break;
             case RoleTypes.Scientist:
                 roleName = CustomRoles.Scientist;
                 customRoleType = CustomRoleTypes.Crewmate;
                 configId = 250;
+                OptionSort = (0, 2);
                 break;
             case RoleTypes.Tracker:
                 roleName = CustomRoles.Tracker;
                 customRoleType = CustomRoleTypes.Crewmate;
                 configId = 300;
+                OptionSort = (0, 3);
                 break;
             case RoleTypes.Noisemaker:
                 roleName = CustomRoles.Noisemaker;
                 customRoleType = CustomRoleTypes.Crewmate;
                 configId = 350;
+                OptionSort = (0, 4);
                 break;
             case RoleTypes.GuardianAngel:
                 roleName = CustomRoles.GuardianAngel;
@@ -227,12 +238,14 @@ public class SimpleRoleInfo
                 customRoleType = CustomRoleTypes.Impostor;
                 countType = CountTypes.Impostor;
                 configId = -3;
+                OptionSort = (0, 0);
                 break;
             case RoleTypes.Shapeshifter:
                 roleName = CustomRoles.Shapeshifter;
                 customRoleType = CustomRoleTypes.Impostor;
                 countType = CountTypes.Impostor;
                 configId = 30;
+                OptionSort = (0, 1);
                 break;
             case RoleTypes.Phantom:
                 roleName = CustomRoles.Phantom;
@@ -244,6 +257,7 @@ public class SimpleRoleInfo
                 roleName = CustomRoles.Crewmate;
                 customRoleType = CustomRoleTypes.Crewmate;
                 configId = -1;
+                OptionSort = (0, 0);
                 break;
         }
         var roleInfo = new SimpleRoleInfo(
@@ -254,6 +268,7 @@ public class SimpleRoleInfo
             customRoleType,
             countType,
             configId,
+            OptionSort,
             optionCreator,
             null,
             colorCode,

@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.MeetingVoteManager;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -14,7 +15,8 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoles.MadReduced,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            12100,
+            20900,
+            (3, 1),
             SetupOptionItem,
             "mre",
             introSound: () => GetIntroSound(RoleTypes.Impostor)

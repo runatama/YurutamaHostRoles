@@ -9,7 +9,7 @@ namespace TownOfHost.Roles.Ghost
     public class GhostReseter
     {
         static GhostRoleAssingData Data;
-        private static readonly int Id = 60600;
+        private static readonly int Id = 16400;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static OptionItem ResetAbilityCool;

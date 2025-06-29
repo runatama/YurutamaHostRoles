@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.Ghost
 {
     public class AsistingAngel
     {
-        private static readonly int Id = 60400;
+        private static readonly int Id = 22000;
         public static byte AsistingAngelId = byte.MaxValue;
         public static OptionItem CoolDown;
         public static OptionItem AddClowDown;

@@ -32,6 +32,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 2000,
+                (1, 0),
                 SetupOptionItem,
                 "Al",
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter)

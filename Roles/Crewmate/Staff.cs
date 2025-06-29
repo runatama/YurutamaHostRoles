@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Staff : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -11,7 +12,8 @@ public sealed class Staff : RoleBase
             CustomRoles.Staff,
             () => CanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            23100,
+            12400,
+            (9, 2),
             SetupOptionItem,
             "sf",
             "#00ffff",

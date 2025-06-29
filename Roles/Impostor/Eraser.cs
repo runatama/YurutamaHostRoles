@@ -17,7 +17,8 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Eraser,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            6900,
+            5700,
+            (6, 3),
             SetupOptionItem,
             "Er"
         );

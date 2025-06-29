@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class GuardMaster : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -11,7 +12,8 @@ public sealed class GuardMaster : RoleBase
             CustomRoles.GuardMaster,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21300,
+            10800,
+            (5, 4),
             SetupOptionItem,
             "gms",
             "#8FBC8B"

@@ -14,7 +14,8 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Reloader,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            5500,
+            6900,
+            (7, 4),
             SetupOptionItem,
             "rd",
             from: From.RevolutionaryHostRoles

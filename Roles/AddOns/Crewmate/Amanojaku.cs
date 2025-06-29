@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.AddOns.Common
 {
     public static class Amanojaku
     {
-        private static readonly int Id = 79500;
+        private static readonly int Id = 19100;
         private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Amanojaku);
         public static List<byte> playerIdList = new();
         public static OptionItem Amaday;

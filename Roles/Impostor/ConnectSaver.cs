@@ -22,7 +22,8 @@ public sealed class ConnectSaver : RoleBase, IImpostor
             CustomRoles.ConnectSaver,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            6000,
+            4500,
+            (3, 7),
             SetupOptionItem,
             "Cs"
         );

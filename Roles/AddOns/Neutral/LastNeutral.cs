@@ -5,7 +5,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
 {
     public static class LastNeutral
     {
-        private static readonly int Id = 79300;
+        private static readonly int Id = 19800;
         public static byte currentId = byte.MaxValue;
         public static OptionItem KillCooldown;
         public static OptionItem GiveKillCooldown;

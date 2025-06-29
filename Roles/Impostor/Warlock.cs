@@ -17,7 +17,8 @@ public sealed class Warlock : RoleBase, IImpostor
             CustomRoles.Warlock,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            9200,
+            5000,
+            (4, 4),
             null,
             "wa",
             from: From.TheOtherRoles

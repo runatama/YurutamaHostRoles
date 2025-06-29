@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -18,7 +19,8 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.MadTeller,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            12000,
+            8100,
+            (3, 1),
             SetupOptionItem,
             "Mt",
             introSound: () => GetIntroSound(RoleTypes.Scientist)

@@ -6,6 +6,7 @@ using System;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class ShrineMaiden : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -15,7 +16,8 @@ public sealed class ShrineMaiden : RoleBase
             CustomRoles.ShrineMaiden,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            18500,
+            9600,
+            (3, 4),
             SetupOptionItem,
             "SM",
             "#b7282e",

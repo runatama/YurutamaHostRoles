@@ -11,6 +11,7 @@ using static TownOfHost.Modules.SelfVoteManager;
 using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class MeetingSheriff : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -20,7 +21,8 @@ public sealed class MeetingSheriff : RoleBase
             CustomRoles.MeetingSheriff,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            17200,
+            9000,
+            (2, 2),
             SetupOptionItem,
             "Ms",
             "#f8cd46",

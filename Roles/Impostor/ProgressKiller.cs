@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class ProgressKiller : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class ProgressKiller : RoleBase, IImpostor
             CustomRoles.ProgressKiller,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            5400,
+            5300,
+            (5, 1),
             SetupOptionItem,
             "pk"
         );

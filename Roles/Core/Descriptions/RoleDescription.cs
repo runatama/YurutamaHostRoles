@@ -79,13 +79,13 @@ public abstract class RoleDescription
                     sb.Append($"{rule}{Options.MadmateCanSeeKillFlash.GetName()}: {Options.MadmateCanSeeKillFlash.GetTextString()}\n");
                     sb.Append($"{rule}{Options.MadmateCanSeeOtherVotes.GetName()}: {Options.MadmateCanSeeOtherVotes.GetTextString()}\n");
                     sb.Append($"{rule}{Options.MadmateCanSeeDeathReason.GetName()}: {Options.MadmateCanSeeDeathReason.GetTextString()}\n");
-                    sb.Append($"{rule}{Options.MadmateRevengeCrewmate.GetName()}: {Options.MadmateRevengeCrewmate.GetTextString()}\n");
-                    if (Options.MadmateRevengeCrewmate.GetBool())
+                    sb.Append($"{rule}{Options.MadmateRevengePlayer.GetName()}: {Options.MadmateRevengePlayer.GetTextString()}\n");
+                    if (Options.MadmateRevengePlayer.GetBool())
                     {
-                        sb.Append($"┃ {rule}{Options.MadNekomataCanImp.GetName()}: {Options.MadNekomataCanImp.GetTextString()}\n");
-                        sb.Append($"┃ {rule}{Options.MadNekomataCanMad.GetName()}: {Options.MadNekomataCanMad.GetTextString()}\n");
-                        sb.Append($"┃ {rule}{Options.MadNekomataCanCrew.GetName()}: {Options.MadNekomataCanCrew.GetTextString()}\n");
-                        sb.Append($"┃ {ruleFooter}{Options.MadNekomataCanNeu.GetName()}: {Options.MadNekomataCanNeu.GetTextString()}\n");
+                        sb.Append($"┃ {rule}{Options.MadmateRevengeCanImpostor.GetName()}: {Options.MadmateRevengeCanImpostor.GetTextString()}\n");
+                        sb.Append($"┃ {rule}{Options.MadmateRevengeMadmate.GetName()}: {Options.MadmateRevengeMadmate.GetTextString()}\n");
+                        sb.Append($"┃ {rule}{Options.MadmateRevengeCrewmate.GetName()}: {Options.MadmateRevengeCrewmate.GetTextString()}\n");
+                        sb.Append($"┃ {ruleFooter}{Options.MadmateRevengeNeutral.GetName()}: {Options.MadmateRevengeNeutral.GetTextString()}\n");
                     }
                     sb.Append($"{rule}{Options.MadCanSeeImpostor.GetName()}: {Options.MadCanSeeImpostor.GetTextString()}\n");
                     sb.Append($"{rule}{Options.MadmateVentCooldown.GetName()}: {Options.MadmateVentCooldown.GetTextString()}\n");

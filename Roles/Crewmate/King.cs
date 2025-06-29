@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Impostor;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class King : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -14,7 +15,8 @@ public sealed class King : RoleBase
             CustomRoles.King,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21400,
+            21100,
+            (5, 4),
             SetupOptionItem,
             "k",
             "#FFD700"

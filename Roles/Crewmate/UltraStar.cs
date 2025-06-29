@@ -4,6 +4,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class UltraStar : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class UltraStar : RoleBase
             CustomRoles.UltraStar,
             () => OptionCanseeKillcooltime.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            19600,
+            9900,
+            (4, 0),
             SetupOptionItem,
             "us",
             "#ffff8e"

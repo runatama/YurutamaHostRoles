@@ -16,6 +16,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             3000,
+            (1, 1),
             SetupOptionItem,
             "Jm"
         );

@@ -7,6 +7,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Walker : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -16,7 +17,8 @@ public sealed class Walker : RoleBase
             CustomRoles.Walker,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            22000,
+            12100,
+            (8, 2),
             SetupOptionItem,
             "wa",
             "#057a2c"

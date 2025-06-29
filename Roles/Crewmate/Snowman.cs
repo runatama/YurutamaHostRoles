@@ -4,6 +4,7 @@ using UnityEngine;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Snowman : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class Snowman : RoleBase
             CustomRoles.Snowman,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21800,
+            12000,
+            (8, 1),
             SetupOptionItem,
             "snm",
             "#c4d6e3"

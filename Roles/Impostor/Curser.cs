@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Curser : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class Curser : RoleBase, IImpostor
             CustomRoles.Curser,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            6700,
+            6600,
+            (7, 2),
             SetupCustomOption,
             "cs"
         );

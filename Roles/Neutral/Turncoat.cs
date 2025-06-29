@@ -16,7 +16,8 @@ public sealed class Turncoat : RoleBase
             CustomRoles.Turncoat,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            38400,
+            15500,
+            (7, 1),
             SetupOptionItem,
             "Tu",
             "#371a1a"

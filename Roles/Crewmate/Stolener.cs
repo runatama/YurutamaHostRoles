@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Stolener : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class Stolener : RoleBase
             CustomRoles.Stolener,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21700,
+            10500,
+            (5, 0),
             SetupOptionItem,
             "slt",
             "#605eb7",

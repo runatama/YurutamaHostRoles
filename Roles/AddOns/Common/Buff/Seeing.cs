@@ -7,7 +7,7 @@ namespace TownOfHost.Roles.AddOns.Common
 {
     public static class seeing
     {
-        private static readonly int Id = 71000;
+        private static readonly int Id = 17700;
         private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.seeing);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "☯");
         public static List<byte> playerIdList = new();

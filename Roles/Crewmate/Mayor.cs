@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Mayor : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -12,7 +13,8 @@ public sealed class Mayor : RoleBase
             CustomRoles.Mayor,
             () => OptionHasPortableButton.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20900,
+            9500,
+            (3, 3),
             SetupOptionItem,
             "my",
             "#204d42",

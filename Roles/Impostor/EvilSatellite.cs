@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class EvilSatellite : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -18,7 +19,8 @@ public sealed class EvilSatellite : RoleBase, IImpostor
             CustomRoles.EvilSatellite,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            4400,
+            3400,
+            (2, 3),
             SetupOptionItem,
             "Es"
         );

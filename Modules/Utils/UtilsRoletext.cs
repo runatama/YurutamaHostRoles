@@ -52,7 +52,7 @@ namespace TownOfHost
                         || seen.Is(CustomRoles.GM)
                         || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seer.IsAlive() && (!seer.IsGhostRole() || Options.GRCanSeeOtherRoles.GetBool()) && (Options.GhostCanSeeOtherRoles.GetBool() || !Options.GhostOptions.GetBool()))
                         || (Options.InsiderMode.GetBool() && seerrole.IsImpostor())
-                        || (Options.RoleImpostor.GetBool() && seerrole.IsImpostor() && seen.GetCustomRole().IsImpostor());
+                        || (Options.CanSeeImpostorRole.GetBool() && seerrole.IsImpostor() && seen.GetCustomRole().IsImpostor());
 
             foreach (var data in ColorLovers.Alldatas.Values)
             {

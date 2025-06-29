@@ -16,7 +16,8 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Ballooner,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            7100,
+            3900,
+            (3, 0),
             SetupOptionItem,
             "Ba"
         );

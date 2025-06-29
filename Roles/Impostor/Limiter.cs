@@ -17,7 +17,8 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Limiter,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                6100,
+                6700,
+                (7, 3),
                 SetupOptionItem,
                 "Lm"
             );

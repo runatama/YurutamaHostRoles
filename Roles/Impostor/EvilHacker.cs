@@ -22,7 +22,8 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
             CustomRoles.EvilHacker,
             () => OptionShapeshiftAdmin.GetBool() ? RoleTypes.Shapeshifter : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            4200,
+            3100,
+            (2, 0),
             SetupOptionItems,
             "eh",
             from: From.TheOtherRoles

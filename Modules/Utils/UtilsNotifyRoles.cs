@@ -292,7 +292,7 @@ namespace TownOfHost
                                 TaskBattle.GetMark(target, seer, ref TargetMark);
 
                             //インサイダーモードタスク表示
-                            if (Options.Taskcheck.GetBool())
+                            if (Options.InsiderModeCanSeeTask.GetBool())
                             {
                                 if (target.GetPlayerTaskState() != null && target.GetPlayerTaskState().AllTasksCount > 0)
                                 {
@@ -643,7 +643,7 @@ namespace TownOfHost
                                 TargetMark.Append($"<#96514d>Ψ</color>");
 
                             //インサイダーモードタスク表示
-                            if (Options.Taskcheck.GetBool())
+                            if (Options.InsiderModeCanSeeTask.GetBool())
                             {
                                 if (target.GetPlayerTaskState() != null && target.GetPlayerTaskState().AllTasksCount > 0)
                                 {

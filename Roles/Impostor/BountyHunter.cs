@@ -11,6 +11,7 @@ using TownOfHost.Roles.Crewmate;
 using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class BountyHunter : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -20,7 +21,8 @@ public sealed class BountyHunter : RoleBase, IImpostor
             CustomRoles.BountyHunter,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            8100,
+            6500,
+            (7, 1),
             SetupOptionItem,
             "bo",
             from: From.TheOtherRoles

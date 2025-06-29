@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -15,7 +16,8 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner
             CustomRoles.Altair,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            40130,
+            16200,
+            (3, 1),
             null,
             "alt",
             "#b0c4de",

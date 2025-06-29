@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.Madmate,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            10000,
+            7400,
+            (1, 0),
             SetupOptionItem,
             "mm",
             introSound: () => GetIntroSound(RoleTypes.Impostor),

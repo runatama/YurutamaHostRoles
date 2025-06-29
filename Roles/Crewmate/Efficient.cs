@@ -6,6 +6,7 @@ using TownOfHost.Roles.Core;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Efficient : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -15,7 +16,8 @@ public sealed class Efficient : RoleBase
             CustomRoles.Efficient,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20800,
+            11700,
+            (7, 2),
             SetupOptionItem,
             "ef",
             "#a68b96"

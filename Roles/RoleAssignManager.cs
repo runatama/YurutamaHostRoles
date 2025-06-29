@@ -133,7 +133,7 @@ namespace TownOfHost.Roles
 
             AssignRoleList.Sort();
 
-            if (Options.SuddenAllRoleonaji.GetBool())
+            if (Options.SuddenSharingRoles.GetBool())
             {
                 var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGhostRole() && !r.IsRiaju()).ToArray();
                 var addons = AssignRoleList.Where(r => r.IsAddOn() || r.IsRiaju())?.ToArray();

@@ -14,7 +14,8 @@ public sealed class ShapeMaster : RoleBase, IImpostor
             CustomRoles.ShapeMaster,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            8900,
+            5900,
+            (6, 4),
             SetupOptionItem,
             "sha",
             from: From.TownOfHost

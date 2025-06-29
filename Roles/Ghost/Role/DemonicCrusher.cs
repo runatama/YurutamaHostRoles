@@ -6,7 +6,7 @@ namespace TownOfHost.Roles.Ghost
 {
     public class DemonicCrusher
     {
-        private static readonly int Id = 60200;
+        private static readonly int Id = 21700;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static OptionItem AbilityTime;

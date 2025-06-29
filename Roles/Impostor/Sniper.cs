@@ -9,6 +9,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Sniper : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -18,7 +19,8 @@ public sealed class Sniper : RoleBase, IImpostor
             CustomRoles.Sniper,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            9000,
+            6200,
+            (3, 10),
             SetupOptionItem,
             "snp",
             from: From.NebulaontheShip

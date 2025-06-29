@@ -13,7 +13,8 @@ namespace TownOfHost.Roles.Crewmate
                 CustomRoles.NiceAddoer,
                 () => RoleTypes.Crewmate,
                 CustomRoleTypes.Crewmate,
-                15000,
+                8600,
+                (1, 1),
                 SetupOptionItem,
                 "NA",
                 "#87cefa"

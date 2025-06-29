@@ -7,7 +7,7 @@ namespace TownOfHost.Roles.AddOns.Common
 {
     public static class Revenger
     {
-        private static readonly int Id = 71100;
+        private static readonly int Id = 17600;
         private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Revenger);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "я");
         public static List<byte> playerIdList = new();
@@ -32,8 +32,5 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-
     }
 }

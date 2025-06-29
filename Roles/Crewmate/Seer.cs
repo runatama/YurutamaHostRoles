@@ -3,6 +3,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Seer : RoleBase, IKillFlashSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -12,7 +13,8 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
             CustomRoles.Seer,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20500,
+            11000,
+            (6, 2),
             SetupOptionItem,
             "se",
             "#61b26c",

@@ -16,7 +16,8 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.SerialKiller,
                 () => RoleTypes.Shapeshifter,
                 CustomRoleTypes.Impostor,
-                8000,
+                6800,
+                (7, 0),
                 SetUpOptionItem,
                 "sk",
                 from: From.TOR_GM_Edition

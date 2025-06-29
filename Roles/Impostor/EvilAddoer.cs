@@ -14,7 +14,8 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.EvilAddoer,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                4100,
+                3500,
+                (2, 4),
                 SetupOptionItem,
                 "EA"
             );

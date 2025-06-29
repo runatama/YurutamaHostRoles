@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core.Interfaces;
 using static TownOfHost.Roles.Impostor.Driver;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -14,7 +15,8 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             CustomRoles.Braid,
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
-            40100,
+            16100,
+            (0, 1),
             null,
             "br",
             introSound: () => GetIntroSound(RoleTypes.Impostor),

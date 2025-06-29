@@ -10,6 +10,7 @@ using TownOfHost.Modules;
 using static TownOfHost.OverrideKilldistance;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Puppeteer : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -19,7 +20,8 @@ public sealed class Puppeteer : RoleBase, IImpostor
             CustomRoles.Puppeteer,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
-            8500,
+            4900,
+            (4, 3),
             SetUpOption,
             "pup",
             from: From.TownOfHost

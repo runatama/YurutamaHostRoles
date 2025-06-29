@@ -15,7 +15,8 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.EvilMaker,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            4600,
+            3600,
+            (2, 5),
             SetupOptionItem,
             "Em"
         );

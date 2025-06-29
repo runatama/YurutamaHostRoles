@@ -17,7 +17,8 @@ public sealed class Inspector : RoleBase
             CustomRoles.Inspector,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            18900,
+            9700,
+            (3, 5),
             SetupOptionItem,
             "Is",
             "#977b48"

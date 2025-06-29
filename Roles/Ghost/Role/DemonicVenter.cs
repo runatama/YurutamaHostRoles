@@ -9,7 +9,7 @@ namespace TownOfHost.Roles.Ghost
 {
     public class DemonicVenter
     {
-        private static readonly int Id = 60700;
+        private static readonly int Id = 21600;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static void SetupCustomOption()

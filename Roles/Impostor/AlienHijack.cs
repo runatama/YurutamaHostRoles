@@ -25,6 +25,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 2300,
+                (1, 1),
                 null,
                 "HAl",
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter)

@@ -15,7 +15,8 @@ public sealed class QuickKiller : RoleBase, IImpostor
             CustomRoles.QuickKiller,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            6500,
+            7000,
+            (7, 5),
             SetupOptionItem,
             "qk",
             Desc: () => string.Format(GetString("QuickKillerDesc"), OptionAbiltyCanUsePlayercount.GetInt(), OptionQuickKillTimer.GetInt())

@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class Evilgambler : RoleBase, IImpostor
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class Evilgambler : RoleBase, IImpostor
                 CustomRoles.Evilgambler,
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
-                4000,
+                3300,
+                (2, 2),
                 SetupOptionItem,
                 "eg",
                 from: From.SuperNewRoles

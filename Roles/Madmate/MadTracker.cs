@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Madmate;
+
 public sealed class MadTracker : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class MadTracker : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             CustomRoles.MadTracker,
             () => RoleTypes.Tracker,
             CustomRoleTypes.Madmate,
-            11200,
+            7800,
+            (2, 2),
             SetupOptionItem,
             "mt",
             introSound: () => GetIntroSound(RoleTypes.Impostor)

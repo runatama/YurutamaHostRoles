@@ -5,6 +5,7 @@ using TownOfHost.Roles.Core;
 using static TownOfHost.Modules.SelfVoteManager;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Dictator : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -14,7 +15,8 @@ public sealed class Dictator : RoleBase
             CustomRoles.Dictator,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            18700,
+            9800,
+            (3, 6),
             SetupOptionItem,
             "dic",
             "#df9b00",

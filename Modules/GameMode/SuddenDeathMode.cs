@@ -50,9 +50,9 @@ namespace TownOfHost.Modules
         [Attributes.GameModuleInitializer]
         public static void Reset()
         {
-            NowSuddenDeathTemeMode = Options.SuddenTeam.GetBool();
-            NowSuddenDeathMode = Options.SuddenDeathMode.GetBool();
-            SuddenCannotSeeName = Options.SuddenCannotSeeName.GetBool();
+            NowSuddenDeathTemeMode = SuddenTeam.GetBool();
+            NowSuddenDeathMode = SuddenDeathModeActive.GetBool();
+            SuddenCannotSeeName = SuddenCantSeeOtherName.GetBool();
             SuddenDeathtime = 0;
             ItijohoSendTime = 0;
             gpsstarttime = 0;
@@ -66,8 +66,8 @@ namespace TownOfHost.Modules
             nokori15s = false;
             nokori10s = false;
 
-            opttime = Options.SuddenDeathTimeLimit.GetFloat();
-            var time = Options.SuddenDeathTimeLimit.GetFloat();
+            opttime = SuddenDeathTimeLimit.GetFloat();
+            var time = SuddenDeathTimeLimit.GetFloat();
             if (time <= 60) nokori60s = null;
             if (time <= 30) nokori30s = null;
             if (time <= 15) nokori15s = null;
@@ -78,11 +78,10 @@ namespace TownOfHost.Modules
         public static void TeamSet()
         {
             if (!NowSuddenDeathTemeMode) return;
-
-            if (!Options.SuddenTeamOption.GetBool())
+            if (!SuddenTeamOption.GetBool())
             {
                 TeamReset();
-                var teammax = Options.SuddenTeamMax.GetInt();
+                var teammax = SuddenTeamMaxPlayers.GetInt();
                 List<PlayerControl> Assing = new();
                 PlayerCatch.AllAlivePlayerControls.DoIf(p => !p.Is(CustomRoles.GM), p => Assing.Add(p));
 
@@ -106,7 +105,7 @@ namespace TownOfHost.Modules
                 }
                 for (var i = 0; i < teammax; i++)
                 {
-                    if (Assing.Count() == 0 || !Options.SuddenTeamYellow.GetBool()) break;
+                    if (Assing.Count() == 0 || !SuddenAddTeamYellow.GetBool()) break;
                     var chance = IRandom.Instance.Next(Assing.Count());
                     var pc = Assing[chance];
                     TeamYellow.Add(pc.PlayerId);
@@ -115,7 +114,7 @@ namespace TownOfHost.Modules
                 }
                 for (var i = 0; i < teammax; i++)
                 {
-                    if (Assing.Count() == 0 || !Options.SuddenTeamGreen.GetBool()) break;
+                    if (Assing.Count() == 0 || !SuddenAddTeamGreen.GetBool()) break;
                     var chance = IRandom.Instance.Next(Assing.Count());
                     var pc = Assing[chance];
                     TeamGreen.Add(pc.PlayerId);
@@ -124,7 +123,7 @@ namespace TownOfHost.Modules
                 }
                 for (var i = 0; i < teammax; i++)
                 {
-                    if (Assing.Count() == 0 || !Options.SuddenTeamPurple.GetBool()) break;
+                    if (Assing.Count() == 0 || !SuddenAddTeamPurple.GetBool()) break;
                     var chance = IRandom.Instance.Next(Assing.Count());
                     var pc = Assing[chance];
                     TeamPurple.Add(pc.PlayerId);
@@ -133,28 +132,28 @@ namespace TownOfHost.Modules
                 }
             }
 
-            var list = CustomRolesHelper.AllRoles.Where(role => !Options.InvalidRoles.Contains(role)).ToArray();
-            if (Options.SuddenTeamRole.GetBool())
+            var list = CustomRolesHelper.AllRoles.Where(role => !InvalidRoles.Contains(role)).ToArray();
+            if (SuddenTeamRole.GetBool())
             {
                 foreach (var id in TeamRed.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenRedTeamRole.GetValue()], log: true);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[SuddenRedTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamBlue.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenBlueTeamRole.GetValue()], log: true);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[SuddenBlueTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamYellow.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenYellowTeamRole.GetValue()], log: true);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[SuddenYellowTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamGreen.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenGreenTeamRole.GetValue()], log: true);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[SuddenGreenTeamRole.GetValue()], log: true);
                 }
                 foreach (var id in TeamPurple.Distinct())
                 {
-                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[Options.SuddenPurpleTeamRole.GetValue()], log: true);
+                    PlayerCatch.GetPlayerById(id)?.RpcSetCustomRole(list[SuddenPurpleTeamRole.GetValue()], log: true);
                 }
             }
             ColorSetAndRoleset();
@@ -291,11 +290,11 @@ namespace TownOfHost.Modules
                 else gpsstarttime += Time.fixedDeltaTime;
             }
 
-            if (gpsstarttime > Options.SuddenItijohoSendstart.GetFloat()) arrow = true;
+            if (gpsstarttime > SuddenArrowSendTime.GetFloat()) arrow = true;
 
-            if (ItijohoSendTime > Options.SuddenItijohoSenddis.GetFloat() && arrow)
+            if (ItijohoSendTime > SuddenArrowSenddis.GetFloat() && arrow)
             {
-                if (Options.SuddenItijohoSenddis.GetFloat() is 0)
+                if (SuddenArrowSenddis.GetFloat() is 0)
                 {
                     foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                     {
@@ -332,7 +331,7 @@ namespace TownOfHost.Modules
                         if (po.Value != p) GetArrow.Add(pc.PlayerId, po.Value);
                     }
                 }
-                if (Options.SuddenItijohoSenddis.GetFloat() > 0)
+                if (SuddenArrowSenddis.GetFloat() > 0)
                     switch (colorint)
                     {
                         case -1:
@@ -371,9 +370,9 @@ namespace TownOfHost.Modules
             seen ??= seer;
             if (seer != seen) return "";
             var ar = "";
-            if (Options.SuddenItijohoSend.GetBool())
+            if (SuddenPlayerArrow.GetBool())
             {
-                if (Options.SuddenItijohoSenddis.GetFloat() is 0)
+                if (SuddenArrowSenddis.GetFloat() is 0)
                 {
                     foreach (var sen in PlayerCatch.AllAlivePlayerControls)
                     {
@@ -395,7 +394,7 @@ namespace TownOfHost.Modules
         {
             var tex = "";
             seen ??= seer;
-            if (!Options.SuddenNokoriPlayerCount.GetBool()) return "";
+            if (!SuddenNokoriPlayerCount.GetBool()) return "";
             if (NowSuddenDeathTemeMode && seen == seer)
             {
                 var t1 = PlayerCatch.AllAlivePlayerControls.Where(pc => TeamRed.Contains(pc.PlayerId)).Count();
@@ -499,9 +498,9 @@ namespace TownOfHost.Modules
         }
         public static void UpdateTeam()
         {
-            if (GameStates.IsLobby && (Options.SuddenTeamOption.GetBool() || CheckTeamDoreka))
+            if (GameStates.IsLobby && (SuddenTeamOption.GetBool() || CheckTeamDoreka))
             {
-                if (CheckTeamDoreka && !Options.SuddenTeamOption.GetBool())
+                if (CheckTeamDoreka && !SuddenTeamOption.GetBool())
                 {
                     TeamReset();
                     return;
@@ -530,7 +529,7 @@ namespace TownOfHost.Modules
                         TeamPurple.Remove(pc.PlayerId);
                     }
                     else
-                    if (1.7 <= pos.x && pos.x <= 3 && -1.1 <= pos.y && pos.y <= 0.7 && Options.SuddenTeamYellow.GetBool())
+                    if (1.7 <= pos.x && pos.x <= 3 && -1.1 <= pos.y && pos.y <= 0.7 && SuddenAddTeamYellow.GetBool())
                     {
                         TeamRed.Remove(pc.PlayerId);
                         TeamBlue.Remove(pc.PlayerId);
@@ -540,7 +539,7 @@ namespace TownOfHost.Modules
                         TeamPurple.Remove(pc.PlayerId);
                     }
                     else
-                    if (0.5f <= pos.x && pos.x <= 2.1 && 2.1 <= pos.y && pos.y <= 3.2 && Options.SuddenTeamGreen.GetBool())
+                    if (0.5f <= pos.x && pos.x <= 2.1 && 2.1 <= pos.y && pos.y <= 3.2 && SuddenAddTeamGreen.GetBool())
                     {
                         TeamRed.Remove(pc.PlayerId);
                         TeamBlue.Remove(pc.PlayerId);
@@ -550,7 +549,7 @@ namespace TownOfHost.Modules
                         TeamPurple.Remove(pc.PlayerId);
                     }
                     else
-                    if (-2.9 <= pos.x && pos.x <= -1.1 && 2.2 <= pos.y && pos.y <= 3.0 && Options.SuddenTeamPurple.GetBool())
+                    if (-2.9 <= pos.x && pos.x <= -1.1 && 2.2 <= pos.y && pos.y <= 3.0 && SuddenAddTeamPurple.GetBool())
                     {
                         TeamRed.Remove(pc.PlayerId);
                         TeamBlue.Remove(pc.PlayerId);
@@ -591,6 +590,76 @@ namespace TownOfHost.Modules
                 }
             }
         }
+        public static OptionItem SuddenDeathModeActive;
+        public static OptionItem SuddenSharingRoles;
+        public static OptionItem SuddenCantSeeOtherName;
+        //時間制限
+        public static OptionItem SuddenDeathTimeLimit;
+        public static OptionItem SuddenDeathReactortime;
+        //矢印
+        public static OptionItem SuddenPlayerArrow;
+        public static OptionItem SuddenArrowSendTime;
+        public static OptionItem SuddenArrowSenddis;
+
+        public static OptionItem SuddenNokoriPlayerCount;
+        public static OptionItem SuddenCanSeeKillflash;
+        public static OptionItem SuddenKillcooltime;
+        public static OptionItem SuddenfinishTaskWin;
+        //チーム設定
+        public static OptionItem SuddenTeam;
+        public static OptionItem SuddenAddTeamYellow;
+        public static OptionItem SuddenAddTeamGreen;
+        public static OptionItem SuddenAddTeamPurple;
+        public static OptionItem SuddenTeamOption;
+        public static OptionItem SuddenTeamMaxPlayers;
+        //役職の上書き
+        public static OptionItem SuddenTeamRole;
+        public static OptionItem SuddenRedTeamRole;
+        public static OptionItem SuddenBlueTeamRole;
+        public static OptionItem SuddenYellowTeamRole;
+        public static OptionItem SuddenGreenTeamRole;
+        public static OptionItem SuddenPurpleTeamRole;
+        public static void CreateOption()
+        {
+            SuddenDeathModeActive = BooleanOptionItem.Create(101000, "SuddenDeathMode", false, TabGroup.MainSettings, false).SetParent(Options.ONspecialMode).SetGameMode(CustomGameMode.Standard);
+            SuddenSharingRoles = BooleanOptionItem.Create(101001, "SuddenSharingRoles", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
+            SuddenCantSeeOtherName = BooleanOptionItem.Create(101012, "SuddenCannotSeeName", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
+            SuddenNokoriPlayerCount = BooleanOptionItem.Create(101013, "SuddenNokoriPlayerCount", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
+            SuddenCanSeeKillflash = BooleanOptionItem.Create(101014, "SuddenCanSeeKillflash", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
+            SuddenKillcooltime = FloatOptionItem.Create(101015, "SuddenKillcooltime", RoleBase.OptionBaseCoolTime, 15f, TabGroup.MainSettings, false, null).SetParent(SuddenDeathModeActive).SetValueFormat(OptionFormat.Seconds);
+            SuddenfinishTaskWin = BooleanOptionItem.Create(101016, "SuddenfinishTaskWin", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
+            SuddenDeathTimeLimit = FloatOptionItem.Create(101017, "SuddenDeathTimeLimit", new(0, 300, 1f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathModeActive).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
+            SuddenDeathReactortime = FloatOptionItem.Create(101018, "SuddenDeathReactortime", new(1, 300, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
+            SuddenPlayerArrow = BooleanOptionItem.Create(101019, "SuddenItijohoSend", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
+            SuddenArrowSendTime = FloatOptionItem.Create(101020, "SuddenArrowSendTime", new(0, 300, 0.5f), 90f, TabGroup.MainSettings, false).SetParent(SuddenPlayerArrow).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
+            SuddenArrowSenddis = FloatOptionItem.Create(101021, "SuddenArrowSenddis", new(0, 180, 0.5f), 5f, TabGroup.MainSettings, false).SetParent(SuddenPlayerArrow).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
+            SuddenTeam = BooleanOptionItem.Create(101022, "SuddenTeam", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
+            SuddenAddTeamYellow = BooleanOptionItem.Create(101023, "SuddenTeamYellow", true, TabGroup.MainSettings, false).SetParent(SuddenTeam).SetColor(ModColors.Yellow);
+            SuddenAddTeamGreen = BooleanOptionItem.Create(101024, "SuddenTeamGreen", true, TabGroup.MainSettings, false).SetParent(SuddenTeam).SetColor(ModColors.Green);
+            SuddenAddTeamPurple = BooleanOptionItem.Create(101025, "SuddenTeamPurple", true, TabGroup.MainSettings, false).SetParent(SuddenTeam).SetColor(ModColors.Purple);
+            SuddenTeamOption = BooleanOptionItem.Create(101026, "SuddenTeamOption", false, TabGroup.MainSettings, false).SetParent(SuddenTeam);
+            SuddenTeamMaxPlayers = IntegerOptionItem.Create(101027, "SuddenTeamMax", new(1, 15, 1), 2, TabGroup.MainSettings, false).SetParent(SuddenTeam);
+            SuddenTeamRole = BooleanOptionItem.Create(101028, "SuddenTeamRole", false, TabGroup.MainSettings, false).SetParent(SuddenTeam);
+
+            var StringArray = CustomRolesHelper.AllRoles.Where(role => !InvalidRoles.Contains(role)).Select(role => role.ToString()).ToArray();
+            SuddenRedTeamRole = StringOptionItem.Create(101029, "SuddenRedTeamRole", StringArray, 0, TabGroup.MainSettings, false).SetColor(ModColors.Red).SetParent(SuddenTeamRole);
+            SuddenBlueTeamRole = StringOptionItem.Create(101030, "SuddenBlueTeamRole", StringArray, 0, TabGroup.MainSettings, false).SetColor(ModColors.Blue).SetParent(SuddenTeamRole);
+            SuddenYellowTeamRole = StringOptionItem.Create(101031, "SuddenYellowTeamRole", StringArray, 0, TabGroup.MainSettings, false).SetColor(ModColors.Yellow).SetParent(SuddenTeamRole);
+            SuddenGreenTeamRole = StringOptionItem.Create(101032, "SuddenGreenTeamRole", StringArray, 0, TabGroup.MainSettings, false).SetColor(ModColors.Green).SetParent(SuddenTeamRole);
+            SuddenPurpleTeamRole = StringOptionItem.Create(101033, "SuddenPurpleTeamRole", StringArray, 0, TabGroup.MainSettings, false).SetColor(ModColors.Purple).SetParent(SuddenTeamRole);
+        }
+        public static readonly CustomRoles[] InvalidRoles =
+        {
+            CustomRoles.Crewmate,
+            CustomRoles.Emptiness,
+            CustomRoles.Phantom,
+            CustomRoles.GuardianAngel,
+            CustomRoles.SKMadmate,
+            CustomRoles.HASFox,
+            CustomRoles.HASTroll,
+            CustomRoles.GM,
+            CustomRoles.TaskPlayerB,
+        };
     }
 
     public class SadnessGameEndPredicate : GameEndPredicate
@@ -632,7 +701,7 @@ namespace TownOfHost.Modules
         public static bool FinishTaskCheck(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorsByKill;
-            if (Options.SuddenfinishTaskWin.GetBool() is false) return false;
+            if (SuddenDeathMode.SuddenfinishTaskWin.GetBool() is false) return false;
 
             foreach (var player in PlayerCatch.AllAlivePlayerControls)
             {

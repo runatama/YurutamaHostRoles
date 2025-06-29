@@ -648,12 +648,12 @@ public static class MeetingHudPatch
                                 }
                             }
                             else
-                                if (isMadmate && deathReason == CustomDeathReason.Vote && Options.MadmateRevengeCrewmate.GetBool())
+                                if (isMadmate && deathReason == CustomDeathReason.Vote && Options.MadmateRevengePlayer.GetBool())
                             {
-                                if ((candidate.Is(CustomRoleTypes.Impostor) && Options.MadNekomataCanImp.GetBool()) ||
-                                (candidate.Is(CustomRoleTypes.Neutral) && Options.MadNekomataCanNeu.GetBool()) ||
-                                (candidate.Is(CustomRoleTypes.Crewmate) && Options.MadNekomataCanCrew.GetBool()) ||
-                                (candidate.Is(CustomRoleTypes.Madmate) && Options.MadNekomataCanMad.GetBool()))
+                                if ((candidate.Is(CustomRoleTypes.Impostor) && Options.MadmateRevengeCanImpostor.GetBool()) ||
+                                (candidate.Is(CustomRoleTypes.Neutral) && Options.MadmateRevengeNeutral.GetBool()) ||
+                                (candidate.Is(CustomRoleTypes.Crewmate) && Options.MadmateRevengeCrewmate.GetBool()) ||
+                                (candidate.Is(CustomRoleTypes.Madmate) && Options.MadmateRevengeMadmate.GetBool()))
                                     TargetList.Add(candidate);
                             }
                             else

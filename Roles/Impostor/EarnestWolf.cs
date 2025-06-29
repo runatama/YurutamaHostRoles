@@ -14,7 +14,8 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.EarnestWolf,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            5800,
+            4600,
+            (3, 8),
             SetupOptionItem,
             "EW"
         );

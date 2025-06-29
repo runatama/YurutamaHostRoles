@@ -18,7 +18,8 @@ namespace TownOfHost.Roles.Impostor
                 CustomRoles.Bomber,
                 () => RoleTypes.Phantom,
                 CustomRoleTypes.Impostor,
-                5100,
+                3800,
+                (3, 1),
                 SetupOptionItem,
                 "bb"
             );

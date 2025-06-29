@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.Ghost
     public class Ghostbuttoner
     {
         static GhostRoleAssingData Data;
-        private static readonly int Id = 60000;
+        private static readonly int Id = 16200;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         public static OptionItem Count;

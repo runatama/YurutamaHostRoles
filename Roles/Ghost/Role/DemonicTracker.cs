@@ -8,7 +8,7 @@ namespace TownOfHost.Roles.Ghost
 {
     public class DemonicTracker
     {
-        private static readonly int Id = 60300;
+        private static readonly int Id = 21900;
         public static List<byte> playerIdList = new();
         public static OptionItem CoolDown;
         /// <summary>

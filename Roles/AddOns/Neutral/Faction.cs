@@ -11,10 +11,10 @@ class Faction
     static OptionItem CanSeeFactionMate;
     public static void SetUpOption()
     {
-        Options.SetupRoleOptions(76300, TabGroup.Addons, CustomRoles.Faction, new(1, 1, 1));
-        CanSeeFactionMate = BooleanOptionItem.Create(76311, "CanSeeFactionMate", false, TabGroup.Addons, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Faction]);
+        Options.SetupRoleOptions(19600, TabGroup.Addons, CustomRoles.Faction, new(1, 1, 1));
+        CanSeeFactionMate = BooleanOptionItem.Create(19611, "CanSeeFactionMate", false, TabGroup.Addons, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Faction]).SetParentRole(CustomRoles.Faction);
 
-        var id = 76320;
+        var id = 19620;
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>().Where(role => role.IsNeutral()).OrderBy(x => x.GetRoleInfo()?.ConfigId ?? 100000))
         {
             if (SoloWinOption.AllData.ContainsKey(role))

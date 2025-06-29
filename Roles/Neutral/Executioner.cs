@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
+
 public sealed class Executioner : RoleBase, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -16,7 +17,8 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
             CustomRoles.Executioner,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
-            35000,
+            14300,
+            (4, 1),
             SetupOptionItem,
             "exe",
             "#611c3a",

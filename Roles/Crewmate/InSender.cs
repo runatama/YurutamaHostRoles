@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class InSender : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -11,7 +12,8 @@ public sealed class InSender : RoleBase
             CustomRoles.InSender,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20100,
+            10600,
+            (5, 2),
             SetupOptionItem,
             "in",
             "#eee8aa",

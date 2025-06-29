@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public class Snitch : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -15,7 +16,8 @@ public class Snitch : RoleBase
             CustomRoles.Snitch,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21500,
+            10900,
+            (6, 0),
             SetupOptionItem,
             "sn",
             "#b8fb4f",

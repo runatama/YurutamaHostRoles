@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Psychic : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,7 +14,8 @@ public sealed class Psychic : RoleBase
             CustomRoles.Psychic,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            20400,
+            11200,
+            (6, 3),
             SetupOptionItem,
             "Ps",
             "#a34fee",

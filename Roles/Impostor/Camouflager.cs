@@ -17,7 +17,8 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             CustomRoles.Camouflager,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            6300,
+            5600,
+            (6, 0),
             SetupOptionItem,
             "Mo",
             from: From.TheOtherRoles

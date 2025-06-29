@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 using System.Collections.Generic;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Gasp : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -12,7 +13,8 @@ public sealed class Gasp : RoleBase
             CustomRoles.Gasp,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            21900,
+            10700,
+            (5, 3),
             SetupOptionItem,
             "gp",
             "#ab9d44"
