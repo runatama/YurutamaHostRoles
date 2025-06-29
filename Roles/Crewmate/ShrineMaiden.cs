@@ -156,13 +156,13 @@ public sealed class ShrineMaiden : RoleBase
         mcount++;
 
         Logger.Info($"Player: {Player.name},Target1: {target1.name}Target2: {target2.name}", "ShrineMaiden");
-        var FtR1 = target1.GetRoleClass()?.GetFtResults(Player);
-        var role1 = FtR1 is not CustomRoles.NotAssigned ? FtR1.Value : target1.GetCustomRole();
+        var targetRoleClass = target1.GetRoleClass()?.GetFtResults(Player);
+        var targetRole = targetRoleClass is not CustomRoles.NotAssigned ? targetRoleClass.Value : target1.GetCustomRole();
+        var deadtargetRoleClass = target2.GetRoleClass()?.GetFtResults(Player);
+        var deadRole = deadtargetRoleClass is not CustomRoles.NotAssigned ? deadtargetRoleClass.Value : target2.GetCustomRole();
         SendRPC();
-        var ta1 = target1.GetCustomRole();
-        var ta2 = target2.GetCustomRole();
-        var t1 = ta1.GetCustomRoleTypes();
-        var t2 = ta2.GetCustomRoleTypes();
+        var t1 = targetRole.GetCustomRoleTypes();
+        var t2 = deadRole.GetCustomRoleTypes();
         var madmate = Options.MadTellOpt().GetCustomRoleTypes();
         //マッドならimpにする
         if (t1 == CustomRoleTypes.Madmate) t1 = madmate is CustomRoleTypes.Madmate ? madmate : CustomRoleTypes.Impostor;
