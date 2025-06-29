@@ -43,7 +43,7 @@ namespace TownOfHost
         {
             if (info.trygetname().Contains("<"))
             {
-                return info.name.RemoveDeltext("data");
+                return info.name.RemoveDeltext("Data");
             }
             return info.trygetname();
         }

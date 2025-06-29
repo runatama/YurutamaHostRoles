@@ -19,6 +19,7 @@ namespace TownOfHost
         public static bool IsCached { get; private set; } = false;
         public static bool IsSet { get; private set; } = false;
         public static bool Iswaitsend { get; private set; } = false;
+        public static byte dummyImpostorPlayer { get; private set; }
         public static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = new();
         public static List<byte> isRoleCache = new();
         public static VoteResult? voteresult;
@@ -76,7 +77,7 @@ namespace TownOfHost
                 if (isDeadCache.TryGetValue(info.PlayerId, out var val))
                 {
                     info.IsDead = val.isDead;
-                    info.Disconnected = val.Disconnected;
+                    info.Disconnected = val.Disconnected || SelectRolesPatch.Disconnected.Contains(info.PlayerId);
                 }
             }
             isDeadCache.Clear();
@@ -115,8 +116,12 @@ namespace TownOfHost
             // 実行条件: クライアントがホストである, IsDeadが上書きされている, playerが切断済み
             if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;
             isDeadCache[player.PlayerId] = (true, true);
-            player.IsDead = player.Disconnected = false;
+            player.IsDead = player.Disconnected = !OverrideExiledPlayer();
             SendGameData();
+            if (player.PlayerId == dummyImpostorPlayer)
+            {
+                SetRole(voteresult);
+            }
         }
         public static void SetRole(VoteResult? result = null)
         {
@@ -135,6 +140,7 @@ namespace TownOfHost
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
                     HostRole = null;
                 }
+                dummyImpostorPlayer = ImpostorId;
                 bool check = false;
                 foreach (var player in PlayerCatch.AllPlayerControls)
                 {
@@ -146,6 +152,7 @@ namespace TownOfHost
                 foreach (var target in GameData.Instance.AllPlayers)
                 {
                     if (target == null) continue;
+                    if (target.Disconnected) continue;
                     uint? netid = PlayerCatch.AllPlayerNetId.TryGetValue(target.PlayerId, out var id) ? id : (target?._object?.NetId ?? null);
 
                     if (netid.HasValue is false) continue;
@@ -191,6 +198,7 @@ namespace TownOfHost
 
         public static void ResetSetRole(PlayerControl Player)
         {
+            dummyImpostorPlayer = byte.MaxValue;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default && !Main.DontGameSet) return;
             if (Player) isRoleCache.Remove(Player.PlayerId);
             if (Player.GetClient() is null)
@@ -336,6 +344,7 @@ namespace TownOfHost
             IsCached = false;
             Iswaitsend = false;
             IsSet = false;
+            dummyImpostorPlayer = byte.MaxValue;
         }
     }
 }
