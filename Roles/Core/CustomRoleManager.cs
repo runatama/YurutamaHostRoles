@@ -756,9 +756,9 @@ public enum CustomRoles
     EvilMaker,
     Eraser,
     QuickKiller,
-    //DEBUG only Impostor
     Ballooner,
     BorderKiller,
+    //DEBUG only Impostor
     Assassin,
     //Madmate
     MadGuardian,
@@ -826,11 +826,11 @@ public enum CustomRoles
     Stolener,
     VentOpener,
     VentHunter,
-    Walker,
-    //DEBUG only Crewmate
     Inspector,
     AllArounder,
     Satellite,
+    Walker,
+    //DEBUG only Crewmate
     Merlin,
     //Neutral
     Arsonist,
@@ -862,7 +862,6 @@ public enum CustomRoles
     CurseMaker,
     PhantomThief,
     Fox,
-    Ventoman,
     Turncoat,
     Vulture,
     SantaClaus,

@@ -112,6 +112,7 @@ public sealed class VentOpener : RoleBase
         foreach (var (playerid, id) in currentVent)
         {
             var pc = PlayerCatch.GetPlayerById(playerid);
+            if (pc == null) continue;
             var role = pc.GetCustomRole();
             if (pc.inVent //ベントに入ってるか ↓設定とかのチェック
                  && ((role.IsImpostor() && Imp)

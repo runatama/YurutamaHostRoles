@@ -44,7 +44,7 @@ namespace TownOfHost.Roles.Ghost
                 if (SendList.ContainsKey(pc.PlayerId)) return;
 
                 SendList.Add(pc.PlayerId, target.PlayerId);
-                Logger.Info($"{pc?.Data?.name ?? "???"} => {target?.Data?.name ?? "???"}", "GhostRumour");
+                Logger.Info($"{pc?.Data?.GetLogPlayerName() ?? "???"} => {target?.Data?.GetLogPlayerName() ?? "???"}", "GhostRumour");
             }
         }
         public static string SendMes()
