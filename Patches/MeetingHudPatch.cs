@@ -558,7 +558,7 @@ public static class MeetingHudPatch
     {
         string log = "";
         playerIds.Do(id => log += $"({id})");
-        Logger.Info($"{log}を{deathReason}で会議後に処理するぜ!", "TryAddAfterMeetingDeathPlayers");
+        if (playerIds.Count() > 0) Logger.Info($"{log}を{deathReason}で会議後に処理するぜ!", "TryAddAfterMeetingDeathPlayers");
 
         var AddedIdList = new List<byte>();
         foreach (var playerId in playerIds)
