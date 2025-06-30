@@ -40,6 +40,7 @@ namespace TownOfHost
             UtilsGameLog.Reset();
             PlayerState.Clear();
 
+            CustomRoleManager.Initialize();
             Main.AllPlayerKillCooldown = new Dictionary<byte, float>();
             PlayerCatch.AllPlayerFirstTypes = new Dictionary<byte, CustomRoleTypes>();
             Main.AllPlayerSpeed = new Dictionary<byte, float>();

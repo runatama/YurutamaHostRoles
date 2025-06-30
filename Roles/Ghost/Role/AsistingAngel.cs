@@ -72,7 +72,7 @@ namespace TownOfHost.Roles.Ghost
                     Asist = target;
                     pc.RpcResetAbilityCooldown();
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: [target, pc]);
-                    Logger.Info($"Set:{pc.Data.GetLogPlayerName()} => {target.Data.GetLogPlayerName()}", "AsistingAngel");
+                    Logger.Info($"Set:{pc.Data.GetLogPlayerName()} => {Asist.Data.GetLogPlayerName()}", "AsistingAngel");
                 }
                 else
                 {
@@ -150,11 +150,21 @@ namespace TownOfHost.Roles.Ghost
                     }
                     Logger.Info($"{playerid} => Asist対象が負けてるので負け。", "AsistingAngel");
                 }
-                Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
+                else
+                {
+                    Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
+                }
                 CustomWinnerHolder.IdRemoveLovers.Add(playerid);
             }
 
             return false;
+        }
+
+        public static float GetNowCoolDown()
+        {
+            if (Asist == null) return CoolDown.GetFloat();
+
+            return CoolDown.GetFloat() + (AddClowDown.GetFloat() * Count);
         }
     }
 }

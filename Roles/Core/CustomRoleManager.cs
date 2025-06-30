@@ -438,9 +438,9 @@ public static class CustomRoleManager
         return !cancel;
     }
     // ==初期化関連処理 ==
-    [GameModuleInitializer]
     public static void Initialize()
     {
+        //InitでMarkが呼ばれたりするので直接配置
         AllRolesInfo.Do(kvp => kvp.Value.IsEnable = kvp.Key.IsEnable());
         AllActiveRoles.Clear();
         MarkOthers.Clear();
