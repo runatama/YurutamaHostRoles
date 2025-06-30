@@ -52,13 +52,12 @@ namespace TownOfHost
                     switch (CustomWinnerHolder.WinnerTeam)
                     {
                         case CustomWinner.Crewmate:
-                            if (Monochromer.CheckWin(reason)) break;
-
                             PlayerCatch.AllPlayerControls
                                 .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsRiaju()
                                 && !pc.Is(CustomRoles.Amanojaku) && !pc.Is(CustomRoles.Jackaldoll) && !pc.Is(CustomRoles.SKMadmate)
                                 && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff)))
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
+                            if (Monochromer.CheckWin(reason)) break;
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 if (pc.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.Jackaldoll ||
@@ -67,11 +66,11 @@ namespace TownOfHost
                             }
                             break;
                         case CustomWinner.Impostor:
-                            if (Egoist.CheckWin()) break;
 
                             PlayerCatch.AllPlayerControls
                                 .Where(pc => (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate) || pc.Is(CustomRoles.SKMadmate)) && (!pc.GetCustomRole().IsRiaju() || !pc.Is(CustomRoles.Jackaldoll)))
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
+                            if (Egoist.CheckWin()) break;
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 if (pc.GetCustomRole() is CustomRoles.Jackaldoll ||
