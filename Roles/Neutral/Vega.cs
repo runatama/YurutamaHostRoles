@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using HarmonyLib;
 using Hazel;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
@@ -215,7 +216,7 @@ public sealed class Vega : RoleBase, IKiller
         if (!Altair.IsAlive()) return;
 
         var addons = AddOnsAssignData.AllData.Values
-                        .Where(x => x.NeutralMaximum != null && x.Role.IsBuffAddon())
+                        .Where(x => x.NeutralMaximum != null && CheckAddon(x.Role))
                         .Select(x => x.Role)
                         .ToArray();
 
@@ -232,6 +233,9 @@ public sealed class Vega : RoleBase, IKiller
         Altair.RpcSetCustomRole(addon);
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.15f);
     }
+
+    public static bool CheckAddon(CustomRoles role)
+        => role.IsBuffAddon() && role is not CustomRoles.Speeding and not CustomRoles.Opener;
 
     public void RpcRendezvous()
     {
