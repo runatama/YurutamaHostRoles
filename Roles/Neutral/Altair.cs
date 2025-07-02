@@ -7,7 +7,7 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
 
-public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner
+public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -66,5 +66,15 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner
     }
 
     public void SetVega(Vega vega) => Vega = vega;
+
+    public bool CheckWin(ref CustomRoles winnerRole)
+    {
+        if (Vega?.Player == null) return false;
+
+        return Check(Vega.Player.PlayerId, CustomRoles.Vega);
+
+        bool Check(byte playerId, CustomRoles role)
+            => CustomWinnerHolder.WinnerIds.Contains(playerId) || CustomWinnerHolder.WinnerRoles.Contains(role);
+    }
 
 }

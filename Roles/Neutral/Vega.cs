@@ -9,7 +9,7 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral;
 
-public sealed class Vega : RoleBase, IKiller
+public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -262,5 +262,15 @@ public sealed class Vega : RoleBase, IKiller
                 MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, Player.PlayerId);
             }
         }
+    }
+
+    public bool CheckWin(ref CustomRoles winnerRole)
+    {
+        if (Altair == null) return false;
+
+        return Check(Altair.PlayerId, CustomRoles.Altair);
+
+        bool Check(byte playerId, CustomRoles role)
+            => CustomWinnerHolder.WinnerIds.Contains(playerId) || CustomWinnerHolder.WinnerRoles.Contains(role);
     }
 }
