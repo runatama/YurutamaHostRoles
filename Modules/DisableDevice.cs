@@ -374,9 +374,8 @@ namespace TownOfHost
                     if (check) doComms = false;
                     if ((RoleDisable || doComms) && !pc.inVent && GameStates.IsInTask)
                     {
-                        if (!DesyncComms.Contains(pc.PlayerId))
-                            DesyncComms.Add(pc.PlayerId);
-                        else return;
+                        if (!DesyncComms.Contains(pc.PlayerId)) DesyncComms.Add(pc.PlayerId);
+                        else continue;
 
                         pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
                     }
