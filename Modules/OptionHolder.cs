@@ -26,7 +26,7 @@ namespace TownOfHost
     {
         static Task taskOptionsLoad;
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
-        public static void OptionsLoadStart()
+        public static void OptionsLoadStart(TranslationController __instance)
         {
             Logger.Info("Options.Load Start", "Options");
             Main.UseYomiage.Value = false;
@@ -37,12 +37,13 @@ namespace TownOfHost
             Main.ShowDistance.Value = false;
             Main.DebugChatopen.Value  =false;
 #endif
-            taskOptionsLoad = Task.Run(Load);
+            //taskOptionsLoad = Load();
+            Load();
         }
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
         public static void WaitOptionsLoad()
         {
-            taskOptionsLoad.Wait();
+            //taskOptionsLoad.Wait();
             Logger.Info("Options.Load End", "Options");
         }
 

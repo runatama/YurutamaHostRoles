@@ -57,51 +57,29 @@ namespace TownOfHost.Modules
             else
             {
                 var IsAlive = player.IsAlive();
-                //if (ExWeightReduction.GetBool())
+                var killCooldown = IsAlive ? opt.GetFloat(FloatOptionNames.KillCooldown) : 0f;
+                var killDistance = IsAlive ? opt.GetInt(Int32OptionNames.KillDistance) : 0;
+                var impostorLight = IsAlive ? opt.GetFloat(FloatOptionNames.ImpostorLightMod) : 0f;
+                var crewLight = IsAlive ? opt.GetFloat(FloatOptionNames.CrewLightMod) : 0f;
+                var playerSpeed = opt.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                var numEmergency = IsAlive ? opt.GetInt(Int32OptionNames.NumEmergencyMeetings) : 0;
+                var emergencyCooldown = IsAlive ? opt.GetInt(Int32OptionNames.EmergencyCooldown) : 0;
+                var discussionTime = opt.GetInt(Int32OptionNames.DiscussionTime);
+                var votingTime = opt.GetInt(Int32OptionNames.VotingTime);
+                var anonymousVotes = opt.GetBool(BoolOptionNames.AnonymousVotes);
+                var numCommonTasks = opt.GetInt(Int32OptionNames.NumCommonTasks);
+                var numLongTasks = opt.GetInt(Int32OptionNames.NumLongTasks);
+                var numShortTasks = opt.GetInt(Int32OptionNames.NumShortTasks);
+                var visualTasks = IsAlive ? opt.GetBool(BoolOptionNames.VisualTasks) : false;
+                var taskBarMode = IsAlive ? opt.GetInt(Int32OptionNames.TaskBarMode) : 0;
+                var confirmImpostor = opt.GetBool(BoolOptionNames.ConfirmImpostor);
+
+                string NowOption = $"{killCooldown},{killDistance},{impostorLight},{crewLight},{playerSpeed},{numEmergency},{emergencyCooldown},{discussionTime},{votingTime},{anonymousVotes},{numCommonTasks},{numLongTasks},{numShortTasks},{visualTasks},{taskBarMode},{confirmImpostor}";
+                if (OldOptionstext == NowOption)//再度送信するならキャンセル
                 {
-                    //ちょっとやり方強引だけど送った時のくっそ思いよりはましな気がする。
-                    var opttext = "キルクール:" + (IsAlive ? opt.GetFloat(FloatOptionNames.KillCooldown) : "");
-                    opttext += "キルディスタンス:" + (IsAlive ? opt.GetInt(Int32OptionNames.KillDistance) : "");
-                    opttext += "インポス視界:" + (IsAlive ? opt.GetFloat(FloatOptionNames.ImpostorLightMod) : "");
-                    opttext += "クルー視界:" + (IsAlive ? opt.GetFloat(FloatOptionNames.CrewLightMod) : "");
-                    opttext += "移動速度:" + opt.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                    opttext += "緊急会議:" + (IsAlive ? opt.GetInt(Int32OptionNames.NumEmergencyMeetings) : "");
-                    opttext += "会議クール:" + (IsAlive ? opt.GetInt(Int32OptionNames.EmergencyCooldown) : "");
-                    opttext += "議論時間:" + opt.GetInt(Int32OptionNames.DiscussionTime);
-                    opttext += "投票時間:" + opt.GetInt(Int32OptionNames.VotingTime);
-                    opttext += "匿名投票:" + opt.GetBool(BoolOptionNames.AnonymousVotes);
-                    opttext += "通常タスク:" + opt.GetInt(Int32OptionNames.NumCommonTasks);
-                    opttext += "ロングタスク:" + opt.GetInt(Int32OptionNames.NumLongTasks);
-                    opttext += "ショートタスク:" + opt.GetInt(Int32OptionNames.NumShortTasks);
-                    opttext += "視認タスク:" + (IsAlive ? opt.GetBool(BoolOptionNames.VisualTasks) : "");
-                    opttext += "タスクバー:" + (IsAlive ? opt.GetInt(Int32OptionNames.TaskBarMode) : "");
-                    opttext += "追放確認:" + opt.GetBool(BoolOptionNames.ConfirmImpostor);
-
-                    opttext += "エンジクール:" + (IsAlive ? opt.GetFloat(FloatOptionNames.EngineerCooldown) : "");
-                    opttext += "エンジ最大時間:" + (IsAlive ? opt.GetFloat(FloatOptionNames.EngineerInVentMaxTime) : "");
-                    opttext += "科学最大:" + (IsAlive ? opt.GetFloat(FloatOptionNames.ScientistBatteryCharge) : "");
-                    opttext += "科学クール:" + (IsAlive ? opt.GetFloat(FloatOptionNames.ScientistCooldown) : "");
-                    opttext += "ノイズ時間:" + opt.GetFloat(FloatOptionNames.NoisemakerAlertDuration);
-                    opttext += "ノイズtoimp:" + opt.GetBool(BoolOptionNames.NoisemakerImpostorAlert);
-                    opttext += "守護天時間:" + opt.GetFloat(FloatOptionNames.GuardianAngelCooldown);
-                    opttext += "守護天持続:" + opt.GetFloat(FloatOptionNames.ProtectionDurationSeconds);
-                    opttext += "守護見える:" + opt.GetBool(BoolOptionNames.ImpostorsCanSeeProtect);
-                    opttext += "トラッカークール:" + (IsAlive ? opt.GetFloat(FloatOptionNames.TrackerCooldown) : "");
-                    opttext += "トラッカー遅延:" + (IsAlive ? opt.GetFloat(FloatOptionNames.TrackerDelay) : "");
-                    opttext += "トラッカー間隔:" + (IsAlive ? opt.GetFloat(FloatOptionNames.TrackerDuration) : "");
-                    opttext += "シェイプクール:" + (IsAlive ? opt.GetFloat(FloatOptionNames.ShapeshifterCooldown) : "");
-                    opttext += "シェイプ持続:" + (IsAlive ? opt.GetFloat(FloatOptionNames.ShapeshifterDuration) : "");
-                    opttext += "シェイプ証拠:" + opt.GetBool(BoolOptionNames.ShapeshifterLeaveSkin);
-                    opttext += "ファントムクール:" + (IsAlive ? opt.GetFloat(FloatOptionNames.PhantomCooldown) : "");
-                    opttext += "ファントム持続:" + (IsAlive ? opt.GetFloat(FloatOptionNames.PhantomDuration) : "");
-                    if (OldOptionstext == opttext)
-                    {
-                        //Logger.Info($"{player?.Data?.PlayerName ?? "???"} 同一なのでキャンセル", "PlayerSendGameOptions");
-                        return;
-                    }
-
-                    OldOptionstext = GameStates.Meeting ? "" : opttext;
+                    return;
                 }
+                OldOptionstext = GameStates.Meeting ? "" : NowOption;
                 base.SendGameOptions();
             }
         }
@@ -269,7 +247,7 @@ namespace TownOfHost.Modules
                 }
             }
 
-            //キルクール0に設定+修正する設定をONにしたと気だけ呼び出す。
+            //キルクール0に設定+修正する設定をONにした時だけ呼び出す。
             if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
             {
                 //設定が有効で、キルボタンが使用可能の時は最小0.000...1　設定無効 or キルボタンが使用不可なら最小0
@@ -330,7 +308,7 @@ namespace TownOfHost.Modules
                     case CustomRoles.DemonicTracker: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicTracker.CoolDown.GetFloat()); break;
                     case CustomRoles.DemonicCrusher: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicCrusher.CoolDown.GetFloat()); break;
                     case CustomRoles.DemonicVenter: AURoleOptions.GuardianAngelCooldown = CoolDown(DemonicVenter.CoolDown.GetFloat()); break;
-                    case CustomRoles.AsistingAngel: AURoleOptions.GuardianAngelCooldown = CoolDown(AsistingAngel.GetNowCoolDown()); break;
+                    case CustomRoles.AsistingAngel: AURoleOptions.GuardianAngelCooldown = CoolDown(AsistingAngel.CoolDown.GetFloat()); break;
                 }
             }
             return opt;

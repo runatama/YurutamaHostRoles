@@ -198,10 +198,16 @@ namespace TownOfHost
                     Yaminabe.OnClick = new();
                     Yaminabe.OnClick.AddListener((Action)(() =>
                     {
-                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                        foreach (var option in Options.CustomRoleSpawnChances)
                         {
                             var r = option.Key;
-                            if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral()) option.Value.SetValue(10);
+                            if (r is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
+                            if (Event.IsE(r) && !Event.Special) continue;
+                            if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral())
+                            {
+                                if (option.Value.GetValue() is not 10)
+                                    option.Value.SetValue(10);
+                            }
                         }
                     }));
                 }
@@ -218,9 +224,13 @@ namespace TownOfHost
                     Sugoiyaminabe.OnClick = new();
                     Sugoiyaminabe.OnClick.AddListener((Action)(() =>
                     {
-                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                        foreach (var option in Options.CustomRoleSpawnChances)
                         {
-                            option.Value.SetValue(10);
+                            var r = option.Key;
+                            if (r is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
+                            if (Event.IsE(r) && !Event.Special) continue;
+                            if (option.Value.GetValue() is not 10)
+                                option.Value.SetValue(10);
                         }
                     }));
                 }
