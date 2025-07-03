@@ -39,19 +39,18 @@ namespace TownOfHost
         }
 
         // 不正キル防止チェック
-        public static bool CheckForInvalidMurdering(MurderInfo info, bool? kantu = false)
+        public static bool CheckForInvalidMurdering(MurderInfo info, bool? force = false)
         {
             (var killer, var target) = info.AttemptTuple;
-
             // Killerが既に死んでいないかどうか
-            if (kantu == false)
+            if (force == false)
                 if (!killer.IsAlive())
                 {
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()}は死亡しているためキャンセルされました。", "CheckMurder");
                     return false;
                 }
             // targetがキル可能な状態か
-            if (kantu is not null and not true)
+            if (force is not null and not true)
             {
                 if (// PlayerDataがnullじゃないか確認
                     target.Data == null ||
@@ -78,7 +77,7 @@ namespace TownOfHost
                 return false;
             }
 
-            if (kantu == false)
+            if (force == false)
             {
                 // 連打キルでないか
                 float minTime = Mathf.Max(Main.LagTime, AmongUsClient.Instance.Ping / 1000f * 6f); //※AmongUsClient.Instance.Pingの値はミリ秒(ms)なので÷1000

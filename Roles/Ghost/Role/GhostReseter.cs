@@ -34,7 +34,7 @@ namespace TownOfHost.Roles.Ghost
             Counts.Clear();
 
             CustomRoleManager.MarkOthers.Add(OtherMark);
-            Data.kottinimofuyo = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
+            Data.SubRoleType = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
         }
         public static void Add(byte playerId)
         {
@@ -51,10 +51,10 @@ namespace TownOfHost.Roles.Ghost
 
                 Counts[pc.PlayerId]--;
 
-                target.SetKillCooldown(kyousei: true);
+                target.SetKillCooldown(force: true);
                 if (ResetAbilityCool.GetBool())
                 {
-                    target.RpcResetAbilityCooldown(kousin: true);
+                    target.RpcResetAbilityCooldown(Sync: true);
                     var roleclass = target.GetRoleClass();
                     if (roleclass is SerialKiller serialKiller && serialKiller?.SuicideTimer is not null) serialKiller.SuicideTimer = SerialKiller.TimeLimit;
                     if (roleclass is BountyHunter bountyHunter && bountyHunter?.ChangeTimer is not null) bountyHunter.ChangeTimer = BountyHunter.TargetChangeTime;

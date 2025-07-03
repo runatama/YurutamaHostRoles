@@ -30,14 +30,14 @@ public sealed class Monochromer : RoleBase
     )
     {
         CanseeKiller = OpCanseeKiller.GetBool();
-        color = OpCanseeRoleColor.GetBool();
+        MarkColor = OpCanseeRoleColor.GetBool();
     }
     private static OptionItem Kurosiro;
     private static OptionItem HasImpostorVision;
     private static OptionItem OpCanseeKiller;
     private static OptionItem OpCanseeRoleColor;
     bool CanseeKiller;
-    bool color;
+    bool MarkColor;
     enum Option
     {
         MonochromerMonochro,
@@ -57,7 +57,7 @@ public sealed class Monochromer : RoleBase
     public override bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null)
     {
         seen ??= seer;
-        if (GameStates.Meeting || !GameStates.IsInTask) return false;
+        if (GameStates.CalledMeeting || !GameStates.IsInTask) return false;
         if (seer == seen) return false;
         if (!Is(seer)) return false;
         if (!Player.IsAlive()) return false;
@@ -70,20 +70,20 @@ public sealed class Monochromer : RoleBase
         //seenが省略の場合seer
         seen ??= seer;
         if (Options.firstturnmeeting && MeetingStates.FirstMeeting) return "";
-        if (!CanseeKiller || GameStates.Meeting) return "";
+        if (!CanseeKiller || GameStates.CalledMeeting) return "";
         if (seer.Is(CustomRoles.Monochromer) &&
         (seen.GetCustomRole().IsImpostor() || seen.IsNeutralKiller() || seen.Is(CustomRoles.WolfBoy) || seen.Is(CustomRoles.Sheriff) || seen.Is(CustomRoles.GrimReaper)))
         {
-            var c = seen.GetRoleColor();
+            var rolecolor = seen.GetRoleColor();
             if (seen.Is(CustomRoles.WolfBoy))
             {
-                c = UtilsRoleText.GetRoleColor(CustomRoles.Impostor);
+                rolecolor = UtilsRoleText.GetRoleColor(CustomRoles.Impostor);
             }
-            return Utils.ColorString(color ? c : Palette.DisabledGrey, "★");
+            return Utils.ColorString(MarkColor ? rolecolor : Palette.DisabledGrey, "★");
         }
         else return "";
     }
-    public override void Colorchnge()
+    public override void ChangeColor()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!Player.IsAlive()) return;
@@ -112,7 +112,7 @@ public sealed class Monochromer : RoleBase
         {
             var id = Camouflage.PlayerSkins[pc.PlayerId].ColorId;
             pc.SetColor(id);
-            Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true);
+            Camouflage.RpcSetSkin(pc, RevertToDefault: true, force: true);
         }
     }
     public static bool CheckWin(GameOverReason reason)
@@ -141,5 +141,5 @@ public sealed class Monochromer : RoleBase
         return true;
     }
 
-    public override void ChengeRoleAdd() => Colorchnge();
+    public override void ChengeRoleAdd() => ChangeColor();
 }

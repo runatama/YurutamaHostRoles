@@ -15,7 +15,7 @@ public sealed class WhiteHacker : RoleBase
             typeof(WhiteHacker),
             player => new WhiteHacker(player),
             CustomRoles.WhiteHacker,
-            () => CanUseTrackAbility.GetBool() && !Kakusei.GetBool() ? RoleTypes.Tracker : RoleTypes.Crewmate,
+            () => CanUseTrackAbility.GetBool() && !OptAwakening.GetBool() ? RoleTypes.Tracker : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10100,
             (3, 7),
@@ -31,12 +31,12 @@ public sealed class WhiteHacker : RoleBase
     )
     {
         cantaskcount = Optioncantaskcount.GetFloat();
-        P = 225;
-        Max = OptionMaximum.GetFloat();
+        targetId = byte.MaxValue;
+        Maximum = OptionMaximum.GetFloat();
         cont = 0;
-        use = false;
+        Useing = false;
         NowTracker = false;
-        kakusei = !Kakusei.GetBool() || cantaskcount < 1; ;
+        Awakened = !OptAwakening.GetBool() || cantaskcount < 1; ;
     }
 
     private static OptionItem Optioncantaskcount;
@@ -45,13 +45,13 @@ public sealed class WhiteHacker : RoleBase
     static OptionItem TrackerCooldown;
     static OptionItem TrackerDelay;
     static OptionItem TrackerDuration;
-    static OptionItem Kakusei;
-    bool kakusei;
+    static OptionItem OptAwakening;
+    bool Awakened;
     private static float cantaskcount;
-    private int P;
-    static float Max;
+    private int targetId;
+    static float Maximum;
     float cont;
-    bool use;
+    bool Useing;
     bool NowTracker;
     enum Option
     {
@@ -71,7 +71,7 @@ public sealed class WhiteHacker : RoleBase
                 .SetValueFormat(OptionFormat.Seconds);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.WhiteHackerTrackTimes, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.UKakusei, true, false);
+        OptAwakening = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.AbilityAwakening, false, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -89,11 +89,11 @@ public sealed class WhiteHacker : RoleBase
         cont = reader.ReadInt32();
     }
     private bool IsTrackTarget(PlayerControl target)
-    => (Player.IsAlive() && target.IsAlive() && !Is(target)) || P == target.PlayerId;
+    => (Player.IsAlive() && target.IsAlive() && !Is(target)) || targetId == target.PlayerId;
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (isForMeeting && Player.IsAlive() && kakusei && seer.PlayerId == seen.PlayerId && SelfVoteManager.Canuseability() && Max > cont && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        if (isForMeeting && Player.IsAlive() && Awakened && seer.PlayerId == seen.PlayerId && SelfVoteManager.Canuseability() && Maximum > cont && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("NomalVoteRoleInfoMeg")}</color>";
             return isForHud ? mes : $"<size=40%>{mes}</size>";
@@ -103,19 +103,19 @@ public sealed class WhiteHacker : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!SelfVoteManager.Canuseability()) return true;
-        if (Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Max > cont)
+        if (Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Maximum > cont)
         {
             if (Player.PlayerId == votedForId || votedForId == 253)
             {
-                P = 225;
+                targetId = byte.MaxValue;
                 return true;
             }
             else
             {
                 cont++;
-                P = votedForId;
-                use = true;
-                Utils.SendMessage(string.Format(GetString("Skill.WhiteHacker"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true), Max - cont), Player.PlayerId);
+                targetId = votedForId;
+                Useing = true;
+                Utils.SendMessage(string.Format(GetString("Skill.WhiteHacker"), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true), Maximum - cont), Player.PlayerId);
                 SendRPC();
                 return true;
             }
@@ -124,16 +124,16 @@ public sealed class WhiteHacker : RoleBase
     }
     public override void AfterMeetingTasks()
     {
-        if (!use)
-            P = 255;
+        if (!Useing)
+            targetId = 255;
     }
-    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => use = false;
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Useing = false;
     // 表示系の関数群
     public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
     {
-        if (P == 225) return "";
+        if (targetId == byte.MaxValue) return "";
         seen ??= seer;
-        if (GameStates.Meeting && P == seen.PlayerId && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        if (GameStates.CalledMeeting && targetId == seen.PlayerId && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             var roomName = GetLastRoom(seen);
             // 空のときにタグを付けると，suffixが空ではない判定となりなにもない3行目が表示される
@@ -141,12 +141,12 @@ public sealed class WhiteHacker : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= cont ? Color.gray : Color.cyan, $"({Max - cont})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Maximum <= cont ? Color.gray : Color.cyan, $"({Maximum - cont})");
 
     public string GetLastRoom(PlayerControl seen)
     {
-        if (P == 225 || !Player.IsAlive()) return "";
-        if (!IsTrackTarget(seen) && P == seen.PlayerId) return "";
+        if (targetId == byte.MaxValue || !Player.IsAlive()) return "";
+        if (!IsTrackTarget(seen) && targetId == seen.PlayerId) return "";
         var text = "";
         var room = PlayerState.GetByPlayerId(seen.PlayerId).LastRoom;
         if (room == null) text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
@@ -157,21 +157,22 @@ public sealed class WhiteHacker : RoleBase
 
         return text;
     }
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
         if (MyTaskState.HasCompletedEnoughCountOfTasks((int)cantaskcount))
         {
-            if (kakusei == false)
+            if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
                     Utils.RoleSendList.Add(Player.PlayerId);
-            kakusei = true;
+            Awakened = true;
         }
-        if (!NowTracker && kakusei && CanUseTrackAbility.GetBool())
+        if (!NowTracker && Awakened && CanUseTrackAbility.GetBool())
         {
-            PlayerCatch.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Tracker, Player.GetClientId()));
+            Player.RpcSetRole(RoleTypes.Tracker, true);
             NowTracker = true;
         }
         return true;
     }
+    public override RoleTypes? AfterMeetingRole => NowTracker && Awakened && CanUseTrackAbility.GetBool() ? RoleTypes.Tracker : RoleTypes.Crewmate;
 }

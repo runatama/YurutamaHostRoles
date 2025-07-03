@@ -19,9 +19,9 @@ namespace TownOfHost
     {
         private static SimpleButton discordButton;
         private static SimpleButton StatisticsButton;
-        private static SimpleButton ModoruButton;
-        private static SimpleButton TuginoButton;
-        static Dictionary<byte, string> peji;
+        private static SimpleButton BackButton;
+        private static SimpleButton NextButton;
+        static Dictionary<byte, string> Pages;
         static byte now;
         public static SimpleButton UpdateButton { get; private set; }
         public static SimpleButton UpdateButton2;
@@ -30,7 +30,7 @@ namespace TownOfHost
         private static SimpleButton TOHkBOTButton;
         private static SimpleButton VersionChangeButton;
         private static SimpleButton betaversionchange;
-        public static TextMeshPro Tokei;
+        public static TextMeshPro Statistisc;
         public static GameObject VersionMenu;
         public static GameObject betaVersionMenu;
         public static AnnouncementPopUp updatea;
@@ -39,7 +39,7 @@ namespace TownOfHost
         public static void StartPostfix(MainMenuManager __instance)
         {
             SimpleButton.SetBase(__instance.quitButton);
-            peji = new();
+            Pages = new();
             now = byte.MaxValue;
             //Discordボタンを生成
             if (SimpleButton.IsNullOrDestroyed(discordButton))
@@ -98,49 +98,49 @@ namespace TownOfHost
                     () =>
                     {
                         var ages = SaveStatistics.ShowText().RemoveSizeTags().Split("\n");
-                        var pejitext = "<size=60%>";
-                        var count = 0;
-                        byte c = 0;
+                        var Page = "<size=60%>";
+                        var index = 0;
+                        byte count = 0;
                         foreach (var text in ages)
                         {
-                            count++;
-                            pejitext += $"{text}\n";
-                            if (16 <= count)
+                            index++;
+                            Page += $"{text}\n";
+                            if (16 <= index)
                             {
-                                peji.TryAdd(c, pejitext);
-                                c++;
-                                count = 0;
-                                pejitext = "<size=60%>";
+                                Pages.TryAdd(count, Page);
+                                count++;
+                                index = 0;
+                                Page = "<size=60%>";
                             }
                         }
-                        if (pejitext.RemoveHtmlTags() != "")
-                            peji.TryAdd(c, pejitext);
+                        if (Page.RemoveHtmlTags() != "")
+                            Pages.TryAdd(count, Page);
 
                         CredentialsPatch.TohkLogo.gameObject.SetActive(false);
                         __instance.screenTint.enabled = true;
-                        Tokei.gameObject.SetActive(true);
+                        Statistisc.gameObject.SetActive(true);
                         now = 0;
-                        Tokei.text = peji.TryGetValue(now, out var t) ? t : "???";
-                        TuginoButton.Button.gameObject.SetActive(true);
-                        ModoruButton.Button.gameObject.SetActive(true);
+                        Statistisc.text = Pages.TryGetValue(now, out var t) ? t : "???";
+                        NextButton.Button.gameObject.SetActive(true);
+                        BackButton.Button.gameObject.SetActive(true);
                     },
                     Translator.GetString("Statistics")
                     );
             }
 
-            if (SimpleButton.IsNullOrDestroyed(TuginoButton))
+            if (SimpleButton.IsNullOrDestroyed(NextButton))
             {
-                TuginoButton = CreateButton(
-                    "TuginoButton",
+                NextButton = CreateButton(
+                    "NextButton",
                     new(3.1f * w, -2.2f, -6f),
                     new(255, 242, 104, byte.MaxValue),
                     new(255, 248, 173, byte.MaxValue),
                     () =>
                     {
                         now++;
-                        if (peji.TryGetValue(now, out var t))
+                        if (Pages.TryGetValue(now, out var t))
                         {
-                            Tokei.text = t;
+                            Statistisc.text = t;
                         }
                         else now--;
                     },
@@ -151,19 +151,19 @@ namespace TownOfHost
                     );
             }
 
-            if (SimpleButton.IsNullOrDestroyed(ModoruButton))
+            if (SimpleButton.IsNullOrDestroyed(BackButton))
             {
-                ModoruButton = CreateButton(
-                    "ModoruButton",
+                BackButton = CreateButton(
+                    "BackButton",
                     new(2.5f * w, -2.2f, -6),
                     new(255, 242, 104, byte.MaxValue),
                     new(255, 248, 173, byte.MaxValue),
                     () =>
                     {
                         now--;
-                        if (peji.TryGetValue(now, out var t))
+                        if (Pages.TryGetValue(now, out var t))
                         {
-                            Tokei.text = t;
+                            Statistisc.text = t;
                         }
                         else now++;
                     },
@@ -387,7 +387,7 @@ namespace TownOfHost
         [HarmonyPatch(nameof(MainMenuManager.OpenFindGame))]
         [HarmonyPatch(nameof(MainMenuManager.OpenEnterCodeMenu))]
         [HarmonyPrefix]
-        public static bool clickFindGame()
+        public static bool ClickFindGame()
         {
             return false;
         }
@@ -431,21 +431,21 @@ namespace TownOfHost
                 VersionMenu.SetActive(false);
             if (betaVersionMenu != null)
                 betaVersionMenu.SetActive(false);
-            if (Tokei != null)
-                Tokei.gameObject.SetActive(false);
-            if (TuginoButton != null)
-                TuginoButton.Button.gameObject.SetActive(false);
-            if (ModoruButton != null)
-                ModoruButton.Button.gameObject.SetActive(false);
+            if (Statistisc != null)
+                Statistisc.gameObject.SetActive(false);
+            if (NextButton != null)
+                NextButton.Button.gameObject.SetActive(false);
+            if (BackButton != null)
+                BackButton.Button.gameObject.SetActive(false);
 
             {
                 var warning = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/CrossplayWarning");
                 warning.SetActive(true);
-                var wt = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/CrossplayWarning/CrossPlayText/Text_TMP");
+                var TMPobjct = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/CrossplayWarning/CrossPlayText/Text_TMP");
 
-                var a = wt.transform.GetComponent<TextMeshPro>();
-                a.SetText(Translator.GetString("CantPublickAndJoin"));
-                _ = new LateTask(() => a.SetText(Translator.GetString("CantPublickAndJoin")), 0.05f, "Set", true);
+                var TMP = TMPobjct.transform.GetComponent<TextMeshPro>();
+                TMP.SetText(Translator.GetString("CantPublickAndJoin"));
+                _ = new LateTask(() => TMP.SetText(Translator.GetString("CantPublickAndJoin")), 0.05f, "Set", true);
             }
         }
         [HarmonyPatch(nameof(MainMenuManager.ResetScreen)), HarmonyPostfix]
@@ -459,12 +459,12 @@ namespace TownOfHost
                 VersionMenu.SetActive(false);
             if (betaVersionMenu != null)
                 betaVersionMenu.SetActive(false);
-            if (Tokei != null)
-                Tokei.gameObject.SetActive(false);
-            if (TuginoButton != null)
-                TuginoButton?.Button?.gameObject.SetActive(false);
-            if (ModoruButton != null)
-                ModoruButton?.Button?.gameObject.SetActive(false);
+            if (Statistisc != null)
+                Statistisc.gameObject.SetActive(false);
+            if (NextButton != null)
+                NextButton?.Button?.gameObject.SetActive(false);
+            if (BackButton != null)
+                BackButton?.Button?.gameObject.SetActive(false);
         }
     }
     public class ModNews

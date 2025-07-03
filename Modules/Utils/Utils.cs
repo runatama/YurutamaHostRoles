@@ -91,40 +91,7 @@ namespace TownOfHost
                     return false;
             }
         }
-        /// <summary></summary>
-        /// <param name="player">色表示にするプレイヤー</param>
-        /// <param name="borudo">trueの場合ボールドで返します。</param>
-        public static string GetPlayerColor(PlayerControl player, bool borudo = false)
-        {
-            if (player == null) return "";
-            var name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var N) ? N : player.Data.PlayerName;
-            /*if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
-            else*/
-            return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
-        }
-        /// <summary></summary>
-        /// <param name="player">色表示にするプレイヤー</param>
-        /// <param name="borudo">trueの場合ボールドで返します。</param>
-        public static string GetPlayerColor(byte player, bool borudo = false)
-        {
-            var pc = PlayerCatch.GetPlayerById(player);
-            if (pc == null) return "";
-            var name = Main.AllPlayerNames.TryGetValue(player, out var N) ? N : pc.Data.PlayerName;
-            /*if (borudo) return "<b>" + ColorString(Main.PlayerColors[player], $"{name}</b>");
-            else*/
-            return ColorString(Main.PlayerColors[player], $"{name}");
-        }
-        /// <summary></summary>
-        /// <param name="player">色表示にするプレイヤー</param>
-        /// <param name="borudo">trueの場合ボールドで返します。</param>
-        public static string GetPlayerColor(NetworkedPlayerInfo player, bool borudo = false)
-        {
-            if (player == null) return "";
-            var name = player.PlayerName;
-            /*if (borudo) return "<b>" + ColorString(Main.PlayerColors[player.PlayerId], $"{name}</b>");
-            else*/
-            return ColorString(Main.PlayerColors[player.PlayerId], $"{name}");
-        }
+
         public static SystemTypes GetCriticalSabotageSystemType() => (MapNames)Main.NormalOptions.MapId switch
         {
             MapNames.Polus => SystemTypes.Laboratory,
@@ -153,7 +120,7 @@ namespace TownOfHost
 
             if (seer.Is(CustomRoles.GM)) return true;
 
-            if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GRCanSeeKillflash.GetBool()) && target != seer) return true;
+            if (seer.Data.IsDead && (Options.GhostCanSeeKillflash.GetBool() || !Options.GhostOptions.GetBool()) && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GhostRoleCanSeeKillflash.GetBool()) && target != seer) return true;
             if (seer.Data.IsDead || killer == seer || target == seer) return false;
 
             //ラスポスで付いてるのに！とかが一応ありえる。
@@ -170,19 +137,19 @@ namespace TownOfHost
             }
 
 
-            if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || LastImpostor.SCanSeeComms.GetBool();
-            if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || LastNeutral.SCanSeeComms.GetBool();
+            if (seer.Is(CustomRoles.LastImpostor) && LastImpostor.GiveSeeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || LastImpostor.SeeingCanSeeComms.GetBool();
+            if (seer.Is(CustomRoles.LastNeutral) && LastNeutral.GiveSeeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || LastNeutral.SeeingCanSeeComms.GetBool();
 
-            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.seeing))
-                if (data.Giveseeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || data.SCanSeeComms.GetBool();
+            if (RoleAddAddons.GetRoleAddon(seer.GetCustomRole(), out var data, seer, subrole: CustomRoles.Seeing))
+                if (data.GiveSeeing.GetBool()) check |= !IsActive(SystemTypes.Comms) || data.SeeingCanSeeComms.GetBool();
 
-            if (Options.SuddenCanSeeKillflash.GetBool()) return true;
+            if (SuddenDeathMode.SuddenCanSeeKillflash.GetBool()) return true;
 
             return check || seer.GetCustomRole() switch
             {
                 // IKillFlashSeeable未適用役職はここに書く
                 _ => (seer.Is(CustomRoleTypes.Madmate) && Options.MadmateCanSeeKillFlash.GetBool())
-                || (seer.Is(CustomRoles.seeing) && (!IsActive(SystemTypes.Comms) || seeing.CanSeeComms.GetBool()))
+                || (seer.Is(CustomRoles.Seeing) && (!IsActive(SystemTypes.Comms) || Seeing.OptionCanSeeActiveComms.GetBool()))
             };
         }
         public static bool NowKillFlash = false;
@@ -210,112 +177,6 @@ namespace TownOfHost
                 player.MarkDirtySettings();
             }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
         }
-        /*public static void KillFlash(PlayerControl[] players)
-        {
-            if (players.Count() < 1) return;
-            bool ReactorCheck = IsActive(GetCriticalSabotageSystemType());
-            var Duration = Options.KillFlashDuration.GetFloat();
-            var systemtypes = Utils.GetCriticalSabotageSystemType();
-            float FlashDuration = Options.KillFlashDuration.GetFloat();
-            List<CustomRpcSender> senders = new();
-
-            if (ReactorCheck) Duration += 0.2f;
-
-            {
-                bool ch = false;
-                foreach (var player in players)
-                {
-                    //sender
-                    var sender = CustomRpcSender.Create("KillFlash", Hazel.SendOption.None);
-                    senders.Add(sender);
-
-                    //実行
-                    var state = PlayerState.GetByPlayerId(player.PlayerId);
-                    state.IsBlackOut = true; //ブラックアウト
-                    if (player.PlayerId == 0)
-                    {
-                        FlashColor(new(1f, 0f, 0f, 0.5f));
-                        if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
-                    }
-                    else if (!ReactorCheck)
-                    {
-                        if (player == null || GameStates.IsLobby || player.GetClient() == null) continue;
-                        ch = true;
-                        NowKillFlash = true;
-                        {
-                            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
-                                .Write((byte)systemtypes)
-                                .WriteNetObject(player)
-                                .Write((byte)128)
-                                .EndRpc();
-                        }
-                    } //リアクターフラッシュ
-                }
-                UtilsOption.MarkEveryoneDirtySettings();
-                if (ch)
-                {
-                    senders.Do(x =>
-                    {
-                        x.EndMessage();
-                        x.SendMessage();
-                    });
-                    senders.Clear();
-                }
-            }
-
-            if (!ReactorCheck)
-            {
-                _ = new LateTask(() =>
-                {
-                    bool ch = false;
-                    foreach (var player in players)
-                    {
-                        if (player == null || GameStates.IsLobby || player.GetClient() == null || player.PlayerId == 0) continue;
-
-                        var sender = CustomRpcSender.Create("RemoveKillFlash");
-                        senders.Add(sender);
-
-                        ch = true;
-                        sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
-                            .Write((byte)systemtypes)
-                            .WriteNetObject(player)
-                            .Write((byte)16)
-                            .EndRpc();
-
-                        if (Main.NormalOptions.MapId == 4) //Airship用
-                        {
-                            sender.AutoStartRpc(ShipStatus.Instance.NetId, RpcCalls.UpdateSystem, player.GetClientId())
-                                .Write((byte)systemtypes)
-                                .WriteNetObject(player)
-                                .Write((byte)17)
-                                .EndRpc();
-                        }
-                    }
-                    if (ch)
-                    {
-                        senders.Do(x =>
-                        {
-                            x.EndMessage();
-                            x.SendMessage();
-                        });
-                    }
-                }, FlashDuration, "Fix Desync Reactor");
-                _ = new LateTask(() => NowKillFlash = false, FlashDuration * 2, "", true);
-            }
-
-            _ = new LateTask(() =>
-            {
-                bool ch = false;
-                foreach (var player in players)
-                {
-                    if (player == null || GameStates.IsLobby) continue;
-                    var state = player.GetPlayerState();
-                    state.IsBlackOut = false; //ブラックアウト解除
-                    ch = true;
-                }
-                if (ch) UtilsOption.MarkEveryoneDirtySettings();
-            }, Options.KillFlashDuration.GetFloat(), "RemoveKillFlash");
-        }*/
         public static void AllPlayerKillFlash()
         {
             if (SuddenDeathMode.NowSuddenDeathMode) return;
@@ -358,7 +219,7 @@ namespace TownOfHost
             if (pc == null) return false;
             var isAlive = pc.IsAlive();
             var GhostRole = pc.IsGhostRole();
-            if (!isAlive && GhostRole) return Options.GRCanSeeKillerColor.GetBool();
+            if (!isAlive && GhostRole) return Options.GhostRoleCanSeeKillerColor.GetBool();
             if (!isAlive && !GhostRole) return Options.GhostCanSeeKillerColor.GetBool() || !Options.GhostOptions.GetBool();
             return false;
         }
@@ -400,20 +261,20 @@ namespace TownOfHost
         }
         public static void ShowHelp(byte to = 255)
         {
-            var a = "";
-            var send = "";
-            if (Options.sotodererukomando.GetBool() && GameStates.IsLobby)
+            var tpinfo = "";
+            var text = "";
+            if (Options.UseLobbyTpCommand.GetBool() && GameStates.IsLobby)
             {
-                a += $"\n/tp o - {GetString("Command.tpo")}";
-                a += $"\n/tp i - {GetString("Command.tpi")}";
-                a += $"\n/allplayertp(/apt) - {GetString("Command.apt")}";
+                tpinfo += $"\n/tp o - {GetString("Command.tpo")}";
+                tpinfo += $"\n/tp i - {GetString("Command.tpi")}";
+                tpinfo += $"\n/allplayertp(/apt) - {GetString("Command.apt")}";
             }
-            send = GetString("CommandList")
+            text = GetString("CommandList")
             + "<size=60%><line-height=1.3pic>";
             if (to == 0)
             {
                 //ホスト限定
-                send += $"<size=80%></line-height>\n【~~~~~~~{GetString("OnlyHost")}~~~~~~~】</size><line-height=1.3pic>"
+                text += $"<size=80%></line-height>\n【~~~~~~~{GetString("OnlyHost")}~~~~~~~】</size><line-height=1.3pic>"
                 + $"\n/rename(/r) - {GetString("Command.rename")}"
                 + $"\n/dis - {GetString("Command.dis")}"
                 + $"\n/sw - {GetString("Command.sw")}"
@@ -422,10 +283,10 @@ namespace TownOfHost
                 + $"\n/kf - {GetString("Command.kf")}"
                 + $"\n/addwhite(/aw) - {GetString("Command.addwhite")}";
                 //導入者
-                send += $"<size=80%></line-height>\n【~~~~~~~{GetString("OnlyClient")}~~~~~~~】</size><line-height=1.3pic>"
+                text += $"<size=80%></line-height>\n【~~~~~~~{GetString("OnlyClient")}~~~~~~~】</size><line-height=1.3pic>"
                 + $"\n/dump - {GetString("Command.dump")}";
             }
-            send
+            text
             //全員
             += $"<size=80%></line-height>\n【~~~~~~~{GetString("Allplayer")}~~~~~~~】</size><line-height=1.3pic>"
             + $"\n/now(/n) - {GetString("Command.now")}"
@@ -436,21 +297,21 @@ namespace TownOfHost
             + $"\n/h roles(/h r ) {GetString("Command.h_roles")}"
             + $"\n/myrole(/m) - {GetString("Command.m")}"
             + $"\n/meetinginfo(/mi,/day) - {GetString("Command.mi")}";
-            if (CustomRolesHelper.CheckGuesser() || CustomRoles.Guesser.IsPresent()) send += $"\n/bt - {GetString("Command.bt")}";
-            if (Options.ImpostorHideChat.GetBool()) send += $"\n/ic - {GetString("Command.impchat")}";
-            if (Options.JackalHideChat.GetBool()) send += $"\n/jc - {GetString("Command.jacchat")}";
-            if (Options.LoversHideChat.GetBool()) send += $"\n/lc - {GetString("Command.LoverChat")}";
-            if (Options.ConnectingHideChat.GetBool()) send += $"\n/cc - {GetString("Command.ConnectingChat")}";
-            if (Options.TwinsHideChat.GetBool()) send += $"\n/tc - {GetString("Command.TwinsChat")}";
+            if (CustomRolesHelper.CheckGuesser() || CustomRoles.Guesser.IsPresent()) text += $"\n/bt - {GetString("Command.bt")}";
+            if (Options.ImpostorHideChat.GetBool()) text += $"\n/ic - {GetString("Command.impchat")}";
+            if (Options.JackalHideChat.GetBool()) text += $"\n/jc - {GetString("Command.jacchat")}";
+            if (Options.LoversHideChat.GetBool()) text += $"\n/lc - {GetString("Command.LoverChat")}";
+            if (Options.ConnectingHideChat.GetBool()) text += $"\n/cc - {GetString("Command.ConnectingChat")}";
+            if (Options.TwinsHideChat.GetBool()) text += $"\n/tc - {GetString("Command.TwinsChat")}";
             if (GameStates.IsLobby)
             {
-                send += $"\n/lastresult(/l) - {GetString("Command.lastresult")}"
+                text += $"\n/lastresult(/l) - {GetString("Command.lastresult")}"
                     + $"\n/killlog(/kl) - {GetString("Command.killlog")}"
                     + $"\n/timer - {GetString("Command.timer")}";
             }
-            if (Main.UseYomiage.Value) send += $"\n/voice - {GetString("Command.voice")}";
+            if (Main.UseYomiage.Value) text += $"\n/voice - {GetString("Command.voice")}";
 
-            SendMessage(send + a, to);
+            SendMessage(text + tpinfo, to);
         }
         public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool rob = false)
         {
@@ -539,7 +400,7 @@ namespace TownOfHost
                 if (Options.IsStandardHAS) info += $"\r\n" + ColorString(Color.yellow, GetString("StandardHAS")); else at += "\r\n";
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) info += $"\r\n" + ColorString(Color.red, GetString("HideAndSeek")); else at += "\r\n";
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) info += $"\r\n" + ColorString(Color.cyan, GetString("TaskBattle")); else at += "\r\n";
-                if (Options.SuddenDeathMode.OptionMeGetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
+                if (SuddenDeathMode.SuddenDeathModeActive.OptionMeGetBool()) info += "\r\n" + ColorString(GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")); else at += "\r\n";
                 if (Options.EnableGM.OptionMeGetBool()) info += $"\r\n" + ColorString(GetRoleColor(CustomRoles.GM), GetString("GM")); else at += "\r\n";
                 if (DebugModeManager.IsDebugMode)
                     info += "\r\n" + (DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<#0066de>DebugMode</color>" : ColorString(Color.green, "デバッグモード"));
@@ -554,31 +415,33 @@ namespace TownOfHost
             }
         }
         #region AfterMeetingTasks
-        public static bool CanVent;
+        public static bool CantUseVent;
         public static List<byte> RoleSendList = new();
         public static void AfterMeetingTasks()
         {
             MovingPlatformBehaviourPatch.SetPlatfrom();
-            GameStates.Meeting = false;
+            GameStates.CalledMeeting = false;
             //天秤会議だと送らない
             if (Balancer.Id == 255 && Balancer.target1 != 255 && Balancer.target2 != 255 && (!Options.firstturnmeeting || !MeetingStates.First))
             {
                 foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
-                    roleClass.BalancerAfterMeetingTasks();
+                {
+                    if (roleClass is Balancer balancer) balancer.BalancerAfterMeetingTasks();
+                }
             }
             else
             {
                 if (!Options.firstturnmeeting || !MeetingStates.First)
                 {
-                    if (Amanojaku.Amaday.GetFloat() == UtilsGameLog.day) AmanojakuAssing.AssignAddOnsFromList();
-                    if (Amnesia.Modoru.GetFloat() <= UtilsGameLog.day && Amnesia.TriggerDay.GetBool())
+                    if (Amanojaku.AssingDay.GetFloat() == UtilsGameLog.day) AmanojakuAssing.AssignAddOnsFromList();
+                    if (Amnesia.OptionRealizeDayCount.GetFloat() <= UtilsGameLog.day && Amnesia.OptionCanRealizeDay.GetBool())
                     {
-                        foreach (var p in PlayerCatch.AllPlayerControls)
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
-                            if (p.Is(CustomRoles.Amnesia))
+                            if (pc.Is(CustomRoles.Amnesia))
                             {
-                                if (!RoleSendList.Contains(p.PlayerId)) RoleSendList.Add(p.PlayerId);
-                                Amnesia.Kesu(p.PlayerId);
+                                if (!RoleSendList.Contains(pc.PlayerId)) RoleSendList.Add(pc.PlayerId);
+                                Amnesia.RemoveAmnesia(pc.PlayerId);
                             }
                         }
                     }
@@ -587,11 +450,11 @@ namespace TownOfHost
                 {
                     var roleClass = pc.GetRoleClass();
                     if (!Options.firstturnmeeting || !MeetingStates.First) roleClass?.AfterMeetingTasks();
-                    pc.GetRoleClass()?.Colorchnge();//会議後、役職変更されてものやつ。
+                    pc.GetRoleClass()?.ChangeColor();//会議後、役職変更されてものやつ。
                 }
                 if (!Options.firstturnmeeting || !MeetingStates.First)
                 {
-                    if (AsistingAngel.ch())
+                    if (AsistingAngel.CanSetAsistTarget())
                         AsistingAngel.Limit++;
 
                     UtilsGameLog.day++;
@@ -608,8 +471,8 @@ namespace TownOfHost
                 ventilationSystem.IsDirty = true;
             }
             GuessManager.Reset();//会議後にリセット入れる
-            ExtendedPlayerControl.AllPlayerOnlySeeMePet();
-            GameStates.Tuihou = false;
+            ExtendedRpc.AllPlayerOnlySeeMePet();
+            GameStates.ExiledAnimate = false;
         }
         #endregion
         public static void ChangeInt(ref int ChangeTo, int input, int max)
@@ -629,9 +492,9 @@ namespace TownOfHost
         public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", "");
         public static string RemoveColorTags(this string str)
         {
-            var a = Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
-            a = Regex.Replace(a, "<#[^>]*?>", "");
-            return a;
+            var removecolor = Regex.Replace(str, "</?color(=#[0-9a-fA-F]*)?>", "");
+            removecolor = Regex.Replace(removecolor, "<#[^>]*?>", "");
+            return removecolor;
         }
         public static string RemoveSizeTags(this string str) => Regex.Replace(str, "</?size[^>]*?>", "");
         public static string RemoveGiveAddon(this string str) => Regex.Replace(str, "を付与する", "");
@@ -641,41 +504,41 @@ namespace TownOfHost
         public static string RemoveDeltext(this string str, string del, string set = "") => Regex.Replace(str, del, set);
         public static string RemoveText(this string str, bool Update = false)
         {
-            bool musi = false;
+            bool Skip = false;
             string returns = "";
             if (Update)
             {
                 for (var i = 0; i < str.Length; i++)
                 {
-                    string s = "";
-                    s = str.Substring(i, 1);
-                    if (s == Regex.Replace(s, "[0-9]", "")) continue;
-                    returns += s;
+                    string text = "";
+                    text = str.Substring(i, 1);
+                    if (text == Regex.Replace(text, "[0-9]", "")) continue;
+                    returns += text;
                 }
                 return returns;
             }
             for (var i = 0; i < str.Length; i++)
             {
-                string s = "";
-                s = str.Substring(i, 1);
+                string text = "";
+                text = str.Substring(i, 1);
 
                 {
-                    if (s == "<")
-                        musi = true;
-                    if (s == ">")
+                    if (text == "<")
+                        Skip = true;
+                    if (text == ">")
                     {
                         returns += ">";
-                        musi = false;
+                        Skip = false;
                     }
 
-                    if (musi)
-                        returns += s;
+                    if (Skip)
+                        returns += text;
                     else
-                        if (s != ">")
+                        if (text != ">")
                     {
-                        if (s == "\n")
+                        if (text == "\n")
                             returns += "\n ";
-                        else if (s == "\r")
+                        else if (text == "\r")
                             returns += "\r";
                         else
                             returns += " ";
@@ -783,17 +646,17 @@ namespace TownOfHost
             MeetingVoteManager.Voteresult = "";
             IUsePhantomButton.IPPlayerKillCooldown.Clear();
             CustomButtonHud.CantJikakuIsPresent = null;
-            Utils.RoleSendList.Clear();
-            UtilsNotifyRoles.MeetingMoji = "";
+            RoleSendList.Clear();
+            UtilsNotifyRoles.ExtendedMeetingText = "";
             Roles.Madmate.MadAvenger.Skill = false;
-            Roles.Neutral.JackalDoll.side = 0;
+            Roles.Neutral.JackalDoll.NowSideKickCount = 0;
             Balancer.Id = 255;
             Stolener.Killers.Clear();
-            Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !Options.SuddenDeathMode.GetBool();
+            Options.firstturnmeeting = Options.FirstTurnMeeting.GetBool() && !SuddenDeathMode.SuddenDeathModeActive.GetBool();
             CoEnterVentPatch.OldOnEnterVent = new();
 
-            if (Options.CuseVent.GetBool() && (Options.CuseVentCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) Utils.CanVent = true;
-            else Utils.CanVent = false;
+            if (Options.CantUseVentMode.GetBool() && (Options.CantUseVentTrueCount.GetFloat() >= PlayerCatch.AllAlivePlayerControls.Count())) CantUseVent = true;
+            else CantUseVent = false;
         }
     }
 }

@@ -39,7 +39,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
         KillCooldown = OptionKillCooldown.GetFloat();
         CanVent = OptionCanVent.GetBool();
         KillCount = 0;
-        WinFuragu = false;
+        WinFlag = false;
     }
     static OptionItem OptionKillCooldown;
     static OptionItem OptionAddWin;
@@ -54,7 +54,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
     public static bool CanVent;
     private static float KillCooldown;
     int KillCount = 0;
-    bool WinFuragu;
+    bool WinFlag;
     private static void SetupOptionItem()
     {
         SoloWinOption.Create(RoleInfo, 9, defo: 1);
@@ -104,7 +104,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
             if (KillCount >= VictoryCount)
             {
                 Win();
-                WinFuragu = true;
+                WinFlag = true;
             }
         }
         return;
@@ -112,7 +112,7 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if ((seen == seer) && WinFuragu && OptionAddWin.GetBool()) return "<color=#dddd00>★</color>";
+        if ((seen == seer) && WinFlag && OptionAddWin.GetBool()) return "<color=#dddd00>★</color>";
         return "";
     }
     public void Win()
@@ -122,5 +122,5 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     => Utils.ColorString(RoleInfo.RoleColor, $"({KillCount}/{VictoryCount})");
-    public bool CheckWin(ref CustomRoles winnerRole) => OptionAddWin.GetBool() && WinFuragu;
+    public bool CheckWin(ref CustomRoles winnerRole) => OptionAddWin.GetBool() && WinFlag;
 }

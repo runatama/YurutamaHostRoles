@@ -54,8 +54,8 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     {
         if (SuddenDeathMode.NowSuddenDeathTemeMode)
         {
-            PlayerCatch.AllPlayerControls.DoIf(p => SuddenDeathMode.IsOnajiteam(p.PlayerId, Player.PlayerId),
-            p => ChefTarget.Add(p.PlayerId));
+            PlayerCatch.AllPlayerControls.DoIf(pc => SuddenDeathMode.IsSameteam(pc.PlayerId, Player.PlayerId),
+            pc => ChefTarget.Add(pc.PlayerId));
         }
     }
     public bool OverrideKillButtonText(out string text)
@@ -98,8 +98,8 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         seen ??= seer;
         if (seer == seen)
         {
-            var c = GetCtargetCount();
-            return Player.IsAlive() && c.Item1 == c.Item2 ? "<color=#dddd00>★</color>" : "";
+            var chefdata = GetCheftargetCount();
+            return Player.IsAlive() && chefdata.Item1 == chefdata.Item2 ? "<color=#dddd00>★</color>" : "";
         }
         else
         if (ChefTarget.Contains(seen.PlayerId))
@@ -108,36 +108,36 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
-        var c = GetCtargetCount();
-        var bunbo = "?";
-        if (OptionCanSeeNowAlivePlayer.GetBool() || GameStates.Meeting) bunbo = $"{c.Item2}";
-        return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({c.Item1}/{bunbo})");
+        var chefdata = GetCheftargetCount();
+        var Denominator = "?";
+        if (OptionCanSeeNowAlivePlayer.GetBool() || GameStates.CalledMeeting) Denominator = $"{chefdata.Item2}";
+        return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({chefdata.Item1}/{Denominator})");
     }
-    public (int, int) GetCtargetCount()
+    public (int givencount, int allplayercount) GetCheftargetCount()
     {
-        int c = 0, all = 0;
+        int given = 0, all = 0;
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             if (pc.PlayerId == Player.PlayerId) continue;
 
             all++;
             if (ChefTarget.Contains(pc.PlayerId))
-                c++;
+                given++;
         }
-        return (c, all);
+        return (given, all);
     }
     public bool CheckWin(ref CustomRoles winnerRole)
     {
         if (addwincheck) return false;
-        var c = GetCtargetCount();
-        return Player.IsAlive() && c.Item1 == c.Item2;
+        var chefdata = GetCheftargetCount();
+        return Player.IsAlive() && chefdata.Item1 == chefdata.Item2;
     }
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
-        var c = GetCtargetCount();
-        if (c.Item1 != c.Item2) return;
+        var chefdata = GetCheftargetCount();
+        if (chefdata.Item1 != chefdata.Item2) return;
 
         addwincheck = CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Chef, Player.PlayerId);
         DecidedWinner = true;

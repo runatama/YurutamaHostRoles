@@ -31,12 +31,6 @@ public class MeetingVoteManager
 
     public static void Start()
     {
-        /*
-        // プレイヤーの位置を保存
-        foreach (var pc in PlayerCatch.AllPlayerControls)
-        {
-            LastPlace[pc.PlayerId] = pc.transform.position;
-        }*/
         _instance = new();
     }
 
@@ -168,17 +162,17 @@ public class MeetingVoteManager
     /// <param name="applyVoteMode">スキップと同数投票の設定を適用するかどうか</param>
     public void EndMeeting(bool applyVoteMode = true, bool ClearAndExile = false)
     {
-        GameStates.Tuihou = true;
+        GameStates.ExiledAnimate = true;
         var result = CountVotes(applyVoteMode, ClearAndExile);
         var logName = result.Exiled == null ? (result.IsTie ? "同数" : "スキップ") : result.Exiled.Object.GetNameWithRole().RemoveHtmlTags();
         logger.Info($"追放者: {logName} で会議を終了します");
         AntiBlackout.voteresult = result;
 
-        var r = result.Exiled == null ? (result.IsTie ? UtilsRoleText.GetExpelledText(byte.MaxValue, true, false) : UtilsRoleText.GetExpelledText(byte.MaxValue, false, true)) : UtilsRoleText.GetExpelledText(result.Exiled.PlayerId, false, false);
+        var resulttext = result.Exiled == null ? (result.IsTie ? UtilsRoleText.GetExpelledText(byte.MaxValue, true, false) : UtilsRoleText.GetExpelledText(byte.MaxValue, false, true)) : UtilsRoleText.GetExpelledText(result.Exiled.PlayerId, false, false);
         if (Voteresult == "")
         {
-            Voteresult = r;
-            UtilsGameLog.AddGameLog("Vote", r);
+            Voteresult = resulttext;
+            UtilsGameLog.AddGameLog("Vote", resulttext);
         }
         var states = new List<MeetingHud.VoterState>();
         foreach (var voteArea in meetingHud.playerStates)
@@ -233,8 +227,6 @@ public class MeetingVoteManager
                 sender.SendMessage();
             }
             meetingHud.VotingComplete(states.ToArray(), null, true);
-            //meetingHud.RpcVotingComplete(states.ToArray(), result.Exiled, result.IsTie);
-            //AntiBlackout.SetRole(result.Exiled?.Object);
         }
         if (result.Exiled != null)
         {
@@ -372,7 +364,7 @@ public class MeetingVoteManager
         if (num < 15 && player != null)
         {
             if (color)
-                name = Utils.GetPlayerColor(player);
+                name = UtilsName.GetPlayerColor(player);
             else
             {
                 name = player?.GetNameWithRole().RemoveHtmlTags();
@@ -487,15 +479,15 @@ public class MeetingVoteManager
                 logger.Info($"最多得票者: {GetVoteName(mostVotedPlayers[0])}");
             }
 
-            var c = false;
+            var SkipVoteMode = false;
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 if (pc.GetRoleClass()?.VotingResults(ref Exiled, ref IsTie, votedCounts, mostVotedPlayers, ClearAndExile) ?? false)
-                    c = true; //どれかがtrueを返すと以下の特殊モードが実行されなくなる
+                    SkipVoteMode = true; //どれかがtrueを返すと以下の特殊モードが実行されなくなる
             }
 
             // 同数投票時の特殊モード
-            if (IsTie && Options.VoteMode.GetBool() && !c)
+            if (IsTie && Options.VoteMode.GetBool() && !SkipVoteMode)
             {
                 var tieMode = (TieMode)Options.WhenTie.GetValue();
                 switch (tieMode)
@@ -552,7 +544,7 @@ public class MeetingVoteManager
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
-            pc.nameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
+            pc.NameText().GetComponent<MeshRenderer>().material.SetInt("_Mask", 0);
             pc.RpcSetScanner(false);
             ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
             importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);

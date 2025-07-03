@@ -17,31 +17,31 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost) return;
 
             if (!Options.DisableTasks.GetBool()) return;
-            List<NormalPlayerTask> disabledTasks = new();
+            List<NormalPlayerTask> DisabledTasks = new();
             for (var i = 0; i < unusedTasks.Count; i++)
             {
                 var task = unusedTasks[i];
-                if (task.TaskType == TaskTypes.SwipeCard && Options.DisableSwipeCard.GetBool()) disabledTasks.Add(task);//カードタスク
-                if (task.TaskType == TaskTypes.SubmitScan && Options.DisableSubmitScan.GetBool()) disabledTasks.Add(task);//スキャンタスク
-                if (task.TaskType == TaskTypes.UnlockSafe && Options.DisableUnlockSafe.GetBool()) disabledTasks.Add(task);//金庫タスク
-                if (task.TaskType == TaskTypes.UploadData && Options.DisableUploadData.GetBool()) disabledTasks.Add(task);//アップロードタスク
-                if (task.TaskType == TaskTypes.StartReactor && Options.DisableStartReactor.GetBool()) disabledTasks.Add(task);//リアクターの3x3タスク
-                if (task.TaskType == TaskTypes.ResetBreakers && Options.DisableResetBreaker.GetBool()) disabledTasks.Add(task);//レバータスク
-                if (task.TaskType == TaskTypes.CatchFish && Options.DisableCatchFish.GetBool()) disabledTasks.Add(task);//釣りタスク
-                if (task.TaskType == TaskTypes.DivertPower && Options.DisableDivertPower.GetBool()) disabledTasks.Add(task);//送電タスク
-                if (task.TaskType == TaskTypes.FuelEngines && Options.DisableFuelEngins.GetBool()) disabledTasks.Add(task);//給油タスク
-                if (task.TaskType == TaskTypes.ExtractFuel && Options.DisableFuelEngins.GetBool()) disabledTasks.Add(task);//給油タスク(ファングル)
-                if (task.TaskType == TaskTypes.InspectSample && Options.DisableInspectSample.GetBool()) disabledTasks.Add(task);//サンプル
-                if (task.TaskType == TaskTypes.RebootWifi && Options.DisableRebootWifi.GetBool()) disabledTasks.Add(task);//WIFIタスク
-                if (task.TaskType == TaskTypes.PlayVideogame && Options.DisableInseki.GetBool()) disabledTasks.Add(task);//隕石(ファングル)
-                if (task.TaskType == TaskTypes.ClearAsteroids && Options.DisableInseki.GetBool()) disabledTasks.Add(task);//隕石
-                if (task.TaskType == TaskTypes.CalibrateDistributor && Options.disableCalibrateDistributor.GetBool()) disabledTasks.Add(task);//アスタリスク
-                if (task.TaskType == TaskTypes.VentCleaning && Options.disableVentCleaning.GetBool()) disabledTasks.Add(task);//ベント掃除
-                if (task.TaskType == TaskTypes.HelpCritter && Options.disableHelpCritter.GetBool()) disabledTasks.Add(task);//卵
-                if (task.TaskType == TaskTypes.FixWiring && Options.disablefixwiring.GetBool()) disabledTasks.Add(task);//配線タスク
-                if (task.TaskType == TaskTypes.FixWeatherNode && Options.DisableFixWeatherNode.GetBool()) disabledTasks.Add(task);//気象ノードタスク
+                if (task.TaskType == TaskTypes.SwipeCard && Options.DisableSwipeCard.GetBool()) DisabledTasks.Add(task);//カードタスク
+                if (task.TaskType == TaskTypes.SubmitScan && Options.DisableSubmitScan.GetBool()) DisabledTasks.Add(task);//スキャンタスク
+                if (task.TaskType == TaskTypes.UnlockSafe && Options.DisableUnlockSafe.GetBool()) DisabledTasks.Add(task);//金庫タスク
+                if (task.TaskType == TaskTypes.UploadData && Options.DisableUploadData.GetBool()) DisabledTasks.Add(task);//アップロードタスク
+                if (task.TaskType == TaskTypes.StartReactor && Options.DisableStartReactor.GetBool()) DisabledTasks.Add(task);//リアクターの3x3タスク
+                if (task.TaskType == TaskTypes.ResetBreakers && Options.DisableResetBreaker.GetBool()) DisabledTasks.Add(task);//レバータスク
+                if (task.TaskType == TaskTypes.CatchFish && Options.DisableCatchFish.GetBool()) DisabledTasks.Add(task);//釣りタスク
+                if (task.TaskType == TaskTypes.DivertPower && Options.DisableDivertPower.GetBool()) DisabledTasks.Add(task);//送電タスク
+                if (task.TaskType == TaskTypes.FuelEngines && Options.DisableFuelEngins.GetBool()) DisabledTasks.Add(task);//給油タスク
+                if (task.TaskType == TaskTypes.ExtractFuel && Options.DisableFuelEngins.GetBool()) DisabledTasks.Add(task);//給油タスク(ファングル)
+                if (task.TaskType == TaskTypes.InspectSample && Options.DisableInspectSample.GetBool()) DisabledTasks.Add(task);//サンプル
+                if (task.TaskType == TaskTypes.RebootWifi && Options.DisableRebootWifi.GetBool()) DisabledTasks.Add(task);//WIFIタスク
+                if (task.TaskType == TaskTypes.PlayVideogame && Options.DisableInseki.GetBool()) DisabledTasks.Add(task);//隕石(ファングル)
+                if (task.TaskType == TaskTypes.ClearAsteroids && Options.DisableInseki.GetBool()) DisabledTasks.Add(task);//隕石
+                if (task.TaskType == TaskTypes.CalibrateDistributor && Options.DisableCalibrateDistributor.GetBool()) DisabledTasks.Add(task);//アスタリスク
+                if (task.TaskType == TaskTypes.VentCleaning && Options.DisableVentCleaning.GetBool()) DisabledTasks.Add(task);//ベント掃除
+                if (task.TaskType == TaskTypes.HelpCritter && Options.DisableHelpCritter.GetBool()) DisabledTasks.Add(task);//卵
+                if (task.TaskType == TaskTypes.FixWiring && Options.Disablefixwiring.GetBool()) DisabledTasks.Add(task);//配線タスク
+                if (task.TaskType == TaskTypes.FixWeatherNode && Options.DisableFixWeatherNode.GetBool()) DisabledTasks.Add(task);//気象ノードタスク
             }
-            disabledTasks.ForEach(task => unusedTasks.Remove(task));
+            DisabledTasks.ForEach(task => unusedTasks.Remove(task));
         }
     }
 

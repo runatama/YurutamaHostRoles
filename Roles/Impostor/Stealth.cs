@@ -147,15 +147,15 @@ public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
     {
         AURoleOptions.PhantomCooldown = optioncooldown.GetFloat();
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = true;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = false;
         var room = Player.GetPlainShipRoom();
         if (room == null) return;
         if (adddarkenroom.Contains(room.RoomId)) return;
         if (optionmax.GetInt() <= adddarkenroom.Count) return;
-        fall = false;
+        ResetCoolDown = true;
         adddarkenroom.Add(room.RoomId);
     }
     public override void OnStartMeeting()

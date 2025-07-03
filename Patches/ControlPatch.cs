@@ -100,7 +100,7 @@ namespace TownOfHost
             //廃村
             if (GetKeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift))
             {
-                if (Main.FeColl != 0 && !GameStates.IsLobby)
+                if (Main.ForcedGameEndColl != 0 && !GameStates.IsLobby)
                 {
                     GameManager.Instance.enabled = false;
                     CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
@@ -112,8 +112,8 @@ namespace TownOfHost
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                     GameManager.Instance.LogicFlow.CheckEndCriteria();
                 }
-                if (!GameStates.IsLobby) Main.FeColl++;
-                Logger.Info($"廃村コール{Main.FeColl}回目", "fe");
+                if (!GameStates.IsLobby) Main.ForcedGameEndColl++;
+                Logger.Info($"廃村コール{Main.ForcedGameEndColl}回目", "fe");
             }
             //ミーティングを強制終了
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsMeeting)
@@ -125,10 +125,10 @@ namespace TownOfHost
                 AntiBlackout.voteresult = null;
                 MeetingVoteManager.Voteresult = Translator.GetString("voteskip") + "※Host";
                 UtilsGameLog.AddGameLog("Vote", Translator.GetString("voteskip") + "※Host");
-                GameStates.Meeting = false;
+                GameStates.CalledMeeting = false;
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 MeetingHud.Instance.RpcClose();
-                GameStates.Tuihou = true;
+                GameStates.ExiledAnimate = true;
             }
             //ミーティングを終了
             if (GetKeysDown(KeyCode.Return, KeyCode.N, KeyCode.LeftShift) && GameStates.IsMeeting)
@@ -195,9 +195,9 @@ namespace TownOfHost
                 OptionItem.AllOptions.ToArray().Where(x => x.Id > 0).Do(x => x.SetValue(x.DefaultValue));
             }
             //自分自身の死体をレポート
-            if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.RightShift) && GameStates.IsInGame && ((!GameStates.Meeting && !GameStates.Intro) || DebugModeManager.IsDebugMode))
+            if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.RightShift) && GameStates.IsInGame && ((!GameStates.CalledMeeting && !GameStates.Intro) || DebugModeManager.IsDebugMode))
             {
-                ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, Translator.GetString("MI.Kyousei"), Main.ModColor);
+                ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, Translator.GetString("MI.force"), Main.ModColor);
             }
             if (GameStates.IsLobby && !GameStates.InGame)
             {

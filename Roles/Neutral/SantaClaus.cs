@@ -130,7 +130,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         MeetingNotifyRoom.Clear();
         Memo = text;
     }
-    public override string MeetingMeg()
+    public override string MeetingAddMessage()
     {
         var send = Memo;
         Memo = "";
@@ -159,10 +159,10 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         Dictionary<PlainShipRoom, float> Distance = new();
 
         if (Rooms != null)
-            foreach (var r in Rooms)
+            foreach (var room in Rooms)
             {
-                if (r.RoomId == SystemTypes.Hallway) continue;
-                Distance.Add(r, Vector2.Distance(Player.GetTruePosition(), r.transform.position));
+                if (room.RoomId == SystemTypes.Hallway) continue;
+                Distance.Add(room, Vector2.Distance(Player.GetTruePosition(), room.transform.position));
             }
 
         var near = GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");

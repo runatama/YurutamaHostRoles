@@ -37,7 +37,7 @@ public sealed class ProBowler : RoleBase, IImpostor
 
         targetpos = new Vector2(999f, 999f);
         NowKilling = false;
-        korokorocount = 0;
+        Rollscount = 0;
         NowUseCount = 0;
         Bowl = null;
         Bowltarget = null;
@@ -59,7 +59,7 @@ public sealed class ProBowler : RoleBase, IImpostor
     PlayerControl Bowltarget;
     Vector2 BowlTp;
     Vector2 targetpos;
-    int korokorocount;
+    int Rollscount;
 
     private static void SetupOptionItem()
     {
@@ -98,7 +98,7 @@ public sealed class ProBowler : RoleBase, IImpostor
             NowKilling = true;
             info.DoKill = false;
             killer.SetKillCooldown();
-            korokorocount = 0;
+            Rollscount = 0;
             Bowltarget = target;
             if (Bowling)
             {
@@ -124,18 +124,18 @@ public sealed class ProBowler : RoleBase, IImpostor
     float timer;
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost || !Bowling || !Bowltarget.IsAlive() || GameStates.Meeting) return;
+        if (!AmongUsClient.Instance.AmHost || !Bowling || !Bowltarget.IsAlive() || GameStates.CalledMeeting) return;
 
         timer += Time.fixedDeltaTime;
 
         if (timer > 0.1)
         {
             timer = 0;
-            korokorocount++;
+            Rollscount++;
 
-            Bowltarget.RpcSnapToForced(new Vector2(targetpos.x + BowlTp.x * korokorocount, targetpos.y + BowlTp.y * korokorocount));
+            Bowltarget.RpcSnapToForced(new Vector2(targetpos.x + BowlTp.x * Rollscount, targetpos.y + BowlTp.y * Rollscount));
 
-            if (10 <= korokorocount)
+            if (10 <= Rollscount)
             {
                 NowKilling = false;
 
@@ -151,7 +151,7 @@ public sealed class ProBowler : RoleBase, IImpostor
     public override void OnStartMeeting()
     {
         timer = 0;
-        korokorocount = 0;
+        Rollscount = 0;
         NowKilling = false;
         Bowl = null;
         if (Bowltarget.IsAlive())

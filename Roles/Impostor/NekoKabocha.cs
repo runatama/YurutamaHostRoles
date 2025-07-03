@@ -68,7 +68,7 @@ public sealed class NekoKabocha : RoleBase, IImpostor, INekomata
         // 殺してきた人を殺し返す
         logger.Info("ネコカボチャの仕返し");
         var killer = info.AttemptKiller;
-        if (!GameStates.Meeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
+        if (!GameStates.CalledMeeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
         if (!IsCandidate(killer))
         {
             logger.Info("キラーは仕返し対象ではないので仕返しされません");

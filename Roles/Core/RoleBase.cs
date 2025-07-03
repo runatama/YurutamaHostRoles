@@ -218,12 +218,12 @@ public abstract class RoleBase : IDisposable
     /// <summary>
     /// ベント移動を封じるかの関数。<br/>
     /// OnEnterVentの方が速く呼ばれる。<br/>
-    /// 基本的にこれは移動を封じる時のみ使う。
+    /// 基本的に移動を封じる時のみ使う。
     /// </summary>
     /// <param name="physics"></param>
     /// <param name="Id"></param>
     /// <returns>falseを返すとベント移動が出来ません。</returns>
-    public virtual bool CantVentIdo(PlayerPhysics physics, int ventId) => true;
+    public virtual bool CanVentMoving(PlayerPhysics physics, int ventId) => true;
     /// <summary>
     /// ミーティングが始まった時に呼ばれる関数
     /// </summary>
@@ -233,7 +233,7 @@ public abstract class RoleBase : IDisposable
     /// ミーティングが始まった時同数などと一緒に表示されるメッセージ
     /// </summary>
     /// <returns></returns>
-    public virtual string MeetingMeg() => "";
+    public virtual string MeetingAddMessage() => "";
 
     /// <summary>
     /// 自分が投票した瞬間，票がカウントされる前に呼ばれる<br/>
@@ -280,17 +280,11 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     public virtual void StartGameTasks()
     { }
-
-    /// <summary>
-    /// 天秤会議が始まる直前に毎回呼ばれる関数
-    /// </summary>
-    public virtual void BalancerAfterMeetingTasks()
-    { }
     /// <summary>
     /// モノクラー等に使う。シェイプ後,イントロ後,タスクターン始めに呼ばれる。
     /// ※アムネシア制御効かないので個別で処理
     /// </summary>
-    public virtual void Colorchnge()
+    public virtual void ChangeColor()
     { }
 
     /// <summary>
@@ -444,7 +438,7 @@ public abstract class RoleBase : IDisposable
     /// 占い結果で表示される役職を変更することができる<br/>
     /// NotAssignedを返すと変更されない
     /// </summary>
-    public virtual CustomRoles GetFtResults(PlayerControl player) => CustomRoles.NotAssigned;
+    public virtual CustomRoles TellResults(PlayerControl player) => CustomRoles.NotAssigned;
 
     /// <summary>
     /// 投票結果を返す<br/>
@@ -466,9 +460,15 @@ public abstract class RoleBase : IDisposable
     /// <param name = "NoMarker" > マーカーや追加情報を表示しない </param>
     /// <returns>名前を変更するかどうか</returns>
     public virtual bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null) => false;
-    public virtual void OnLeftPlayer(PlayerControl player) { }
+
     /// <summary>
-    /// 自身がゲッサーされそうになった時に呼ばれるやーつ
+    /// 回線切断者が起こった時に呼ばれる関数
+    /// </summary>
+    /// <param name="player"></param>
+    public virtual void OnLeftPlayer(PlayerControl player) { }
+
+    /// <summary>
+    /// 自身がゲッサーされそうになった時に呼ばれる関数
     /// falseを返すと返り討ち。
     /// nullなら流す
     /// </summary>
@@ -488,13 +488,17 @@ public abstract class RoleBase : IDisposable
     /// 生存中しか適応されない
     /// </summary>
     public virtual RoleTypes? AfterMeetingRole => null;
+
+    /// <summary>
+    /// 勝利処理がほぼ終わった後に処理される<br/>
+    /// </summary>
     public virtual void CheckWinner()
     { }
+
     /// <summary>
-    /// 覚醒等で使えたら!<br/>
     /// 自身を別役職だと思い込む。
     /// </summary>
-    public virtual CustomRoles Jikaku() => CustomRoles.NotAssigned;
+    public virtual CustomRoles Misidentify() => CustomRoles.NotAssigned;
     protected static AudioClip GetIntroSound(RoleTypes roleType) =>
         RoleManager.Instance.AllRoles.Where((role) => role.Role == roleType).FirstOrDefault().IntroSound;
     public static AudioClip GetIntrosound(RoleTypes roleType) =>
@@ -515,14 +519,15 @@ public abstract class RoleBase : IDisposable
         CanCreateSideKick,
         Duration,
         cantaskcount,
-        meetingmc,
-        animate,
-        TaskKakusei,
-        Kakuseitask,
-        UKakusei,
+        MeetingMaxTime,
+        PlayShapeAnimate,
+        TaskAwakening,
+        AwakeningTaskcount,
+        AbilityAwakening,
         OptionCount,
         EngineerInVentCooldown,
-        TaskTrigger
+        TaskTrigger,
+        CanUseActiveComms
     }
     public enum DontReportreson
     {

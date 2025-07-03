@@ -36,7 +36,7 @@ public sealed class ShapeMaster : RoleBase, IImpostor
     public static void SetupOptionItem()
     {
         OptionShapeshiftDuration = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Duration, new(1, 1000, 1), 10, false);
-        OptionShapeAnime = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.animate, false, false);
+        OptionShapeAnime = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.PlayShapeAnimate, false, false);
     }
 
     public override void ApplyGameOptions(IGameOptions opt)

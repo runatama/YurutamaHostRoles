@@ -376,7 +376,7 @@ namespace TownOfHost
                     var mark = "";
 
                     if (!AmongUsClient.Instance) return;
-                    if (Options.SuddenTeamOption.GetBool())
+                    if (SuddenDeathMode.SuddenTeamOption.GetBool())
                     {
                         var color = "#ffffff";
                         if (SuddenDeathMode.TeamRed.Contains(host.Character.PlayerId)) color = ModColors.codered;

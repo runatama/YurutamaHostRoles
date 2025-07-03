@@ -39,7 +39,7 @@ public sealed class Jester : RoleBase, IKiller
     static OptionItem CanUseVent;
     static OptionItem Cooldown;
     static OptionItem Duration;
-    static OptionItem CanVentido;
+    static OptionItem CanVentMove;
     enum Option
     {
         JesterCanUseShapeshift, MadmateCanMovedByVent
@@ -51,7 +51,7 @@ public sealed class Jester : RoleBase, IKiller
         Cooldown = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
         Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 0.5f), 5f, false, CanUseShape, infinity: true).SetValueFormat(OptionFormat.Seconds);
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 6, GeneralOption.CanVent, false, false);
-        CanVentido = BooleanOptionItem.Create(RoleInfo, 7, Option.MadmateCanMovedByVent, false, false, CanUseVent);
+        CanVentMove = BooleanOptionItem.Create(RoleInfo, 7, Option.MadmateCanMovedByVent, false, false, CanUseVent);
     }
     public bool CanUseImpostorVentButton() => CanUseVent.GetBool();
     public override bool CanUseAbilityButton() => CanUseShape.GetBool();
@@ -68,7 +68,7 @@ public sealed class Jester : RoleBase, IKiller
         AURoleOptions.EngineerInVentMaxTime = 0f;
         opt.SetVision(false);
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => CanVentido.GetBool();
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId) => CanVentMove.GetBool();
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner)
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;

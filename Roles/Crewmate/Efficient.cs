@@ -1,3 +1,7 @@
+/*
+タスクコンプのRpcが上手く非クライアントに届かなく、
+正常にタスク勝利などが行われないバグが続いてるので一旦封印。
+
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -75,4 +79,4 @@ public sealed class Efficient : RoleBase
         }
         return true;
     }
-}
+}*/

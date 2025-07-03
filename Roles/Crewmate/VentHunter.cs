@@ -35,7 +35,7 @@ public sealed class VentHunter : RoleBase
         cooldown = OptionCooldown.GetInt();
         trapDisappearTime = OptionDisappearTime.GetFloat();
         task = OptionTask.GetFloat();
-        nasi = count is 0;
+        Isinfinity = count is 0;
         TrapVents = new();
         Vent = new();
         CustomRoleManager.OnEnterVentOthers.Add(OnEnterVentOthers);
@@ -48,7 +48,7 @@ public sealed class VentHunter : RoleBase
     static int cooldown;
     static float trapDisappearTime;
     static float task;
-    static bool nasi;
+    static bool Isinfinity;
     int count;
 
     Dictionary<int, float> TrapVents;
@@ -132,9 +132,9 @@ public sealed class VentHunter : RoleBase
     {
         count = reader.ReadInt32();
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
-    public override string GetProgressText(bool comms = false, bool GameLog = false) => nasi ? "" : Utils.ColorString(CanUseAbility ? RoleInfo.RoleColor : IsTaskCompleted ? Color.red : Color.gray, $"({count})");
-    public bool CanUseAbility => (nasi || count > 0) && IsTaskCompleted;
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
+    public override string GetProgressText(bool comms = false, bool GameLog = false) => Isinfinity ? "" : Utils.ColorString(CanUseAbility ? RoleInfo.RoleColor : IsTaskCompleted ? Color.red : Color.gray, $"({count})");
+    public bool CanUseAbility => (Isinfinity || count > 0) && IsTaskCompleted;
     public bool IsTaskCompleted => MyTaskState.HasCompletedEnoughCountOfTasks(task);
     public override bool CanClickUseVentButton => CanUseAbility;
 

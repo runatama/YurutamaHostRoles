@@ -33,13 +33,10 @@ public sealed class Merlin : RoleBase, IKillFlashSeeable
 
     public override void Add()
     {
-        foreach (var impostor in PlayerCatch.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor)))
+        foreach (var impostor in PlayerCatch.AllPlayerControls.Where(player => player.Is(CustomRoleTypes.Impostor) || player.GetCustomRole() is CustomRoles.Egoist))
         {
-            NameColorManager.Add(Player.PlayerId, impostor.PlayerId, impostor.GetRoleColorCode());
+            NameColorManager.Add(Player.PlayerId, impostor.PlayerId, "#ff1919");
         }
         Assassin.MarlinIds.Add(Player.PlayerId);
     }
-    //もし設定など入れたい場合は
-    //あああ = Assassin.設定名
-    //って感じにこっちに持ってくればよい(←わかりずらい)
 }

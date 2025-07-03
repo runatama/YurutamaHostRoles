@@ -16,7 +16,7 @@ class Lovers
     public static List<byte> HaveLoverDontTaskPlayers = new();
     public static List<PlayerControl> MaMadonnaLoversPlayers = new();
     public static bool isMadonnaLoversDead = false;
-    public static (byte OneLove, byte Ltarget, bool doublelove) OneLovePlayer = new();
+    public static (byte OneLove, byte BelovedId, bool doublelove) OneLovePlayer = new();
     public static bool isOneLoveDead;
     public static OptionItem OneLoveSolowin3players;
     public static OptionItem OneLoveRoleAddwin;
@@ -88,7 +88,7 @@ class Lovers
         ColorLovers.Alldatas.Do(data => data.Value.AssingOther());
         ColorLovers.Alldatas.Do(data => data.Value.AssingCheck());
 
-        allPlayers = allPlayers.Where(x => !x.IsRiaju()).ToList();
+        allPlayers = allPlayers.Where(x => !x.IsLovers()).ToList();
         if (CustomRoles.OneLove.IsPresent())
         {
             var count = Math.Clamp(RawCount, 0, allPlayers.Count);
@@ -101,20 +101,20 @@ class Lovers
             {
                 if (assind)
                 {
-                    var d = false;
-                    var p = rand.Next(0, 100);
+                    var doubleOneLove = false;
+                    var chance = rand.Next(0, 100);
                     var target = allPlayers[rand.Next(0, allPlayers.Count)];//片思いされてる人
-                    if (p <= OneLoveLoversrect.GetInt())
+                    if (chance <= OneLoveLoversrect.GetInt())
                     {
                         HaveLoverDontTaskPlayers.Add(target.PlayerId);
-                        d = true;
+                        doubleOneLove = true;
                         allPlayers.Remove(target);
                         PlayerState.GetByPlayerId(target.PlayerId).SetSubRole(CustomRoles.OneLove);
                         Logger.Info("両想いだったって！" + target?.Data?.GetLogPlayerName() + " = " + target.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
                     }
 
-                    Logger.Info($"{player.Data.GetLogPlayerName()} => {target.Data.GetLogPlayerName()} {d}", "OneLover");
-                    OneLovePlayer = (player.PlayerId, target.PlayerId, d);
+                    Logger.Info($"{player.Data.GetLogPlayerName()} => {target.Data.GetLogPlayerName()} {doubleOneLove}", "OneLover");
+                    OneLovePlayer = (player.PlayerId, target.PlayerId, doubleOneLove);
                     break;
                 }
                 assind = true;
@@ -209,7 +209,7 @@ class Lovers
         var one = PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.OneLove));
         if (CustomRoles.OneLove.IsPresent() && one.Any())
         {
-            if (player.PlayerId == OneLovePlayer.OneLove || player.PlayerId == OneLovePlayer.Ltarget)
+            if (player.PlayerId == OneLovePlayer.OneLove || player.PlayerId == OneLovePlayer.BelovedId)
             {
                 foreach (var pc in one)
                 {
@@ -257,22 +257,14 @@ class Lovers
             }
         }
         if (CustomRoles.OneLove.IsPresent())
-            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is not CustomWinner.OneLove && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.Ltarget).IsAlive())
+            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
             {
                 if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.OneLove, byte.MaxValue, false))
                 {
                     PlayerCatch.AllPlayerControls
-                        .Where(p => p.Is(CustomRoles.OneLove))
-                    .Do(p =>
-                    {
-                        CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                        CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
-                    });
-                    if (!OneLovePlayer.doublelove)
-                    {
-                        CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);
-                        CustomWinnerHolder.IdRemoveLovers.Remove(OneLovePlayer.Ltarget);
-                    }
+                        .Where(p => p.Is(CustomRoles.OneLove) && p.IsAlive())
+                        .Do(p => CustomWinnerHolder.WinnerIds.Add(p.PlayerId));
+                    if (!OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.BelovedId);//両片思いじゃなかったら追加
                     reason = GameOverReason.ImpostorsByKill;
                 }
             }
@@ -288,11 +280,11 @@ class Lovers
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                    CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
                 });
         }
         if (CustomRoles.OneLove.IsPresent())
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.OneLove && OneLoveRoleAddwin.GetBool() && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.Ltarget).IsAlive())
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.OneLove && OneLoveRoleAddwin.GetBool() && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
             {
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.OneLove);
                 PlayerCatch.AllPlayerControls
@@ -300,12 +292,12 @@ class Lovers
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                    CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
                 });
                 if (!OneLovePlayer.doublelove)
                 {
-                    CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);
-                    CustomWinnerHolder.IdRemoveLovers.Remove(OneLovePlayer.Ltarget);
+                    CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.BelovedId);
+                    CustomWinnerHolder.CantWinPlayerIds.Remove(OneLovePlayer.BelovedId);
                 }
             }
     }
@@ -316,20 +308,11 @@ class Lovers
         {
             if (data.CheckCountWin()) return true;
         }
-        if ((PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.Ltarget || pc.PlayerId == Lovers.OneLovePlayer.OneLove))
-        || (Lovers.OneLoveSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.OneLove)?.IsAlive() == true && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.Ltarget)?.IsAlive() == true))
+        if ((PlayerCatch.AllAlivePlayersCount <= 2 && PlayerCatch.AllAlivePlayerControls.All(pc => pc.PlayerId == Lovers.OneLovePlayer.BelovedId || pc.PlayerId == Lovers.OneLovePlayer.OneLove))
+        || (Lovers.OneLoveSolowin3players.GetBool() && PlayerCatch.AllAlivePlayersCount <= 3 && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.OneLove)?.IsAlive() == true && PlayerCatch.GetPlayerById(Lovers.OneLovePlayer.BelovedId)?.IsAlive() == true))
         {
             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.OneLove, byte.MaxValue);
-            PlayerCatch.AllPlayerControls.Where(p => p.Is(CustomRoles.OneLove)).Do(p =>
-            {
-                CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
-            });
-            if (!OneLovePlayer.doublelove)
-            {
-                CustomWinnerHolder.WinnerIds.Add(OneLovePlayer.Ltarget);
-                CustomWinnerHolder.IdRemoveLovers.Remove(OneLovePlayer.Ltarget);
-            }
+            if (!Lovers.OneLovePlayer.doublelove) CustomWinnerHolder.WinnerIds.Add(Lovers.OneLovePlayer.BelovedId);
             return true;
         }
         if (PlayerCatch.AllAlivePlayerControls.All(p => p.Is(CustomRoles.MadonnaLovers)) ||

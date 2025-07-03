@@ -296,29 +296,29 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         if (!(CanSeeLastRoomInMeeting && IsTrackTarget(seen))) return "";
 
         string text = Utils.ColorString(Palette.ImpostorRed, TargetArrow.GetArrows(Player, seen.PlayerId));
-        var room = PlayerState.GetByPlayerId(seen.PlayerId).LastRoom;
+        var Lastroom = PlayerState.GetByPlayerId(seen.PlayerId).LastRoom;
 
-        if (room == null)
+        if (Lastroom == null)
             text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
         else
-        if (room.RoomId == SystemTypes.Hallway)
+        if (Lastroom.RoomId == SystemTypes.Hallway)
         {
             var Rooms = ShipStatus.Instance.AllRooms;
             Dictionary<PlainShipRoom, float> Distance = new();
 
             if (Rooms != null)
-                foreach (var r in Rooms)
+                foreach (var room in Rooms)
                 {
-                    if (r.RoomId == SystemTypes.Hallway) continue;
-                    Distance.Add(r, Vector2.Distance(seen.transform.position, r.transform.position));
+                    if (room.RoomId == SystemTypes.Hallway) continue;
+                    Distance.Add(room, Vector2.Distance(seen.transform.position, room.transform.position));
                 }
 
-            var rooo = Distance.OrderByDescending(x => x.Value).Last().Key;
-            text += $"<color=#ff1919>@{Translator.GetString($"{rooo.RoomId}") + Translator.GetString($"{room.RoomId}")}</color>";
+            var Nearestroom = Distance.OrderByDescending(x => x.Value).Last().Key;
+            text += $"<color=#ff1919>@{Translator.GetString($"{Nearestroom.RoomId}") + Translator.GetString($"{Nearestroom.RoomId}")}</color>";
         }
         else
         {
-            text += Utils.ColorString(Palette.ImpostorRed, "@" + GetString(room.RoomId.ToString()));
+            text += Utils.ColorString(Palette.ImpostorRed, "@" + GetString(Lastroom.RoomId.ToString()));
         }
 
         return text;

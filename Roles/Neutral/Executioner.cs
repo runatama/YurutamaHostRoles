@@ -41,7 +41,6 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
 
         TargetExiled = false;
     }
-    public static byte WinnerID;
 
     private static OptionItem OptionCanTargetImpostor;
     private static OptionItem OptionCanTargetNeutralKiller;
@@ -169,7 +168,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
     public void ChangeRole()
     {
         if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
-        UtilsGameLog.AddGameLog($"Executioner", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("Executioner.ch"), Utils.GetPlayerColor(TargetId, true), GetString($"{ChangeRolesAfterTargetKilled}").Color(UtilsRoleText.GetRoleColor(ChangeRolesAfterTargetKilled))));
+        UtilsGameLog.AddGameLog($"Executioner", UtilsName.GetPlayerColor(Player) + ":  " + string.Format(GetString("Executioner.ch"), UtilsName.GetPlayerColor(TargetId, true), GetString($"{ChangeRolesAfterTargetKilled}").Color(UtilsRoleText.GetRoleColor(ChangeRolesAfterTargetKilled))));
         Player.RpcSetCustomRole(ChangeRolesAfterTargetKilled, true);
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }

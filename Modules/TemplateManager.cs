@@ -34,7 +34,7 @@ namespace TownOfHost
             ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
             ["NumImpostors"] = () => Main.NormalOptions.NumImpostors.ToString(),
             ["Date"] = () => DateTime.Now.ToShortDateString(),
-            ["Roles"] = () => UtilsShowOption.tmpRole(),
+            ["Roles"] = () => UtilsShowOption.TmpRole(),
             ["Timer"] = () => Utils.GetTimer(),
             ["ModColor"] = () => Main.ModColor,
         };

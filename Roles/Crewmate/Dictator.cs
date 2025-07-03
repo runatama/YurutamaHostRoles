@@ -36,8 +36,7 @@ public sealed class Dictator : RoleBase
     {
         OptionSelfVote = BooleanOptionItem.Create(RoleInfo, 10, OptionName.DictatorSelfVote, false, false);
     }
-    public override void Add()
-        => AddS(Player);
+    public override void Add() => AddSelfVotes(Player);
     static OptionItem OptionSelfVote;
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
@@ -57,7 +56,7 @@ public sealed class Dictator : RoleBase
                     MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Suicide, Player.PlayerId);
                     PlayerCatch.GetPlayerById(votedForId).SetRealKiller(Player);
                     MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, votedForId);
-                    UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), Utils.GetPlayerColor(Player)));
+                    UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), UtilsName.GetPlayerColor(Player)));
                 }
                 SetMode(Player, status is VoteStatus.Self);
                 return false;
@@ -89,7 +88,7 @@ public sealed class Dictator : RoleBase
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Suicide, Player.PlayerId);
             PlayerCatch.GetPlayerById(sourceVotedForId).SetRealKiller(Player);
             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, sourceVotedForId);
-            UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), Utils.GetPlayerColor(Player)));
+            UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), UtilsName.GetPlayerColor(Player)));
         }
         return (votedForId, numVotes, false);
     }

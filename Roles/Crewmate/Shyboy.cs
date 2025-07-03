@@ -26,7 +26,7 @@ public sealed class Shyboy : RoleBase
         player
     )
     {
-        tuuti = true;
+        Notify = true;
         Shytime = OptionShytime.GetFloat();
         Notshy = OptionNotShy.GetFloat();
         Shydeath = 0;
@@ -38,7 +38,7 @@ public sealed class Shyboy : RoleBase
     float Shydeath;
     float Cool;
     float AfterMeeting;
-    bool tuuti;
+    bool Notify;
     float Last;
     float Shydeathdi;
     enum OptionName
@@ -68,14 +68,14 @@ public sealed class Shyboy : RoleBase
     public override void OnStartMeeting() => StartGameTasks();
     public override void OnSpawn(bool initialState = false)
     {
-        tuuti = true;
+        Notify = true;
         Shydeath = 0;//会議明け修正
         AfterMeeting = 0;
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (GameStates.Meeting || GameStates.Tuihou) return;
+        if (GameStates.CalledMeeting || GameStates.ExiledAnimate) return;
         if (!Player.IsAlive()) return;
         Cool += Time.fixedDeltaTime;
         if (0.25 < Cool)
@@ -95,9 +95,9 @@ public sealed class Shyboy : RoleBase
 
         if (GameStates.IsInTask && Notshy <= AfterMeeting - 5)
         {
-            if (tuuti)
+            if (Notify)
             {
-                tuuti = false;
+                Notify = false;
                 Player.RpcProtectedMurderPlayer();
             }
 

@@ -42,7 +42,7 @@ public static class SwitchSystemUpdateSystemPatch
             return false;
         }
         if (Options.LightOutDonttouch.GetBool())
-            if (Options.LightOutDonttouchTime.GetFloat() > Main.sabotagetime)
+            if (Options.LightOutDonttouchTime.GetFloat() > Main.SabotageActivetimer)
             {
                 return false;
             }

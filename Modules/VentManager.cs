@@ -48,7 +48,7 @@ class VentManager
             }
         }
     }
-    public static void CheckVentLimit(PlayerControl player)
+    public static void CheckVentLimit()
     {
         if (Options.MaxInVentMode.GetBool())
         {
@@ -65,7 +65,7 @@ class VentManager
                         del.Add(ventpc.Key);
                         continue;
                     }
-                    pc.MyPhysics.RpcBootFromVent(VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(ventpc.Key, out var r) ? r : 0);
+                    pc.MyPhysics.RpcBootFromVent(VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(ventpc.Key, out var ventid) ? ventid : 0);
                     del.Add(ventpc.Key);
                 }
                 CoEnterVentPatch.VentPlayers[ventpc.Key] += Time.fixedDeltaTime;

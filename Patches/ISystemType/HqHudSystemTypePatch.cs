@@ -38,7 +38,7 @@ public static class HqHudSystemTypeUpdateSystemPatch
             return false;
         }
         if (Options.CommsDonttouch.GetBool())
-            if (Options.CommsDonttouchTime.GetFloat() > Main.sabotagetime)
+            if (Options.CommsDonttouchTime.GetFloat() > Main.SabotageActivetimer)
             {
                 return false;
             }

@@ -90,7 +90,7 @@ public sealed class Walker : RoleBase
     void CheckFin()
     {
         if (MyTaskState.CompletedTasksCount < MyTaskState.AllTasksCount) return;
-        UtilsGameLog.AddGameLog("Task", string.Format(Translator.GetString("Taskfin"), Utils.GetPlayerColor(Player, true)));
+        UtilsGameLog.AddGameLog("Task", string.Format(Translator.GetString("Taskfin"), UtilsName.GetPlayerColor(Player, true)));
     }
     void ChengeRoom()
     {

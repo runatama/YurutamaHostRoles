@@ -90,7 +90,7 @@ namespace TownOfHost
         public void SetSubRole(CustomRoles role, bool AllReplace = false)
         {
             if (AllReplace)
-                SubRoles.ToArray().Do(role => SubRoles.Remove(role));
+                SubRoles.Do(role => SubRoles.Remove(role));
 
             if (!SubRoles.Contains(role))
             {
@@ -243,8 +243,8 @@ namespace TownOfHost
             Intro = true;
             task = false;
             AfterIntro = false;
-            Meeting = false;
-            Tuihou = false;
+            CalledMeeting = false;
+            ExiledAnimate = false;
             canmusic = false;
         }
         public static bool InGame = false;
@@ -259,8 +259,8 @@ namespace TownOfHost
         public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame;
         public static bool IsFreePlay => AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay;
         public static bool IsInTask => task;
-        public static bool Meeting;
-        public static bool Tuihou;
+        public static bool CalledMeeting;
+        public static bool ExiledAnimate;
         public static bool IsMeeting => InGame && MeetingHud.Instance;
         public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
         public static bool Intro;

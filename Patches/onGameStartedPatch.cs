@@ -269,13 +269,13 @@ namespace TownOfHost
                     }
                     if (SuddenDeathMode.NowSuddenDeathMode)
                     {
-                        if (Options.SuddenTeamRole.GetBool()) AllPlayers.Clear();
+                        if (SuddenDeathMode.SuddenTeamRole.GetBool()) AllPlayers.Clear();
                         SuddenDeathMode.TeamSet();
                     }
                     Dictionary<(byte, byte), RoleTypes> rolesMap = new();
                     foreach (var (role, info) in CustomRoleManager.AllRolesInfo)
                     {
-                        if (info.IsDesyncImpostor || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || Options.SuddenDeathMode.GetBool())
+                        if (info.IsDesyncImpostor || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.SuddenDeathModeActive.GetBool())
                         {
                             AssignDesyncRole(role, AllPlayers, senders, rolesMap, BaseRole: info.BaseRoleType.Invoke());
                         }
@@ -399,7 +399,7 @@ namespace TownOfHost
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
                     //RPCによる同期
-                    ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
+                    ExtendedRpc.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
                 }
                 //色設定処理
                 SetColorPatch.IsAntiGlitchDisabled = true;
@@ -411,7 +411,7 @@ namespace TownOfHost
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
                     //RPCによる同期
-                    ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
+                    ExtendedRpc.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
                 }
 
                 if (TaskBattle.IsTaskBattleTeamMode)
@@ -436,7 +436,7 @@ namespace TownOfHost
                     if (role.IsMadmate()) continue;
                     if (role.IsNeutral() && role is not CustomRoles.Egoist) continue;
                     if (role is CustomRoles.Amnesiac) continue;
-                    if (Options.SuddenDeathMode.GetBool()) continue;
+                    if (SuddenDeathMode.SuddenDeathModeActive.GetBool()) continue;
                     var baseRoleTypes = role.GetRoleTypes() switch
                     {
                         RoleTypes.Impostor => Impostors,
@@ -460,10 +460,10 @@ namespace TownOfHost
 
                 foreach (var pair in PlayerState.AllPlayerStates)
                 {
-                    ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
+                    ExtendedRpc.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
                     foreach (var subRole in pair.Value.SubRoles)
-                        ExtendedPlayerControl.RpcSetCustomRole(pair.Key, subRole);
+                        ExtendedRpc.RpcSetCustomRole(pair.Key, subRole);
                 }
 
                 CustomRoleManager.CreateInstance();
@@ -514,7 +514,7 @@ namespace TownOfHost
                     var roleOpt = Main.NormalOptions.roleOptions;
                     roleOpt.SetRoleRate(roleTypes, 0, 0);
                 }
-                if (!Options.SuddenDeathMode.GetBool()) GameEndChecker.SetPredicateToNormal();
+                if (!SuddenDeathMode.SuddenDeathModeActive.GetBool()) GameEndChecker.SetPredicateToNormal();
                 else GameEndChecker.SetPredicateToSadness();
             }
             GameOptionsSender.AllSenders.Clear();
@@ -525,22 +525,11 @@ namespace TownOfHost
                 );
             }
 
-            /*
-            //インポスターのゴーストロールがクルーになるバグ対策
-            foreach (var pc in PlayerControl.AllPlayerControls)
-            {
-                if (pc.Data.Role.IsImpostor || Main.ResetCamPlayerList.Contains(pc.PlayerId))
-                {
-                    pc.Data.Role.DefaultGhostRole = RoleTypes.ImpostorGhost;
-                }
-            }
-            */
-
             //コネクティングが1ならコネクティングを削除
             if (PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.Connecting)).Count() == 1)
             {
                 PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.Connecting)).ToArray().Do(
-                            p => PlayerState.GetByPlayerId(p.PlayerId).RemoveSubRole(CustomRoles.Connecting));
+                            pc => PlayerState.GetByPlayerId(pc.PlayerId).RemoveSubRole(CustomRoles.Connecting));
             }
 
             //役職選定後に処理する奴。
@@ -548,7 +537,7 @@ namespace TownOfHost
             {
                 var role = pc.GetCustomRole();
                 var roletype = role.GetCustomRoleTypes();
-                var lov = pc.Is(CustomRoles.OneLove) ? Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), GetString("OneLove") + " ") : "";
+                var OneLovespace = pc.Is(CustomRoles.OneLove) ? Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), GetString("OneLove") + " ") : "";
                 var color = Palette.CrewmateBlue;
                 var roleClass = CustomRoleManager.GetByPlayerId(pc.PlayerId);
                 switch (roletype)
@@ -561,25 +550,25 @@ namespace TownOfHost
                         break;
                 }
                 UtilsGameLog.LastLog[pc.PlayerId] = "<b>" + Utils.ColorString(Main.PlayerColors[pc.PlayerId], Main.AllPlayerNames[pc.PlayerId] + "</b>");
-                UtilsGameLog.LastLogRole[pc.PlayerId] = $"<b>{lov}" + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
+                UtilsGameLog.LastLogRole[pc.PlayerId] = $"<b>{OneLovespace}" + Utils.ColorString(UtilsRoleText.GetRoleColor(role), GetString($"{role}")) + "</b>";
                 PlayerCatch.AllPlayerFirstTypes.Add(pc.PlayerId, roletype);
 
                 //Addons
                 Main.Guard.Add(pc.PlayerId, 0);
-                if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.Guard;
+                if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.HaveGuard;
                 //RoleAddons
-                if (RoleAddAddons.GetRoleAddon(role, out var d, pc, subrole: [CustomRoles.Speeding, CustomRoles.Guarding]))
+                if (RoleAddAddons.GetRoleAddon(role, out var data, pc, subrole: [CustomRoles.Speeding, CustomRoles.Guarding]))
                 {
-                    if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
-                    if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
+                    if (data.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += data.Guard.GetInt();
+                    if (data.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = data.Speed.GetFloat();
                 }
                 if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId))
                     Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);
             }
 
-            if (Lovers.OneLovePlayer.Ltarget != byte.MaxValue && Options.CurrentGameMode == CustomGameMode.Standard)
+            if (Lovers.OneLovePlayer.BelovedId != byte.MaxValue && Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.Ltarget] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
+                UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.BelovedId] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
                 if (Lovers.OneLovePlayer.doublelove) UtilsGameLog.LastLogRole[Lovers.OneLovePlayer.OneLove] += Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡");
             }
 

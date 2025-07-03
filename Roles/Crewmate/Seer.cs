@@ -26,33 +26,32 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
         player
     )
     {
-        CanseeComms = OptioACanSeeComms.GetBool();
+        ActiveComms = OptionActiveComms.GetBool();
         DelayMode = OptionDelay.GetBool();
         Maxdelay = OptionMaxdelay.GetFloat();
         MinDelay = OptionMindelay.GetFloat();
     }
-    private static bool CanseeComms;
-    private static OptionItem OptioACanSeeComms;
+    private static bool ActiveComms;
+    private static OptionItem OptionActiveComms;
     static OptionItem OptionDelay; static bool DelayMode;
     static OptionItem OptionMindelay; static float MinDelay;
     static OptionItem OptionMaxdelay; static float Maxdelay;
     enum OptionName
     {
-        CanseeComms,
         SeerDelayMode,
         SeerMindelay,
         SeerMaxdelay
     }
     private static void SetupOptionItem()
     {
-        OptioACanSeeComms = BooleanOptionItem.Create(RoleInfo, 10, OptionName.CanseeComms, true, false);
+        OptionActiveComms = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanUseActiveComms, true, false);
         OptionDelay = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SeerDelayMode, false, false);
         OptionMindelay = FloatOptionItem.Create(RoleInfo, 12, OptionName.SeerMindelay, new(0, 60, 0.5f), 3f, false, OptionDelay).SetValueFormat(OptionFormat.Seconds);
         OptionMaxdelay = FloatOptionItem.Create(RoleInfo, 13, OptionName.SeerMaxdelay, new(0, 60, 0.5f), 3f, false, OptionDelay).SetValueFormat(OptionFormat.Seconds);
     }
     public bool? CheckKillFlash(MurderInfo info) // IKillFlashSeeable
     {
-        var canseekillflash = !Utils.IsActive(SystemTypes.Comms) || CanseeComms;
+        var canseekillflash = !Utils.IsActive(SystemTypes.Comms) || ActiveComms;
 
         if (DelayMode && canseekillflash)
         {
@@ -66,7 +65,7 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
             }
             _ = new LateTask(() =>
             {
-                if (GameStates.Meeting || !Player.IsAlive())
+                if (GameStates.CalledMeeting || !Player.IsAlive())
                 {
                     Logger.Info($"{info?.AppearanceTarget?.Data?.GetLogPlayerName() ?? "???"}のフラッシュを受け取ろうとしたけどなんかし防いだぜ", "seer");
                     return;

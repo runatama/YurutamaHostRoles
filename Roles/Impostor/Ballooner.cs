@@ -129,16 +129,16 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
         NowWalkCount = 0;
     }
 
-    void IUsePhantomButton.OnClick(ref bool resetkillcooldown, ref bool? fall)
+    void IUsePhantomButton.OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
         if (NowBoomDis <= 0)
         {
-            resetkillcooldown = false;
-            fall = false;
+            AdjustKillCoolDown = true;
+            ResetCoolDown = false;
             return;
         }
-        fall = false;
-        resetkillcooldown = true;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = true;
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)
         {

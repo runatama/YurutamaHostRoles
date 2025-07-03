@@ -34,7 +34,7 @@ namespace TownOfHost.Roles.Ghost
             MeetingNotify = false;
             Guarng.Clear();
             CustomRoleManager.OnFixedUpdateOthers.Add(FixUpdata);
-            Data.kottinimofuyo = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
+            Data.SubRoleType = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
         }
         public static void Add(byte playerId)
         {

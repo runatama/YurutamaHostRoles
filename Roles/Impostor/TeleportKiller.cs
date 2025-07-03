@@ -199,7 +199,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
             return;
         }
         //キラーのTP
-        var p = Player.transform.position;
+        var position = Player.transform.position;
         var check = TPCheck(target);
         if ((target.inVent || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()) && !TeleportKillerVentgaaa)
         {
@@ -215,7 +215,7 @@ public sealed class TeleportKiller : RoleBase, IImpostor
         if (check)
         {
             //ターゲットのTP
-            target.RpcSnapToForced(p);
+            target.RpcSnapToForced(position);
             _ = new LateTask(() =>
             {
                 if (!target.inVent && !target.MyPhysics.Animations.IsPlayingEnterVentAnimation())

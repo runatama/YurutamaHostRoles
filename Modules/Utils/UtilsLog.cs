@@ -100,7 +100,7 @@ namespace TownOfHost
             //最大11.5emとする(★+日本語10文字分+半角空白)
             var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f /* ★+末尾の半角空白 */ , 11.5f);
             builder.Append(ColorString(Main.PlayerColors[id], Main.AllPlayerNames[id]));
-            builder.AppendFormat("<pos={0}em>", pos).Append(GetProgressText(id, Mane: false, gamelog: true)).Append("</pos>");
+            builder.AppendFormat("<pos={0}em>", pos).Append(GetProgressText(id, ShowManegementText: false, gamelog: true)).Append("</pos>");
             // "(00/00) " = 4em
             pos += 6f;
             builder.AppendFormat("<pos={0}em>", pos).Append(GetVitalText(id, true)).Append("</pos>");
@@ -366,8 +366,8 @@ namespace TownOfHost
                         case CustomWinner.SuddenDeathPurple: meg = GetString("SuddenDeathPurple"); winnerColor = ModColors.Purple; break;
                     }
 
-                    var s = "★";
-                    var send = mes.ToString() + "\n\n" + $"{s}{meg}{s}".Color(winnerColor);
+                    var Star = "★";
+                    var send = mes.ToString() + "\n\n" + $"{Star}{meg}{Star}".Color(winnerColor);
                     SendMessage(send.RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
                     break;
                 }
@@ -385,15 +385,15 @@ namespace TownOfHost
         {
             Main.showkillbutton = false;
             day = 1;
-            Main.IntroHyoji = true;
-            Main.NowSabotage = false;
-            Main.FeColl = 0;
+            Main.ShowRoleIntro = true;
+            Main.IsActiveSabotage = false;
+            Main.ForcedGameEndColl = 0;
             Main.GameCount++;
             Main.CanUseAbility = false;
             GameLog = new();
             TodayLog = "";
-            var c = string.Format(GetString("log.Start"), Main.GameCount);
-            AddGameLogsub($"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{c}\n" + string.Format(GetString("Message.Day").RemoveDeltext("【").RemoveDeltext("】"), day).Color(Palette.Orange));
+            var startgametext = string.Format(GetString("log.Start"), Main.GameCount);
+            AddGameLogsub($"<size=60%>{DateTime.Now:HH.mm.ss} [Start]{startgametext}\n" + string.Format(GetString("Message.Day").RemoveDeltext("【").RemoveDeltext("】"), day).Color(Palette.Orange));
         }
         public static void WriteGameLog()
         {
@@ -448,7 +448,7 @@ namespace TownOfHost
                     {
                         if (role.IsBuffAddon()) mark = "Ⓐ";
                         else if (role.IsDebuffAddon()) mark = "Ⓓ";
-                        else if (role.IsRiaju()) mark = "Ⓛ";
+                        else if (role.IsLovers()) mark = "Ⓛ";
                         else if (role.IsGhostRole()) mark = "Ⓖ";
                         else mark = "〇";
                     }
@@ -481,14 +481,14 @@ namespace TownOfHost
                 if (!tb)
                 {
                     sb.Append("\n┣  ").Append(GetVitalText(id)).Append('　');
-                    sb.Append(GetProgressText(id, Mane: false, gamelog: true).RemoveColorTags());
+                    sb.Append(GetProgressText(id, ShowManegementText: false, gamelog: true).RemoveColorTags());
                     sb.Append(sr ? "\n┣  " : "\n┗   ").Append(GetTrueRoleName(id, false).RemoveColorTags());
                     if (sr) sb.Append("\n┗  ").Append(GetSubRolesText(id).RemoveColorTags());
                 }
                 else
                 {
                     sb.Append('\n').Append($"{Main.AllPlayerNames[id]}{GetString("Win")}").Append('\n');
-                    sb.Append('　').Append(GetProgressText(id, Mane: false, gamelog: true).RemoveColorTags());
+                    sb.Append('　').Append(GetProgressText(id, ShowManegementText: false, gamelog: true).RemoveColorTags());
                 }
                 cloneRoles.Remove(id);
             }
@@ -499,7 +499,7 @@ namespace TownOfHost
                 if (!tb)
                 {
                     sb.Append("\n┣  ").Append(GetVitalText(id)).Append('　');
-                    sb.Append(GetProgressText(id, Mane: false, gamelog: true).RemoveColorTags());
+                    sb.Append(GetProgressText(id, ShowManegementText: false, gamelog: true).RemoveColorTags());
                     sb.Append(sr ? "\n┣  " : "\n┗   ").Append(GetTrueRoleName(id, false).RemoveColorTags());
                     if (sr) sb.Append("\n┗  ").Append(GetSubRolesText(id).RemoveColorTags());
                 }

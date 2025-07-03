@@ -36,7 +36,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         KillCooldown = OptionKillCoolDown.GetFloat();
         shapcool = OptionShepeCooldown.GetFloat();
 
-        Noroi.Clear();
+        CursedPlayers.Clear();
         CanWin = false;
         fall = false;
 
@@ -48,7 +48,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     static OptionItem OptionKillCoolDown; static float KillCooldown;
     static OptionItem OptionShepeCooldown; static float shapcool;
 
-    static Dictionary<byte, int> Noroi = new();
+    static Dictionary<byte, int> CursedPlayers = new();
     public class TimerInfo
     {
         public byte TargetId;
@@ -96,7 +96,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         fall = false;
         var (killer, target) = info.AttemptTuple;
         info.DoKill = false;
-        if (Noroi.ContainsKey(target.PlayerId) || TargetInfo != null) return;
+        if (CursedPlayers.ContainsKey(target.PlayerId) || TargetInfo != null) return;
 
         TargetInfo = new(target.PlayerId, 0f);
         Player.SetKillCooldown(target: target, delay: true);
@@ -122,7 +122,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
                 fall = false;
                 Player.SetKillCooldown();
                 TargetInfo = null;
-                Noroi.Add(cu_target.PlayerId, 0);
+                CursedPlayers.Add(cu_target.PlayerId, 0);
                 UtilsNotifyRoles.NotifyRoles();
             }
             else
@@ -149,25 +149,25 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     {
         TargetInfo = null;
         CanWin = false;
-        if (Noroi.Count == 0) return;
+        if (CursedPlayers.Count == 0) return;
         List<byte> DelList = new();
-        foreach (var nr in Noroi)
+        foreach (var nr in CursedPlayers)
         {
             var np = PlayerCatch.GetPlayerById(nr.Key);
             if (!np) DelList.Add(nr.Key);
             if (!np.IsAlive()) DelList.Add(nr.Key);
             if (delTurn <= nr.Value + 1) DelList.Add(nr.Key);
 
-            Noroi[nr.Key] = nr.Value + 1;
+            CursedPlayers[nr.Key] = nr.Value + 1;
         }
-        DelList.ForEach(task => { Noroi.Remove(task); });
+        DelList.ForEach(task => { CursedPlayers.Remove(task); });
     }
-    public override string MeetingMeg()
+    public override string MeetingAddMessage()
     {
-        if (Noroi.Count == 0) return "";
+        if (CursedPlayers.Count == 0) return "";
         if (!Player.IsAlive()) return "";
 
-        return string.Format(GetString("CurseMakerMeetingMeg"), Noroi.Count);
+        return string.Format(GetString("CurseMakerMeetingMeg"), CursedPlayers.Count);
     }
     public override bool NotifyRolesCheckOtherName => true;
     public bool CanUseKillButton() => true;
@@ -179,21 +179,21 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         opt.SetVision(false);
     }
     public float CalculateKillCooldown() => fall ? 0.00000000001f : KillCooldown;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        fall = true;
+        ResetCoolDown = false;
         if (!Player.IsAlive()) return;
-        if (Noroi.Count == 0) return;
-        resetkillcooldown = true;
-        fall = false;
+        if (CursedPlayers.Count == 0) return;
+        AdjustKillCoolDown = false;
+        ResetCoolDown = true;
 
-        Noroi.Add(Player.PlayerId, 0);
-        foreach (var nr in Noroi)
+        CursedPlayers.Add(Player.PlayerId, 0);
+        foreach (var Cursedid in CursedPlayers)
         {
-            var np = PlayerCatch.GetPlayerById(nr.Key);
-            var st = PlayerState.GetByPlayerId(nr.Key);
-            st.DeathReason = CustomDeathReason.Spell;
-            CustomRoleManager.OnCheckMurder(Player, np, np, np, true, true);
+            var target = PlayerCatch.GetPlayerById(Cursedid.Key);
+            var state = PlayerState.GetByPlayerId(Cursedid.Key);
+            state.DeathReason = CustomDeathReason.Spell;
+            CustomRoleManager.OnCheckMurder(Player, target, target, target, true, true);
         }
 
         CanWin = true;
@@ -202,7 +202,7 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (Noroi.ContainsKey(seen.PlayerId))
+        if (CursedPlayers.ContainsKey(seen.PlayerId))
             return "<color=#554d59>†</color>";
         if (seen.PlayerId == (TargetInfo?.TargetId ?? byte.MaxValue))
             return "<color=#554d59>◇</color>";

@@ -35,26 +35,26 @@ public interface IUsePhantomButton
                 else Init(player);
             }
     }
-    public void CheckOnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void CheckOnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
         if (!UseOneclickButton)
         {
-            resetkillcooldown = false;
+            AdjustKillCoolDown = true;
             return;
         }
-        OnClick(ref resetkillcooldown, ref fall);
+        OnClick(ref AdjustKillCoolDown, ref ResetCoolDown);
     }
     /// <summary>
     /// ファントムワンクリックを使った時に呼ばれる関数<br/>
     /// クールダウンのリセットが発動後行われる。<br/><br/>
-    /// resetkillcooldownがtureでキルクールダウンの調整リセットが入らない<br/>
-    /// ↑ 役職で使用後キルクールダウンをリセットする時はtrue<br/><br/>
-    /// fallがtrueでファントムワンクリックの調整リセットが入らない<br/>
-    /// ↑ ジャッカルのサイドキック失敗ですぐ使えるようになったりラジバンダリ<br/><br/>
+    /// AdjustKillCoolDownがtureでキルクールの調整が行われる<br/>
+    /// ↑ 役職で使用後キルクールダウンをリセットする時はfalse<br/><br/>
+    /// ResetCoolDownがtrueでファントムボタンのクールリセットを入れる<br/>
+    /// ↑ falseでクール無し<br/><br/>
     ///  </summary>
-    /// <param name="resetkillcooldown">trueで使用後キルクールダウンの調整処理を行わない</param>
-    /// <param name="fall">trueでアビリティリセット処理を入れない nullで役職処理もいれない</param>
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    /// <param name="AdjustKillCoolDown">trueで使用後キルクールの調整処理を行う</param>
+    /// <param name="ResetCoolDown">trueでアビリティリセット処理を入れる<br/> nullでファントム戻し処理もいれない</param>
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     { }
     /// <summary>ワンクリックボタンが使えるか</summary>
     public bool UseOneclickButton => true;

@@ -279,12 +279,11 @@ namespace TownOfHost
                 Player.Revive();
             }
 
-            Player.ResetKillCooldown();
             Player.PlayerId.GetPlayerState().IsBlackOut = false;
-            Player.SyncSettings();
+            Player.ResetKillCooldown();
             _ = new LateTask(() =>
                 {
-                    Player.SetKillCooldown(kyousei: true, delay: true);
+                    Player.SetKillCooldown(force: true, delay: true);
                     if (Player.IsAlive() && !(Player.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()))
                     {
                         var roleclass = Player.GetRoleClass();

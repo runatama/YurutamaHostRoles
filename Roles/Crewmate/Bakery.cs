@@ -28,12 +28,12 @@ public sealed class Bakery : RoleBase
         player
     )
     {
-        ch = false;
-        bunki = 0;
+        RareRoute = false;
+        RouteNumber = 0;
     }
-    bool ch;
-    int bunki;
-    public override string MeetingMeg()
+    bool RareRoute;
+    int RouteNumber;
+    public override string MeetingAddMessage()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
         if (Player.IsAlive())
@@ -53,31 +53,31 @@ public sealed class Bakery : RoleBase
         if (DateTime.Now.Month is 3 or 4 or 5) kisetu = "spring";
         if (DateTime.Now.Month is 6 or 7 or 8) kisetu = "summer";
         if (DateTime.Now.Month is 9 or 10 or 11) kisetu = "fall";
-        if (!ch)
+        if (RareRoute is false)
         {
             if (rect <= 15)//15%以下なら分岐
             {
-                ch = true;
+                RareRoute = true;
                 if (dore <= 15)//15%
                 {
-                    bunki = 1;
+                    RouteNumber = 1;
                     return GetString("Message.Bakery1");
                 }
                 else
                 if (dore <= 35)//20%
                 {
-                    bunki = 2;
+                    RouteNumber = 2;
                     return string.Format(GetString("Message.Bakery2"), GetString($"{kisetu}"));
                 }
                 else
                 if (dore <= 65)//30%
                 {
-                    bunki = 3;
+                    RouteNumber = 3;
                     return string.Format(GetString("Message.Bakery3"), (MapNames)Main.NormalOptions.MapId, GetString($"{kisetu}.Ba"));
                 }
                 else//35%
                 {
-                    bunki = 4;
+                    RouteNumber = 4;
                     return GetString($"Message.Bakery4.{meg}");
                 }
             }
@@ -85,7 +85,7 @@ public sealed class Bakery : RoleBase
         }
         else
         {
-            switch (bunki)
+            switch (RouteNumber)
             {
                 case 1:
                     int sns = IRandom.Instance.Next(1, 11);

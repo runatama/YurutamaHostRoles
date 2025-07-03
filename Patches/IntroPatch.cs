@@ -25,7 +25,7 @@ namespace TownOfHost
             _ = new LateTask(() =>
             {
                 CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
-                if (PlayerControl.LocalPlayer.GetRoleClass()?.Jikaku() != CustomRoles.NotAssigned && PlayerControl.LocalPlayer.GetRoleClass() != null) role = PlayerControl.LocalPlayer.GetRoleClass().Jikaku();
+                if (PlayerControl.LocalPlayer.GetMisidentify(out var missrole)) role = missrole;
 
                 if (!role.IsVanilla() && !PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                 {
@@ -34,7 +34,7 @@ namespace TownOfHost
                     _instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
                     _instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
 
-                    _instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
+                    _instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleDesc();
 
                     //Amnesiacだった場合シェリフと表示させる
                     if (role == CustomRoles.Amnesiac)
@@ -220,8 +220,8 @@ namespace TownOfHost
             //チーム表示変更
             CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
             var pc = PlayerControl.LocalPlayer;
-            var ch = pc.GetRoleClass();
-            if (ch?.Jikaku() != CustomRoles.NotAssigned && ch != null) role = ch.Jikaku();
+            var IsMisidentify = pc.GetMisidentify(out var missrole);
+            if (IsMisidentify) role = missrole;
 
             if (role.GetRoleInfo()?.IntroSound is AudioClip introSound)
             {
@@ -311,9 +311,9 @@ namespace TownOfHost
                 StartFadeIntro(__instance, Color.magenta, Color.magenta);
             }*/
 
-            if (ch?.Jikaku() != CustomRoles.NotAssigned && ch != null)
+            if (IsMisidentify)
             {
-                role = ch.Jikaku();
+                role = missrole;
                 if (role.GetRoleInfo()?.IntroSound is AudioClip intro)
                 {
                     PlayerControl.LocalPlayer.Data.Role.IntroSound = intro;
@@ -403,11 +403,11 @@ namespace TownOfHost
             {
                 if (mapId != 4)
                 {
-                    if (Options.SuddenKillcooltime.GetBool() && SuddenDeathMode.NowSuddenDeathMode)
+                    if (SuddenDeathMode.SuddenKillcooltime.GetBool() && SuddenDeathMode.NowSuddenDeathMode)
                     {
                         _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.SuddenKillcooltime.GetFloat() - 0.7f, delay: true));
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(SuddenDeathMode.SuddenKillcooltime.GetFloat() - 0.7f, delay: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     }
                     else if (Options.FixFirstKillCooldown.GetBool())
@@ -417,7 +417,7 @@ namespace TownOfHost
                         }, 0.7f, "FixKillCooldownTask", null);
                     else _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, kyousei: true, delay: true));
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, force: true, delay: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     GameStates.Intro = false;
                     GameStates.AfterIntro = true;
@@ -504,7 +504,7 @@ namespace TownOfHost
                 if (!Options.EnableGM.GetBool() && Options.CurrentGameMode == CustomGameMode.TaskBattle && TaskBattle.TaskBattleCanVent.GetBool())
                     RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Engineer);
 
-                ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+                ExtendedRpc.AllPlayerOnlySeeMePet();
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
 
                 _ = new LateTask(() =>
@@ -519,13 +519,13 @@ namespace TownOfHost
                             foreach (var task in pl.Data.Tasks) TaskList.Add(task.Id);
                         Main.AllPlayerTask.TryAdd(pl.PlayerId, TaskList);
                     }
-                    ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
+                    ExtendedRpc.RpcResetAbilityCooldownAllPlayer();
                     CustomButtonHud.BottonHud(true);
                 }, 0.3f, "", true);
 
                 _ = new LateTask(() =>
                 {
-                    CustomRoleManager.AllActiveRoles.Values.Do(role => role.Colorchnge());
+                    CustomRoleManager.AllActiveRoles.Values.Do(role => role.ChangeColor());
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     SuddenDeathMode.NotTeamKill();
                 }, 1.25f, "", true);
@@ -539,8 +539,8 @@ namespace TownOfHost
                 {
                     _ = new LateTask(() =>
                     {
-                        Main.IntroHyoji = false;
-                        if (GameStates.InGame && !GameStates.Meeting)
+                        Main.ShowRoleIntro = false;
+                        if (GameStates.InGame && !GameStates.CalledMeeting)
                             UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                     }, 15f, "Intro", true);
                 }

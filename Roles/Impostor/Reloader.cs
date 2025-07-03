@@ -28,12 +28,12 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
     {
         Cooldown = OptionCooldown.GetFloat();
         KillCooldown = OptionKillCooldown.GetFloat();
-        RKillCooldown = OptionRKillCooldown.GetFloat();
+        ReloadKillCooldown = OptionReloadKillCooldown.GetFloat();
         Count = OptionCount.GetInt();
     }
     private static OptionItem OptionCooldown;
     private static OptionItem OptionKillCooldown;
-    private static OptionItem OptionRKillCooldown;
+    private static OptionItem OptionReloadKillCooldown;
     private static OptionItem OptionCount;
     enum OptionName
     {
@@ -42,13 +42,13 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
     }
     private static float Cooldown;
     private static float KillCooldown;
-    private static float RKillCooldown;
+    private static float ReloadKillCooldown;
     private static int Count;
     private static void SetupOptionItem()
     {
         OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        OptionRKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.ReloaderKillCooldown, new(0f, 180f, 0.5f), 10f, false)
+        OptionReloadKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.ReloaderKillCooldown, new(0f, 180f, 0.5f), 10f, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
@@ -59,15 +59,15 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
     public float CalculateKillCooldown() => KillCooldown;
     public override bool CanUseAbilityButton() => Count > 0;
     bool IUsePhantomButton.IsPhantomRole => Count > 0;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = false;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = true;
         if (Count <= 0) return;
 
-        resetkillcooldown = true;
+        AdjustKillCoolDown = false;
         Count--;
-        Player.SetKillCooldown(RKillCooldown, delay: true);
+        Player.SetKillCooldown(ReloadKillCooldown, delay: true);
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(Count > 0 ? RoleInfo.RoleColor : Palette.DisabledGrey, $"({Count})");

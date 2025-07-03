@@ -35,7 +35,7 @@ namespace TownOfHost.Roles.Crewmate
         static OptionItem OptionCoolTime;
         bool Taskmode;
         float Cooltime;
-        string Room;
+        string SetRoom;
         Vector2 LogPos;
         Dictionary<int, PlayerControl> Log = new();
         static HashSet<NiceLogger> NiceLoggers = new();
@@ -49,7 +49,7 @@ namespace TownOfHost.Roles.Crewmate
             LogPos = new(999f, 999f);
             Log.Clear();
             Cooltime = 0f;
-            Room = "";
+            SetRoom = "";
 
             NiceLoggers.Add(this);
         }
@@ -68,10 +68,10 @@ namespace TownOfHost.Roles.Crewmate
             opt.SetVision(false);
             AURoleOptions.PhantomCooldown = 0.0001f;
         }
-        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
         {
-            resetkillcooldown = true;
-            fall = null;
+            AdjustKillCoolDown = false;
+            ResetCoolDown = null;
             Dictionary<OpenableDoor, float> Distance = new();
             Vector2 position = Player.transform.position;
             foreach (var door in ShipStatus.Instance.AllDoors)
@@ -83,9 +83,8 @@ namespace TownOfHost.Roles.Crewmate
 
             LogPos = logdoor.Key.transform.position;
             Cooltime = 0;
-            Room = GetString($"{logdoor.Key.Room}");
+            SetRoom = GetString($"{logdoor.Key.Room}");
 
-            var a = logdoor.Key.Room;
             if (AmongUsClient.Instance.AmHost)
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -97,7 +96,7 @@ namespace TownOfHost.Roles.Crewmate
                 }
                 Taskmode = true;
             }
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, $"NiceLogger Set : {Room} ");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, $"NiceLogger Set : {SetRoom} ");
         }
         public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
@@ -109,9 +108,9 @@ namespace TownOfHost.Roles.Crewmate
             if (Taskmode) return "";
             if (!Player.IsAlive()) return "";
 
-            var s = "";
-            if (!isForHud) s = "<size=50%>";
-            return s + GetString("NiceLoggerLower") + (s == "" ? "" : "</size>");
+            var setinfo = "";
+            if (!isForHud) setinfo = "<size=50%>";
+            return setinfo + GetString("NiceLoggerLower") + (setinfo == "" ? "" : "</size>");
         }
         public override void OnStartMeeting()
         {
@@ -125,9 +124,9 @@ namespace TownOfHost.Roles.Crewmate
                 if (Log.Count != 0)
                     foreach (var log in Log.Values)
                     {
-                        Send += string.Format(GetString("NiceLoggerAbility"), Utils.GetPlayerColor(log), Room);
+                        Send += string.Format(GetString("NiceLoggerAbility"), UtilsName.GetPlayerColor(log), SetRoom);
                     }
-                else Send += string.Format(GetString("NiceLoggerAbility2"), Room);
+                else Send += string.Format(GetString("NiceLoggerAbility2"), SetRoom);
 
                 _ = new LateTask(() => Utils.SendMessage(Send, Player.PlayerId, Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.NiceLogger), GetString("NiceLoggerTitle"))), 4f, "NiceLoggerSned");
             }
@@ -136,7 +135,7 @@ namespace TownOfHost.Roles.Crewmate
         {
             Log.Clear();
             LogPos = new(999f, 999f);
-            Taskmode = false;
+            Taskmode = !Player.IsAlive();
         }
 
         public override RoleTypes? AfterMeetingRole => RoleTypes.Phantom;
@@ -144,7 +143,11 @@ namespace TownOfHost.Roles.Crewmate
         public override void OnFixedUpdate(PlayerControl player)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (!player.IsAlive()) return;
+            if (!player.IsAlive())
+            {
+                if (Taskmode is false) Taskmode = true;
+                return;
+            }
             Cooltime += Time.fixedDeltaTime;
         }
         public static void OnFixedUpdateOthers(PlayerControl player)

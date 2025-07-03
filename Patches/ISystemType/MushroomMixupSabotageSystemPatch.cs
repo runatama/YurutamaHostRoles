@@ -19,7 +19,7 @@ public static class MushroomMixupSabotageSystemUpdateSystemPatch
     public static void Postfix(MushroomMixupSabotageSystem __instance, byte __state /* amount */)
     {
         var operation = (MushroomMixupSabotageSystem.Operation)__state;
-        if (operation == MushroomMixupSabotageSystem.Operation.TriggerSabotage && Options.SabotageTimeControl.GetBool())
+        if (operation == MushroomMixupSabotageSystem.Operation.TriggerSabotage && Options.SabotageActivetimerControl.GetBool())
         {
             __instance.currentSecondsUntilHeal = Options.FungleMushroomMixupDuration.GetFloat();
         }

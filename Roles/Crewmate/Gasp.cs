@@ -51,7 +51,7 @@ public sealed class Gasp : RoleBase
         if (!player.IsAlive())
         {
             //死亡時にタスクを完了させている場合
-            if (MyTaskState.HasCompletedEnoughCountOfTasks(TaskTrigger) && !GameStates.Meeting)
+            if (MyTaskState.HasCompletedEnoughCountOfTasks(TaskTrigger) && !GameStates.CalledMeeting)
             {
                 //見えるフラグをOnにする
                 CanSeeMark = true;

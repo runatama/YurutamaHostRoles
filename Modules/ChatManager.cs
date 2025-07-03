@@ -67,7 +67,7 @@ namespace TownOfHost.Modules.ChatManager
                 _ = new LateTask(() => player.RpcMurderPlayer(player), 0.2f, "");
                 _ = new LateTask(() =>
                 {
-                    Utils.SendMessage(Utils.GetPlayerColor(player.PlayerId, true) + "は余計なことを言ったから消えちゃった...");
+                    Utils.SendMessage(UtilsName.GetPlayerColor(player.PlayerId, true) + "は余計なことを言ったから消えちゃった...");
                     player.RpcSnapToForced(pos);
 
                     var meetingHud = MeetingHud.Instance;
@@ -133,7 +133,7 @@ namespace TownOfHost.Modules.ChatManager
         {
             var rd = IRandom.Instance;
             string msg;
-            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsRiaju() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE() && Event.CheckRole(role) && role is not CustomRoles.Assassin and CustomRoles.Merlin).ToList();
+            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => (role.IsLovers() || role.IsCrewmate() || role.IsImpostorTeam() || role.IsNeutral()) && !role.IsE() && Event.CheckRole(role) && role is not CustomRoles.Assassin and CustomRoles.Merlin).ToList();
             string[] specialTexts = new string[] { "bt" };
 
             for (int i = chatHistory.Count; i < 30; i++)
@@ -229,7 +229,7 @@ namespace TownOfHost.Modules.ChatManager
         }
         public static void IntaskCheckSendMessage(PlayerControl player)
         {
-            if (!GameStates.Meeting && PlayerControl.LocalPlayer.IsAlive() && !ChatUpdatePatch.DoBlockChat)
+            if (!GameStates.CalledMeeting && PlayerControl.LocalPlayer.IsAlive() && !ChatUpdatePatch.DoBlockChat)
             {
                 if (Main.MessagesToSend.Where(x => x.Item2 is not byte.MaxValue).Count() > 0)
                 {
@@ -344,7 +344,7 @@ namespace TownOfHost.Modules.ChatManager
                 .EndRpc();
                 Nwriter.EndMessage();
                 Nwriter.SendMessage();
-                if (GameStates.Meeting && Main.MessagesToSend.Count < 1)
+                if (GameStates.CalledMeeting && Main.MessagesToSend.Count < 1)
                 {
                     _ = new LateTask(() =>
                     {

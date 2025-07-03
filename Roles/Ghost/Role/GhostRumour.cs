@@ -29,7 +29,7 @@ namespace TownOfHost.Roles.Ghost
             playerIdList = new();
             UsedPlayer = new();
             SendList = new();
-            Data.kottinimofuyo = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
+            Data.SubRoleType = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
         }
         public static void Add(byte playerId)
         {

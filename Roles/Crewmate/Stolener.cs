@@ -56,7 +56,7 @@ public sealed class Stolener : RoleBase
         Killer = kier?.PlayerId ?? (byte.MaxValue - 1);
         Killers.Add(Killer);
         Logger.Info($"キラー設定：{kier?.Data?.name ?? "無し"}", "Stolener");
-        kier?.SetKillCooldown(kyousei: true);
+        kier?.SetKillCooldown(force: true);
         UtilsNotifyRoles.NotifyRoles();
 
         if (kier is not null)

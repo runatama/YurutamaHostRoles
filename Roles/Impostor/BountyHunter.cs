@@ -187,7 +187,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         {
             if (SuddenDeathMode.NowSuddenDeathTemeMode)
             {
-                return !SuddenDeathMode.IsOnajiteam(pc.PlayerId, Player.PlayerId);
+                return !SuddenDeathMode.IsSameteam(pc.PlayerId, Player.PlayerId);
             }
 
             return !pc.Is(CountTypes.Impostor);
@@ -228,14 +228,14 @@ public sealed class BountyHunter : RoleBase, IImpostor
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
-        if (GameStates.Meeting) return "";
+        if (GameStates.CalledMeeting) return "";
         //seenが省略の場合seer
         seen ??= seer;
         //seeおよびseenが自分である場合以外は関係なし
         if (!Is(seer) || !Is(seen)) return "";
 
         var target = GetTarget();
-        return target != null ? $"{(isForHud ? GetString("BountyCurrentTarget") : "Target")}:{Utils.GetPlayerColor(target.PlayerId)}" : "";
+        return target != null ? $"{(isForHud ? GetString("BountyCurrentTarget") : "Target")}:{UtilsName.GetPlayerColor(target.PlayerId)}" : "";
     }
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {

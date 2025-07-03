@@ -37,14 +37,14 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
         DouseTime = OptionDouseTime.GetFloat();
         DouseCooldown = OptionDouseCooldown.GetFloat();
         if (OptionDouseCooldown.GetFloat() == 0) DouseCooldown = 0.00000000000000000001f;//0sでも塗れるように
-        Hani = OptionHani.GetFloat();
+        Distance = OptionDistance.GetFloat();
 
         TargetInfo = null;
         IsDoused = new(GameData.Instance.PlayerCount);
     }
     private static OptionItem OptionDouseTime;
     private static OptionItem OptionDouseCooldown;
-    private static OptionItem OptionHani;
+    private static OptionItem OptionDistance;
     private static OptionItem Optionfire;
     private static OptionItem OptionCanUseVent;
     private static OptionItem OptionCanSeeNowAlivePlayer;
@@ -55,7 +55,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
     }
     private static float DouseTime;
     private static float DouseCooldown;
-    private static float Hani;
+    private static float Distance;
 
     public class TimerInfo
     {
@@ -80,7 +80,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
             .SetValueFormat(OptionFormat.Seconds);
         OptionDouseCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 1f), 10f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionHani = FloatOptionItem.Create(RoleInfo, 12, OptionName.ArsonistRange, new(1.25f, 5f, 0.25f), 1.75f, false)
+        OptionDistance = FloatOptionItem.Create(RoleInfo, 12, OptionName.ArsonistRange, new(1.25f, 5f, 0.25f), 1.75f, false)
         .SetValueFormat(OptionFormat.Multiplier);
         OverrideKilldistance.Create(RoleInfo, 13);
         Optionfire = BooleanOptionItem.Create(RoleInfo, 14, OptionName.ArsonistFireOnclick, false, false);
@@ -93,7 +93,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
 
             if (SuddenDeathMode.NowSuddenDeathTemeMode)
             {
-                if (SuddenDeathMode.IsOnajiteam(ar.PlayerId, Player.PlayerId))
+                if (SuddenDeathMode.IsSameteam(ar.PlayerId, Player.PlayerId))
                     IsDoused[ar.PlayerId] = true;
             }
         }
@@ -106,9 +106,9 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         var doused = GetDousedPlayerCount();
-        var bunbo = "?";
-        if (OptionCanSeeNowAlivePlayer.GetBool() || GameStates.Meeting) bunbo = $"{doused.Item2}";
-        return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({doused.Item1}/{bunbo})");
+        var Denominator = "?";
+        if (OptionCanSeeNowAlivePlayer.GetBool() || GameStates.CalledMeeting) Denominator = $"{doused.Item2}";
+        return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({doused.Item1}/{Denominator})");
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
@@ -190,13 +190,13 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                     UtilsNotifyRoles.NotifyRoles();//名前変更
                     SendRPC(RPC_type.SetCurrentDousingTarget);
 
-                    Player.RpcResetAbilityCooldown(kousin: true);
+                    Player.RpcResetAbilityCooldown(Sync: true);
                 }
                 else
                 {
                     float dis;
                     dis = Vector2.Distance(Player.transform.position, ar_target.transform.position);//距離を出す
-                    if (dis <= Hani)//一定の距離にターゲットがいるならば時間をカウント
+                    if (dis <= Distance)//一定の距離にターゲットがいるならば時間をカウント
                     {
                         TargetInfo.Timer += Time.fixedDeltaTime;
                     }
@@ -204,7 +204,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                     {
                         TargetInfo = null;
                         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
-                        Player.SetKillCooldown(0.1f, kyousei: true);
+                        Player.SetKillCooldown(0.1f, force: true);
                         SendRPC(RPC_type.SetCurrentDousingTarget);
 
                         Logger.Info($"Canceled: {Player.GetNameWithRole().RemoveHtmlTags()}", "Arsonist");
@@ -291,7 +291,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
 
         return (doused, all);
     }
-    void IUsePhantomButton.OnClick(ref bool resetkillcooldown, ref bool? fall)
+    void IUsePhantomButton.OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
         if (GameStates.IsInGame && IsDouseDone(Player) && Optionfire.GetBool())
         {

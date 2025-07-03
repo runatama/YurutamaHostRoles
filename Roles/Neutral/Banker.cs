@@ -36,8 +36,8 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     )
     {
         TaskMode = true;
-        Coin = FarstCoin.GetInt();
-        Die = false;
+        HaveCoin = FarstCoin.GetInt();
+        IsDead = false;
     }
     static OptionItem FarstCoin;
     static OptionItem KillCoolDown;
@@ -62,8 +62,8 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         BankerWincoin,
     }
     bool TaskMode;
-    int Coin;
-    bool Die;
+    int HaveCoin;
+    bool IsDead;
     static void SetUpOptionItem()
     {
         FarstCoin = IntegerOptionItem.Create(RoleInfo, 9, Option.BankerFarstCoin, new(1, 100, 1), 5, false);
@@ -82,24 +82,24 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     public bool CanUseSabotageButton() => false;
     public bool CanUseKillButton() => !TaskMode;
     public float CalculateKillCooldown() => KillCoolDown.GetFloat();
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
     public override bool CanUseAbilityButton() => Player != PlayerControl.LocalPlayer;
     public override bool OnCompleteTask(uint taskid)
     {
         if (!Player.IsAlive()) return true;
 
-        Coin += TaskAddCoin.GetInt();
+        HaveCoin += TaskAddCoin.GetInt();
         return true;
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
-    => Player.IsAlive() || DieCanWin.GetBool() ? (gamelog ? "" : (TaskMode ? "[Task]" : "[Kill]") + Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Banker), $"({Coin})")) : "";
+    => Player.IsAlive() || DieCanWin.GetBool() ? (gamelog ? "" : (TaskMode ? "[Task]" : "[Kill]") + Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Banker), $"({HaveCoin})")) : "";
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
         if (Player.IsAlive() || DieCanWin.GetBool())
             if (seen == seer && Is(seen))
             {
-                if (AddWinCoin.GetInt() <= Coin) return Utils.AdditionalWinnerMark;
+                if (AddWinCoin.GetInt() <= HaveCoin) return Utils.AdditionalWinnerMark;
             }
         return "";
     }
@@ -114,17 +114,17 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
         var (killer, target) = info.AppearanceTuple;
         if (Is(killer))
         {
-            Coin += KillAddCoin.GetInt();
+            HaveCoin += KillAddCoin.GetInt();
         }
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!Die)
+        if (!IsDead)
         {
             if (!player.IsAlive())
             {
-                Die = true;
-                Coin -= DieRemoveCoin.GetInt();
+                IsDead = true;
+                HaveCoin -= DieRemoveCoin.GetInt();
                 _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), Main.LagTime, "Bankerdie");
             }
         }
@@ -132,14 +132,14 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     public override RoleTypes? AfterMeetingRole => TaskMode ? RoleTypes.Engineer : RoleTypes.Impostor;
     public override void AfterMeetingTasks()
     {
-        if (Player.IsAlive()) Coin -= TurnRemoveCoin.GetInt();
-        else Coin -= DieRemoveTurn.GetInt();
+        if (Player.IsAlive()) HaveCoin -= TurnRemoveCoin.GetInt();
+        else HaveCoin -= DieRemoveTurn.GetInt();
 
         UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
-        if (Coin >= ChengeCoin.GetInt())
+        if (ChengeCoin.GetInt() <= HaveCoin)
         {
             if (TaskMode && Utils.IsActive(SystemTypes.Comms)) return false;//Hostはタスクモード(エンジ)での切り替えできるからさせないようにする
 
@@ -154,7 +154,7 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
                 }
                 TaskMode = !TaskMode;
             }
-            Coin -= ChengeCoin.GetInt();
+            HaveCoin -= ChengeCoin.GetInt();
             _ = new LateTask(() =>
             {
                 Player.SetKillCooldown();
@@ -170,5 +170,5 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
     }
 
     public bool CheckWin(ref CustomRoles winnerRole)
-        => AddWinCoin.GetInt() <= Coin && (Player.IsAlive() || DieCanWin.GetBool());
+        => AddWinCoin.GetInt() <= HaveCoin && (Player.IsAlive() || DieCanWin.GetBool());
 }

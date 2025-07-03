@@ -136,15 +136,15 @@ namespace TownOfHost
             SendToFile(text, LogLevel.Message, tag, escapeCRLF, lineNumber, fileName);
         public static void Exception(Exception ex, string tag, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
             SendToFile(ex.ToString(), LogLevel.Error, tag, false, lineNumber, fileName);
-        static float mae = -1;
-        public static void CheckTime(string tag)
+        static float OldDate = -1;
+        public static void CheckElapsed(string tag)
         {
-            var a = DateTime.Now;
-            var imano = a.Millisecond + a.Second * 1000 + a.Minute * 100000 + a.Hour * 10000000;
-            var maenoyatu = mae < 0 ? "null" : $"{imano - mae}";
+            var Nowdate = DateTime.Now;
+            var NowTime = Nowdate.Millisecond + Nowdate.Second * 1000 + Nowdate.Minute * 100000 + Nowdate.Hour * 10000000;
+            var elapsed = OldDate < 0 ? "null" : $"{NowTime - OldDate}";
 
-            SendToFile($"{DateTime.Now:HH.mm.ss.fff} ({maenoyatu})", LogLevel.Info, tag);
-            mae = a.Millisecond + a.Second * 1000 + a.Minute * 100000 + a.Hour * 10000000;
+            SendToFile($"{DateTime.Now:HH.mm.ss.fff} ({elapsed})", LogLevel.Info, tag);
+            OldDate = Nowdate.Millisecond + Nowdate.Second * 1000 + Nowdate.Minute * 100000 + Nowdate.Hour * 10000000;
         }
         public static void CurrentMethod([CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "")
         {

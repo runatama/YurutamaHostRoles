@@ -42,18 +42,18 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public static OptionItem OptionCanVent;
     enum Option
     {
-        BaitChien, Baitsaidaichien,
+        BaitReportDelay, BaitMaxDelay,
         MadBaitRandomReport, MadBaitIgnoreImpostor
     }
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
-    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => Options.MadTellOpt();
     public static void SetupOptionItem()
     {
         RandomRepo = BooleanOptionItem.Create(RoleInfo, 10, Option.MadBaitRandomReport, true, false);
         ImpRepo = BooleanOptionItem.Create(RoleInfo, 11, Option.MadBaitIgnoreImpostor, false, false, RandomRepo);
-        Chien = FloatOptionItem.Create(RoleInfo, 12, Option.BaitChien, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
-        Saiaichien = FloatOptionItem.Create(RoleInfo, 13, Option.Baitsaidaichien, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
+        Chien = FloatOptionItem.Create(RoleInfo, 12, Option.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
+        Saiaichien = FloatOptionItem.Create(RoleInfo, 13, Option.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
 
     }

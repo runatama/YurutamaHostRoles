@@ -41,13 +41,13 @@ namespace TownOfHost
 
         public static string GetLogPlayerName(this NetworkedPlayerInfo info)
         {
-            if (info.trygetname().Contains("<"))
+            if (info.Trygetname().Contains("<"))
             {
                 return info.name.RemoveDeltext("Data");
             }
-            return info.trygetname();
+            return info.Trygetname();
         }
-        static string trygetname(this NetworkedPlayerInfo info)
+        static string Trygetname(this NetworkedPlayerInfo info)
         {
             if (info == null) return "";
             if (GameStates.IsLobby)
@@ -79,9 +79,9 @@ namespace TownOfHost
 
             if (sendLog)
             {
-                if (Options.CuseVent.GetBool() && (AllAlivePlayerControls.Count() <= Options.CuseVentCount.GetFloat()))
-                    Utils.CanVent = true;
-                else Utils.CanVent = false;
+                if (Options.CantUseVentMode.GetBool() && (AllAlivePlayerControls.Count() <= Options.CantUseVentTrueCount.GetFloat()))
+                    Utils.CantUseVent = true;
+                else Utils.CantUseVent = false;
 
                 var sb = new StringBuilder(100);
                 foreach (var countTypes in EnumHelper.GetAllValues<CountTypes>())

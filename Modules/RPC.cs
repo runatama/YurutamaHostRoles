@@ -158,9 +158,6 @@ namespace TownOfHost
                     byte killerId = reader.ReadByte();
                     RPC.SetRealKiller(targetId, killerId);
                     break;
-                /*case CustomRPC.SetAntiTeleporterPosition:
-                    AntiTeleporter.ReceiveRPC(reader);
-                    break;*/
                 case CustomRPC.SyncRoomTimer:
                     float timer = 0;
                     if (float.TryParse(reader.ReadString(), out timer))

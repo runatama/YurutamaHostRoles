@@ -35,13 +35,13 @@ namespace TownOfHost
                     ret = roleClass.OnCompleteTask(taskid);
             }
 
-            CustomRoleManager.onCompleteTaskOthers(__instance, ret);
+            CustomRoleManager.OnTaskCompleteOthers(__instance, ret);
 
             if (pc.Is(CustomRoles.Amnesia))
-                if (Amnesia.TriggerTask.GetBool() && taskState.HasCompletedEnoughCountOfTasks(Amnesia.Task.GetInt()))
+                if (Amnesia.OptionCanRealizeTask.GetBool() && taskState.HasCompletedEnoughCountOfTasks(Amnesia.OptionRealizeTaskCount.GetInt()))
                 {
                     if (!Utils.RoleSendList.Contains(pc.PlayerId)) Utils.RoleSendList.Add(pc.PlayerId);
-                    Amnesia.Kesu(pc.PlayerId);
+                    Amnesia.RemoveAmnesia(pc.PlayerId);
 
                     taskState.hasTasks = UtilsTask.HasTasks(pc.Data, false);
 
@@ -55,8 +55,8 @@ namespace TownOfHost
                     pc.SyncSettings();
                     _ = new LateTask(() =>
                     {
-                        pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId], kyousei: true, delay: true);
-                        pc.RpcResetAbilityCooldown(kousin: true);
+                        pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId], force: true, delay: true);
+                        pc.RpcResetAbilityCooldown(Sync: true);
                     }, 0.2f, "ResetAbility");
                 }
 
@@ -68,7 +68,7 @@ namespace TownOfHost
             {
                 if (taskState.CompletedTasksCount < taskState.AllTasksCount) return ret;
                 if (!UtilsTask.HasTasks(pc.Data)) return ret;
-                UtilsGameLog.AddGameLog("Task", string.Format(Translator.GetString("Taskfin"), Utils.GetPlayerColor(pc, true)));
+                UtilsGameLog.AddGameLog("Task", string.Format(Translator.GetString("Taskfin"), UtilsName.GetPlayerColor(pc, true)));
             }
             return ret;
         }

@@ -43,14 +43,14 @@ public static class LifeSuppSystemUpdateSystemPatch
         // サボタージュ発動時
         if (__state == LifeSuppSystemType.StartCountdown)
         {
-            if (!Options.SabotageTimeControl.GetBool())
+            if (!Options.SabotageActivetimerControl.GetBool())
             {
                 return;
             }
             var duration = (MapNames)Main.NormalOptions.MapId switch
             {
-                MapNames.Skeld => Options.Skeldo2.GetFloat(),
-                MapNames.MiraHQ => Options.MiraO2.GetFloat(),
+                MapNames.Skeld => Options.SkeldO2TimeLimit.GetFloat(),
+                MapNames.MiraHQ => Options.MiraO2TimeLimit.GetFloat(),
                 _ => float.NaN,
             };
             if (!float.IsNaN(duration))

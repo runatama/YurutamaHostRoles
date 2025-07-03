@@ -35,7 +35,7 @@ public sealed class Balancer : RoleBase
     )
     {
         meetingtime = OptionMeetingTime.GetInt();
-        s = OptionS.GetBool();
+        CanUseAllAlive = OptionCanUseAllAlive.GetBool();
         target1 = 255;
         target2 = 255;
         Target1 = 255;
@@ -47,14 +47,14 @@ public sealed class Balancer : RoleBase
     }
 
     static OptionItem OptionMeetingTime;
-    static OptionItem OptionS;
+    static OptionItem OptionCanUseAllAlive;
     public static OptionItem OptionCanMeetingAbility;
     //共有用
     public static byte target1 = 255, target2 = 255;
     public static byte Id = 255;
     public static int meetingtime;
     static string nickname;
-    static bool s; //誰かが死亡するまで、能力を使えない
+    static bool CanUseAllAlive; //誰かが死亡するまで、能力を使えない
     //プレイヤーによって操作できる
     byte Target1, Target2;
     bool used;
@@ -62,7 +62,7 @@ public sealed class Balancer : RoleBase
     enum Option
     {
         BalancerMeetingTime,
-        Balancersbalancer,
+        BalancerCanUseAllAlive,
         BalancerCanUseMeetingAbility
     }
 
@@ -70,12 +70,11 @@ public sealed class Balancer : RoleBase
     {
         OptionMeetingTime = IntegerOptionItem.Create(RoleInfo, 10, Option.BalancerMeetingTime, new(15, 120, 1), 30, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionS = BooleanOptionItem.Create(RoleInfo, 11, Option.Balancersbalancer, false, false);
+        OptionCanUseAllAlive = BooleanOptionItem.Create(RoleInfo, 11, Option.BalancerCanUseAllAlive, false, false);
         OptionCanMeetingAbility = BooleanOptionItem.Create(RoleInfo, 12, Option.BalancerCanUseMeetingAbility, false, false);
     }
 
-    public override void Add()
-        => AddS(Player);
+    public override void Add() => AddSelfVotes(Player);
     public override void OnDestroy()
     {
         Id = 255;
@@ -106,7 +105,7 @@ public sealed class Balancer : RoleBase
         }
 
         //通常会議の処理 投票した人が自分ではない or 能力使用済みならここから先は実行しない
-        if (voter.PlayerId != Player.PlayerId || used || (s && !GameStates.AlreadyDied))
+        if (voter.PlayerId != Player.PlayerId || used || (CanUseAllAlive && !GameStates.AlreadyDied))
             return true;
 
         //天秤モードかチェック
@@ -170,9 +169,9 @@ public sealed class Balancer : RoleBase
             if (Target1 != 255 || Target2 != 255)
             {
                 //どちらかが決まっていなかったら一人目
-                var n = (Target1 != 255 && Target2 != 255) ? GetString("TowPlayer") : GetString("OnePlayer");
-                var s = string.Format(GetString("Skill.Balancer"), n, Utils.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true));
-                Utils.SendMessage(s.ToString(), Player.PlayerId);
+                var Nowtargetcount = (Target1 != 255 && Target2 != 255) ? GetString("TowPlayer") : GetString("OnePlayer");
+                var sendtext = string.Format(GetString("Skill.Balancer"), Nowtargetcount, UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true));
+                Utils.SendMessage(sendtext, Player.PlayerId);
             }
 
             //二人決まったなら会議を終了
@@ -180,7 +179,7 @@ public sealed class Balancer : RoleBase
             {
                 byte[] random_target = [Target1, Target2];
                 random_target = [.. random_target.OrderBy(x => Guid.NewGuid())];
-                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(random_target[0]), true), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(random_target[1]), true));
+                Voteresult = "<color=#cff100>☆" + GetString("BalancerMeeting") + "☆</color>\n" + string.Format(GetString("BalancerMeetingInfo"), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(random_target[0]), true), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(random_target[1]), true));
                 used = true;
                 target1 = Target1;
                 target2 = Target2;
@@ -188,7 +187,7 @@ public sealed class Balancer : RoleBase
                 ExileControllerWrapUpPatch.AntiBlackout_LastExiled = null;
                 Modules.MeetingVoteManager.Instance.ClearAndEndMeeting();
                 MeetingHud.Instance.RpcClose();
-                GameStates.Tuihou = true;
+                GameStates.ExiledAnimate = true;
             }
         }
     }
@@ -302,7 +301,7 @@ public sealed class Balancer : RoleBase
         return true;
     }
 
-    public override void BalancerAfterMeetingTasks()
+    public void BalancerAfterMeetingTasks()
     {
         //天秤会議になってない状態なら
         if (Id == 255 && Target1 != 255 && Target2 != 255)
@@ -327,7 +326,7 @@ public sealed class Balancer : RoleBase
             _ = new LateTask(() =>
             {
                 //名前を戻す
-                UtilsGameLog.AddGameLog("Meeting", string.Format(GetString("BalancerMeetingInfo"), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target1), true), Utils.GetPlayerColor(PlayerCatch.GetPlayerById(Target2), true)).Split("\n")[0] + "</color>");
+                UtilsGameLog.AddGameLog("Meeting", string.Format(GetString("BalancerMeetingInfo"), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(Target1), true), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(Target2), true)).Split("\n")[0] + "</color>");
                 PlayerCatch.GetPlayerById(Target1)?.RpcSetName(Main.AllPlayerNames[Target1]);
                 PlayerCatch.GetPlayerById(Target2)?.RpcSetName(Main.AllPlayerNames[Target2]);
             }, 2.8f);
@@ -374,7 +373,7 @@ public sealed class Balancer : RoleBase
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (isForMeeting && Player.IsAlive() && (!GameStates.AlreadyDied || s) && seer.PlayerId == seen.PlayerId && Canuseability() && !used)
+        if (isForMeeting && Player.IsAlive() && (!GameStates.AlreadyDied || CanUseAllAlive) && seer.PlayerId == seen.PlayerId && Canuseability() && !used)
         {
             var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
             return isForHud ? mes : $"<size=40%>{mes}</size>";

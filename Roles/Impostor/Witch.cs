@@ -150,7 +150,7 @@ namespace TownOfHost.Roles.Impostor
             }
             return false;
         }
-        public override string MeetingMeg()
+        public override string MeetingAddMessage()
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
             if (SpelledPlayer.Count == 0) return "";
@@ -162,17 +162,17 @@ namespace TownOfHost.Roles.Impostor
                 return "";
             }
 
-            var r = GetString("Skill.Witchf").Color(Palette.ImpostorRed) + "\n";
-            var tg = new List<byte>();
+            var Message = GetString("Skill.Witchf").Color(Palette.ImpostorRed) + "\n";
+            var targetids = new List<byte>();
 
             foreach (var pc in SpelledPlayer)
             {
                 if (pc == byte.MaxValue) continue;
-                if (tg.Contains(pc)) continue;
-                r += (tg.Count == 0 ? "" : ",") + $"{Utils.GetPlayerColor(pc)}";
-                tg.Add(pc);
+                if (targetids.Contains(pc)) continue;
+                Message += (targetids.Count == 0 ? "" : ",") + $"{UtilsName.GetPlayerColor(pc)}";
+                targetids.Add(pc);
             }
-            return r + GetString("Skill.WitchO");
+            return Message + GetString("Skill.WitchO");
         }
         public void SetSpelled(PlayerControl target)
         {
@@ -187,11 +187,11 @@ namespace TownOfHost.Roles.Impostor
             }
         }
         public bool UseOneclickButton => NowSwitchTrigger is SwitchTrigger.OnPhantom or SwitchTrigger.WitchOcButton;
-        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
         {
             if (NowSwitchTrigger is SwitchTrigger.WitchOcButton)
             {
-                fall = false;
+                ResetCoolDown = true;
                 var target = Player.GetKillTarget(true);
                 if (target != null)
                 {
@@ -218,14 +218,14 @@ namespace TownOfHost.Roles.Impostor
                     _ = new LateTask(() => SetSpelled(target), 0.35f, "WhichSetKIll", true);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
-                fall = target is null;
-                resetkillcooldown = target != null;
+                ResetCoolDown = target is not null;
+                AdjustKillCoolDown = target == null;
             }
             else
             if (NowSwitchTrigger is SwitchTrigger.OnPhantom)
             {
-                fall = true;
-                resetkillcooldown = false;
+                ResetCoolDown = false;
+                AdjustKillCoolDown = true;
                 SwitchSpellMode(false);
             }
         }

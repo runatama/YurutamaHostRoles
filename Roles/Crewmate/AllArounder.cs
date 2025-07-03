@@ -88,7 +88,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     }
     #endregion
     #region Meeting
-    public override string MeetingMeg()
+    public override string MeetingAddMessage()
     {
         if (!CanUseAbility() || NowRole is not NowMode.Bakery) return "";
         if (Player.IsAlive())
@@ -128,7 +128,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.Suicide, Player.PlayerId);
             PlayerCatch.GetPlayerById(sourceVotedForId).SetRealKiller(Player);
             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, sourceVotedForId);
-            UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), Utils.GetPlayerColor(Player)));
+            UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), UtilsName.GetPlayerColor(Player)));
         }
         return (votedForId, numVotes, false);
     }
@@ -257,15 +257,15 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         if ((targetroleclass as JackalAlien)?.CheckSheriffKill(target) == true) AlienTairo = true;
         if ((targetroleclass as AlienHijack)?.CheckSheriffKill(target) == true) AlienTairo = true;
 
-        if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsRiaju() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
+        if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsLovers() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
             target.RpcExileV2();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
 
-            UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]");
-            UtilsGameLog.AddGameLogsub($"\n\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>)");
+            UtilsGameLog.AddGameLog($"MeetingSheriff", $"{UtilsName.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]");
+            UtilsGameLog.AddGameLogsub($"\n\t⇐ {UtilsName.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>)");
 
             if (Options.ExHideChatCommand.GetBool())
             {
@@ -279,10 +279,10 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
                 MeetingHudPatch.StartPatch.Serialize = false;
             }
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{OptionSheriffShotLimit.GetInt() - NowCount}", "AllArounder");
-            Utils.SendMessage(Utils.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
+            Utils.SendMessage(UtilsName.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
             {
-                Utils.SendMessage(string.Format(GetString("MMeetingKill"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
+                Utils.SendMessage(string.Format(GetString("MMeetingKill"), UtilsName.GetPlayerColor(Player, true), UtilsName.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
             }
 
             MeetingVoteManager.ResetVoteManager(target.PlayerId);
@@ -295,8 +295,8 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
                             (target.Is(CustomRoles.AlienHijack) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire));
         MyState.SetDead();
 
-        UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
-        UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>)");
+        UtilsGameLog.AddGameLog($"MeetingSheriff", $"{UtilsName.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
+        UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{UtilsName.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>)");
 
         if (Options.ExHideChatCommand.GetBool())
         {
@@ -310,10 +310,10 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             MeetingHudPatch.StartPatch.Serialize = false;
         }
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{OptionSheriffShotLimit.GetInt() - NowCount}", "AllArounder");
-        Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
+        Utils.SendMessage(UtilsName.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
         foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
         {
-            Utils.SendMessage(string.Format(GetString("MMeetingKillfall"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
+            Utils.SendMessage(string.Format(GetString("MMeetingKillfall"), UtilsName.GetPlayerColor(Player, true), UtilsName.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
         }
 
         MeetingVoteManager.ResetVoteManager(Player.PlayerId);
@@ -432,7 +432,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             }
             _ = new LateTask(() =>
             {
-                if (GameStates.Meeting || !Player.IsAlive())
+                if (GameStates.CalledMeeting || !Player.IsAlive())
                 {
                     Logger.Info($"{info?.AppearanceTarget?.Data?.GetLogPlayerName() ?? "???"}のフラッシュを受け取ろうとしたけどなんかし防いだぜ", "AllArounder");
                     return;
@@ -480,7 +480,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         MeetingCount = 0;
         NowCount = 0;
         UsedSkillCount = 0;
-        AddS(Player);
+        AddSelfVotes(Player);
     }
     void SetRole()
     {
@@ -621,12 +621,12 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     int TMTask;
     enum OptionName
     {
-        AllArounderRandomBait, BaitChien, Baitsaidaichien,
+        AllArounderRandomBait, BaitReportDelay, BaitMaxDelay,
         AllArounderRandomInsender,
         AllArounderRandomBakery,
         AllArounderRandomDicator,
         AllArounderRandomLighter,
-        AllArounderRandomMeetingSheriff, SheriffShotLimit, MeetingSheriffCanKillMadMate, MeetingSheriffCanKillNeutrals, meetingmc, SheriffCanKillLovers,
+        AllArounderRandomMeetingSheriff, SheriffShotLimit, MeetingSheriffCanKillMadMate, MeetingSheriffCanKillNeutrals, SheriffCanKillLovers,
         AllArounderRandomsabotageMaster, SabotageMasterSkillLimit,
         AllArounderRandomSeer, SeerMindelay, SeerMaxdelay,
         AllArounderRandomTimeManager, TimeManagerIncreaseMeetingTime,
@@ -642,9 +642,9 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         RandomBait = IntegerOptionItem.Create(RoleInfo, 12, OptionName.AllArounderRandomBait, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RandomInsender = IntegerOptionItem.Create(RoleInfo, 13, OptionName.AllArounderRandomInsender, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         {
-            OptChien = FloatOptionItem.Create(RoleInfo, 14, OptionName.BaitChien, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
+            OptChien = FloatOptionItem.Create(RoleInfo, 14, OptionName.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
             .SetCansee(() => RandomBait.GetBool() || RandomInsender.GetBool());
-            OptSaiaichien = FloatOptionItem.Create(RoleInfo, 15, OptionName.Baitsaidaichien, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
+            OptSaiaichien = FloatOptionItem.Create(RoleInfo, 15, OptionName.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
             .SetCansee(() => RandomBait.GetBool() || RandomInsender.GetBool());
         }
         RandomBakery = IntegerOptionItem.Create(RoleInfo, 16, OptionName.AllArounderRandomBakery, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
@@ -657,7 +657,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             OptionMeetingSheriffCanKillMadMate = BooleanOptionItem.Create(RoleInfo, 21, OptionName.MeetingSheriffCanKillMadMate, true, false, RandomMeetingSheriff);
             OptionMeetingSheriffCanKillNeutrals = BooleanOptionItem.Create(RoleInfo, 22, OptionName.MeetingSheriffCanKillNeutrals, true, false, RandomMeetingSheriff);
             OptionMeetingSheriffCanKillLovers = BooleanOptionItem.Create(RoleInfo, 23, OptionName.SheriffCanKillLovers, true, false, RandomMeetingSheriff);
-            Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 24, OptionName.meetingmc, new(0f, 99f, 1f), 0f, false, RandomMeetingSheriff, infinity: true)
+            Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 24, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, RandomMeetingSheriff, infinity: true)
                 .SetValueFormat(OptionFormat.Times);
         }
         RandomSabotageMaster = IntegerOptionItem.Create(RoleInfo, 25, OptionName.AllArounderRandomsabotageMaster, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);

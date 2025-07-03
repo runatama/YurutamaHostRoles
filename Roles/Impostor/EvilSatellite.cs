@@ -31,22 +31,22 @@ public sealed class EvilSatellite : RoleBase, IImpostor
     )
     {
         CustomRoleManager.OnFixedUpdateOthers.Add(OnFixedUpdateOthers);
-        AllAlivePlayerKeiro.Clear();
-        SendPlayerkeiro.Clear();
-        AllAlivePlayerLast.Clear();
+        AllAlivePlayerRoute.Clear();
+        SentPlayerId.Clear();
+        AllAlivePlayerLastRoom.Clear();
         foreach (var pc in PlayerCatch.AllPlayerControls)
         {
-            List<SystemTypes> keiro = new();
-            if (!AllAlivePlayerKeiro.TryAdd(pc.PlayerId, keiro)) AllAlivePlayerKeiro[pc.PlayerId] = keiro;
+            List<SystemTypes> Route = new();
+            if (!AllAlivePlayerRoute.TryAdd(pc.PlayerId, Route)) AllAlivePlayerRoute[pc.PlayerId] = Route;
         }
         usecount = OptionMax.GetInt();
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem OptionRandom;
     static OptionItem OptionMax;
-    static Dictionary<byte, List<SystemTypes>> AllAlivePlayerKeiro = new();
-    static Dictionary<byte, SystemTypes> AllAlivePlayerLast = new();
-    static Dictionary<byte, List<SystemTypes>> SendPlayerkeiro = new();
+    static Dictionary<byte, List<SystemTypes>> AllAlivePlayerRoute = new();
+    static Dictionary<byte, SystemTypes> AllAlivePlayerLastRoom = new();
+    static Dictionary<byte, List<SystemTypes>> SentPlayerId = new();
     static HashSet<EvilSatellite> EvilSatellites = new();
     public override bool CanUseAbilityButton() => GameStates.IsMeeting;
     int usecount;
@@ -66,9 +66,9 @@ public sealed class EvilSatellite : RoleBase, IImpostor
     }
     public override void AfterMeetingTasks()
     {
-        AllAlivePlayerKeiro.Clear();
-        SendPlayerkeiro.Clear();
-        AllAlivePlayerLast.Clear();
+        AllAlivePlayerRoute.Clear();
+        SentPlayerId.Clear();
+        AllAlivePlayerLastRoom.Clear();
     }
     public static void OnFixedUpdateOthers(PlayerControl player)
     {
@@ -79,17 +79,17 @@ public sealed class EvilSatellite : RoleBase, IImpostor
         if (!PlayerState.GetByPlayerId(player.PlayerId).HasSpawned) return;
         var nowroom = player.GetPlainShipRoom();
         if (nowroom == null) return;//ぬるぽならｶﾞｯ
-        if (AllAlivePlayerLast.TryGetValue(player.PlayerId, out var lastroom))
+        if (AllAlivePlayerLastRoom.TryGetValue(player.PlayerId, out var lastroom))
         {
             //位置が変わってないならreturn
             if (lastroom == nowroom.RoomId) return;
         }
         //最後の追加が被らないように
-        if (!AllAlivePlayerLast.TryAdd(player.PlayerId, nowroom.RoomId)) AllAlivePlayerLast[player.PlayerId] = nowroom.RoomId;
+        if (!AllAlivePlayerLastRoom.TryAdd(player.PlayerId, nowroom.RoomId)) AllAlivePlayerLastRoom[player.PlayerId] = nowroom.RoomId;
         //経路リストに追加
-        if (AllAlivePlayerKeiro.TryGetValue(player.PlayerId, out var keiro))
+        if (AllAlivePlayerRoute.TryGetValue(player.PlayerId, out var keiro))
         {
-            AllAlivePlayerKeiro[player.PlayerId].Add(nowroom.RoomId);
+            AllAlivePlayerRoute[player.PlayerId].Add(nowroom.RoomId);
         }
         else Logger.Error($"{player.name} : AllAlivePlayerKeiroがぬる!", "EvilSatellite");
     }
@@ -106,7 +106,7 @@ public sealed class EvilSatellite : RoleBase, IImpostor
                 if (status is VoteStatus.Skip)
                     Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                 if (status is VoteStatus.Vote)
-                    SendPlayerKeiro(votedForId);
+                    SendPlayerRoute(votedForId);
                 SetMode(Player, status is VoteStatus.Self);
                 return false;
             }
@@ -119,39 +119,39 @@ public sealed class EvilSatellite : RoleBase, IImpostor
         seen ??= seer;
         if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability())
         {
-            var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
-            return isForHud ? mes : $"<size=40%>{mes}</size>";
+            var voteinfo = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
+            return isForHud ? voteinfo : $"<size=40%>{voteinfo}</size>";
         }
         return "";
     }
-    public void SendPlayerKeiro(byte playerid)
+    public void SendPlayerRoute(byte playerid)
     {
-        if (AllAlivePlayerKeiro.TryGetValue(playerid, out var keirolist))
+        if (AllAlivePlayerRoute.TryGetValue(playerid, out var Routelist))
         {
             //送信済みではない時
-            if (!SendPlayerkeiro.TryGetValue(playerid, out var sendlist))
+            if (!SentPlayerId.TryGetValue(playerid, out var sentlist))
             {
                 //設定回数と同じor多いともう使えない
                 if (usecount <= 0) return;
                 usecount--;
-                List<SystemTypes> spk = new(!OptionRandom.GetBool() ? keirolist.ToArray() : keirolist.OrderBy(x => Guid.NewGuid()).ToArray());
-                if (!SendPlayerkeiro.TryAdd(playerid, spk)) SendPlayerkeiro[playerid] = spk;
-                sendlist = spk;
+                List<SystemTypes> spk = new(!OptionRandom.GetBool() ? Routelist.ToArray() : Routelist.OrderBy(x => Guid.NewGuid()).ToArray());
+                if (!SentPlayerId.TryAdd(playerid, spk)) SentPlayerId[playerid] = spk;
+                sentlist = spk;
             }
-            var sendtex = "<size=60%><line-height=80%>";
-            var c = 0;
-            var co = 0;
-            foreach (var send in sendlist)
+            var sendtext = "<size=60%><line-height=80%>";
+            var index = 0;
+            var count = 0;
+            foreach (var send in sentlist)
             {
-                sendtex += GetString($"{send}") + (sendlist.Count == (co + 1) ? "" : (OptionRandom.GetBool() ? "・" : " → ")) + (c > 3 ? "\n" : "");
-                if (c > 3) c = 0;
-                c++;
-                co++;
+                sendtext += GetString($"{send}") + (sentlist.Count == (count + 1) ? "" : (OptionRandom.GetBool() ? "・" : " → ")) + (count > 3 ? "\n" : "");
+                if (index > 3) index = 0;
+                index++;
+                count++;
             }
-            sendtex += string.Format(GetString("EvilSateliteShepeInfo"), Utils.GetPlayerColor(playerid));
-            if (OptionRandom.GetBool()) sendtex += GetString("EvilSateliteShepeInfo2");
-            sendtex += string.Format(GetString("EvilSateliteShepeInfo3"), usecount);
-            Utils.SendMessage(sendtex, Player.PlayerId, string.Format($"<color=#ff1919>{GetString("EvilSateliteShepeInfoTitle")}</color>", Utils.GetPlayerColor(playerid)));
+            sendtext += string.Format(GetString("EvilSateliteShepeInfo"), UtilsName.GetPlayerColor(playerid));
+            if (OptionRandom.GetBool()) sendtext += GetString("EvilSateliteShepeInfo2");
+            sendtext += string.Format(GetString("EvilSateliteShepeInfo3"), usecount);
+            Utils.SendMessage(sendtext, Player.PlayerId, string.Format($"<color=#ff1919>{GetString("EvilSateliteShepeInfoTitle")}</color>", UtilsName.GetPlayerColor(playerid)));
         }
     }
     public override string GetProgressText(bool comms = false, bool GameLog = false) => $"<color=#ff1919>({usecount})</color>";

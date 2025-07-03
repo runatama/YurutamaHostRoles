@@ -31,93 +31,92 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
         DefaultCooldown = OptionMagicCooldown.GetFloat();
         Maximum = OptionMaximum.GetFloat();
         Radius = OptionRadius.GetFloat();
-        show = OptionShow.GetBool();
-        rt = OptionRt.GetFloat();
-        ResetM = OptionResetM.GetBool();
-        ResetL = OptionResetL.GetBool();
+        ShowDeadbody = OptionShowDeadbody.GetBool();
+        MagicUseKillCount = OptionMagicUseKillCount.GetInt();
+        ResetKillCount = OptionResetKillCount.GetBool();
+        ResetMagicTarget = OptionResetMagicTarget.GetBool();
         MagicCooldown = DefaultCooldown;
-        count = 0;
-        killc = 0;
-        KillList.Clear();
+        MagicCount = 0;
+        HaveKillCount = 0;
+        MagicTarget.Clear();
     }
 
     static OptionItem OptionMagicCooldown;
     static OptionItem OptionMaximum;
     static OptionItem OptionRadius;
-    static OptionItem OptionShow;
-    static OptionItem OptionRt;
-    static OptionItem OptionResetM;
-    static OptionItem OptionResetL;
+    static OptionItem OptionShowDeadbody;
+    static OptionItem OptionMagicUseKillCount;
+    static OptionItem OptionResetKillCount;
+    static OptionItem OptionResetMagicTarget;
 
     float MagicCooldown;
     float DefaultCooldown;
     float Maximum;
     float Radius;
-    bool show; //会議で死亡してるかを表示するか
-    float rt; //必要なキル数
-    bool ResetM; //←↓会議後リセットするかの設定 | キル数
-    bool ResetL;// マジックで消す予定の人
+    bool ShowDeadbody; //会議で死亡してるかを表示するか
+    int MagicUseKillCount; //必要なキル数
+    bool ResetKillCount; //←↓会議後リセットするかの設定 | キル数
+    bool ResetMagicTarget;// マジックで消す予定の人
 
-    float count;
-    float killc;
-    List<byte> KillList = new();
+    float MagicCount;
+    int HaveKillCount;
+    List<byte> MagicTarget = new();
 
     enum Option
     {
-        Cooldown,
         MagicianMaximum,
         MagicianRadius,
-        MagicianShowD,
-        MagicianrtM,
-        MagicianResetM,
-        MagicianResetL,
+        MagicianShowDeadbody,
+        MagicianMagicUseKillCount,
+        MagicianResetKillCount,
+        MagicianResetMagicTarget,
     }
 
     public static void SetupOptionItem()
     {
-        OptionMagicCooldown = FloatOptionItem.Create(RoleInfo, 10, Option.Cooldown, new FloatValueRule(0, 120, 1), 15, false)
+        OptionMagicCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new FloatValueRule(0, 120, 1), 15, false)
             .SetValueFormat(OptionFormat.Seconds);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.MagicianMaximum, new FloatValueRule(0, 99, 1), 3, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
         OptionRadius = FloatOptionItem.Create(RoleInfo, 12, Option.MagicianRadius, new(0.5f, 3f, 0.5f), 1.5f, false)
             .SetValueFormat(OptionFormat.Multiplier);
-        OptionRt = FloatOptionItem.Create(RoleInfo, 13, Option.MagicianrtM, new FloatValueRule(0, 99, 1), 1, false)
+        OptionMagicUseKillCount = IntegerOptionItem.Create(RoleInfo, 13, Option.MagicianMagicUseKillCount, new(0, 99, 1), 1, false)
         .SetValueFormat(OptionFormat.Players);
-        OptionShow = BooleanOptionItem.Create(RoleInfo, 14, Option.MagicianShowD, false, false);
-        OptionResetM = BooleanOptionItem.Create(RoleInfo, 15, Option.MagicianResetM, true, false);
-        OptionResetL = BooleanOptionItem.Create(RoleInfo, 16, Option.MagicianResetL, false, false);
+        OptionShowDeadbody = BooleanOptionItem.Create(RoleInfo, 14, Option.MagicianShowDeadbody, false, false);
+        OptionResetKillCount = BooleanOptionItem.Create(RoleInfo, 15, Option.MagicianResetKillCount, true, false);
+        OptionResetMagicTarget = BooleanOptionItem.Create(RoleInfo, 16, Option.MagicianResetMagicTarget, false, false);
     }
 
     public override void AfterMeetingTasks()
     {
-        if (ResetM) killc = 0;
-        if (ResetL) KillList.Clear();
+        if (ResetKillCount) HaveKillCount = 0;
+        if (ResetMagicTarget) MagicTarget.Clear();
         //クールダウンリセット
-        if (count >= Maximum && Maximum != 0)
+        if (Maximum <= MagicCount && Maximum > 0)
             MagicCooldown = 999;
         else
             MagicCooldown = DefaultCooldown;
     }
 
-    public void OnMurderPlayerAsKiller(MurderInfo info) => killc++;
-    bool IUsePhantomButton.IsPhantomRole => count < Maximum || Maximum is 0;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnMurderPlayerAsKiller(MurderInfo info) => HaveKillCount++;
+    bool IUsePhantomButton.IsPhantomRole => MagicCount < Maximum || Maximum is 0;
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = true;
-        if (count >= Maximum && Maximum != 0) return;
-        fall = false;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = false;
+        if (Maximum <= MagicCount && Maximum > 0) return;
+        ResetCoolDown = true;
         Dictionary<PlayerControl, float> distance = new();
         float dis;
         bool check = false;
-        foreach (var p in PlayerCatch.AllAlivePlayerControls)
+        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
-            if (p.Is(CustomRoles.King)) continue;
-            dis = Vector2.Distance(Player.transform.position, p.transform.position);
+            if (pc.Is(CustomRoles.King)) continue;
+            dis = Vector2.Distance(Player.transform.position, pc.transform.position);
             //↑プレイヤーとの距離 ↓自分以外、で近くにいて 既にターゲットにされていないか
-            if (p.PlayerId != Player.PlayerId && dis < Radius && !KillList.Contains(p.PlayerId) && !p.GetCustomRole().IsImpostor())
+            if (pc.PlayerId != Player.PlayerId && dis < Radius && !MagicTarget.Contains(pc.PlayerId) && !pc.GetCustomRole().IsImpostor())
             {
-                distance.Add(p, dis);
+                distance.Add(pc, dis);
             }
         }
         if (distance.Count != 0)
@@ -125,11 +124,11 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
             var min = distance.OrderBy(c => c.Value).FirstOrDefault();
             var target = min.Key;
 
-            count++;
-            check = (count >= Maximum && Maximum != 0) || MagicCooldown != DefaultCooldown;
-            KillList.Add(target.PlayerId);
+            MagicCount++;
+            check = (Maximum <= MagicCount && Maximum > 0) || MagicCooldown != DefaultCooldown;
+            MagicTarget.Add(target.PlayerId);
             Player.RpcProtectedMurderPlayer(target);
-            MagicCooldown = (count >= Maximum && Maximum != 0) ? 999 : DefaultCooldown;
+            MagicCooldown = (Maximum <= MagicCount && Maximum > 0) ? 999 : DefaultCooldown;
             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.1f);
         }
         else
@@ -147,27 +146,29 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (KillList.Count == 0 || killc < rt) return;
-        foreach (var id in KillList)
+        if (MagicTarget.Count == 0 || HaveKillCount < MagicUseKillCount) return;
+        foreach (var id in MagicTarget)
         {
             var target = PlayerCatch.GetPlayerById(id);
             if (!target.IsAlive()) continue;
             var state = PlayerState.GetByPlayerId(target.PlayerId);
             Player.RpcProtectedMurderPlayer(target);
-            if (!show)
-                target.RpcExileV2();
-            else
+            if (ShowDeadbody)
             {
                 var position = target.transform.position;
                 target.RpcSnapToForced(new Vector2(9999f, 9999f));
                 target.RpcMurderPlayer(target, true);
                 _ = new LateTask(() => target.RpcSnapToForced(position), 0.5f);
             }
+            else
+            {
+                target.RpcExileV2();
+            }
             state.DeathReason = CustomDeathReason.Magic;
             state.SetDead();
         }
-        KillList.Clear();
-        killc -= rt;
+        MagicTarget.Clear();
+        HaveKillCount -= MagicUseKillCount;
         Player.SetKillCooldown();
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.1f);
     }
@@ -181,11 +182,11 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
 
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
-        if (Maximum == 0 && rt == 0) return "";
+        if (Maximum == 0 && MagicUseKillCount == 0) return "";
         var text = "(";
-        if (Maximum != 0) text += Maximum - count;
-        if (rt != 0) text += (Maximum != 0 ? " | " : "") + $"{killc}/{rt}";
-        var color = killc < rt ? Color.yellow : count < Maximum && Maximum != 0 ? Color.red : Color.gray;
+        if (Maximum != 0) text += Maximum - MagicCount;
+        if (MagicUseKillCount > 0) text += (Maximum > 0 ? " | " : "") + $"{HaveKillCount}/{MagicUseKillCount}";
+        var color = HaveKillCount < MagicUseKillCount ? Color.yellow : MagicCount < Maximum && Maximum > 0 ? Color.red : Color.gray;
         return Utils.ColorString(color, text + ")");
     }
     public override void ApplyGameOptions(IGameOptions opt)

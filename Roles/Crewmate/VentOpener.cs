@@ -115,10 +115,10 @@ public sealed class VentOpener : RoleBase
             if (pc == null) continue;
             var role = pc.GetCustomRole();
             if (pc.inVent //ベントに入ってるか ↓設定とかのチェック
-                 && ((role.IsImpostor() && Imp)
-                 || (role.IsMadmate() && Mad)
-                 || (role.IsCrewmate() && Crew)
-                 || (role.IsNeutral() && Neutral)))
+                && ((role.IsImpostor() && Imp)
+                || (role.IsMadmate() && Mad)
+                || (role.IsCrewmate() && Crew)
+                || (role.IsNeutral() && Neutral)))
             {
                 pc.MyPhysics?.RpcBootFromVent(id);
                 check = true;
@@ -158,7 +158,7 @@ public sealed class VentOpener : RoleBase
         count = reader.ReadInt32();
     }
 
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Defo ? "" : Utils.ColorString(CanUseAbility ? RoleInfo.RoleColor : IsTaskCompleted ? Color.red : Color.gray, $"({count})");
     public bool CanUseAbility => (Defo || count > 0) && IsTaskCompleted;
     public bool IsTaskCompleted => MyTaskState.HasCompletedEnoughCountOfTasks(taskc);

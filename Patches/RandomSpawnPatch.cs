@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Impostor;
 using TownOfHost.Roles.Neutral;
 using TownOfHost.Roles.AddOns.Common;
+using TownOfHost.Modules;
 
 namespace TownOfHost
 {
@@ -128,32 +129,6 @@ namespace TownOfHost
                         }
                     }
                 }
-                /*
-                if (GameStates.IsInTask)
-                {
-                    var player = PlayerCatch.AllPlayerControls.Where(p => p.NetTransform == __instance).FirstOrDefault();
-                    if (player == null)
-                    {
-                        Logger.Warn("プレイヤーがnullです", "RandomSpawn");
-                        return false;
-                    }
-                    if (player.Is(CustomRoles.GM)) return false; // GMは対象外に
-
-                    // AntiTeleporterの場合、ランダムスポーンの処理をスキップ
-                    if (player.Is(CustomRoles.AntiTeleporter))
-                    {
-                        return false; // ランダムスポーンを無効にする
-                    }
-
-                    NumOfTP[player.PlayerId]++;
-
-                    if (NumOfTP[player.PlayerId] == 2)
-                    {
-                        if (Main.NormalOptions.MapId != 4) return false; // マップがエアシップじゃなかったらreturn
-                        player.RpcResetAbilityCooldown();
-                        if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
-                    }
-                }*/
                 return true;
             }
             public static void TP(CustomNetworkTransform nt, Vector2 location)
@@ -246,9 +221,9 @@ namespace TownOfHost
                 //最初のスポーンと判定
                 var roleClass = player.GetRoleClass();
                 roleClass?.OnSpawn(MeetingStates.FirstMeeting);
-                if (Options.SuddenKillcooltime.GetBool() && Modules.SuddenDeathMode.NowSuddenDeathMode)
+                if (SuddenDeathMode.SuddenKillcooltime.GetBool() && Modules.SuddenDeathMode.NowSuddenDeathMode)
                 {
-                    PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.SuddenKillcooltime.GetFloat(), delay: true));
+                    PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(SuddenDeathMode.SuddenKillcooltime.GetFloat(), delay: true));
                 }
                 else
                 {
@@ -399,7 +374,6 @@ namespace TownOfHost
             Options.RandomSpawnFunglePrecipice = BooleanOptionItem.Create(103520, SpawnPoint.Precipice, false, TabGroup.MainSettings, false).SetParent(Options.RandomSpawnFungle).SetGameMode(CustomGameMode.All);
 
             // CustomSpawn
-            //Map6が来たときは終わり。どうにかしよう。
             Options.CustomSpawn = BooleanOptionItem.Create(105900, "CustomSpawn", false, TabGroup.MainSettings, false).SetColor(Color.yellow).SetParent(Options.EnableRandomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnCustom1 = BooleanOptionItem.Create(105901, SpawnPoint.Custom1, false, TabGroup.MainSettings, false).SetParent(Options.CustomSpawn).SetGameMode(CustomGameMode.All);
             Options.RandomSpawnCustom2 = BooleanOptionItem.Create(105902, SpawnPoint.Custom2, false, TabGroup.MainSettings, false).SetParent(Options.CustomSpawn).SetGameMode(CustomGameMode.All);
@@ -418,16 +392,16 @@ namespace TownOfHost
             public abstract Dictionary<OptionItem, Vector2> Positions { get; }
             public virtual void RandomTeleport(PlayerControl player)
             {
-                var r = "";
+                var roomtext = "";
                 Teleport(player, true);
-                var pos = GetLocation(ref r, false);
+                var pos = GetLocation(ref roomtext, false);
                 if (!NextSporn.ContainsKey(player.PlayerId))
                     NextSporn.Add(player.PlayerId, pos);
                 else NextSporn[player.PlayerId] = pos;
 
                 if (!NextSpornName.ContainsKey(player.PlayerId))
-                    NextSpornName.Add(player.PlayerId, r);
-                else NextSpornName[player.PlayerId] = r;
+                    NextSpornName.Add(player.PlayerId, roomtext);
+                else NextSpornName[player.PlayerId] = roomtext;
             }
             public virtual void FirstTeleport(PlayerControl player)
             {
@@ -435,8 +409,8 @@ namespace TownOfHost
             }
             private void Teleport(PlayerControl player, bool isRadndom)
             {
-                var r = "";
-                var location = GetLocation(ref r, !isRadndom);
+                var roomtext = "";
+                var location = GetLocation(ref roomtext, !isRadndom);
                 if (NextSporn.ContainsKey(player.PlayerId))
                 {
                     location = NextSporn[player.PlayerId];
@@ -449,11 +423,11 @@ namespace TownOfHost
                 player.RpcSnapToForced(location);
             }
 
-            public Vector2 GetLocation(ref string room, bool first = false)
+            public Vector2 GetLocation(ref string roomtext, bool first = false)
             {
                 List<Vector2> EnableLocations = new();
-                foreach (var p in Positions.Where(o => o.Key.GetBool()))
-                    EnableLocations.Add(p.Value);
+                foreach (var data in Positions.Where(o => o.Key.GetBool()))
+                    EnableLocations.Add(data.Value);
                 if (AddCustomSpawnPoint() != null)
                 {
                     EnableLocations.AddRange(AddCustomSpawnPoint());
@@ -462,12 +436,12 @@ namespace TownOfHost
                 if (first) return locations[0];
                 var location = locations.OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
                 {
-                    room = "";
+                    roomtext = "";
 
                     if (Positions.ContainsValue(location))
                     {
                         var pos = Positions.Where(x => x.Value == location).FirstOrDefault();
-                        room = Translator.GetString(pos.Key.Name, pos.Key.ReplacementDictionary);
+                        roomtext = Translator.GetString(pos.Key.Name, pos.Key.ReplacementDictionary);
                     }
                     else
                     {
@@ -476,8 +450,8 @@ namespace TownOfHost
 
                         var pos = location;
                         if (Rooms != null)
-                            foreach (var r in Rooms)
-                                Distance.Add(r, Vector2.Distance(pos, r.transform.position));
+                            foreach (var room in Rooms)
+                                Distance.Add(room, Vector2.Distance(pos, room.transform.position));
 
                         var roo = Distance.OrderByDescending(x => x.Value).Last().Key;
 
@@ -490,11 +464,11 @@ namespace TownOfHost
                                 var rooo = Distance.OrderByDescending(x => x.Value).Last().Key;
                                 add = Translator.GetString($"{rooo.RoomId}");
                             }
-                            room = $"☆" + add + Translator.GetString($"{roo.RoomId}");
+                            roomtext = $"☆" + add + Translator.GetString($"{roo.RoomId}");
                         }
                         else
                         {
-                            room = Translator.GetString("EDCustomSpawn");
+                            roomtext = Translator.GetString("EDCustomSpawn");
                         }
                     }
                 }

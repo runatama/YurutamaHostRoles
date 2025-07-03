@@ -98,18 +98,18 @@ namespace TownOfHost
                 return false;
             }
         }
-        public static string AllTaskstext(bool kakuritu, bool oomaka, bool meetingdake, bool comms, bool CanSeeComms)
+        public static string AllTaskstext(bool percentage, bool RoughPercentage, bool OnlyMeeting, bool Activecomms, bool CanSeeComms)
         {
             float t1 = 0;
             float t2 = 0;
             float pa = 0;
-            foreach (var p in PlayerCatch.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                var task = PlayerState.GetByPlayerId(p.PlayerId).taskState;
-                if (task.hasTasks && HasTasks(p.Data))
+                var task = PlayerState.GetByPlayerId(pc.PlayerId).taskState;
+                if (task.hasTasks && HasTasks(pc.Data))
                 {
-                    t1 += p.GetPlayerTaskState().AllTasksCount;
-                    t2 += p.GetPlayerTaskState().CompletedTasksCount;
+                    t1 += pc.GetPlayerTaskState().AllTasksCount;
+                    t2 += pc.GetPlayerTaskState().CompletedTasksCount;
                     pa = t2 / t1;//intならぶっこわれる!
                 }
             }
@@ -119,9 +119,9 @@ namespace TownOfHost
             double ret2 = Math.Round(ret);//四捨五入
             double ret3 = ret2 * 10;//10倍してぽんこつに。
 
-            if ((!GameStates.Meeting && meetingdake) || (comms && !CanSeeComms)) return $"<#cee4ae>[??]</color>";
-            else if (!kakuritu) return $"<#cee4ae>[{t2}/{t1}]</color>";
-            else if (oomaka) return $"<#cee4ae>[{ret3}%]</color>";
+            if ((!GameStates.CalledMeeting && OnlyMeeting) || (Activecomms && !CanSeeComms)) return $"<#cee4ae>[??]</color>";
+            else if (!percentage) return $"<#cee4ae>[{t2}/{t1}]</color>";
+            else if (RoughPercentage) return $"<#cee4ae>[{ret3}%]</color>";
             else return $"<#cee4ae>[{ret1}%]</color>";
         }
     }

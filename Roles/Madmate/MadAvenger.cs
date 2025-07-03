@@ -54,7 +54,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
-    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => Options.MadTellOpt();
 
     public static void SetupOptionItem()
     {
@@ -121,7 +121,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     {
         //seenが省略の場合seer
         seen ??= seer;
-        if (GameStates.Meeting) return "";
+        if (GameStates.CalledMeeting) return "";
         //seeおよびseenが自分である場合以外は関係なし
         if (!Is(seer) || !Is(seen)) return "";
 
@@ -131,7 +131,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     {
         if (!Skill) return;
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        UtilsNotifyRoles.MeetingMoji = "<#ff1919><u>★</color>" + GetString("MadAvenger") + "</u>";
+        UtilsNotifyRoles.ExtendedMeetingText = "<#ff1919><u>★</color>" + GetString("MadAvenger") + "</u>";
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 1.0f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 2.5f, "Kakumeikaigi");
         _ = new LateTask(() => Utils.AllPlayerKillFlash(), 4.0f, "Kakumeikaigi");
@@ -175,7 +175,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
                         foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
                         {
-                            Utils.SendMessage(string.Format(GetString("MadAvengerCo"), Utils.GetPlayerColor(pc, true)), go.PlayerId, GetString("RMSKillTitle"));
+                            Utils.SendMessage(string.Format(GetString("MadAvengerCo"), UtilsName.GetPlayerColor(pc, true)), go.PlayerId, GetString("RMSKillTitle"));
                         }
 
                         foreach (var Guessdpc in Guessd)
@@ -218,13 +218,13 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
                             Player.RpcExileV2();
                             MyState.DeathReason = CustomDeathReason.Misfire;
                             MyState.SetDead();
-                            Utils.SendMessage(Utils.GetPlayerColor(Player) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
+                            Utils.SendMessage(UtilsName.GetPlayerColor(Player) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
                             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, 253);
                             hudManager.ShowKillAnimation(Player.Data, Player.Data);
                             SoundManager.Instance.PlaySound(Player.KillSfx, false, 0.8f);
                             foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
                             {
-                                Utils.SendMessage(string.Format(GetString("MadAvengerDie"), Utils.GetPlayerColor(pc, true)), go.PlayerId, GetString("RMSKillTitle"));
+                                Utils.SendMessage(string.Format(GetString("MadAvengerDie"), UtilsName.GetPlayerColor(pc, true)), go.PlayerId, GetString("RMSKillTitle"));
                             }
                             return true;
                         }

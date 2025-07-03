@@ -42,9 +42,9 @@ public static class SabotageSystemTypeUpdateSystemPatch
                 {
                     Main.SabotageType = (SystemTypes)amount;
                     var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
-                    if (!Main.NowSabotage)
-                        UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, false), sb));
-                    Main.NowSabotage = true;
+                    if (!Main.IsActiveSabotage)
+                        UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), UtilsName.GetPlayerColor(player, false), sb));
+                    Main.IsActiveSabotage = true;
                     Main.LastSab = player.PlayerId;
                 }
             }
@@ -64,13 +64,13 @@ public static class SabotageSystemTypeUpdateSystemPatch
         }
         if (AmongUsClient.Instance.AmHost)
         {
-            if (!Main.NowSabotage)
+            if (!Main.IsActiveSabotage)
             {
                 Main.SabotageType = (SystemTypes)amount;
                 var sb = Translator.GetString($"sb.{(SystemTypes)amount}");
 
-                UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), Utils.GetPlayerColor(player, false), sb));
-                Main.NowSabotage = true;
+                UtilsGameLog.AddGameLog($"Sabotage", string.Format(Translator.GetString("Log.Sabotage"), UtilsName.GetPlayerColor(player, false), sb));
+                Main.IsActiveSabotage = true;
                 Main.LastSab = player.PlayerId;
             }
         }

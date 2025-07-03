@@ -16,7 +16,7 @@ namespace TownOfHost.Modules
         {
             CheckVote.Clear();
         }
-        public static void AddS(PlayerControl player)
+        public static void AddSelfVotes(PlayerControl player)
         {
             CheckVote.TryAdd(player.PlayerId, false);
         }
@@ -54,7 +54,7 @@ namespace TownOfHost.Modules
         {
             if (!CheckVote.ContainsKey(player.PlayerId))
             {
-                AddS(player);
+                AddSelfVotes(player);
                 Logger.Info($"×チェックに失敗 {player.PlayerId}を追加しました", "SelfVoteManager");
             }
         }
@@ -67,6 +67,12 @@ namespace TownOfHost.Modules
             if (MadAvenger.Skill) return false;
             if (Options.firstturnmeeting && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return false;
             return true;
+        }
+
+        public enum AbilityVoteMode
+        {
+            NomalVote,
+            SelfVote,
         }
     }
 }

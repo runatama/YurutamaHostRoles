@@ -14,10 +14,6 @@ namespace TownOfHost
     {
         public static int currentPage = 0;
         public static List<string> pages = new();
-        static OptionShower()
-        {
-
-        }
         public static string GetText()
         {
             //初期化
@@ -47,15 +43,15 @@ namespace TownOfHost
                     sb.Append($"<{UtilsRoleText.GetRoleColorCode(CustomRoles.GM)}>{UtilsRoleText.GetRoleName(CustomRoles.GM)}:</color> {Options.EnableGM.GetString()}\n\n");
                     sb.Append(GetString("ActiveRolesList")).Append("<size=90%>");
                     var count = -1;
-                    var co = 0;
-                    var las = "";
-                    var a = Options.CustomRoleSpawnChances.Where(r => r.Key.IsImpostor())?.ToArray();
-                    var b = Options.CustomRoleSpawnChances.Where(r => r.Key.IsMadmate())?.ToArray();
-                    var cc = Options.CustomRoleSpawnChances.Where(r => r.Key.IsCrewmate())?.ToArray();
-                    var d = Options.CustomRoleSpawnChances.Where(r => r.Key.IsNeutral())?.ToArray();
-                    var e = Options.CustomRoleSpawnChances.Where(r => !r.Key.IsImpostor() && !r.Key.IsCrewmate() && !r.Key.IsMadmate() && !r.Key.IsNeutral()).ToArray();
+                    var lines = 0;
+                    var lasttab = "";
+                    var impostorrole = Options.CustomRoleSpawnChances.Where(r => r.Key.IsImpostor())?.ToArray();
+                    var madmaterole = Options.CustomRoleSpawnChances.Where(r => r.Key.IsMadmate())?.ToArray();
+                    var crewmaterole = Options.CustomRoleSpawnChances.Where(r => r.Key.IsCrewmate())?.ToArray();
+                    var neutralrole = Options.CustomRoleSpawnChances.Where(r => r.Key.IsNeutral())?.ToArray();
+                    var otherrole = Options.CustomRoleSpawnChances.Where(r => !r.Key.IsImpostor() && !r.Key.IsCrewmate() && !r.Key.IsMadmate() && !r.Key.IsNeutral()).ToArray();
                     var addoncheck = false;
-                    foreach (var kvp in a.AddRangeToArray(b).AddRangeToArray(cc).AddRangeToArray(d).AddRangeToArray(e))
+                    foreach (var kvp in impostorrole.AddRangeToArray(madmaterole).AddRangeToArray(crewmaterole).AddRangeToArray(neutralrole).AddRangeToArray(otherrole))
                         if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()) //スタンダードか全てのゲームモードで表示する役職
                         {
                             var role = kvp.Key;
@@ -67,61 +63,61 @@ namespace TownOfHost
                                 {
                                     maxtext += $"　[Min : {min}|Max : {max} ]";
                                 }
-                                las = Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n");
+                                lasttab = Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n");
                                 sb.Append(Utils.ColorString(Palette.ImpostorRed, "\n<u>☆Impostors☆" + maxtext + "</u>\n"));
                             }
                             farst = false;
                             if ((!addoncheck && roleType == CustomRoleTypes.Crewmate && role.IsSubRole()) || (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor))
                             {
-                                var s = "";
-                                var c = 0;
-                                var cor = Color.white;
+                                var NowTabText = "";
+                                var rolecount = 0;
+                                var color = Color.white;
                                 if (role.IsSubRole())
                                 {
-                                    s = "☆Add-ons☆";
-                                    c = addon + lover + gorst;
-                                    cor = ModColors.AddonsColor;
+                                    NowTabText = "☆Add-ons☆";
+                                    rolecount = addon + lover + gorst;
+                                    color = ModColors.AddonsColor;
                                     count = -1;
                                     addoncheck = true;
                                 }
                                 else
                                     switch (role.GetCustomRoleTypes())
                                     {
-                                        case CustomRoleTypes.Crewmate: count = -1; s = "☆CrewMates☆"; c = crew; cor = ModColors.CrewMateBlue; break;
-                                        case CustomRoleTypes.Madmate: count = -1; s = "☆MadMates☆"; c = mad; cor = StringHelper.CodeColor("#ff7f50"); break;
-                                        case CustomRoleTypes.Neutral: count = -1; s = "☆Neutrals☆"; c = neu; cor = ModColors.NeutralGray; break;
+                                        case CustomRoleTypes.Crewmate: count = -1; NowTabText = "☆CrewMates☆"; rolecount = crew; color = ModColors.CrewMateBlue; break;
+                                        case CustomRoleTypes.Madmate: count = -1; NowTabText = "☆MadMates☆"; rolecount = mad; color = StringHelper.CodeColor("#ff7f50"); break;
+                                        case CustomRoleTypes.Neutral: count = -1; NowTabText = "☆Neutrals☆"; rolecount = neu; color = ModColors.NeutralGray; break;
                                     }
-                                var maxtext = $"({c})";
+                                var maxtext = $"({rolecount})";
                                 var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                                 if (che && !role.IsSubRole())
                                 {
                                     maxtext += $"　[Min : {min}|Max : {max} ]";
                                 }
-                                las = Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n");
-                                sb.Append(Utils.ColorString(cor, $"\n<u>{s + maxtext}</u>\n"));
+                                lasttab = Utils.ColorString(color, $"\n<u>{NowTabText + maxtext}</u>\n");
+                                sb.Append(Utils.ColorString(color, $"\n<u>{NowTabText + maxtext}</u>\n"));
                                 roleType = role.GetCustomRoleTypes();
                             }
-                            var m = role.IsImpostor() ? Utils.ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? Utils.ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : (role.IsNeutral() ? Utils.ColorString(ModColors.NeutralGray, "Ⓝ") : "<#cccccc>⦿</color>")));
+                            var mark = role.IsImpostor() ? Utils.ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? Utils.ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : (role.IsNeutral() ? Utils.ColorString(ModColors.NeutralGray, "Ⓝ") : "<#cccccc>⦿</color>")));
 
-                            if (role.IsBuffAddon()) m = Utils.AdditionalWinnerMark;
-                            if (role.IsRiaju()) m = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Lovers), "♥");
-                            if (role.IsDebuffAddon()) m = Utils.ColorString(Palette.DisabledGrey, "☆");
-                            if (role.IsGhostRole()) m = "<#8989d9>■</color>";
+                            if (role.IsBuffAddon()) mark = Utils.AdditionalWinnerMark;
+                            if (role.IsLovers()) mark = Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Lovers), "♥");
+                            if (role.IsDebuffAddon()) mark = Utils.ColorString(Palette.DisabledGrey, "☆");
+                            if (role.IsGhostRole()) mark = "<#8989d9>■</color>";
 
-                            if (count == 0) sb.Append($"\n{m}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
-                            else if (count == -1) sb.Append($"{m}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
-                            else sb.Append($"<pos=39%>{m}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
+                            if (count == 0) sb.Append($"\n{mark}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else if (count == -1) sb.Append($"{mark}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}");
+                            else sb.Append($"<pos=39%>{mark}{UtilsRoleText.GetCombinationName(kvp.Key)}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}</pos>");
 
-                            if (count == 0) co++;
+                            if (count == 0) lines++;
                             count = count is 0 or -1 ? 1 : 0;
 
-                            if (co >= 27)
+                            if (lines >= 27)
                             {
-                                co = 0;
+                                lines = 0;
                                 count = -1;
                                 pages.Add(sb.ToString() + "\n\n");
                                 sb.Clear();
-                                sb.Append("<size=90%>" + las);
+                                sb.Append("<size=90%>" + lasttab);
                             }
                         }
                     pages.Add(sb.ToString() + "\n\n</size>");
@@ -193,7 +189,7 @@ namespace TownOfHost
                         case "GiveGuesser": continue;
                         case "GiveWatching": continue;
                         case "GiveManagement": continue;
-                        case "Giveseeing": continue;
+                        case "GiveSeeing": continue;
                         case "GiveAutopsy": continue;
                         case "GiveTiebreaker": continue;
                         case "GiveMagicHand": continue;
@@ -286,7 +282,7 @@ namespace TownOfHost
                     case "GiveGuesser": return false;
                     case "GiveWatching": return false;
                     case "GiveManagement": return false;
-                    case "Giveseeing": return false;
+                    case "GiveSeeing": return false;
                     case "GiveAutopsy": return false;
                     case "GiveTiebreaker": return false;
                     case "GiveMagicHand": return false;

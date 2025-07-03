@@ -40,10 +40,10 @@ namespace TownOfHost
             {
                 if (Options.DisableDevices.GetBool()) { SendMessage(GetString("DisableDevicesInfo"), PlayerId); }
                 if (Options.SyncButtonMode.GetBool()) { SendMessage(GetString("SyncButtonModeInfo"), PlayerId); }
-                if (Options.SabotageTimeControl.GetBool()) { SendMessage(GetString("SabotageTimeControlInfo"), PlayerId); }
+                if (Options.SabotageActivetimerControl.GetBool()) { SendMessage(GetString("SabotageActivetimerControlInfo"), PlayerId); }
                 if (Options.RandomMapsMode.GetBool()) { SendMessage(GetString("RandomMapsModeInfo"), PlayerId); }
                 if (Options.InsiderMode.GetBool()) { SendMessage(GetString("InsiderModeInfo"), PlayerId); }
-                if (Options.SuddenDeathMode.GetBool()) { SendMessage(GetString("SuddenDeathInfo"), PlayerId); }
+                if (SuddenDeathMode.SuddenDeathModeActive.GetBool()) { SendMessage(GetString("SuddenDeathInfo"), PlayerId); }
                 if (Options.IsStandardHAS) { SendMessage(GetString("StandardHASInfo"), PlayerId); }
                 if (Options.EnableGM.GetBool()) { SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId); }
                 foreach (var role in CustomRolesHelper.AllStandardRoles)
@@ -88,7 +88,7 @@ namespace TownOfHost
                     sb.Append($"<size=30%>{GetString("HideAndSeekInfo")}</size>\n");
                     break;
                 case CustomGameMode.Standard:
-                    if (Options.SuddenDeathMode.GetBool())
+                    if (SuddenDeathMode.SuddenDeathModeActive.GetBool())
                     {
                         sb.Append($"<size=30%>{GetString("SuddenDeathInfo")}</size>\n");
                     }
@@ -152,7 +152,7 @@ namespace TownOfHost
                         if (role.IsMadmate()) mark = "Ⓜ";
                         if (role.IsAddOn() || role is CustomRoles.Amanojaku or CustomRoles.Twins) mark = "Ⓐ";
                         if (role.IsGhostRole()) mark = "Ⓖ";
-                        if (role.IsRiaju()) mark = "Ⓛ";
+                        if (role.IsLovers()) mark = "Ⓛ";
 
                         sb.Append($"\n<{GetRoleColorCode(role, true)}><u>{mark}{UtilsRoleText.GetCombinationName(role, false)}</color></u>×{role.GetCount()}\n\n");
                         if (!(role is CustomRoles.Alien or CustomRoles.JackalAlien or CustomRoles.AllArounder)) ShowChildrenSettings(Options.CustomRoleSpawnChances[role], ref sb, 1);
@@ -190,9 +190,9 @@ namespace TownOfHost
                     }
                     else
                     {
-                        var s = new StringBuilder();
-                        ShowChildrenSettings(opt, ref s, 1, getbool: true);
-                        if (s.ToString().RemoveHtmlTags() == "" && opt.Children.Count != 0) continue;
+                        var subsb = new StringBuilder();
+                        ShowChildrenSettings(opt, ref subsb, 1, getbool: true);
+                        if (subsb.ToString().RemoveHtmlTags() == "" && opt.Children.Count != 0) continue;
                         if (opt.Name is "RoleAssigningAlgorithm" or "LimitMeetingTime" or "LowerLimitVotingTime")
                             sb.Append($"\n▶{opt.GetName(true)}: {opt.GetString().RemoveSN()}\n");
                         else
@@ -201,7 +201,7 @@ namespace TownOfHost
                         else
                         if (opt.Name is "KickModClient" or "KickPlayerFriendCodeNotExist" or "ApplyDenyNameList" or "ApplyBanList")
                             sb.Append($"\n◆{opt.GetName(true)}\n");
-                        else if (opt.Name is "TaskBattleSet" or "ONspecialMode" or "ExperimentalMode" or "MadmateOption" or "GRRoleOptions"
+                        else if (opt.Name is "TaskBattleSet" or "ONspecialMode" or "ExperimentalMode" or "MadmateOption" or "GhostRoleOptions"
                                 or "MapModification" or "Sabotage" or "RandomMapsMode" or "GhostOptions" or "MeetingAndVoteOpt" or "DevicesOption" or "ConvenientOptions")
                             sb.Append($"\n■{opt.GetName(false)}\n");
                         else sb.Append($"\n・{opt.GetName(true)}\n");
@@ -217,7 +217,7 @@ namespace TownOfHost
         {
             if (sb.ToString().RemoveHtmlTags() == "") return;
 
-            //2Byte文字想定で1000byt越えるならページを変える
+            //2Byte文字想定で600byt越えるならページを変える
             if (force || sb.Length > 600)
             {
                 SendMessage(sb.ToString(), PlayerId, title);
@@ -244,9 +244,9 @@ namespace TownOfHost
                     sort.Add(date.Key, date.Value.OptionWin.GetInt());
                 }
             }
-            foreach (var s in sort.OrderBy(x => x.Value))
+            foreach (var data in sort.OrderBy(x => x.Value))
             {
-                sb += $"\n" + UtilsRoleText.GetCombinationName(s.Key, true) + $"{s.Value}";
+                sb += $"\n" + UtilsRoleText.GetCombinationName(data.Key, true) + $"{data.Value}";
             }
             SendMessage(sb, PlayerId);
         }
@@ -292,7 +292,7 @@ namespace TownOfHost
             if (m.RemoveHtmlTags() != "")
                 SendMessage(m, PlayerId);
         }
-        public static string tmpRole()
+        public static string TmpRole()
         {
             var sb = new StringBuilder().AppendFormat("<line-height={0}>", ActiveSettingsLineHeight);
             sb.AppendFormat("<size={0}>", "70%");
@@ -363,22 +363,22 @@ namespace TownOfHost
                         if (role.GetCustomRoleTypes() != roleType && role.GetCustomRoleTypes() != CustomRoleTypes.Impostor)
                         {
                             nowcount = 3;
-                            var s = "";
-                            var c = 0;
-                            var cor = Color.white;
+                            var nowroletabtext = "";
+                            var rolecount = 0;
+                            var color = Color.white;
                             switch (role.GetCustomRoleTypes())
                             {
-                                case CustomRoleTypes.Crewmate: s = "<b>☆CrewMates</b>"; c = crew; cor = Palette.Blue; break;
-                                case CustomRoleTypes.Madmate: s = "<b>☆MadMates</b>"; c = mad; cor = StringHelper.CodeColor("#ff7f50"); break;
-                                case CustomRoleTypes.Neutral: s = "<b>☆Neutrals</b>"; c = neu; cor = Palette.DisabledGrey; break;
+                                case CustomRoleTypes.Crewmate: nowroletabtext = "<b>☆CrewMates</b>"; rolecount = crew; color = Palette.Blue; break;
+                                case CustomRoleTypes.Madmate: nowroletabtext = "<b>☆MadMates</b>"; rolecount = mad; color = StringHelper.CodeColor("#ff7f50"); break;
+                                case CustomRoleTypes.Neutral: nowroletabtext = "<b>☆Neutrals</b>"; rolecount = neu; color = Palette.DisabledGrey; break;
                             }
-                            var maxtext = $"({c})";
+                            var maxtext = $"({rolecount})";
                             var (che, max, min) = RoleAssignManager.CheckRoleTypeCount(role.GetCustomRoleTypes());
                             if (che)
                             {
                                 maxtext += $"　[{min}～{max}]";
                             }
-                            sb.Append(ColorString(cor, $"\n{s + maxtext}\n"));
+                            sb.Append(ColorString(color, $"\n{nowroletabtext + maxtext}\n"));
                             roleType = role.GetCustomRoleTypes();
                         }
                         nowcount++;
@@ -402,7 +402,7 @@ namespace TownOfHost
                     {
                         nowcount++;
                         var m = AdditionalWinnerMark;
-                        if (Addon.IsRiaju()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
+                        if (Addon.IsLovers()) m = ColorString(GetRoleColor(CustomRoles.Lovers), "♥");
                         if (Addon.IsDebuffAddon()) m = ColorString(Palette.DisabledGrey, "☆");
                         if (Addon.IsGhostRole()) m = "<#8989d9>■</color>";
                         var longestNameByteCount = addons.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
@@ -445,10 +445,10 @@ namespace TownOfHost
             sb.Append($"{GetString(StringNames.GameNumImpostors)}:{Main.NormalOptions.NumImpostors.ToString()}\n");
             sb.Append($"{GetString(StringNames.GameNumMeetings)}:{Main.NormalOptions.NumEmergencyMeetings.ToString()}\n");
             sb.Append($"{GetString(StringNames.GameEmergencyCooldown)}:{Main.NormalOptions.EmergencyCooldown.ToString()}s\n");
-            if (!GameStates.IsLobby) sb.Append($"{GetString(StringNames.GameDiscussTime)}:{Main.Time.Item1.ToString()}s\n");
-            if (Main.Time.Item1 != Main.NormalOptions.DiscussionTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString(StringNames.GameDiscussTime)}:{Main.NormalOptions.DiscussionTime.ToString()}s\n");
-            if (!GameStates.IsLobby) sb.Append($"{GetString(StringNames.GameVotingTime)}:{Main.Time.Item2.ToString()}s\n");
-            if (Main.Time.Item2 != Main.NormalOptions.VotingTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString(StringNames.GameVotingTime)}:{Main.NormalOptions.VotingTime.ToString()}s\n");
+            if (!GameStates.IsLobby) sb.Append($"{GetString(StringNames.GameDiscussTime)}:{Main.MeetingTime.DiscussionTime.ToString()}s\n");
+            if (Main.MeetingTime.DiscussionTime != Main.NormalOptions.DiscussionTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString(StringNames.GameDiscussTime)}:{Main.NormalOptions.DiscussionTime.ToString()}s\n");
+            if (!GameStates.IsLobby) sb.Append($"{GetString(StringNames.GameVotingTime)}:{Main.MeetingTime.VotingTime.ToString()}s\n");
+            if (Main.MeetingTime.VotingTime != Main.NormalOptions.VotingTime || GameStates.IsLobby) sb.Append($"{GetString("NowTime")}{GetString(StringNames.GameVotingTime)}:{Main.NormalOptions.VotingTime.ToString()}s\n");
             sb.Append($"{GetString(StringNames.GamePlayerSpeed)}:{Main.NormalOptions.PlayerSpeedMod.ToString()}x\n");
             sb.Append($"{GetString(StringNames.GameCrewLight)}:{Main.NormalOptions.CrewLightMod.ToString()}x\n");
             sb.Append($"{GetString(StringNames.GameImpostorLight)}:{Main.NormalOptions.ImpostorLightMod.ToString()}x\n");
@@ -472,7 +472,7 @@ namespace TownOfHost
                         case "GiveGuesser": continue;
                         case "GiveWatching": continue;
                         case "GiveManagement": continue;
-                        case "Giveseeing": continue;
+                        case "GiveSeeing": continue;
                         case "GiveAutopsy": continue;
                         case "GiveTiebreaker": continue;
                         case "GiveMagicHand": continue;
@@ -618,12 +618,12 @@ namespace TownOfHost
             var roleclas = player.GetRoleClass();
             var role = player.GetCustomRole();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-            if (roleclas?.Jikaku() != CustomRoles.NotAssigned && roleclas != null)
-                role = roleclas.Jikaku();
+            if (player.GetMisidentify(out var missrole))
+                role = missrole;
 
             if (role is CustomRoles.Amnesiac)
             {
-                if (roleclas is Amnesiac amnesiac && !amnesiac.omoidasita)
+                if (roleclas is Amnesiac amnesiac && !amnesiac.Realized)
                     role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
 
@@ -634,7 +634,7 @@ namespace TownOfHost
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
                 string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
                 {
-                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
+                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleDesc(true), player.PlayerId, RoleInfoTitle);
                 }
                 //addon(一回これで応急手当。)
                 GetAddonsHelp(player);
@@ -657,7 +657,7 @@ namespace TownOfHost
                 string RoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
                 string RoleInfoTitle = $"<{RoleTextData}>{RoleInfoTitleString}";
                 {
-                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
+                    SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "</b>\n<size=60%><line-height=1.8pic>" + player.GetRoleDesc(true), player.PlayerId, RoleInfoTitle);
                 }
                 //addon(一回これで応急手当。)
                 GetAddonsHelp(player);
@@ -665,66 +665,66 @@ namespace TownOfHost
         }
         public static void GetAddonsHelp(PlayerControl player)
         {
-            var roleclas = player.GetRoleClass();
             var AddRoleTextData = GetRoleColorCode(player.GetCustomRole());
-            if (player.Is(CustomRoles.Amnesia)) AddRoleTextData = player.Is(CustomRoleTypes.Crewmate) ? "#8cffff" : (player.Is(CustomRoleTypes.Neutral) ? "#cccccc" : "#ff1919");
-            if (roleclas?.Jikaku() != CustomRoles.NotAssigned && roleclas != null)
-                AddRoleTextData = GetRoleColorCode(roleclas.Jikaku());
+            if (player.Is(CustomRoles.Amnesia))
+                AddRoleTextData = player.Is(CustomRoleTypes.Crewmate) ? "#8cffff" : (player.Is(CustomRoleTypes.Neutral) ? "#cccccc" : "#ff1919");
+            if (player.GetMisidentify(out var missrole))
+                AddRoleTextData = GetRoleColorCode(missrole);
 
             var AddRoleInfoTitleString = $"{GetString("AddonInfoTitle")}";
             var AddRoleInfoTitle = $"<{AddRoleTextData}>{AddRoleInfoTitleString}";
-            var s = new StringBuilder();
+            var sb = new StringBuilder();
 
-            var k = "<line-height=2.0pic><size=100%>~~~~~~~~~~~~~~~~~~~~~~~~\n\n<size=150%><b>";
+            var juncture = "<line-height=2.0pic><size=100%>~~~~~~~~~~~~~~~~~~~~~~~~\n\n<size=150%><b>";
             //バフ
-            if (player.Is(CustomRoles.Guesser)) s.Append(k + AddonInfo(CustomRoles.Guesser, "∮", From.TheOtherRoles, player));
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.Serial)) s.Append(k + AddonInfo(CustomRoles.Serial, "∂", pc: player));
-            if (player.Is(CustomRoles.MagicHand)) s.Append(k + AddonInfo(CustomRoles.MagicHand, "ж", pc: player));
+            if (player.Is(CustomRoles.Guesser)) sb.Append(juncture + AddonInfo(CustomRoles.Guesser, "∮", From.TheOtherRoles, player));
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
+            if (player.Is(CustomRoles.Serial)) sb.Append(juncture + AddonInfo(CustomRoles.Serial, "∂", pc: player));
+            if (player.Is(CustomRoles.MagicHand)) sb.Append(juncture + AddonInfo(CustomRoles.MagicHand, "ж", pc: player));
             if ((player.Is(CustomRoles.Connecting) && !player.Is(CustomRoles.WolfBoy)) || (player.Is(CustomRoles.Connecting) && !player.IsAlive()))
-                s.Append(k + AddonInfo(CustomRoles.Connecting, "Ψ", pc: player) + "\n");
-            if (player.Is(CustomRoles.watching)) s.Append(k + AddonInfo(CustomRoles.watching, "∑", From.TOR_GM_Edition, pc: player) + "\n");
-            if (player.Is(CustomRoles.PlusVote)) s.Append(k + AddonInfo(CustomRoles.PlusVote, "р", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Tiebreaker)) s.Append(k + AddonInfo(CustomRoles.Tiebreaker, "т", From.TheOtherRoles, pc: player) + "\n");
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.Autopsy)) s.Append(k + AddonInfo(CustomRoles.Autopsy, "Å", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Revenger)) s.Append(k + AddonInfo(CustomRoles.Revenger, "Я", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Speeding)) s.Append(k + AddonInfo(CustomRoles.Speeding, "∈", pc: player) + "\n");
-            if (player.Is(CustomRoles.Guarding)) s.Append(k + AddonInfo(CustomRoles.Guarding, "ζ", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Management)) s.Append(k + AddonInfo(CustomRoles.Management, "θ", From.TownOfHost_Y, pc: player) + "\n");
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.Opener)) s.Append(k + AddonInfo(CustomRoles.Opener, "п") + "\n");
+                sb.Append(juncture + AddonInfo(CustomRoles.Connecting, "Ψ", pc: player) + "\n");
+            if (player.Is(CustomRoles.Watching)) sb.Append(juncture + AddonInfo(CustomRoles.Watching, "∑", From.TOR_GM_Edition, pc: player) + "\n");
+            if (player.Is(CustomRoles.PlusVote)) sb.Append(juncture + AddonInfo(CustomRoles.PlusVote, "р", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Tiebreaker)) sb.Append(juncture + AddonInfo(CustomRoles.Tiebreaker, "т", From.TheOtherRoles, pc: player) + "\n");
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
+            if (player.Is(CustomRoles.Autopsy)) sb.Append(juncture + AddonInfo(CustomRoles.Autopsy, "Å", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Revenger)) sb.Append(juncture + AddonInfo(CustomRoles.Revenger, "Я", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Speeding)) sb.Append(juncture + AddonInfo(CustomRoles.Speeding, "∈", pc: player) + "\n");
+            if (player.Is(CustomRoles.Guarding)) sb.Append(juncture + AddonInfo(CustomRoles.Guarding, "ζ", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Management)) sb.Append(juncture + AddonInfo(CustomRoles.Management, "θ", From.TownOfHost_Y, pc: player) + "\n");
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
+            if (player.Is(CustomRoles.Opener)) sb.Append(juncture + AddonInfo(CustomRoles.Opener, "п") + "\n");
             //if (player.Is(CustomRoles.AntiTeleporter)) s.Append(k + AddonInfo(CustomRoles.AntiTeleporter, "t", From.RevolutionaryHostRoles, pc: player) + "\n");
-            if (player.Is(CustomRoles.seeing)) s.Append(k + AddonInfo(CustomRoles.seeing, "☯", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Lighting)) s.Append(k + AddonInfo(CustomRoles.Lighting, "＊", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Moon)) s.Append(k + AddonInfo(CustomRoles.Moon, "э", pc: player) + "\n");
+            if (player.Is(CustomRoles.Seeing)) sb.Append(juncture + AddonInfo(CustomRoles.Seeing, "☯", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Lighting)) sb.Append(juncture + AddonInfo(CustomRoles.Lighting, "＊", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Moon)) sb.Append(juncture + AddonInfo(CustomRoles.Moon, "э", pc: player) + "\n");
 
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
             //デバフ
-            if (player.Is(CustomRoles.SlowStarter)) s.Append(k + AddonInfo(CustomRoles.SlowStarter, "Ｓs", pc: player) + "\n");
-            if (player.Is(CustomRoles.Notvoter)) s.Append(k + AddonInfo(CustomRoles.Notvoter, "Ｖ", pc: player) + "\n");
-            if (player.Is(CustomRoles.Elector)) s.Append(k + AddonInfo(CustomRoles.Elector, "Ｅ", pc: player) + "\n");
-            if (player.Is(CustomRoles.InfoPoor)) s.Append(k + AddonInfo(CustomRoles.InfoPoor, "Ｉ", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.NonReport)) s.Append(k + AddonInfo(CustomRoles.NonReport, "Ｒ", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Transparent)) s.Append(k + AddonInfo(CustomRoles.Transparent, "Ｔ", pc: player) + "\n");
-            if (player.Is(CustomRoles.Water)) s.Append(k + AddonInfo(CustomRoles.Water, "Ｗ", pc: player) + "\n");
-            if (player.Is(CustomRoles.Clumsy)) s.Append(k + AddonInfo(CustomRoles.Clumsy, "Ｃ", From.TownOfHost_Y, pc: player) + "\n");
-            if (player.Is(CustomRoles.Slacker)) s.Append(k + AddonInfo(CustomRoles.Slacker, "ＳＬ", pc: player) + "\n");
+            if (player.Is(CustomRoles.SlowStarter)) sb.Append(juncture + AddonInfo(CustomRoles.SlowStarter, "Ｓs", pc: player) + "\n");
+            if (player.Is(CustomRoles.Notvoter)) sb.Append(juncture + AddonInfo(CustomRoles.Notvoter, "Ｖ", pc: player) + "\n");
+            if (player.Is(CustomRoles.Elector)) sb.Append(juncture + AddonInfo(CustomRoles.Elector, "Ｅ", pc: player) + "\n");
+            if (player.Is(CustomRoles.InfoPoor)) sb.Append(juncture + AddonInfo(CustomRoles.InfoPoor, "Ｉ", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.NonReport)) sb.Append(juncture + AddonInfo(CustomRoles.NonReport, "Ｒ", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Transparent)) sb.Append(juncture + AddonInfo(CustomRoles.Transparent, "Ｔ", pc: player) + "\n");
+            if (player.Is(CustomRoles.Water)) sb.Append(juncture + AddonInfo(CustomRoles.Water, "Ｗ", pc: player) + "\n");
+            if (player.Is(CustomRoles.Clumsy)) sb.Append(juncture + AddonInfo(CustomRoles.Clumsy, "Ｃ", From.TownOfHost_Y, pc: player) + "\n");
+            if (player.Is(CustomRoles.Slacker)) sb.Append(juncture + AddonInfo(CustomRoles.Slacker, "ＳＬ", pc: player) + "\n");
 
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
             //第三
-            var lover = player.GetRiaju();
-            if (lover != CustomRoles.NotAssigned) s.Append(k + AddonInfo(lover, "♥", lover is not CustomRoles.Lovers ? From.None : From.Love_Couple_Mod, pc: player) + "\n");
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
+            var lover = player.GetLoverRole();
+            if (lover != CustomRoles.NotAssigned) sb.Append(juncture + AddonInfo(lover, "♥", lover is not CustomRoles.Lovers ? From.None : From.Love_Couple_Mod, pc: player) + "\n");
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
             //ラスト系
-            if (player.Is(CustomRoles.LastImpostor)) s.Append(k + AddonInfo(CustomRoles.LastImpostor, from: From.TownOfHost, pc: player) + "\n");
-            if (player.Is(CustomRoles.LastNeutral)) s.Append(k + AddonInfo(CustomRoles.LastNeutral, pc: player) + "\n");
-            if (player.Is(CustomRoles.Workhorse)) s.Append(k + AddonInfo(CustomRoles.Workhorse, from: From.TownOfHost, pc: player) + "\n");
-            CheckPageChange(player.PlayerId, s, title: AddRoleInfoTitle);
-            if (player.Is(CustomRoles.Twins)) s.Append(k + AddonInfo(CustomRoles.Twins) + "\n");
+            if (player.Is(CustomRoles.LastImpostor)) sb.Append(juncture + AddonInfo(CustomRoles.LastImpostor, from: From.TownOfHost, pc: player) + "\n");
+            if (player.Is(CustomRoles.LastNeutral)) sb.Append(juncture + AddonInfo(CustomRoles.LastNeutral, pc: player) + "\n");
+            if (player.Is(CustomRoles.Workhorse)) sb.Append(juncture + AddonInfo(CustomRoles.Workhorse, from: From.TownOfHost, pc: player) + "\n");
+            CheckPageChange(player.PlayerId, sb, title: AddRoleInfoTitle);
+            if (player.Is(CustomRoles.Twins)) sb.Append(juncture + AddonInfo(CustomRoles.Twins) + "\n");
 
-            if (s.ToString().RemoveHtmlTags() != "" && s.Length != 0)
-                SendMessage(s.ToString(), player.PlayerId, AddRoleInfoTitle);
+            if (sb.ToString().RemoveHtmlTags() != "" && sb.Length != 0)
+                SendMessage(sb.ToString(), player.PlayerId, AddRoleInfoTitle);
 
             GetGhostRolesInfo(player);
         }
@@ -738,11 +738,11 @@ namespace TownOfHost
         }
         public static string GetAddonsHelp(CustomRoles role)
         {
-            if (!(role.IsAddOn() || role.IsGhostRole() || role.IsRiaju() || role is CustomRoles.Amanojaku || role is CustomRoles.Twins)) return "";
-            var s = "";
-            var k = "<line-height=2.0pic><size=150%>";
+            if (!(role.IsAddOn() || role.IsGhostRole() || role.IsLovers() || role is CustomRoles.Amanojaku || role is CustomRoles.Twins)) return "";
+            var text = "";
+            var juncture = "<line-height=2.0pic><size=150%>";
 
-            return (s += k) + (role switch
+            return (text += juncture) + (role switch
             {
                 CustomRoles.Twins => AddonInfo(role, ""),
                 //バフ
@@ -750,7 +750,7 @@ namespace TownOfHost
                 CustomRoles.Serial => AddonInfo(role, "∂"),
                 CustomRoles.MagicHand => AddonInfo(role, "ж"),
                 CustomRoles.Connecting => AddonInfo(role, "Ψ"),
-                CustomRoles.watching => AddonInfo(role, "∑", From.TOR_GM_Edition),
+                CustomRoles.Watching => AddonInfo(role, "∑", From.TOR_GM_Edition),
                 CustomRoles.PlusVote => AddonInfo(role, "р", From.TownOfHost_Y),
                 CustomRoles.Tiebreaker => AddonInfo(role, "т", From.TheOtherRoles),
                 CustomRoles.Autopsy => AddonInfo(role, "Å", From.TownOfHost_Y),
@@ -760,7 +760,7 @@ namespace TownOfHost
                 CustomRoles.Management => AddonInfo(role, "θ", From.TownOfHost_Y),
                 CustomRoles.Opener => AddonInfo(role, "п"),
                 //CustomRoles.AntiTeleporter => AddonInfo(role, "t", From.RevolutionaryHostRoles),
-                CustomRoles.seeing => AddonInfo(role, "☯", From.TownOfHost_Y),
+                CustomRoles.Seeing => AddonInfo(role, "☯", From.TownOfHost_Y),
                 CustomRoles.Lighting => AddonInfo(role, "＊", From.TownOfHost_Y),
                 CustomRoles.Moon => AddonInfo(role, "э"),
                 //デバフ
@@ -799,31 +799,31 @@ namespace TownOfHost
         }
         public static string AddonInfo(CustomRoles role, string Mark = "", From from = From.None, PlayerControl pc = null)
         {
-            var m = "\n<size=90%><line-height=1.8pic>";
-            var f = $"\n{UtilsOption.GetFrom(from)}\n";
-            var set = new StringBuilder();
-            var s = "";
+            var html = "\n<size=90%><line-height=1.8pic>";
+            var Fromtext = $"\n{UtilsOption.GetFrom(from)}\n";
+            var builder = new StringBuilder();
+            var text = "";
             if (Mark != "") Mark = $" {Mark}";
-            if (Options.CustomRoleSpawnChances.TryGetValue(role, out var op)) ShowChildrenSettings(op, ref set, Askesu: true, pc: pc);
-            if (set.ToString().RemoveHtmlTags() != "") s = $"\n\n<size=45%>{set}";
-            if (UtilsOption.GetFrom(from).RemoveHtmlTags() == "") f = "";
+            if (Options.CustomRoleSpawnChances.TryGetValue(role, out var op)) ShowChildrenSettings(op, ref builder, Askesu: true, pc: pc);
+            if (builder.ToString().RemoveHtmlTags() != "") text = $"\n\n<size=45%>{builder}";
+            if (UtilsOption.GetFrom(from).RemoveHtmlTags() == "") Fromtext = "";
 
-            var info = ColorString(GetRoleColor(role), GetString($"{role}") + Mark + m + GetString($"{role}Info"));
+            var info = ColorString(GetRoleColor(role), GetString($"{role}") + Mark + html + GetString($"{role}Info"));
             if (Mark == "") info = $"<b>{info}</b>";
 
-            return info + $"\n</b></color><size=57%>{f}<line-height=1.3pic>" + GetString($"{role}InfoLong") + s;
+            return info + $"\n</b></color><size=57%>{Fromtext}<line-height=1.3pic>" + GetString($"{role}InfoLong") + text;
         }
         public static string GetRoleTypesCount(bool shouryaku = true)
         {
             if (Options.CurrentGameMode != CustomGameMode.Standard) return "";
             var text = "";
             var (i, m, c, n, a, l, g) = (0, 0, 0, 0, 0, 0, 0);
-            foreach (var r in RoleAssignManager.GetCandidateRoleList(10, true).OrderBy(x => Guid.NewGuid()))
+            foreach (var role in RoleAssignManager.GetCandidateRoleList(10, true).OrderBy(x => Guid.NewGuid()))
             {
-                if (r.IsImpostor()) i++;
-                if (r.IsMadmate()) m++;
-                if (r.IsCrewmate()) c++;
-                if (r.IsNeutral()) n++;
+                if (role.IsImpostor()) i++;
+                if (role.IsMadmate()) m++;
+                if (role.IsCrewmate()) c++;
+                if (role.IsNeutral()) n++;
             }
             List<CustomRoles> loverch = new();
             foreach (var subRole in CustomRolesHelper.AllAddOns)
@@ -832,7 +832,7 @@ namespace TownOfHost
                 var count = subRole.GetCount();
                 if (chance == 0) continue;
                 if (subRole.IsAddOn() || subRole is CustomRoles.Amanojaku or CustomRoles.Twins) a += count;
-                if (subRole.IsRiaju() && !loverch.Contains(subRole)) l++;
+                if (subRole.IsLovers() && !loverch.Contains(subRole)) l++;
                 if (subRole.IsGhostRole()) g += count;
                 if (!loverch.Contains(subRole)) loverch.Add(subRole);
             }
@@ -867,13 +867,14 @@ namespace TownOfHost
         {
             if (Options.CurrentGameMode != CustomGameMode.Standard) return (0, 0, 0, 0, 0, 0, 0);
             var (i, m, c, n, a, l, g) = (0, 0, 0, 0, 0, 0, 0);
-            foreach (var r in RoleAssignManager.GetCandidateRoleList(10, true).OrderBy(x => Guid.NewGuid()))
+            foreach (var role in RoleAssignManager.GetCandidateRoleList(10, true).OrderBy(x => Guid.NewGuid()))
             {
-                if (r.IsImpostor()) i++;
-                if (r.IsMadmate()) m++;
-                if (r.IsCrewmate()) c++;
-                if (r.IsNeutral()) n++;
+                if (role.IsImpostor()) i++;
+                if (role.IsMadmate()) m++;
+                if (role.IsCrewmate()) c++;
+                if (role.IsNeutral()) n++;
             }
+            if (Main.NormalOptions.NumImpostors <= i) i = Main.NormalOptions.NumImpostors;
             List<CustomRoles> loverch = new();
             foreach (var subRole in CustomRolesHelper.AllAddOns)
             {
@@ -881,7 +882,7 @@ namespace TownOfHost
                 var count = subRole.GetCount();
                 if (chance == 0) continue;
                 if (subRole.IsAddOn() || subRole is CustomRoles.Amanojaku or CustomRoles.Twins) a += count;
-                if (subRole.IsRiaju() && !loverch.Contains(subRole)) l++;
+                if (subRole.IsLovers() && !loverch.Contains(subRole)) l++;
                 if (subRole.IsGhostRole()) g += count;
                 if (!loverch.Contains(subRole)) loverch.Add(subRole);
             }

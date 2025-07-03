@@ -24,7 +24,7 @@ public sealed class Mayor : RoleBase
             {
                 var info = "";
                 var portable = "";
-                if (OptionKakusei.GetBool()) info = string.Format(GetString("MayorDescInfo"), OptionCount.GetInt(), OptionKadditionaVote.GetInt() + OptionAdditionalVote.GetInt() + 1);
+                if (OptionAwakening.GetBool()) info = string.Format(GetString("MayorDescInfo"), OptionAwakeningCount.GetInt(), OptionKadditionaVote.GetInt() + OptionAdditionalVote.GetInt() + 1);
                 if (OptionHasPortableButton.GetBool()) portable = GetString("MayorPortable");
 
                 return string.Format(GetString("MayorDesc"), OptionAdditionalVote.GetInt() + 1, info, portable);
@@ -39,16 +39,16 @@ public sealed class Mayor : RoleBase
         AdditionalVote = OptionAdditionalVote.GetInt();
         HasPortableButton = OptionHasPortableButton.GetBool();
         NumOfUseButton = OptionNumOfUseButton.GetInt();
-        Kakusei = OptionKakusei.GetBool();
-        Count = OptionCount.GetInt();
+        Awakening = OptionAwakening.GetBool();
+        AwakeningCount = OptionAwakeningCount.GetInt();
         KadditionaVote = OptionKadditionaVote.GetInt();
 
         LeftButtonCount = NumOfUseButton;
     }
 
     private static OptionItem OptionAdditionalVote;
-    private static OptionItem OptionKakusei;
-    private static OptionItem OptionCount;
+    private static OptionItem OptionAwakening;
+    private static OptionItem OptionAwakeningCount;
     private static OptionItem OptionKadditionaVote;
     private static OptionItem OptionHasPortableButton;
     private static OptionItem OptionNumOfUseButton;
@@ -56,14 +56,14 @@ public sealed class Mayor : RoleBase
     {
         MayorAdditionalVote,
         MayorHasPortableButton,
-        MayorKakusei,
-        MayorKakuseiPlayerCount,
+        MayorAwakening,
+        MayorAwakeningPlayerCount,
         MayorNumOfUseButton,
     }
     public static int AdditionalVote;
     public static bool HasPortableButton;
-    public static bool Kakusei;
-    public static int Count;
+    public static bool Awakening;
+    public static int AwakeningCount;
     public static int KadditionaVote;
     public static int NumOfUseButton;
 
@@ -72,10 +72,10 @@ public sealed class Mayor : RoleBase
     {
         OptionAdditionalVote = IntegerOptionItem.Create(RoleInfo, 10, OptionName.MayorAdditionalVote, new(0, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Votes);
-        OptionKakusei = BooleanOptionItem.Create(RoleInfo, 11, OptionName.MayorKakusei, false, false);
-        OptionCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.MayorKakuseiPlayerCount, new(1, 15, 1), 6, false, OptionKakusei)
+        OptionAwakening = BooleanOptionItem.Create(RoleInfo, 11, OptionName.MayorAwakening, false, false);
+        OptionAwakeningCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.MayorAwakeningPlayerCount, new(1, 15, 1), 6, false, OptionAwakening)
             .SetValueFormat(OptionFormat.Players);
-        OptionKadditionaVote = IntegerOptionItem.Create(RoleInfo, 13, OptionName.MayorAdditionalVote, new(1, 99, 1), 1, false, OptionKakusei)
+        OptionKadditionaVote = IntegerOptionItem.Create(RoleInfo, 13, OptionName.MayorAdditionalVote, new(1, 99, 1), 1, false, OptionAwakening)
             .SetValueFormat(OptionFormat.Votes);
         OptionHasPortableButton = BooleanOptionItem.Create(RoleInfo, 14, OptionName.MayorHasPortableButton, false, false);
         OptionNumOfUseButton = IntegerOptionItem.Create(RoleInfo, 15, OptionName.MayorNumOfUseButton, new(1, 99, 1), 1, false, OptionHasPortableButton)
@@ -113,7 +113,7 @@ public sealed class Mayor : RoleBase
         var (votedForId, numVotes, doVote) = base.ModifyVote(voterId, sourceVotedForId, isIntentional);
 
         if (Options.firstturnmeeting && Options.FirstTurnMeetingCantability.GetBool() && MeetingStates.FirstMeeting) return (votedForId, numVotes, doVote);
-        if (voterId == Player.PlayerId && Count >= PlayerCatch.AllAlivePlayersCount && Kakusei)
+        if (voterId == Player.PlayerId && PlayerCatch.AllAlivePlayersCount <= AwakeningCount && Awakening)
         {
             numVotes = AdditionalVote + KadditionaVote + 1;
         }

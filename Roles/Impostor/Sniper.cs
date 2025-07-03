@@ -36,9 +36,9 @@ public sealed class Sniper : RoleBase, IImpostor
         AimAssist = SniperAimAssist.GetBool();
         AimAssistOneshot = SniperAimAssistOnshot.GetBool();
         Cankill = OpCankill.GetBool();
-        Canshape = OpCanShape.GetBool();
-        Cool = OpMadac.GetFloat();
-        Jizoku = OpMadaj.GetFloat();
+        CanNomalShape = OpCanShape.GetBool();
+        ShapeCooldown = OpShapeCool.GetFloat();
+        ShapeDuration = OpShapeDuration.GetFloat();
 
         CustomRoleManager.SuffixOthers.Add(GetMarkOthers);
     }
@@ -53,9 +53,9 @@ public sealed class Sniper : RoleBase, IImpostor
     static OptionItem SniperAimAssistOnshot;
     static OptionItem OpCanShape;
     static OptionItem OpCankill;
-    static OptionItem OpMadaj;
-    static OptionItem OpMadac;
-    static OptionItem OpHyoujitime;
+    static OptionItem OpShapeDuration;
+    static OptionItem OpShapeCool;
+    static OptionItem OpShowArrowTime;
     static OptionItem OpFriendlyFire;
     enum OptionName
     {
@@ -65,7 +65,7 @@ public sealed class Sniper : RoleBase, IImpostor
         SniperAimAssistOneshot,
         SniperCanKill,
         SniperCanShapeshift,
-        SniperHyoujitime,
+        SniperShowArrowTime,
         SniperFriendlyFire
     }
     Vector3 SnipeBasePosition;
@@ -74,7 +74,7 @@ public sealed class Sniper : RoleBase, IImpostor
     List<byte> ShotNotify = new();
     bool IsAim;
     float AimTime;
-    float HyoujiTime;
+    float ShowArrowTime;
 
     static HashSet<Sniper> Snipers = new();
 
@@ -83,28 +83,28 @@ public sealed class Sniper : RoleBase, IImpostor
     bool AimAssist;
     bool AimAssistOneshot;
     bool Cankill;
-    bool Canshape;
-    float Cool;
-    float Jizoku;
+    bool CanNomalShape;
+    float ShapeCooldown;
+    float ShapeDuration;
     bool MeetingReset;
     public static void SetupOptionItem()
     {
         SniperBulletCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SniperBulletCount, new(1, 99, 1), 2, false)
             .SetValueFormat(OptionFormat.Pieces);
-        OpMadac = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
-        OpMadaj = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Duration, new(0f, 180f, 0.5f), 10f, false, infinity: true).SetValueFormat(OptionFormat.Seconds);
+        OpShapeCool = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
+        OpShapeDuration = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Duration, new(0f, 180f, 0.5f), 10f, false, infinity: true).SetValueFormat(OptionFormat.Seconds);
         SniperPrecisionShooting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.SniperPrecisionShooting, false, false);
         SniperAimAssist = BooleanOptionItem.Create(RoleInfo, 14, OptionName.SniperAimAssist, false, false);
         SniperAimAssistOnshot = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SniperAimAssistOneshot, false, false, SniperAimAssist);
         OpCanShape = BooleanOptionItem.Create(RoleInfo, 16, OptionName.SniperCanShapeshift, false, false);
         OpCankill = BooleanOptionItem.Create(RoleInfo, 17, OptionName.SniperCanKill, true, false);
-        OpHyoujitime = FloatOptionItem.Create(RoleInfo, 18, OptionName.SniperHyoujitime, new(0f, 60f, 1f), 10f, false, infinity: null).SetValueFormat(OptionFormat.Seconds);
+        OpShowArrowTime = FloatOptionItem.Create(RoleInfo, 18, OptionName.SniperShowArrowTime, new(0f, 60f, 1f), 10f, false, infinity: null).SetValueFormat(OptionFormat.Seconds);
         OpFriendlyFire = BooleanOptionItem.Create(RoleInfo, 19, OptionName.SniperFriendlyFire, true, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.ShapeshifterDuration = Jizoku;
-        AURoleOptions.ShapeshifterCooldown = Cool;
+        AURoleOptions.ShapeshifterDuration = ShapeDuration;
+        AURoleOptions.ShapeshifterCooldown = ShapeCooldown;
     }
     public override void Add()
     {
@@ -117,7 +117,7 @@ public sealed class Sniper : RoleBase, IImpostor
         IsAim = false;
         AimTime = 0f;
         MeetingReset = false;
-        HyoujiTime = 0f;
+        ShowArrowTime = 0f;
 
         Snipers.Add(this);
     }
@@ -153,7 +153,7 @@ public sealed class Sniper : RoleBase, IImpostor
     }
     public override bool CheckShapeshift(PlayerControl target, ref bool animate)
     {
-        if (!Player.IsAlive() || (BulletCount <= 0 && !Canshape)) return false;
+        if (!Player.IsAlive() || (BulletCount <= 0 && !CanNomalShape)) return false;
         return true;
     }
     /// <summary>
@@ -191,7 +191,7 @@ public sealed class Sniper : RoleBase, IImpostor
             //FriendlyFireがOFFかつサドンデスモードでないならImpostorを除外
             if (!OpFriendlyFire.GetBool() && target.GetCustomRole().IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode) continue;
             //FriendlyFireがOffかつ、チームかつ、同陣営なら
-            if (!OpFriendlyFire.GetBool() && SuddenDeathMode.NowSuddenDeathTemeMode && SuddenDeathMode.IsOnajiteam(target.PlayerId, Player.PlayerId)) continue;
+            if (!OpFriendlyFire.GetBool() && SuddenDeathMode.NowSuddenDeathTemeMode && SuddenDeathMode.IsSameteam(target.PlayerId, Player.PlayerId)) continue;
             //死んでいない対象の方角ベクトル作成
             var target_pos = target.transform.position - snipePos;
             //自分より後ろの場合はあたらない
@@ -293,8 +293,7 @@ public sealed class Sniper : RoleBase, IImpostor
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: otherPc);
             }
             SendRPC();
-            _ = new LateTask(
-                () =>
+            _ = new LateTask(() =>
                 {
                     snList.Clear();
                     if (targets.Count != 0)
@@ -306,27 +305,25 @@ public sealed class Sniper : RoleBase, IImpostor
                         SendRPC();
                     }
                 },
-                0.5f, "Sniper shot Notify"
-                );
+                0.5f, "Sniper shot Notify");
         }
         _ = new LateTask(() =>
         {
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 GetArrow.Add(pc.PlayerId, SnipeBasePosition);
-                HyoujiTime = OpHyoujitime.GetFloat();
+                ShowArrowTime = OpShowArrowTime.GetFloat();
             }
         }, Main.LagTime, "", true);
-
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!Player.IsAlive()) return;
 
-        if (!(HyoujiTime <= 0) && !GameStates.Meeting)
+        if (ShowArrowTime > 0 && !GameStates.CalledMeeting)
         {
-            HyoujiTime -= Time.fixedDeltaTime;
-            if (HyoujiTime <= 0)
+            ShowArrowTime -= Time.fixedDeltaTime;
+            if (ShowArrowTime <= 0)
             {
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                     GetArrow.Remove(pc.PlayerId, SnipeBasePosition);
@@ -338,7 +335,7 @@ public sealed class Sniper : RoleBase, IImpostor
 
         if (!IsAim) return;
 
-        if (GameStates.Meeting)
+        if (GameStates.CalledMeeting)
         {
             //エイム終了
             IsAim = false;
@@ -391,24 +388,24 @@ public sealed class Sniper : RoleBase, IImpostor
     public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        var Y = "";
+        var arrow = "";
         if (isForMeeting) return "";
 
         //各スナイパーから
         foreach (var sniper in Snipers)
         {
-            if (sniper.HyoujiTime > 0 && OpHyoujitime.GetFloat() != 0)
-                Y += "<size=90%><color=red>" + GetArrow.GetArrows(seer, sniper.SnipeBasePosition) + "</color></size>";
+            if (sniper.ShowArrowTime > 0 && OpShowArrowTime.GetFloat() != 0)
+                arrow += "<size=90%><color=red>" + GetArrow.GetArrows(seer, sniper.SnipeBasePosition) + "</color></size>";
 
             //射撃音が聞こえるプレイヤー
             var snList = sniper.ShotNotify;
             if (snList.Count > 0 && snList.Contains(seer.PlayerId))
             {
-                return seer == seen ? $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!" + Y)}</size>" : "";
+                return seer == seen ? $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!" + arrow)}</size>" : "";
             }
         }
 
-        return seer == seen ? Y : "";
+        return seer == seen ? arrow : "";
     }
     public override string GetAbilityButtonText()
     {

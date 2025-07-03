@@ -1,3 +1,5 @@
+using TownOfHost.Modules;
+
 namespace TownOfHost
 {
     public class PresetOptionItem : OptionItem
@@ -23,7 +25,7 @@ namespace TownOfHost
         public override string GetString()//プリセット名決める適菜奴作りたいなぁ。
         {
             var ch = "";
-            if (Options.SuddenDeathMode.GetBool()) ch = Translator.GetString("SuddenDeathMode");
+            if (SuddenDeathMode.SuddenDeathModeActive.GetBool()) ch = Translator.GetString("SuddenDeathMode");
             if (Options.StandardHAS.GetBool()) ch = Translator.GetString("StandardHAS");
             if (Options.CurrentGameMode == CustomGameMode.Standard)
             {

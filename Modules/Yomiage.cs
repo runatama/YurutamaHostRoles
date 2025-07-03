@@ -13,7 +13,7 @@ class Yomiage
 // Memo
 // 棒読みちゃんを起動していない時に
 // 読み上げをONにしてチャットを送信すると
-// クラッシュするぬぇ
+// クラッシュする。
 {
     public static Dictionary<int, string> YomiageS = new();
     public static bool ChatCommand(string[] args, byte playerId = 0)
@@ -118,11 +118,11 @@ class Yomiage
                     }
                     result = await response.Content.ReadAsStringAsync();
                 }
-                var voice = JsonSerializer.Deserialize<Voice>(result)?.voiceList;
+                var voice = JsonSerializer.Deserialize<Voice>(result)?.VoiceList;
 
                 VoiceList = new();
                 for (var i = 0; i < voice.Count; i++)
-                    VoiceList.Add(i, voice[i].name);
+                    VoiceList.Add(i, voice[i].Name);
                 return VoiceList;
 
             }
@@ -139,11 +139,11 @@ class Yomiage
     }
     public class Voice
     {
-        public List<Namev> voiceList { get; set; }
+        public List<VoiceName> VoiceList { get; set; }
 
-        public class Namev
+        public class VoiceName
         {
-            public string name { get; set; }
+            public string Name { get; set; }
         }
     }
 }

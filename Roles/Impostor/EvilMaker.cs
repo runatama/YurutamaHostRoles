@@ -44,9 +44,9 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
     public float CalculateKillCooldown() => KillCooldown;
     bool IUsePhantomButton.IsPhantomRole => !Used;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = AbilityCooldown;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        fall = false;
+        ResetCoolDown = true;
 
         if (Used) return;
 
@@ -55,71 +55,27 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
         if ((target.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.King or CustomRoles.Merlin || target.GetCustomRole().IsImpostor()) && !SuddenDeathMode.NowSuddenDeathMode) return;
 
         Used = true;
-        resetkillcooldown = true;
+        AdjustKillCoolDown = false;
         if (SuddenDeathMode.NowSuddenDeathTemeMode)
         {
-            if (SuddenDeathMode.TeamRed.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Add(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamBlue.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Add(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamYellow.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Add(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamGreen.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Add(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamPurple.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Add(target.PlayerId);
-            }
+            target.SideKickChangeTeam(Player);
         }
 
         _ = new LateTask(() => Player.SetKillCooldown(target: target), Main.LagTime, "", true);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
-        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true)));
+        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), UtilsName.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", UtilsName.GetPlayerColor(Player, true)));
         target.RpcSetCustomRole(CustomRoles.SKMadmate);
         NameColorManager.Add(Player.PlayerId, target.PlayerId, "#ff1919");
         NameColorManager.Add(target.PlayerId, Player.PlayerId, "#ff1919");
         if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
-        foreach (var pl in PlayerCatch.AllPlayerControls)
-        {
-            if (pl == PlayerControl.LocalPlayer)
-                target.StartCoroutine(target.CoSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, Main.SetRoleOverride));
-            else
-                target.RpcSetRoleDesync(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, pl.GetClientId());
-        }
+
+        target.RpcSetRole(Options.SkMadCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, true);
         PlayerCatch.SKMadmateNowCount++;
-        UtilsOption.MarkEveryoneDirtySettings();
+        target.MarkDirtySettings();
         UtilsNotifyRoles.NotifyRoles();
         UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
-        resetkillcooldown = true;
+        AdjustKillCoolDown = true;
     }
     public override string GetAbilityButtonText() => GetString("Sidekick");
     public override bool OverrideAbilityButton(out string text)

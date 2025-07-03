@@ -54,7 +54,7 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
     bool HasImpV;
 
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => Shurenekodotti.GetBool() ? SchrodingerCat.TeamType.Mad : SchrodingerCat.TeamType.Crew;
-    public override CustomRoles GetFtResults(PlayerControl player) => CustomRoles.Impostor;
+    public override CustomRoles TellResults(PlayerControl player) => CustomRoles.Impostor;
     private static void SetupOptionItem()
     {
         KillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)

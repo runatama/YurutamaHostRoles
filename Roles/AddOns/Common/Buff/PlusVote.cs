@@ -15,7 +15,7 @@ namespace TownOfHost.Roles.AddOns.Common
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.PlusVote, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.PlusVote, fromtext: UtilsOption.GetFrom(From.TownOfHost_Y));
             AddOnsAssignData.Create(Id + 10, CustomRoles.PlusVote, true, true, true, true);
             AdditionalVote = IntegerOptionItem.Create(Id + 50, "MayorAdditionalVote", new(1, 99, 1), 1, TabGroup.Addons, false).SetValueFormat(OptionFormat.Votes)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlusVote]).SetParentRole(CustomRoles.PlusVote);
@@ -29,8 +29,5 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-
     }
 }

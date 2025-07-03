@@ -33,57 +33,50 @@ public sealed class JackalDoll : RoleBase
         player
     )
     {
-        Oyabun.Clear();
-        shoukaku = false;
-        role.Clear();
-        Ex = null;
+        BossAndSidekicks.Clear();
+        CanPromotion = false;
+        ExiledPlayerInfo = null;
     }
-    static OptionItem JackaldieMode;
-    static OptionItem RoleChe;
-    public static OptionItem sidekick;
+    static OptionItem OptionJackaldieMode;
+    static OptionItem OptionChangeRole;
+    static OptionItem OptionSideKickMaxmim;
     static OptionItem CanVent;
     static OptionItem VentCool;
     static OptionItem VentIntime;
     static OptionItem CanVentMove;
-    static NetworkedPlayerInfo Ex;
+    static NetworkedPlayerInfo ExiledPlayerInfo;
     enum Option
     {
         JackaldolldieMode, JackaldollRoleChe, SideKickJackaldollMacCount
     }
-    enum diemode
+    enum Diemode
     {
-        Sonomama,
+        NoProcessing,
         FollowingSuicide,
-        rolech,
+        ChangeRole,
     };
-    public static int side;
-    bool shoukaku;
+    public static int NowSideKickCount;
+    bool CanPromotion;
     /// <summary>
-    /// key→my
-    /// Va→oyabun
+    /// key→Sidekick
+    /// Va→Owner
     /// </summary>
     /// <returns></returns>
-    public static Dictionary<byte, byte> Oyabun = new();
-    /// <summary>
-    /// key →my
-    /// va→role
-    /// </summary>
-    /// <returns></returns>
-    static Dictionary<byte, CustomRoles> role = new();
+    public static Dictionary<byte, (byte Owner, CustomRoles Ownerrole)> BossAndSidekicks = new();
     public static readonly CustomRoles[] ChangeRoles =
     {
         CustomRoles.Crewmate, CustomRoles.Madmate , CustomRoles.Jester, CustomRoles.Opportunist,CustomRoles.Monochromer
     };
     public static int GetSideKickCount()
     {
-        if ((CustomRoles.Jackal.IsEnable() && Jackal.CanmakeSK.GetBool())
-        || (CustomRoles.JackalAlien.IsEnable() && JackalAlien.CanmakeSK.GetBool())
-        || (CustomRoles.JackalMafia.IsEnable() && JackalMafia.CanmakeSK.GetBool()))
+        if ((CustomRoles.Jackal.IsEnable() && Jackal.OptionCanMakeSidekick.GetBool())
+        || (CustomRoles.JackalAlien.IsEnable() && JackalAlien.OptionCanMakeSidekick.GetBool())
+        || (CustomRoles.JackalMafia.IsEnable() && JackalMafia.OptionCanMakeSidekick.GetBool()))
         {
             // 0%以上なら確認する。
             if (Options.GetRoleChance(CustomRoles.Jackaldoll) > 0)
             {
-                return sidekick.GetInt();
+                return OptionSideKickMaxmim.GetInt();
             }
             // 0%でサイドキックあり得るなら1は返してあげる。
             return 1;
@@ -93,124 +86,122 @@ public sealed class JackalDoll : RoleBase
     private static void SetupOptionItem()
     {
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
-        sidekick = IntegerOptionItem.Create(RoleInfo, 9, Option.SideKickJackaldollMacCount, new(0, 15, 1), 1, false);
-        JackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<diemode>(), 0, false);
-        RoleChe = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false)
-        .SetCansee(() => JackaldieMode.GetValue() is 2);
+        OptionSideKickMaxmim = IntegerOptionItem.Create(RoleInfo, 9, Option.SideKickJackaldollMacCount, new(0, 15, 1), 1, false);
+        OptionJackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<Diemode>(), 0, false);
+        OptionChangeRole = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false)
+        .SetCansee(() => OptionJackaldieMode.GetValue() is 2);
         CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
         VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
         VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentCooldown, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
         CanVentMove = BooleanOptionItem.Create(RoleInfo, 19, "MadmateCanMovedByVent", false, false, CanVent);
         RoleAddAddons.Create(RoleInfo, 20, MadMate: true);
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => CanVentMove.GetBool();
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId) => CanVentMove.GetBool();
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.EngineerCooldown = VentCool.GetFloat();
         AURoleOptions.EngineerInVentMaxTime = VentIntime.GetFloat();
     }
-    public static void Sidekick(PlayerControl pc, PlayerControl oyabun)
+    public static void Sidekick(PlayerControl doll, PlayerControl owner)
     {
-        if (Oyabun.ContainsKey(pc.PlayerId))
+        NowSideKickCount++;
+        if (BossAndSidekicks.ContainsKey(doll.PlayerId))
         {
-            Oyabun.Remove(pc.PlayerId);
+            BossAndSidekicks.Remove(doll.PlayerId);
         }
 
-        var state = PlayerState.GetByPlayerId(pc.PlayerId);
+        var state = PlayerState.GetByPlayerId(doll.PlayerId);
 
-        if (oyabun.Is(CustomRoles.Jackal))
+        if (owner.Is(CustomRoles.Jackal))
         {
-            if (Jackal.OptionDoll.GetBool())
+            if (Jackal.OptionSidekickPromotion.GetBool())
             {
-                Main.AllPlayerKillCooldown[pc.PlayerId] = Jackal.OptionKillCooldown.GetFloat();
-                Oyabun.Add(pc.PlayerId, oyabun.PlayerId);
-                role.Add(pc.PlayerId, CustomRoles.Jackal);
+                Main.AllPlayerKillCooldown[doll.PlayerId] = Jackal.OptionKillCooldown.GetFloat();
+                BossAndSidekicks.Add(doll.PlayerId, (owner.PlayerId, CustomRoles.Jackal));
             }
-            if (Jackal.SKcanImp.GetBool())
+            if (Jackal.OptionSidekickCanSeeOldImpostorTeammates.GetBool())
             {
                 foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
-                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
-                    NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
+                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(doll.PlayerId, imp.Key);
+                    NameColorManager.Add(doll.PlayerId, imp.Key, "ffffff");
                 }
             }
-            if (Jackal.SKimpwocanimp.GetBool())
+            if (Jackal.OptionImpostorCanSeeNameColor.GetBool())
             {
                 foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
-                    var iste = PlayerState.GetByPlayerId(imp.Key);
-                    if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
-                    NameColorManager.Add(imp.Key, pc.PlayerId, "ffffff");
+                    var impostorstate = PlayerState.GetByPlayerId(imp.Key);
+                    if (impostorstate.TargetColorData.ContainsKey(doll.PlayerId)) NameColorManager.Remove(imp.Key, doll.PlayerId);
+                    NameColorManager.Add(imp.Key, doll.PlayerId, "ffffff");
                 }
             }
         }
-        if (oyabun.Is(CustomRoles.JackalMafia))
+        if (owner.Is(CustomRoles.JackalMafia))
         {
-            if (JackalMafia.OptionDoll.GetBool())
+            if (JackalMafia.OptionSidekickPromotion.GetBool())
             {
-                Main.AllPlayerKillCooldown[pc.PlayerId] = JackalMafia.OptionKillCooldown.GetFloat();
-                Oyabun.Add(pc.PlayerId, oyabun.PlayerId);
-                role.Add(pc.PlayerId, CustomRoles.JackalMafia);
+                Main.AllPlayerKillCooldown[doll.PlayerId] = JackalMafia.OptionKillCooldown.GetFloat();
+                BossAndSidekicks.Add(doll.PlayerId, (owner.PlayerId, CustomRoles.JackalMafia));
             }
-            if (JackalMafia.SKcanImp.GetBool())
+            if (JackalMafia.OptionSidekickCanSeeOldImpostorTeammates.GetBool())
             {
                 foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
-                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
-                    NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
+                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(doll.PlayerId, imp.Key);
+                    NameColorManager.Add(doll.PlayerId, imp.Key, "ffffff");
                 }
             }
-            if (JackalMafia.SKimpwocanimp.GetBool())
+            if (JackalMafia.OptionImpostorCanSeeNameColor.GetBool())
             {
                 foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
-                    var iste = PlayerState.GetByPlayerId(imp.Key);
-                    if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
-                    NameColorManager.Add(imp.Key, pc.PlayerId, "ffffff");
+                    var impostorstate = PlayerState.GetByPlayerId(imp.Key);
+                    if (impostorstate.TargetColorData.ContainsKey(doll.PlayerId)) NameColorManager.Remove(imp.Key, doll.PlayerId);
+                    NameColorManager.Add(imp.Key, doll.PlayerId, "ffffff");
                 }
             }
         }
-        if (oyabun.Is(CustomRoles.JackalAlien))
+        if (owner.Is(CustomRoles.JackalAlien))
         {
-            if (JackalAlien.OptionDoll.GetBool())
+            if (JackalAlien.OptionSidekickPromotion.GetBool())
             {
-                Main.AllPlayerKillCooldown[pc.PlayerId] = JackalAlien.OptionKillCooldown.GetFloat();
-                Oyabun.Add(pc.PlayerId, oyabun.PlayerId);
-                role.Add(pc.PlayerId, CustomRoles.JackalAlien);
+                Main.AllPlayerKillCooldown[doll.PlayerId] = JackalAlien.OptionKillCooldown.GetFloat();
+                BossAndSidekicks.Add(doll.PlayerId, (owner.PlayerId, CustomRoles.JackalAlien));
             }
-            if (JackalAlien.SKcanImp.GetBool())
+            if (JackalAlien.OptionSidekickCanSeeOldImpostorTeammates.GetBool())
             {
                 foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
-                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(pc.PlayerId, imp.Key);
-                    NameColorManager.Add(pc.PlayerId, imp.Key, "ffffff");
+                    if (state.TargetColorData.ContainsKey(imp.Key)) NameColorManager.Remove(doll.PlayerId, imp.Key);
+                    NameColorManager.Add(doll.PlayerId, imp.Key, "ffffff");
                 }
             }
-            if (JackalAlien.SKimpwocanimp.GetBool())
+            if (JackalAlien.OptionImpostorCanSeeNameColor.GetBool())
             {
                 foreach (var imp in PlayerCatch.AllPlayerFirstTypes.Where(x => x.Value is CustomRoleTypes.Impostor))
                 {
-                    var iste = PlayerState.GetByPlayerId(imp.Key);
-                    if (iste.TargetColorData.ContainsKey(pc.PlayerId)) NameColorManager.Remove(imp.Key, pc.PlayerId);
-                    NameColorManager.Add(imp.Key, pc.PlayerId, "ffffff");
+                    var impostorstate = PlayerState.GetByPlayerId(imp.Key);
+                    if (impostorstate.TargetColorData.ContainsKey(doll.PlayerId)) NameColorManager.Remove(imp.Key, doll.PlayerId);
+                    NameColorManager.Add(imp.Key, doll.PlayerId, "ffffff");
                 }
             }
         }
 
-        pc.RpcSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, true);
+        doll.RpcSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, true);
 
         //サイドキックがガード等発動しないため。
-        if (RoleAddAddons.GetRoleAddon(CustomRoles.Jackaldoll, out var d, pc, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
+        if (RoleAddAddons.GetRoleAddon(CustomRoles.Jackaldoll, out var addondate, doll, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
         {
-            if (d.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += d.Guard.GetInt();
-            if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
+            if (addondate.GiveGuarding.GetBool()) Main.Guard[doll.PlayerId] += addondate.Guard.GetInt();
+            if (addondate.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[doll.PlayerId] = addondate.Speed.GetFloat();
         }
-        foreach (var pl in PlayerCatch.AllPlayerControls)
+        foreach (var jackals in PlayerCatch.AllPlayerControls)
         {
-            if (pl.Is(CountTypes.Jackal))
+            if (jackals.Is(CountTypes.Jackal))
             {
-                NameColorManager.Add(pl.PlayerId, pc.PlayerId, UtilsRoleText.GetRoleColorCode(CustomRoles.Jackaldoll));
-                NameColorManager.Add(pc.PlayerId, pl.PlayerId, UtilsRoleText.GetRoleColorCode(CustomRoles.Jackaldoll));
+                NameColorManager.Add(jackals.PlayerId, doll.PlayerId, UtilsRoleText.GetRoleColorCode(CustomRoles.Jackaldoll));
+                NameColorManager.Add(doll.PlayerId, jackals.PlayerId, UtilsRoleText.GetRoleColorCode(CustomRoles.Jackaldoll));
             }
         }
         //どっちにしろ更新を
@@ -218,15 +209,15 @@ public sealed class JackalDoll : RoleBase
     }
     public override bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
     {
-        Ex = Exiled;
+        ExiledPlayerInfo = Exiled;
         return false;
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
         var (killer, target) = info.AppearanceTuple;
-        if (Oyabun.TryGetValue(target.PlayerId, out var oya))
+        if (BossAndSidekicks.TryGetValue(target.PlayerId, out var data))
         {//サイドキックされて親分に殺されそうとか言う事になるとキルガード
-            if (oya == killer.PlayerId)
+            if (data.Owner == killer.PlayerId)
             {
                 info.CanKill = false;
                 killer.RpcProtectedMurderPlayer(target);
@@ -237,26 +228,28 @@ public sealed class JackalDoll : RoleBase
     }
     public override void AfterMeetingTasks()
     {
-        if (Oyabun.ContainsKey(Player.PlayerId)) return;
-        var id = Ex?.PlayerId ?? byte.MaxValue;
+        if (BossAndSidekicks.ContainsKey(Player.PlayerId)) return;
 
-        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien) || role.ContainsKey(x.PlayerId)) && x.PlayerId != id)) return;
+        var id = ExiledPlayerInfo?.PlayerId ?? byte.MaxValue;
 
-        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll) && !role.ContainsKey(x.PlayerId)))
+        if (PlayerCatch.AllAlivePlayerControls.Any(x => (x.Is(CustomRoles.Jackal) || x.Is(CustomRoles.JackalMafia) || x.Is(CustomRoles.JackalAlien) || BossAndSidekicks.ContainsKey(x.PlayerId)) && x.PlayerId != id)) return;
+
+        foreach (var Jd in PlayerCatch.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Jackaldoll) && !BossAndSidekicks.ContainsKey(x.PlayerId)))
         {
-            if ((diemode)JackaldieMode.GetValue() == diemode.FollowingSuicide)
+            switch ((Diemode)OptionJackaldieMode.GetValue())
             {
-                //ガードなどは無視
-                PlayerState.GetByPlayerId(Jd.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                Jd.RpcExileV2();
-                PlayerState.GetByPlayerId(Jd.PlayerId).SetDead();
-            }
-            if ((diemode)JackaldieMode.GetValue() == diemode.rolech)
-            {
-                UtilsGameLog.AddGameLog($"JackalDool", Utils.GetPlayerColor(Jd) + ":  " + string.Format(GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[RoleChe.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[RoleChe.GetValue()]))));
-                if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
-                Jd.RpcSetCustomRole(ChangeRoles[RoleChe.GetValue()], log: null);
-                UtilsNotifyRoles.NotifyRoles();
+                case Diemode.FollowingSuicide:
+                    //ガードなどは無視
+                    PlayerState.GetByPlayerId(Jd.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
+                    Jd.RpcExileV2();
+                    PlayerState.GetByPlayerId(Jd.PlayerId).SetDead();
+                    break;
+                case Diemode.ChangeRole:
+                    UtilsGameLog.AddGameLog($"JackalDool", UtilsName.GetPlayerColor(Jd) + ":  " + string.Format(GetString("Executioner.ch"), Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Jackal), GetString("Jackal")), Translator.GetRoleString($"{ChangeRoles[OptionChangeRole.GetValue()]}").Color(UtilsRoleText.GetRoleColor(ChangeRoles[OptionChangeRole.GetValue()]))));
+                    if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
+                    Jd.RpcSetCustomRole(ChangeRoles[OptionChangeRole.GetValue()], log: null);
+                    UtilsNotifyRoles.NotifyRoles();
+                    break;
             }
         }
     }
@@ -265,17 +258,15 @@ public sealed class JackalDoll : RoleBase
         if (!player.IsAlive()) return;
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (Oyabun.TryGetValue(player.PlayerId, out var oyabunid))
+        if (BossAndSidekicks.TryGetValue(player.PlayerId, out var data))
         {
-            var oya = PlayerCatch.GetPlayerById(oyabunid);
-            var jacrole = CustomRoles.Jackal;
-            role.TryGetValue(player.PlayerId, out jacrole);
-            if ((!oya.IsAlive() || oya.GetCustomRole() != jacrole) && !shoukaku)
+            var oya = PlayerCatch.GetPlayerById(data.Owner);
+            if ((!oya.IsAlive() || oya.GetCustomRole() != data.Ownerrole) && !CanPromotion)
             {
                 MyState.SetCountType(CountTypes.Jackal);
-                shoukaku = true;
+                CanPromotion = true;
                 if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
-                player.RpcSetCustomRole(jacrole, true);
+                player.RpcSetCustomRole(data.Ownerrole, true);
 
                 //徒党が存在していて、ジャッカルの徒党がON
                 if (PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Faction)) && Faction.OptionRole.TryGetValue(CustomRoles.Jackal, out var option))
@@ -287,12 +278,12 @@ public sealed class JackalDoll : RoleBase
                     }
                 }
             }
-            shoukaku = false;
+            CanPromotion = false;
         }
     }
     public override void OverrideTrueRoleName(ref Color roleColor, ref string roleText)
     {
-        if (Oyabun.ContainsKey(Player.PlayerId))
+        if (BossAndSidekicks.ContainsKey(Player.PlayerId))
         {
             roleText = $"☆" + GetString("Jackaldoll");
         }
@@ -301,9 +292,9 @@ public sealed class JackalDoll : RoleBase
     {
         if (GameLog) return "";
 
-        if (Oyabun.TryGetValue(Player.PlayerId, out var id))
+        if (BossAndSidekicks.TryGetValue(Player.PlayerId, out var data))
         {
-            return Utils.ColorString(Main.PlayerColors[id], "◎");
+            return Utils.ColorString(Main.PlayerColors[data.Owner], "◎");
         }
         return "";
     }

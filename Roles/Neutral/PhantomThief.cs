@@ -24,16 +24,16 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
             introSound: () => GetIntroSound(RoleTypes.Phantom),
             Desc: () =>
             {
-                var yokoku = "";
+                var Preview = "";
                 var win = "";
 
                 if (OptionTandokuWin.GetBool()) win = GetString("SoloWin");
                 else win = GetString("AddWin");
 
                 if (OptionNotice.GetBool())
-                    yokoku = string.Format(GetString("PhantomThiefDescInfo"), GetString($"PhantomThiefDescY{OptionNoticetype.GetValue()}"));
+                    Preview = string.Format(GetString("PhantomThiefDescInfo"), GetString($"PhantomThiefDescY{OptionNoticetype.GetValue()}"));
 
-                return string.Format(GetString("PhantomThiefDesc"), yokoku, OptionCantSetCount.GetInt(), win);
+                return string.Format(GetString("PhantomThiefDesc"), Preview, OptionCantSetCount.GetInt(), win);
             }
         );
     public PhantomThief(PlayerControl player)
@@ -42,9 +42,9 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
         player
     )
     {
-        Target = null;
-        roletarget = byte.MaxValue;
-        tagerole = CustomRoles.NotAssigned;
+        target = null;
+        targetId = byte.MaxValue;
+        targetrole = CustomRoles.NotAssigned;
         MeetingNotice = false;
     }
     static OptionItem OptionKillCoolDown;
@@ -52,9 +52,9 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     static OptionItem OptionTandokuWin;
     static OptionItem OptionNotice;
     static OptionItem OptionNoticetype;
-    byte roletarget;
-    CustomRoles tagerole;
-    PlayerControl Target;
+    byte targetId;
+    CustomRoles targetrole;
+    PlayerControl target;
     bool MeetingNotice;
     public bool CanKill { get; private set; } = false;
     enum OptionName
@@ -84,11 +84,11 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (roletarget == byte.MaxValue) return;
+        if (targetId == byte.MaxValue) return;
 
-        if ((PlayerCatch.GetPlayerById(roletarget)?.IsAlive() ?? false) && player != Target) return;
+        if ((PlayerCatch.GetPlayerById(targetId)?.IsAlive() ?? false) && player != target) return;
 
-        roletarget = byte.MaxValue;
+        targetId = byte.MaxValue;
         Player.KillFlash();
         MeetingNotice = false;
         Player.SetKillCooldown();
@@ -96,9 +96,9 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
-        Target = null;
-        roletarget = byte.MaxValue;
-        tagerole = CustomRoles.NotAssigned;
+        target = null;
+        targetId = byte.MaxValue;
+        targetrole = CustomRoles.NotAssigned;
         MeetingNotice = false;
     }
     public void OnCheckMurderAsKiller(MurderInfo info)
@@ -108,12 +108,12 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
         info.DoKill = false;
 
         if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayersCount) return;
-        if (roletarget != byte.MaxValue) return;
+        if (targetId != byte.MaxValue) return;
 
         killer.ResetKillCooldown();
-        roletarget = target.PlayerId;
-        Target = target;
-        tagerole = target.GetCustomRole();
+        targetId = target.PlayerId;
+        this.target = target;
+        targetrole = target.GetCustomRole();
         MeetingNotice = true;
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.2f, "PhantomThief Target");
         killer.SetKillCooldown(target: target, delay: true);
@@ -130,14 +130,14 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
             if (!seer.IsAlive()) return "";
             var notage = "<size=60%>" + GetString("PhantomThieftarget") + "</size>";
             var akiramero = "<size=60%>" + GetString("PhantomThiefakiarmero") + "</size>";
-            if (roletarget == byte.MaxValue)
+            if (targetId == byte.MaxValue)
                 if (OptionCantSetCount.GetFloat() > PlayerCatch.AllAlivePlayersCount)
                 {
                     return isForHud ? akiramero.RemoveSizeTags() : akiramero;
                 }
                 else return isForHud ? notage.RemoveSizeTags() : notage;
 
-            var hehhehhe = "<size=60%>" + Utils.GetPlayerColor(roletarget) + GetString("PhantomThiefwoitadakuze") + "</size>";
+            var hehhehhe = "<size=60%>" + UtilsName.GetPlayerColor(targetId) + GetString("PhantomThiefwoitadakuze") + "</size>";
 
             return isForHud ? hehhehhe.RemoveSizeTags() : hehhehhe;
         }
@@ -150,7 +150,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
         seen ??= Player;
-        if (seen.PlayerId == roletarget)
+        if (seen.PlayerId == targetId)
         {
             enabled = true;
             addon = true;
@@ -161,7 +161,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
         if (!MeetingNotice) return;
         MeetingNotice = false;
         if (!OptionNotice.GetBool()) return;
-        if (!Target.IsAlive()) return;
+        if (!target.IsAlive()) return;
         if (!Player.IsAlive()) return;
         var sendmeg = "";
         var tumari = "";
@@ -172,8 +172,8 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
                 sendmeg = GetString("PhantomThiefNoticeemail0");
                 break;
             case Notice.NoticeTeam:
-                var team = Target.GetCustomRole().GetCustomRoleTypes();
-                if (Target.Is(CustomRoles.Amanojaku) || Target.IsRiaju()) team = CustomRoleTypes.Neutral;
+                var team = target.GetCustomRole().GetCustomRoleTypes();
+                if (target.Is(CustomRoles.Amanojaku) || target.IsLovers()) team = CustomRoleTypes.Neutral;
                 if (team == CustomRoleTypes.Madmate) team = CustomRoleTypes.Impostor;
                 Color color = team is CustomRoleTypes.Crewmate ? Palette.Blue : (team is CustomRoleTypes.Impostor ? ModColors.ImpostorRed : ModColors.NeutralGray);
 
@@ -181,10 +181,10 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
                 tumari = string.Format(GetString("PhantomThiefmegInfo"), Utils.ColorString(color, GetString(team.ToString())));
                 break;
             case Notice.NoticePlayer:
-                var colorid = Target.Data.DefaultOutfit.ColorId;
+                var colorid = target.Data.DefaultOutfit.ColorId;
                 var playername = Utils.ColorString(Palette.PlayerColors[colorid], $"<u>{GetString($"PhantomThiefmeg{colorid}")}</u>");
                 sendmeg = string.Format(GetString("PhantomThiefNoticePlayer0"), playername);
-                tumari = string.Format(GetString("PhantomThiefmegInfo"), Utils.GetPlayerColor(Target.Data));
+                tumari = string.Format(GetString("PhantomThiefmegInfo"), UtilsName.GetPlayerColor(target.Data));
                 break;
         }
         sendmeg += $"<size=40%>\n{tumari}</size>";
@@ -204,40 +204,40 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     public bool? CheckKillFlash(MurderInfo info)
     {
         var (killer, target) = info.AppearanceTuple;
-        return target.PlayerId == roletarget;
+        return target.PlayerId == targetId;
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (!Player.IsAlive() || !Target.IsAlive()) return "";
+        if (!Player.IsAlive() || !target.IsAlive()) return "";
 
-        if (seen.PlayerId == roletarget) return $"<color={RoleInfo.RoleColorCode}>◆</color>";
+        if (seen.PlayerId == targetId) return $"<color={RoleInfo.RoleColorCode}>◆</color>";
 
         return "";
     }
     public bool CheckWin()
     {
-        if (roletarget == byte.MaxValue || !Player.IsAlive()) return false;
-        if (CustomWinnerHolder.WinnerIds.Contains(roletarget))
+        if (targetId == byte.MaxValue || !Player.IsAlive()) return false;
+        if (CustomWinnerHolder.WinnerIds.Contains(targetId))
         {
-            var Targetrole = Target.GetCustomRole();
-            if (Targetrole != tagerole && Targetrole != CustomRoles.NotAssigned) tagerole = Targetrole;
+            var Targetrole = target.GetCustomRole();
+            if (Targetrole != targetrole && Targetrole != CustomRoles.NotAssigned) targetrole = Targetrole;
             if (OptionTandokuWin.GetBool())
             {
                 if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PhantomThief, Player.PlayerId, true))
                 {
                     CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
-                    Player.RpcSetCustomRole(tagerole, log: null);
-                    Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
-                    CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
-                    UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
+                    Player.RpcSetCustomRole(targetrole, log: null);
+                    target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
+                    CustomWinnerHolder.CantWinPlayerIds.Add(targetId);
+                    UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), UtilsName.GetPlayerColor(Player, true), UtilsName.GetPlayerColor(targetId, true)));
                 }
                 return false;
             }
-            Player.RpcSetCustomRole(tagerole, log: null);
-            Target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
-            CustomWinnerHolder.IdRemoveLovers.Add(roletarget);
-            UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(roletarget, true)));
+            Player.RpcSetCustomRole(targetrole, log: null);
+            target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
+            CustomWinnerHolder.CantWinPlayerIds.Add(targetId);
+            UtilsGameLog.AddGameLog($"PhantomThief", string.Format(GetString("Log.PhantomThief"), UtilsName.GetPlayerColor(Player, true), UtilsName.GetPlayerColor(targetId, true)));
             return true;
         }
         return false;

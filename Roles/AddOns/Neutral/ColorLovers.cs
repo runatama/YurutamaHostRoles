@@ -73,7 +73,7 @@ class ColorLovers
         if (!LoverSetRole.GetBool()) return;
         if (!LoverRole.IsPresent()) return;
 
-        var count = Math.Clamp(LoverRole.GetRealCount(), 0, PlayerCatch.AllPlayerControls.Where(pc => !Loverremove.Contains(pc.GetCustomRole()) && !pc.IsRiaju()).Count());
+        var count = Math.Clamp(LoverRole.GetRealCount(), 0, PlayerCatch.AllPlayerControls.Where(pc => !Loverremove.Contains(pc.GetCustomRole()) && !pc.IsLovers()).Count());
         if (count <= 0) return;
 
         List<PlayerControl> Assingplayer1 = new();
@@ -82,7 +82,7 @@ class ColorLovers
         {
             var role = pc.GetCustomRole();
 
-            if (pc.IsRiaju()) continue;
+            if (pc.IsLovers()) continue;
             if (Loverremove.Contains(role)) continue;
 
             if (role == LoversRole1.GetRole()) Assingplayer1.Add(pc);
@@ -112,13 +112,13 @@ class ColorLovers
     {
         if (!LoverRole.IsPresent()) return;
         if (2 <= LoverPlayer.Count) return;
-        var count = Math.Clamp(LoverRole.GetRealCount(), 0, PlayerCatch.AllPlayerControls.Where(pc => !Loverremove.Contains(pc.GetCustomRole()) && !pc.IsRiaju()).Count());
+        var count = Math.Clamp(LoverRole.GetRealCount(), 0, PlayerCatch.AllPlayerControls.Where(pc => !Loverremove.Contains(pc.GetCustomRole()) && !pc.IsLovers()).Count());
         if (count <= 0) return;
 
         List<PlayerControl> AssingTarget = new();
         foreach (var pc in PlayerCatch.AllPlayerControls)
         {
-            if (pc.IsRiaju()) continue;
+            if (pc.IsLovers()) continue;
             if (Loverremove.Contains(pc.GetCustomRole())) continue;
 
             if (!AssingImpostor.GetBool() && !AssingMadmate.GetBool() && !AssingCrewmate.GetBool() && !AssingNeutral.GetBool())
@@ -202,7 +202,7 @@ class ColorLovers
                     if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
                     {
                         PlayerState.GetByPlayerId(partnerPlayer.PlayerId).DeathReason = CustomDeathReason.FollowingSuicide;
-                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet || GameStates.Tuihou)
+                        if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet || GameStates.ExiledAnimate)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
                             ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
@@ -245,7 +245,7 @@ class ColorLovers
                     .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                    CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
                 });
                 reason = GameOverReason.ImpostorsByKill;
             }
@@ -264,7 +264,7 @@ class ColorLovers
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                    CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
                 });
         }
     }
@@ -280,7 +280,7 @@ class ColorLovers
                     .Do(p =>
                         {
                             CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                            CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                            CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
                         });
             }
             return true;

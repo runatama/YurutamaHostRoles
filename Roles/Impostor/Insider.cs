@@ -118,8 +118,8 @@ namespace TownOfHost.Roles.Impostor
             var mark = new StringBuilder(50);
 
             // 死亡したLoversのマーク追加
-            if (seen.GetRiaju() != seer.GetRiaju() && seen.IsRiaju() && KnowDeadRole(seen))
-                mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(seen.GetRiaju()), "♥"));
+            if (seen.GetLoverRole() != seer.GetLoverRole() && seen.IsLovers() && KnowDeadRole(seen))
+                mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(seen.GetLoverRole()), "♥"));
 
             if (canSeeImpostorAbilities)
             {

@@ -24,20 +24,18 @@ public sealed class GuardMaster : RoleBase
         player
     )
     {
-        CanSeeCheck = OptoonCheck.GetBool();
+        CanSeeProtect = OptionCanSeeProtect.GetBool();
         AddGuardCount = OptionAddGuardCount.GetInt();
         Guard = 0;
-        ta = Task.GetInt();
-        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
+        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskcount.GetInt() < 1; ;
     }
     private static OptionItem OptionAddGuardCount;
-    private static OptionItem OptoonCheck;
+    private static OptionItem OptionCanSeeProtect;
     private static int AddGuardCount;
-    private static bool CanSeeCheck;
-    static OptionItem Kakusei;
-    static OptionItem Task;
-    bool kakusei;
-    int ta;
+    private static bool CanSeeProtect;
+    static OptionItem OptAwakening;
+    static OptionItem OptAwakeningTaskcount;
+    bool Awakened;
     int Guard = 0;
     enum OptionName
     {
@@ -46,11 +44,11 @@ public sealed class GuardMaster : RoleBase
     }
     private static void SetupOptionItem()
     {
-        OptoonCheck = BooleanOptionItem.Create(RoleInfo, 10, OptionName.MadGuardianCanSeeWhoTriedToKill, true, false);
+        OptionCanSeeProtect = BooleanOptionItem.Create(RoleInfo, 10, OptionName.MadGuardianCanSeeWhoTriedToKill, true, false);
         OptionAddGuardCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.AddGuardCount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskKakusei, true, false);
-        Task = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
+        OptAwakening = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskAwakening, false, false);
+        OptAwakeningTaskcount = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, OptAwakening);
         OverrideTasksData.Create(RoleInfo, 20);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
@@ -62,31 +60,31 @@ public sealed class GuardMaster : RoleBase
         if (!NameColorManager.TryGetData(killer, target, out var value) || value != RoleInfo.RoleColorCode)
         {
             NameColorManager.Add(killer.PlayerId, target.PlayerId);
-            if (CanSeeCheck)
+            if (CanSeeProtect)
                 NameColorManager.Add(target.PlayerId, killer.PlayerId, RoleInfo.RoleColorCode);
         }
         killer.RpcProtectedMurderPlayer(target);
-        if (CanSeeCheck && kakusei) target.RpcProtectedMurderPlayer(target);
+        if (CanSeeProtect && Awakened) target.RpcProtectedMurderPlayer(target);
         info.CanKill = false;
         Guard--;
-        UtilsGameLog.AddGameLog($"GuardMaster", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+        UtilsGameLog.AddGameLog($"GuardMaster", UtilsName.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
         Logger.Info($"{target.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Guard}回", "GuardMaster");
         UtilsNotifyRoles.NotifyRoles();
         return true;
     }
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(ta))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskcount.GetInt()))
         {
-            if (kakusei == false)
+            if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
                     Utils.RoleSendList.Add(Player.PlayerId);
-            kakusei = true;
+            Awakened = true;
         }
         if (IsTaskFinished && Player.IsAlive())
             Guard += AddGuardCount;
         return true;
     }
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => CanSeeCheck ? Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})") : "";
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => CanSeeProtect ? Utils.ColorString(Guard == 0 ? UnityEngine.Color.gray : RoleInfo.RoleColor, $"({Guard})") : "";
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
 }

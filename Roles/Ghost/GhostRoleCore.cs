@@ -24,7 +24,7 @@ class GhostRoleCore
         //アドオンもここ置かせて( ᐛ )
         LastImpostor.Init();
         LastNeutral.Init();
-        watching.Init();
+        Watching.Init();
         Serial.Init();
         Management.Init();
         Speeding.Init();
@@ -37,7 +37,7 @@ class GhostRoleCore
         MagicHand.Init();
         Amnesia.Init();
         Lighting.Init();
-        seeing.Init();
+        Seeing.Init();
         Revenger.Init();
         Amanojaku.Init();
         Guesser.Init();
@@ -67,7 +67,7 @@ class GhostRoleCore
         Serial.SetupCustomOption();
         MagicHand.SetupCustomOption();
         Connecting.SetupCustomOption();
-        watching.SetupCustomOption();
+        Watching.SetupCustomOption();
         PlusVote.SetupCustomOption();
         Tiebreaker.SetupCustomOption();
         Autopsy.SetupCustomOption();
@@ -75,7 +75,7 @@ class GhostRoleCore
         Speeding.SetupCustomOption();
         Guarding.SetupCustomOption();
         Management.SetupCustomOption();
-        seeing.SetupCustomOption();
+        Seeing.SetupCustomOption();
         Opener.SetupCustomOption();
         //AntiTeleporter.SetupCustomOption();
         Lighting.SetupCustomOption();

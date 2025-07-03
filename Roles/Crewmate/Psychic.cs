@@ -31,13 +31,19 @@ public sealed class Psychic : RoleBase
         callrate = OptionCallRate.GetFloat();
         taskaddrate = OptionTaskAddRate.GetBool();
     }
-    static OptionItem Kakusei;
-    static OptionItem Task;
+    public override void Add()
+    {
+        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskCount.GetInt() < 1; ;
+
+        Psychics.Add(this);
+    }
+    static OptionItem OptAwakening;
+    static OptionItem OptAwakeningTaskCount;
     static OptionItem OptionCallRate;
     static OptionItem OptionTaskAddRate;
     static float callrate;
     static bool taskaddrate;
-    bool kakusei;
+    bool Awakened;
     static HashSet<Psychic> Psychics = new();
     enum OptionName
     {
@@ -48,47 +54,40 @@ public sealed class Psychic : RoleBase
     {
         OptionCallRate = FloatOptionItem.Create(RoleInfo, 12, OptionName.PsychicCallRate, new(0, 100, 1), 50, false).SetValueFormat(OptionFormat.Percent);
         OptionTaskAddRate = BooleanOptionItem.Create(RoleInfo, 13, OptionName.PsychicTaskAddrate, false, false);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskKakusei, true, false);
-        Task = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
+        OptAwakening = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskAwakening, false, false);
+        OptAwakeningTaskCount = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, OptAwakening);
     }
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(Task.GetInt()))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskCount.GetInt()))
         {
-            if (kakusei == false)
+            if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
                     Utils.RoleSendList.Add(Player.PlayerId);
-            kakusei = true;
+            Awakened = true;
         }
         return true;
     }
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
-    public override void Add()
-    {
-        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
-
-        Psychics.Add(this);
-    }
-
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override void OnDestroy() => Psychics.Clear();
     public float GetChance()
     {
-        var mokuhyo = callrate;
-        float wariai = MyTaskState.CompletedTasksCount * 100 / MyTaskState.AllTasksCount;
+        var MaxPercent = callrate;
+        float proportion = MyTaskState.CompletedTasksCount * 100 / MyTaskState.AllTasksCount;
 
         if (taskaddrate)
         {
-            mokuhyo = callrate * wariai;
+            MaxPercent = callrate * proportion;
         }
 
-        return mokuhyo / 100;
+        return MaxPercent / 100;
     }
     public static void CanAbility(PlayerControl target)
     {
         foreach (var ps in Psychics)
         {
             var random = IRandom.Instance.Next(100);
-            if (ps.Player.IsAlive() && ps.kakusei && ps.GetChance() > random)
+            if (ps.Player.IsAlive() && ps.Awakened && ps.GetChance() > random)
             {
                 if (AmongUsClient.Instance.AmHost)
                     if (ps.Player == PlayerControl.LocalPlayer)

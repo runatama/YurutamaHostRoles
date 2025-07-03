@@ -19,7 +19,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 typeof(JackalAlien),
                 player => new JackalAlien(player),
                 CustomRoles.JackalAlien,
-                () => CanmakeSK.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
+                () => OptionCanMakeSidekick.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
                 13000,
                 (1, 1),
@@ -35,7 +35,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 introSound: () => GetIntroSound(RoleTypes.Phantom),
                 Desc: () =>
                 {
-                    return GetString("JackalAlienInfoLong") + (CanmakeSK.GetBool() ? string.Format(GetString("JackalDescSidekick"), !CanImpSK.GetBool() ? GetString("JackalDescImpostorSideKick") : "") : "");
+                    return GetString("JackalAlienInfoLong") + (OptionCanMakeSidekick.GetBool() ? string.Format(GetString("JackalDescSidekick"), !OptionImpostorCanSidekick.GetBool() ? GetString("JackalDescImpostorSideKick") : "") : "");
                 }
             );
     public JackalAlien(PlayerControl player)
@@ -56,7 +56,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         CustomRoleManager.OnFixedUpdateOthers.Add(OnFixedUpdateOthers);
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         InsiderCansee.Clear();
-        Name.Clear();
+        NameAddmin.Clear();
 
         if (FirstAbility.GetBool()) AfterMeetingTasks();
     }
@@ -65,8 +65,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         AbductTimer = 255f;
         oldsendabtimer = 255f;
         stopCount = false;
-        SK = CanmakeSK.GetBool();
-        Fall = false;
+        CanSideKick = OptionCanMakeSidekick.GetBool();
         Init();
         PuppetCooltime.Clear();
         BittenPlayers.Clear();
@@ -74,7 +73,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         Count = 0;
         Remotekillertarget = 111;
         InsiderCansee.Clear();
-        Name.Clear();
+        NameAddmin.Clear();
         Aliens.Add(this);
     }
     public override void OnDestroy()
@@ -98,7 +97,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (!AmongUsClient.Instance.AmHost) return;
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         Remotekillertarget = 111;
-        Name.Clear();
+        NameAddmin.Clear();
         Puppets.Clear();
         PuppetCooltime.Clear();
         SendRPC(byte.MaxValue, 0);
@@ -127,8 +126,11 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
             var admins = AdminProvider.CalculateAdmin();
             var builder = new StringBuilder(512);
 
-            var m = new StringBuilder(512);
-            var g = 0;
+            var messagebuilder = new StringBuilder(512);
+            var index = 0;
+            var aliveplayers = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).ToArray();
+            var deadplayers = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId).ToArray();
+            var list = aliveplayers.AddRangeToArray(deadplayers);
             // 送信するメッセージを生成
             foreach (var admin in admins)
             {
@@ -137,18 +139,18 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 builder.Append(DestroyableSingleton<TranslationController>.Instance.GetString(entry.Room));
                 builder.Append(": ");
                 builder.Append(entry.TotalPlayers);
+                // 死体があったら死体の数を書く
                 if (entry.NumDeadBodies > 0)
                 {
                     builder.Append('(').Append(GetString("Deadbody"));
                     builder.Append('×').Append(entry.NumDeadBodies).Append(')');
                 }
-                m.Append(builder);
-                m.Append('\n');
-                var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-                Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
+                messagebuilder.Append(builder);
+                messagebuilder.Append('\n');
+                NameAddmin.Add(list[index].PlayerId, builder.ToString());
+
                 builder.Clear();
-                g++;
+                index++;
             }
         }
     }
@@ -157,7 +159,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (AmongUsClient.Instance.AmHost)
             ResetDarkenState();
     }
-    public override CustomRoles GetFtResults(PlayerControl player) => modeTairo ? CustomRoles.Alien : CustomRoles.Crewmate;
+    public override CustomRoles TellResults(PlayerControl player) => modeTairo ? CustomRoles.Alien : CustomRoles.Crewmate;
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
     {
         // 既定値
@@ -352,7 +354,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
             // 普通のキルじゃない．もしくはキルを行わない時はreturn
             if (GameStates.IsMeeting || info.IsAccident || info.IsSuicide || !info.CanKill || !info.DoKill) return;
             // 殺してきた人を殺し返す
-            if (!GameStates.Meeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
+            if (!GameStates.CalledMeeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
             Logger.Info("ネコカボチャの仕返し", "Alien");
             var killer = info.AttemptKiller;
             if (!IsCandidate(killer))
@@ -583,7 +585,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         if (!Player.IsAlive() && !gamelog) return "";
-        if (AlienHitoku || GameStates.Meeting || gamelog) return Mode(gamelog);
+        if (AlienHitoku || GameStates.CalledMeeting || gamelog) return Mode(gamelog);
 
         return "";
     }
@@ -622,7 +624,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 }
                 return "";
             }
-            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHitoku && !GameStates.Meeting && !MeetingStates.FirstMeeting)
+            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHitoku && !GameStates.CalledMeeting && !MeetingStates.FirstMeeting)
             {
                 return $"<size=50%>{al.Mode()}</size>";
             }
@@ -635,7 +637,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         var text = "";
         if (isForMeeting)
         {
-            if (!Name.TryGetValue(seen.PlayerId, out var Admin)) return "";
+            if (!NameAddmin.TryGetValue(seen.PlayerId, out var Admin)) return "";
             text = "<color=#8cffff><size=1.5>" + Admin + "</color></size>";
         }
         if (seer != Player || seen != Player)
@@ -665,7 +667,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.GetSideKickCount() <= JackalDoll.side || !SK) return "";
+        if (seen.PlayerId != seer.PlayerId || isForMeeting || !Player.IsAlive() || JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount || !CanSideKick) return "";
 
         if (isForHud) return GetString("PhantomButtonSideKick");
         return $"<size=50%>{GetString("PhantomButtonSideKick")}</size>";
@@ -711,7 +713,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         }
         return true;
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId)
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId)
     {
         if (modeMole) return false;
         if (modeComebaker) return false;
@@ -789,90 +791,49 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(OptionHasImpostorVision.GetBool());
-        AURoleOptions.PhantomCooldown = JackalDoll.GetSideKickCount() <= JackalDoll.side ? 200f : (Fall ? 0f : OptionCooldown.GetFloat());
+        AURoleOptions.PhantomCooldown = JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount ? 200f : OptionCooldown.GetFloat();
     }
     public void ApplySchrodingerCatOptions(IGameOptions option) => ApplyGameOptions(option);
-    public bool UseOneclickButton => SK;
-    public override bool CanUseAbilityButton() => SK;
-    bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.side;
+    public bool UseOneclickButton => CanSideKick;
+    public override bool CanUseAbilityButton() => CanSideKick;
+    bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount;
 
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        if (!SK) return;
+        AdjustKillCoolDown = true;
+        if (!CanSideKick) return;
 
-        if (JackalDoll.GetSideKickCount() <= JackalDoll.side)
+        if (JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount)
         {
-            SK = false;
+            CanSideKick = false;
             return;
         }
-        var ch = Fall;
         var target = Player.GetKillTarget(true);
 
         if (target == null)
         {
-            fall = true;
+            ResetCoolDown = false;
             return;
         }
         var targetrole = target.GetCustomRole();
-        if (target == null || (targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.Merlin) || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !CanImpSK.GetBool()))
+        if (target == null || (targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.Merlin) || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !OptionImpostorCanSidekick.GetBool()))
         {
-            fall = true;
+            ResetCoolDown = false;
             return;
         }
         if (SuddenDeathMode.NowSuddenDeathTemeMode)
         {
-            if (SuddenDeathMode.TeamRed.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Add(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamBlue.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Add(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamYellow.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Add(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamGreen.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Add(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-            }
-            if (SuddenDeathMode.TeamPurple.Contains(Player.PlayerId))
-            {
-                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                SuddenDeathMode.TeamPurple.Add(target.PlayerId);
-            }
+            target.SideKickChangeTeam(Player);
         }
-        SK = false;
+        CanSideKick = false;
         Player.RpcProtectedMurderPlayer(target);
         target.RpcProtectedMurderPlayer(Player);
         target.RpcProtectedMurderPlayer(target);
-        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), Utils.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", Utils.GetPlayerColor(Player, true)));
+        UtilsGameLog.AddGameLog($"SideKick", string.Format(GetString("log.Sidekick"), UtilsName.GetPlayerColor(target, true) + $"({UtilsRoleText.GetTrueRoleName(target.PlayerId)})", UtilsName.GetPlayerColor(Player, true)));
         target.RpcSetCustomRole(CustomRoles.Jackaldoll);
         JackalDoll.Sidekick(target, Player);
         if (!Utils.RoleSendList.Contains(target.PlayerId)) Utils.RoleSendList.Add(target.PlayerId);
         UtilsOption.MarkEveryoneDirtySettings();
-        JackalDoll.side++;
         UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>";
     }
 
@@ -1136,7 +1097,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     static OptionItem OptionModeEvilHacker;
     static int RateEvilHacker;
     bool modeEvilHacker;
-    static Dictionary<byte, string> Name = new();
+    static Dictionary<byte, string> NameAddmin = new();
     //リミッター
     static OptionItem OptionModeLimiter;
     static OptionItem Optionblastrange;
@@ -1256,14 +1217,13 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     private static OptionItem OptionJackalCanAlsoBeExposedToJMafia;
     private static OptionItem OptionJJackalMafiaCanAlsoBeExposedToJackal;
     private static OptionItem OptionJJackalCanKillMafia;
-    static OptionItem CanImpSK;
-    public static OptionItem SKcanImp;
-    public static OptionItem SKimpwocanimp;
-    public static OptionItem CanmakeSK;
-    public static OptionItem OptionDoll;
+    static OptionItem OptionImpostorCanSidekick;
+    public static OptionItem OptionSidekickCanSeeOldImpostorTeammates;
+    public static OptionItem OptionImpostorCanSeeNameColor;
+    public static OptionItem OptionCanMakeSidekick;
+    public static OptionItem OptionSidekickPromotion;
     static OptionItem OptionHasImpostorVision;
-    bool SK;
-    bool Fall;
+    bool CanSideKick;
     enum OptionName
     {
         AlienHitoku, AlienFirstAbility,
@@ -1294,13 +1254,13 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         OptionJJackalCanKillMafia = BooleanOptionItem.Create(RoleInfo, 9, JackalMafia.JackalOption.JackalCanKillMafia, false, false);
         OptionJJackalMafiaCanAlsoBeExposedToJackal = BooleanOptionItem.Create(RoleInfo, 10, JackalMafia.JackalOption.JackalMafiaCanAlsoBeExposedToJackal, false, false);
         OptionJackalCanAlsoBeExposedToJMafia = BooleanOptionItem.Create(RoleInfo, 11, JackalMafia.JackalOption.JackalCanAlsoBeExposedToJMafia, true, false);
-        CanmakeSK = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, true, false);
-        CanImpSK = BooleanOptionItem.Create(RoleInfo, 13, JackalMafia.JackalOption.JackaldollCanimp, false, false, CanmakeSK);
-        SKcanImp = BooleanOptionItem.Create(RoleInfo, 14, JackalMafia.JackalOption.JackalbeforeImpCanSeeImp, false, false, CanImpSK);
-        SKimpwocanimp = BooleanOptionItem.Create(RoleInfo, 15, JackalMafia.JackalOption.Jackaldollimpgaimpnimieru, false, false, CanImpSK);
-        OptionCooldown = FloatOptionItem.Create(RoleInfo, 16, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, CanmakeSK)
+        OptionCanMakeSidekick = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanCreateSideKick, true, false);
+        OptionImpostorCanSidekick = BooleanOptionItem.Create(RoleInfo, 13, JackalMafia.JackalOption.JackalImpostorCanSidekick, false, false, OptionCanMakeSidekick);
+        OptionSidekickCanSeeOldImpostorTeammates = BooleanOptionItem.Create(RoleInfo, 14, JackalMafia.JackalOption.JackalbeforeImpCanSeeImp, false, false, OptionImpostorCanSidekick);
+        OptionImpostorCanSeeNameColor = BooleanOptionItem.Create(RoleInfo, 15, JackalMafia.JackalOption.Jackaldollimpgaimpnimieru, false, false, OptionImpostorCanSidekick);
+        OptionCooldown = FloatOptionItem.Create(RoleInfo, 16, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, OptionCanMakeSidekick)
         .SetValueFormat(OptionFormat.Seconds);
-        OptionDoll = BooleanOptionItem.Create(RoleInfo, 17, JackalMafia.JackalOption.JackaldollShoukaku, false, false, CanmakeSK);
+        OptionSidekickPromotion = BooleanOptionItem.Create(RoleInfo, 17, JackalMafia.JackalOption.JackalSidekickPromotion, false, false, OptionCanMakeSidekick);
         FirstAbility = BooleanOptionItem.Create(RoleInfo, 4, OptionName.AlienFirstAbility, false, false);
         OptionAlienHitoku = BooleanOptionItem.Create(RoleInfo, 18, OptionName.AlienHitoku, false, false);
         OptionModeVampire = FloatOptionItem.Create(RoleInfo, 19, OptionName.AlienCVampire, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);

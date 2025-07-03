@@ -56,7 +56,7 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable, IDeathReasonSeeab
         //MadGuardianを切れるかの判定処理
         if (!MyTaskState.HasCompletedEnoughCountOfTasks(OptionTaskTrigger.GetInt())) return true;
 
-        UtilsGameLog.AddGameLog($"MadGuardian", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+        UtilsGameLog.AddGameLog($"MadGuardian", UtilsName.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
         info.CanKill = false;
 
         killer.SetKillCooldown();
@@ -77,5 +77,5 @@ public sealed class MadGuardian : RoleBase, IKillFlashSeeable, IDeathReasonSeeab
     }
     public bool? CheckKillFlash(MurderInfo info) => MadmateCanSeeKillFlash.GetBool();
     public bool? CheckSeeDeathReason(PlayerControl seen) => MadmateCanSeeDeathReason.GetBool();
-    public override CustomRoles GetFtResults(PlayerControl player) => MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => MadTellOpt();
 }

@@ -53,7 +53,7 @@ namespace TownOfHost
     {
         public static float w = 1;
         public static float h = 1;
-        public static bool dasu;
+        public static bool ShowModSetting;
         public static PassiveButton ModSettingsButton;
         public static RolesSettingsMenu ModSettingsTab;
         public static PassiveButton activeonly;
@@ -140,7 +140,8 @@ namespace TownOfHost
                     {
                         foreach (var roleopt in Options.CustomRoleSpawnChances)
                         {
-                            roleopt.Value.SetValue(0);
+                            if (roleopt.Value.GetValue() is not 0)
+                                roleopt.Value.SetValue(0);
                         }
                     }));
                 }
@@ -164,18 +165,18 @@ namespace TownOfHost
                         }
                     }));
                 }
-                var Majimerura = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (Majimerura)
+                var SetMenyRole = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (SetMenyRole)
                 {
-                    Majimerura.buttonText.text = $"多役構成";
-                    Majimerura.buttonText.DestroyTranslator();
-                    Majimerura.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    Majimerura.activeSprites.GetComponent<SpriteRenderer>().color =
-                    Majimerura.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 0, 40, byte.MaxValue);
-                    Majimerura.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 2), 0);
-                    Majimerura.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    Majimerura.OnClick = new();
-                    Majimerura.OnClick.AddListener((Action)(() =>
+                    SetMenyRole.buttonText.text = $"多役構成";
+                    SetMenyRole.buttonText.DestroyTranslator();
+                    SetMenyRole.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    SetMenyRole.activeSprites.GetComponent<SpriteRenderer>().color =
+                    SetMenyRole.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 0, 40, byte.MaxValue);
+                    SetMenyRole.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 2), 0);
+                    SetMenyRole.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    SetMenyRole.OnClick = new();
+                    SetMenyRole.OnClick.AddListener((Action)(() =>
                     {
                         foreach (var roleopt in Options.CustomRoleSpawnChances)
                         {
@@ -185,25 +186,25 @@ namespace TownOfHost
                         }
                     }));
                 }
-                var Yaminabe = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (Yaminabe)
+                var SetAllRole = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (SetAllRole)
                 {
-                    Yaminabe.buttonText.text = $"<#aa84f0>闇鍋</color>";
-                    Yaminabe.buttonText.DestroyTranslator();
-                    Yaminabe.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    Yaminabe.activeSprites.GetComponent<SpriteRenderer>().color =
-                    Yaminabe.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(69, 24, 153, byte.MaxValue);
-                    Yaminabe.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 3), 0);
-                    Yaminabe.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    Yaminabe.OnClick = new();
-                    Yaminabe.OnClick.AddListener((Action)(() =>
+                    SetAllRole.buttonText.text = $"<#aa84f0>闇鍋</color>";
+                    SetAllRole.buttonText.DestroyTranslator();
+                    SetAllRole.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    SetAllRole.activeSprites.GetComponent<SpriteRenderer>().color =
+                    SetAllRole.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(69, 24, 153, byte.MaxValue);
+                    SetAllRole.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 3), 0);
+                    SetAllRole.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    SetAllRole.OnClick = new();
+                    SetAllRole.OnClick.AddListener((Action)(() =>
                     {
                         foreach (var option in Options.CustomRoleSpawnChances)
                         {
-                            var r = option.Key;
-                            if (r is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
-                            if (Event.IsE(r) && !Event.Special) continue;
-                            if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral())
+                            var role = option.Key;
+                            if (role is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
+                            if (Event.IsE(role) && !Event.Special) continue;
+                            if (role.IsImpostor() || role.IsCrewmate() || role.IsMadmate() || role.IsNeutral())
                             {
                                 if (option.Value.GetValue() is not 10)
                                     option.Value.SetValue(10);
@@ -211,24 +212,24 @@ namespace TownOfHost
                         }
                     }));
                 }
-                var Sugoiyaminabe = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (Sugoiyaminabe)
+                var SetAllRoleAndAddon = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (SetAllRoleAndAddon)
                 {
-                    Sugoiyaminabe.buttonText.text = $"<#aa84f0>属性,幽霊役職入り闇鍋</color>";
-                    Sugoiyaminabe.buttonText.DestroyTranslator();
-                    Sugoiyaminabe.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    Sugoiyaminabe.activeSprites.GetComponent<SpriteRenderer>().color =
-                    Sugoiyaminabe.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(60, 60, 60, byte.MaxValue);
-                    Sugoiyaminabe.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 4), 0);
-                    Sugoiyaminabe.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    Sugoiyaminabe.OnClick = new();
-                    Sugoiyaminabe.OnClick.AddListener((Action)(() =>
+                    SetAllRoleAndAddon.buttonText.text = $"<#aa84f0>属性,幽霊役職入り闇鍋</color>";
+                    SetAllRoleAndAddon.buttonText.DestroyTranslator();
+                    SetAllRoleAndAddon.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    SetAllRoleAndAddon.activeSprites.GetComponent<SpriteRenderer>().color =
+                    SetAllRoleAndAddon.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(60, 60, 60, byte.MaxValue);
+                    SetAllRoleAndAddon.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 4), 0);
+                    SetAllRoleAndAddon.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    SetAllRoleAndAddon.OnClick = new();
+                    SetAllRoleAndAddon.OnClick.AddListener((Action)(() =>
                     {
                         foreach (var option in Options.CustomRoleSpawnChances)
                         {
-                            var r = option.Key;
-                            if (r is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
-                            if (Event.IsE(r) && !Event.Special) continue;
+                            var role = option.Key;
+                            if (role is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
+                            if (Event.IsE(role) && !Event.Special) continue;
                             if (option.Value.GetValue() is not 10)
                                 option.Value.SetValue(10);
                         }
@@ -577,7 +578,7 @@ namespace TownOfHost
                                             color = ModColors.CrewMateBlue;
                                             if (option.CustomRole.IsAddOn()) color = ModColors.AddonsColor;
                                             if (option.CustomRole.IsGhostRole()) color = ModColors.GhostRoleColor;
-                                            if (option.CustomRole.IsRiaju()) color = UtilsRoleText.GetRoleColor(option.CustomRole);
+                                            if (option.CustomRole.IsLovers()) color = UtilsRoleText.GetRoleColor(option.CustomRole);
                                             break;
                                     }
 
@@ -779,12 +780,12 @@ namespace TownOfHost
                 {
                     __instance.ChangeTab(3, false);
 
-                    if (dasu)
+                    if (ShowModSetting)
                     {
                         _ = new LateTask(() =>
                         {
                             if (!(ModSettingsTab?.gameObject?.active ?? false)) return;
-                            dasu = false;
+                            ShowModSetting = false;
                             if (tabButtons[0] != null)
                                 tabButtons[0].GetComponent<PassiveButton>().OnClick.Invoke();
                         }, 0.05f, "", true);
@@ -876,7 +877,7 @@ namespace TownOfHost
         public static void Postfix(GameSettingMenu __instance)
         {
             __instance.ChangeTab(1, false);
-            GameSettingMenuChangeTabPatch.Hima = 0;
+            GameSettingMenuChangeTabPatch.ClickCount = 0;
         }
     }
     class LabelBackground

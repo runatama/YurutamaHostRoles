@@ -29,13 +29,13 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
         player
     )
     {
-        mg.Clear();
+        ReportCrashTimers.Clear();
         Cooldown = OptionColldown.GetFloat();
         Use = OptionMax.GetInt();
         AntiReporterResetMeeting = OptionAntiReporterResetMeeting.GetBool();
         AntiReporterResetse = OptionAntiReporterResetse.GetFloat();
     }
-    Dictionary<byte, float> mg = new(14);
+    Dictionary<byte, float> ReportCrashTimers = new(14);
     static OptionItem OptionColldown;
     static OptionItem OptionMax;
     static OptionItem OptionAntiReporterResetMeeting;
@@ -45,8 +45,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
         Cooldown,
         AntiReporterMaximum,
         AntiReporterResetMeeting,
-        AntiReporterResetse,
-        UOcShButton
+        AntiReporterResetse
     }
     static float Cooldown;
     static int Use;
@@ -72,15 +71,15 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     {
         Use = reader.ReadInt32();
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = true;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = false;
         var target = Player.GetKillTarget(true);
         if (target == null) return;
-        if (!CanUseAbilityButton() || mg.ContainsKey(target.PlayerId)) return;
-        fall = false;
-        mg.Add(target.PlayerId, 0f);
+        if (!CanUseAbilityButton() || ReportCrashTimers.ContainsKey(target.PlayerId)) return;
+        ResetCoolDown = true;
+        ReportCrashTimers.Add(target.PlayerId, 0f);
         Use--;
         Player.RpcProtectedMurderPlayer(target);
         Logger.Info($"{target.name}のメガホンワンクリックだから間違えて壊しちゃった☆ ﾃﾍｯ", "AntiReporter");
@@ -90,7 +89,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(Use > 0 ? Color.red : Color.gray, $"({Use})");
     public override bool CancelReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, ref DontReportreson reportreson)
     {
-        if (mg.ContainsKey(reporter.PlayerId))
+        if (ReportCrashTimers.ContainsKey(reporter.PlayerId))
         {
             reportreson = DontReportreson.Other;
             return true;
@@ -104,7 +103,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
 
     public override void OnStartMeeting()
     {
-        if (AntiReporterResetMeeting == true) mg.Clear();
+        if (AntiReporterResetMeeting == true) ReportCrashTimers.Clear();
     }
     public override bool CanUseAbilityButton() => Use > 0;
     bool IUsePhantomButton.IsPhantomRole => Use > 0;
@@ -112,15 +111,15 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     {
         if (!AmongUsClient.Instance.AmHost || AntiReporterResetse == 0) return;
 
-        foreach (var (targetId, timer) in mg.ToArray())
+        foreach (var (targetId, timer) in ReportCrashTimers.ToArray())
         {
             if (timer >= AntiReporterResetse)
             {
-                mg.Remove(targetId);
+                ReportCrashTimers.Remove(targetId);
             }
             else
             {
-                mg[targetId] += Time.fixedDeltaTime;
+                ReportCrashTimers[targetId] += Time.fixedDeltaTime;
             }
         }
     }

@@ -21,6 +21,7 @@ using static TownOfHost.UtilsGameLog;
 using static TownOfHost.UtilsShowOption;
 using static TownOfHost.UtilsRoleText;
 using static TownOfHost.UtilsRoleInfo;
+using static TownOfHost.UtilsName;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
 using TownOfHost.Roles.Core.Descriptions;
@@ -378,11 +379,12 @@ namespace TownOfHost
                             var roleClass = PlayerControl.LocalPlayer.GetRoleClass();
                             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia))
                                 role = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                            if (roleClass?.Jikaku() != CustomRoles.NotAssigned && roleClass != null) role = roleClass.Jikaku();
-
+                            {
+                                if (PlayerControl.LocalPlayer.GetMisidentify(out var missrole)) role = missrole;
+                            }
                             if (role is CustomRoles.Amnesiac)
                             {
-                                if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                if (roleClass is Amnesiac amnesiac && !amnesiac.Realized)
                                     role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                             }
                             var hRoleTextData = GetRoleColorCode(role);
@@ -390,10 +392,10 @@ namespace TownOfHost
                             string hRoleInfoTitle = $"<{hRoleTextData}>{hRoleInfoTitleString}";
                             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)//バーニラならこっちで
                             {
-                                SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
+                                SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleDesc(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
                             }
                             else
-                                SendMessage(role.GetRoleInfo()?.Description?.FullFormatHelp ?? $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleInfo(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
+                                SendMessage(role.GetRoleInfo()?.Description?.FullFormatHelp ?? $"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(PlayerControl.LocalPlayer.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{PlayerControl.LocalPlayer.GetRoleDesc(true)}", PlayerControl.LocalPlayer.PlayerId, hRoleInfoTitle);
                             GetAddonsHelp(PlayerControl.LocalPlayer);
 
                             subArgs = args.Length < 2 ? "" : args[1];
@@ -408,11 +410,11 @@ namespace TownOfHost
                                         role = player.GetCustomRole();
                                         roleClass = player.GetRoleClass();
                                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                                        if (roleClass?.Jikaku() != CustomRoles.NotAssigned && roleClass != null) role = roleClass.Jikaku();
+                                        if (player.GetMisidentify(out var missrole)) role = missrole;
 
                                         if (role is CustomRoles.Amnesiac)
                                         {
-                                            if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                                            if (roleClass is Amnesiac amnesiac && !amnesiac.Realized)
                                                 role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                                         }
 
@@ -422,7 +424,7 @@ namespace TownOfHost
 
                                         if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
                                         {
-                                            SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "\n</b><size=90%><line-height=1.8pic>" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
+                                            SendMessage("<b><line-height=2.0pic><size=150%>" + GetString(role.ToString()).Color(player.GetRoleColor()) + "\n</b><size=90%><line-height=1.8pic>" + player.GetRoleDesc(true), player.PlayerId, RoleInfoTitle);
                                         }
                                         else
                                         if (role.GetRoleInfo()?.Description is { } description)
@@ -433,7 +435,7 @@ namespace TownOfHost
                                         // roleInfoがない役職
                                         else
                                         {
-                                            SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleInfo(true)}", player.PlayerId, RoleInfoTitle);
+                                            SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleDesc(true)}", player.PlayerId, RoleInfoTitle);
                                         }
                                         GetAddonsHelp(player);
 
@@ -453,7 +455,7 @@ namespace TownOfHost
                         canceled = true;
                         if (GameStates.InGame && Options.ImpostorHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && (PlayerControl.LocalPlayer.GetCustomRole().IsImpostor() || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Egoist))
                         {
-                            if ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita == false) break;
+                            if ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.Realized == false) break;
                             var send = "";
                             foreach (var ag in args)
                             {
@@ -464,7 +466,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "impostorsChat");
                             foreach (var imp in PlayerCatch.AllAlivePlayerControls)
                             {
-                                if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false) continue;
+                                if ((imp.GetRoleClass() as Amnesiac)?.Realized == false) continue;
                                 if (imp && ((imp?.GetCustomRole().IsImpostor() ?? false) || imp?.GetCustomRole() is CustomRoles.Egoist) || !imp.IsAlive())
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
@@ -531,11 +533,11 @@ namespace TownOfHost
                     case "/lc":
                         if (Assassin.NowUse) break;
                         canceled = true;
-                        if (GameStates.InGame && Options.LoversHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsRiaju())
+                        if (GameStates.InGame && Options.LoversHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.IsLovers())
                         {
-                            var l = PlayerControl.LocalPlayer.GetRiaju();
+                            var loverrole = PlayerControl.LocalPlayer.GetLoverRole();
 
-                            if (l is CustomRoles.NotAssigned or CustomRoles.OneLove || !l.IsRiaju()) break;
+                            if (loverrole is CustomRoles.NotAssigned or CustomRoles.OneLove || !loverrole.IsLovers()) break;
 
                             var send = "";
                             foreach (var ag in args)
@@ -547,16 +549,16 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "loversChat");
                             foreach (var lover in AllAlivePlayerControls)
                             {
-                                if (lover && (lover.GetRiaju() == l || !lover.IsAlive()))
+                                if (lover && (lover.GetLoverRole() == loverrole || !lover.IsAlive()))
                                 {
                                     var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                                     writer.StartMessage(lover.GetClientId());
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
-                                    .Write(ColorString(GetRoleColor(l), $"<line-height=-18%>\n♥{GetPlayerColor(PlayerControl.LocalPlayer)}♥</line-height>"))
+                                    .Write(ColorString(GetRoleColor(loverrole), $"<line-height=-18%>\n♥{GetPlayerColor(PlayerControl.LocalPlayer)}♥</line-height>"))
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SendChat)
-                                    .Write(send.Mark(GetRoleColor(l)))
+                                    .Write(send.Mark(GetRoleColor(loverrole)))
                                     .EndRpc();
                                     writer.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)RpcCalls.SetName)
                                     .Write(PlayerControl.LocalPlayer.Data.NetId)
@@ -574,7 +576,7 @@ namespace TownOfHost
                         if (Assassin.NowUse) break;
                         if (GameStates.InGame && Options.TwinsHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && Twins.TwinsList.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var twinsid))
                         {
-                            if (GameStates.Tuihou)
+                            if (GameStates.ExiledAnimate)
                             {
                                 canceled = true;
                                 break;
@@ -622,7 +624,7 @@ namespace TownOfHost
                         if (Assassin.NowUse) break;
                         if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting))
                         {
-                            if (GameStates.Tuihou)
+                            if (GameStates.ExiledAnimate)
                             {
                                 canceled = true;
                                 break;
@@ -835,42 +837,6 @@ namespace TownOfHost
                         }
                         break;
 
-                    case "/yaminabe":
-                    case "/yami":
-                    case "/ym":
-                        if (GameStates.IsLobby && !GameStates.IsCountDown)
-                        {
-                            canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && Event.CheckRole(option.Key) && (!Event.IsE(option.Key) || Event.Special)))
-                            {
-                                var r = option.Key;
-                                if (r.IsImpostor() || r.IsCrewmate() || r.IsMadmate() || r.IsNeutral()) option.Value.SetValue(10);
-                            }
-                        }
-                        break;
-                    case "/superyaminabe":
-                    case "/superyami":
-                    case "/sym":
-                        if (GameStates.IsLobby && !GameStates.IsCountDown)
-                        {
-                            canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && Event.CheckRole(option.Key) && (!Event.IsE(option.Key) || Event.Special)))
-                            {
-                                option.Value.SetValue(10);
-                            }
-                        }
-                        break;
-                    case "/rolereset":
-                    case "/resetrole":
-                        if (GameStates.IsLobby && !GameStates.IsCountDown)
-                        {
-                            canceled = true;
-                            foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned))
-                            {
-                                option.Value.SetValue(0);
-                            }
-                        }
-                        break;
                     case "/addwhite":
                     case "/aw":
                         canceled = true;
@@ -970,10 +936,10 @@ namespace TownOfHost
                                 }
                                 else
                                 {
-                                    if (role.IsAddOn() || role.IsGhostRole() || role.IsRiaju()) break;
+                                    if (role.IsAddOn() || role.IsGhostRole() || role.IsLovers()) break;
                                     Main.HostRole = role;
-                                    var r = ColorString(GetRoleColor(role), GetString($"{role}"));
-                                    SendMessage($"ホストの役職を{r}にするよっ!!");
+                                    var rolename = ColorString(GetRoleColor(role), GetString($"{role}"));
+                                    SendMessage($"ホストの役職を{rolename}にするよっ!!");
                                 }
                             }
                             else
@@ -1277,11 +1243,11 @@ namespace TownOfHost
                         var role = player.GetCustomRole();
                         var roleclass = player.GetRoleClass();
                         if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-                        if (roleclass?.Jikaku() != CustomRoles.NotAssigned && roleclass != null) role = roleclass.Jikaku();
+                        if (player.GetMisidentify(out var missrole)) role = missrole;
 
                         if (role is CustomRoles.Amnesiac)
                         {
-                            if (roleclass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                            if (roleclass is Amnesiac amnesiac && !amnesiac.Realized)
                                 role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                         }
 
@@ -1291,7 +1257,7 @@ namespace TownOfHost
 
                         if (role is CustomRoles.Crewmate or CustomRoles.Impostor)
                         {
-                            SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleInfo(true)}" + player.GetRoleInfo(true), player.PlayerId, RoleInfoTitle);
+                            SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleDesc(true)}", player.PlayerId, RoleInfoTitle);
                         }
                         else
                         if (role.GetRoleInfo()?.Description is { } description)
@@ -1302,7 +1268,7 @@ namespace TownOfHost
                         // roleInfoがない役職
                         else
                         {
-                            SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleInfo(true)}", player.PlayerId, RoleInfoTitle);
+                            SendMessage($"<b><line-height=2.0pic><size=150%>{GetString(role.ToString()).Color(player.GetRoleColor())}</b>\n<size=60%><line-height=1.8pic>{player.GetRoleDesc(true)}", player.PlayerId, RoleInfoTitle);
                         }
                         GetAddonsHelp(player);
                     }
@@ -1324,7 +1290,7 @@ namespace TownOfHost
 
 
                 case "/tp":
-                    if (!GameStates.IsLobby || !Options.sotodererukomando.GetBool() || args.Length < 1) break;
+                    if (!GameStates.IsLobby || !Options.UseLobbyTpCommand.GetBool() || args.Length < 1) break;
                     canceled = true;
                     subArgs = args[1];
                     switch (subArgs)
@@ -1366,7 +1332,7 @@ namespace TownOfHost
                 case "/ic":
                     if (GameStates.InGame && Options.ImpostorHideChat.GetBool() && player.IsAlive() && (player.GetCustomRole().IsImpostor() || player.GetCustomRole() is CustomRoles.Egoist))
                     {
-                        if ((player.GetRoleClass() as Amnesiac)?.omoidasita == false)
+                        if ((player.GetRoleClass() as Amnesiac)?.Realized == false)
                         {
                             canceled = true;
                             break;
@@ -1377,7 +1343,7 @@ namespace TownOfHost
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "ImpostorChat");
                         foreach (var imp in AllPlayerControls)
                         {
-                            if ((imp.GetRoleClass() as Amnesiac)?.omoidasita == false && imp.IsAlive()) continue;
+                            if ((imp.GetRoleClass() as Amnesiac)?.Realized == false && imp.IsAlive()) continue;
                             if (imp && ((imp.GetCustomRole().IsImpostor() || imp.GetCustomRole() is CustomRoles.Egoist) || (!imp.IsAlive() && PlayerControl.LocalPlayer.PlayerId == imp?.PlayerId)) && imp.PlayerId != player.PlayerId)
                             {
                                 if (AmongUsClient.Instance.AmHost)
@@ -1427,16 +1393,16 @@ namespace TownOfHost
                 case "/loverchat":
                 case "/lc":
                     if (Assassin.NowUse) break;
-                    if (GameStates.InGame && Options.LoversHideChat.GetBool() && player.IsAlive() && player.IsRiaju())
+                    if (GameStates.InGame && Options.LoversHideChat.GetBool() && player.IsAlive() && player.IsLovers())
                     {
-                        var l = player.GetRiaju();
+                        var loverrole = player.GetLoverRole();
 
-                        if (GameStates.Tuihou)
+                        if (GameStates.ExiledAnimate)
                         {
                             canceled = true;
                             break;
                         }
-                        if (l is CustomRoles.NotAssigned or CustomRoles.OneLove || !l.IsRiaju()) break;
+                        if (loverrole is CustomRoles.NotAssigned or CustomRoles.OneLove || !loverrole.IsLovers()) break;
 
                         var send = "";
                         foreach (var ag in args)
@@ -1448,14 +1414,14 @@ namespace TownOfHost
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "LoversChat");
                         foreach (var lover in AllPlayerControls)
                         {
-                            if (lover && (lover.GetRiaju() == l || (PlayerControl.LocalPlayer.PlayerId == lover?.PlayerId && !lover.IsAlive())) && lover.PlayerId != player.PlayerId)
+                            if (lover && (lover.GetLoverRole() == loverrole || (PlayerControl.LocalPlayer.PlayerId == lover?.PlayerId && !lover.IsAlive())) && lover.PlayerId != player.PlayerId)
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
                                     var clientid = lover.GetClientId();
                                     if (clientid == -1) continue;
-                                    string title = ColorString(GetRoleColor(l), $"<line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>");
-                                    string sendtext = send.Mark(GetRoleColor(l));
+                                    string title = ColorString(GetRoleColor(loverrole), $"<line-height=-18%>\n♥{GetPlayerColor(player)}♥</line-height>");
+                                    string sendtext = send.Mark(GetRoleColor(loverrole));
                                     SendMessage(sendtext, lover.PlayerId, title);
                                 }
                             }
@@ -1522,12 +1488,12 @@ namespace TownOfHost
                 default:
                     if (args[0].StartsWith("/"))
                     {
-                        canceled = Options.ExHideChatCommand.GetBool() && GameStates.Meeting;
+                        canceled = Options.ExHideChatCommand.GetBool() && GameStates.CalledMeeting;
                         break;
                     }
                     canceled = false;
                     /*
-                    if (!player.IsAlive() && GameStates.Tuihou && AntiBlackout.IsCached)
+                    if (!player.IsAlive() && GameStates.ExiledAnimate && AntiBlackout.IsCached)
                     {
                         ChatManager.SendPreviousMessagesToAll();
                         break;
@@ -1535,9 +1501,9 @@ namespace TownOfHost
 
                     if (!Options.ExHideChatCommand.GetBool()) break;
 
-                    if (GameStates.Meeting && GameStates.IsMeeting && !AntiBlackout.IsSet && !AntiBlackout.IsCached && !canceled)
+                    if (GameStates.CalledMeeting && GameStates.IsMeeting && !AntiBlackout.IsSet && !AntiBlackout.IsCached && !canceled)
                     {
-                        if (GameStates.Tuihou) break;
+                        if (GameStates.ExiledAnimate) break;
 
                         if (!player.IsAlive()) break;
                         _ = new LateTask(() =>
@@ -1606,7 +1572,7 @@ namespace TownOfHost
 
             bool GetHideSendText(ref bool canceled, ref string text)
             {
-                if (GameStates.Tuihou)
+                if (GameStates.ExiledAnimate)
                 {
                     canceled = true;
                     return false;

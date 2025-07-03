@@ -49,7 +49,7 @@ namespace TownOfHost.Roles.Ghost
             AsistingAngelId = playerId;
         }
 
-        public static bool ch()
+        public static bool CanSetAsistTarget()
         {
             //アシスト先が決まってるなら～
             if (Asist != null) return false;
@@ -78,7 +78,7 @@ namespace TownOfHost.Roles.Ghost
                 {
                     //どっちかは知らんが回数とリセットは入れるで～
                     Count++;
-                    pc.RpcResetAbilityCooldown(kousin: true);
+                    pc.RpcResetAbilityCooldown(Sync: true);
 
                     if (!Asist.IsAlive()) return;//アシスト対象が死んでるならでしゃばるな。
 
@@ -88,7 +88,7 @@ namespace TownOfHost.Roles.Ghost
                         _ = new LateTask(() =>
                         {
                             Guard = false;
-                            pc.RpcResetAbilityCooldown(kousin: true);//成功の有無にかかわらずリセットさせる。
+                            pc.RpcResetAbilityCooldown(Sync: true);//成功の有無にかかわらずリセットさせる。
                         }, Guardtime.GetFloat(), "AsistingAngelSetGuard", true);
                     }
                     else//違うなら対象の位置を矢印で教えないとねっ
@@ -99,7 +99,7 @@ namespace TownOfHost.Roles.Ghost
                         pos = target.transform.position;
                         GetArrow.Add(Asist.PlayerId, target.transform.position);
                         UtilsNotifyRoles.NotifyRoles(SpecifySeer: [target, pc]);
-                        pc.RpcResetAbilityCooldown(kousin: true);
+                        pc.RpcResetAbilityCooldown(Sync: true);
                     }
                 }
             }
@@ -114,17 +114,17 @@ namespace TownOfHost.Roles.Ghost
             if (Asist == null) return "";
 
             //タゲがいる時
-            var r = "";
+            var MarkAndArrow = "";
             if (seer == seen)
                 if (seer == Asist || seer.Is(CustomRoles.AsistingAngel))//対象 or アシストの場合
                 {
-                    r = "<color=#8da0b6>＠</color>";
+                    MarkAndArrow = "<color=#8da0b6>＠</color>";
                     if (Track is not byte.MaxValue && !isForMeeting)
                     {
-                        return r + $"  <color=#8da0b6>{GetArrow.GetArrows(seer, pos)}</color>";
+                        return MarkAndArrow + $"  <color=#8da0b6>{GetArrow.GetArrows(seer, pos)}</color>";
                     }
                     else
-                        return r;
+                        return MarkAndArrow;
                 }
 
             if (!seer.IsAlive())//霊界の場合
@@ -150,11 +150,16 @@ namespace TownOfHost.Roles.Ghost
                     }
                     Logger.Info($"{playerid} => Asist対象が負けてるので負け。", "AsistingAngel");
                 }
+<<<<<<< HEAD
                 else
                 {
                     Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
                 }
                 CustomWinnerHolder.IdRemoveLovers.Add(playerid);
+=======
+                Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
+                CustomWinnerHolder.CantWinPlayerIds.Add(playerid);
+>>>>>>> 41c340a8 (Fix : 関数名の修正)
             }
 
             return false;

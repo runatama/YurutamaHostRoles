@@ -32,7 +32,7 @@ namespace TownOfHost
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             ChatUpdatePatch.DoBlockChat = false;
             GameStates.InGame = false;
-            Main.FeColl = 0;
+            Main.ForcedGameEndColl = 0;
             GameStates.canmusic = true;
             //AntiBlackout.Reset();
             ErrorText.Instance.Clear();
@@ -88,10 +88,10 @@ namespace TownOfHost
             if (AmongUsClient.Instance.AmHost && GameStates.InGame && reason is not DisconnectReasons.Destroy)
             {
                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
-                LastGameSave.CreateIfNotExists(oti: true);//落ちでも保存
+                LastGameSave.CreateIfNotExists(destroy: true);//落ちでも保存
             }
             Main.AssignSameRoles = false;
-            GameSettingMenuClosePatch.Postfix();
+            //GameSettingMenuClosePatch.Postfix();
             CustomRoleManager.Dispose();
         }
     }
@@ -182,7 +182,7 @@ namespace TownOfHost
                         state.SetDead();
                         AntiBlackout.OnDisconnect(data.Character.Data);
                         PlayerGameOptionsSender.RemoveSender(data.Character);
-                        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, kyousei: true));
+                        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, force: true));
                         UtilsNotifyRoles.NotifyRoles(NoCache: true);
                     }
                     /*Croissant.diaries.Remove($"{data.Character.PlayerId}");

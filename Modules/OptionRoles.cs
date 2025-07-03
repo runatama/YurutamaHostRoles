@@ -19,17 +19,17 @@ namespace TownOfHost
             KDLong//ロング
         }
 
-        public OverrideKilldistance(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned)
+        public OverrideKilldistance(int idStart, TabGroup tab, CustomRoles role, CustomRoles RoleName = CustomRoles.NotAssigned)
         {
             this.IdStart = idStart;
             this.Role = role;
-            var r = chrole == CustomRoles.NotAssigned ? role : chrole;
-            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
+            var rolename = RoleName == CustomRoles.NotAssigned ? role : RoleName;
+            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(rolename), UtilsRoleText.GetRoleName(rolename)) } };
             Killdistance = StringOptionItem.Create(IdStart, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, tab, false)
             .SetParent(CustomRoleSpawnChances[role]).SetParentRole(role);
             Killdistance.ReplacementDictionary = replacementDic;
 
-            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+            role = RoleName == CustomRoles.NotAssigned ? role : RoleName;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするOverrideKilldistanceが作成されました", "OverrideKilldistance");
@@ -44,7 +44,7 @@ namespace TownOfHost
         /// <param name="idStart">ID</param>
         /// <param name="tab">タブ</param>
         /// <param name="role">設定に出すロール</param>
-        /// <param name="chrole">設定名(ユニット用)</param>
+        /// <param name="RoleName">設定名(ユニット用)</param>
         public static OverrideKilldistance Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned)
         {
             return new OverrideKilldistance(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename);
@@ -56,7 +56,7 @@ namespace TownOfHost
     public class OverrideTasksData
     {
         public static Dictionary<CustomRoles, OverrideTasksData> AllData = new();
-        public static Dictionary<CustomRoles, CustomRoles> chRoles = new(); //1人までしか対応していない、
+        public static Dictionary<CustomRoles, CustomRoles> RoleNames = new(); //1人までしか対応していない、
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
         public OptionItem doOverride;
@@ -70,13 +70,13 @@ namespace TownOfHost
         /// <param name="idStart">ID(+4...?まで使用するので注意)</param>
         /// <param name="tab">タブ</param>
         /// <param name="role">設定に出すロール</param>
-        /// <param name="chrole">設定名(ユニット用)</param>
-        public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
+        /// <param name="RoleName">設定名(ユニット用)</param>
+        public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role, CustomRoles RoleName = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
         {
             this.IdStart = idStart;
             this.Role = role;
-            var r = chrole == CustomRoles.NotAssigned ? role : chrole;
-            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(r), UtilsRoleText.GetRoleName(r)) } };
+            var rolename = RoleName == CustomRoles.NotAssigned ? role : RoleName;
+            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(UtilsRoleText.GetRoleColor(rolename), UtilsRoleText.GetRoleName(rolename)) } };
             doOverride = BooleanOptionItem.Create(idStart++, "doOverride", tasks?.defo ?? false, tab, false).SetParent(CustomRoleSpawnChances[role]).SetParentRole(role)
                 .SetValueFormat(OptionFormat.None);
             doOverride.ReplacementDictionary = replacementDic;
@@ -90,7 +90,7 @@ namespace TownOfHost
                 .SetValueFormat(OptionFormat.Pieces);
             numShortTasks.ReplacementDictionary = replacementDic;
 
-            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+            role = RoleName == CustomRoles.NotAssigned ? role : RoleName;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするOverrideTasksDataが作成されました", "OverrideTasksData");
@@ -101,7 +101,7 @@ namespace TownOfHost
         /// <param name="idStart">ID(+4..?まで使用するので注意)</param>
         /// <param name="tab">タブ</param>
         /// <param name="role">設定に出すロール</param>
-        /// <param name="chrole">設定名(ユニット用)</param>
+        /// <param name="RoleName">設定名(ユニット用)</param>
         public static OverrideTasksData Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned, (bool defo, int common, int Long, int Short)? tasks = null)
         {
             return new OverrideTasksData(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, tasks);
@@ -113,7 +113,7 @@ namespace TownOfHost
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
         public OptionItem OptionWin;
-        public SoloWinOption(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, Func<bool> show = null, int defo = 0)
+        public SoloWinOption(int idStart, TabGroup tab, CustomRoles role, CustomRoles RoleName = CustomRoles.NotAssigned, Func<bool> show = null, int defo = 0)
         {
             if (show == null)
             {
@@ -121,8 +121,8 @@ namespace TownOfHost
             }
             this.IdStart = idStart;
             this.Role = role;
-            var r = chrole == CustomRoles.NotAssigned ? role : chrole;
-            Dictionary<string, string> replacementDic = new() { { "%role%", UtilsRoleText.GetCombinationName(r) } };
+            var rolename = RoleName == CustomRoles.NotAssigned ? role : RoleName;
+            Dictionary<string, string> replacementDic = new() { { "%role%", UtilsRoleText.GetCombinationName(rolename) } };
             if (tab is TabGroup.MainSettings)
             {
                 OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
@@ -138,7 +138,7 @@ namespace TownOfHost
             }
             OptionWin.ReplacementDictionary = replacementDic;
 
-            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+            role = RoleName == CustomRoles.NotAssigned ? role : RoleName;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするSoloWinOptionが作成されました", "SoloWinOption");
@@ -153,7 +153,7 @@ namespace TownOfHost
         /// <param name="idStart">ID</param>
         /// <param name="tab">タブ</param>
         /// <param name="role">設定に出すロール</param>
-        /// <param name="chrole">設定名(ユニット用)</param>
+        /// <param name="RoleName">設定名(ユニット用)</param>
         public static SoloWinOption Create(SimpleRoleInfo roleInfo, int idOffset, CustomRoles rolename = CustomRoles.NotAssigned, Func<bool> show = null, int defo = 0)
         {
             return new SoloWinOption(roleInfo.ConfigId + idOffset, roleInfo.Tab, roleInfo.RoleName, rolename, show, defo: defo);

@@ -47,12 +47,10 @@ namespace TownOfHost.Roles.AddOns.Crewmate
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
         public static (bool, int, int, int) TaskData => (false, NumCommonTasks, NumLongTasks, NumShortTasks);
         private static bool IsAssignTarget(PlayerControl pc)
         {
-            if (!pc.IsAlive() || IsThisRole(pc.PlayerId) || pc.Is(CustomRoles.Amanojaku)) return false;
+            if (!pc.IsAlive() || playerIdList.Contains(pc.PlayerId) || pc.Is(CustomRoles.Amanojaku)) return false;
             var taskState = pc.GetPlayerTaskState();
             if (taskState.CompletedTasksCount < taskState.AllTasksCount) return false;
             if (!UtilsTask.HasTasks(pc.Data)) return false;
@@ -77,7 +75,7 @@ namespace TownOfHost.Roles.AddOns.Crewmate
                 UtilsNotifyRoles.NotifyRoles();
             }
 
-            UtilsGameLog.AddGameLog($"Workhorse", string.Format(Translator.GetString("GiveWH"), Utils.GetPlayerColor(pc, true)));
+            UtilsGameLog.AddGameLog($"Workhorse", string.Format(Translator.GetString("GiveWH"), UtilsName.GetPlayerColor(pc, true)));
 
             return false;
         }

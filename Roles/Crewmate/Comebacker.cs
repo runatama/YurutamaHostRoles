@@ -32,7 +32,7 @@ public sealed class Comebacker : RoleBase
     )
     {
         Cooldown = OptionCooldown.GetFloat();
-        Tp = new(999f, 999f);
+        OldPosition = new(999f, 999f);
         ComebackPosString = "";
     }
     private static OptionItem OptionCooldown;
@@ -41,7 +41,7 @@ public sealed class Comebacker : RoleBase
         Cooldown
     }
     private static float Cooldown;
-    private Vector2 Tp;
+    private Vector2 OldPosition;
     private string ComebackPosString;
     private static void SetupOptionItem()
     {
@@ -53,19 +53,19 @@ public sealed class Comebacker : RoleBase
         AURoleOptions.EngineerCooldown = Cooldown;
         AURoleOptions.EngineerInVentMaxTime = 1.5f;
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
     {
-        if (Tp != new Vector2(999f, 999f))
+        if (OldPosition != new Vector2(999f, 999f))
         {
-            var tp = Tp;
+            var tp = OldPosition;
             _ = new LateTask(() =>
             {
                 Player.RpcSnapToForced(tp + new Vector2(0f, 0.1f));
                 Logger.Info("ベントに飛ぶよ!", "Comebacker");
             }, 1f, "TP");
         }
-        ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => Tp = (Vector2)vent.transform.position);
+        ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => OldPosition = (Vector2)vent.transform.position);
         Logger.Info("ベントを設定するよ!", "Comebacker");
 
         var NowRoom = Player.GetPlainShipRoom();
@@ -74,10 +74,10 @@ public sealed class Comebacker : RoleBase
         Dictionary<PlainShipRoom, float> Distance = new();
 
         if (Rooms != null)
-            foreach (var r in Rooms)
+            foreach (var room in Rooms)
             {
-                if (r.RoomId == SystemTypes.Hallway) continue;
-                Distance.Add(r, Vector2.Distance(Player.GetTruePosition(), r.transform.position));
+                if (room.RoomId == SystemTypes.Hallway) continue;
+                Distance.Add(room, Vector2.Distance(Player.GetTruePosition(), room.transform.position));
             }
 
         var near = GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");

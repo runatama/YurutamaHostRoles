@@ -42,7 +42,7 @@ namespace TownOfHost
                 float y1 = 1.44f;
 
                 CategoryHeaderMasked categoryHeaderMasked = Object.Instantiate<CategoryHeaderMasked>(window.categoryHeaderOrigin);
-                setHeader(categoryHeaderMasked, GetString("TabGroup.MainSettings"));
+                SetHeader(categoryHeaderMasked, GetString("TabGroup.MainSettings"));
                 categoryHeaderMasked.transform.SetParent(window.settingsContainer);
                 categoryHeaderMasked.transform.localScale = Vector3.one;
                 categoryHeaderMasked.transform.localPosition = new Vector3(-9.77f, y1, -2f);
@@ -66,7 +66,7 @@ namespace TownOfHost
                     else
                         x = -3f;
                     settingsInfoPanel.transform.localPosition = new Vector3(x, y2, -2f);
-                    setInfo(settingsInfoPanel, option.GetName(false), option.GetString());
+                    SetInfo(settingsInfoPanel, option.GetName(false), option.GetString());
                     window.settingsInfo.Add(settingsInfoPanel.gameObject);
                     y1 = y2 - 0.59f;
                     index++;
@@ -81,7 +81,7 @@ namespace TownOfHost
             }));
         }
 
-        public static void setHeader(CategoryHeaderMasked infoPane, string name)
+        public static void SetHeader(CategoryHeaderMasked infoPane, string name)
         {
             infoPane.Title.text = name;
             infoPane.Background.material.SetInt(PlayerMaterial.MaskLayer, 61);
@@ -91,7 +91,7 @@ namespace TownOfHost
             infoPane.Title.fontMaterial.SetFloat("_Stencil", (float)61);
         }
 
-        public static void setInfo(ViewSettingsInfoPanel info, string title, string valueString)
+        public static void SetInfo(ViewSettingsInfoPanel info, string title, string valueString)
         {
             info.titleText.text = title;
             info.settingText.text = valueString;
@@ -116,7 +116,7 @@ namespace TownOfHost
                 for (int index1 = 0; index1 < 5; index1++)
                 {
                     CategoryHeaderRoleVariant headerRoleVariant = Object.Instantiate<CategoryHeaderRoleVariant>(__instance.categoryHeaderRoleOrigin);
-                    setHeader(headerRoleVariant, GetString($"{(TabGroup)index1 + 1}"));
+                    SetHeader(headerRoleVariant, GetString($"{(TabGroup)index1 + 1}"));
                     headerRoleVariant.transform.SetParent(__instance.settingsContainer);
                     headerRoleVariant.transform.localScale = Vector3.one;
                     headerRoleVariant.transform.localPosition = new Vector3(0.09f, y, -2f);
@@ -139,7 +139,7 @@ namespace TownOfHost
                             if (!showDisabledBackground)
                                 roleRulesCategoryList.Add(role);
                             _ = ColorUtility.TryParseHtmlString("#696969", out Color ncolor);
-                            setInfo(panelRoleVariant, GetString($"{role}"), numPerGame, chancePerGame, 61, (Color32)((TabGroup)index1 + 1 == TabGroup.CrewmateRoles ? Palette.CrewmateRoleBlue : (TabGroup)index1 + 1 == TabGroup.NeutralRoles ? ncolor : Palette.ImpostorRoleRed), null, index1 == 0, showDisabledBackground);
+                            SetInfo(panelRoleVariant, GetString($"{role}"), numPerGame, chancePerGame, 61, (Color32)((TabGroup)index1 + 1 == TabGroup.CrewmateRoles ? Palette.CrewmateRoleBlue : (TabGroup)index1 + 1 == TabGroup.NeutralRoles ? ncolor : Palette.ImpostorRoleRed), null, index1 == 0, showDisabledBackground);
                             __instance.settingsInfo.Add(panelRoleVariant.gameObject);
                             y -= 0.664f;
                         }
@@ -174,7 +174,7 @@ namespace TownOfHost
                         advancedRoleViewPanel.transform.SetParent(__instance.settingsContainer);
                         advancedRoleViewPanel.transform.localScale = Vector3.one;
                         advancedRoleViewPanel.transform.localPosition = new Vector3(x2, y, -2f);
-                        float num2 = setUp(advancedRoleViewPanel, roleRulesCategoryList[index], 0.59f, 61);
+                        float num2 = SetUp(advancedRoleViewPanel, roleRulesCategoryList[index], 0.59f, 61);
                         if ((double)num2 > (double)num1)
                             num1 = num2;
                         __instance.settingsInfo.Add(advancedRoleViewPanel.gameObject);
@@ -191,7 +191,7 @@ namespace TownOfHost
             }
         }
 
-        public static void setInfo(
+        public static void SetInfo(
           ViewSettingsInfoPanelRoleVariant infoPanelRole,
           string name,
           int count,
@@ -230,9 +230,9 @@ namespace TownOfHost
             }
             infoPanelRole.SetMaskLayer(maskLayer);
         }
-        public static float setUp(AdvancedRoleViewPanel view, CustomRoles role, float spacingY, int maskLayer)
+        public static float SetUp(AdvancedRoleViewPanel view, CustomRoles role, float spacingY, int maskLayer)
         {
-            setHeader2(view.header, role);
+            SetHeader2(view.header, role);
             view.divider.material.SetInt(PlayerMaterial.MaskLayer, maskLayer);
             float yPosStart = view.yPosStart;
             float num1 = 1.08f;
@@ -244,16 +244,16 @@ namespace TownOfHost
                 settingsInfoPanel.transform.SetParent(view.transform);
                 settingsInfoPanel.transform.localScale = Vector3.one;
                 settingsInfoPanel.transform.localPosition = new Vector3(view.xPosStart, yPosStart, -2f);
-                setInfo(settingsInfoPanel, option.GetName(false), option.GetString());
+                SetInfo(settingsInfoPanel, option.GetName(false), option.GetString());
                 yPosStart -= spacingY;
                 if (index > 0)
                     num1 += 0.8f;
             }
             return num1;
         }
-        public static void setHeader2(CategoryHeaderRoleVariant roleVariant, CustomRoles role)
+        public static void SetHeader2(CategoryHeaderRoleVariant roleVariant, CustomRoles role)
         {
-            setHeader(roleVariant, GetString($"{role}"));
+            SetHeader(roleVariant, GetString($"{role}"));
             _ = ColorUtility.TryParseHtmlString("#696969", out Color ncolor);
             var color = (Color32)(role.GetCustomRoleTypes() == CustomRoleTypes.Crewmate ? Palette.CrewmateRoleBlue : role.GetCustomRoleTypes() == CustomRoleTypes.Neutral ? ncolor : Palette.ImpostorRoleRed);
             roleVariant.Background.color = color;

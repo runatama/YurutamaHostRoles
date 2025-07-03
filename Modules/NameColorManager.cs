@@ -30,9 +30,9 @@ namespace TownOfHost
                     colorCode = seer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColorCode(CustomRoles.Crewmate) : (seer.Is(CustomRoleTypes.Impostor) ?
                     UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : UtilsRoleText.GetRoleColorCode(CustomRoles.SchrodingerCat));
                 }
-                if (seer.PlayerId == target.PlayerId && roleClass != null && roleClass?.Jikaku() != CustomRoles.NotAssigned)
+                if (seer.PlayerId == target.PlayerId && seer.GetMisidentify(out var role))
                 {
-                    colorCode = UtilsRoleText.GetRoleColorCode(roleClass.Jikaku());
+                    colorCode = UtilsRoleText.GetRoleColorCode(role);
                 }
 
                 var seerRole = seer.GetCustomRole();
@@ -41,7 +41,7 @@ namespace TownOfHost
                 {
                     if (targetRole.GetRoleInfo()?.IsCantSeeTeammates == true)
                         colorCode = Roles.Vanilla.Impostor.RoleInfo.RoleColorCode;
-                    if (seerRole.GetRoleInfo()?.IsCantSeeTeammates == true && !(roleClass as Amnesiac).omoidasita)
+                    if (seerRole.GetRoleInfo()?.IsCantSeeTeammates == true && !(roleClass as Amnesiac).Realized)
                         colorCode = "#ffffff"; //white
                 }
             }
@@ -61,7 +61,7 @@ namespace TownOfHost
             return seer == target
                 || target.Is(CustomRoles.GM)
                 || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)
-                && (!seer.Is(CustomRoles.Amnesiac) || ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.omoidasita ?? false)))
+                && (!seer.Is(CustomRoles.Amnesiac) || ((PlayerControl.LocalPlayer.GetRoleClass() as Amnesiac)?.Realized ?? false)))
                 || Mare.KnowTargetRoleColor(target, isMeeting)
                 || ((seer.Is(CountTypes.Jackal) || seer.Is(CustomRoles.Jackaldoll)) && (target.Is(CountTypes.Jackal) || target.Is(CustomRoles.Jackaldoll)))
                 || (seer.Is(CountTypes.MilkyWay) && target.Is(CountTypes.MilkyWay));

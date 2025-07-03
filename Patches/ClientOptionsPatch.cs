@@ -14,7 +14,7 @@ namespace TownOfHost
         private static ClientActionItem DumpLog;
         private static ClientActionItem OpenLogFolder;
         private static ClientActionItem ForceEnd;
-        private static ClientActionItem WebHookD;
+        private static ClientActionItem UseWebHook;
         private static ClientActionItem Yomiage;
         private static ClientActionItem CustomName;
         private static ClientActionItem CustomSprite;
@@ -58,9 +58,9 @@ namespace TownOfHost
             {
                 ForceEnd = ClientActionItem.Create("ForceEnd", ForceEndProcess, __instance);
             }
-            if (WebHookD == null || WebHookD.ToggleButton == null)
+            if (UseWebHook == null || UseWebHook.ToggleButton == null)
             {
-                WebHookD = ClientOptionItem.Create("UseWebHook", Main.UseWebHook, __instance);
+                UseWebHook = ClientOptionItem.Create("UseWebHook", Main.UseWebHook, __instance);
             }
             if (Yomiage == null || Yomiage.ToggleButton == null)
             {
@@ -139,15 +139,15 @@ namespace TownOfHost
         private static void ForceEndProcess()
         {
             //左シフトが押されているなら強制廃村
-            if (Input.GetKey(KeyCode.LeftShift) || ((Main.FeColl != 0) && !GameStates.IsLobby))
+            if (Input.GetKey(KeyCode.LeftShift) || ((Main.ForcedGameEndColl != 0) && !GameStates.IsLobby))
             {
                 GameManager.Instance.enabled = false;
                 CustomWinnerHolder.WinnerTeam = CustomWinner.Draw;
                 GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
                 return;
             }
-            if (!GameStates.IsLobby) Main.FeColl++;
-            Logger.Info($"廃村コール{Main.FeColl}回目", "fe");
+            if (!GameStates.IsLobby) Main.ForcedGameEndColl++;
+            Logger.Info($"廃村コール{Main.ForcedGameEndColl}回目", "fe");
             if (!GameStates.IsInGame) return;
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
             GameManager.Instance.LogicFlow.CheckEndCriteria();

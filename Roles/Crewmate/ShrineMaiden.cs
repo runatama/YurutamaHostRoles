@@ -30,55 +30,54 @@ public sealed class ShrineMaiden : RoleBase
     )
     {
         Max = OptionMaximum.GetFloat();
-        Repo = false;
+        IsReport = false;
         count = 0;
-        mcount = 0;
+        MeetingUsedcount = 0;
         cantaskcount = Optioncantaskcount.GetFloat();
-        kakusei = !Kakusei.GetBool() || cantaskcount < 1;
+        Awakened = !OptAwakening.GetBool() || cantaskcount < 1;
         Votemode = (VoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
-        Oniku = 111;
+        OnikuId = byte.MaxValue;
     }
 
     private static OptionItem OptionMaximum;
     private static OptionItem OptionVoteMode;
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
-    static OptionItem Kakusei;
-    bool kakusei;
+    static OptionItem OptAwakening;
+    bool Awakened;
     public float Max;
     public VoteMode Votemode;
     int count;
     float cantaskcount;
     float onemeetingmaximum;
-    float mcount;
-    static bool Repo;
-    static byte Oniku;
+    float MeetingUsedcount;
+    static bool IsReport;
+    static byte OnikuId;
 
     enum Option
     {
-        Ucount,
-        Votemode,
+        TellMaximum,
+        AbilityVotemode,
     }
     public enum VoteMode
     {
-        uvote,
+        NomalVote,
         SelfVote,
     }
 
     private static void SetupOptionItem()
     {
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.Ucount, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.AbilityVotemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.UKakusei, true, false);
+        OptAwakening = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.AbilityAwakening, false, false);
     }
 
-    public override void Add()
-        => AddS(Player);
+    public override void Add() => AddSelfVotes(Player);
 
     private void SendRPC()
     {
@@ -89,30 +88,30 @@ public sealed class ShrineMaiden : RoleBase
     {
         count = reader.ReadInt32();
     }
-    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo O)
+    public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo target)
     {
-        if (O != null)
+        if (target == null)
         {
-            Repo = true;
-            Oniku = O.PlayerId;
+            IsReport = false;
         }
         else
         {
-            Repo = false;
+            IsReport = true;
+            OnikuId = target.PlayerId;
         }
     }
     public override void AfterMeetingTasks()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        Repo = false;//いらない気がするけど一応保険
-        Oniku = 111;
+        IsReport = false;//いらない気がするけど一応保険
+        OnikuId = byte.MaxValue;
     }
-    public override void OnStartMeeting() => mcount = 0;
+    public override void OnStartMeeting() => MeetingUsedcount = 0;
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (Repo && Player.IsAlive() && isForMeeting && kakusei && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        if (IsReport && Player.IsAlive() && isForMeeting && Awakened && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == VoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
             return isForHud ? mes : $"<size=40%>{mes}</size>";
@@ -122,12 +121,12 @@ public sealed class ShrineMaiden : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (Repo && Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (IsReport && Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (MeetingUsedcount < onemeetingmaximum || onemeetingmaximum == 0))
         {
-            if (Votemode == VoteMode.uvote)
+            if (Votemode == VoteMode.NomalVote)
             {
                 if (Player.PlayerId == votedForId || votedForId == SkipId) return true;
-                Miko(votedForId);
+                ShrineMaidenAbility(votedForId);
                 return false;
             }
             else
@@ -139,7 +138,7 @@ public sealed class ShrineMaiden : RoleBase
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)
-                        Miko(votedForId);
+                        ShrineMaidenAbility(votedForId);
                     SetMode(Player, status is VoteStatus.Self);
                     return false;
                 }
@@ -147,15 +146,16 @@ public sealed class ShrineMaiden : RoleBase
         }
         return true;
     }
-    public void Miko(byte votedForId)
+    public void ShrineMaidenAbility(byte votedForId)
     {
-        var target1 = PlayerCatch.GetPlayerById(Oniku);
+        var target1 = PlayerCatch.GetPlayerById(OnikuId);
         var target2 = PlayerCatch.GetPlayerById(votedForId);
         if (!target2.IsAlive()) return;
         count++;
-        mcount++;
+        MeetingUsedcount++;
 
         Logger.Info($"Player: {Player.name},Target1: {target1.name}Target2: {target2.name}", "ShrineMaiden");
+<<<<<<< HEAD
         var targetRoleClass = target1.GetRoleClass()?.GetFtResults(Player);
         var targetRole = targetRoleClass is not CustomRoles.NotAssigned ? targetRoleClass.Value : target1.GetCustomRole();
         var deadtargetRoleClass = target2.GetRoleClass()?.GetFtResults(Player);
@@ -163,6 +163,13 @@ public sealed class ShrineMaiden : RoleBase
         SendRPC();
         var t1 = targetRole.GetCustomRoleTypes();
         var t2 = deadRole.GetCustomRoleTypes();
+=======
+        var role1 = target1.GetTellResults(Player);
+        var role2 = target2.GetTellResults(Player);
+        SendRPC();
+        var t1 = role1.GetCustomRoleTypes();
+        var t2 = role2.GetCustomRoleTypes();
+>>>>>>> 41c340a8 (Fix : 関数名の修正)
         var madmate = Options.MadTellOpt().GetCustomRoleTypes();
         //マッドならimpにする
         if (t1 == CustomRoleTypes.Madmate) t1 = madmate is CustomRoleTypes.Madmate ? madmate : CustomRoleTypes.Impostor;
@@ -170,17 +177,17 @@ public sealed class ShrineMaiden : RoleBase
 
         if (t1 == t2)
         {
-            Utils.SendMessage(string.Format(GetString("ShrineMaidencollect"), Utils.GetPlayerColor(target1, true), Utils.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("ShrineMaidencollect"), UtilsName.GetPlayerColor(target1, true), UtilsName.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - MeetingUsedcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
         else
         {
-            Utils.SendMessage(string.Format(GetString("ShrineMaidennotcollect"), Utils.GetPlayerColor(target1, true), Utils.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - mcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
+            Utils.SendMessage(string.Format(GetString("ShrineMaidennotcollect"), UtilsName.GetPlayerColor(target1, true), UtilsName.GetPlayerColor(target2, true)) + (onemeetingmaximum != 0 ? string.Format(GetString("RemainingOneMeetingCount"), Math.Min(onemeetingmaximum - MeetingUsedcount, Max - count)) : string.Format(GetString("RemainingCount"), Max - count)) + (Votemode == VoteMode.SelfVote ? "\n\n" + GetString("VoteSkillFin") : ""), Player.PlayerId);
         }
     }
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount)) kakusei = true;
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount)) Awakened = true;
         return true;
     }
 }

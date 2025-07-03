@@ -82,11 +82,11 @@ namespace TownOfHost
                 GameSettings.fontSizeMin =
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
 
-                var b = GameStates.IsLobby && !GameStates.IsCountDown && !GameStates.InGame && (GameSettingMenuStartPatch.ModSettingsButton?.selected ?? false);// && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned;
-                GameObject.Find("Main Camera/Hud/TaskDisplay")?.SetActive(b);
-                GameObject.Find("Main Camera/Hud/TaskDisplay")?.transform.SetLocalZ(b ? -500 : 5);
+                var settaskPanel = GameStates.IsLobby && !GameStates.IsCountDown && !GameStates.InGame && (GameSettingMenuStartPatch.ModSettingsButton?.selected ?? false);// && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned;
+                GameObject.Find("Main Camera/Hud/TaskDisplay")?.SetActive(settaskPanel);
+                GameObject.Find("Main Camera/Hud/TaskDisplay")?.transform.SetLocalZ(settaskPanel ? -500 : 5);
 
-                if (b)
+                if (settaskPanel)
                 {
                     __instance.TaskPanel.SetTaskText("");
                 }
@@ -163,7 +163,7 @@ namespace TownOfHost
 
                     LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
                     if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
-                    if (roleClass?.Jikaku() != CustomRoles.NotAssigned) LowerInfoText.text = "";
+                    if (player.GetMisidentify(out _)) LowerInfoText.text = "";
 
 #if DEBUG
                     if (Main.ShowDistance.Value)
@@ -340,7 +340,7 @@ namespace TownOfHost
                     if (CantJikakuIsPresent == null)
                         foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
-                            if (pc.GetRoleClass()?.Jikaku() is not null and not CustomRoles.NotAssigned and not CustomRoles.Crewmate) CantJikakuIsPresent = true;
+                            if (pc.GetMisidentify(out _)) CantJikakuIsPresent = true;
                         }
                     if (CantJikakuIsPresent == true) return;
                     if (customrole.IsVanilla()) return;
@@ -392,7 +392,7 @@ namespace TownOfHost
                     OldValue = Main.CustomSprite.Value;//アビリティボタンのあれのせいでクールがあれなのでリセット入る時だけしっかり反映させる。
                 }
             }
-            catch (Exception ec) { Logger.Error($"{ec}", "ButtonHud"); }
+            catch (Exception ex) { Logger.Error($"{ex}", "ButtonHud"); }
         }
     }
     [HarmonyPatch(typeof(ShapeshifterPanel), nameof(ShapeshifterPanel.SetPlayer))]
@@ -430,15 +430,15 @@ namespace TownOfHost
             //seerに関わらず発動するMark
             Mark.Append(CustomRoleManager.GetMarkOthers(seer, target, false));
 
-            var targetlover = target.GetRiaju();
+            var targetlover = target.GetLoverRole();
             //ハートマークを付ける(会議中MOD視点)
-            if ((targetlover == seer.GetRiaju() && targetlover is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
-            || (seer.Data.IsDead && target.IsRiaju() && targetlover != CustomRoles.OneLove))
+            if ((targetlover == seer.GetLoverRole() && targetlover is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
+            || (seer.Data.IsDead && target.IsLovers() && targetlover != CustomRoles.OneLove))
             {
                 Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(targetlover), "♥"));
             }
             else
-            if ((Lovers.OneLovePlayer.Ltarget == target.PlayerId && target.PlayerId != seer.PlayerId && seer.Is(CustomRoles.OneLove))
+            if ((Lovers.OneLovePlayer.BelovedId == target.PlayerId && target.PlayerId != seer.PlayerId && seer.Is(CustomRoles.OneLove))
             || (target.Is(CustomRoles.OneLove) && target.PlayerId != seer.PlayerId && seer.Is(CustomRoles.OneLove))
             || (seer.Data.IsDead && target.Is(CustomRoles.OneLove) && !seer.Is(CustomRoles.OneLove)))
             {
@@ -530,9 +530,9 @@ namespace TownOfHost
             Color color = PlayerControl.LocalPlayer.GetRoleColor();
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) color = PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) ? UtilsRoleText.GetRoleColor(CustomRoles.Crewmate) : (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) ?
                 UtilsRoleText.GetRoleColor(CustomRoles.Impostor) : UtilsRoleText.GetRoleColor(CustomRoles.SchrodingerCat));
-            if (roleclass?.Jikaku() != CustomRoles.NotAssigned && roleclass != null)
+            if (player.GetMisidentify(out var missrole))
             {
-                color = UtilsRoleText.GetRoleColor(roleclass.Jikaku());
+                color = UtilsRoleText.GetRoleColor(missrole);
             }
             ((Renderer)__instance.myRend).material.SetColor("_OutlineColor", color);
             ((Renderer)__instance.myRend).material.SetColor("_AddColor", mainTarget ? color : Color.clear);
@@ -624,18 +624,18 @@ namespace TownOfHost
             var role = player.GetCustomRole();
             var roleClass = player.GetRoleClass();
             if (player.Is(CustomRoles.Amnesia)) role = player.Is(CustomRoleTypes.Crewmate) ? CustomRoles.Crewmate : CustomRoles.Impostor;
-            if (roleClass?.Jikaku() != CustomRoles.NotAssigned && roleClass != null) role = roleClass.Jikaku();
+            if (player.GetMisidentify(out var missrole)) role = missrole;
 
             if (role is CustomRoles.Amnesiac)
             {
-                if (roleClass is Amnesiac amnesiac && !amnesiac.omoidasita)
+                if (roleClass is Amnesiac amnesiac && !amnesiac.Realized)
                     role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
             // 役職説明表示
             if (!role.IsVanilla() || player.IsGhostRole())
             {
                 var RoleWithInfo = $"{UtilsRoleText.GetTrueRoleName(player.PlayerId)}:\r\n";
-                RoleWithInfo += player.GetRoleInfo();
+                RoleWithInfo += player.GetRoleDesc();
                 var task = __instance.taskText.text;
                 if (role.IsCrewmate())
                 {
@@ -655,13 +655,13 @@ namespace TownOfHost
             if (Main.DebugTours.Value && AmongUsClient.Instance.NetworkMode is not NetworkModes.OnlineGame)
             {
                 __instance.taskText.text = "";
-                var a = "";
+                var debugmessage = "";
                 foreach (var pl in PlayerCatch.AllPlayerControls)
                 {
-                    a += $"{Utils.GetPlayerColor(pl)}({(pl.IsAlive() ? "<#3cff63>●</color>" : $"{Utils.GetVitalText(pl.PlayerId, true)}")}) : "
+                    debugmessage += $"{UtilsName.GetPlayerColor(pl)}({(pl.IsAlive() ? "<#3cff63>●</color>" : $"{Utils.GetVitalText(pl.PlayerId, true)}")}) : "
                     + $"{UtilsRoleText.GetTrueRoleName(pl.PlayerId)} (pos:{pl.GetTruePosition()}) ({(pl.inVent ? "Vent" : "Walk")}) ({pl.Data.RoleType})\n";
                 }
-                __instance.taskText.text = a;
+                __instance.taskText.text = debugmessage;
             }
         }
     }

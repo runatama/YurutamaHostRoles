@@ -26,14 +26,14 @@ public sealed class Evilgambler : RoleBase, IImpostor
     player
     )
     {
-        gamblecollect = Optiongamblecollect.GetInt();
-        collectkillCooldown = OptioncollectkillCooldown.GetFloat();
-        notcollectkillCooldown = OptionnotcollectkillCooldown.GetFloat();
+        gamblecollect = OptionGamblecollect.GetInt();
+        collectkillCooldown = OptionCollectkillCooldown.GetFloat();
+        notcollectkillCooldown = OptionNotcollectkillCooldown.GetFloat();
     }
 
-    private static OptionItem Optiongamblecollect;
-    private static OptionItem OptioncollectkillCooldown;
-    private static OptionItem OptionnotcollectkillCooldown;
+    private static OptionItem OptionGamblecollect;
+    private static OptionItem OptionCollectkillCooldown;
+    private static OptionItem OptionNotcollectkillCooldown;
     enum OptionName
     {
         Evillgamblergamblecollect,
@@ -48,14 +48,13 @@ public sealed class Evilgambler : RoleBase, IImpostor
     public bool CanBeLastImpostor { get; } = false;
     private static void SetupOptionItem()
     {
-        Optiongamblecollect = FloatOptionItem.Create(RoleInfo, 10, OptionName.Evillgamblergamblecollect, new(0, 100, 5), 50, false)
+        OptionGamblecollect = FloatOptionItem.Create(RoleInfo, 10, OptionName.Evillgamblergamblecollect, new(0, 100, 5), 50, false)
             .SetValueFormat(OptionFormat.Percent);
-        OptioncollectkillCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.EvillgamblercollectkillCooldown, new(0f, 180f, 0.5f), 2.5f, false)
+        OptionCollectkillCooldown = FloatOptionItem.Create(RoleInfo, 11, OptionName.EvillgamblercollectkillCooldown, new(0f, 180f, 0.5f), 2.5f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionnotcollectkillCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvillgamblernotcollectkillCooldown, new(0f, 180f, 0.5f), 50.0f, false)
+        OptionNotcollectkillCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvillgamblernotcollectkillCooldown, new(0f, 180f, 0.5f), 50.0f, false)
             .SetValueFormat(OptionFormat.Seconds);
     }
-    //public static void SetKillCooldown(byte id, float amount) => Main.AllPlayerKillCooldown[id] = amount;
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         if (!info.IsSuicide)
@@ -75,6 +74,5 @@ public sealed class Evilgambler : RoleBase, IImpostor
                 killer.SyncSettings();//キルクール処理を同期
             }
         }
-        return;
     }
 }

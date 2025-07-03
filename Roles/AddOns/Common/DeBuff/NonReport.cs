@@ -11,25 +11,25 @@ namespace TownOfHost.Roles.AddOns.Common
         private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.NonReport);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "Ｒ");
         public static List<byte> playerIdList = new();
-        public static OptionItem OptionConvener;
-        public static Convener Mode;
-        public enum Convener
+        public static OptionItem OptionNonReportMode;
+        public static NonReportMode Mode;
+        public enum NonReportMode
         {
             NotButton,
             NotReport,
-            ConvenerAll,
+            NonReportModeAll,
         }
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.NonReport, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.NonReport, fromtext: UtilsOption.GetFrom(From.TownOfHost_Y));
             AddOnsAssignData.Create(Id + 10, CustomRoles.NonReport, true, true, true, true);
-            OptionConvener = StringOptionItem.Create(50, "ConverMode", EnumHelper.GetAllNames<Convener>(), 0, TabGroup.Addons, false)
+            OptionNonReportMode = StringOptionItem.Create(50, "ConverMode", EnumHelper.GetAllNames<NonReportMode>(), 0, TabGroup.Addons, false)
             .SetParentRole(CustomRoles.NonReport).SetParent(CustomRoleSpawnChances[CustomRoles.NonReport]);
         }
         public static void Init()
         {
             playerIdList = new();
-            Mode = (Convener)OptionConvener.GetValue();
+            Mode = (NonReportMode)OptionNonReportMode.GetValue();
         }
         public static void Add(byte playerId)
         {

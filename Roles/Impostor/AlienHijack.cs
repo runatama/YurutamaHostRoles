@@ -47,7 +47,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         CustomRoleManager.OnFixedUpdateOthers.Add(OnFixedUpdateOthers);
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         InsiderCansee.Clear();
-        Name.Clear();
+        NameAddmin.Clear();
     }
     public override void Add()
     {
@@ -78,7 +78,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         if (!AmongUsClient.Instance.AmHost) return;
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         Remotekillertarget = 111;
-        Name.Clear();
+        NameAddmin.Clear();
         Puppets.Clear();
         PuppetCooltime.Clear();
         SendRPC(byte.MaxValue, 0);
@@ -101,35 +101,45 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
             }
         }
         if (!Player.IsAlive()) return;
-
         if (modeEvilHacker)
         {
             var admins = AdminProvider.CalculateAdmin();
             var builder = new StringBuilder(512);
 
-            var m = new StringBuilder(512);
-            var g = 0;
+            var messagebuilder = new StringBuilder(512);
+            var index = 0;
+            var aliveplayers = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).ToArray();
+            var deadplayers = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId).ToArray();
+            var list = aliveplayers.AddRangeToArray(deadplayers);
             // 送信するメッセージを生成
             foreach (var admin in admins)
             {
                 var entry = admin.Value;
-                if (entry.TotalPlayers <= 0) continue;
-                if (entry.NumImpostors > 0) builder.Append(EvilHacker.ImpostorMark);
+                if (entry.TotalPlayers <= 0)
+                {
+                    continue;
+                }
+                // インポスターがいるなら星マークを付ける
+                if (entry.NumImpostors > 0)
+                {
+                    builder.Append(EvilHacker.ImpostorMark);
+                }
+                // 部屋名と合計プレイヤー数を表記
                 builder.Append(DestroyableSingleton<TranslationController>.Instance.GetString(entry.Room));
                 builder.Append(": ");
                 builder.Append(entry.TotalPlayers);
+                // 死体があったら死体の数を書く
                 if (entry.NumDeadBodies > 0)
                 {
                     builder.Append('(').Append(GetString("Deadbody"));
                     builder.Append('×').Append(entry.NumDeadBodies).Append(')');
                 }
-                m.Append(builder);
-                m.Append('\n');
-                var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-                Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
+                messagebuilder.Append(builder);
+                messagebuilder.Append('\n');
+                NameAddmin.Add(list[index].PlayerId, builder.ToString());
+
                 builder.Clear();
-                g++;
+                index++;
             }
         }
     }
@@ -138,7 +148,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         if (AmongUsClient.Instance.AmHost)
             ResetDarkenState();
     }
-    public override CustomRoles GetFtResults(PlayerControl player) => modeTairo ? CustomRoles.Alien : CustomRoles.Crewmate;
+    public override CustomRoles TellResults(PlayerControl player) => modeTairo ? CustomRoles.Alien : CustomRoles.Crewmate;
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
     {
         // 既定値
@@ -318,7 +328,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
             // 普通のキルじゃない．もしくはキルを行わない時はreturn
             if (GameStates.IsMeeting || info.IsAccident || info.IsSuicide || !info.CanKill || !info.DoKill) return;
             // 殺してきた人を殺し返す
-            if (!GameStates.Meeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
+            if (!GameStates.CalledMeeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
             Logger.Info("ネコカボチャの仕返し", "Alien");
             var killer = info.AttemptKiller;
             if (!IsCandidate(killer))
@@ -590,7 +600,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         var text = "";
         if (isForMeeting)
         {
-            if (!Name.TryGetValue(seen.PlayerId, out var Admin)) return "";
+            if (!NameAddmin.TryGetValue(seen.PlayerId, out var Admin)) return "";
             text = "<color=#8cffff><size=1.5>" + Admin + "</color></size>";
         }
         if (seer != Player || seen != Player)
@@ -651,7 +661,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         }
         return true;
     }
-    public override bool CantVentIdo(PlayerPhysics physics, int ventId)
+    public override bool CanVentMoving(PlayerPhysics physics, int ventId)
     {
         if (modeMole) return false;
         if (modeComebaker) return false;
@@ -810,7 +820,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     public bool modeVampire;
     //イビルハッカー
     public bool modeEvilHacker;
-    static Dictionary<byte, string> Name = new();
+    static Dictionary<byte, string> NameAddmin = new();
     //リミッター
     public bool modeLimiter;
     //パペッティア

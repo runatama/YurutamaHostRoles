@@ -65,9 +65,9 @@ namespace TownOfHost
         {
             var arrowInfo = new ArrowInfo(seer, target);
             var removeList = new List<ArrowInfo>(TargetArrows.Keys.Where(k => k.Equals(arrowInfo)));
-            foreach (var a in removeList)
+            foreach (var arrow in removeList)
             {
-                TargetArrows.Remove(a);
+                TargetArrows.Remove(arrow);
             }
         }
         /// <summary>
@@ -212,9 +212,9 @@ namespace TownOfHost
         {
             var arrowInfo = new ArrowInfo(seer, position);
             var removeList = new List<ArrowInfo>(TargetArrows.Keys.Where(k => k.Equals(arrowInfo)));
-            foreach (var a in removeList)
+            foreach (var arrow in removeList)
             {
-                TargetArrows.Remove(a);
+                TargetArrows.Remove(arrow);
             }
         }
         /// <summary>

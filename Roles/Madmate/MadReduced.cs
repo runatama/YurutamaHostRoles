@@ -30,7 +30,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
         Vote = OptionVote.GetInt();
-        forvote = 225;
+        forvote = byte.MaxValue;
     }
     private static OptionItem OptionCanVent;
     private static OptionItem OptionVote;
@@ -46,7 +46,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
 
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
-    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => Options.MadTellOpt();
 
     public static void SetupOptionItem()
     {
@@ -102,7 +102,7 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         if (Skill)
         {
             var T = PlayerCatch.GetPlayerById(forvote);
-            Voteresult += string.Format(GetString("Skill.MadReduced"), Utils.GetPlayerColor(T, true), $"<b> {Vote}</b>");
+            Voteresult += string.Format(GetString("Skill.MadReduced"), UtilsName.GetPlayerColor(T, true), $"<b> {Vote}</b>");
         }
     }
 }

@@ -5,18 +5,18 @@ using static TownOfHost.Options;
 
 namespace TownOfHost.Roles.AddOns.Common
 {
-    public static class seeing
+    public static class Seeing
     {
         private static readonly int Id = 17700;
-        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.seeing);
+        private static Color RoleColor = UtilsRoleText.GetRoleColor(CustomRoles.Seeing);
         public static string SubRoleMark = Utils.ColorString(RoleColor, "☯");
         public static List<byte> playerIdList = new();
-        public static OptionItem CanSeeComms;
+        public static OptionItem OptionCanSeeActiveComms;
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.seeing, fromtext: "<color=#000000>From:</color><color=#ffff00>TownOfHost_Y</color></size>");
-            AddOnsAssignData.Create(Id + 10, CustomRoles.seeing, true, true, true, true);
-            CanSeeComms = BooleanOptionItem.Create(Id + 50, "CanseeComms", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.seeing]).SetParentRole(CustomRoles.seeing);
+            SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Seeing, fromtext: UtilsOption.GetFrom(From.TownOfHost_Y));
+            AddOnsAssignData.Create(Id + 10, CustomRoles.Seeing, true, true, true, true);
+            OptionCanSeeActiveComms = BooleanOptionItem.Create(Id + 50, "CanUseActiveComms", true, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Seeing]).SetParentRole(CustomRoles.Seeing);
         }
         public static void Init()
         {
@@ -26,8 +26,5 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             playerIdList.Add(playerId);
         }
-        public static bool IsEnable => playerIdList.Count > 0;
-        public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-
     }
 }

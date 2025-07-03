@@ -80,7 +80,7 @@ namespace TownOfHost.Roles.Impostor
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
-            if (GameStates.Intro || GameStates.Meeting) return;
+            if (GameStates.Intro || GameStates.CalledMeeting) return;
             if (Limit) return;
             if (!player.IsAlive()) return;
             if (!LimitTimer) return;

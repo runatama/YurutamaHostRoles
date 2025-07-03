@@ -14,11 +14,6 @@ namespace TownOfHost
             instance.SkinId = skinId;
             instance.VisorId = visorId;
             instance.PetId = petId;
-            /*
-            instance.HatId = HatManager._instance.allHats.Any(x => x.ProductId == hatId) ? hatId : "hat_NoHat";
-            instance.SkinId = HatManager._instance.allSkins.Any(x => x.ProductId == skinId) ? skinId : "skin_None";
-            instance.VisorId = HatManager._instance.allVisors.Any(x => x.ProductId == visorId) ? visorId : "visor_EmptyVisor";
-            instance.PetId = HatManager._instance.allPets.Any(x => x.ProductId == petId) ? petId : "pet_EmptyPet";*/
             return instance;
         }
         public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
@@ -71,15 +66,15 @@ namespace TownOfHost
                 {
                     foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                     {
-                        role.Colorchnge();
+                        role.ChangeColor();
                     }
                 }
             }
         }
         public static List<byte> ventplayr = new();
-        public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool? kyousei = false)
+        public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool? force = false)
         {
-            if ((!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (kyousei is null or true)))
+            if ((!AmongUsClient.Instance.AmHost && !(Options.CommsCamouflage.GetBool() || (force is null or true)))
             || (GameStates.IsLobby)
             || (target == null)) return;
 
@@ -87,7 +82,7 @@ namespace TownOfHost
 
             var id = target.PlayerId;
 
-            if (IsCamouflage && kyousei is true)
+            if (IsCamouflage && force is true)
             {
                 //コミュサボ中
 
@@ -97,11 +92,11 @@ namespace TownOfHost
 
             var newOutfit = CamouflageOutfit;
 
-            if (!IsCamouflage || ForceRevert || kyousei is true)
+            if (!IsCamouflage || ForceRevert || force is true)
             {
                 //コミュサボ解除または強制解除
 
-                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && shapeshifting && !RevertToDefault && kyousei is not null)
+                if (Main.CheckShapeshift.TryGetValue(id, out var shapeshifting) && shapeshifting && !RevertToDefault && force is not null)
                 {
                     //シェイプシフターなら今の姿のidに変更
                     id = Main.ShapeshiftTarget[id];
@@ -112,7 +107,7 @@ namespace TownOfHost
 
             if (target.inVent)
             {
-                if (kyousei is not null)
+                if (force is not null)
                 {
                     ventplayr.Add(target.PlayerId);
                     Logger.Info($"{target.Data.GetLogPlayerName()} : invent", "camouflague");
@@ -120,7 +115,7 @@ namespace TownOfHost
                 }
             }
 
-            if (newOutfit.Compare(target.Data.DefaultOutfit) && kyousei is false) return;
+            if (newOutfit.Compare(target.Data.DefaultOutfit) && force is false) return;
 
             Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 
@@ -150,7 +145,7 @@ namespace TownOfHost
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
 
-            if (target.IsAlive() && !GameStates.Meeting)
+            if (target.IsAlive() && !GameStates.CalledMeeting)
             {
                 target.SetPet(newOutfit.PetId);
                 sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
@@ -160,7 +155,7 @@ namespace TownOfHost
             }
             sender.SendMessage();
 
-            if (!GameStates.Meeting) ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+            if (!GameStates.CalledMeeting) ExtendedRpc.AllPlayerOnlySeeMePet();
         }
     }
 }

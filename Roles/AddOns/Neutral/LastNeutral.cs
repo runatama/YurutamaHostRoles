@@ -22,19 +22,19 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static OptionItem GiveGuesser;
         public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
         public static OptionItem ICanGuessVanilla; public static OptionItem ICanGuessTaskDoneSnitch; public static OptionItem ICanWhiteCrew;
-        public static OptionItem AddTama;
+        public static OptionItem AddShotLimit;
         //マネジメント
         public static OptionItem GiveManagement;
-        public static OptionItem comms; public static OptionItem PercentGage; public static OptionItem Meeting;
-        public static OptionItem PonkotuPercernt;
+        public static OptionItem ManagementCanSeeComms; public static OptionItem PercentGage; public static OptionItem ManagementCanSeeMeeting;
+        public static OptionItem RoughPercentage;
         //ウォッチング
         public static OptionItem GiveWatching;
         //シーイング
-        public static OptionItem Giveseeing;
-        public static OptionItem SCanSeeComms;
+        public static OptionItem GiveSeeing;
+        public static OptionItem SeeingCanSeeComms;
         //オートプシー
         public static OptionItem GiveAutopsy;
-        public static OptionItem ACanSeeComms;
+        public static OptionItem AutopsyCanSeeComms;
         //タイブレーカー
         public static OptionItem GiveTiebreaker;
         public static void SetupCustomOption()
@@ -51,7 +51,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
             CanGuessTime = FloatOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
                 .SetValueFormat(OptionFormat.Players);
-            AddTama = BooleanOptionItem.Create(Id + 13, "Addtama", false, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);
+            AddShotLimit = BooleanOptionItem.Create(Id + 13, "AddShotLimit", false, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);
             OwnCanGuessTime = FloatOptionItem.Create(Id + 14, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
                     .SetValueFormat(OptionFormat.Players);
             ICanGuessVanilla = BooleanOptionItem.Create(Id + 16, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);
@@ -59,14 +59,14 @@ namespace TownOfHost.Roles.AddOns.Neutral
             ICanWhiteCrew = BooleanOptionItem.Create(Id + 18, "CanWhiteCrew", false, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);
             GiveManagement = BooleanOptionItem.Create(Id + 19, "GiveManagement", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
             PercentGage = BooleanOptionItem.Create(Id + 20, "PercentGage", false, TabGroup.Addons, false).SetParent(GiveManagement).SetParentRole(CustomRoles.LastNeutral);
-            PonkotuPercernt = BooleanOptionItem.Create(Id + 21, "PonkotuPercernt", false, TabGroup.Addons, false).SetParent(PercentGage).SetParentRole(CustomRoles.LastNeutral);
-            comms = BooleanOptionItem.Create(Id + 22, "CanseeComms", false, TabGroup.Addons, false).SetParent(GiveManagement).SetParentRole(CustomRoles.LastNeutral);
-            Meeting = BooleanOptionItem.Create(Id + 23, "CanseeMeeting", false, TabGroup.Addons, false).SetParent(GiveManagement).SetParentRole(CustomRoles.LastNeutral);
+            RoughPercentage = BooleanOptionItem.Create(Id + 21, "RoughPercentage", false, TabGroup.Addons, false).SetParent(PercentGage).SetParentRole(CustomRoles.LastNeutral);
+            ManagementCanSeeComms = BooleanOptionItem.Create(Id + 22, "CanUseActiveComms", false, TabGroup.Addons, false).SetParent(GiveManagement).SetParentRole(CustomRoles.LastNeutral);
+            ManagementCanSeeMeeting = BooleanOptionItem.Create(Id + 23, "CanseeMeeting", false, TabGroup.Addons, false).SetParent(GiveManagement).SetParentRole(CustomRoles.LastNeutral);
             GiveWatching = BooleanOptionItem.Create(Id + 24, "GiveWatching", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
-            Giveseeing = BooleanOptionItem.Create(Id + 25, "Giveseeing", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
-            SCanSeeComms = BooleanOptionItem.Create(Id + 26, "CanseeComms", true, TabGroup.Addons, false).SetParent(Giveseeing).SetParentRole(CustomRoles.LastNeutral);
+            GiveSeeing = BooleanOptionItem.Create(Id + 25, "GiveSeeing", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
+            SeeingCanSeeComms = BooleanOptionItem.Create(Id + 26, "CanUseActiveComms", true, TabGroup.Addons, false).SetParent(GiveSeeing).SetParentRole(CustomRoles.LastNeutral);
             GiveAutopsy = BooleanOptionItem.Create(Id + 27, "GiveAutopsy", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
-            ACanSeeComms = BooleanOptionItem.Create(Id + 28, "CanseeComms", true, TabGroup.Addons, false).SetParent(GiveAutopsy).SetParentRole(CustomRoles.LastNeutral);
+            AutopsyCanSeeComms = BooleanOptionItem.Create(Id + 28, "CanUseActiveComms", true, TabGroup.Addons, false).SetParent(GiveAutopsy).SetParentRole(CustomRoles.LastNeutral);
             GiveTiebreaker = BooleanOptionItem.Create(Id + 29, "GiveTiebreaker", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
         }
         public static void Init() => currentId = byte.MaxValue;
@@ -130,7 +130,7 @@ namespace TownOfHost.Roles.AddOns.Neutral
 
             if (pc.GetCustomRole() is CustomRoles.Terrorist or CustomRoles.Madonna) return false;
 
-            if (pc.IsAlive() && !pc.IsRiaju())
+            if (pc.IsAlive() && !pc.IsLovers())
             {
                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);

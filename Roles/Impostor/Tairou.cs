@@ -25,27 +25,27 @@ namespace TownOfHost.Roles.Impostor
             )
         {
             TairoDeathReason = OptionTairoDeathReason.GetBool();
-            Tairouhoukoku = OptionTairouhoukoku.GetBool();
+            TairouNotify = OptionTairouNotify.GetBool();
         }
         public static OptionItem OptionTairoDeathReason;
-        public static OptionItem OptionTairouhoukoku;
+        public static OptionItem OptionTairouNotify;
         enum OptionName
         {
             TairoDeathReason,
-            Tairouhoukoku
+            TairouNotify
         }
         public static bool TairoDeathReason;
-        public static bool Tairouhoukoku;
+        public static bool TairouNotify;
         private static void SetupOptionItem()
         {
             OptionTairoDeathReason = BooleanOptionItem.Create(RoleInfo, 10, OptionName.TairoDeathReason, true, false);
-            OptionTairouhoukoku = BooleanOptionItem.Create(RoleInfo, 11, OptionName.Tairouhoukoku, true, false);
+            OptionTairouNotify = BooleanOptionItem.Create(RoleInfo, 11, OptionName.TairouNotify, true, false);
         }
-        public override CustomRoles GetFtResults(PlayerControl player) => CustomRoles.Crewmate;
-        public override string MeetingMeg()
+        public override CustomRoles TellResults(PlayerControl player) => CustomRoles.Crewmate;
+        public override string MeetingAddMessage()
         {
             if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
-            if (Player.IsAlive() && Tairouhoukoku)
+            if (Player.IsAlive() && TairouNotify)
             {
                 string TairouTitle = $"<size=90%><color=#ff0000>{GetString("Message.TairouTitle")}</size></color>";
                 return TairouTitle + "\n<size=70%>" + GetString("Message.TairouAlive") + "</size>\n";

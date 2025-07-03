@@ -31,9 +31,9 @@ public sealed class AmateurTeller : RoleBase
         Divination.Clear();
         count = 0;
         Use = false;
-        kakusei = !Kakusei.GetBool() || OptionCanTaskcount.GetInt() < 1;
+        Awakened = !OptAwakening.GetBool() || OptionCanTaskcount.GetInt() < 1;
         UseTarget = byte.MaxValue;
-        Votemode = (VoteMode)OptionVoteMode.GetValue();
+        Votemode = (AbilityVoteMode)OptionVoteMode.GetValue();
         CustomRoleManager.MarkOthers.Add(OtherArrow);
         maximum = OptionMaximum.GetInt();
         cantaskcount = OptionCanTaskcount.GetInt();
@@ -47,11 +47,11 @@ public sealed class AmateurTeller : RoleBase
     static OptionItem OptionVoteMode;
     static OptionItem OptionRole;
     static OptionItem OptionCanTaskcount;
-    static OptionItem Kakusei;
+    static OptionItem OptAwakening;
     static OptionItem TargetCanseeArrow;
     static OptionItem TargetCanseePlayer;
     static OptionItem AbilityUseTurnCanButton;
-    public VoteMode Votemode;
+    public AbilityVoteMode Votemode;
     static bool canusebutton;
     static bool canseerole;
     static int maximum;
@@ -59,7 +59,7 @@ public sealed class AmateurTeller : RoleBase
     static bool targetcanseearrow;
     static bool targetcanseeplayer;
     int count;
-    bool kakusei;
+    bool Awakened;
     bool Use;
     byte UseTarget;
     List<byte> Targets = new();
@@ -68,22 +68,17 @@ public sealed class AmateurTeller : RoleBase
 
     enum Option
     {
-        Ucount,
-        Votemode,
-        tRole,
+        TellMaximum,
+        AbilityVotemode,
+        TellRole,
         AmateurTellerTargetCanseeArrow,
         AmateurTellerCanUseAbilityTurnButton,
         AmateurTellerTargetCanseePlayer
     }
-    public enum VoteMode
-    {
-        uvote,
-        SelfVote,
-    }
 
     public override void Add()
     {
-        AddS(Player);
+        AddSelfVotes(Player);
         tellers.Add(this);
     }
     public override void OnDestroy()
@@ -92,15 +87,15 @@ public sealed class AmateurTeller : RoleBase
     }
     private static void SetupOptionItem()
     {
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.Ucount, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.Votemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
-        OptionRole = BooleanOptionItem.Create(RoleInfo, 12, Option.tRole, true, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.AbilityVotemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
+        OptionRole = BooleanOptionItem.Create(RoleInfo, 12, Option.TellRole, true, false);
         TargetCanseePlayer = BooleanOptionItem.Create(RoleInfo, 13, Option.AmateurTellerTargetCanseePlayer, true, false);
         TargetCanseeArrow = BooleanOptionItem.Create(RoleInfo, 14, Option.AmateurTellerTargetCanseeArrow, true, false, TargetCanseePlayer);
         AbilityUseTurnCanButton = BooleanOptionItem.Create(RoleInfo, 15, Option.AmateurTellerCanUseAbilityTurnButton, true, false);
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 16, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 17, GeneralOption.UKakusei, true, false);
+        OptAwakening = BooleanOptionItem.Create(RoleInfo, 17, GeneralOption.AbilityAwakening, false, false);
     }
     public override bool NotifyRolesCheckOtherName => true;
     public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : maximum <= count ? Color.gray : Color.cyan, $"({maximum - count})");
@@ -126,10 +121,10 @@ public sealed class AmateurTeller : RoleBase
         if (maximum > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (!Use))
         {
             var target = PlayerCatch.GetPlayerById(votedForId);
-            if (Votemode == VoteMode.uvote)
+            if (Votemode == AbilityVoteMode.NomalVote)
             {
                 if (Player.PlayerId == votedForId || votedForId == SkipId) return true;
-                Uranai(votedForId);
+                UseTellAbility(votedForId);
                 return false;
             }
             else
@@ -141,7 +136,7 @@ public sealed class AmateurTeller : RoleBase
                     if (status is VoteStatus.Skip)
                         Utils.SendMessage(GetString("VoteSkillFin"), Player.PlayerId);
                     if (status is VoteStatus.Vote)
-                        Uranai(votedForId);
+                        UseTellAbility(votedForId);
                     SetMode(Player, status is VoteStatus.Self);
                     return false;
                 }
@@ -149,7 +144,7 @@ public sealed class AmateurTeller : RoleBase
         }
         return true;
     }
-    public void Uranai(byte votedForId)
+    public void UseTellAbility(byte votedForId)
     {
         var target = PlayerCatch.GetPlayerById(votedForId);
         if (!target.IsAlive()) return;
@@ -157,17 +152,17 @@ public sealed class AmateurTeller : RoleBase
         Use = true;
         UseTarget = target.PlayerId;
         TargetArrow.Add(target.PlayerId, Player.PlayerId);
-        Utils.SendMessage(Utils.GetPlayerColor(target.PlayerId) + GetString("AmatruertellerTellMeg"), Player.PlayerId);
+        Utils.SendMessage(UtilsName.GetPlayerColor(target.PlayerId) + GetString("AmatruertellerTellMeg"), Player.PlayerId);
     }
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
         if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
-            if (kakusei == false)
+            if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
                     Utils.RoleSendList.Add(Player.PlayerId);
-            kakusei = true;
+            Awakened = true;
         }
         return true;
     }
@@ -196,9 +191,9 @@ public sealed class AmateurTeller : RoleBase
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (isForMeeting && Player.IsAlive() && kakusei && seer.PlayerId == seen.PlayerId && Canuseability() && maximum > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        if (isForMeeting && Player.IsAlive() && Awakened && seer.PlayerId == seen.PlayerId && Canuseability() && maximum > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
-            var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == VoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
+            var mes = $"<color={RoleInfo.RoleColorCode}>{(Votemode == AbilityVoteMode.SelfVote ? GetString("SelfVoteRoleInfoMeg") : GetString("NomalVoteRoleInfoMeg"))}</color>";
             return isForHud ? mes : $"<size=40%>{mes}</size>";
         }
         return "";

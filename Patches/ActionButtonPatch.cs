@@ -30,7 +30,7 @@ public static class SabotageButtonRefreshPatch
     {
         //ホストがMODを導入していないorロビーなら実行しない
         if (!GameStates.IsModHost || GameStates.IsLobby) return;
-        if (GameStates.Meeting) return;
+        if (GameStates.CalledMeeting) return;
 
         HudManager.Instance.SabotageButton.ToggleVisible(PlayerControl.LocalPlayer.CanUseSabotageButton());
     }
@@ -49,14 +49,14 @@ public static class AbilityButtonDoClickPatch
 
         var role = player.GetCustomRole();
         var roleInfo = role.GetRoleInfo();
-        var roleclas = player.GetRoleClass();
+        var roleclass = player.GetRoleClass();
 
         if (role.GetRoleTypes() is RoleTypes.Scientist)
         {
             CloseVitals.Ability = true;
             return true;
         }
-        if (roleclas is IUsePhantomButton pb && pb.UseOneclickButton)
+        if (roleclass is IUsePhantomButton pb && pb.UseOneclickButton)
         {
             //Shと違い、クリックしたときクールが発生しないことがあるため、
             //クリックしたってのを最低限可視化させる。
@@ -68,12 +68,12 @@ public static class AbilityButtonDoClickPatch
             //非クライアントの場合、役職調整の影響でキルクール弄らないとキルクールが正常の値にならないが、
             //クライアントの場合、別に役職変えてファントム状態解除をしなくていいので関係ない関数になる★
 
-            bool resetKillCooldown = false;
-            bool? fall = false;
+            bool AdjustKillCoolDown = true;
+            bool? ResetCoolDown = true;
 
-            pb.CheckOnClick(ref resetKillCooldown, ref fall);
+            pb.CheckOnClick(ref AdjustKillCoolDown, ref ResetCoolDown);
 
-            if (fall == false)
+            if (ResetCoolDown == true)
             {
                 player.Data.Role.SetCooldown();
             }
@@ -83,25 +83,25 @@ public static class AbilityButtonDoClickPatch
         else
         if (roleInfo?.IsDesyncImpostor == true && roleInfo.BaseRoleType.Invoke() == RoleTypes.Shapeshifter)
         {
-            if (!(roleclas?.CanUseAbilityButton() ?? false)) return false;
-            foreach (var p in PlayerCatch.AllPlayerControls)
+            if (!(roleclass?.CanUseAbilityButton() ?? false)) return false;
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                p.Data.Role.NameColor = Color.white;
+                pc.Data.Role.NameColor = Color.white;
             }
             player.Data.Role.Cast<ShapeshifterRole>().UseAbility();
-            foreach (var p in PlayerCatch.AllPlayerControls)
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                p.Data.Role.NameColor = Color.white;
+                pc.Data.Role.NameColor = Color.white;
             }
             return true;
         }
         else
         if (roleInfo?.IsDesyncImpostor == true && roleInfo?.BaseRoleType.Invoke() == RoleTypes.Phantom)
         {
-            if (!(roleclas?.CanUseAbilityButton() ?? false)) return false;
-            foreach (var p in PlayerCatch.AllPlayerControls)
+            if (!(roleclass?.CanUseAbilityButton() ?? false)) return false;
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                p.Data.Role.NameColor = Color.white;
+                pc.Data.Role.NameColor = Color.white;
             }
             player.Data.Role.Cast<PhantomRole>().UseAbility();
             return true;

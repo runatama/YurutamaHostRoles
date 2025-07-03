@@ -26,80 +26,76 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         player
         )
     {
-        position = new Vector2(999f, 999f);
-        nowposition = new Vector2(999f, 999f);
+        JumpToPosition = new Vector2(999f, 999f);
+        UsePosition = new Vector2(999f, 999f);
         timer = 0;
-        x = 0;
-        y = 0;
-        count = 0;
-        ability = false;
-        aname = false;
-        speed = Main.AllPlayerSpeed[Player.PlayerId];
+        NowJumpcount = 0;
+        Jumping = false;
+        ShowMark = false;
+        MySpeed = Main.AllPlayerSpeed[Player.PlayerId];
         PlayerColor = player.Data.DefaultOutfit.ColorId;
-        jampdis = Jampdis.GetFloat();
-        jampcount = Jampcount.GetInt();
-        onecooltime = Onecooltime.GetFloat();
-        jampcooltime = Jampcooltime.GetFloat();
+        Jumpdis = OptionJumpdis.GetFloat();
+        Jumpcount = OptionJumpcount.GetInt();
+        onecooltime = OptionOnecooltime.GetFloat();
+        Jumpcooltime = OptionJumpcooltime.GetFloat();
         killcool = OptionKillCoolDown.GetFloat();
-        jampdistance = JampDistance.GetInt();
+        Jumpdistance = OptionJumpDistance.GetInt();
     }
     static OptionItem OptionKillCoolDown;
-    static OptionItem Jampcount;
-    static OptionItem Onecooltime;
-    static OptionItem Jampcooltime;
-    static OptionItem Jampdis;
-    static OptionItem JampDistance;
-    Vector2 position;
-    Vector2 nowposition;
+    static OptionItem OptionJumpcount;
+    static OptionItem OptionOnecooltime;
+    static OptionItem OptionJumpcooltime;
+    static OptionItem OptionJumpdis;
+    static OptionItem OptionJumpDistance;
+    Vector2 JumpToPosition;
+    Vector2 UsePosition;
     static float killcool;
     static float onecooltime;
-    static float jampcooltime;
-    static float jampdis;
-    static int jampcount;
-    static int jampdistance;
+    static float Jumpcooltime;
+    static float Jumpdis;
+    static int Jumpcount;
+    static int Jumpdistance;
     int PlayerColor;
-    float x;
-    float y;
-    float addx;
-    float addy;
+    float JumpX;
+    float JumpY;
     float timer;
-    float speed;
-    int count;
-    public bool ability;
-    bool aname;
-    enum Op
+    float MySpeed;
+    int NowJumpcount;
+    public bool Jumping;
+    bool ShowMark;
+    enum Option
     {
-        JumperOneCoolTime, JumperCCoolTime, JumperJampcount, JumperJampDis, JumperDistance
+        JumperOneCoolTime, JumperCCoolTime, JumperJumpcount, JumperJumpDis, JumperDistance
     }
 
     static void SetupOptionItem()
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        Jampcount = FloatOptionItem.Create(RoleInfo, 11, Op.JumperJampcount, new(1f, 30f, 1f), 4f, false);
-        JampDistance = IntegerOptionItem.Create(RoleInfo, 15, Op.JumperDistance, new(1, 3, 1), 1, false);
-        Onecooltime = FloatOptionItem.Create(RoleInfo, 12, Op.JumperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
-        Jampcooltime = FloatOptionItem.Create(RoleInfo, 13, Op.JumperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
-        Jampdis = FloatOptionItem.Create(RoleInfo, 14, Op.JumperJampDis, new(0.2f, 3, 0.1f), 1.5f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionJumpcount = FloatOptionItem.Create(RoleInfo, 11, Option.JumperJumpcount, new(1f, 30f, 1f), 4f, false);
+        OptionJumpDistance = IntegerOptionItem.Create(RoleInfo, 15, Option.JumperDistance, new(1, 3, 1), 1, false);
+        OptionOnecooltime = FloatOptionItem.Create(RoleInfo, 12, Option.JumperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionJumpcooltime = FloatOptionItem.Create(RoleInfo, 13, Option.JumperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionJumpdis = FloatOptionItem.Create(RoleInfo, 14, Option.JumperJumpDis, new(0.2f, 3, 0.1f), 1.5f, false).SetValueFormat(OptionFormat.Seconds);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        AURoleOptions.PhantomCooldown = position == new Vector2(999f, 999f) ? onecooltime : jampcooltime;
+        AURoleOptions.PhantomCooldown = JumpToPosition == new Vector2(999f, 999f) ? onecooltime : Jumpcooltime;
     }
     public float CalculateKillCooldown() => killcool;
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !ability;
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !Jumping;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (!ability) return;
+        if (!Jumping) return;
 
         timer += Time.fixedDeltaTime;
 
-        if (timer > jampdis)
+        if (timer > Jumpdis)
         {
-            if (count == 1) aname = true;
+            if (NowJumpcount == 1) ShowMark = true;
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-            player.RpcSnapToForced(count == jampcount ? position : new Vector2(nowposition.x + addx * count, nowposition.y + addy * count));
+            player.RpcSnapToForced(NowJumpcount == Jumpcount ? JumpToPosition : new Vector2(UsePosition.x + JumpX * NowJumpcount, UsePosition.y + JumpY * NowJumpcount));
             _ = new LateTask(() =>
             {
                 if (!GameStates.IsMeeting && player.IsAlive())
@@ -109,7 +105,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                         if (target.Is(CustomRoles.King) || target.PlayerId == player.PlayerId) continue;
 
                         float Distance = Vector2.Distance(player.transform.position, target.transform.position);
-                        if (Distance <= (jampdistance == 1 ? 1.22f : (jampdistance == 2 ? 1.82f : 2.2)))
+                        if (Distance <= (Jumpdistance == 1 ? 1.22f : (Jumpdistance == 2 ? 1.82f : 2.2)))
                         {
                             PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
                             target.SetRealKiller(player);
@@ -120,62 +116,58 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                         }
                     }
                 }
-            }, jampdis - 0.19f, "abo-n", null);
-            if (jampcount <= count)
+            }, Jumpdis - 0.19f, "abo-n", null);
+            if (Jumpcount <= NowJumpcount)
             {
-                ability = false;
-                aname = false;
-                x = 0;
-                y = 0;
-                position = new Vector2(999f, 999f);
-                nowposition = new Vector2(999f, 999f);
-                Main.AllPlayerSpeed[Player.PlayerId] = speed;
-                _ = new LateTask(() => player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampowari", null);
+                Jumping = false;
+                ShowMark = false;
+                JumpToPosition = new Vector2(999f, 999f);
+                UsePosition = new Vector2(999f, 999f);
+                Main.AllPlayerSpeed[Player.PlayerId] = MySpeed;
+                _ = new LateTask(() => player.RpcResetAbilityCooldown(Sync: true), 0.2f, "JumperEndResetCool", null);
                 player.SetKillCooldown();
                 Player.RpcSetColor((byte)PlayerColor);
-                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "jampnamemoosu", null);
+                _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(ForceLoop: true), 0.2f, "JumperEndNotify", null);
             }
-            count++;
+            NowJumpcount++;
             timer = 0;
         }
     }
     public override void OnStartMeeting()
     {
         timer = 0;
-        ability = false;
-        aname = false;
-        x = 0;
-        y = 0;
-        position = new Vector2(999f, 999f);
-        nowposition = new Vector2(999f, 999f);
-        Main.AllPlayerSpeed[Player.PlayerId] = speed;
-        _ = new LateTask(() => Player.RpcResetAbilityCooldown(kousin: true), 0.2f, "Jampokyouseiowari");
+        Jumping = false;
+        ShowMark = false;
+        JumpToPosition = new Vector2(999f, 999f);
+        UsePosition = new Vector2(999f, 999f);
+        Main.AllPlayerSpeed[Player.PlayerId] = MySpeed;
+        _ = new LateTask(() => Player.RpcResetAbilityCooldown(Sync: true), 0.2f, "JumperMeetingReset");
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
-    public bool CanUseKillButton() => !ability;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public bool CanUseKillButton() => !Jumping;
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        if (ability) return;
-        fall = false;
-        if (position == new Vector2(999f, 999f))
+        if (Jumping) return;
+        ResetCoolDown = true;
+        if (JumpToPosition == new Vector2(999f, 999f))
         {
-            position = Player.transform.position;
-            resetkillcooldown = false;
+            JumpToPosition = Player.transform.position;
+            AdjustKillCoolDown = true;
             Player.RpcSpecificRejectShapeshift(Player, false);
-            Player.RpcResetAbilityCooldown(kousin: true);
-            Logger.Info($"Set:{position.x}-{position.y} (${Player.PlayerId})", "Jumper");
-            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "Jumperset", true);
+            Player.RpcResetAbilityCooldown(Sync: true);
+            Logger.Info($"Set:{JumpToPosition.x}-{JumpToPosition.y} (${Player.PlayerId})", "Jumper");
+            _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.2f, "JumperSet", true);
             return;
         }
         timer = 0;
-        count = 1;
-        resetkillcooldown = true;
-        ability = true;
-        nowposition = Player.transform.position;
-        x = position.x - nowposition.x;
-        y = position.y - nowposition.y;
-        addx = x / Jampcount.GetInt();
-        addy = y / Jampcount.GetInt();
+        NowJumpcount = 1;
+        AdjustKillCoolDown = false;
+        Jumping = true;
+        UsePosition = Player.transform.position;
+        var X = JumpToPosition.x - UsePosition.x;
+        var Y = JumpToPosition.y - UsePosition.y;
+        JumpX = X / OptionJumpcount.GetInt();
+        JumpY = Y / OptionJumpcount.GetInt();
         Main.AllPlayerSpeed[Player.PlayerId] = Main.MinSpeed;
         Logger.Info($"{Player?.Data?.GetLogPlayerName()}Jump!", "Jumper");
         _ = new LateTask(() =>
@@ -191,10 +183,10 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     public override bool GetTemporaryName(ref string name, ref bool NoMarker, PlayerControl seer, PlayerControl seen = null)
     {
         seen ??= seer;
-        if (Player == seen && aname && !GameStates.Meeting)
+        if (Player == seen && ShowMark && !GameStates.CalledMeeting)
         {
-            name = jampdistance == 1 ? "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n<size=1200%><color=#ff1919>●</color></size></line-height>"
-            : (jampdistance == 2 ? "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n<size=2100%><color=#ff1919>●</color></size></line-height>"
+            name = Jumpdistance == 1 ? "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n<size=1200%><color=#ff1919>●</color></size></line-height>"
+            : (Jumpdistance == 2 ? "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n<size=2100%><color=#ff1919>●</color></size></line-height>"
                 : "<line-height=100%> \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n<size=2800%><color=#ff1919>●</color></size></line-height>"
             );
             NoMarker = true;
@@ -206,7 +198,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     {
         if (isForMeeting) return "";
         if (Player.IsAlive())
-            return position == new Vector2(999f, 999f) ? GetString("Jumper_setti") : GetString("Jumper_Jamp");
+            return JumpToPosition == new Vector2(999f, 999f) ? GetString("Jumper_SetJumpPos") : GetString("Jumper_Jump");
         return "";
     }
     public override bool OverrideAbilityButton(out string text)

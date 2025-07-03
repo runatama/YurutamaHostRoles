@@ -9,7 +9,7 @@ namespace TownOfHost
         static List<byte> ZipdiePlayers = new();
         static List<byte> ZiplineCools = new();
         [Attributes.GameModuleInitializer]
-        public static void reset()
+        public static void Reset()
         {
             ZiplineCools.Clear();
             ZipdiePlayers.Clear();
@@ -32,7 +32,7 @@ namespace TownOfHost
                     ZiplineCools.Remove(__instance.PlayerId);
             }, 3f, "ZiplineCoolsremove", true);
 
-            if (!GameStates.Meeting && !__instance.Data.IsDead && Options.LadderDeathZipline.GetBool())
+            if (!GameStates.CalledMeeting && !__instance.Data.IsDead && Options.LadderDeathZipline.GetBool())
             {
                 int chance = IRandom.Instance.Next(1, 101);
                 if (chance <= FallFromLadder.Chance)
@@ -42,7 +42,7 @@ namespace TownOfHost
 
                     _ = new LateTask(() =>
                     {
-                        if (!GameStates.Meeting && !__instance.Data.IsDead)
+                        if (!GameStates.CalledMeeting && !__instance.Data.IsDead)
                         {
                             Main.AllPlayerSpeed[__instance.PlayerId] = Main.MinSpeed;
                             __instance.SyncSettings();
@@ -53,7 +53,7 @@ namespace TownOfHost
                     {
                         Main.AllPlayerSpeed[__instance.PlayerId] = speed;
                         __instance.SyncSettings();
-                        if (!GameStates.Meeting && !__instance.Data.IsDead)
+                        if (!GameStates.CalledMeeting && !__instance.Data.IsDead)
                         {
                             __instance.RpcMurderPlayer(__instance);
                             var state = PlayerState.GetByPlayerId(__instance.PlayerId);

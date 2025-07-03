@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Hazel;
+using TownOfHost.Modules;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -48,17 +49,17 @@ public static class ReactorSystemTypeUpdateSystemPatch
         {
             if (Modules.SuddenDeathMode.NowSuddenDeathMode)
             {
-                __instance.Countdown = Options.SuddenDeathReactortime.GetFloat();
+                __instance.Countdown = SuddenDeathMode.SuddenDeathReactortime.GetFloat();
                 return;
             }
-            if (!Options.SabotageTimeControl.GetBool())
+            if (!Options.SabotageActivetimerControl.GetBool())
             {
                 return;
             }
             var duration = (MapNames)Main.NormalOptions.MapId switch
             {
-                MapNames.Skeld => Options.SkeldReactor.GetFloat(),
-                MapNames.MiraHQ => Options.Mirare.GetFloat(),
+                MapNames.Skeld => Options.SkeldReactorTimeLimit.GetFloat(),
+                MapNames.MiraHQ => Options.MiraReactorTimeLimit.GetFloat(),
                 MapNames.Polus => Options.PolusReactorTimeLimit.GetFloat(),
                 MapNames.Fungle => Options.FungleReactorTimeLimit.GetFloat(),
                 _ => float.NaN,

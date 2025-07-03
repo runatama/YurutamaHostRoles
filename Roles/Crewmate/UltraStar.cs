@@ -68,7 +68,7 @@ public sealed class UltraStar : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         //ホストじゃない or タスクターンじゃない or 生存していない ならブロック
-        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.Meeting || GameStates.Tuihou || !MyState.HasSpawned) return;
+        if (!AmongUsClient.Instance.AmHost || GameStates.Intro || !GameStates.IsInTask || !player.IsAlive() || GameStates.CalledMeeting || GameStates.ExiledAnimate || !MyState.HasSpawned) return;
         {//参考→https://github.com/Yumenopai/TownOfHost_Y/releases/tag/v514.20.3
             colorchange %= 18;
             if (colorchange is >= 0 and < 1) player.RpcSetColor(8);
@@ -118,13 +118,13 @@ public sealed class UltraStar : RoleBase
                 {
                     CustomRoleManager.OnCheckMurder(Player, target, Player, target);
                     UtilsOption.MarkEveryoneDirtySettings();
-                    Player.RpcResetAbilityCooldown(kousin: true);
+                    Player.RpcResetAbilityCooldown(Sync: true);
                     return;
                 }
                 target.SetRealKiller(player);
                 player.RpcMurderPlayer(target);
                 UtilsOption.MarkEveryoneDirtySettings();
-                Player.RpcResetAbilityCooldown(kousin: true);
+                Player.RpcResetAbilityCooldown(Sync: true);
             }
         }
     }

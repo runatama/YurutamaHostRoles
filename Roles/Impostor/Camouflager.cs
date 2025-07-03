@@ -55,7 +55,7 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost || !NowUse || GameStates.Meeting || Limit <= -50) return;
+        if (!AmongUsClient.Instance.AmHost || !NowUse || GameStates.CalledMeeting || Limit <= -50) return;
 
         Limit -= Time.fixedDeltaTime;
 
@@ -100,13 +100,12 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
                 remove.Add(id);
             }
 
-            ExtendedPlayerControl.AllPlayerOnlySeeMePet();
             if (remove.Count != 0)
             {
                 remove.Do(id => VentPlayers.Remove(id));
                 foreach (var pl in PlayerCatch.AllPlayerControls)
                 {
-                    pl?.GetRoleClass()?.Colorchnge();
+                    pl?.GetRoleClass()?.ChangeColor();
                 }
             }
         }
@@ -114,16 +113,16 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         {
             Limit = -100;
             NowUse = false;
-            PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, kyousei: null));
+            PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, force: null));
             _ = new LateTask(() =>
             {
-                if (GameStates.Meeting) return;
+                if (GameStates.CalledMeeting) return;
                 foreach (var pl in PlayerCatch.AllPlayerControls)
                 {
-                    pl?.GetRoleClass()?.Colorchnge();
+                    pl?.GetRoleClass()?.ChangeColor();
                 }
                 UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-                Player.RpcResetAbilityCooldown(log: false, kousin: true);
+                Player.RpcResetAbilityCooldown(log: false, Sync: true);
             }, 0.4f, "", true);
         }
     }
@@ -132,13 +131,13 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         NowUse = false;
         Limit = -50;
         VentPlayers.Clear();
-        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, kyousei: null));
+        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, force: null));
     }
     public override bool NotifyRolesCheckOtherName => true;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = true;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = false;
         if (NowUse) return;
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)
@@ -177,13 +176,13 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             sender.SendMessage();
         }
 
-        ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+        ExtendedRpc.AllPlayerOnlySeeMePet();
         Limit = OptionAblitytime.GetFloat();
         NowUse = true;
         _ = new LateTask(() =>
         {
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
-            Player.RpcResetAbilityCooldown(log: false, kousin: true);
+            Player.RpcResetAbilityCooldown(log: false, Sync: true);
         }, 0.2f, "", true);
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();

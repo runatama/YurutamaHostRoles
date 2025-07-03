@@ -9,47 +9,43 @@ namespace TownOfHost.Roles.AddOns.Common
     {
         private static readonly int Id = 18200;
         public static List<byte> playerIdList = new();
-        public static OptionItem Modoru;
-        public static OptionItem TriggerDay;
-        public static OptionItem TriggerTask;
-        public static OptionItem Task;
-        public static OptionItem DontCanUseAbility;
-        public static OptionItem defaultKillCool;
-        public static OptionItem TriggerKill;
-        public static OptionItem KillCount;
+        public static OptionItem OptionCanRealizeDay;
+        public static OptionItem OptionRealizeDayCount;
+        public static OptionItem OptionCanRealizeTask;
+        public static OptionItem OptionRealizeTaskCount;
+        public static OptionItem OptionCanRealizeKill;
+        public static OptionItem OptionRealizeKillcount;
+        public static OptionItem OptionDontCanUseAbility;
+        public static OptionItem OptionDefaultKillCool;
         public static bool dontcanUseability;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Amnesia);
             AddOnsAssignData.Create(Id + 10, CustomRoles.Amnesia, true, true, true, true);
-            DontCanUseAbility = BooleanOptionItem.Create(Id + 40, "Am.DontCanUseAbility", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            defaultKillCool = BooleanOptionItem.Create(Id + 41, "Am.defaultKillCool", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(DontCanUseAbility);
-            TriggerDay = BooleanOptionItem.Create(Id + 50, "Am.TriggerDay", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            Modoru = IntegerOptionItem.Create(Id + 51, "Am.modru", new(1, 99, 1), 4, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(TriggerDay).SetValueFormat(OptionFormat.day);
-            TriggerTask = BooleanOptionItem.Create(Id + 52, "Am.TriggerTask", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            Task = IntegerOptionItem.Create(Id + 53, "Am.Task", new(1, 255, 1), 4, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(TriggerTask);
-            TriggerKill = BooleanOptionItem.Create(Id + 54, "Am.TriggerKill", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
-            KillCount = IntegerOptionItem.Create(Id + 55, "Am.KillCount", new(1, 15, 1), 2, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(TriggerKill);
+            OptionDontCanUseAbility = BooleanOptionItem.Create(Id + 40, "AmnesiaDontCanUseAbility", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            OptionDefaultKillCool = BooleanOptionItem.Create(Id + 41, "AmnesiaDefaultKillCool", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(OptionDontCanUseAbility);
+            OptionCanRealizeDay = BooleanOptionItem.Create(Id + 50, "AmnesiaCanRealizeDay", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            OptionRealizeDayCount = IntegerOptionItem.Create(Id + 51, "AmnesiaRealizeDayCount", new(1, 99, 1), 4, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(OptionCanRealizeDay).SetValueFormat(OptionFormat.day);
+            OptionCanRealizeTask = BooleanOptionItem.Create(Id + 52, "AmnesiaCanRealizeTask", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            OptionRealizeTaskCount = IntegerOptionItem.Create(Id + 53, "AmnesiaRealizeTaskCount", new(1, 255, 1), 4, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(OptionCanRealizeTask);
+            OptionCanRealizeKill = BooleanOptionItem.Create(Id + 54, "AmnesiaCanRealizeKill", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(CustomRoleSpawnChances[CustomRoles.Amnesia]);
+            OptionRealizeKillcount = IntegerOptionItem.Create(Id + 55, "AmnesiaRealizeKillcount", new(1, 15, 1), 2, TabGroup.Addons, false).SetParentRole(CustomRoles.Amnesia).SetParent(OptionCanRealizeKill);
         }
 
         public static void Init()
         {
             playerIdList = new();
-            dontcanUseability = DontCanUseAbility.GetBool();
+            dontcanUseability = OptionDontCanUseAbility.GetBool();
         }
         public static void Add(byte playerId)
         {
             playerIdList.Add(playerId);
         }
-        public static void Kesu(byte playerId)
+        public static void RemoveAmnesia(byte playerId)
         {
             playerIdList.Remove(playerId);
             PlayerState.GetByPlayerId(playerId).RemoveSubRole(CustomRoles.Amnesia);
-            //これはなにかって?英語名変えちゃったからめんどくさいんだっ!!!
-            var langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
-            if (Main.ForceJapanese.Value) langId = SupportedLangs.Japanese;
-            var a = langId == SupportedLangs.English ? "Loss of memory" : "Amnesia";
-            UtilsGameLog.AddGameLog($"{a}", string.Format(Translator.GetString("Am.log"), Utils.GetPlayerColor(playerId)));
+            UtilsGameLog.AddGameLog("Amnesia", string.Format(Translator.GetString("Am.log"), UtilsName.GetPlayerColor(playerId)));
         }
         /// <summary>
         /// アムネシアの能力削除が適応されている状態か

@@ -223,7 +223,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
                     PlagueDoctors[0].SendRPC(target.PlayerId, newRate);
                     string Infectmeg = "50%";
                     if (newRate >= 100) Infectmeg = "100%";
-                    UtilsGameLog.AddGameLog("PlagueDoctor", string.Format(GetString("Log.PlagueDoctor"), Utils.GetPlayerColor(target.PlayerId), Infectmeg));
+                    UtilsGameLog.AddGameLog("PlagueDoctor", string.Format(GetString("Log.PlagueDoctor"), UtilsName.GetPlayerColor(target.PlayerId), Infectmeg));
                 }
             }
             if (changed)
@@ -296,7 +296,7 @@ public sealed class PlagueDoctor : RoleBase, IKiller
     public void DirectInfect(PlayerControl player)
     {
         Logger.Info($"InfectRate[{player.GetNameWithRole().RemoveHtmlTags()}]:100%", "OnCheckMurderAsKiller");
-        UtilsGameLog.AddGameLog("PlagueDoctor", string.Format(GetString("Log.PlagueDoctor"), Utils.GetPlayerColor(player.PlayerId), "100%"));
+        UtilsGameLog.AddGameLog("PlagueDoctor", string.Format(GetString("Log.PlagueDoctor"), UtilsName.GetPlayerColor(player.PlayerId), "100%"));
         InfectInfos[player.PlayerId] = 100;
         SendRPC(player.PlayerId, 100);
         UtilsNotifyRoles.NotifyRoles();

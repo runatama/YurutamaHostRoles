@@ -23,7 +23,7 @@ namespace TownOfHost
 
         // 元役職に関わらず敗北するPlayerIdが格納され、
         // このID持つプレイヤーは問答無用で負けます
-        public static HashSet<byte> IdRemoveLovers;
+        public static HashSet<byte> CantWinPlayerIds;
 
         // 勝利優先順位の最高値です。
         // この数値より大きい(同値除く)と勝利を上書きします
@@ -36,13 +36,13 @@ namespace TownOfHost
             AdditionalWinnerRoles = new();
             WinnerRoles = new();
             WinnerIds = new();
-            IdRemoveLovers = new();
+            CantWinPlayerIds = new();
             WinPriority = -1;
-            GameStates.Meeting = false;
+            GameStates.CalledMeeting = false;
         }
         public static void ClearWinners()
         {
-            IdRemoveLovers.Clear();
+            CantWinPlayerIds.Clear();
             WinnerRoles.Clear();
             WinnerIds.Clear();
             WinPriority = -1;
@@ -50,7 +50,7 @@ namespace TownOfHost
         /// <summary><para>WinnerTeamに値を代入します。</para><para>すでに代入されている場合、AdditionalWinnerRolesに追加します。</para></summary>
         public static void SetWinnerOrAdditonalWinner(CustomWinner winner)
         {
-            GameStates.Meeting = false;
+            GameStates.CalledMeeting = false;
             if (WinnerTeam == CustomWinner.Default) WinnerTeam = winner;
             else AdditionalWinnerRoles.Add((CustomRoles)winner);
         }
@@ -64,7 +64,7 @@ namespace TownOfHost
         /// <summary><para>既存の値をすべて削除してから、WinnerTeamに値を代入します。</para></summary>
         public static void ResetAndSetWinner(CustomWinner winner)
         {
-            GameStates.Meeting = false;
+            GameStates.CalledMeeting = false;
             Logger.Info($"{WinnerTeam} => {winner}", "CustomWinner");
             Reset();
             if (SoloWinOption.AllData.TryGetValue((CustomRoles)winner, out var data))
@@ -82,7 +82,7 @@ namespace TownOfHost
         /// <param name="AddWin">同値だった場合、追加勝利するか</param>
         public static bool ResetAndSetAndChWinner(CustomWinner winner, byte playerId, bool AddWin = true, CustomRoles hantrole = CustomRoles.NotAssigned)
         {
-            GameStates.Meeting = false;
+            GameStates.CalledMeeting = false;
             Logger.Info($"RASACW {WinnerTeam} => {winner}", "CustomWinner");
 
             if (SoloWinOption.AllData.TryGetValue(hantrole is CustomRoles.NotAssigned ? (CustomRoles)winner : hantrole, out var data))
@@ -104,7 +104,7 @@ namespace TownOfHost
                     AdditionalWinnerRoles.Add((CustomRoles)winner);
                     if (playerId is byte.MaxValue) return true;
                     WinnerIds.Add(playerId);
-                    IdRemoveLovers.Remove(playerId);
+                    CantWinPlayerIds.Remove(playerId);
                     return true;
                 }
                 else
@@ -135,8 +135,8 @@ namespace TownOfHost
             foreach (var id in WinnerIds)
                 writer.Write(id);
 
-            writer.WritePacked(IdRemoveLovers.Count);
-            foreach (var lid in IdRemoveLovers)
+            writer.WritePacked(CantWinPlayerIds.Count);
+            foreach (var lid in CantWinPlayerIds)
                 writer.Write(lid);
 
             return writer;
@@ -160,10 +160,10 @@ namespace TownOfHost
             for (int i = 0; i < WinnerIdsCount; i++)
                 WinnerIds.Add(reader.ReadByte());
 
-            IdRemoveLovers = new();
-            int IdRemoveLoversCount = reader.ReadPackedInt32();
-            for (int i = 0; i < IdRemoveLoversCount; i++)
-                IdRemoveLovers.Add(reader.ReadByte());
+            CantWinPlayerIds = new();
+            int CantWinPlayerIdsCount = reader.ReadPackedInt32();
+            for (int i = 0; i < CantWinPlayerIdsCount; i++)
+                CantWinPlayerIds.Add(reader.ReadByte());
         }
     }
 }

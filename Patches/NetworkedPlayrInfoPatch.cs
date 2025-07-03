@@ -21,7 +21,7 @@ class GameDataSerializePatch
             __result = true;
             return true;
         }
-        if (Options.CurrentGameMode != CustomGameMode.Standard || !GameStates.IsMeeting || GameStates.Tuihou || AntiBlackout.IsCached)
+        if (Options.CurrentGameMode != CustomGameMode.Standard || !GameStates.IsMeeting || GameStates.ExiledAnimate || AntiBlackout.IsCached)
         {
             Sending = false;
             return true;

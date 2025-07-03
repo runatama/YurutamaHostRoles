@@ -30,7 +30,7 @@ namespace TownOfHost.Roles.Ghost
             playerIdList = new();
             count = new Dictionary<byte, int>();
             CustomRoleManager.MarkOthers.Add(OtherMark);
-            Data.kottinimofuyo = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
+            Data.SubRoleType = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
         }
         public static void Add(byte playerId)
         {
@@ -47,7 +47,7 @@ namespace TownOfHost.Roles.Ghost
                 || Utils.IsActive(SystemTypes.LifeSupp)
                 || Utils.IsActive(SystemTypes.HeliSabotage))
                 {
-                    Logger.Info("サボちゅうなう", "Ghostbuttoner");
+                    Logger.Info("サボ中なう", "Ghostbuttoner");
                     return;
                 }
                 if (!count.TryGetValue(pc.PlayerId, out var nowcont))
@@ -68,10 +68,10 @@ namespace TownOfHost.Roles.Ghost
 
             if (seer == seen && seer.Is(CustomRoles.Ghostbuttoner))
             {
-                var c = 0;
-                if (count.ContainsKey(seer.PlayerId)) c = count[seer.PlayerId];
-                else c = Count.GetInt();
-                return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Ghostbuttoner).ShadeColor(-0.25f), $" ({c}/{Count.GetInt()})");
+                var LimitCount = 0;
+                if (count.ContainsKey(seer.PlayerId)) LimitCount = count[seer.PlayerId];
+                else LimitCount = Count.GetInt();
+                return Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Ghostbuttoner).ShadeColor(-0.25f), $" ({LimitCount}/{Count.GetInt()})");
             }
             return "";
         }

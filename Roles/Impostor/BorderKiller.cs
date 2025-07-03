@@ -51,7 +51,7 @@ public sealed class BorderKiller : RoleBase, IImpostor
         //目標キルカウント ＞ 現在のキルカウント
         if (OptionMissionKillcount.GetInt() > MyState.GetKillCount(false) && CustomWinnerHolder.WinnerTeam is CustomWinner.Impostor)
         {
-            CustomWinnerHolder.IdRemoveLovers.Add(Player.PlayerId);
+            CustomWinnerHolder.CantWinPlayerIds.Add(Player.PlayerId);
             CustomWinnerHolder.WinnerIds.Remove(Player.PlayerId);
         }
     }

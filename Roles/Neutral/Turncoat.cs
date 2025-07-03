@@ -41,7 +41,7 @@ public sealed class Turncoat : RoleBase
         TurncoatCanTargetNeutral
     }
     byte Target;
-    bool TargetDie;
+    bool IsTargetDied;
     string TargetColorcode;
 
     private static void SetupOptionItem()
@@ -56,7 +56,7 @@ public sealed class Turncoat : RoleBase
     public override void Add()
     {
         Target = byte.MaxValue;
-        TargetDie = false;
+        IsTargetDied = false;
         //設定に準じた奴。
         var list = PlayerCatch.AllPlayerControls.Where(pc =>
         {
@@ -98,7 +98,7 @@ public sealed class Turncoat : RoleBase
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!AmongUsClient.Instance.AmHost || AntiBlackout.IsCached || TargetDie || !Player.IsAlive()) return;
+        if (!AmongUsClient.Instance.AmHost || AntiBlackout.IsCached || IsTargetDied || !Player.IsAlive()) return;
 
         PlayerControl target = PlayerCatch.GetPlayerById(Target);
 
@@ -111,7 +111,7 @@ public sealed class Turncoat : RoleBase
         //死亡時
         if (!target.IsAlive())
         {
-            TargetDie = true;
+            IsTargetDied = true;
             UtilsNotifyRoles.NotifyRoles(Player);
         }
     }
@@ -129,7 +129,7 @@ public sealed class Turncoat : RoleBase
         }
 
         //何が何でも負けるリストに含まれている場合 → かち！
-        if (CustomWinnerHolder.IdRemoveLovers.Contains(Target))
+        if (CustomWinnerHolder.CantWinPlayerIds.Contains(Target))
         {
             Win();
             return;
@@ -146,7 +146,7 @@ public sealed class Turncoat : RoleBase
     //スタンダードなら白位置にねじ込んでキルさせる、強引に吊りに行く等誘導してもらいたい
     public override void OverrideDisplayRoleNameAsSeer(PlayerControl seen, ref bool enabled, ref Color roleColor, ref string roleText, ref bool addon)
     {
-        if (seen.PlayerId == Target && TargetDie)
+        if (seen.PlayerId == Target && IsTargetDied)
         {
             enabled = true;
             addon |= false;
@@ -167,8 +167,8 @@ public sealed class Turncoat : RoleBase
         if (!Player.IsAlive() || isForMeeting) return "";
 
         var targetpc = PlayerCatch.GetPlayerById(Target);
-        var targetname = Utils.GetPlayerColor(targetpc, true);
-        if (TargetDie)
+        var targetname = UtilsName.GetPlayerColor(targetpc, true);
+        if (IsTargetDied)
         {
             var role = targetpc.GetCustomRole();
             targetname += $"{Utils.ColorString(UtilsRoleText.GetRoleColor(role), $"({GetString($"{role}")})")}";

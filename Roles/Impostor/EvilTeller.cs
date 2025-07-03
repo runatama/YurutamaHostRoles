@@ -79,30 +79,30 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
         optCanTellCount = IntegerOptionItem.Create(RoleInfo, 17, OptionName.EvilTellerCanTellCount, new(1, 99, 1), 3, false);
         opttelltime = FloatOptionItem.Create(RoleInfo, 12, OptionName.EvilTellerTellTime, new(0, 100, 0.5f), 5, false).SetValueFormat(OptionFormat.Seconds);
         optDistance = FloatOptionItem.Create(RoleInfo, 13, OptionName.EvilTellerDistance, new(1f, 30f, 0.25f), 1.75f, false);
-        opttellroleteam = BooleanOptionItem.Create(RoleInfo, 14, "tRole", false, false);
+        opttellroleteam = BooleanOptionItem.Create(RoleInfo, 14, "TellRole", false, false);
         opttellrole = BooleanOptionItem.Create(RoleInfo, 15, OptionName.EvilTellertellrole, false, false);
         optusekillcoool = BooleanOptionItem.Create(RoleInfo, 16, "OptionSetKillcooldown", false, false);
     }
     public float CalculateKillCooldown() => killcooldown;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = maxtellcount <= seentarget.Count ? 200f : (fall ? 1 : (nowuse ? telltime : cooldown));
     bool IUsePhantomButton.IsPhantomRole => maxtellcount > seentarget.Count;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
+        AdjustKillCoolDown = true;
         if (maxtellcount <= seentarget.Count) return;
-        fall = true;
+        ResetCoolDown = false;
         var target = Player.GetKillTarget(true);
-        if (target == null) { fall = true; return; }
-        if (target.Is(CustomRoleTypes.Impostor)) { fall = true; return; }
+        if (target == null) { ResetCoolDown = false; return; }
+        if (target.Is(CustomRoleTypes.Impostor)) { ResetCoolDown = false; return; }
 
-        if (seentarget.ContainsKey(target.PlayerId) || TargetInfo != null) { fall = true; return; }
+        if (seentarget.ContainsKey(target.PlayerId) || TargetInfo != null) { ResetCoolDown = false; return; }
 
         TargetInfo = new(target.PlayerId, 0f);
         nowuse = true;
-        fall = false;
+        ResetCoolDown = false;
         _ = new LateTask(() =>
         {
-            Player.RpcResetAbilityCooldown(kousin: true);
+            Player.RpcResetAbilityCooldown(Sync: true);
             UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }, 0.2f, "", true);
     }
@@ -171,7 +171,7 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
                 nowuse = false;
                 fall = false;
                 TargetInfo = null;
-                Player.RpcResetAbilityCooldown(kousin: true);
+                Player.RpcResetAbilityCooldown(Sync: true);
                 if (usekillcool && !fall) Player.SetKillCooldown();
                 seentarget.TryAdd(et_target.PlayerId, et_target.GetCustomRole());
 

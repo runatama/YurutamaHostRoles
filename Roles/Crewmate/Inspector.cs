@@ -29,26 +29,25 @@ public sealed class Inspector : RoleBase
         player
     )
     {
-        kakusei = !OptKakusei.GetBool() || Task.GetInt() < 1;
+        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskcount.GetInt() < 1;
         Max = OptionMaximum.GetInt();
         count = 0;
         TargetPlayerId = byte.MaxValue;
-        Votemode = (FortuneTeller.VoteMode)OptionVoteMode.GetValue();
+        Votemode = (AbilityVoteMode)OptionVoteMode.GetValue();
         Isdie = false;
-        timer = 0;
+        deadtimer = 0;
     }
-    bool kakusei;
+    bool Awakened;
     static OptionItem OptionMaximum;
-    static OptionItem OptKakusei;
-    static OptionItem Task;
+    static OptionItem OptAwakening;
+    static OptionItem OptAwakeningTaskcount;
     static OptionItem OptionVoteMode;
-    public FortuneTeller.VoteMode Votemode;
-    int Max;
+    public AbilityVoteMode Votemode;
+    static int Max;
     int count;
     byte TargetPlayerId;
-    float timer;
+    float deadtimer;
     bool Isdie;
-
 
     enum OptionName
     {
@@ -64,20 +63,20 @@ public sealed class Inspector : RoleBase
         DeathTimer,
         TargetRoom,
     }
-    public override void Add() => AddS(Player);
+    public override void Add() => AddSelfVotes(Player);
     private static void SetupOptionItem()
     {
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.OptionCount, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, OptionName.InspectVoteMode, EnumHelper.GetAllNames<FortuneTeller.VoteMode>(), 1, false);
-        OptKakusei = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskKakusei, true, false);
-        Task = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Kakuseitask, new(1f, 99f, 1f), 5f, false, OptKakusei);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, OptionName.InspectVoteMode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
+        OptAwakening = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskAwakening, false, false);
+        OptAwakeningTaskcount = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.AwakeningTaskcount, new(1f, 99f, 1f), 5f, false, OptAwakening);
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (Isdie)
         {
-            timer += Time.fixedDeltaTime;
+            deadtimer += Time.fixedDeltaTime;
             return;
         }
         if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || TargetPlayerId is byte.MaxValue) return;
@@ -93,15 +92,15 @@ public sealed class Inspector : RoleBase
 
         Isdie = true;
     }
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(Task.GetValue()))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskcount.GetValue()))
         {
-            if (kakusei == false)
+            if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
                     Utils.RoleSendList.Add(Player.PlayerId);
-            kakusei = true;
+            Awakened = true;
         }
         return true;
     }
@@ -118,24 +117,24 @@ public sealed class Inspector : RoleBase
                 case Infom.Color:
                     if (Camouflage.PlayerSkins.TryGetValue(targetstate.RealKiller.killerid, out var cos))
                     {
-                        var color = "";
+                        var lightName = "";
                         if (cos.ColorId is 0 or 1 or 2 or 6 or 8 or 9 or 12 or 15 or 16)
                         {
-                            color = Palette.GetColorName((int)ModColors.PlayerColor.Black);
+                            lightName = Palette.GetColorName((int)ModColors.PlayerColor.Black);
                         }
-                        else color = Palette.GetColorName((int)ModColors.PlayerColor.white);
+                        else lightName = Palette.GetColorName((int)ModColors.PlayerColor.white);
 
-                        sb.AppendFormat(GetString("Inspector.InfoColor"), Utils.GetPlayerColor(TargetPlayerId), color);
+                        sb.AppendFormat(GetString("Inspector.InfoColor"), UtilsName.GetPlayerColor(TargetPlayerId), lightName);
                     }
                     break;
                 case Infom.DeathReason:
-                    sb.AppendFormat(GetString("Inspector.InfoDeathReason"), Utils.GetPlayerColor(TargetPlayerId), GetString($"DeathReason.{targetstate.DeathReason}"));
+                    sb.AppendFormat(GetString("Inspector.InfoDeathReason"), UtilsName.GetPlayerColor(TargetPlayerId), GetString($"DeathReason.{targetstate.DeathReason}"));
                     break;
                 case Infom.DeathTimer:
-                    sb.AppendFormat(GetString("Inspector.InfoTimer"), Utils.GetPlayerColor(TargetPlayerId), (int)timer);
+                    sb.AppendFormat(GetString("Inspector.InfoTimer"), UtilsName.GetPlayerColor(TargetPlayerId), (int)deadtimer);
                     break;
                 case Infom.KillerRole:
-                    sb.AppendFormat(GetString("Inspector.InfoRole"), Utils.GetPlayerColor(TargetPlayerId), UtilsRoleText.GetTrueRoleName(targetstate.RealKiller.killerid, false));
+                    sb.AppendFormat(GetString("Inspector.InfoRole"), UtilsName.GetPlayerColor(TargetPlayerId), UtilsRoleText.GetTrueRoleName(targetstate.RealKiller.killerid, false));
                     break;
                 case Infom.TargetTeam:
                     string str = "";
@@ -154,15 +153,15 @@ public sealed class Inspector : RoleBase
                             str = Utils.ColorString(ModColors.Gray, GetString("Neutral"));
                             break;
                     }
-                    sb.AppendFormat(GetString("Inspector.InfoTeam"), Utils.GetPlayerColor(TargetPlayerId), str);
+                    sb.AppendFormat(GetString("Inspector.InfoTeam"), UtilsName.GetPlayerColor(TargetPlayerId), str);
                     break;
                 case Infom.TargetRoom:
                     if (targetstate.KillRoom is "")
                     {
-                        sb.AppendFormat(GetString("Inspector.InfoDeathReason"), Utils.GetPlayerColor(TargetPlayerId), GetString($"DeathReason.{targetstate.DeathReason}"));
+                        sb.AppendFormat(GetString("Inspector.InfoDeathReason"), UtilsName.GetPlayerColor(TargetPlayerId), GetString($"DeathReason.{targetstate.DeathReason}"));
                         break;
                     }
-                    sb.AppendFormat(GetString("Inspector.InfoRoom"), Utils.GetPlayerColor(TargetPlayerId), targetstate.KillRoom);
+                    sb.AppendFormat(GetString("Inspector.InfoRoom"), UtilsName.GetPlayerColor(TargetPlayerId), targetstate.KillRoom);
                     break;
                 default:
                     sb.Append("???");
@@ -173,17 +172,17 @@ public sealed class Inspector : RoleBase
                 Utils.SendMessage(sb.ToString(), Player.PlayerId, $"<{RoleInfo.RoleColorCode}>{GetString("Inspector.Title")}</color>")
                 , 3, "InspectorSend", true);
         }
-        timer = 0;
+        deadtimer = 0;
         Isdie = false;
         TargetPlayerId = byte.MaxValue;
     }
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (Max > count && Is(voter) && TargetPlayerId is byte.MaxValue && kakusei)
+        if (Max > count && Is(voter) && TargetPlayerId is byte.MaxValue && Awakened)
         {
             var target = PlayerCatch.GetPlayerById(votedForId);
-            if (Votemode == FortuneTeller.VoteMode.uvote)
+            if (Votemode == AbilityVoteMode.NomalVote)
             {
                 if (Player.PlayerId == votedForId || votedForId == SkipId) return true;
                 Inspect(votedForId);
@@ -213,7 +212,7 @@ public sealed class Inspector : RoleBase
         if (!target.IsAlive()) return;//死んでるならここで処理を止める。
         count++;//全体のカウント
         TargetPlayerId = votedForId;
-        Utils.SendMessage(string.Format(GetString("Skill.Inspector"), Utils.GetPlayerColor(votedForId)), Player.PlayerId);
+        Utils.SendMessage(string.Format(GetString("Skill.Inspector"), UtilsName.GetPlayerColor(votedForId)), Player.PlayerId);
         Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}", "Inspector");
     }
 }

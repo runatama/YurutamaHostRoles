@@ -53,7 +53,7 @@ namespace TownOfHost
                     {
                         case CustomWinner.Crewmate:
                             PlayerCatch.AllPlayerControls
-                                .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsRiaju()
+                                .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.GetCustomRole().IsLovers()
                                 && !pc.Is(CustomRoles.Amanojaku) && !pc.Is(CustomRoles.Jackaldoll) && !pc.Is(CustomRoles.SKMadmate)
                                 && ((pc.Is(CustomRoles.Staff) && (pc.GetRoleClass() as Staff).EndedTaskInAlive) || !pc.Is(CustomRoles.Staff)))
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
@@ -61,21 +61,21 @@ namespace TownOfHost
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 if (pc.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.Jackaldoll ||
-                                    pc.IsRiaju())
-                                    CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
+                                    pc.IsLovers())
+                                    CustomWinnerHolder.CantWinPlayerIds.Add(pc.PlayerId);
                             }
                             break;
                         case CustomWinner.Impostor:
 
                             PlayerCatch.AllPlayerControls
-                                .Where(pc => (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate) || pc.Is(CustomRoles.SKMadmate)) && (!pc.GetCustomRole().IsRiaju() || !pc.Is(CustomRoles.Jackaldoll)))
+                                .Where(pc => (pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoleTypes.Madmate) || pc.Is(CustomRoles.SKMadmate)) && (!pc.GetCustomRole().IsLovers() || !pc.Is(CustomRoles.Jackaldoll)))
                                 .Do(pc => CustomWinnerHolder.WinnerIds.Add(pc.PlayerId));
                             if (Egoist.CheckWin()) break;
                             foreach (var pc in PlayerCatch.AllPlayerControls)
                             {
                                 if (pc.GetCustomRole() is CustomRoles.Jackaldoll ||
-                                    pc.IsRiaju())
-                                    CustomWinnerHolder.IdRemoveLovers.Add(pc.PlayerId);
+                                    pc.IsLovers())
+                                    CustomWinnerHolder.CantWinPlayerIds.Add(pc.PlayerId);
                             }
                             break;
                         default:
@@ -83,11 +83,11 @@ namespace TownOfHost
                             Faction.CheckWin();
                             //ラバー勝利以外の時にラバーをしめt...勝利を剥奪する処理。
                             //どーせ追加なら追加勝利するやろし乗っ取りなら乗っ取りやし。
-                            if (CustomWinnerHolder.WinnerTeam.IsRiaju())
+                            if (CustomWinnerHolder.WinnerTeam.IsLovers())
                                 break;
                             PlayerCatch.AllPlayerControls
-                                .Where(p => p.IsRiaju())
-                                .Do(p => CustomWinnerHolder.IdRemoveLovers.Add(p.PlayerId));
+                                .Where(p => p.IsLovers())
+                                .Do(p => CustomWinnerHolder.CantWinPlayerIds.Add(p.PlayerId));
                             break;
                     }
                 //チーム戦で勝者がチームじゃない時(単独勝利とかね)
@@ -104,15 +104,15 @@ namespace TownOfHost
                     if (reason.Equals(GameOverReason.CrewmatesByTask))//タスクの場合リア充敗北☆
                     {
                         PlayerCatch.AllPlayerControls
-                            .Where(p => p.IsRiaju())
-                            .Do(p => CustomWinnerHolder.IdRemoveLovers.Add(p.PlayerId));
+                            .Where(pc => pc.IsLovers())
+                            .Do(lover => CustomWinnerHolder.CantWinPlayerIds.Add(lover.PlayerId));
                     }
                     Lovers.LoversAddWin();
 
                     //追加勝利陣営
                     foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.GetCustomRole() is CustomRoles.PhantomThief or CustomRoles.Turncoat or CustomRoles.AllArounder || pc.Is(CustomRoles.AsistingAngel)))
                     {
-                        if (!pc.IsRiaju())
+                        if (!pc.IsLovers())
                         {
                             if (pc.GetRoleClass() is IAdditionalWinner additionalWinner)
                             {
@@ -183,7 +183,7 @@ namespace TownOfHost
                 }
                 bool canWin = CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) ||
                         CustomWinnerHolder.WinnerRoles.Contains(pc.GetCustomRole());
-                canWin &= !CustomWinnerHolder.IdRemoveLovers.Contains(pc.PlayerId);
+                canWin &= !CustomWinnerHolder.CantWinPlayerIds.Contains(pc.PlayerId);
                 bool isCrewmateWin = reason.Equals(GameOverReason.CrewmatesByVote) || reason.Equals(GameOverReason.CrewmatesByTask);
                 SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin);
 
@@ -257,7 +257,7 @@ namespace TownOfHost
             {
                 winners.AddRange(PlayerCatch.AllPlayerControls.Where(p => p.Is(team) && !winners.Contains(p)));
             }
-            foreach (var id in CustomWinnerHolder.IdRemoveLovers)
+            foreach (var id in CustomWinnerHolder.CantWinPlayerIds)
             {
                 var pc = PlayerCatch.GetPlayerById(id);
                 if (pc == null) continue;
@@ -270,7 +270,7 @@ namespace TownOfHost
                 {
                     if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
                     if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) && winnerList.Contains(pc.PlayerId)) continue;
-                    if (CustomWinnerHolder.IdRemoveLovers.Contains(pc.PlayerId)) continue;
+                    if (CustomWinnerHolder.CantWinPlayerIds.Contains(pc.PlayerId)) continue;
 
                     winnerList.Add(pc.PlayerId);
                 }
@@ -396,7 +396,7 @@ namespace TownOfHost
                 if (Jackal == 0 && (CustomRoles.Jackal.IsPresent() || CustomRoles.JackalMafia.IsPresent() || CustomRoles.JackalAlien.IsPresent()))
                     foreach (var player in PlayerCatch.AllAlivePlayerControls)
                     {
-                        if (player.Is(CustomRoles.Jackaldoll) && JackalDoll.Oyabun.ContainsKey(player.PlayerId))
+                        if (player.Is(CustomRoles.Jackaldoll) && JackalDoll.BossAndSidekicks.ContainsKey(player.PlayerId))
                         {
                             Jackal++;
                             Crew--;
@@ -542,7 +542,7 @@ namespace TownOfHost
                 LifeSupp.Countdown < 0f) // タイムアップ確認
             {
                 // 酸素サボタージュ
-                if (Options.Chcabowin.GetBool())
+                if (Options.ChangeSabotageWinRole.GetBool())
                 {
                     var pc = PlayerCatch.GetPlayerById(Main.LastSab);
                     var role = pc.GetCustomRole();
@@ -571,12 +571,12 @@ namespace TownOfHost
                             break;
                     }
                     reason = GameOverReason.ImpostorsBySabotage;
-                    Main.NowSabotage = false;
+                    Main.IsActiveSabotage = false;
                     LifeSupp.Countdown = 10000f;
                     return true;
                 }
                 CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
-                Main.NowSabotage = false;
+                Main.IsActiveSabotage = false;
                 reason = GameOverReason.ImpostorsBySabotage;
                 LifeSupp.Countdown = 10000f;
                 return true;
@@ -595,13 +595,13 @@ namespace TownOfHost
                 {
                     PlayerCatch.AllAlivePlayerControls.Do(p => p.RpcMurderPlayerV2(p));
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                    Main.NowSabotage = false;
+                    Main.IsActiveSabotage = false;
                     reason = GameOverReason.ImpostorsBySabotage;
                     critical.ClearSabotage();
                     return true;
                 }
                 // リアクターサボタージュ
-                if (Options.Chcabowin.GetBool())
+                if (Options.ChangeSabotageWinRole.GetBool())
                 {
                     var pc = PlayerCatch.GetPlayerById(Main.LastSab);
                     var role = pc.GetCustomRole();
@@ -629,13 +629,13 @@ namespace TownOfHost
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
                             break;
                     }
-                    Main.NowSabotage = false;
+                    Main.IsActiveSabotage = false;
                     reason = GameOverReason.ImpostorsBySabotage;
                     critical.ClearSabotage();
                     return true;
                 }
                 CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
-                Main.NowSabotage = false;
+                Main.IsActiveSabotage = false;
                 reason = GameOverReason.ImpostorsBySabotage;
                 critical.ClearSabotage();
                 return true;

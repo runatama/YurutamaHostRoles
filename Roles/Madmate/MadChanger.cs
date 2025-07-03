@@ -41,11 +41,11 @@ public sealed class MadChanger : RoleBase, IKiller, IKillFlashSeeable, IDeathRea
     PlayerControl KillTarget;
     public bool? CheckKillFlash(MurderInfo info) => Options.MadmateCanSeeKillFlash.GetBool();
     public bool? CheckSeeDeathReason(PlayerControl seen) => Options.MadmateCanSeeDeathReason.GetBool();
-    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => Options.MadTellOpt();
     private static void SetupOptionItem()
     {
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, true, false);
-        PlayAnimation = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.animate, true, false);
+        PlayAnimation = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.PlayShapeAnimate, true, false);
         KillCoolDown = FloatOptionItem.Create(RoleInfo, 12, OptionName.MadChangerKillTargetCooldown, new(0f, 180f, 0.5f), 10f, false).SetValueFormat(OptionFormat.Seconds);
         AbilityCoolDown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
     }

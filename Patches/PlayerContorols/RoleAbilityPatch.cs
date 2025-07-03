@@ -56,12 +56,12 @@ namespace TownOfHost
                 Vector2 shapeshifterPosition = shapeshifter.transform.position;//変身者の位置
                 Dictionary<PlayerControl, float> mpdistance = new();
                 float dis;
-                foreach (var p in PlayerCatch.AllAlivePlayerControls)
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                 {
-                    if ((p.Data.Role.Role != RoleTypes.Shapeshifter || p.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter) && !p.Is(CustomRoleTypes.Impostor) && !p.Is(targetRole))
+                    if ((pc.Data.Role.Role != RoleTypes.Shapeshifter || pc.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() != RoleTypes.Shapeshifter) && !pc.Is(CustomRoleTypes.Impostor) && !pc.Is(targetRole))
                     {
-                        dis = Vector2.Distance(shapeshifterPosition, p.transform.position);
-                        mpdistance.Add(p, dis);
+                        dis = Vector2.Distance(shapeshifterPosition, pc.transform.position);
+                        mpdistance.Add(pc, dis);
                     }
                 }
                 if (mpdistance.Count != 0)
@@ -75,48 +75,9 @@ namespace TownOfHost
                     {
                         if (SuddenDeathMode.NowSuddenDeathTemeMode)
                         {
-                            if (SuddenDeathMode.TeamRed.Contains(targetm.PlayerId))
-                            {
-                                SuddenDeathMode.TeamRed.Add(target.PlayerId);
-                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-                            }
-                            if (SuddenDeathMode.TeamBlue.Contains(targetm.PlayerId))
-                            {
-                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamBlue.Add(target.PlayerId);
-                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-                            }
-                            if (SuddenDeathMode.TeamYellow.Contains(targetm.PlayerId))
-                            {
-                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamYellow.Add(target.PlayerId);
-                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-                            }
-                            if (SuddenDeathMode.TeamGreen.Contains(targetm.PlayerId))
-                            {
-                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamGreen.Add(target.PlayerId);
-                                SuddenDeathMode.TeamPurple.Remove(target.PlayerId);
-                            }
-                            if (SuddenDeathMode.TeamPurple.Contains(targetm.PlayerId))
-                            {
-                                SuddenDeathMode.TeamRed.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamBlue.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamYellow.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamGreen.Remove(target.PlayerId);
-                                SuddenDeathMode.TeamPurple.Add(target.PlayerId);
-                            }
+                            targetm.SideKickChangeTeam(shapeshifter);
                         }
-                        UtilsGameLog.AddGameLog("SideKick", string.Format(Translator.GetString("log.Sidekick"), Utils.GetPlayerColor(targetm, true) + $"({UtilsRoleText.GetTrueRoleName(targetm.PlayerId)})", Utils.GetPlayerColor(shapeshifter, true)));
+                        UtilsGameLog.AddGameLog("SideKick", string.Format(Translator.GetString("log.Sidekick"), UtilsName.GetPlayerColor(targetm, true) + $"({UtilsRoleText.GetTrueRoleName(targetm.PlayerId)})", UtilsName.GetPlayerColor(shapeshifter, true)));
                         targetm.RpcSetCustomRole(targetRole);
                         Logger.Info($"Make SKMadmate:{targetm.name}", "Shapeshift");
                         PlayerCatch.SKMadmateNowCount++;
@@ -228,14 +189,14 @@ namespace TownOfHost
             {
                 foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                 {
-                    role.Colorchnge();
+                    role.ChangeColor();
                 }
             }, 1.2f, "", true);
 
             if (!shapeshifting)
             {
                 Camouflage.RpcSetSkin(shapeshifter);
-                shapeshifter.OnlySeeMePet(shapeshifter.Data.DefaultOutfit.PetId);
+                shapeshifter.OnlySeeMyPet(shapeshifter.Data.DefaultOutfit.PetId);
             }
             //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
             if (!shapeshifting)
@@ -258,22 +219,22 @@ namespace TownOfHost
         {
             if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId) return false;
             Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
-            var resetkillcooldown = false;
-            bool? fall = false;
+            var AdjustKillCoolDown = true;
+            bool? ResetCoolDown = true;
 
             if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton && Main.CanUseAbility)
-                iusephantombutton.CheckOnClick(ref resetkillcooldown, ref fall);
+                iusephantombutton.CheckOnClick(ref AdjustKillCoolDown, ref ResetCoolDown);
 
-            float k = 0;
-            IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out k);
+            float TurnTimer = 0;
+            IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out TurnTimer);
             Main.AllPlayerKillCooldown.TryGetValue(__instance.PlayerId, out var killcool);
             /* 初手で、キルク修正がオフでキルクが10s以上で、キルが0回*/
             if (MeetingStates.FirstMeeting && !Options.FixFirstKillCooldown.GetBool() && killcool > 10 && PlayerState.GetByPlayerId(__instance.PlayerId)?.GetKillCount() is 0 or null)
                 killcool = 10;
-            float cooldown = killcool - k;
+            float cooldown = killcool - TurnTimer;
             if (cooldown <= 1) cooldown = 0.005f;
 
-            if (!resetkillcooldown)
+            if (AdjustKillCoolDown)
             {
                 Main.AllPlayerKillCooldown[__instance.PlayerId] = cooldown < 10 ? cooldown : cooldown * 2;
                 __instance.SyncSettings();
@@ -287,7 +248,7 @@ namespace TownOfHost
             writer.StartRpc(__instance.NetId, (byte)RpcCalls.StartAppear)
                 .Write(true)//falseにしたら動かない。多分ベント用
                 .EndRpc();*/
-            if (fall is not null)
+            if (ResetCoolDown is not null)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
                     .Write((ushort)RoleTypes.Impostor)
@@ -301,14 +262,14 @@ namespace TownOfHost
                         .EndRpc();
                 }
             }
-            if (!resetkillcooldown && !(cooldown < 10))
+            if (AdjustKillCoolDown && !(cooldown < 10))
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.MurderPlayer)
                     .WriteNetObject(__instance)
                     .Write((int)MurderResultFlags.FailedProtected)
                     .EndRpc();
             }
-            if (fall == false && (__instance.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is true)
+            if (ResetCoolDown is true && (__instance.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is true)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.ProtectPlayer)
                     .WriteNetObject(__instance)
@@ -471,7 +432,7 @@ namespace TownOfHost
                 if (OldOnEnterVent.TryAdd(__instance.myPlayer.PlayerId, true)) OldOnEnterVent[__instance.myPlayer.PlayerId] = true;
 
                 //マッドでベント移動できない設定なら矢印を消す
-                if ((!roleClass?.CantVentIdo(__instance, id) ?? false) ||
+                if ((!roleClass?.CanVentMoving(__instance, id) ?? false) ||
                     (user.GetCustomRole().IsMadmate() && !Options.MadmateCanMovedByVent.GetBool()))
                 {
                     if (!MadBool && user.PlayerId == PlayerControl.LocalPlayer.PlayerId)
@@ -511,7 +472,7 @@ namespace TownOfHost
                     return false;
                 }
             }
-            if (Utils.CanVent)
+            if (Utils.CantUseVent)
             {
                 if (log) Logger.Info($"{pp.name}がベントに入ろうとしましたがベントが無効化されているので弾きます。", "OnenterVent");
                 return false;
@@ -544,7 +505,7 @@ namespace TownOfHost
                     return false;
                 }
             }
-            if (Utils.CanVent)
+            if (Utils.CantUseVent)
             {
                 ReMove();
                 return false;
@@ -559,7 +520,7 @@ namespace TownOfHost
                     if (vent is null)
                     {
                         player.RpcSnapToForced(new UnityEngine.Vector2(100f, 100f));
-                        Logger.Error($"無効なベントid{id}。(てか移動するなし)", "Vent");
+                        Logger.Error($"無効なベントid{id}。", "Vent");
                         return;
                     }
                     player.RpcSnapToForced(vent.transform.position + new UnityEngine.Vector3(0f, 0.1f));

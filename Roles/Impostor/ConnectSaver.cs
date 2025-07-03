@@ -68,8 +68,7 @@ public sealed class ConnectSaver : RoleBase, IImpostor
         OptionNinzu = IntegerOptionItem.Create(RoleInfo, 12, OptionName.ConnectSaverPlayerCount, new(0, 15, 1), 6, false).SetValueFormat(OptionFormat.Players);
         OptionDeathReason = StringOptionItem.Create(RoleInfo, 13, OptionName.ConnectSaverDeathReason, cRolesString, 3, false);
     }
-    public override void Add()
-        => AddS(Player);
+    public override void Add() => AddSelfVotes(Player);
     private void SendRPC()
     {
         using var sender = CreateSender();
@@ -150,10 +149,9 @@ public sealed class ConnectSaver : RoleBase, IImpostor
 
             if (P1 != byte.MaxValue || P2 != byte.MaxValue)
             {
-                //使いまわしだって?うるせぇ!!(灬՞ةڼ◔灬)
-                var n = (P1 != byte.MaxValue && P2 != byte.MaxValue) ? GetString("TowPlayer") : GetString("OnePlayer");
-                var s = string.Format(GetString("Skill.Balancer"), n, Utils.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true));
-                Utils.SendMessage(s.ToString(), Player.PlayerId);
+                var Nowtargetcount = (P1 != byte.MaxValue && P2 != byte.MaxValue) ? GetString("TowPlayer") : GetString("OnePlayer");
+                var lasttext = string.Format(GetString("Skill.Balancer"), Nowtargetcount, UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true));
+                Utils.SendMessage(lasttext.ToString(), Player.PlayerId);
             }
             if (P1 != byte.MaxValue && P2 != byte.MaxValue)
             {

@@ -25,7 +25,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
             {
                 AssignCountRule = new(1, 1, 1)
             },
-            Desc: () => string.Format(GetString("DoppelGangerDesc"), OptionWinCount.GetInt(), OptionWin.GetInt())
+            Desc: () => string.Format(GetString("DoppelGangerDesc"), OptionAddWinCount.GetInt(), OptionSoloWinCount.GetInt())
             );
     public DoppelGanger(PlayerControl player)
     : base(
@@ -45,8 +45,8 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
 
     static OptionItem OptionKillCooldown;
     static OptionItem OptionShepeCoolDown;
-    static OptionItem OptionWinCount;
-    static OptionItem OptionWin;
+    static OptionItem OptionAddWinCount;
+    static OptionItem OptionSoloWinCount;
     static float KillCooldown;
     bool Cankill;
     bool Afterkill;
@@ -64,8 +64,8 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
             .SetValueFormat(OptionFormat.Seconds);
         OptionShepeCoolDown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionWinCount = FloatOptionItem.Create(RoleInfo, 13, "DoppelGangerWinCount", new(0f, 300f, 1f), 45f, false);
-        OptionWin = FloatOptionItem.Create(RoleInfo, 14, "DoppelGangerWin", new(0f, 300f, 1f), 70f, false);
+        OptionAddWinCount = FloatOptionItem.Create(RoleInfo, 13, "DoppelGangerWinCount", new(0f, 300f, 1f), 45f, false);
+        OptionSoloWinCount = FloatOptionItem.Create(RoleInfo, 14, "DoppelGangerWin", new(0f, 300f, 1f), 70f, false);
         RoleAddAddons.Create(RoleInfo, 15);
     }
     public float CalculateKillCooldown() => KillCooldown;
@@ -132,14 +132,14 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         seen ??= seer;
         if (seer == seen || seen.PlayerId == Target)
         {
-            var bunbo = OptionWinCount.GetFloat();
-            var b = OptionWin.GetFloat();
+            var AddDenominator = OptionAddWinCount.GetFloat();
+            var SoloWinDenominator = OptionSoloWinCount.GetFloat();
             if (!Player.IsAlive()) return "";
-            if (SecondsWin) return Utils.ColorString(Palette.Purple.ShadeColor(-0.5f), $"({Count}/{b}) {Utils.AdditionalWinnerMark}");
+            if (SecondsWin) return Utils.ColorString(Palette.Purple.ShadeColor(-0.5f), $"({Count}/{SoloWinDenominator}) {Utils.AdditionalWinnerMark}");
             else if (Target != byte.MaxValue)
-                return Utils.ColorString(Palette.Purple.ShadeColor(-0.3f), $"({Count}/{bunbo})");
+                return Utils.ColorString(Palette.Purple.ShadeColor(-0.3f), $"({Count}/{AddDenominator})");
             else
-                return Utils.ColorString(Palette.Purple.ShadeColor(-0.1f), $"({Count}/{bunbo})");
+                return Utils.ColorString(Palette.Purple.ShadeColor(-0.1f), $"({Count}/{AddDenominator})");
         }
         return "";
     }
@@ -147,22 +147,22 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (!player.IsAlive()) return;
-        var ch = false;
+        var UseingShape = false;
         if (Afterkill)
         {
-            ch = true;
+            UseingShape = true;
             Seconds += Time.fixedDeltaTime * 0.9f;
         }
         if (Target != byte.MaxValue)
         {
-            ch = true;
+            UseingShape = true;
             Seconds += Time.fixedDeltaTime * 0.1f;
         }
 
-        if (!ch) return;
+        if (UseingShape is false) return;
 
-        if (Seconds >= OptionWinCount.GetFloat()) SecondsWin = true;
-        if (Seconds >= OptionWin.GetFloat())
+        if (OptionAddWinCount.GetFloat() <= Seconds) SecondsWin = true;
+        if (OptionSoloWinCount.GetFloat() <= Seconds)
         {
             win = true;
             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.DoppelGanger, Player.PlayerId, false);

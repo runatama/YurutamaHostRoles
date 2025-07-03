@@ -265,7 +265,7 @@ namespace TownOfHost
             return "";
         }
 
-        public static void kosin()
+        public static void Update()
         {
             var check = CheckAdd(false);
             if (check is not "")

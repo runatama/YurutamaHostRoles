@@ -48,7 +48,7 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
         seen ??= seer;
         if (!Is(seer) || Vega == null) return "";
         if (Options.firstturnmeeting && MeetingStates.FirstMeeting) return "";
-        if (!Vega.CanSeeKiller || GameStates.Meeting) return "";
+        if (!Vega.CanSeeKiller || GameStates.CalledMeeting) return "";
 
         if (seen.GetCustomRole().IsImpostor() || seen.IsNeutralKiller() || seen.Is(CustomRoles.WolfBoy) || seen.Is(CustomRoles.Sheriff) || seen.Is(CustomRoles.GrimReaper))
         {

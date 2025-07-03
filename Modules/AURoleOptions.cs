@@ -7,7 +7,7 @@ namespace TownOfHost
     {
         private static IGameOptions Opt;
         public static void SetOpt(IGameOptions opt) => Opt = opt;
-        public static float ElectricalCrewVision => Mathf.Clamp(Main.sabotagetime, 0.5f, 5f);
+        public static float ElectricalCrewVision => Mathf.Clamp(Main.SabotageActivetimer, 0.5f, 5f);
         public static float KillCooldown
         {
             get => Opt.GetFloat(FloatOptionNames.KillCooldown);

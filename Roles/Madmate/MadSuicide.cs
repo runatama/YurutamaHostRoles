@@ -62,7 +62,7 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlas
     }
     public bool? CheckKillFlash(MurderInfo info) => Options.MadmateCanSeeKillFlash.GetBool();
     public bool? CheckSeeDeathReason(PlayerControl seen) => Options.MadmateCanSeeDeathReason.GetBool();
-    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => Options.MadTellOpt();
     public override void ApplyGameOptions(IGameOptions opt)
     {
         AURoleOptions.PhantomCooldown = OptionAbilityCoolDown.GetFloat();
@@ -107,11 +107,11 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlas
         Player.SetRealKiller(Player);
         killer.RpcMurderPlayer(killer);
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
         if (!Player.IsAlive()) return;
-        resetkillcooldown = true;
-        fall = true;
+        AdjustKillCoolDown = false;
+        ResetCoolDown = false;
         MyState.DeathReason = deathReasons[OptionAbilityDeathreason.GetValue()];
         Player.RpcMurderPlayer(Player);
     }

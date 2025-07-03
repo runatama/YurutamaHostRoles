@@ -61,7 +61,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.LastNeutral, "ln");
                 roleCommands.Add(CustomRoles.LastImpostor, "li");
                 //バフ
-                roleCommands.Add(CustomRoles.watching, "wat");
+                roleCommands.Add(CustomRoles.Watching, "wat");
                 roleCommands.Add(CustomRoles.Speeding, "sd");
                 roleCommands.Add(CustomRoles.Guarding, "gi");
                 roleCommands.Add(CustomRoles.Guesser, "Gr");
@@ -74,7 +74,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Opener, "Oe");
                 //roleCommands.Add(CustomRoles.AntiTeleporter, "At");
                 roleCommands.Add(CustomRoles.Revenger, "Re");
-                roleCommands.Add(CustomRoles.seeing, "Se");
+                roleCommands.Add(CustomRoles.Seeing, "Se");
                 roleCommands.Add(CustomRoles.Autopsy, "Au");
                 roleCommands.Add(CustomRoles.Tiebreaker, "tb");
                 roleCommands.Add(CustomRoles.MagicHand, "MaH");
@@ -212,19 +212,19 @@ namespace TownOfHost
                     SendMessage(rolemsg, player);
                     return;
             }
-            foreach (var r in roleCommands)
+            foreach (var roledata in roleCommands)
             {
-                var roleName = r.Key.ToString();
-                var roleShort = r.Value;
+                var roleName = roledata.Key.ToString();
+                var roleShort = roledata.Value;
 
                 if (string.Compare(role, roleName, true) == 0 || string.Compare(role, roleShort, true) == 0)
                 {
-                    if (r.Key is CustomRoles.Assassin or CustomRoles.Merlin)
+                    if (roledata.Key is CustomRoles.Assassin or CustomRoles.Merlin)
                     {
                         goto infosend;
                     }
-                    if ((r.Key.IsE() && !Event.Special) || !Event.CheckRole(r.Key)) goto infosend;
-                    var roleInfo = r.Key.GetRoleInfo();
+                    if ((roledata.Key.IsE() && !Event.Special) || !Event.CheckRole(roledata.Key)) goto infosend;
+                    var roleInfo = roledata.Key.GetRoleInfo();
                     if (roleInfo != null && roleInfo.Description != null)
                     {
                         SendMessage(roleInfo.Description.FullFormatHelp, sendTo: player);
@@ -232,8 +232,8 @@ namespace TownOfHost
                     // RoleInfoがない役職は従来の処理
                     else
                     {
-                        if (r.Key.IsAddOn() || r.Key.IsRiaju() || r.Key == CustomRoles.Amanojaku || r.Key.IsGhostRole()) SendMessage(GetAddonsHelp(r.Key), sendTo: player);
-                        else SendMessage(ColorString(GetRoleColor(r.Key), "<b><line-height=2.0pic><size=150%>" + GetString(roleName) + "\n<line-height=1.8pic><size=90%>" + GetString($"{roleName}Info")) + "\n<line-height=1.3pic></b><size=60%>\n" + GetString($"{roleName}InfoLong"), sendTo: player);
+                        if (roledata.Key.IsAddOn() || roledata.Key.IsLovers() || roledata.Key == CustomRoles.Amanojaku || roledata.Key.IsGhostRole()) SendMessage(GetAddonsHelp(roledata.Key), sendTo: player);
+                        else SendMessage(ColorString(GetRoleColor(roledata.Key), "<b><line-height=2.0pic><size=150%>" + GetString(roleName) + "\n<line-height=1.8pic><size=90%>" + GetString($"{roleName}Info")) + "\n<line-height=1.3pic></b><size=60%>\n" + GetString($"{roleName}InfoLong"), sendTo: player);
                     }
                     return;
                 }
@@ -254,7 +254,7 @@ namespace TownOfHost
                 // RoleInfoがない役職は従来の処理
                 else
                 {
-                    if (hr.IsAddOn() || hr.IsRiaju() || hr == CustomRoles.Amanojaku || hr.IsGhostRole()) SendMessage(GetAddonsHelp(hr), sendTo: player);
+                    if (hr.IsAddOn() || hr.IsLovers() || hr == CustomRoles.Amanojaku || hr.IsGhostRole()) SendMessage(GetAddonsHelp(hr), sendTo: player);
                     else SendMessage(ColorString(GetRoleColor(hr), "<b><line-height=2.0pic><size=150%>" + GetString($"{hr}") + "\n<line-height=1.8pic><size=90%>" + GetString($"{hr}Info")) + "\n<line-height=1.3pic></b><size=60%>\n" + GetString($"{hr}InfoLong"), sendTo: player);
                 }
                 return;

@@ -25,7 +25,7 @@ public static class LastGameSave
         }
     }
 
-    public static void CreateIfNotExists(bool sakujo = false, bool oti = false)
+    public static void CreateIfNotExists(bool delete = false, bool destroy = false)
     {
         if (!File.Exists(PATH))
         {
@@ -35,7 +35,7 @@ public static class LastGameSave
                 if (File.Exists(@"./LastGameResult.txt"))
                 {
                     File.Move(@"./LastGameResult.txt", PATH);
-                    if (sakujo)
+                    if (delete)
                     {
                         File.WriteAllText(PATH, "");
                         return;
@@ -44,7 +44,7 @@ public static class LastGameSave
                 }
                 else
                 {
-                    if (sakujo)
+                    if (delete)
                     {
                         File.WriteAllText(PATH, "");
                         return;
@@ -62,7 +62,7 @@ public static class LastGameSave
             if (!Directory.Exists(@"TOHK_DATA")) Directory.CreateDirectory(@"TOHK_DATA");
             if (File.Exists(@"./LastGameResult.txt"))
             {
-                if (sakujo)
+                if (delete)
                 {
                     File.WriteAllText(PATH, "");
                     return;
@@ -76,7 +76,7 @@ public static class LastGameSave
             }
             else
             {
-                if (sakujo)
+                if (delete)
                 {
                     File.WriteAllText(PATH, "");
                     return;
@@ -94,7 +94,7 @@ public static class LastGameSave
             var sb = new StringBuilder();
 
             var winnerColor = ((CustomRoles)CustomWinnerHolder.WinnerTeam).GetRoleInfo()?.RoleColor ?? Palette.DisabledGrey;
-            if (oti)
+            if (destroy)
             {
                 sb.Append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + UtilsGameLog.gamelog + "\n\n<b>" + "</b>");
             }

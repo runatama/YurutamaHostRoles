@@ -45,7 +45,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
         PuppetCool = FloatOptionItem.Create(RoleInfo, 11, Op.PuppeteerPuppetCool, new(0, 100, 0.5f), 5f, false).SetValueFormat(OptionFormat.Seconds);
         Create(RoleInfo, 12);
         PuppetKillDis = StringOptionItem.Create(RoleInfo, 13, "Killdistance", EnumHelper.GetAllNames<KillDistance>(), 0, false);
-        PuppetKillDis.ReplacementDictionary = new() { { "%role%", "パペット" } };
+        PuppetKillDis.ReplacementDictionary = new() { { "%role%", GetString("Puppet") } };
     }
     public override bool NotifyRolesCheckOtherName => true;
     /// <summary>
@@ -134,7 +134,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
             {
                 if (pc.PlayerId != puppet.PlayerId && SuddenDeathMode.NowSuddenDeathMode)
                 {
-                    if (!SuddenDeathMode.NowSuddenDeathTemeMode || !SuddenDeathMode.IsOnajiteam(pc.PlayerId, Player.PlayerId))
+                    if (!SuddenDeathMode.NowSuddenDeathTemeMode || !SuddenDeathMode.IsSameteam(pc.PlayerId, Player.PlayerId))
                     {
                         var dis = Vector2.Distance(puppetPos, pc.transform.position);
                         targetDistance.Add(pc, dis);

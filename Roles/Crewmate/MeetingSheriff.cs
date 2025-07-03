@@ -35,12 +35,12 @@ public sealed class MeetingSheriff : RoleBase
     )
     {
         Max = OptionSheriffShotLimit.GetFloat();
-        count = 0;
-        mcount = 0;
+        Usedcount = 0;
+        MeetingUsedcount = 0;
         MeetingSheriffCanKillMadMate = OptionMeetingSheriffCanKillMadMate.GetBool();
         MeetingSheriffCanKillNeutrals = OptionMeetingSheriffCanKillNeutrals.GetBool();
         cantaskcount = Optioncantaskcount.GetFloat();
-        onemeetingmaximum = Option1MeetingMaximum.GetFloat();
+        OneMeetingMaximum = Option1MeetingMaximum.GetFloat();
     }
 
     private static OptionItem OptionSheriffShotLimit;
@@ -49,13 +49,13 @@ public sealed class MeetingSheriff : RoleBase
     private static OptionItem OptionMeetingSheriffCanKillLovers;
     private static OptionItem Optioncantaskcount;
     private static OptionItem Option1MeetingMaximum;
-    public float Max;
-    float cantaskcount;
+    static float Max;
+    static float cantaskcount;
     bool MeetingSheriffCanKillMadMate;
     bool MeetingSheriffCanKillNeutrals;
-    int count;
-    float onemeetingmaximum;
-    float mcount;
+    int Usedcount;
+    static float OneMeetingMaximum;
+    int MeetingUsedcount;
 
     enum Option
     {
@@ -63,7 +63,6 @@ public sealed class MeetingSheriff : RoleBase
         cantaskcount,//効果を発揮タスク数
         MeetingSheriffCanKillMadMate,
         MeetingSheriffCanKillNeutrals,
-        meetingmc,
         SheriffCanKillLovers
     }
     private static void SetupOptionItem()
@@ -74,26 +73,25 @@ public sealed class MeetingSheriff : RoleBase
         OptionMeetingSheriffCanKillMadMate = BooleanOptionItem.Create(RoleInfo, 12, Option.MeetingSheriffCanKillMadMate, true, false);
         OptionMeetingSheriffCanKillNeutrals = BooleanOptionItem.Create(RoleInfo, 13, Option.MeetingSheriffCanKillNeutrals, true, false);
         OptionMeetingSheriffCanKillLovers = BooleanOptionItem.Create(RoleInfo, 15, Option.SheriffCanKillLovers, true, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, Option.meetingmc, new(0f, 99f, 1f), 0f, false, infinity: true)
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, infinity: true)
             .SetValueFormat(OptionFormat.Times);
     }
-    public override void Add()
-        => AddS(Player);
+    public override void Add() => AddSelfVotes(Player);
     private void SendRPC()
     {
         using var sender = CreateSender();
-        sender.Writer.Write(count);
+        sender.Writer.Write(Usedcount);
     }
     public override void ReceiveRPC(MessageReader reader)
     {
-        count = reader.ReadInt32();
+        Usedcount = reader.ReadInt32();
     }
-    public override void OnStartMeeting() => mcount = 0;
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= count ? Color.gray : Color.cyan, $"({Max - count})");
+    public override void OnStartMeeting() => MeetingUsedcount = 0;
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(MyTaskState.CompletedTasksCount < cantaskcount ? Color.gray : Max <= Usedcount ? Color.gray : Color.cyan, $"({Max - Usedcount})");
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Max > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        if (isForMeeting && Player.IsAlive() && seer.PlayerId == seen.PlayerId && Canuseability() && Max > Usedcount && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("SelfVoteRoleInfoMeg")}</color>";
             return isForHud ? mes : $"<size=40%>{mes}</size>";
@@ -103,7 +101,7 @@ public sealed class MeetingSheriff : RoleBase
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
         if (!Canuseability()) return true;
-        if (Max > count && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (mcount < onemeetingmaximum || onemeetingmaximum == 0))
+        if (Max > Usedcount && Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && (MeetingUsedcount < OneMeetingMaximum || OneMeetingMaximum == 0))
         {
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
@@ -127,8 +125,8 @@ public sealed class MeetingSheriff : RoleBase
         if (!AmongUsClient.Instance.AmHost) return;
         var meetingHud = MeetingHud.Instance;
         var hudManager = DestroyableSingleton<HudManager>.Instance.KillOverlay;
-        count++;
-        mcount++;//1会議のカウント
+        Usedcount++;
+        MeetingUsedcount++;//1会議のカウント
         SendRPC();
 
         //ゲッサーがいるなら～
@@ -141,15 +139,15 @@ public sealed class MeetingSheriff : RoleBase
         if ((targetroleclass as JackalAlien)?.CheckSheriffKill(target) == true) AlienTairo = true;
         if ((targetroleclass as AlienHijack)?.CheckSheriffKill(target) == true) AlienTairo = true;
 
-        if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsRiaju() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
+        if ((CanBeKilledBy(target.GetCustomRole()) && !AlienTairo) || (target.IsLovers() && OptionMeetingSheriffCanKillLovers.GetBool()) || (target.Is(CustomRoles.Amanojaku) && OptionMeetingSheriffCanKillNeutrals.GetBool()))
         {
             state = PlayerState.GetByPlayerId(target.PlayerId);
             target.RpcExileV2();
             state.DeathReason = CustomDeathReason.Kill;
             state.SetDead();
 
-            UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]");
-            UtilsGameLog.AddGameLogsub($"\n\t⇐ {Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>)");
+            UtilsGameLog.AddGameLog($"MeetingSheriff", $"{UtilsName.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>) [{Utils.GetVitalText(target.PlayerId, true)}]");
+            UtilsGameLog.AddGameLogsub($"\n\t⇐ {UtilsName.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>)");
 
             if (Options.ExHideChatCommand.GetBool())
             {
@@ -162,11 +160,11 @@ public sealed class MeetingSheriff : RoleBase
                 RPC.RpcSyncAllNetworkedPlayer(target.GetClientId());
                 MeetingHudPatch.StartPatch.Serialize = false;
             }
-            Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
-            Utils.SendMessage(Utils.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
+            Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - Usedcount}", "MeetingSheriff");
+            Utils.SendMessage(UtilsName.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
             {
-                Utils.SendMessage(string.Format(GetString("MMeetingKill"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
+                Utils.SendMessage(string.Format(GetString("MMeetingKill"), UtilsName.GetPlayerColor(Player, true), UtilsName.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
             }
 
             MeetingVoteManager.ResetVoteManager(target.PlayerId);
@@ -179,8 +177,8 @@ public sealed class MeetingSheriff : RoleBase
                             (target.Is(CustomRoles.AlienHijack) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire));
         MyState.SetDead();
 
-        UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
-        UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>)");
+        UtilsGameLog.AddGameLog($"MeetingSheriff", $"{UtilsName.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
+        UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{UtilsName.GetPlayerColor(target, true)}(<b>{UtilsRoleText.GetTrueRoleName(target.PlayerId, false)}</b>)");
 
         if (Options.ExHideChatCommand.GetBool())
         {
@@ -193,11 +191,11 @@ public sealed class MeetingSheriff : RoleBase
             RPC.RpcSyncAllNetworkedPlayer(Player.GetClientId());
             MeetingHudPatch.StartPatch.Serialize = false;
         }
-        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - count}", "MeetingSheriff");
-        Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
+        Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - Usedcount}", "MeetingSheriff");
+        Utils.SendMessage(UtilsName.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
         foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
         {
-            Utils.SendMessage(string.Format(GetString("MMeetingKillfall"), Utils.GetPlayerColor(Player, true), Utils.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
+            Utils.SendMessage(string.Format(GetString("MMeetingKillfall"), UtilsName.GetPlayerColor(Player, true), UtilsName.GetPlayerColor(target, true)), go.PlayerId, GetString("RMSKillTitle"));
         }
 
         MeetingVoteManager.ResetVoteManager(Player.PlayerId);

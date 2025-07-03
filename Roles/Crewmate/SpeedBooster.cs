@@ -34,17 +34,16 @@ public sealed class SpeedBooster : RoleBase
         BoostTarget = byte.MaxValue;
     }
 
-    private static OptionItem OptionUpSpeed; //加速値
-    private static OptionItem OptionTaskTrigger; //効果を発動するタスク完了数
+    static OptionItem OptionUpSpeed; //加速値
+    static OptionItem OptionTaskTrigger; //効果を発動するタスク完了数
     enum OptionName
     {
         SpeedBoosterUpSpeed,
         SpeedBoosterTaskTrigger
     }
-    private static float UpSpeed;
-    private static int TaskTrigger;
-
-    public byte BoostTarget;
+    static float UpSpeed;
+    static int TaskTrigger;
+    byte BoostTarget;
 
     private static void SetupOptionItem()
     {

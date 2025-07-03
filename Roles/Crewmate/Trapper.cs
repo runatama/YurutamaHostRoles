@@ -27,13 +27,11 @@ public sealed class Trapper : RoleBase
     )
     {
         BlockMoveTime = OptionBlockMoveTime.GetFloat();
-        ta = Task.GetInt();
-        kakusei = !Kakusei.GetBool() || Task.GetInt() < 1; ;
+        Awakened = !Awakening.GetBool() || AwakeningTask.GetInt() < 1; ;
     }
-    static OptionItem Kakusei;
-    static OptionItem Task;
-    bool kakusei;
-    int ta;
+    static OptionItem Awakening;
+    static OptionItem AwakeningTask;
+    bool Awakened;
     private static OptionItem OptionBlockMoveTime;
     enum OptionName
     {
@@ -46,12 +44,12 @@ public sealed class Trapper : RoleBase
     {
         OptionBlockMoveTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.TrapperBlockMoveTime, new(1f, 180f, 1f), 5f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        Kakusei = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.TaskKakusei, true, false);
-        Task = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Kakuseitask, new(0f, 255f, 1f), 5f, false, Kakusei);
+        Awakening = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.TaskAwakening, false, false);
+        AwakeningTask = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, Awakening);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
-        if (!kakusei) return;
+        if (!Awakened) return;
         if (info.IsSuicide) return;
 
         var killer = info.AttemptKiller;
@@ -67,15 +65,15 @@ public sealed class Trapper : RoleBase
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
         }, BlockMoveTime, "Trapper BlockMove");
     }
-    public override CustomRoles Jikaku() => kakusei ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
+    public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(ta))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(AwakeningTask.GetInt()))
         {
-            if (kakusei == false)
+            if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))
                     Utils.RoleSendList.Add(Player.PlayerId);
-            kakusei = true;
+            Awakened = true;
         }
         return true;
     }

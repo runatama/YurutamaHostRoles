@@ -85,7 +85,7 @@ class Twins
         foreach (var twins in TwinsList)
         {
             //キョーセイ負け or 勝利済みなら除外
-            if (CustomWinnerHolder.IdRemoveLovers.Contains(twins.Key) && CustomWinnerHolder.WinnerTeam.IsRiaju()) continue;
+            if (CustomWinnerHolder.CantWinPlayerIds.Contains(twins.Key) && CustomWinnerHolder.WinnerTeam.IsLovers()) continue;
             if (CustomWinnerHolder.WinnerIds.Contains(twins.Key)) continue;
             if (CustomWinnerHolder.WinnerRoles.Contains(twins.Key.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness)) continue;
 
@@ -112,25 +112,25 @@ class Twins
     public static void TwinsSuicide(bool isExiled = false)
     {
         if (!OptionTwinsDiefollow.GetBool() || !CustomRoles.Twins.IsPresent()) return;
-        isExiled |= AntiBlackout.IsCached || GameStates.Meeting || GameStates.Tuihou;
+        isExiled |= AntiBlackout.IsCached || GameStates.CalledMeeting || GameStates.ExiledAnimate;
         var list = TwinsList.Where(x => !DieTwinsList.Contains(x.Key));
         foreach (var twins in list)
         {
-            var aikata = PlayerCatch.GetPlayerById(twins.Value);
-            if (!aikata.IsAlive())
+            var Partner = PlayerCatch.GetPlayerById(twins.Value);
+            if (!Partner.IsAlive())
             {
-                var bon = PlayerCatch.GetPlayerById(twins.Key);
+                var twin = PlayerCatch.GetPlayerById(twins.Key);
 
-                if (bon.IsAlive())
+                if (twin.IsAlive())
                 {
                     PlayerState.GetByPlayerId(twins.Key).DeathReason = CustomDeathReason.FollowingSuicide;
                     if (isExiled)
                     {
-                        bon.RpcExileV2();
+                        twin.RpcExileV2();
                     }
                     else
                     {
-                        bon.RpcMurderPlayerV2(bon);
+                        twin.RpcMurderPlayerV2(twin);
                     }
                 }
                 DieTwinsList.Add(twins.Key);

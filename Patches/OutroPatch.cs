@@ -25,8 +25,8 @@ namespace TownOfHost
             GameStates.canmusic = true;
             GameStates.InGame =
             GameStates.task =
-            GameStates.Meeting =
-            GameStates.Tuihou = false;
+            GameStates.CalledMeeting =
+            GameStates.ExiledAnimate = false;
             UtilsGameLog.day++;
             UtilsGameLog.WriteGameLog();
 
@@ -52,9 +52,9 @@ namespace TownOfHost
                 case CustomWinner.SuddenDeathPurple: meg = GetString("SuddenDeathPurple"); winnerColor = ModColors.Purple; break;
             }
 
-            var s = "★".Color(winnerColor);
-            KillLog = $"{GetString("GameLog")}\n" + UtilsGameLog.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
-            outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + UtilsGameLog.gamelog + "\n\n<b>" + s + meg.Mark(winnerColor, false) + "</b>" + s;
+            var star = "★".Color(winnerColor);
+            KillLog = $"{GetString("GameLog")}\n" + UtilsGameLog.gamelog + "\n\n<b>" + star + meg.Mark(winnerColor, false) + "</b>" + star;
+            outputLog = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + UtilsGameLog.gamelog + "\n\n<b>" + star + meg.Mark(winnerColor, false) + "</b>" + star;
 
             LastGameSave.CreateIfNotExists();
             Main.Alltask = UtilsTask.AllTaskstext(false, false, false, false, false).RemoveHtmlTags();
@@ -71,7 +71,7 @@ namespace TownOfHost
             {
                 winner.AddRange(PlayerCatch.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
             }
-            foreach (var id in CustomWinnerHolder.IdRemoveLovers)
+            foreach (var id in CustomWinnerHolder.CantWinPlayerIds)
             {
                 var pc = PlayerCatch.GetPlayerById(id);
                 if (pc == null) continue;
@@ -118,7 +118,7 @@ namespace TownOfHost
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
                 if (CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) && Main.winnerList.Contains(pc.PlayerId)) continue;
-                if (CustomWinnerHolder.IdRemoveLovers.Contains(pc.PlayerId)) continue;
+                if (CustomWinnerHolder.CantWinPlayerIds.Contains(pc.PlayerId)) continue;
 
                 EndGameResult.CachedWinners.Add(new CachedPlayerData(pc.Data));
                 Main.winnerList.Add(pc.PlayerId);
@@ -136,7 +136,7 @@ namespace TownOfHost
             CustomRoleManager.Dispose();
 
             Camouflage.PlayerSkins.Clear();
-            Statistics.kosin();
+            Statistics.Update();
         }
     }
     [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.SetEverythingUp))]

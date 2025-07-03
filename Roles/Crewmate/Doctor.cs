@@ -28,14 +28,13 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
     )
     {
         TaskCompletedBatteryCharge = OptionTaskCompletedBatteryCharge.GetFloat();
-        CanseeComms = OptionComm.GetBool();
+        CanseeComms = OptionCanSeeComms.GetBool();
     }
     private static OptionItem OptionTaskCompletedBatteryCharge;
-    private static OptionItem OptionComm;
+    private static OptionItem OptionCanSeeComms;
     enum OptionName
     {
-        DoctorTaskCompletedBatteryCharge,
-        CanseeComms
+        DoctorTaskCompletedBatteryCharge
     }
     private static float TaskCompletedBatteryCharge;
     private static bool CanseeComms;
@@ -43,7 +42,7 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
     {
         OptionTaskCompletedBatteryCharge = FloatOptionItem.Create(RoleInfo, 10, OptionName.DoctorTaskCompletedBatteryCharge, new(0f, 10f, 1f), 5f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionComm = BooleanOptionItem.Create(RoleInfo, 11, OptionName.CanseeComms, false, false);
+        OptionCanSeeComms = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanUseActiveComms, false, false);
     }
     public override bool NotifyRolesCheckOtherName => true;
     public override void ApplyGameOptions(IGameOptions opt)

@@ -27,22 +27,22 @@ public sealed class King : RoleBase
         player
     )
     {
-        Die = false;
-        exdie = false;
+        IsDead = false;
+        IsExiled = false;
     }
     static OptionItem ExileVoteCount;
     static OptionItem ExiledCrewDie;
     static OptionItem OpDeathReason;
     static OptionItem ExiledAddonBaaaaay;
     static OptionItem ExiledRoleAboooon;
-    public static OptionItem CanGuesser;
+    public static OptionItem OptIsGuessTarget;
     public static readonly CustomDeathReason[] deathReasons =
     {
         CustomDeathReason.Kill,CustomDeathReason.Suicide,CustomDeathReason.Revenge,CustomDeathReason.FollowingSuicide
     };
-    bool Die;
-    bool exdie;
-    enum Op
+    bool IsDead;
+    bool IsExiled;
+    enum OptionName
     {
         KingExileVoteCount,
         KingExileCrewDies,
@@ -54,16 +54,16 @@ public sealed class King : RoleBase
     static void SetupOptionItem()
     {
         var cRolesString = deathReasons.Select(x => x.ToString()).ToArray();
-        ExileVoteCount = FloatOptionItem.Create(RoleInfo, 10, Op.KingExileVoteCount, new(1, 15, 1), 3, false).SetValueFormat(OptionFormat.Votes);
-        ExiledCrewDie = FloatOptionItem.Create(RoleInfo, 11, Op.KingExileCrewDies, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
-        OpDeathReason = StringOptionItem.Create(RoleInfo, 12, Op.KingDeathReason, cRolesString, 3, false);
-        ExiledAddonBaaaaay = FloatOptionItem.Create(RoleInfo, 13, Op.KingAddon, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
-        ExiledRoleAboooon = FloatOptionItem.Create(RoleInfo, 14, Op.KingRole, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
-        CanGuesser = BooleanOptionItem.Create(RoleInfo, 15, Op.KingCanGuesser, true, false);
+        ExileVoteCount = FloatOptionItem.Create(RoleInfo, 10, OptionName.KingExileVoteCount, new(1, 15, 1), 3, false).SetValueFormat(OptionFormat.Votes);
+        ExiledCrewDie = FloatOptionItem.Create(RoleInfo, 11, OptionName.KingExileCrewDies, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
+        OpDeathReason = StringOptionItem.Create(RoleInfo, 12, OptionName.KingDeathReason, cRolesString, 3, false);
+        ExiledAddonBaaaaay = FloatOptionItem.Create(RoleInfo, 13, OptionName.KingAddon, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
+        ExiledRoleAboooon = FloatOptionItem.Create(RoleInfo, 14, OptionName.KingRole, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
+        OptIsGuessTarget = BooleanOptionItem.Create(RoleInfo, 15, OptionName.KingCanGuesser, true, false);
     }
     public override bool? CheckGuess(PlayerControl killer)
     {
-        return CanGuesser.GetBool();
+        return OptIsGuessTarget.GetBool();
     }
     public override bool VotingResults(ref NetworkedPlayerInfo Exiled, ref bool IsTie, Dictionary<byte, int> vote, byte[] mostVotedPlayers, bool ClearAndExile)
     {
@@ -73,7 +73,7 @@ public sealed class King : RoleBase
             {
                 IsTie = false;
                 Exiled = Player.Data;
-                exdie = true;
+                IsExiled = true;
                 return true;
             }
         }
@@ -82,11 +82,11 @@ public sealed class King : RoleBase
     public override void OnLeftPlayer(PlayerControl player)
     {
         if (player == Player)
-            if (exdie && !Die)
+            if (IsExiled && !IsDead)
             {
                 _ = new LateTask(() => CrewMateAbooooon(), 20f, "KingExdie");
             }
-        if (player == Player) Die = true;
+        if (player == Player) IsDead = true;
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
@@ -102,18 +102,18 @@ public sealed class King : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (GameStates.Tuihou) return;
-        if (!exdie)
+        if (GameStates.ExiledAnimate) return;
+        if (!IsExiled)
         {
-            if (Die) return;
+            if (IsDead) return;
 
             if (player.Data.Disconnected && MyState.DeathReason is CustomDeathReason.Disconnected) return;
         }
         if (!player.IsAlive())
         {
             CrewMateAbooooon();
-            exdie = false;
-            Die = true;
+            IsExiled = false;
+            IsDead = true;
         }
     }
     public override void OverrideDisplayRoleNameAsSeen(PlayerControl seer, ref bool enabled, ref UnityEngine.Color roleColor, ref string roleText, ref bool addon)
@@ -130,7 +130,7 @@ public sealed class King : RoleBase
     }
     void CrewMateAbooooon()
     {
-        if (Die && !exdie) return;
+        if (IsDead && !IsExiled) return;
         var rand = IRandom.Instance;
         int Count = ExiledCrewDie.GetInt();
 
@@ -145,7 +145,7 @@ public sealed class King : RoleBase
             if (!crews.Contains(pc)) crews.Add(pc);
         }
 
-        if (!GameStates.Meeting)
+        if (!GameStates.CalledMeeting)
         {
             for (var i = 0; i < Count; i++)
             {
@@ -262,7 +262,7 @@ public sealed class King : RoleBase
             }
         }
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(), 0.4f, "KingResetNotify");
-        Die = true;
-        exdie = false;
+        IsDead = true;
+        IsExiled = false;
     }
 }

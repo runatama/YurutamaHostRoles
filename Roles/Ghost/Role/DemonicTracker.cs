@@ -63,7 +63,7 @@ namespace TownOfHost.Roles.Ghost
         public static string ImpostorMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
         {
             seen ??= seer;
-            if (GameStates.Meeting) return "";
+            if (GameStates.CalledMeeting) return "";
             if (Mark.Values.ToArray() == null) return "";
 
             if (seer == seen)

@@ -177,7 +177,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
                             (target.Is(CustomRoles.JackalAlien) && JackalAlien.TairoDeathReason ? CustomDeathReason.Revenge1 :
                             (target.Is(CustomRoles.AlienHijack) && Alien.TairoDeathReason ? CustomDeathReason.Revenge1 : CustomDeathReason.Misfire));
                 killer.RpcMurderPlayer(killer);
-                UtilsGameLog.AddGameLog("Sheriff", string.Format(GetString("SheriffMissLog"), Utils.GetPlayerColor(target.PlayerId)));
+                UtilsGameLog.AddGameLog("Sheriff", string.Format(GetString("SheriffMissLog"), UtilsName.GetPlayerColor(target.PlayerId)));
                 if (!MisfireKillsTarget.GetBool())
                 {
                     info.DoKill = false;
@@ -203,7 +203,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             }
             else
             {
-                if (player.IsRiaju() && CanKillLovers.GetBool()) return true;
+                if (player.IsLovers() && CanKillLovers.GetBool()) return true;
             }
             return schrodingerCat.Team switch
             {
@@ -213,7 +213,7 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             };
         }
 
-        if (player.IsRiaju() && CanKillLovers.GetBool()) return true;
+        if (player.IsLovers() && CanKillLovers.GetBool()) return true;
 
         if (cRole == CustomRoles.Jackaldoll) return CanKillNeutrals.GetValue() == 0 || (!KillTargetOptions.TryGetValue(CustomRoles.Jackal, out var option) && option.GetBool()) || (!KillTargetOptions.TryGetValue(CustomRoles.JackalMafia, out var op) && op.GetBool());
         if (cRole == CustomRoles.SKMadmate) return KillTargetOptions.TryGetValue(CustomRoles.Madmate, out var option) && option.GetBool();

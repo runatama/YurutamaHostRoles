@@ -19,7 +19,7 @@ namespace TownOfHost.Roles.Neutral
                 13500,
                 (2, 2),
                 SetupOptionItem,
-                "GR",
+                "GhostRole",
                 "#4b0082",
                 true,
                 countType: CountTypes.GrimReaper,//こいつ生存カウント分ける。(生存カウント入れないため)
@@ -75,39 +75,37 @@ namespace TownOfHost.Roles.Neutral
         public bool CanUseImpostorVentButton() => CanVent;
         public void OnCheckMurderAsKiller(MurderInfo info)
         {
+            info.DoKill = false;
+
+            if (!info.IsSuicide)
+            {
+                (var kille, var taret) = info.AttemptTuple;
+                {
+                    Logger.Info($"{kille?.Data?.GetLogPlayerName()}:キル", "GrimReaper");
+                    Main.AllPlayerKillCooldown[kille.PlayerId] = 200f;
+                    kille.SyncSettings();//もう君はキルできないよ...!
+                }
+            }
+
+            var (killer, target) = info.AttemptTuple;
+
+            if (info.IsFakeSuicide) return;
+
+            if (target.Is(CustomRoles.King))
             {
                 info.DoKill = false;
+                return;
+            }
 
-                if (!info.IsSuicide)
+            if (cankill)
+            {
+                if (!GrimPlayers.ContainsKey(target.PlayerId))
                 {
-                    (var kille, var taret) = info.AttemptTuple;
-                    {
-                        Logger.Info($"{kille?.Data?.GetLogPlayerName()}:キル", "GrimReaper");
-                        Main.AllPlayerKillCooldown[kille.PlayerId] = 200f;
-                        kille.SyncSettings();//もう君はキルできないよ...!
-                    }
+                    killer.SetKillCooldown(delay: true, AfterReset: false);
+                    GrimPlayers.Add(target.PlayerId, OptionGrimActiveTime.GetFloat());
+                    cankill = false;
                 }
-
-                var (killer, target) = info.AttemptTuple;
-
-                if (info.IsFakeSuicide) return;
-
-                if (target.Is(CustomRoles.King))
-                {
-                    info.DoKill = false;
-                    return;
-                }
-
-                if (cankill)
-                {
-                    if (!GrimPlayers.ContainsKey(target.PlayerId))
-                    {
-                        killer.SetKillCooldown(delay: true, kousin: false);
-                        GrimPlayers.Add(target.PlayerId, OptionGrimActiveTime.GetFloat());
-                        cankill = false;
-                    }
-                    UtilsNotifyRoles.NotifyRoles(SpecifySeer: [Player]);
-                }
+                UtilsNotifyRoles.NotifyRoles(SpecifySeer: [Player]);
             }
         }
         public override void OnReportDeadBody(PlayerControl repo, NetworkedPlayerInfo __)
@@ -123,13 +121,13 @@ namespace TownOfHost.Roles.Neutral
         public override void AfterMeetingTasks()
         {
             cankill = true;
-            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.defaultKillCool.GetBool()) return;
+            if (Player.Is(CustomRoles.Amnesia) && AddOns.Common.Amnesia.OptionDefaultKillCool.GetBool()) return;
             Main.AllPlayerKillCooldown[Player.PlayerId] = KillCooldown;
             Player.SyncSettings();
         }
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.Meeting) return;
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || GameStates.CalledMeeting) return;
 
             List<byte> del = new();
             foreach (var (targetId, timer) in GrimPlayers)

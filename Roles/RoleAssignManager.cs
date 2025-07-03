@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-
+using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
 
@@ -133,10 +133,10 @@ namespace TownOfHost.Roles
 
             AssignRoleList.Sort();
 
-            if (Options.SuddenSharingRoles.GetBool())
+            if (SuddenDeathMode.SuddenSharingRoles.GetBool())
             {
-                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGhostRole() && !r.IsRiaju()).ToArray();
-                var addons = AssignRoleList.Where(r => r.IsAddOn() || r.IsRiaju())?.ToArray();
+                var roles = AssignRoleList.Where(role => role != CustomRoles.Impostor && !role.IsAddOn() && !role.IsGhostRole() && !role.IsLovers()).ToArray();
+                var addons = AssignRoleList.Where(role => role.IsAddOn() || role.IsLovers())?.ToArray();
                 var rand = IRandom.Instance;
                 var role = CustomRoles.Impostor;
 
@@ -154,7 +154,7 @@ namespace TownOfHost.Roles
             else
             if (Modules.SuddenDeathMode.NowSuddenDeathMode)
             {
-                var roles = AssignRoleList.Where(r => r != CustomRoles.Impostor && !r.IsAddOn() && !r.IsGhostRole() && !r.IsRiaju()).ToArray();
+                var roles = AssignRoleList.Where(role => role != CustomRoles.Impostor && !role.IsAddOn() && !role.IsGhostRole() && !role.IsLovers()).ToArray();
 
                 if (roles.Length < PlayerCatch.AllPlayerControls.Count())
                 {
@@ -186,7 +186,7 @@ namespace TownOfHost.Roles
                 var numImpostorAssign = targetRoles.Count(role => role.GetAssignRoleType() == CustomRoleTypes.Impostor);
                 var numOthersAssign = targetRoles.Length - numImpostorAssign;
                 //アサイン枠が足りてない場合
-                if ((numImpostorAssign > numImpostorsLeft || numOthersAssign > numOthersLeft) && !Options.SuddenDeathMode.GetBool()) continue;
+                if ((numImpostorAssign > numImpostorsLeft || numOthersAssign > numOthersLeft) && !SuddenDeathMode.SuddenDeathModeActive.GetBool()) continue;
 
                 AssignRoleList.AddRange(targetRoles);
                 numImpostorsLeft -= numImpostorAssign;

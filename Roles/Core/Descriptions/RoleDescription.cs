@@ -184,7 +184,7 @@ public abstract class RoleDescription
                 case "GiveGuesser": continue;
                 case "GiveWatching": continue;
                 case "GiveManagement": continue;
-                case "Giveseeing": continue;
+                case "GiveSeeing": continue;
                 case "GiveAutopsy": continue;
                 case "GiveTiebreaker": continue;
                 case "GiveMagicHand": continue;

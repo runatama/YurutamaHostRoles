@@ -68,9 +68,6 @@ namespace TownOfHost
             {
                 var role = exiled.GetCustomRole();
                 var info = role.GetRoleInfo();
-                //霊界用暗転バグ対処
-                /*if (!AntiBlackout.OverrideExiledPlayer() && info?.IsDesyncImpostor == true)
-                    exiled.Object?.ResetPlayerCam(3f);*/
 
                 exiled.IsDead = true;
                 PlayerState.GetByPlayerId(exiled.PlayerId).DeathReason = CustomDeathReason.Vote;
@@ -200,7 +197,7 @@ namespace TownOfHost
             RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, role);
             //ここで処刑処理を入れると暗転が起こる?
 
-            _ = new LateTask(() => GameStates.Tuihou = false, 3f + Main.LagTime, "Tuihoufin");
+            _ = new LateTask(() => GameStates.ExiledAnimate = false, 3f + Main.LagTime, "Tuihoufin");
         }
     }
 
@@ -215,9 +212,16 @@ namespace TownOfHost
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.Begin))]
     class ExileControllerBeginPatch
     {
+        // オートミュートの関係でMeetingHudの追放者を偽装しているので
+        // ここで導入者の追放者を戻す
         public static bool SecondBegin = false;
         public static bool Prefix(ExileController __instance, ExileController.InitProperties init)
         {
+            if (PlayerCatch.AllPlayersCount < 4)
+            {
+                __instance.completeString = Translator.GetString(Translator.GetString(StringNames.NoExileTie));
+                return true;
+            }
             var result = AntiBlackout.voteresult;
             var modinit = init;
 

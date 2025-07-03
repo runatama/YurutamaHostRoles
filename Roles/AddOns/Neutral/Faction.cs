@@ -42,9 +42,9 @@ class Faction
                 CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Faction);
                 foreach (var player in PlayerCatch.AllPlayerControls.Where(pc => pc.Is(CustomRoles.Faction)))
                 {
-                    if (player.IsRiaju())
+                    if (player.IsLovers())
                     {
-                        CustomWinnerHolder.IdRemoveLovers.Add(player.PlayerId);
+                        CustomWinnerHolder.CantWinPlayerIds.Add(player.PlayerId);
                         continue;
                     }
                     CustomWinnerHolder.WinnerIds.Add(player.PlayerId);
@@ -70,8 +70,8 @@ class Faction
     public static void AssingFaction()
     {
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
-        var p = Options.GetRoleChance(CustomRoles.Faction);
-        if (p is 100 || IRandom.Instance.Next(1, 100) <= p)
+        var chance = Options.GetRoleChance(CustomRoles.Faction);
+        if (chance is 100 || IRandom.Instance.Next(1, 100) <= chance)
         {
             Logger.Info("徒党のおでまし", "Faction");
 

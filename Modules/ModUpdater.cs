@@ -13,6 +13,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
+
 namespace TownOfHost
 {
     [HarmonyPatch]
@@ -45,28 +46,8 @@ namespace TownOfHost
             InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
             if (!isChecked)
             {
-                //CheckVersionsJson().GetAwaiter().GetResult();
                 CheckRelease(Main.BetaBuildURL.Value != "").GetAwaiter().GetResult();
             }
-            /*
-            //オンライン無効化
-            if (version.NotAvailableOnline)
-            {
-                DestroyableSingleton<MainMenuManager>.Instance.PlayOnlineButton.gameObject.SetActive(false);
-                DestroyableSingleton<MainMenuManager>.Instance.playLocalButton.transform.SetLocalX(0);
-
-                TMPTemplate.SetBase(DestroyableSingleton<VersionShower>.Instance.text);
-            }
-            if (version.NotAvailableOnline || !(version?.Info?.IsNullOrWhiteSpace() ?? true))
-            {
-                var text = TMPTemplate.Create("Info", (version?.Info?.IsNullOrWhiteSpace() ?? true) ? "このバージョンではオンラインプレイをすることができません。" : version.Info, Color.red);
-                text.transform.localPosition = new(0.68f, 1.7198f, -5f);
-                text.alignment = TMPro.TextAlignmentOptions.Left;
-                text.gameObject.SetActive(true);
-            }
-            AllowPublicRoom = version.AllowPublicRoom;
-            if (hasUpdate && (version?.Update?.Forced ?? false))
-                StartUpdate(downloadUrl);*/
             MainMenuManagerPatch.UpdateButton.Button.gameObject.SetActive(hasUpdate);
             MainMenuManagerPatch.UpdateButton.Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMPro.TMP_Text>().SetText($"{GetString("updateButton")}\n{latestTitle}");
             MainMenuManagerPatch.UpdateButton2.Button.gameObject.SetActive(hasUpdate);
@@ -185,8 +166,8 @@ namespace TownOfHost
                         if (assets[i]["name"].ToString() == "TownOfHost-K.dll")
                             downloadUrl = assets[i]["browser_download_url"].ToString();
                     }
-                    var b = data["body"].ToString();
-                    bool? check = b?.Contains("IsforceUpdate") ?? null;
+                    var body = data["body"].ToString();
+                    bool? check = body?.Contains("IsforceUpdate") ?? null;
                     hasUpdate = latestVersion.CompareTo(Main.version) > 0 ||
                     //最後のアプデのcheckが有効で～最終バージョンと現バージョンが一緒じゃない
                     (check is true && latestVersion.CompareTo(Main.version) is not 0);
@@ -321,22 +302,6 @@ namespace TownOfHost
                 }
             }
         }
-        /*
-        public static async Task<bool> CheckVersionsJson()
-        {
-            using HttpClient client = new();
-            var url = "https://raw.githubusercontent.com/KYMario/TOHk-Test/main/versions.json";
-            client.DefaultRequestHeaders.Add("User-Agent", "TownOfHost-K Updater");
-            using var response = await client.GetAsync(new Uri(url), HttpCompletionOption.ResponseContentRead);
-            if (!response.IsSuccessStatusCode || response.Content == null)
-            {
-                Logger.Error($"ステータスコード: {response.StatusCode}", "CheckJson");
-                return false;
-            }
-            var result = await response.Content.ReadAsStringAsync();
-            version = JsonSerializer.Deserialize<List<Versions>>(result).Where(ver => ver.Version == Main.version).First();
-            return true;
-        }*/
         public class Release
         {
             [JsonPropertyName("tag_name")]

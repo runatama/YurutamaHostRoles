@@ -27,10 +27,10 @@ public sealed class Android : RoleBase
         player
     )
     {
-        time = 0;
+        removetimer = 0;
         Battery = 0;
         NowVent = 999;
-        bat = zero;
+        BatteryText = zero;
         optrmovebattery = RemoveBattery.GetBool();
         optremove = Remove.GetFloat();
         optremovetime = RemoveTime.GetFloat();
@@ -48,9 +48,9 @@ public sealed class Android : RoleBase
     static bool optrmovebattery;
     static float optremove;
     static float optremovetime;
-    string bat;
+    string BatteryText;
     float Battery;
-    float time;
+    float removetimer;
     int NowVent;
     enum OptionName
     {
@@ -83,9 +83,9 @@ public sealed class Android : RoleBase
 
         //0なら更新入れる
         if (lastbatt <= 0)
-            Player.RpcResetAbilityCooldown(kousin: true);
+            Player.RpcResetAbilityCooldown(Sync: true);
 
-        bat = Now();
+        BatteryText = GetNowBattery();
         Player.MarkDirtySettings();
         return true;
     }
@@ -99,8 +99,8 @@ public sealed class Android : RoleBase
             Player.MyPhysics.RpcExitVent(NowVent);
         return true;
     }
-    public override void AfterSabotage(SystemTypes systemType) => Player.RpcResetAbilityCooldown(kousin: true);
-    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !Main.NowSabotage;//サボタージュ中なら入れないよっ!
+    public override void AfterSabotage(SystemTypes systemType) => Player.RpcResetAbilityCooldown(Sync: true);
+    public override bool OnEnterVent(PlayerPhysics physics, int ventId) => !Main.IsActiveSabotage;//サボタージュ中なら入れないよっ!
 
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -118,14 +118,14 @@ public sealed class Android : RoleBase
         //減らさないなら
         if (!optrmovebattery) return;
         //タスクターンじゃないなら
-        if (GameStates.Intro || GameStates.Meeting) return;
+        if (GameStates.Intro || GameStates.CalledMeeting) return;
 
-        time += Time.fixedDeltaTime;
+        removetimer += Time.fixedDeltaTime;
 
-        if (optremovetime <= time)
+        if (optremovetime <= removetimer)
         {
             Battery -= optremove * 0.01f;//1/100にして小数に対応させる
-            time = 0;
+            removetimer = 0;
             if (Battery < 0) Battery = 0;
 
             if (Battery <= 0)//追い出す
@@ -133,10 +133,10 @@ public sealed class Android : RoleBase
                 if (Player.inVent && NowVent != 999)
                     Player.MyPhysics.RpcExitVent(NowVent);
             }
-            if (Now() != bat)
+            if (GetNowBattery() != BatteryText)
             {
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
-                bat = Now();
+                BatteryText = GetNowBattery();
                 Player.MarkDirtySettings();
             }
         }
@@ -145,24 +145,24 @@ public sealed class Android : RoleBase
     {
         seen ??= seer;
         if (seer == seen)
-            return "Now: <u>" + Now() + "</u>";
+            return "<u>" + GetNowBattery() + "</u>";
 
         return "";
     }
-    string Now()//バッテリー量の表示
+    string GetNowBattery()//バッテリー量の表示
     {
-        var b = Battery * 100;
-        if (b <= 0) return zero;
-        if (b <= 5) return "<mark=#d95327><color=#000000>||</mark>           </size></color>";
-        if (b <= 10) return "<mark=#d96e27><color=#000000>|||</mark>          </size></color>";
-        if (b <= 20) return "<mark=#d9b827><color=#000000>||||</mark>         </size></color>";
-        if (b <= 30) return "<mark=#d6d927><color=#000000>|||||</mark>        </size></color>";
-        if (b <= 40) return "<mark=#b8d13b><color=#000000>||||||</mark>       </size></color>";
-        if (b <= 50) return "<mark=#a7ba47><color=#000000>|||||||</mark>      </size></color>";
-        if (b <= 60) return "<mark=#96ba47><color=#000000>||||||||</mark>     </size></color>";
-        if (b <= 70) return "<mark=#84ba47><color=#000000>|||||||||</mark>    </size></color>";
-        if (b <= 80) return "<mark=#75ba47><color=#000000>||||||||||</mark>   </size></color>";
-        if (b <= 90) return "<mark=#3fb81d><color=#000000>|||||||||||</mark>  </size></color>";
+        var battery = Battery * 100;
+        if (battery <= 0) return zero;
+        if (battery <= 5) return "<mark=#d95327><color=#000000>||</mark>           </size></color>";
+        if (battery <= 10) return "<mark=#d96e27><color=#000000>|||</mark>          </size></color>";
+        if (battery <= 20) return "<mark=#d9b827><color=#000000>||||</mark>         </size></color>";
+        if (battery <= 30) return "<mark=#d6d927><color=#000000>|||||</mark>        </size></color>";
+        if (battery <= 40) return "<mark=#b8d13b><color=#000000>||||||</mark>       </size></color>";
+        if (battery <= 50) return "<mark=#a7ba47><color=#000000>|||||||</mark>      </size></color>";
+        if (battery <= 60) return "<mark=#96ba47><color=#000000>||||||||</mark>     </size></color>";
+        if (battery <= 70) return "<mark=#84ba47><color=#000000>|||||||||</mark>    </size></color>";
+        if (battery <= 80) return "<mark=#75ba47><color=#000000>||||||||||</mark>   </size></color>";
+        if (battery <= 90) return "<mark=#3fb81d><color=#000000>|||||||||||</mark>  </size></color>";
         else return "<mark=#03ff4a><color=#000000>||||||||||</mark> </size></color>";
     }
     const string zero = "<mark=#676767><color=#000000>|</mark>                  </size></color>";

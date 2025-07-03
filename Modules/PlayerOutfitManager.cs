@@ -12,7 +12,8 @@ public static class PlayerOutfitManager
         => PlayerOutfits[player.PlayerId] = new OutfitData(player);
 
     /// <summary>
-    /// プレイヤーのスキンをロード(n c h s v np lev pet)
+    /// プレイヤーのスキンをロード<br/>
+    /// (nane color hat skin visor nameplate level pet)
     /// </summary>
     public static OutfitData Load(PlayerControl player)
         => PlayerOutfits.GetValueOrDefault(player.PlayerId);

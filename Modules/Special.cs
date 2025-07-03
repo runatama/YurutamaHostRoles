@@ -124,10 +124,10 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
         Event.OptionLoad.Add("Chameleon");
     }
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        fall = false;
-        resetkillcooldown = false;
+        ResetCoolDown = true;
+        AdjustKillCoolDown = true;
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             Main.AllPlayerSpeed[pc.PlayerId] = speed;
@@ -259,6 +259,6 @@ public sealed class Chameleon : RoleBase, IAdditionalWinner
         if (oldteam != NowTeam) UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
     public override void OverrideTrueRoleName(ref UnityEngine.Color roleColor, ref string roleText) => roleText = Translator.GetString($"{NowTeam}").Color(UtilsRoleText.GetRoleColor(NowTeam)) + Translator.GetString("Chameleon");
-    public override void AfterMeetingTasks() => _ = new LateTask(() => { if (!GameStates.Meeting) ChengeTeam(); }, 5f, "", true);
+    public override void AfterMeetingTasks() => _ = new LateTask(() => { if (!GameStates.CalledMeeting) ChengeTeam(); }, 5f, "", true);
     public bool CheckWin(ref CustomRoles winnerRole) => ((CustomRoles)CustomWinnerHolder.WinnerTeam == NowTeam) || CustomWinnerHolder.AdditionalWinnerRoles.Contains(NowTeam);
 }

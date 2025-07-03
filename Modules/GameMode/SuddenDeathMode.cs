@@ -11,19 +11,19 @@ namespace TownOfHost.Modules
     public static class SuddenDeathMode
     {
         public static float SuddenDeathtime;
-        public static float ItijohoSendTime;
-        public static float gpsstarttime;
-        public static bool sabotage;
-        public static bool arrow;
-        public static Color color;
-        public static int colorint;
+        public static float ArrowSendTimer;
+        public static float GpsStartTime;
+        public static bool IsActiveSabotage;
+        public static bool ShowArrow;
+        public static Color ArrowColor;
+        public static int ArrowColorNumber;
         //null→通知しない　false→未通知 true→通知済み
-        public static bool? nokori60s;
-        public static bool? nokori30s;
-        public static bool? nokori15s;
-        public static bool? nokori10s;
-        public static Dictionary<byte, Vector3> pos = new();
-        static float opttime;
+        public static bool? Remaining60s;
+        public static bool? Remaining30s;
+        public static bool? Remaining15s;
+        public static bool? Remaining10s;
+        public static Dictionary<byte, Vector3> ArrowPosition = new();
+        static float SuddendeathRoundTime;
         public static bool NowSuddenDeathMode;
         public static bool NowSuddenDeathTemeMode;
         public static bool SuddenCannotSeeName;
@@ -32,13 +32,10 @@ namespace TownOfHost.Modules
         public static List<byte> TeamYellow = new();
         public static List<byte> TeamGreen = new();
         public static List<byte> TeamPurple = new();
-        public static bool CheckTeam
+        public static bool IsAffiliationAllPlayer
             => PlayerCatch.AllPlayerControls.All(pc => TeamRed.Contains(pc.PlayerId) || TeamBlue.Contains(pc.PlayerId)
             || TeamYellow.Contains(pc.PlayerId) || TeamGreen.Contains(pc.PlayerId) || TeamPurple.Contains(pc.PlayerId));
 
-        public static bool CheckTeamDoreka
-            => PlayerCatch.AllPlayerControls.Any(pc => TeamRed.Contains(pc.PlayerId) || TeamBlue.Contains(pc.PlayerId)
-            || TeamYellow.Contains(pc.PlayerId) || TeamGreen.Contains(pc.PlayerId) || TeamPurple.Contains(pc.PlayerId));
         public static void TeamReset()
         {
             TeamRed.Clear();
@@ -54,24 +51,24 @@ namespace TownOfHost.Modules
             NowSuddenDeathMode = SuddenDeathModeActive.GetBool();
             SuddenCannotSeeName = SuddenCantSeeOtherName.GetBool();
             SuddenDeathtime = 0;
-            ItijohoSendTime = 0;
-            gpsstarttime = 0;
-            sabotage = false;
-            arrow = false;
-            colorint = -1;
-            color = ModColors.MadMateOrenge;
-            pos.Clear();
-            nokori60s = false;
-            nokori30s = false;
-            nokori15s = false;
-            nokori10s = false;
+            ArrowSendTimer = 0;
+            GpsStartTime = 0;
+            IsActiveSabotage = false;
+            ShowArrow = false;
+            ArrowColorNumber = -1;
+            ArrowColor = ModColors.MadMateOrenge;
+            ArrowPosition.Clear();
+            Remaining60s = false;
+            Remaining30s = false;
+            Remaining15s = false;
+            Remaining10s = false;
 
-            opttime = SuddenDeathTimeLimit.GetFloat();
+            SuddendeathRoundTime = SuddenDeathTimeLimit.GetFloat();
             var time = SuddenDeathTimeLimit.GetFloat();
-            if (time <= 60) nokori60s = null;
-            if (time <= 30) nokori30s = null;
-            if (time <= 15) nokori15s = null;
-            if (time <= 10) nokori10s = null;
+            if (time <= 60) Remaining60s = null;
+            if (time <= 30) Remaining30s = null;
+            if (time <= 15) Remaining15s = null;
+            if (time <= 10) Remaining10s = null;
             CustomRoleManager.LowerOthers.Add(GetLowerTextOthers);
             CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         }
@@ -243,13 +240,13 @@ namespace TownOfHost.Modules
         }
         public static void SuddenDeathReactor()
         {
-            if (sabotage) return;
+            if (IsActiveSabotage) return;
 
             if (!GameStates.Intro) SuddenDeathtime += Time.fixedDeltaTime;
 
-            if (SuddenDeathtime > opttime)
+            if (SuddenDeathtime > SuddendeathRoundTime)
             {
-                sabotage = true;
+                IsActiveSabotage = true;
 
                 var systemtypes = Utils.GetCriticalSabotageSystemType();
                 ShipStatus.Instance.RpcUpdateSystem(systemtypes, 128);
@@ -257,27 +254,27 @@ namespace TownOfHost.Modules
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
-            if (opttime - SuddenDeathtime < 10 && nokori10s is false)
+            if (SuddendeathRoundTime - SuddenDeathtime < 10 && Remaining10s is false)
             {
-                nokori10s = true;
+                Remaining10s = true;
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
-            if (opttime - SuddenDeathtime < 15 && nokori15s is false)
+            if (SuddendeathRoundTime - SuddenDeathtime < 15 && Remaining15s is false)
             {
-                nokori15s = true;
+                Remaining15s = true;
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
-            if (opttime - SuddenDeathtime < 30 && nokori30s is false)
+            if (SuddendeathRoundTime - SuddenDeathtime < 30 && Remaining30s is false)
             {
-                nokori30s = true;
+                Remaining30s = true;
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
-            if (opttime - SuddenDeathtime < 60 && nokori60s is false)
+            if (SuddendeathRoundTime - SuddenDeathtime < 60 && Remaining60s is false)
             {
-                nokori60s = true;
+                Remaining60s = true;
                 UtilsNotifyRoles.NotifyRoles(OnlyMeName: true);
                 return;
             }
@@ -286,13 +283,13 @@ namespace TownOfHost.Modules
         {
             if (!GameStates.Intro)
             {
-                if (arrow) ItijohoSendTime += Time.fixedDeltaTime;
-                else gpsstarttime += Time.fixedDeltaTime;
+                if (ShowArrow) ArrowSendTimer += Time.fixedDeltaTime;
+                else GpsStartTime += Time.fixedDeltaTime;
             }
 
-            if (gpsstarttime > SuddenArrowSendTime.GetFloat()) arrow = true;
+            if (GpsStartTime > SuddenArrowSendTime.GetFloat()) ShowArrow = true;
 
-            if (ItijohoSendTime > SuddenArrowSenddis.GetFloat() && arrow)
+            if (ArrowSendTimer > SuddenArrowSenddis.GetFloat() && ShowArrow)
             {
                 if (SuddenArrowSenddis.GetFloat() is 0)
                 {
@@ -312,14 +309,14 @@ namespace TownOfHost.Modules
                     }
                     return;
                 }
-                ItijohoSendTime = 0;
-                foreach (var pc in PlayerCatch.AllAlivePlayerControls) pos.Do(pos => GetArrow.Remove(pc.PlayerId, pos.Value));
-                pos.Clear();
-                foreach (var pc in PlayerCatch.AllAlivePlayerControls) pos.Add(pc.PlayerId, pc.transform.position);
+                ArrowSendTimer = 0;
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls) ArrowPosition.Do(pos => GetArrow.Remove(pc.PlayerId, pos.Value));
+                ArrowPosition.Clear();
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls) ArrowPosition.Add(pc.PlayerId, pc.transform.position);
                 foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                 {
                     var p = pc.transform.position;
-                    foreach (var po in pos)
+                    foreach (var po in ArrowPosition)
                     {
                         //同チームなら消す
                         if (TeamRed.Contains(po.Key) && TeamRed.Contains(pc.PlayerId)) continue;
@@ -332,38 +329,38 @@ namespace TownOfHost.Modules
                     }
                 }
                 if (SuddenArrowSenddis.GetFloat() > 0)
-                    switch (colorint)
+                    switch (ArrowColorNumber)
                     {
                         case -1:
-                            color = Palette.Orange;
-                            colorint = 1;
+                            ArrowColor = Palette.Orange;
+                            ArrowColorNumber = 1;
                             break;
                         case 1:
-                            color = Palette.CrewmateBlue;
-                            colorint = 2;
+                            ArrowColor = Palette.CrewmateBlue;
+                            ArrowColorNumber = 2;
                             break;
                         case 2:
-                            color = Palette.AcceptedGreen;
-                            colorint = 3;
+                            ArrowColor = Palette.AcceptedGreen;
+                            ArrowColorNumber = 3;
                             break;
                         case 3:
-                            color = Color.yellow;
-                            colorint = 1;
+                            ArrowColor = Color.yellow;
+                            ArrowColorNumber = 1;
                             break;
                     }
             }
         }
         public static string SuddenDeathProgersstext(PlayerControl seer)
         {
-            var nokori = "";
-            if (!sabotage)
+            var Remaining = "";
+            if (!IsActiveSabotage)
             {
-                if (nokori60s ?? false) nokori = Utils.ColorString(Palette.AcceptedGreen, "60s");
-                if (nokori30s ?? false) nokori = Utils.ColorString(Color.yellow, "30s");
-                if (nokori15s ?? false) nokori = Utils.ColorString(Palette.Orange, "15s");
-                if (nokori10s ?? false) nokori = Utils.ColorString(Color.red, "10s");
+                if (Remaining60s ?? false) Remaining = Utils.ColorString(Palette.AcceptedGreen, "60s");
+                if (Remaining30s ?? false) Remaining = Utils.ColorString(Color.yellow, "30s");
+                if (Remaining15s ?? false) Remaining = Utils.ColorString(Palette.Orange, "15s");
+                if (Remaining10s ?? false) Remaining = Utils.ColorString(Color.red, "10s");
             }
-            return nokori;
+            return Remaining;
         }
         public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
         {
@@ -381,12 +378,12 @@ namespace TownOfHost.Modules
                 }
                 else
                 {
-                    foreach (var p in pos)
+                    foreach (var p in ArrowPosition)
                     {
                         ar += " " + GetArrow.GetArrows(seer, p.Value);
                     }
                 }
-                ar = Utils.ColorString(color, ar);
+                ar = Utils.ColorString(ArrowColor, ar);
             }
             return ar;
         }
@@ -394,7 +391,7 @@ namespace TownOfHost.Modules
         {
             var tex = "";
             seen ??= seer;
-            if (!SuddenNokoriPlayerCount.GetBool()) return "";
+            if (!SuddenRemainingPlayerCount.GetBool()) return "";
             if (NowSuddenDeathTemeMode && seen == seer)
             {
                 var t1 = PlayerCatch.AllAlivePlayerControls.Where(pc => TeamRed.Contains(pc.PlayerId)).Count();
@@ -413,13 +410,13 @@ namespace TownOfHost.Modules
             return "";
         }
 
-        public static bool IsOnajiteam(this byte pc, byte tage)
+        public static bool IsSameteam(this byte pc, byte targetid)
         {
-            if (TeamRed.Contains(pc) && TeamRed.Contains(tage)) return true;
-            if (TeamBlue.Contains(pc) && TeamBlue.Contains(tage)) return true;
-            if (TeamYellow.Contains(pc) && TeamYellow.Contains(tage)) return true;
-            if (TeamGreen.Contains(pc) && TeamGreen.Contains(tage)) return true;
-            if (TeamPurple.Contains(pc) && TeamPurple.Contains(tage)) return true;
+            if (TeamRed.Contains(pc) && TeamRed.Contains(targetid)) return true;
+            if (TeamBlue.Contains(pc) && TeamBlue.Contains(targetid)) return true;
+            if (TeamYellow.Contains(pc) && TeamYellow.Contains(targetid)) return true;
+            if (TeamGreen.Contains(pc) && TeamGreen.Contains(targetid)) return true;
+            if (TeamPurple.Contains(pc) && TeamPurple.Contains(targetid)) return true;
 
             return false;
         }
@@ -498,9 +495,9 @@ namespace TownOfHost.Modules
         }
         public static void UpdateTeam()
         {
-            if (GameStates.IsLobby && (SuddenTeamOption.GetBool() || CheckTeamDoreka))
+            if (GameStates.IsLobby && (SuddenTeamOption.GetBool() || IsAffiliationAllPlayer is false))
             {
-                if (CheckTeamDoreka && !SuddenTeamOption.GetBool())
+                if (IsAffiliationAllPlayer is false && !SuddenTeamOption.GetBool())
                 {
                     TeamReset();
                     return;
@@ -583,7 +580,7 @@ namespace TownOfHost.Modules
                             pc.RpcSetNamePrivate($"<{color}>{pc.Data.PlayerName}", true, seer, false);
                     }
                 }
-                if (!CheckTeam && GameStates.IsCountDown)
+                if (!IsAffiliationAllPlayer && GameStates.IsCountDown)
                 {
                     GameStartManager.Instance.ResetStartState();
                     Utils.SendMessage(Translator.GetString("SuddendeathLobbyError"));
@@ -601,7 +598,7 @@ namespace TownOfHost.Modules
         public static OptionItem SuddenArrowSendTime;
         public static OptionItem SuddenArrowSenddis;
 
-        public static OptionItem SuddenNokoriPlayerCount;
+        public static OptionItem SuddenRemainingPlayerCount;
         public static OptionItem SuddenCanSeeKillflash;
         public static OptionItem SuddenKillcooltime;
         public static OptionItem SuddenfinishTaskWin;
@@ -624,7 +621,7 @@ namespace TownOfHost.Modules
             SuddenDeathModeActive = BooleanOptionItem.Create(101000, "SuddenDeathMode", false, TabGroup.MainSettings, false).SetParent(Options.ONspecialMode).SetGameMode(CustomGameMode.Standard);
             SuddenSharingRoles = BooleanOptionItem.Create(101001, "SuddenSharingRoles", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
             SuddenCantSeeOtherName = BooleanOptionItem.Create(101012, "SuddenCannotSeeName", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
-            SuddenNokoriPlayerCount = BooleanOptionItem.Create(101013, "SuddenNokoriPlayerCount", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
+            SuddenRemainingPlayerCount = BooleanOptionItem.Create(101013, "SuddenRemainingPlayerCount", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
             SuddenCanSeeKillflash = BooleanOptionItem.Create(101014, "SuddenCanSeeKillflash", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
             SuddenKillcooltime = FloatOptionItem.Create(101015, "SuddenKillcooltime", RoleBase.OptionBaseCoolTime, 15f, TabGroup.MainSettings, false, null).SetParent(SuddenDeathModeActive).SetValueFormat(OptionFormat.Seconds);
             SuddenfinishTaskWin = BooleanOptionItem.Create(101016, "SuddenfinishTaskWin", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
@@ -660,6 +657,49 @@ namespace TownOfHost.Modules
             CustomRoles.GM,
             CustomRoles.TaskPlayerB,
         };
+        public static void SideKickChangeTeam(this PlayerControl target, PlayerControl Owner)
+        {
+            if (TeamRed.Contains(Owner.PlayerId))
+            {
+                TeamRed.Add(target.PlayerId);
+                TeamBlue.Remove(target.PlayerId);
+                TeamYellow.Remove(target.PlayerId);
+                TeamGreen.Remove(target.PlayerId);
+                TeamPurple.Remove(target.PlayerId);
+            }
+            if (TeamBlue.Contains(Owner.PlayerId))
+            {
+                TeamRed.Remove(target.PlayerId);
+                TeamBlue.Add(target.PlayerId);
+                TeamYellow.Remove(target.PlayerId);
+                TeamGreen.Remove(target.PlayerId);
+                TeamPurple.Remove(target.PlayerId);
+            }
+            if (TeamYellow.Contains(Owner.PlayerId))
+            {
+                TeamRed.Remove(target.PlayerId);
+                TeamBlue.Remove(target.PlayerId);
+                TeamYellow.Add(target.PlayerId);
+                TeamGreen.Remove(target.PlayerId);
+                TeamPurple.Remove(target.PlayerId);
+            }
+            if (TeamGreen.Contains(Owner.PlayerId))
+            {
+                TeamRed.Remove(target.PlayerId);
+                TeamBlue.Remove(target.PlayerId);
+                TeamYellow.Remove(target.PlayerId);
+                TeamGreen.Add(target.PlayerId);
+                TeamPurple.Remove(target.PlayerId);
+            }
+            if (TeamPurple.Contains(Owner.PlayerId))
+            {
+                TeamRed.Remove(target.PlayerId);
+                TeamBlue.Remove(target.PlayerId);
+                TeamYellow.Remove(target.PlayerId);
+                TeamGreen.Remove(target.PlayerId);
+                TeamPurple.Add(target.PlayerId);
+            }
+        }
     }
 
     public class SadnessGameEndPredicate : GameEndPredicate
@@ -668,13 +708,13 @@ namespace TownOfHost.Modules
         {
             reason = GameOverReason.ImpostorsByKill;
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return false;
-            if (checkplayer(out reason)) return true;
+            if (Checkplayer(out reason)) return true;
             if (FinishTaskCheck(out reason)) return true;
             if (CheckGameEndBySabotage(out reason)) return true;
 
             return false;
         }
-        public static bool checkplayer(out GameOverReason reason)
+        public static bool Checkplayer(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorsByKill;
 

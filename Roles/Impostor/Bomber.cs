@@ -48,8 +48,8 @@ namespace TownOfHost.Roles.Impostor
         }
 
         static float KillDelay;
-        static float Blastrange = 1;
-        int BomberExplosion;
+        static float Blastrange;
+        static int BomberExplosion;
         static float Cooldown;
 
         public bool CanBeLastImpostor { get; } = false;
@@ -73,20 +73,20 @@ namespace TownOfHost.Roles.Impostor
         {
             BomberExplosion = reader.ReadInt32();
         }
-        public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
         {
             if (BomberExplosion <= 0) return;
-            fall = true;
+            ResetCoolDown = true;
             var target = Player.GetKillTarget(true);
             Logger.Info($"{Player?.Data?.GetLogPlayerName() ?? "???"} => {target?.Data?.GetLogPlayerName() ?? "失敗"}", "Bomber");
             if (target == null || BomberExplosionPlayers.ContainsKey(target?.PlayerId ?? byte.MaxValue)) return;
 
-            resetkillcooldown = true;
+            AdjustKillCoolDown = false;
             if (target.Is(CustomRoles.King)) return;
             if (!BomberExplosionPlayers.TryAdd(target.PlayerId, 0f)) return;
             BomberExplosion--;
             SendRPC();
-            Player.RpcResetAbilityCooldown(kousin: true);
+            Player.RpcResetAbilityCooldown(Sync: true);
             Player.SetKillCooldown(target: target);
             UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
         }
@@ -98,7 +98,7 @@ namespace TownOfHost.Roles.Impostor
 
             foreach (var (targetId, timer) in BomberExplosionPlayers.ToArray())
             {
-                if (timer >= KillDelay)
+                if (KillDelay <= timer)
                 {
                     var target = PlayerCatch.GetPlayerById(targetId);
                     if (target.IsAlive())

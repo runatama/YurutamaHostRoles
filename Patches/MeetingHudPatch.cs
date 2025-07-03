@@ -105,7 +105,7 @@ public static class MeetingHudPatch
             }
             ReportDeadBodyPatch.DontReport.Clear();
             MeetingStates.MeetingCalled = true;
-            GameStates.Tuihou = false;
+            GameStates.ExiledAnimate = false;
 
             if (Options.ExHideChatCommand.GetBool() && !Assassin.NowUse)
             {
@@ -137,8 +137,8 @@ public static class MeetingHudPatch
                     }
                     foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
                     {
-                        var a = State.TryGetValue(player.PlayerId, out var data) ? data : false;
-                        player.Data.IsDead = !a;
+                        var data = State.TryGetValue(player.PlayerId, out var outdata) ? outdata : false;
+                        player.Data.IsDead = !data;
                     }
                 }, 4f, "SetDie");
             }
@@ -151,13 +151,13 @@ public static class MeetingHudPatch
             if (!GameStates.IsModHost) return;
 
             var myRole = PlayerControl.LocalPlayer.GetRoleClass();
-            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-            var list = p.ToArray().AddRangeToArray(a.ToArray());
+            var aliveplayer = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
+            var deadplayer = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
+            var list = aliveplayer.ToArray().AddRangeToArray(deadplayer.ToArray());
 
             HudManagerPatch.LowerInfoText.text = myRole?.GetLowerText(PlayerControl.LocalPlayer, isForMeeting: true, isForHud: true) ?? "";
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Amnesia)) HudManagerPatch.LowerInfoText.text = "";
-            if (myRole?.Jikaku() != CustomRoles.NotAssigned) HudManagerPatch.LowerInfoText.text = "";
+            if (PlayerControl.LocalPlayer.GetMisidentify(out _)) HudManagerPatch.LowerInfoText.text = "";
 
             HudManagerPatch.LowerInfoText.enabled = HudManagerPatch.LowerInfoText.text != "";
 
@@ -222,7 +222,7 @@ public static class MeetingHudPatch
                     if (list[0].PlayerId == pc.PlayerId)
                     {
                         MeetingInfo.enabled = true;
-                        MeetingInfo.text = $"<#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + Bakery.BakeryMark() + $"\n{UtilsNotifyRoles.MeetingMoji}";
+                        MeetingInfo.text = $"<#ffffff><line-height=95%>" + $"Day.{UtilsGameLog.day}".Color(Palette.Orange) + Bakery.BakeryMark() + $"\n{UtilsNotifyRoles.ExtendedMeetingText}";
                         if (CustomRolesHelper.CheckGuesser() || PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Guesser)))
                         {
                             MeetingInfo.text = $"<size=50%>\n </size>{MeetingInfo.text}\n<size=50%><#999900>{GetString("GuessInfo")}</color></size>";
@@ -240,7 +240,7 @@ public static class MeetingHudPatch
 
             foreach (var roleClass in CustomRoleManager.AllActiveRoles.Values)
             {
-                var RoleText = roleClass.MeetingMeg();
+                var RoleText = roleClass.MeetingAddMessage();
                 if (RoleText != "") Send += RoleText + "\n\n";
             }
             var Ghostrumortext = GhostRumour.SendMes();
@@ -327,8 +327,9 @@ public static class MeetingHudPatch
             {
                 var pc = PlayerCatch.GetPlayerById(pva.TargetPlayerId);
                 if (pc == null) continue;
+
                 if (MeetingStates.FirstMeeting) UtilsShowOption.SendRoleInfo(pc);
-                if (Utils.RoleSendList.Contains(pva.TargetPlayerId)) UtilsShowOption.SendRoleInfo(pc);
+                else if (Utils.RoleSendList.Contains(pva.TargetPlayerId)) UtilsShowOption.SendRoleInfo(pc);
             }
             MeetingVoteManager.Voteresult = "";
             Oniku = "";
@@ -357,7 +358,7 @@ public static class MeetingHudPatch
                     NameColorManager.RpcMeetingColorName();
                 }, 5f, "SetName", true);
             }
-            Main.NowSabotage =
+            Main.IsActiveSabotage =
                 Utils.IsActive(SystemTypes.Reactor)
                 || Utils.IsActive(SystemTypes.Electrical)
                 || Utils.IsActive(SystemTypes.Laboratory)
@@ -406,7 +407,7 @@ public static class MeetingHudPatch
                 //相手のサブロール処理
                 foreach (var subRole in target.GetCustomSubRoles())
                 {
-                    if (subRole is not CustomRoles.OneLove && subRole.IsRiaju() && (seer.GetRiaju() == subRole || seer.Data.IsDead))
+                    if (subRole is not CustomRoles.OneLove && subRole.IsLovers() && (seer.GetLoverRole() == subRole || seer.Data.IsDead))
                     {
                         sb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(subRole), "♥"));
                         continue; ;
@@ -441,7 +442,7 @@ public static class MeetingHudPatch
                             continue;
                         case CustomRoles.OneLove:
                             if (target == seer) continue;
-                            if (Lovers.OneLovePlayer.Ltarget == target.PlayerId || target.Is(CustomRoles.OneLove))
+                            if (Lovers.OneLovePlayer.BelovedId == target.PlayerId || target.Is(CustomRoles.OneLove))
                                 sb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.OneLove), "♡"));
                             continue;
                     }
@@ -496,15 +497,15 @@ public static class MeetingHudPatch
                     var player = PlayerCatch.GetPlayerById(x.TargetPlayerId);
                     if (player is null)
                     {
-                        var d = GameData.Instance.AllPlayers.ToArray().Where(a => a.PlayerId == x.TargetPlayerId).FirstOrDefault();
-                        if (d is not null) d.Disconnected = true;
+                        var data = GameData.Instance.AllPlayers.ToArray().Where(a => a.PlayerId == x.TargetPlayerId).FirstOrDefault();
+                        if (data is not null) data.Disconnected = true;
 
                         __instance.CheckForEndVoting();
                         return;
                     }
                     player.RpcExileV2();
-                    Utils.SendMessage(string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
-                    UtilsGameLog.AddGameLog("Executed", string.Format(GetString("Message.Executed"), Utils.GetPlayerColor(player, true)));
+                    Utils.SendMessage(string.Format(GetString("Message.Executed"), UtilsName.GetPlayerColor(player, true)));
+                    UtilsGameLog.AddGameLog("Executed", string.Format(GetString("Message.Executed"), UtilsName.GetPlayerColor(player, true)));
                     Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                     __instance.CheckForEndVoting();
 
@@ -546,8 +547,8 @@ public static class MeetingHudPatch
             if (AmongUsClient.Instance.AmHost)
             {
                 if (!AntiBlackout.IsCached) AntiBlackout.SetIsDead();
-                foreach (var p in SelfVoteManager.CheckVote)
-                    SelfVoteManager.CheckVote[p.Key] = false;
+                foreach (var data in SelfVoteManager.CheckVote)
+                    SelfVoteManager.CheckVote[data.Key] = false;
             }
             // MeetingVoteManagerを通さずに会議が終了した場合の後処理
             MeetingVoteManager.Instance?.Destroy();
@@ -568,8 +569,8 @@ public static class MeetingHudPatch
                 AddedIdList.Add(playerId);
                 if (deathReason == CustomDeathReason.Revenge)
                 {
-                    MeetingVoteManager.Voteresult += "\n<size=60%>" + Utils.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi");
-                    UtilsGameLog.AddGameLog("Revenge", Utils.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi"));
+                    MeetingVoteManager.Voteresult += "\n<size=60%>" + UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi");
+                    UtilsGameLog.AddGameLog("Revenge", UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(playerId)) + GetString("votemi"));
                 }
             }
 
@@ -638,12 +639,11 @@ public static class MeetingHudPatch
                             if (RoleAddAddons.GetRoleAddon(role, out var data, exiledplayer, subrole: CustomRoles.Revenger))
                             {
                                 if (deathReason == CustomDeathReason.Vote && data.GiveRevenger.GetBool())
-
                                 {
-                                    if ((candidate.Is(CustomRoleTypes.Impostor) && data.Imp.GetBool()) ||
-                                        (candidate.Is(CustomRoleTypes.Neutral) && data.Neu.GetBool()) ||
-                                        (candidate.Is(CustomRoleTypes.Crewmate) && data.Crew.GetBool()) ||
-                                        (candidate.Is(CustomRoleTypes.Madmate) && data.Mad.GetBool()))
+                                    if ((candidate.Is(CustomRoleTypes.Impostor) && data.RevengeToImpostor.GetBool()) ||
+                                        (candidate.Is(CustomRoleTypes.Neutral) && data.RevengeToNeutral.GetBool()) ||
+                                        (candidate.Is(CustomRoleTypes.Crewmate) && data.RevengeToCrewmate.GetBool()) ||
+                                        (candidate.Is(CustomRoleTypes.Madmate) && data.RevengeToMadmate.GetBool()))
                                         TargetList.Add(candidate);
                                 }
                             }
@@ -665,10 +665,10 @@ public static class MeetingHudPatch
                                             if (exiledplayer.Is(CustomRoles.Revenger) && deathReason == CustomDeathReason.Vote)
                                             {
                                                 if (
-                                                (candidate.Is(CustomRoleTypes.Impostor) && Revenger.Imp.GetBool()) ||
-                                                (candidate.Is(CustomRoleTypes.Neutral) && Revenger.Neu.GetBool()) ||
-                                                (candidate.Is(CustomRoleTypes.Crewmate) && Revenger.Crew.GetBool()) ||
-                                                (candidate.Is(CustomRoleTypes.Madmate) && Revenger.Mad.GetBool()))
+                                                (candidate.Is(CustomRoleTypes.Impostor) && Revenger.RevengeToImpostor.GetBool()) ||
+                                                (candidate.Is(CustomRoleTypes.Neutral) && Revenger.RevengeToNeutral.GetBool()) ||
+                                                (candidate.Is(CustomRoleTypes.Crewmate) && Revenger.RevengeToCrewmate.GetBool()) ||
+                                                (candidate.Is(CustomRoleTypes.Madmate) && Revenger.RevengeToMadmate.GetBool()))
                                                     TargetList.Add(candidate);
                                             }
                                             break;

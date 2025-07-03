@@ -33,13 +33,13 @@ namespace TownOfHost.Roles.Neutral
             () => HasTask.False
         )
         {
-            KillCooldown = RKillCooldown.GetFloat();
-            Rtarget = 111;
+            KillCooldown = OptionKillCooldown.GetFloat();
+            ReamoteTargetId = byte.MaxValue;
         }
 
-        private static OptionItem RKillCooldown;
-        private static OptionItem RKillAnimation;
-        private byte Rtarget;
+        private static OptionItem OptionKillCooldown;
+        private static OptionItem OptionKillAnimation;
+        private byte ReamoteTargetId;
         private static float KillCooldown;
 
         enum OptionName
@@ -50,9 +50,9 @@ namespace TownOfHost.Roles.Neutral
         private static void SetupOptionItem()
         {
             SoloWinOption.Create(RoleInfo, 9, defo: 0);
-            RKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
+            OptionKillCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            RKillAnimation = BooleanOptionItem.Create(RoleInfo, 11, OptionName.KillAnimation, true, false);
+            OptionKillAnimation = BooleanOptionItem.Create(RoleInfo, 11, OptionName.KillAnimation, true, false);
             RoleAddAddons.Create(RoleInfo, 12, NeutralKiller: true);
         }
         public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.Remotekiller;
@@ -72,13 +72,13 @@ namespace TownOfHost.Roles.Neutral
             if (info.IsFakeSuicide) return;
             //登録
             killer.SetKillCooldown(KillCooldown);
-            Rtarget = target.PlayerId;
+            ReamoteTargetId = target.PlayerId;
             killer.RpcProtectedMurderPlayer(target);
             info.DoKill = false;
         }
         public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)
         {
-            Rtarget = 111;
+            ReamoteTargetId = byte.MaxValue;
         }
         public bool OverrideKillButtonText(out string text)
         {
@@ -88,11 +88,11 @@ namespace TownOfHost.Roles.Neutral
         public override bool OnEnterVent(PlayerPhysics physics, int ventId)
         {
             var user = physics.myPlayer;
-            if (Rtarget != 111 && Player.PlayerId == user.PlayerId)
+            if (ReamoteTargetId is not byte.MaxValue && Player.PlayerId == user.PlayerId)
             {
-                var target = PlayerCatch.GetPlayerById(Rtarget);
+                var target = PlayerCatch.GetPlayerById(ReamoteTargetId);
                 if (!target.IsAlive()) return true;
-                if (RKillAnimation.GetBool())
+                if (OptionKillAnimation.GetBool())
                 {
                     _ = new LateTask(() =>
                     {
@@ -109,8 +109,8 @@ namespace TownOfHost.Roles.Neutral
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.KillSound);
                 RPC.PlaySoundRPC(user.PlayerId, Sounds.TaskComplete);
                 Logger.Info($"Remotekillerのターゲット{target.name}のキルに成功", "Remotekiller.kill");
-                Rtarget = 111;
-                return !RKillAnimation.GetBool();
+                ReamoteTargetId = byte.MaxValue;
+                return !OptionKillAnimation.GetBool();
             }
             return true;
         }

@@ -78,7 +78,7 @@ namespace TownOfHost
 
                 if (__instance.Is(CustomRoles.Amnesia))//アムネシア削除
                 {
-                    Amnesia.Kesu(__instance.PlayerId);
+                    Amnesia.RemoveAmnesia(__instance.PlayerId);
                 }
 
                 if (CustomWinnerHolder.WinnerTeam == CustomWinner.Default)
@@ -88,7 +88,7 @@ namespace TownOfHost
                         if (__instance.GetCustomRole().IsImpostor() || ((__instance.GetRoleClass() as IKiller)?.CanUseSabotageButton() ?? false))
                             _ = new LateTask(() =>
                             {
-                                if (!GameStates.Meeting)
+                                if (!GameStates.CalledMeeting)
                                 {
                                     __instance.RpcSetRole(RoleTypes.ImpostorGhost, true);
                                 }

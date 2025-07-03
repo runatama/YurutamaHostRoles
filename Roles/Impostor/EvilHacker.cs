@@ -42,7 +42,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
 
         CustomRoleManager.OnMurderPlayerOthers.Add(HandleMurderRoomNotify);
         instances.Add(this);
-        Name.Clear();
+        NameAddmin.Clear();
     }
     public override void OnDestroy()
     {
@@ -67,7 +67,7 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     private static bool canSeeKillFlash;
     private static bool canSeeMurderRoom;
     private static bool CanseeTaskTurn;
-    static Dictionary<byte, string> Name = new();
+    static Dictionary<byte, string> NameAddmin = new();
 
     private static HashSet<EvilHacker> instances = new(1);
 
@@ -96,16 +96,18 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
-        Name.Clear();
+        NameAddmin.Clear();
         if (!Player.IsAlive())
         {
             return;
         }
         var admins = AdminProvider.CalculateAdmin();
         var builder = new StringBuilder(512);
-
-        var m = new StringBuilder(512);
-        var g = 0;
+        var messagebuilder = new StringBuilder(512);
+        var index = 0;
+        var aliveplayers = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).ToArray();
+        var deadplayers = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId).ToArray();
+        var list = aliveplayers.AddRangeToArray(deadplayers);
         // 送信するメッセージを生成
         foreach (var admin in admins)
         {
@@ -129,18 +131,14 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                 builder.Append('(').Append(GetString("Deadbody"));
                 builder.Append('×').Append(entry.NumDeadBodies).Append(')');
             }
-            m.Append(builder);
-            m.Append('\n');
-            var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-            var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-            Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
+            messagebuilder.Append(builder);
+            messagebuilder.Append('\n');
+            NameAddmin.Add(list[index].PlayerId, builder.ToString());
 
             builder.Clear();
-            g++;
+            index++;
         }
-
-        // 送信
-        var message = m.ToString();
+        var message = messagebuilder.ToString();
         var title = Utils.ColorString(Color.green, GetString("LastAdminInfo"));
 
         _ = new LateTask(() =>
@@ -194,20 +192,21 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     string text = "";
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (GameStates.Intro || GameStates.Meeting) return;
+        if (GameStates.Intro || GameStates.CalledMeeting) return;
         if (AmongUsClient.Instance.AmHost)
         {
             if (CanseeTaskTurn && player.IsAlive())
             {
                 var oldtext = text;
                 text = "";
-                Name.Clear();
+                NameAddmin.Clear();
                 var admins = AdminProvider.CalculateAdmin();
                 var builder = new StringBuilder(512);
 
-                var m = new StringBuilder(512);
-                var g = 0;
-                // 送信するメッセージを生成
+                var index = 0;
+                var aliveplayers = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).ToArray();
+                var deadplayers = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId).ToArray();
+                var list = aliveplayers.AddRangeToArray(deadplayers);
                 foreach (var admin in admins)
                 {
                     var entry = admin.Value;
@@ -220,28 +219,26 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
                     {
                         builder.Append(ImpostorMark);
                     }
-                    // 部屋名と合計プレイヤー数を表記
                     builder.Append(DestroyableSingleton<TranslationController>.Instance.GetString(entry.Room));
                     builder.Append(": ");
                     builder.Append(entry.TotalPlayers);
-                    // 死体があったら死体の数を書く
                     if (canSeeDeadMark && entry.NumDeadBodies > 0)
                     {
                         builder.Append('(').Append(GetString("Deadbody"));
                         builder.Append('×').Append(entry.NumDeadBodies).Append(')');
                     }
-                    m.Append(builder);
-                    m.Append('\n');
-                    var p = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId);
-                    var a = PlayerCatch.AllPlayerControls.Where(x => !x.IsAlive()).OrderBy(x => x.PlayerId);
-                    Name.Add(p.ToArray().AddRangeToArray(a.ToArray())[g].PlayerId, builder.ToString());
-                    foreach (var aa in Name)
+                    NameAddmin.Add(list[index].PlayerId, builder.ToString());
+                    foreach (var data in NameAddmin)
                     {
-                        text += $"{aa.Key} : {aa.Value}";
+                        text += $"{data.Key} : {data.Value}";
                     }
 
                     builder.Clear();
-                    g++;
+                    index++;
+                }
+                foreach (var data in NameAddmin)
+                {
+                    text += $"{data.Key} : {data.Value}";
                 }
                 if (oldtext != text) UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
             }
@@ -274,20 +271,18 @@ public sealed class EvilHacker : RoleBase, IImpostor, IKillFlashSeeable
     public override string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        var text = "";
-
+        var adminInfoText = "";
         if (CanseeTaskTurn || isForMeeting)
         {
-            if (!Name.TryGetValue(seen.PlayerId, out var Admin)) return "";
-
-            text = "<color=#8cffff><size=1.5>" + Admin + "</color></size>";
+            if (!NameAddmin.TryGetValue(seen.PlayerId, out var Admin)) return "";
+            adminInfoText = "<color=#8cffff><size=1.5>" + Admin + "</color></size>";
         }
         if (!canSeeMurderRoom || seer != Player || seen != Player || activeNotifies.Count <= 0)
         {
-            return text += base.GetSuffix(seer, seen, isForMeeting);
+            return adminInfoText += base.GetSuffix(seer, seen, isForMeeting);
         }
         var roomNames = activeNotifies.Select(notify => DestroyableSingleton<TranslationController>.Instance.GetString(notify.Room));
-        return text += Utils.ColorString(Color.green, $"{GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
+        return adminInfoText += Utils.ColorString(Color.green, $"{GetString("MurderNotify")}: {string.Join(", ", roomNames)}");
     }
     public bool? CheckKillFlash(MurderInfo info) =>
         canSeeKillFlash && !info.IsSuicide && !info.IsAccident && info.AttemptKiller.Is(CustomRoleTypes.Impostor);

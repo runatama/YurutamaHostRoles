@@ -97,10 +97,10 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
     }
     public override bool CanUseAbilityButton() => State != FireWorksState.FireEnd || !Player.IsAlive();
     public bool UseOneclickButton => true;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = false;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = true;
         Logger.Info($"FireWorks ShapeShift", "FireWorks");
         switch (State)
         {
@@ -114,7 +114,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
                         ? FireWorksState.ReadyFire : FireWorksState.WaitTime;
                 else
                     State = FireWorksState.SettingFireWorks;
-                Player.RpcResetAbilityCooldown(kousin: true);
+                Player.RpcResetAbilityCooldown(Sync: true);
                 break;
             case FireWorksState.ReadyFire:
                 Logger.Info("花火を爆破", "FireWorks");
@@ -155,7 +155,7 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
                 }
                 State = FireWorksState.FireEnd;
 
-                Player.RpcResetAbilityCooldown(kousin: true);
+                Player.RpcResetAbilityCooldown(Sync: true);
                 break;
             default:
                 break;

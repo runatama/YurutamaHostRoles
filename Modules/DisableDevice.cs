@@ -14,7 +14,6 @@ namespace TownOfHost
     {
         public static bool DoDisable => Options.DisableDevices.GetBool() || Options.IsStandardHAS || optTimeLimitDevices || optTurnTimeLimitDevice;
         public static List<byte> DesyncComms = new();
-        private static int frame = 0;
 
         //検知
         private static Dictionary<byte, Vector2> AdminPoss = new();
@@ -98,32 +97,32 @@ namespace TownOfHost
             TurnLogAndCamTimer = 0;
             TurnVitalTimer = 0;
         }
-        public static string GetAddminTimer(bool mark = true)
+        public static string GetAddminTimer(bool showmark = true)
         {
             if (optTimeLimitAdmin == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
-            var a = "<#00ff99>Ⓐ";
-            if (!mark) a = "";
-            if (optTimeLimitAdmin <= GameAdminTimer) return a + "×";
-            else return a + ":" + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
+            var mark = "<#00ff99>Ⓐ";
+            if (!showmark) mark = "";
+            if (optTimeLimitAdmin <= GameAdminTimer) return mark + "×";
+            else return mark + ":" + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
         }
-        public static string GetCamTimr(bool mark = true)
+        public static string GetCamTimr(bool showmark = true)
         {
             if (optTimeLimitCamAndLog == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
-            var a = (MapNames)Main.NormalOptions.MapId is MapNames.MiraHQ ? "<#cccccc>Ⓛ" : "<#cccccc>Ⓒ";
-            if (!mark) a = "";
-            if (optTimeLimitCamAndLog <= GameLogAndCamTimer) return a + "×";
-            else return a + ":" + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
+            var mark = (MapNames)Main.NormalOptions.MapId is MapNames.MiraHQ ? "<#cccccc>Ⓛ" : "<#cccccc>Ⓒ";
+            if (!showmark) mark = "";
+            if (optTimeLimitCamAndLog <= GameLogAndCamTimer) return mark + "×";
+            else return mark + ":" + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
         }
-        public static string GetVitalTimer(bool mark = true)
+        public static string GetVitalTimer(bool showmark = true)
         {
             if (optTimeLimitVital == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.MiraHQ) return "";
-            var a = "<#33ccff>Ⓥ";
-            if (!mark) a = "";
-            if (optTimeLimitVital <= GameVitalTimer) return a + "×";
-            else return a + ":" + Math.Round(optTimeLimitVital - GameVitalTimer) + "s";
+            var mark = "<#33ccff>Ⓥ";
+            if (!showmark) mark = "";
+            if (optTimeLimitVital <= GameVitalTimer) return mark + "×";
+            else return mark + ":" + Math.Round(optTimeLimitVital - GameVitalTimer) + "s";
         }
         public static readonly Dictionary<string, Vector2> DevicePos = new()
         {
@@ -263,10 +262,7 @@ namespace TownOfHost
         }
         public static void FixedUpdate()
         {
-            frame = frame == 3 ? 0 : ++frame;
-            //if (frame > 0) return;
-
-            //if (!DoDisable) return;
+            if (!DoDisable) return;
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
                 try
@@ -374,8 +370,9 @@ namespace TownOfHost
                     if (check) doComms = false;
                     if ((RoleDisable || doComms) && !pc.inVent && GameStates.IsInTask)
                     {
-                        if (!DesyncComms.Contains(pc.PlayerId)) DesyncComms.Add(pc.PlayerId);
-                        else continue;
+                        if (!DesyncComms.Contains(pc.PlayerId))
+                            DesyncComms.Add(pc.PlayerId);
+                        else continue; // 既に追加済みなら以降の処理をスキップ
 
                         pc.RpcDesyncUpdateSystem(SystemTypes.Comms, 128);
                     }
@@ -420,7 +417,7 @@ namespace TownOfHost
             UpdateDisableDevices();
         }
 
-        public static void UpdateDisableDevices(bool kyouseikousin = false)
+        public static void UpdateDisableDevices(bool forceSync = false)
         {
             var player = PlayerControl.LocalPlayer;
             bool ignore = player.Is(CustomRoles.GM) ||
@@ -437,39 +434,39 @@ namespace TownOfHost
             switch (Main.NormalOptions.MapId)
             {
                 case 0:
-                    if (Options.DisableSkeldAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin)
+                    if (Options.DisableSkeldAdmin.GetBool() || AdminUsecheck(player) || forceSync)
                         admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = AdminUsecheck(player, ignore);
-                    if (Options.DisableSkeldCamera.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                    if (Options.DisableSkeldCamera.GetBool() || LogAndCamUsecheck(player) || forceSync)
                         consoles.DoIf(x => x.name == "SurvConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
                     break;
                 case 1:
-                    if (Options.DisableMiraHQAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin)
+                    if (Options.DisableMiraHQAdmin.GetBool() || AdminUsecheck(player) || forceSync)
                         admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = AdminUsecheck(player, ignore);
-                    if (Options.DisableMiraHQDoorLog.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                    if (Options.DisableMiraHQDoorLog.GetBool() || LogAndCamUsecheck(player) || forceSync)
                         consoles.DoIf(x => x.name == "SurvLogConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
                     break;
                 case 2:
-                    if (Options.DisablePolusAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin)
+                    if (Options.DisablePolusAdmin.GetBool() || AdminUsecheck(player) || forceSync)
                         admins.Do(x => x.gameObject.GetComponent<BoxCollider2D>().enabled = AdminUsecheck(player, ignore));
-                    if (Options.DisablePolusCamera.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                    if (Options.DisablePolusCamera.GetBool() || LogAndCamUsecheck(player) || forceSync)
                         consoles.DoIf(x => x.name == "Surv_Panel", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
-                    if (Options.DisablePolusVital.GetBool() || VitealUsecheck(player) || kyouseikousin)
+                    if (Options.DisablePolusVital.GetBool() || VitealUsecheck(player) || forceSync)
                         consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = VitealUsecheck(player, ignore));
                     break;
                 case 4:
                     admins.Do(x =>
                     {
-                        if (((Options.DisableAirshipCockpitAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin) && x.name == "panel_cockpit_map") ||
-                            ((Options.DisableAirshipRecordsAdmin.GetBool() || AdminUsecheck(player) || kyouseikousin) && x.name == "records_admin_map"))
+                        if (((Options.DisableAirshipCockpitAdmin.GetBool() || AdminUsecheck(player) || forceSync) && x.name == "panel_cockpit_map") ||
+                            ((Options.DisableAirshipRecordsAdmin.GetBool() || AdminUsecheck(player) || forceSync) && x.name == "records_admin_map"))
                             x.gameObject.GetComponent<BoxCollider2D>().enabled = AdminUsecheck(player, ignore);
                     });
-                    if (Options.DisableAirshipCamera.GetBool() || LogAndCamUsecheck(player) || kyouseikousin)
+                    if (Options.DisableAirshipCamera.GetBool() || LogAndCamUsecheck(player) || forceSync)
                         consoles.DoIf(x => x.name == "task_cams", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = LogAndCamUsecheck(player, ignore));
-                    if (Options.DisableAirshipVital.GetBool() || VitealUsecheck(player) || kyouseikousin)
+                    if (Options.DisableAirshipVital.GetBool() || VitealUsecheck(player) || forceSync)
                         consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<CircleCollider2D>().enabled = VitealUsecheck(player, ignore));
                     break;
                 case 5:
-                    if (Options.DisableFungleVital.GetBool() || VitealUsecheck(player) || kyouseikousin)
+                    if (Options.DisableFungleVital.GetBool() || VitealUsecheck(player) || forceSync)
                     {
                         consoles.DoIf(x => x.name == "VitalsConsole", x => x.GetComponent<Collider2D>().enabled = VitealUsecheck(player, ignore));
                     }

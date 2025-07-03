@@ -40,7 +40,7 @@ public static class MovingPlatformBehaviourPatch
         }
         if (!isDisabled)
         {
-            if (!GameStates.Meeting && !player.Data.IsDead && Options.LadderDeathNuuun.GetBool())
+            if (!GameStates.CalledMeeting && !player.Data.IsDead && Options.LadderDeathNuuun.GetBool())
             {
                 int chance = IRandom.Instance.Next(1, 101);
                 if (chance <= FallFromLadder.Chance)

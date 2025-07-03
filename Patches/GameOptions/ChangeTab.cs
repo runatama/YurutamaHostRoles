@@ -31,7 +31,7 @@ namespace TownOfHost
             }
         }
         static int Last = 0;
-        public static int Hima = 0;
+        public static int ClickCount = 0;
         public static void Postfix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
             if (previewOnly) return;
@@ -39,16 +39,16 @@ namespace TownOfHost
             var l = Last;
             if (tabNum == Last && tabNum == 3)
             {
-                Hima++;
-                dasu = false;
+                ClickCount++;
+                ShowModSetting = false;
             }
             if (tabNum != Last)
             {
-                if (tabNum == 3) dasu = true;
-                else dasu = false;
+                if (tabNum == 3) ShowModSetting = true;
+                else ShowModSetting = false;
                 Last = tabNum;
             }
-            if (100 > Hima)
+            if (100 > ClickCount)
             {
                 var rand = IRandom.Instance;
                 int rect = IRandom.Instance.Next(1, 101);

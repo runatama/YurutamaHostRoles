@@ -44,7 +44,7 @@ namespace TownOfHost
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
                 if (Options.CurrentGameMode == CustomGameMode.TaskBattle) sb.Append($"\r\n").Append(Utils.ColorString(Color.cyan, GetString("TaskBattle")));
-                if (Options.SuddenDeathMode.OptionMeGetBool()) sb.Append("\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
+                if (SuddenDeathMode.SuddenDeathModeActive.OptionMeGetBool()) sb.Append("\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
                 if (Options.EnableGM.OptionMeGetBool()) sb.Append($"\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GM), GetString("GM")));
                 if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
                 if (DebugModeManager.IsDebugMode)
@@ -148,8 +148,8 @@ namespace TownOfHost
                     SpecialEventText.text = $"何とは言いませんが、特別な日ですね。\n<size=15%>\n\n末永く爆発しろ</size>";
                     SpecialEventText.color = UtilsRoleText.GetRoleColor(CustomRoles.Lovers);
                 }
-                MainMenuManagerPatch.Tokei = TMPTemplate.Create(
-                "Tokei",
+                MainMenuManagerPatch.Statistisc = TMPTemplate.Create(
+                "Statistisc",
                 "",
                 Color.white,
                 3f,
@@ -158,9 +158,8 @@ namespace TownOfHost
                 null
                 );
                 {
-                    MainMenuManagerPatch.Tokei.transform.localPosition = new Vector3(0.8f, 1.7f);
+                    MainMenuManagerPatch.Statistisc.transform.localPosition = new Vector3(0.8f, 1.7f);
                 }
-
             }
         }
 
@@ -169,8 +168,6 @@ namespace TownOfHost
             var Debugver = "";
             if (Main.DebugVersion) Debugver = $"<{Main.ModColor}>☆Debug☆</color>";
             Subver = "";
-            /*ここで__instanceのチェック入れてるのはconstだけifしちゃうとコードが警告してきちゃうからだゾ！*/
-            //                if (Main.PluginSubVersion != "" && __instance) Subver = $"<sub>{Main.PluginSubVersion}</sub>";
             Main.credentialsText = $"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver;
 #if DEBUG
             if (!GameStates.InGame) Main.credentialsText += $"\n<{Main.ModColor}>{ThisAssembly.Git.Branch}({ThisAssembly.Git.Commit})</color>";

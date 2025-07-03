@@ -15,7 +15,7 @@ public static class AdminProvider
     /// <returns>Key: 部屋のSystemType, Value: <see cref="AdminEntry"/>で，Key順にソートされた辞書</returns>
     public static SortedDictionary<SystemTypes, AdminEntry> CalculateAdmin(bool checkmeeting = false)
     {
-        if (GameStates.Meeting && !checkmeeting)
+        if (GameStates.CalledMeeting && !checkmeeting)
         {
             return NowAdmin;
         }

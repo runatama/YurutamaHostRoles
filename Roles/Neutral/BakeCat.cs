@@ -149,7 +149,7 @@ namespace TownOfHost.Roles.Neutral
                 }
                 _ = new LateTask(() =>
                 {
-                    Player.SetKillCooldown(OptionKillCooldown.GetFloat(), kyousei: true);
+                    Player.SetKillCooldown(OptionKillCooldown.GetFloat(), force: true);
                     CanKill = true;
                     if (!Utils.RoleSendList.Contains(Player.PlayerId)) Utils.RoleSendList.Add(Player.PlayerId);
 
@@ -163,7 +163,7 @@ namespace TownOfHost.Roles.Neutral
                 if (OptionDieKiller.GetBool())
                     _ = new LateTask(() =>
                     {
-                        if (!killer.IsAlive() || GameStates.Meeting) return;
+                        if (!killer.IsAlive() || GameStates.CalledMeeting) return;
                         killer.RpcMurderPlayerV2(killer);
                     }, OptionDieKillerTIme.GetFloat(), "BakeCatKillerDie");
             }
@@ -200,31 +200,31 @@ namespace TownOfHost.Roles.Neutral
                 foreach (var member in killerTeam)
                 {
                     if (member.GetCustomRole().IsMadmate()) continue;
-                    var c = RoleInfo.RoleColorCode;
+                    var rolecolor = RoleInfo.RoleColorCode;
                     if (member.Is(CustomRoles.WolfBoy))
                     {
-                        c = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+                        rolecolor = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
                     }
-                    NameColorManager.Add(member.PlayerId, Player.PlayerId, c);
+                    NameColorManager.Add(member.PlayerId, Player.PlayerId, rolecolor);
                     NameColorManager.Add(Player.PlayerId, member.PlayerId);
                 }
             }
             else
             {
-                var c = RoleInfo.RoleColorCode;
+                var rolecolor = RoleInfo.RoleColorCode;
                 if (killer.Is(CustomRoles.WolfBoy))
                 {
-                    c = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
+                    rolecolor = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
                 }
-                NameColorManager.Add(killer.PlayerId, Player.PlayerId, c);
+                NameColorManager.Add(killer.PlayerId, Player.PlayerId, rolecolor);
                 NameColorManager.Add(Player.PlayerId, killer.PlayerId);
             }
 
-            UtilsGameLog.AddGameLog($"BakeNeko", Utils.GetPlayerColor(Player) + ":  " + string.Format(GetString("SchrodingerCat.Ch"), Utils.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
+            UtilsGameLog.AddGameLog($"BakeNeko", UtilsName.GetPlayerColor(Player) + ":  " + string.Format(GetString("SchrodingerCat.Ch"), UtilsName.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             UtilsGameLog.LastLogRole[Player.PlayerId] = UtilsGameLog.LastLogRole[Player.PlayerId].RemoveColorTags().Color(DisplayRoleColor);
         }
-        public override CustomRoles Jikaku() => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;
-        public override CustomRoles GetFtResults(PlayerControl player) => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;
+        public override CustomRoles Misidentify() => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;
+        public override CustomRoles TellResults(PlayerControl player) => Team == TeamType.None ? CustomRoles.Crewmate : CustomRoles.NotAssigned;
         public override void OverrideTrueRoleName(ref Color roleColor, ref string roleText)
         {
             // 陣営変化前なら上書き不要

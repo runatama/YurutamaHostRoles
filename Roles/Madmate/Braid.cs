@@ -13,7 +13,7 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             typeof(Braid),
             player => new Braid(player),
             CustomRoles.Braid,
-            () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
+            () => OptionBraidCanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             16100,
             (0, 1),
@@ -31,19 +31,18 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
-        Bseeing = OptionBseeing.GetBool();
-        Dseeing = OptionDseeing.GetBool();
-        canVent = OptionCanVent.GetBool();
+        BraidCanSeeDriver = OptionBraidCanSeeDriver.GetBool();
+        DriverCanSeeBraid = OptionDriverCanSeeBraid.GetBool();
         TaskFin = false;
         DriverseeKillFlash = false;
         Driverseedeathreason = false;
         DriverseeVote = false;
-        Gado = false;
-        Guard = true;
-        KtaskTrigger = OptionKtaskTrigger.GetInt();
-        DtaskTrigger = OptionDtaskTrigger.GetInt();
-        GtaskTrigger = OptionGtaskTrigger.GetInt();
-        VtaskTrigger = OptionVtaskTrigger.GetInt();
+        GivedGuard = false;
+        HasGuard = true;
+        KillflashtaskTrigger = OptionGiveKillFlashtaskTrigger.GetInt();
+        DeathreasontaskTrigger = OptionGiveKnowDeathreasontaskTrigger.GetInt();
+        GuardtaskTrigger = OptionGiveGuardtaskTrigger.GetInt();
+        WatchVotetaskTrigger = OptionGiveWatchVotestaskTrigger.GetInt();
         BraidKillCooldown = OptionBraidKillCooldown.GetFloat();
 
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
@@ -54,37 +53,36 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public static bool DriverseeKillFlash;
     public static bool Driverseedeathreason;
     public static bool DriverseeVote;
-    public static bool Gado;
+    public static bool GivedGuard;
     private static bool canSeeKillFlash;
     private static bool canSeeDeathReason;
-    public static bool Bseeing;
-    public static bool Dseeing;
-    public static int KtaskTrigger;
-    public static int DtaskTrigger;
-    public static int GtaskTrigger;
-    public static int VtaskTrigger;
-    public static bool canVent;
+    public static bool BraidCanSeeDriver;
+    public static bool DriverCanSeeBraid;
+    public static int KillflashtaskTrigger;
+    public static int DeathreasontaskTrigger;
+    public static int GuardtaskTrigger;
+    public static int WatchVotetaskTrigger;
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
-    public override CustomRoles GetFtResults(PlayerControl player) => Options.MadTellOpt();
+    public override CustomRoles TellResults(PlayerControl player) => Options.MadTellOpt();
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.CompletedTasksCount >= KtaskTrigger && OptionDriverseeKillFlash.GetBool())
+        if (KillflashtaskTrigger <= MyTaskState.CompletedTasksCount && OptionGiveKillFlash.GetBool())
         {
             DriverseeKillFlash = true;
             Logger.Info("キルフラの能力を付与。", "Braid");
         }
-        if (MyTaskState.CompletedTasksCount >= DtaskTrigger && OptionDriverseedeathreason.GetBool())
+        if (DeathreasontaskTrigger <= MyTaskState.CompletedTasksCount && OptionGiveKnowDeathreason.GetBool())
         {
             Driverseedeathreason = true;
             Logger.Info("死因の能力を付与。", "Braid");
         }
-        if (MyTaskState.CompletedTasksCount >= GtaskTrigger && OptionGado.GetBool())
+        if (GuardtaskTrigger <= MyTaskState.CompletedTasksCount && OptionGiveGuard.GetBool())
         {
-            Gado = true;
+            GivedGuard = true;
             Logger.Info("ガードを付与。", "Braid");
         }
-        if (MyTaskState.CompletedTasksCount >= VtaskTrigger && OptionVote.GetBool())
+        if (WatchVotetaskTrigger <= MyTaskState.CompletedTasksCount && OptionGiveWatchVotes.GetBool())
         {
             DriverseeVote = true;
             Logger.Info("匿名投票を解除。", "Braid");
@@ -100,13 +98,13 @@ public sealed class Braid : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         //seenが省略の場合seer
         seen ??= seer;
-        if (seer.Is(CustomRoles.Braid) && seen.Is(CustomRoles.Driver) && Dseeing) return Utils.ColorString(RoleInfo.RoleColor, "☆");
+        if (seer.Is(CustomRoles.Braid) && seen.Is(CustomRoles.Driver) && BraidCanSeeDriver) return Utils.ColorString(RoleInfo.RoleColor, "☆");
         else return "";
     }
     public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
         seen ??= seer;
-        if (seer.Is(CustomRoles.Driver) && seen.Is(CustomRoles.Braid) && Bseeing) return Utils.ColorString(RoleInfo.RoleColor, "☆");
+        if (seer.Is(CustomRoles.Driver) && seen.Is(CustomRoles.Braid) && DriverCanSeeBraid) return Utils.ColorString(RoleInfo.RoleColor, "☆");
         else return "";
     }
 }

@@ -49,13 +49,13 @@ public static class HeliSabotageSystemPatch
 {
     public static void Prefix(HeliSabotageSystem __instance)
     {
-        if (!__instance.IsActive || (!Options.SabotageTimeControl.GetBool() && !SuddenDeathMode.NowSuddenDeathMode))
+        if (!__instance.IsActive || (!Options.SabotageActivetimerControl.GetBool() && !SuddenDeathMode.NowSuddenDeathMode))
             return;
         if (AirshipStatus.Instance != null)
             if (SuddenDeathMode.NowSuddenDeathMode)
             {
-                if (__instance.Countdown >= Options.SuddenDeathReactortime.GetFloat())
-                    __instance.Countdown = Options.SuddenDeathReactortime.GetFloat();
+                if (__instance.Countdown >= SuddenDeathMode.SuddenDeathReactortime.GetFloat())
+                    __instance.Countdown = SuddenDeathMode.SuddenDeathReactortime.GetFloat();
                 return;
             }
         if (AirshipStatus.Instance != null)

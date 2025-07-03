@@ -14,7 +14,7 @@ namespace TownOfHost.Roles.Ghost
         public static Dictionary<CustomRoles, int> GhostAssingCount = new();
         public CustomRoles Role { get; private set; }
         public CustomRoleTypes RoleType { get; private set; }
-        public CustomRoleTypes kottinimofuyo { get; set; }
+        public CustomRoleTypes SubRoleType { get; set; }
         public int IdStart { get; private set; }
 
         public GhostRoleAssingData(int idStart, CustomRoles role, CustomRoleTypes roleTypes, CustomRoleTypes k)
@@ -22,7 +22,7 @@ namespace TownOfHost.Roles.Ghost
             IdStart = idStart;
             Role = role;
             RoleType = roleTypes;
-            kottinimofuyo = k;
+            SubRoleType = k;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするGhostRoleAssingDataが作成されました", "GhostRoleAssingData");
@@ -48,7 +48,7 @@ namespace TownOfHost.Roles.Ghost
         ///<summary>
         ///GhostRoleAssingDataが存在する幽霊役職を一括で割り当て
         ///</summary>
-        public static void AssignAddOnsFromList(bool d = false)
+        public static void AssignAddOnsFromList(bool IsDead = false)
         {
             foreach (var kvp in AllData)
             {
@@ -76,22 +76,22 @@ namespace TownOfHost.Roles.Ghost
 
                     Logger.Info("役職設定:" + pc?.Data?.GetLogPlayerName() + " = " + pc.GetCustomRole().ToString() + " + " + role.ToString(), "GhostRoleAssingData");
 
-                    UtilsGameLog.AddGameLog($"{role}", string.Format(GetString("GhostRole.log"), Utils.GetPlayerColor(pc), Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))));
+                    UtilsGameLog.AddGameLog($"{role}", string.Format(GetString("GhostRole.log"), UtilsName.GetPlayerColor(pc), Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))));
                     UtilsGameLog.LastLogRole[pc.PlayerId] += $"<size=45%>=> {Utils.ColorString(UtilsRoleText.GetRoleColor(role), UtilsRoleText.GetRoleName(role))}</size>";
 
-                    if (!d)
+                    if (!IsDead)
                     {
                         pc.RpcSetRole(RoleTypes.GuardianAngel, true);
-                        _ = new LateTask(() => pc.RpcResetAbilityCooldown(kousin: true), 0.5f, "GhostRoleResetAbilty");
+                        _ = new LateTask(() => pc.RpcResetAbilityCooldown(Sync: true), 0.5f, "GhostRoleResetAbilty");
                     }
                     else
                     {
                         _ = new LateTask(() =>
                             {
-                                if (!GameStates.Meeting)
+                                if (!GameStates.CalledMeeting)
                                 {
                                     pc.RpcSetRole(RoleTypes.GuardianAngel, true);
-                                    _ = new LateTask(() => pc.RpcResetAbilityCooldown(kousin: true), 0.5f, "GhostRoleResetAbilty");
+                                    _ = new LateTask(() => pc.RpcResetAbilityCooldown(Sync: true), 0.5f, "GhostRoleResetAbilty");
                                 }
                             }, 1.4f, "Fix sabotage");
                     }
@@ -105,8 +105,8 @@ namespace TownOfHost.Roles.Ghost
         {
             var rnd = IRandom.Instance;
             var candidates = new List<PlayerControl>();
-            var AP = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGhostRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
-            var APc = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGhostRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.kottinimofuyo))));
+            var AP = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGhostRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.SubRoleType))));
+            var APc = new List<PlayerControl>(PlayerCatch.AllPlayerControls.Where(x => !x.IsGhostRole() && !x.IsAlive() && (x.Is(data.RoleType) || x.Is(data.SubRoleType))));
 
             if (!GhostAssingCount.ContainsKey(data.Role))//データ内なら0
             {
@@ -119,7 +119,7 @@ namespace TownOfHost.Roles.Ghost
                 var pc = AP[rnd.Next(AP.Count)];
 
                 //ラバー or 天邪鬼の場合、勝利条件がくっっっっっそややこしなるから付与しない
-                if (pc.IsRiaju() || pc.Is(CustomRoles.Amanojaku))
+                if (pc.IsLovers() || pc.Is(CustomRoles.Amanojaku))
                 {
                     AP.Remove(pc);
                     continue;

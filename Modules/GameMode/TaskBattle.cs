@@ -57,7 +57,7 @@ class TaskBattle
                             pc.SyncSettings();
                         }
                         UtilsNotifyRoles.NotifyRoles();
-                        UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), Utils.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
+                        UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), UtilsName.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
                         return false;
                     }
                 }
@@ -89,7 +89,7 @@ class TaskBattle
         }
 
         UtilsNotifyRoles.NotifyRoles();
-        UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), Utils.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
+        UtilsGameLog.AddGameLog("TaskBattle", string.Format(Translator.GetString("TB"), UtilsName.GetPlayerColor(pc, true), taskState.CompletedTasksCount + "/" + taskState.AllTasksCount));
         return true;
     }
 

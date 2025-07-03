@@ -1,4 +1,4 @@
-#if DEBUG //イビルサテライトあるのでデバッグのみで
+/*#if DEBUG //イビルサテライトあるのでデバッグのみで
 using UnityEngine;
 using AmongUs.GameOptions;
 using System;
@@ -37,7 +37,7 @@ public sealed class Satellite : RoleBase
     {
         data = new();
         count = (int)OptionMaximum.GetFloat();
-        mcount = 0;
+        MeetingUsedcount = 0;
         taskCount = OptiontaskCount.GetFloat();
         mMaxCount = Option1MeetingMaximum.GetFloat();
         comms = Optioncomms.GetBool();
@@ -51,7 +51,7 @@ public sealed class Satellite : RoleBase
     private static OptionItem OptionVent;
 
     int count;
-    float mcount;
+    float MeetingUsedcount;
 
     static float taskCount;
     static float mMaxCount;
@@ -63,7 +63,6 @@ public sealed class Satellite : RoleBase
     enum Option
     {
         cantaskcount,
-        meetingmc,
         SatelliteCount,
         SatelliteComms,
         SatelliteVent
@@ -71,7 +70,7 @@ public sealed class Satellite : RoleBase
 
     public override void Add()
     {
-        AddS(Player);
+        AddSelfVotes(Player);
         foreach (var pc in PlayerCatch.AllPlayerControls) data.TryAdd(pc.PlayerId, new LocationData(pc.PlayerId));
     }
 
@@ -80,7 +79,7 @@ public sealed class Satellite : RoleBase
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.SatelliteCount, new(1f, 99f, 1f), 2f, false)
             .SetValueFormat(OptionFormat.Times);
         OptiontaskCount = FloatOptionItem.Create(RoleInfo, 11, Option.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 12, Option.meetingmc, new(0f, 99f, 1f), 1f, false)
+        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
         Optioncomms = BooleanOptionItem.Create(RoleInfo, 13, Option.SatelliteComms, false, false);
         OptionVent = BooleanOptionItem.Create(RoleInfo, 14, Option.SatelliteVent, false, false);
@@ -144,7 +143,7 @@ public sealed class Satellite : RoleBase
 
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
     {
-        if (Is(voter) && CanUseAbility && mcount > 0)
+        if (Is(voter) && CanUseAbility && MeetingUsedcount > 0)
         {
             if (CheckSelfVoteMode(Player, votedForId, out var status))
             {
@@ -155,7 +154,7 @@ public sealed class Satellite : RoleBase
                 if (status is VoteStatus.Vote)
                 {
                     count--;
-                    mcount--;
+                    MeetingUsedcountgUsedcount--;
                     StringBuilder sb = new();
                     var visitedLocations = data[votedForId].visitedLocations.OrderBy(x => Guid.NewGuid());
                     foreach (var location in visitedLocations)
@@ -189,7 +188,7 @@ public sealed class Satellite : RoleBase
     public override void OnStartMeeting()
     {
         if (!Player.IsAlive()) return;
-        mcount = Option1MeetingMaximum.GetFloat() == 0 ? count : Math.Min(mMaxCount, count);
+        MeetingUsedcountgUsedcount = Option1MeetingMaximum.GetFloat() == 0 ? count : Math.Min(mMaxCount, count);
         var locationData = data[Player.PlayerId];
         var lastLocation = locationData.LastLocation;
         if (lastLocation == SystemTypes.Hallway || lastLocation == null)
@@ -205,7 +204,7 @@ public sealed class Satellite : RoleBase
         foreach (var lo in data.Values)
             Logger.Warn($"{lo.LastLocation}", "sate");
         var lastCount = data.Where(x => x.Value.LastLocation == lastLocation && !(vent && PlayerCatch.GetPlayerById(x.Key)?.inVent == true)).Count();
-        _ = new LateTask(() => Utils.SendMessage($"あなたの最終位置には{lastCount}人いました\n\nこの会議では能力を{mcount}回使用することが可能", Player.PlayerId), 0.25f);
+        _ = new LateTask(() => Utils.SendMessage($"あなたの最終位置には{lastCount}人いました\n\nこの会議では能力を{MeetingUsedcount}回使用することが可能", Player.PlayerId), 0.25f);
     }
 }
-#endif
+#endif*/

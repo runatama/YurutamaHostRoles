@@ -8,7 +8,7 @@ namespace TownOfHost
     public class RoleAddAddons
     {
         public static Dictionary<CustomRoles, RoleAddAddons> AllData = new();
-        public static Dictionary<CustomRoles, CustomRoles> chRoles = new(); //1人までしか対応していない、
+        public static Dictionary<CustomRoles, CustomRoles> RoleNames = new(); //1人までしか対応していない、
         public CustomRoles Role { get; private set; }
         public int IdStart { get; private set; }
         public bool IsImpostor;
@@ -17,19 +17,19 @@ namespace TownOfHost
         public OptionItem GiveGuesser;
         public OptionItem CanGuessTime; public OptionItem OwnCanGuessTime;
         public OptionItem ICanGuessVanilla; public OptionItem ICanGuessNakama; public OptionItem ICanGuessTaskDoneSnitch;
-        public OptionItem ICanWhiteCrew; public OptionItem AddTama;
+        public OptionItem ICanWhiteCrew; public OptionItem AddShotLimit;
         //マネジメント
         public OptionItem GiveManagement;
-        public OptionItem comms; public OptionItem PercentGage; public OptionItem Meeting;
-        public OptionItem PonkotuPercernt;
+        public OptionItem ManagementCanSeeComms; public OptionItem PercentGage; public OptionItem ManagementCanSeeMeeting;
+        public OptionItem RoughPercentage;
         //ウォッチング
         public OptionItem GiveWatching;
         //シーイング
-        public OptionItem Giveseeing;
-        public OptionItem SCanSeeComms;
+        public OptionItem GiveSeeing;
+        public OptionItem SeeingCanSeeComms;
         //オートプシー
         public OptionItem GiveAutopsy;
-        public OptionItem ACanSeeComms;
+        public OptionItem AutopsyCanSeeComms;
         //タイブレーカー
         public OptionItem GiveTiebreaker;
         //プラスポート
@@ -37,7 +37,8 @@ namespace TownOfHost
         public OptionItem AdditionalVote;
         //リベンジャー
         public OptionItem GiveRevenger;
-        public OptionItem Imp; public OptionItem Crew; public OptionItem Mad; public OptionItem Neu;
+        public OptionItem RevengeToImpostor; public OptionItem RevengeToCrewmate;
+        public OptionItem RevengeToMadmate; public OptionItem RevengeToNeutral;
         //オープナー
         public OptionItem GiveOpener;
         //アンチテレポーター
@@ -52,9 +53,8 @@ namespace TownOfHost
         public OptionItem GiveElector;
         //ノンレポート
         public OptionItem GiveNonReport;
-        public OptionItem OptionConvener; public Convener mode = Convener.nullpo;
-        public enum Convener { NotButton, NotReport, ConvenerAll, nullpo }
-        public enum cop { NotButton, NotReport, ConvenerAll }
+        public OptionItem OptionNonReportMode; public NonReportMode mode = NonReportMode.nullpo;
+        public enum NonReportMode { NotButton, NotReport, NonReportModeAll, nullpo }
         //トランスパレント
         public OptionItem GiveTransparent;
         //ノットヴォウター
@@ -72,7 +72,7 @@ namespace TownOfHost
         public OptionItem GiveMoon;
         //ライティング
         public OptionItem GiveLighting;
-        public RoleAddAddons(int idStart, TabGroup tab, CustomRoles role, CustomRoles chrole = CustomRoles.NotAssigned, bool NeutralKiller = false, bool MadMate = false, bool DefaaultOn = false)
+        public RoleAddAddons(int idStart, TabGroup tab, CustomRoles role, CustomRoles RoleName = CustomRoles.NotAssigned, bool NeutralKiller = false, bool MadMate = false, bool DefaaultOn = false)
         {
             this.IsImpostor = role.IsImpostor();
             this.IdStart = idStart;
@@ -82,7 +82,7 @@ namespace TownOfHost
             GiveGuesser = BooleanOptionItem.Create(idStart++, "GiveGuesser", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             CanGuessTime = FloatOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser).SetParentRole(role)
                 .SetValueFormat(OptionFormat.Players);
-            AddTama = BooleanOptionItem.Create(idStart++, "Addtama", false, tab, false).SetParent(GiveGuesser).SetParentRole(role);
+            AddShotLimit = BooleanOptionItem.Create(idStart++, "AddShotLimit", false, tab, false).SetParent(GiveGuesser).SetParentRole(role);
             OwnCanGuessTime = FloatOptionItem.Create(idStart++, "OwnCanGuessTime", new(1, 15, 1), 1, tab, false).SetParent(GiveGuesser).SetParentRole(role)
                     .SetValueFormat(OptionFormat.Players);
             ICanGuessVanilla = BooleanOptionItem.Create(idStart++, "CanGuessVanilla", true, tab, false).SetParent(GiveGuesser).SetParentRole(role);
@@ -94,23 +94,23 @@ namespace TownOfHost
             AdditionalVote = IntegerOptionItem.Create(idStart++, "MayorAdditionalVote", new(1, 99, 1), 1, tab, false).SetParentRole(role).SetValueFormat(OptionFormat.Votes).SetParent(GivePlusVote);
             GiveTiebreaker = BooleanOptionItem.Create(idStart++, "GiveTiebreaker", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             GiveAutopsy = BooleanOptionItem.Create(idStart++, "GiveAutopsy", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
-            ACanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(GiveAutopsy).SetParentRole(role);
+            AutopsyCanSeeComms = BooleanOptionItem.Create(idStart++, "CanUseActiveComms", true, tab, false).SetParent(GiveAutopsy).SetParentRole(role);
             GiveRevenger = BooleanOptionItem.Create(idStart++, "GiveRevenger", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
-            Imp = BooleanOptionItem.Create(idStart++, "NekoKabochaImpostorsGetRevenged", true, tab, false).SetParentRole(role).SetParent(GiveRevenger);
-            Crew = BooleanOptionItem.Create(idStart++, "NekomataCanCrew", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
-            Mad = BooleanOptionItem.Create(idStart++, "NekoKabochaMadmatesGetRevenged", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
-            Neu = BooleanOptionItem.Create(idStart++, "NekomataCanNeu", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
+            RevengeToImpostor = BooleanOptionItem.Create(idStart++, "NekoKabochaImpostorsGetRevenged", true, tab, false).SetParentRole(role).SetParent(GiveRevenger);
+            RevengeToCrewmate = BooleanOptionItem.Create(idStart++, "RevengeToCrewmate", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
+            RevengeToMadmate = BooleanOptionItem.Create(idStart++, "NekoKabochaMadmatesGetRevenged", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
+            RevengeToNeutral = BooleanOptionItem.Create(idStart++, "RevengeToNeutral", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
             GiveSpeeding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding).SetParentRole(role);
             GiveGuarding = BooleanOptionItem.Create(idStart++, "GiveGuarding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             Guard = FloatOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding).SetParentRole(role);
             GiveManagement = BooleanOptionItem.Create(idStart++, "GiveManagement", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             PercentGage = BooleanOptionItem.Create(idStart++, "PercentGage", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
-            PonkotuPercernt = BooleanOptionItem.Create(idStart++, "PonkotuPercernt", false, tab, false).SetParent(PercentGage).SetParentRole(role);
-            comms = BooleanOptionItem.Create(idStart++, "CanseeComms", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
-            Meeting = BooleanOptionItem.Create(idStart++, "CanseeMeeting", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
-            Giveseeing = BooleanOptionItem.Create(idStart++, "Giveseeing", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
-            SCanSeeComms = BooleanOptionItem.Create(idStart++, "CanseeComms", true, tab, false).SetParent(Giveseeing).SetParentRole(role);
+            RoughPercentage = BooleanOptionItem.Create(idStart++, "RoughPercentage", false, tab, false).SetParent(PercentGage).SetParentRole(role);
+            ManagementCanSeeComms = BooleanOptionItem.Create(idStart++, "CanUseActiveComms", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
+            ManagementCanSeeMeeting = BooleanOptionItem.Create(idStart++, "CanseeMeeting", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
+            GiveSeeing = BooleanOptionItem.Create(idStart++, "GiveSeeing", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
+            SeeingCanSeeComms = BooleanOptionItem.Create(idStart++, "CanUseActiveComms", true, tab, false).SetParent(GiveSeeing).SetParentRole(role);
             GiveOpener = BooleanOptionItem.Create(idStart++, "GiveOpener", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             //GiveAntiTeleporter = BooleanOptionItem.Create(idStart++, "GiveAntiTeleporter", false, tab, false).SetParent(GiveAddons);
             if (!IsImpostor)
@@ -123,14 +123,14 @@ namespace TownOfHost
             GiveElector = BooleanOptionItem.Create(idStart++, "GiveElector", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
             GiveInfoPoor = BooleanOptionItem.Create(idStart++, "GiveInfoPoor", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
             GiveNonReport = BooleanOptionItem.Create(idStart++, "GiveNonReport", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
-            OptionConvener = StringOptionItem.Create(idStart++, "ConverMode", EnumHelper.GetAllNames<cop>(), 0, tab, false).SetParentRole(role).SetParent(GiveNonReport);
+            OptionNonReportMode = StringOptionItem.Create(idStart++, "ConverMode", EnumHelper.GetAllNames<NonReportMode>(), 0, tab, false).SetParentRole(role).SetParent(GiveNonReport);
 
             GiveTransparent = BooleanOptionItem.Create(idStart++, "GiveTransparent", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
             GiveWater = BooleanOptionItem.Create(idStart++, "GiveWater", MadMate, tab, false).SetParentRole(role).SetParent(GiveAddons);
             GiveClumsy = BooleanOptionItem.Create(idStart++, "GiveClumsy", MadMate, tab, false).SetParentRole(role).SetParent(GiveAddons);
             GiveSlacker = BooleanOptionItem.Create(idStart++, "GiveSlacker", false, tab, false).SetParentRole(role).SetParent(GiveAddons);
 
-            role = chrole == CustomRoles.NotAssigned ? role : chrole;
+            role = RoleName == CustomRoles.NotAssigned ? role : RoleName;
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("重複したCustomRolesを対象とするRoleAddAddonsが作成されました", "RoleAddAddons");
@@ -171,7 +171,7 @@ namespace TownOfHost
                         haveaddon = true;
                     break;
             }
-            if (data is not null) data.mode = haveaddon ? (Convener)data.OptionConvener.GetValue() : Convener.nullpo;
+            if (data is not null) data.mode = haveaddon ? (NonReportMode)data.OptionNonReportMode.GetValue() : NonReportMode.nullpo;
 
             if (player != null)
             {
@@ -179,22 +179,22 @@ namespace TownOfHost
                 {
                     if (haveaddon)
                     {
-                        refdata(ref data, ovdata, subrole);
+                        Overridedata(ref data, ovdata, subrole);
                         if (subrole.Contains(CustomRoles.NonReport))
                         {
-                            var oldd = (Convener)data.OptionConvener.GetValue();
-                            var newd = (Convener)ovdata.OptionConvener.GetValue();
+                            var oldd = (NonReportMode)data.OptionNonReportMode.GetValue();
+                            var newd = (NonReportMode)ovdata.OptionNonReportMode.GetValue();
                             if (oldd != newd)
                             {
                                 switch (oldd)
                                 {
-                                    case Convener.NotButton:
-                                        if (newd is Convener.ConvenerAll or Convener.NotReport)
-                                            data.mode = Convener.ConvenerAll;
+                                    case NonReportMode.NotButton:
+                                        if (newd is NonReportMode.NonReportModeAll or NonReportMode.NotReport)
+                                            data.mode = NonReportMode.NonReportModeAll;
                                         break;
-                                    case Convener.NotReport:
-                                        if (newd is Convener.ConvenerAll or Convener.NotButton)
-                                            data.mode = Convener.ConvenerAll;
+                                    case NonReportMode.NotReport:
+                                        if (newd is NonReportMode.NonReportModeAll or NonReportMode.NotButton)
+                                            data.mode = NonReportMode.NonReportModeAll;
                                         break;
                                 }
                             }
@@ -214,7 +214,7 @@ namespace TownOfHost
 
             return haveaddon;
         }
-        static void refdata(ref RoleAddAddons olddata, RoleAddAddons newdata, CustomRoles[] subrole)
+        static void Overridedata(ref RoleAddAddons olddata, RoleAddAddons newdata, CustomRoles[] subrole)
         {
             olddata.GiveAddons = olddata.GiveAddons.InfoGetBool() == false ? newdata.GiveAddons : olddata.GiveAddons;
 
@@ -247,26 +247,26 @@ namespace TownOfHost
                                 olddata.ICanGuessNakama = olddata.ICanGuessNakama.InfoGetBool() == false ? newdata.ICanGuessNakama : olddata.ICanGuessNakama;
                                 olddata.ICanGuessTaskDoneSnitch = olddata.ICanGuessTaskDoneSnitch.InfoGetBool() == false ? newdata.ICanGuessTaskDoneSnitch : olddata.ICanGuessTaskDoneSnitch;
                                 olddata.ICanWhiteCrew = olddata.ICanWhiteCrew.InfoGetBool() == false ? newdata.ICanWhiteCrew : olddata.ICanWhiteCrew;
-                                olddata.AddTama = olddata.AddTama.InfoGetBool() == false ? newdata.AddTama : olddata.AddTama;
+                                olddata.AddShotLimit = olddata.AddShotLimit.InfoGetBool() == false ? newdata.AddShotLimit : olddata.AddShotLimit;
                             }
                             break;
                         case CustomRoles.Management:
                             olddata.GiveManagement = olddata.GiveManagement.InfoGetBool() == false ? newdata.GiveManagement : olddata.GiveManagement;
                             if (newdata.GiveManagement.InfoGetBool())
                             {
-                                olddata.comms = olddata.comms.InfoGetBool() == false ? newdata.comms : olddata.comms;
+                                olddata.ManagementCanSeeComms = olddata.ManagementCanSeeComms.InfoGetBool() == false ? newdata.ManagementCanSeeComms : olddata.ManagementCanSeeComms;
                                 olddata.PercentGage = olddata.PercentGage.InfoGetBool() == false ? newdata.PercentGage : olddata.PercentGage;
-                                olddata.Meeting = olddata.Meeting.InfoGetBool() == false ? newdata.Meeting : olddata.Meeting;
-                                olddata.PonkotuPercernt = olddata.PonkotuPercernt.InfoGetBool() == false ? newdata.PonkotuPercernt : olddata.PonkotuPercernt;
+                                olddata.ManagementCanSeeMeeting = olddata.ManagementCanSeeMeeting.InfoGetBool() == false ? newdata.ManagementCanSeeMeeting : olddata.ManagementCanSeeMeeting;
+                                olddata.RoughPercentage = olddata.RoughPercentage.InfoGetBool() == false ? newdata.RoughPercentage : olddata.RoughPercentage;
                             }
                             break;
-                        case CustomRoles.seeing:
-                            olddata.Giveseeing = olddata.Giveseeing.InfoGetBool() == false ? newdata.Giveseeing : olddata.Giveseeing;
-                            if (newdata.Giveseeing.InfoGetBool()) olddata.SCanSeeComms = olddata.SCanSeeComms.InfoGetBool() == false ? newdata.SCanSeeComms : olddata.SCanSeeComms;
+                        case CustomRoles.Seeing:
+                            olddata.GiveSeeing = olddata.GiveSeeing.InfoGetBool() == false ? newdata.GiveSeeing : olddata.GiveSeeing;
+                            if (newdata.GiveSeeing.InfoGetBool()) olddata.SeeingCanSeeComms = olddata.SeeingCanSeeComms.InfoGetBool() == false ? newdata.SeeingCanSeeComms : olddata.SeeingCanSeeComms;
                             break;
                         case CustomRoles.Autopsy:
                             olddata.GiveAutopsy = olddata.GiveAutopsy.InfoGetBool() == false ? newdata.GiveAutopsy : olddata.GiveAutopsy;
-                            if (newdata.GiveAutopsy.InfoGetBool()) olddata.ACanSeeComms = olddata.ACanSeeComms.InfoGetBool() == false ? newdata.ACanSeeComms : olddata.ACanSeeComms;
+                            if (newdata.GiveAutopsy.InfoGetBool()) olddata.AutopsyCanSeeComms = olddata.AutopsyCanSeeComms.InfoGetBool() == false ? newdata.AutopsyCanSeeComms : olddata.AutopsyCanSeeComms;
                             break;
                         case CustomRoles.PlusVote:
                             olddata.GivePlusVote = olddata.GivePlusVote.InfoGetBool() == false ? newdata.GivePlusVote : olddata.GivePlusVote;
@@ -276,10 +276,10 @@ namespace TownOfHost
                             olddata.GiveRevenger = olddata.GiveRevenger.InfoGetBool() == false ? newdata.GiveRevenger : olddata.GiveRevenger;
                             if (newdata.GiveRevenger.InfoGetBool())
                             {
-                                olddata.Imp = olddata.Imp.InfoGetBool() == false ? newdata.Imp : olddata.Imp;
-                                olddata.Crew = olddata.Crew.InfoGetBool() == false ? newdata.Crew : olddata.Crew;
-                                olddata.Neu = olddata.Neu.InfoGetBool() == false ? newdata.Neu : olddata.Neu;
-                                olddata.Mad = olddata.Mad.InfoGetBool() == false ? newdata.Mad : olddata.Mad;
+                                olddata.RevengeToImpostor = olddata.RevengeToImpostor.InfoGetBool() == false ? newdata.RevengeToImpostor : olddata.RevengeToImpostor;
+                                olddata.RevengeToCrewmate = olddata.RevengeToCrewmate.InfoGetBool() == false ? newdata.RevengeToCrewmate : olddata.RevengeToCrewmate;
+                                olddata.RevengeToNeutral = olddata.RevengeToNeutral.InfoGetBool() == false ? newdata.RevengeToNeutral : olddata.RevengeToNeutral;
+                                olddata.RevengeToMadmate = olddata.RevengeToMadmate.InfoGetBool() == false ? newdata.RevengeToMadmate : olddata.RevengeToMadmate;
                             }
                             break;
                         case CustomRoles.Speeding:
@@ -294,14 +294,13 @@ namespace TownOfHost
                             olddata.GiveNonReport = olddata.GiveNonReport.InfoGetBool() == false ? newdata.GiveNonReport : olddata.GiveNonReport;
                             if (!olddata.GiveNonReport.InfoGetBool())
                             {
-                                olddata.OptionConvener = newdata.OptionConvener;
+                                olddata.OptionNonReportMode = newdata.OptionNonReportMode;
                                 break;
                             }
                             break;
-                        case CustomRoles.watching: olddata.GiveWatching = olddata.GiveWatching.InfoGetBool() == false ? newdata.GiveWatching : olddata.GiveWatching; break;
+                        case CustomRoles.Watching: olddata.GiveWatching = olddata.GiveWatching.InfoGetBool() == false ? newdata.GiveWatching : olddata.GiveWatching; break;
                         case CustomRoles.Tiebreaker: olddata.GiveTiebreaker = olddata.GiveTiebreaker.InfoGetBool() == false ? newdata.GiveTiebreaker : olddata.GiveTiebreaker; break;
                         case CustomRoles.Opener: olddata.GiveOpener = olddata.GiveOpener.InfoGetBool() == false ? newdata.GiveOpener : olddata.GiveOpener; break;
-                        //case CustomRoles.AntiTeleporter: olddata.GiveOpener = olddata.GiveAntiTeleporter.InfoGetBool() == false ? newdata.GiveAntiTeleporter : olddata.GiveAntiTeleporter; break;
                         case CustomRoles.Elector: olddata.GiveElector = olddata.GiveElector.InfoGetBool() == false ? newdata.GiveElector : olddata.GiveElector; break;
                         case CustomRoles.Transparent: olddata.GiveTransparent = olddata.GiveTransparent.InfoGetBool() == false ? newdata.GiveTransparent : olddata.GiveTransparent; break;
                         case CustomRoles.Notvoter: olddata.GiveNotvoter = olddata.GiveNotvoter.InfoGetBool() == false ? newdata.GiveNotvoter : olddata.GiveNotvoter; break;
@@ -316,13 +315,12 @@ namespace TownOfHost
                 olddata.GiveGuesser = olddata.GiveGuesser.InfoGetBool() == false ? newdata.GiveGuesser : olddata.GiveGuesser;
                 olddata.GiveManagement = olddata.GiveManagement.InfoGetBool() == false ? newdata.GiveManagement : olddata.GiveManagement;
                 olddata.GiveWatching = olddata.GiveWatching.InfoGetBool() == false ? newdata.GiveWatching : olddata.GiveWatching;
-                olddata.Giveseeing = olddata.Giveseeing.InfoGetBool() == false ? newdata.Giveseeing : olddata.Giveseeing;
+                olddata.GiveSeeing = olddata.GiveSeeing.InfoGetBool() == false ? newdata.GiveSeeing : olddata.GiveSeeing;
                 olddata.GiveAutopsy = olddata.GiveAutopsy.InfoGetBool() == false ? newdata.GiveAutopsy : olddata.GiveAutopsy;
                 olddata.GiveTiebreaker = olddata.GiveTiebreaker.InfoGetBool() == false ? newdata.GiveTiebreaker : olddata.GiveTiebreaker;
                 olddata.GivePlusVote = olddata.GivePlusVote.InfoGetBool() == false ? newdata.GivePlusVote : olddata.GivePlusVote;
                 olddata.GiveRevenger = olddata.GiveRevenger.InfoGetBool() == false ? newdata.GiveRevenger : olddata.GiveRevenger;
                 olddata.GiveOpener = olddata.GiveOpener.InfoGetBool() == false ? newdata.GiveOpener : olddata.GiveOpener;
-                //olddata.GiveAntiTeleporter = olddata.GiveAntiTeleporter.InfoGetBool() == false ? newdata.GiveAntiTeleporter : olddata.GiveAntiTeleporter;
                 olddata.GiveSpeeding = olddata.GiveSpeeding.InfoGetBool() == false ? newdata.GiveSpeeding : olddata.GiveSpeeding;
                 olddata.GiveGuarding = olddata.GiveGuarding.InfoGetBool() == false ? newdata.GiveGuarding : olddata.GiveGuarding;
                 olddata.GiveElector = olddata.GiveElector.InfoGetBool() == false ? newdata.GiveElector : olddata.GiveElector;

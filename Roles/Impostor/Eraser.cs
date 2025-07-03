@@ -38,9 +38,9 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
         DeltimingAfterMeeting = OptionDeltimingAfterMeeting.GetBool();
 
         UseCount = 0;
-        ErasePlayers.Clear();
-        Eraseds.Clear();
-        MEraseds.Clear();
+        EraseTargets.Clear();
+        EraseMarkTargets.Clear();
+        TryedEraseds.Clear();
     }
     static OptionItem OptionKillCoolDown; static float KillCooldown;
     static OptionItem OptionAbilityCoolDown; static float AbilityCoolDown;
@@ -53,9 +53,9 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
     static OptionItem OptionDeltimingAfterMeeting; static bool DeltimingAfterMeeting;
 
     int UseCount;//使用回数
-    List<byte> ErasePlayers = new();//消す用。
-    List<byte> Eraseds = new();//消す予定の人のマーク
-    List<byte> MEraseds = new();//消したと思ってる人のマーク
+    List<byte> EraseTargets = new();//消す用。
+    List<byte> EraseMarkTargets = new();//消す予定の人のマーク
+    List<byte> TryedEraseds = new();//消したと思ってる人のマーク
 
     static List<CustomRoles> IsSheriffRole =
     [CustomRoles.Sheriff, CustomRoles.SwitchSheriff, CustomRoles.MeetingSheriff, CustomRoles.WolfBoy];
@@ -84,25 +84,25 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
     }
     public float CalculateKillCooldown() => KillCooldown;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = AbilityCoolDown;
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = true;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = false;
 
         var target = Player.GetKillTarget(true);
         if (!target.IsAlive()) return;
-        if (Eraseds.Contains(target.PlayerId)) return;
+        if (EraseMarkTargets.Contains(target.PlayerId)) return;
         if (MaxUseCount <= UseCount) return;
 
-        resetkillcooldown = true;
-        fall = false;
+        AdjustKillCoolDown = false;
+        ResetCoolDown = true;
         UseCount++;
 
-        Eraseds.Add(target.PlayerId);//マークつける用
-        ErasePlayers.Add(target.PlayerId);//消す予定の人
+        EraseMarkTargets.Add(target.PlayerId);//マークつける用
+        EraseTargets.Add(target.PlayerId);//消す予定の人
 
         _ = new LateTask(() =>
-            Player.SetKillCooldown(target: target, kousin: true), Main.LagTime, "EraserNoyatu", true);
+            Player.SetKillCooldown(target: target, AfterReset: true), Main.LagTime, "EraserNoyatu", true);
 
         if (!DeltimingAfterMeeting) ErasePlayer();
 
@@ -112,7 +112,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
     void ErasePlayer()
     {
         if (!Player.IsAlive()) return;
-        foreach (var player in PlayerCatch.AllPlayerControls.Where(x => ErasePlayers.Contains(x.PlayerId)))
+        foreach (var player in PlayerCatch.AllPlayerControls.Where(x => EraseTargets.Contains(x.PlayerId)))
         {
             if (player == null) continue;
             Logger.Info($"{Player?.Data?.GetLogPlayerName()} => {player?.Data?.GetLogPlayerName()}を消そうとしてる！", "Eraser");
@@ -122,7 +122,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
             if (role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode) continue;
 
             //消したと思ってるリスト
-            MEraseds.Add(player.PlayerId);
+            TryedEraseds.Add(player.PlayerId);
             //クルーでクルー消せないなら
             if (role.IsCrewmate() && !CanDelCrew) continue;
             //シェリフ系役職で消せないなら
@@ -132,12 +132,12 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
             //ニュートラルでニュートラル消せないなら
             if (role.IsNeutral() && !CanDelNeu) continue;
 
-            UtilsGameLog.AddGameLog("Eraser", string.Format(GetString("EraserMeg"), Utils.GetPlayerColor(Player), Utils.GetPlayerColor(player)));
+            UtilsGameLog.AddGameLog("Eraser", string.Format(GetString("EraserMeg"), UtilsName.GetPlayerColor(Player), UtilsName.GetPlayerColor(player)));
             Logger.Info($"{Player?.Data?.GetLogPlayerName()} => {player?.Data?.GetLogPlayerName()}をのロールをクルーに", "Eraser");
 
             player.RpcSetCustomRole(SuddenDeathMode.NowSuddenDeathMode ? CustomRoles.Impostor : CustomRoles.Crewmate, true, null);
         }
-        ErasePlayers.Clear();
+        EraseTargets.Clear();
     }
     public override void AfterMeetingTasks()
     {
@@ -149,13 +149,13 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
         seen ??= seer;
 
         //消された人
-        if (MEraseds.Contains(seen.PlayerId)) return "<color=#ff1919>□</color>";
+        if (TryedEraseds.Contains(seen.PlayerId)) return "<color=#ff1919>□</color>";
 
         //死んでたら消す予定の人の処理をしない
         if (!Player.IsAlive()) return "";
 
         //消す予定の人
-        if (Eraseds.Contains(seen.PlayerId)) return "<color=#ff1919>■</color>";
+        if (EraseMarkTargets.Contains(seen.PlayerId)) return "<color=#ff1919>■</color>";
         return "";
     }
     public override string GetAbilityButtonText() => GetString("EraserAbility");

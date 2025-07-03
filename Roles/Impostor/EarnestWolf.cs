@@ -86,8 +86,8 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
-        var c = OptionOverKillCanCount.GetInt() - count;
-        return c <= 0 ? Utils.ColorString(Palette.DisabledGrey, $"({c})") : Utils.ColorString(Palette.ImpostorRed, $"({c})");
+        var limit = OptionOverKillCanCount.GetInt() - count;
+        return Utils.ColorString(limit > 0 ? Palette.ImpostorRed : Palette.DisabledGrey, $"({limit})");
     }
     public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
     {
@@ -95,10 +95,10 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         if (seer == seen && !isForMeeting) return OverKillMode ? "<color=#ff1919>◎</color>" : "";
         return "";
     }
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
     {
-        resetkillcooldown = false;
-        fall = true;
+        AdjustKillCoolDown = true;
+        ResetCoolDown = false;
         if (!Player.IsAlive()) return;
         if (count >= OptionOverKillCanCount.GetFloat())
         {

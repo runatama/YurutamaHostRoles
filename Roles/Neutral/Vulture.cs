@@ -106,7 +106,7 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
     {
         if (reporter.PlayerId == Player.PlayerId && target != null && !staticEatedPlayers.Contains(target?.PlayerId ?? 250))
         {
-            UtilsGameLog.AddGameLog("Vultrue", $"{Utils.GetPlayerColor(Player)}: {Utils.GetPlayerColor(target)}をつまみぐい！");
+            UtilsGameLog.AddGameLog("Vultrue", $"{UtilsName.GetPlayerColor(Player)}: {UtilsName.GetPlayerColor(target)}をつまみぐい！");
             Logger.Info($"{EatCount + 1}個目のお食事", "Vulture");
             reason = DontReportreson.Eat;
             EatCount++;

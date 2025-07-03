@@ -27,7 +27,7 @@ namespace TownOfHost.Roles.Impostor
         )
         {
         }
-        public override bool CantVentIdo(PlayerPhysics physics, int ventId) => false;
+        public override bool CanVentMoving(PlayerPhysics physics, int ventId) => false;
         public override bool OnEnterVent(PlayerPhysics physics, int ventId)
         {
             _ = new LateTask(() =>

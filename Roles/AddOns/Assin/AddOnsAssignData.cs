@@ -6,6 +6,7 @@ using HarmonyLib;
 using TownOfHost.Roles.Core;
 using static TownOfHost.Options;
 using static TownOfHost.Translator;
+using TownOfHost.Modules;
 
 namespace TownOfHost.Roles.AddOns.Common
 {
@@ -122,7 +123,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (!role.IsPresent()) continue;
                 var assignTargetList = AssignTargetList(data);
 
-                if (SuddenDeathMode.GetBool() && SuddenSharingRoles.GetBool() && assignTargetList.Count != 0)
+                if (SuddenDeathMode.SuddenDeathModeActive.GetBool() && SuddenDeathMode.SuddenSharingRoles.GetBool() && assignTargetList.Count != 0)
                 {
                     assignTargetList.Clear();
                     PlayerCatch.AllPlayerControls.Do(p => assignTargetList.Add(p));

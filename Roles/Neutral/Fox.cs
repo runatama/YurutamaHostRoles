@@ -121,7 +121,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         {
             var (killer, target) = info.AttemptTuple;
 
-            killer.SetKillCooldown(target: target, kyousei: true);
+            killer.SetKillCooldown(target: target, force: true);
             Guard--;
             info.CanKill = false;
             if (canseeguardcount) UtilsNotifyRoles.NotifyRoles(SpecifySeer: target);
@@ -129,7 +129,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         }
         return true;
     }
-    public override CustomRoles GetFtResults(PlayerControl player)
+    public override CustomRoles TellResults(PlayerControl player)
     {
         //ぽんこつ占い師のぽんこつ占い師で死ぬのはかわいそう('ω')
         if (TellDie && player.IsAlive() && player != null)
@@ -141,8 +141,8 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             if ((PlayerCatch.AllPlayerControls.Any(pc => pc.Is(CustomRoles.Guesser)) || CustomRolesHelper.CheckGuesser()) && !Options.ExHideChatCommand.GetBool())
                 ChatManager.SendPreviousMessagesToAll();
 
-            UtilsGameLog.AddGameLog($"MeetingSheriff", $"{Utils.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
-            UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{Utils.GetPlayerColor(player, true)}(<b>{UtilsRoleText.GetTrueRoleName(player.PlayerId, false)}</b>)");
+            UtilsGameLog.AddGameLog($"MeetingSheriff", $"{UtilsName.GetPlayerColor(Player, true)}(<b>{UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)}</b>) [{Utils.GetVitalText(Player.PlayerId, true)}]");
+            UtilsGameLog.AddGameLogsub($"\n\t┗ {GetString("Skillplayer")}{UtilsName.GetPlayerColor(player, true)}(<b>{UtilsRoleText.GetTrueRoleName(player.PlayerId, false)}</b>)");
 
             var meetingHud = MeetingHud.Instance;
             var hudManager = DestroyableSingleton<HudManager>.Instance.KillOverlay;
@@ -157,10 +157,10 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
                 MeetingHudPatch.StartPatch.Serialize = false;
             }
 
-            Utils.SendMessage(Utils.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
+            Utils.SendMessage(UtilsName.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
             foreach (var go in PlayerCatch.AllPlayerControls.Where(pc => pc != null && !pc.IsAlive()))
             {
-                Utils.SendMessage(string.Format(GetString("FoxTelldie"), Utils.GetPlayerColor(Player, true)), go.PlayerId, GetString("RMSKillTitle"));
+                Utils.SendMessage(string.Format(GetString("FoxTelldie"), UtilsName.GetPlayerColor(Player, true)), go.PlayerId, GetString("RMSKillTitle"));
             }
             MeetingVoteManager.ResetVoteManager(Player.PlayerId);
         }
@@ -205,7 +205,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.3f, "FoxChengeRoom", null);
         }
     }
-    public override string MeetingMeg()
+    public override string MeetingAddMessage()
     {
         if (!Player.IsAlive() || FoxRoom == null) return "";
 

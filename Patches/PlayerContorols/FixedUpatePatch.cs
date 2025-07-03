@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Hazel;
 using HarmonyLib;
 using UnityEngine;
 using AmongUs.Data;
@@ -68,12 +67,11 @@ namespace TownOfHost
                     if (!player.IsModClient())
                     {
                         if (player?.transform?.position is null) return;
-                        Vector2 c = new(0f, 0f);
                         Vector2 pj = player.transform.position;
-                        if (pj.y < -8) player.RpcSnapToForced(c);
-                        if (pj.y > 8) player.RpcSnapToForced(c);
-                        if (pj.x < -8) player.RpcSnapToForced(c);
-                        if (pj.x > 8) player.RpcSnapToForced(c);
+                        if (pj.y < -8) player.RpcSnapToForced(Vector2.zero);
+                        if (pj.y > 8) player.RpcSnapToForced(Vector2.zero);
+                        if (pj.x < -8) player.RpcSnapToForced(Vector2.zero);
+                        if (pj.x > 8) player.RpcSnapToForced(Vector2.zero);
                     }
                 }
                 if (__instance && GameStates.IsInTask)
@@ -90,14 +88,13 @@ namespace TownOfHost
                     {
                         try
                         {
-                            var time = data.time += Time.fixedDeltaTime;
-
+                            var time = data.time + Time.fixedDeltaTime;
                             if (4f <= time)
                             {
                                 ReportDeadBodyPatch.DontReport.Remove(__instance.PlayerId);
                                 _ = new LateTask(() =>
                                 {
-                                    if (!GameStates.Meeting) UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: __instance);
+                                    if (!GameStates.CalledMeeting) UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: __instance);
                                 }, 0.2f, "", true);
                             }
                             else
@@ -105,14 +102,12 @@ namespace TownOfHost
                         }
                         catch { Logger.Error($"{__instance.PlayerId}でエラー！", "DontReport"); }
                     }
-                    //梯子ぼーんの奴
-                    //Q.ジップラインどうするの？
-                    //A.しらん。
-                    if (isAlive && !((roleclass as Jumper)?.ability == true))
+                    //梯子バグ対応策。
+                    if (isAlive && !((roleclass as Jumper)?.Jumping == true))
                     {
                         var nowpos = __instance.GetTruePosition();
                         if (!Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
-                            tppos = new Vector2(0, 0);
+                            tppos = Vector2.zero;
 
                         if (!__instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                         {
@@ -160,7 +155,7 @@ namespace TownOfHost
                 SuddenDeathMode.UpdateTeam();
                 if (GameStates.InGame)
                 {
-                    VentManager.CheckVentLimit(player);
+                    VentManager.CheckVentLimit();
                     DisableDevice.FixedUpdate();
                     //情報機器制限
                     var nowuseing = true;
@@ -184,9 +179,9 @@ namespace TownOfHost
                             DisableDevice.UseCount = 0;
                         }
                     }
-                    if (Main.NowSabotage)
+                    if (Main.IsActiveSabotage)
                     {
-                        Main.sabotagetime += Time.fixedDeltaTime;
+                        Main.SabotageActivetimer += Time.fixedDeltaTime;
                         if (!Utils.IsActive(Main.SabotageType))
                         {
                             var sb = Translator.GetString($"sb.{Main.SabotageType}");
@@ -194,8 +189,8 @@ namespace TownOfHost
                             if (Main.SabotageType == SystemTypes.MushroomMixupSabotage)
                                 UtilsGameLog.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
                             else UtilsGameLog.AddGameLog($"{Main.SabotageType}", string.Format(Translator.GetString("Log.FixSab"), sb));
-                            Main.NowSabotage = false;
-                            Main.sabotagetime = 0;
+                            Main.IsActiveSabotage = false;
+                            Main.SabotageActivetimer = 0;
 
                             foreach (var role in CustomRoleManager.AllActiveRoles.Values)
                             {
@@ -217,16 +212,16 @@ namespace TownOfHost
                     //サドンデスモード
                     if (SuddenDeathMode.NowSuddenDeathMode)
                     {
-                        if (Options.SuddenDeathTimeLimit.GetFloat() > 0) SuddenDeathMode.SuddenDeathReactor();
-                        if (Options.SuddenItijohoSend.GetBool()) SuddenDeathMode.ItijohoSend();
+                        if (SuddenDeathMode.SuddenDeathTimeLimit.GetFloat() > 0) SuddenDeathMode.SuddenDeathReactor();
+                        if (SuddenDeathMode.SuddenPlayerArrow.GetBool()) SuddenDeathMode.ItijohoSend();
                     }
 
                     //ネームカラー
                     if (!(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (roleinfo?.IsDesyncImpostor ?? false) && !__instance.Data.IsDead)
-                        foreach (var p in PlayerCatch.AllPlayerControls)
+                        foreach (var pc in PlayerCatch.AllPlayerControls)
                         {
-                            if (!p || (p?.Data == null)) continue;
-                            p.Data.Role.NameColor = Color.white;
+                            if (!pc || (pc?.Data == null)) continue;
+                            pc.Data.Role.NameColor = Color.white;
                         }
 
                     //カモフラ
@@ -275,17 +270,17 @@ namespace TownOfHost
 
                         if (remove.Count > 0)
                         {
-                            ExtendedPlayerControl.AllPlayerOnlySeeMePet();
+                            ExtendedRpc.AllPlayerOnlySeeMePet();
                             remove.ForEach(task => Camouflage.ventplayr.Remove(task));
                         }
                     }
                 }
 
-                var kiruta = GameStates.IsInTask && !GameStates.Intro && __instance.Is(CustomRoles.Amnesiac) && !(roleclass as Amnesiac).omoidasita;
+                var kiruta = GameStates.IsInTask && !GameStates.Intro && __instance.Is(CustomRoles.Amnesiac) && !(roleclass as Amnesiac).Realized;
                 //キルターゲットの上書き処理
                 if (GameStates.IsInTask && !GameStates.Intro && ((!(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (roleinfo?.IsDesyncImpostor ?? false)) || kiruta) && !__instance.Data.IsDead)
                 {
-                    var target = __instance.killtarget();
+                    var target = __instance.TryGetKilltarget();
                     if (!__instance.CanUseKillButton()) target = null;
                     HudManager.Instance.KillButton.SetTarget(target);
                 }
@@ -324,7 +319,7 @@ namespace TownOfHost
                     }
                     else __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
 
-                    if (Options.SuddenTeamOption.GetBool())
+                    if (SuddenDeathMode.SuddenTeamOption.GetBool())
                     {
                         var color = "#ffffff";
                         if (SuddenDeathMode.TeamRed.Contains(__instance.PlayerId)) color = ModColors.codered;
@@ -385,16 +380,16 @@ namespace TownOfHost
                     }
                     else
                     {
-                        var targetlover = target.GetRiaju();
+                        var targetlover = target.GetLoverRole();
                         var seerisonelover = seerSubrole.Contains(CustomRoles.OneLove);
                         //ハートマークを付ける(会議中MOD視点)
-                        if ((targetlover == seer.GetRiaju() && targetlover is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
-                        || (seer.Data.IsDead && target.IsRiaju() && targetlover != CustomRoles.OneLove))
+                        if ((targetlover == seer.GetLoverRole() && targetlover is not CustomRoles.OneLove and not CustomRoles.NotAssigned)
+                        || (seer.Data.IsDead && target.IsLovers() && targetlover != CustomRoles.OneLove))
                         {
                             Mark.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(targetlover), "♥"));
                         }
                         else
-                        if ((Lovers.OneLovePlayer.Ltarget == target.PlayerId && target.PlayerId != seer.PlayerId && seerisonelover)
+                        if ((Lovers.OneLovePlayer.BelovedId == target.PlayerId && target.PlayerId != seer.PlayerId && seerisonelover)
                         || (target.Is(CustomRoles.OneLove) && target.PlayerId != seer.PlayerId && seerisonelover)
                         || (seer.Data.IsDead && target.Is(CustomRoles.OneLove) && !seerisonelover))
                         {
