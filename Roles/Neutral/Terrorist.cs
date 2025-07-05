@@ -102,6 +102,9 @@ public sealed class Terrorist : RoleBase
             playerState.DeathReason = CustomDeathReason.Bombed;
             playerState.SetDead();
         }
-        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Terrorist, Player.PlayerId, true);
+        if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Terrorist, Player.PlayerId, true))
+        {
+            CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+        }
     }
 }

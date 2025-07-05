@@ -236,12 +236,12 @@ class ColorLovers
         //2人以下の勝利は～
         if (CustomWinnerHolder.WinnerTeam == (CustomWinner)LoverRole) return;
 
-        if (LoverPlayer.Count > 0 && LoverPlayer.ToArray().All(p => p.IsAlive()))
+        if (LoverPlayer.Count > 0 && (LoverPlayer.All(p => p.IsAlive()) || LoverPlayer.Any(p => CustomWinnerHolder.NeutralWinnerIds.Contains(p.PlayerId))))
         {
             if (CustomWinnerHolder.ResetAndSetAndChWinner((CustomWinner)LoverRole, byte.MaxValue))
             {
                 PlayerCatch.AllPlayerControls
-                    .Where(p => p.Is(LoverRole) && p.IsAlive())
+                    .Where(p => p.Is(LoverRole))
                     .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
@@ -256,11 +256,11 @@ class ColorLovers
         if (CustomWinnerHolder.WinnerTeam == (CustomWinner)LoverRole) return;
         if (!LoverCanAddWin.GetBool()) return;
 
-        if (LoverPlayer.Count > 0 && LoverPlayer.ToArray().All(p => p.IsAlive()))
+        if (LoverPlayer.Count > 0 && (LoverPlayer.All(p => p.IsAlive()) || LoverPlayer.Any(p => CustomWinnerHolder.NeutralWinnerIds.Contains(p.PlayerId))))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(LoverRole);
             PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(LoverRole) && p.IsAlive())
+                .Where(p => p.Is(LoverRole))
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);

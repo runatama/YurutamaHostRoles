@@ -117,7 +117,10 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
             if (OptWinEatcount <= EatCount)
             {
                 Logger.Info($"ごちそうさまでした！", "Vulture");
-                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Vulture, Player.PlayerId, true);
+                if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Vulture, Player.PlayerId, true))
+                {
+                    CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+                }
             }
 
             //食べたときにシェイプを

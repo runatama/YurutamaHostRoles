@@ -419,6 +419,8 @@ namespace TownOfHost
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
+                    CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                        .Where(pc => pc.GetCustomRole() is CustomRoles.GrimReaper).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                 }
                 else if (Jackal == 0 && Remotekiller == 0 && MilkyWay == 0 && FoxAndCrew <= Imp) //インポスター勝利
                 {
@@ -439,12 +441,16 @@ namespace TownOfHost
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Remotekiller, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Remotekiller);
+                    CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                        .Where(pc => pc.GetCustomRole() is CustomRoles.Remotekiller).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                 }
                 else if (Jackal == 0 && Imp == 0 && GrimReaper == 1 && Remotekiller == 0 && MilkyWay == 0)//死神勝利(2)
                 {
                     reason = GameOverReason.ImpostorsByKill;
                     CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                     CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
+                    CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                        .Where(pc => pc.GetCustomRole() is CustomRoles.GrimReaper).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                 }
                 else if (Imp == 0 && Jackal == 0 && Remotekiller == 0 && FoxAndCrew <= MilkyWay)
                 {
@@ -561,10 +567,14 @@ namespace TownOfHost
                         case CustomRoles.GrimReaper:
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
+                            CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                                .Where(pc => pc.GetCustomRole() is CustomRoles.GrimReaper).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                             break;
                         case CustomRoles.Egoist:
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Egoist, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
+                            CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                                .Where(pc => pc.GetCustomRole() is CustomRoles.Egoist).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                             break;
                         default:
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);
@@ -620,10 +630,14 @@ namespace TownOfHost
                         case CustomRoles.GrimReaper:
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.GrimReaper, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.GrimReaper);
+                            CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                                .Where(pc => pc.GetCustomRole() is CustomRoles.GrimReaper).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                             break;
                         case CustomRoles.Egoist:
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Egoist, byte.MaxValue);
                             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
+                            CustomWinnerHolder.NeutralWinnerIds.Add(PlayerCatch.AllPlayerControls
+                                .Where(pc => pc.GetCustomRole() is CustomRoles.Egoist).FirstOrDefault()?.PlayerId ?? byte.MaxValue);
                             break;
                         default:
                             CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Impostor, byte.MaxValue);

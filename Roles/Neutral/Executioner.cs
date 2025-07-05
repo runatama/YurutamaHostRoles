@@ -157,6 +157,7 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
 
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Executioner, Player.PlayerId))
             {
+                CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
                 CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
             }
         }

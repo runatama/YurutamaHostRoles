@@ -239,9 +239,9 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         //4人以上か3人以下でも勝利がOn　　　　　　　　　　　　　　　　　　生存していて　　　　　タスクが完了している
         if ((PlayerCatch.AllAlivePlayersCount > 3 || canwin3player) && Player.IsAlive() && checktaskwinflag)
         {
-
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Fox, Player.PlayerId))
             {
+                CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
                 reason = GameOverReason.ImpostorsByKill;
                 return true;
             }

@@ -137,7 +137,10 @@ public sealed class Monochromer : RoleBase
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Monochromer);
             return false;
         }
-        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Monochromer, pc.PlayerId, true);
+        if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Monochromer, pc.PlayerId, true))
+        {
+            CustomWinnerHolder.NeutralWinnerIds.Add(pc.PlayerId);
+        }
         return true;
     }
 

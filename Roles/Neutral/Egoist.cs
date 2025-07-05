@@ -41,6 +41,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
         CanCreateSideKick = OptionCanCreateSideKick.GetBool();
     }
 
+    static Egoist __egoist;
     static OptionItem OptionKillCooldown;
     static OptionItem OptionCanCreateSideKick;
     static OptionItem OptionNameColor;
@@ -69,6 +70,7 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
             if (OptionNameColor.GetBool()) NameColorManager.Add(impostor.PlayerId, Player.PlayerId);
             else NameColorManager.Add(impostor.PlayerId, Player.PlayerId, "#ff1919");
         }
+        __egoist = this;
         egoist = Player;
     }
     public override void OnDestroy()
@@ -90,7 +92,10 @@ public sealed class Egoist : RoleBase, ISidekickable, ILNKiller, ISchrodingerCat
     private static void Win()
     {
         if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Egoist, byte.MaxValue, true))
+        {
             CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Egoist);
+            CustomWinnerHolder.NeutralWinnerIds.Add(__egoist.Player.PlayerId);
+        }
     }
     public bool CanMakeSidekick() => CanCreateSideKick;
     public void ApplySchrodingerCatOptions(IGameOptions option)

@@ -118,7 +118,10 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
     public void Win()
     {
         if (OptionAddWin.GetBool()) return;
-        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.CountKiller, Player.PlayerId);
+        if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.CountKiller, Player.PlayerId))
+        {
+            CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+        }
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     => Utils.ColorString(RoleInfo.RoleColor, $"({KillCount}/{VictoryCount})");

@@ -140,6 +140,10 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         if (chefdata.Item1 != chefdata.Item2) return;
 
         addwincheck = CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Chef, Player.PlayerId);
+        if (addwincheck)
+        {
+            CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+        }
         DecidedWinner = true;
     }
     public bool OverrideKillButton(out string text)

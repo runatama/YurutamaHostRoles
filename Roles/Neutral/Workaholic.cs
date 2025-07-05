@@ -57,9 +57,10 @@ public sealed class Workaholic : RoleBase
     {
         if (IsTaskFinished && !(CannotWinAtDeath && !Player.IsAlive()))
         {
-            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Workaholic, Player.PlayerId, true);
-            if (!AmongUsClient.Instance.AmHost) return true;
-            GameEndChecker.StartEndGame(GameOverReason.ImpostorsByKill);
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Workaholic, Player.PlayerId, true))
+            {
+                CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+            }
         }
         return true;
     }

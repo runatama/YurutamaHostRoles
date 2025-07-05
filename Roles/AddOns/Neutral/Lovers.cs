@@ -242,7 +242,8 @@ class Lovers
             data.SoloWin(ref reason);
         }
 
-        if (!Madonna.MadonnaLoverAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is not CustomWinner.MadonnaLovers && MaMadonnaLoversPlayers.Count > 0 && MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()))
+        if (!Madonna.MadonnaLoverAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.MadonnaLovers &&
+            MaMadonnaLoversPlayers.Count > 0 && (MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()) || MaMadonnaLoversPlayers.Any(pc => CustomWinnerHolder.NeutralWinnerIds.Contains(pc.PlayerId))))
         {
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MadonnaLovers, byte.MaxValue, false))
             {
@@ -251,14 +252,16 @@ class Lovers
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                    CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                    CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
                 });
                 reason = GameOverReason.ImpostorsByKill;
             }
         }
         if (CustomRoles.OneLove.IsPresent())
-            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
-            {
+            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove
+                && ((PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
+                || CustomWinnerHolder.NeutralWinnerIds.Contains(OneLovePlayer.OneLove) || CustomWinnerHolder.NeutralWinnerIds.Contains(OneLovePlayer.BelovedId)))
+            { //両者生存 or どちらかが人外勝利してる
                 if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.OneLove, byte.MaxValue, false))
                 {
                     PlayerCatch.AllPlayerControls
@@ -272,11 +275,12 @@ class Lovers
     public static void LoversAddWin()
     {
         ColorLovers.Alldatas.Do(data => data.Value.AddWin());
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.MadonnaLovers && Madonna.MadonnaLoverAddwin.GetBool() && MaMadonnaLoversPlayers.Count > 0 && MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()))
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.MadonnaLovers && Madonna.MadonnaLoverAddwin.GetBool()
+        && MaMadonnaLoversPlayers.Count > 0 && MaMadonnaLoversPlayers.Count > 0 && (MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()) || MaMadonnaLoversPlayers.Any(pc => CustomWinnerHolder.NeutralWinnerIds.Contains(pc.PlayerId))))
         {
             CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.MadonnaLovers);
             PlayerCatch.AllPlayerControls
-                .Where(p => p.Is(CustomRoles.MadonnaLovers) && p.IsAlive())
+                .Where(p => p.Is(CustomRoles.MadonnaLovers))
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
@@ -284,11 +288,13 @@ class Lovers
                 });
         }
         if (CustomRoles.OneLove.IsPresent())
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.OneLove && OneLoveRoleAddwin.GetBool() && PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
+            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove
+                && ((PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
+                || CustomWinnerHolder.NeutralWinnerIds.Contains(OneLovePlayer.OneLove) || CustomWinnerHolder.NeutralWinnerIds.Contains(OneLovePlayer.BelovedId)))
             {
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.OneLove);
                 PlayerCatch.AllPlayerControls
-                    .Where(p => p.Is(CustomRoles.OneLove) && p.IsAlive())
+                    .Where(p => p.Is(CustomRoles.OneLove))
                 .Do(p =>
                 {
                     CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
@@ -324,7 +330,7 @@ class Lovers
             .Do(p =>
             {
                 CustomWinnerHolder.WinnerIds.Add(p.PlayerId);
-                CustomWinnerHolder.IdRemoveLovers.Remove(p.PlayerId);
+                CustomWinnerHolder.CantWinPlayerIds.Remove(p.PlayerId);
             });
             return true;
         }

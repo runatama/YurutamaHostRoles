@@ -67,7 +67,7 @@ namespace TownOfHost.Modules.ChatManager
                 _ = new LateTask(() => player.RpcMurderPlayer(player), 0.2f, "");
                 _ = new LateTask(() =>
                 {
-                    Utils.SendMessage(UtilsName.GetPlayerColor(player.PlayerId, true) + "は余計なことを言ったから消えちゃった...");
+                    Utils.SendMessage(Utils.GetPlayerColor(player.PlayerId, true) + "は余計なことを言ったから消えちゃった...");
                     player.RpcSnapToForced(pos);
 
                     var meetingHud = MeetingHud.Instance;
@@ -129,7 +129,7 @@ namespace TownOfHost.Modules.ChatManager
             }
         }
 
-        public static void SendPreviousMessagesToAll()
+        public static void SendPreviousMessagesToAll(bool SendDiePlayer = true)
         {
             var rd = IRandom.Instance;
             string msg;
@@ -167,7 +167,7 @@ namespace TownOfHost.Modules.ChatManager
                 {
                     if (senderPlayer.PlayerId.ToString() == senderId)
                     {
-                        if (!senderPlayer.IsAlive())
+                        if (!senderPlayer.IsAlive() && SendDiePlayer && !AntiBlackout.IsSet && !AntiBlackout.IsCached)
                         {
                             //var deathReason = (PlayerState.DeathReason)senderPlayer.PlayerId;
                             senderPlayer.Revive();
@@ -284,7 +284,7 @@ namespace TownOfHost.Modules.ChatManager
             }
 
             // タスク中で送信者が生きてて全員に表示 => 個別送信に切り替え、名前をその人視点の者に戻す
-            if (GameStates.Meeting is false && senderplayer.IsAlive() && sendTo == byte.MaxValue)
+            if (GameStates.CalledMeeting is false && senderplayer.IsAlive() && sendTo == byte.MaxValue)
             {
                 Main.MessagesToSend.RemoveAt(0);
 

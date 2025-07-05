@@ -243,7 +243,10 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
                 if (curseMaker.CanWin)
                 {
                     if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.CurseMaker, byte.MaxValue))
+                    {
                         CustomWinnerHolder.WinnerIds.Add(curseMaker.Player.PlayerId);
+                        CustomWinnerHolder.NeutralWinnerIds.Add(curseMaker.Player.PlayerId);
+                    }
                 }
             }
         }

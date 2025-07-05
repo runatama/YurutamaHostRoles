@@ -27,7 +27,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
                 var Preview = "";
                 var win = "";
 
-                if (OptionTandokuWin.GetBool()) win = GetString("SoloWin");
+                if (OptionSoloWin.GetBool()) win = GetString("SoloWin");
                 else win = GetString("AddWin");
 
                 if (OptionNotice.GetBool())
@@ -49,7 +49,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem OptionCantSetCount;
-    static OptionItem OptionTandokuWin;
+    static OptionItem OptionSoloWin;
     static OptionItem OptionNotice;
     static OptionItem OptionNoticetype;
     byte targetId;
@@ -61,7 +61,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
     {
         PhantomThiefFarstCoolDown,
         PhantomThiefCantSetCount,
-        PhantomThiefTandokuWin,
+        PhantomThiefSoloWin,
         PhantomThiefNotice,
         PhantomThiefNoticeType
     }
@@ -79,7 +79,7 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
         OptionCantSetCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.PhantomThiefCantSetCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
         OptionNotice = BooleanOptionItem.Create(RoleInfo, 13, OptionName.PhantomThiefNotice, true, false);
         OptionNoticetype = StringOptionItem.Create(RoleInfo, 14, OptionName.PhantomThiefNoticeType, EnumHelper.GetAllNames<Notice>(), 1, false, OptionNotice);
-        OptionTandokuWin = BooleanOptionItem.Create(RoleInfo, 12, OptionName.PhantomThiefTandokuWin, false, false);
+        OptionSoloWin = BooleanOptionItem.Create(RoleInfo, 12, OptionName.PhantomThiefSoloWin, false, false);
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -222,10 +222,13 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
         {
             var Targetrole = target.GetCustomRole();
             if (Targetrole != targetrole && Targetrole != CustomRoles.NotAssigned) targetrole = Targetrole;
-            if (OptionTandokuWin.GetBool())
+            if (OptionSoloWin.GetBool())
             {
+                //ラバーズ等、自身も勝利していたら除外
+                if (CustomWinnerHolder.WinnerIds.Contains(Player.PlayerId)) return false;
                 if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PhantomThief, Player.PlayerId, true))
                 {
+                    CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
                     CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
                     Player.RpcSetCustomRole(targetrole, log: null);
                     target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);

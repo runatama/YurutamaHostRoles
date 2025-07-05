@@ -186,7 +186,10 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
 
             if (!AddWin)//単独勝利設定なら即勝利で処理終わり
             {
-                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.SantaClaus, Player.PlayerId, true);
+                if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.SantaClaus, Player.PlayerId, true))
+                {
+                    CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+                }
                 return false;
             }
             else

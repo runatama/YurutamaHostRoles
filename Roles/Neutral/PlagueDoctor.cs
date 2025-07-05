@@ -325,7 +325,10 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             }
             foreach (var plagueDoctor in PlayerCatch.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)))
             {
-                CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PlagueDoctor, plagueDoctor.PlayerId, true);
+                if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.PlagueDoctor, plagueDoctor.PlayerId, true))
+                {
+                    CustomWinnerHolder.NeutralWinnerIds.Add(plagueDoctor.PlayerId);
+                }
             }
         }
     }

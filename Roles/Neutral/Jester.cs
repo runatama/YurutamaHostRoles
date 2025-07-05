@@ -74,7 +74,10 @@ public sealed class Jester : RoleBase, IKiller
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (!AmongUsClient.Instance.AmHost || Player.PlayerId != exiled.PlayerId) return;
 
-        CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Jester, Player.PlayerId);
+        if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Jester, Player.PlayerId))
+        {
+            CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+        }
         DecidedWinner = true;
     }
 }

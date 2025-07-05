@@ -231,7 +231,11 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                 else
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
             }
-            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId); //焼殺で勝利した人も勝利させる
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId))
+            {
+                CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+            }
+
             return false;
         }
         return OptionCanUseVent.GetBool();
@@ -309,7 +313,10 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                 else
                     RPC.PlaySoundRPC(pc.PlayerId, Sounds.KillSound);
             }
-            CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId); //焼殺で勝利した人も勝利させる
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Arsonist, Player.PlayerId))
+            {
+                CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+            }
         }
     }
 }
