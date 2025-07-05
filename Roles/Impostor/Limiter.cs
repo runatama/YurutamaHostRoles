@@ -103,15 +103,16 @@ namespace TownOfHost.Roles.Impostor
         {
             var Targets = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls);//.Where(pc => !Player)
             if (Limit)
-                foreach (var tage in Targets)
+                foreach (var target in Targets)
                 {
                     info.DoKill = false;
-                    var distance = Vector3.Distance(Player.transform.position, tage.transform.position);
+                    var distance = Vector3.Distance(Player.transform.position, target.transform.position);
                     if (distance > blastrange) continue;
-                    PlayerState.GetByPlayerId(tage.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                    tage.SetRealKiller(tage);
-                    tage.RpcMurderPlayer(tage, true);
-                    RPC.PlaySoundRPC(tage.PlayerId, Sounds.KillSound);
+                    if (CustomRoleManager.OnCheckMurder(Player, target, target, target, true, true, 10))
+                    {
+                        PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                        target.SetRealKiller(target);
+                    }
                 }
         }
         public void OnMurderPlayerAsKiller(MurderInfo info)

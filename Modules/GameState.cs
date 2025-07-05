@@ -21,6 +21,15 @@ namespace TownOfHost
         public bool IsBlackOut { get; set; }
         private bool _canUseMovingPlatform = true;
         public string KillRoom;
+
+        /// <summary>
+        /// 持っているガード。<br/>
+        /// キル く= ガードだとガードを消費し、キルを無かった事にします。<br/>
+        /// キル > ガードだと貫通し、死にます。<br/>
+        /// key → Guardpower<br/>
+        /// Value → 所持数<br/>
+        /// </summary>
+        public Dictionary<int, int> HaveGuard;
         public bool CanUseMovingPlatform
         {
             get => _canUseMovingPlatform;
@@ -52,6 +61,11 @@ namespace TownOfHost
             TargetColorData = new();
             NumberOfRemainingButtons = Main.NormalOptions.NumEmergencyMeetings;
             KillRoom = "";
+            HaveGuard = new(2)
+            {
+                { 1, 0 },
+                { 2, 0 }
+            };
         }
         public CustomRoles GetCustomRole()
         {

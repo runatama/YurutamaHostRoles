@@ -51,19 +51,19 @@ public sealed class Stolener : RoleBase
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost || player.IsAlive() || Killer != byte.MaxValue) return;
-        var kier = player?.GetRealKiller();
+        var realkiller = player?.GetRealKiller();
 
-        Killer = kier?.PlayerId ?? (byte.MaxValue - 1);
+        Killer = realkiller?.PlayerId ?? (byte.MaxValue - 1);
         Killers.Add(Killer);
-        Logger.Info($"キラー設定：{kier?.Data?.name ?? "無し"}", "Stolener");
-        kier?.SetKillCooldown(force: true);
+        Logger.Info($"キラー設定：{realkiller?.Data?.name ?? "無し"}", "Stolener");
+        realkiller?.SetKillCooldown(force: true);
         UtilsNotifyRoles.NotifyRoles();
 
-        if (kier is not null)
+        if (realkiller is not null)
             if (RoleAddAddons.GetRoleAddon(CustomRoles.Stolener, out var d, null, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
             {
-                if (d.GiveGuarding.GetBool()) Main.Guard[kier.PlayerId] += d.Guard.GetInt();
-                if (d.GiveSpeeding.GetBool() && !kier.Is(CustomRoles.UltraStar)) Main.AllPlayerSpeed[kier.PlayerId] = d.Speed.GetFloat();
+                if (d.GiveGuarding.GetBool()) realkiller.GetPlayerState().HaveGuard[1] += d.Guard.GetInt();
+                if (d.GiveSpeeding.GetBool() && !realkiller.Is(CustomRoles.UltraStar)) Main.AllPlayerSpeed[realkiller.PlayerId] = d.Speed.GetFloat();
             }
         UtilsOption.SyncAllSettings();
     }

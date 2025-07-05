@@ -142,7 +142,7 @@ public sealed class Puppeteer : RoleBase, IImpostor
                     continue;
                 }
 
-                if (pc.PlayerId != puppet.PlayerId && !pc.Is(CountTypes.Impostor) && !pc.Is(CustomRoles.King))
+                if (pc.PlayerId != puppet.PlayerId && !pc.Is(CountTypes.Impostor))
                 {
                     var dis = Vector2.Distance(puppetPos, pc.transform.position);
                     targetDistance.Add(pc, dis);
@@ -156,9 +156,10 @@ public sealed class Puppeteer : RoleBase, IImpostor
             if (min.Value <= KillRange && puppet.CanMove && target.CanMove)
             {
                 PuppetCooltime.Remove(puppet.PlayerId);
-                RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
-                target.SetRealKiller(Player);
-                puppet.RpcMurderPlayer(target);
+                if (CustomRoleManager.OnCheckMurder(Player, target, puppet, target, true, false, 1))
+                {
+                    RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
+                }
                 UtilsOption.MarkEveryoneDirtySettings();
                 Puppets.Remove(puppet.PlayerId);
                 SendRPC(puppet.PlayerId, 2);

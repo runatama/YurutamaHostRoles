@@ -57,10 +57,10 @@ namespace TownOfHost
                 public const string PluginGuid = "com.kymario.townofhost-k";
                 public const string PluginVersion = "51.13.30";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
                 public const string PluginShowVersion = "51.13.30";//.29<sub>.32</sub>";
-                public const string ModVersion = ".29";//リリースver用バージョン変更
+                public const string ModVersion = ".30";//リリースver用バージョン変更
 
                 /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-                public static bool DebugVersion = false;
+                public static bool DebugVersion = true;
 
                 // サポートされている最低のAmongUsバージョン
                 public static readonly string LowestSupportedVersion = "2025.4.20";
@@ -139,7 +139,6 @@ namespace TownOfHost
                 public static bool IsActiveSabotage;
                 public static float SabotageActivetimer;
                 public static (float DiscussionTime, float VotingTime) MeetingTime;
-                public static Dictionary<byte, int> Guard;
                 public static int GameCount = 0;
                 public static bool SetRoleOverride = true;
                 /// <summary>ラグを考慮した奴。アジア、カスタム、ローカルは200ms(0.2s),他は400ms(0.4s)</summary>
@@ -400,6 +399,7 @@ namespace TownOfHost
                 Guess,
                 TeleportKill,
                 Trap,
+                NotGather,
                 etc = -1
         }
         //WinData

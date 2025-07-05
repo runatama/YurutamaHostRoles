@@ -179,7 +179,10 @@ public sealed class VentOpener : RoleBase
 
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
-        info.CanKill = !BlockKill || !expelledPlayers.Contains(info.AttemptKiller.PlayerId);
+        if (!BlockKill || !expelledPlayers.Contains(info.AttemptKiller.PlayerId))
+        {
+            info.GuardPower = 1;
+        }
         return true;
     }
 

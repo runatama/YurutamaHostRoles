@@ -223,15 +223,16 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (modeLimiter)//爆弾最優先
         {
             var Targets = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls);
-            foreach (var tage in Targets)
+            foreach (var bomtarget in Targets)
             {
                 info.DoKill = false;
-                var distance = Vector3.Distance(Player.transform.position, tage.transform.position);
+                var distance = Vector3.Distance(Player.transform.position, bomtarget.transform.position);
                 if (distance > Limiterblastrange) continue;
-                PlayerState.GetByPlayerId(tage.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                tage.SetRealKiller(tage);
-                tage.RpcMurderPlayer(tage, true);
-                RPC.PlaySoundRPC(tage.PlayerId, Sounds.KillSound);
+                if (CustomRoleManager.OnCheckMurder(Player, bomtarget, bomtarget, bomtarget, true, true, 2))
+                {
+                    PlayerState.GetByPlayerId(bomtarget.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                    bomtarget.SetRealKiller(bomtarget);
+                }
             }
             return;
         }
@@ -250,14 +251,14 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (modeRemotekiller || modeVampire)
         {
             if (!info.CanKill) return;
-            if (target.Is(CustomRoles.King))
-            {
-                info.DoKill = false;
-                return;
-            }
             if (target.Is(CustomRoles.Bait)) return;
             if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
+            if (info.CheckHasGuard())
+            {
+                info.IsGuard = true;
+                return;
+            }
             info.DoKill = false;
             if (modeRemotekiller)
             {
@@ -362,9 +363,10 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 Logger.Info("キラーは仕返し対象ではないので仕返しされません", "Alien");
                 return;
             }
-            killer.SetRealKiller(Player);
-            PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = CustomDeathReason.Revenge;
-            Player.RpcMurderPlayer(killer);
+            if (CustomRoleManager.OnCheckMurder(Player, killer, Player, killer, true, false))
+            {
+                PlayerState.GetByPlayerId(killer.PlayerId).DeathReason = CustomDeathReason.Revenge;
+            }
         }
     }
     public bool IsCandidate(PlayerControl player)
@@ -387,12 +389,15 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         var vampire = Player;
         if (target.IsAlive())
         {
-            PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
-            target.SetRealKiller(vampire);
-            CustomRoleManager.OnCheckMurder(vampire, target, target, target, true);
-            Logger.Info($"Alienに噛まれている{target.name}を自爆させました。", "Alien.Va");
-            if (!isButton && vampire.IsAlive())
-                RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
+            if (CustomRoleManager.OnCheckMurder(vampire, target, target, target, true, Killpower: 1))
+            {
+                PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
+                target.SetRealKiller(vampire);
+                Logger.Info($"Alienに噛まれている{target.name}を自爆させました。", "Alien.Va");
+                if (!isButton && vampire.IsAlive())
+                    RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
+            }
+            else Logger.Info($"Alienに噛まれた{target.name}にキルが通りませんでした。", "Alien.Va");
         }
         else Logger.Info($"Alienに噛まれている{target.name}はすでに死んでいました。", "Alien.Va");
 
@@ -569,13 +574,13 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 if (min.Value <= KillRange && puppet.CanMove && target.CanMove)
                 {
                     PuppetCooltime.Remove(puppet.PlayerId);
-                    RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
-                    target.SetRealKiller(Player);
-                    puppet.RpcMurderPlayer(target);
+                    if (CustomRoleManager.OnCheckMurder(Player, target, puppet, target, true, false, 1))
+                    {
+                        RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
+                    }
                     UtilsOption.MarkEveryoneDirtySettings();
                     Puppets.Remove(puppet.PlayerId);
                     SendRPC(puppet.PlayerId, 2);
-                    UtilsNotifyRoles.NotifyRoles();
                 }
             }
         }

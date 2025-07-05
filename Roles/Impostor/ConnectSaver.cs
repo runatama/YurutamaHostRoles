@@ -173,11 +173,13 @@ public sealed class ConnectSaver : RoleBase, IImpostor
             if (Is(killer))
             {
                 CheckMurderPatch.TimeSinceLastKill[killer.PlayerId] = 30f;//キル連打とかいう奴を無視する奴
-                var t = target.PlayerId == P1 ? P2 : P1;
-                var tt = PlayerCatch.GetPlayerById(t);
-                PlayerState.GetByPlayerId(tt.PlayerId).DeathReason = deathReasons[OptionDeathReason.GetValue()];
-                tt.SetRealKiller(killer);
-                CustomRoleManager.OnCheckMurder(killer, tt, tt, tt, true);//一応殺した判定は貰うしガードとかいうの知らない。
+                var targetid = target.PlayerId == P1 ? P2 : P1;
+                var connecttarget = PlayerCatch.GetPlayerById(targetid);
+                if (CustomRoleManager.OnCheckMurder(killer, connecttarget, connecttarget, connecttarget, true, Killpower: 10))//一応殺した判定は貰うしガードとかいうの知らない。
+                {
+                    PlayerState.GetByPlayerId(connecttarget.PlayerId).DeathReason = deathReasons[OptionDeathReason.GetValue()];
+                    connecttarget.SetRealKiller(killer);
+                }
             }
             P1 = byte.MaxValue;
             P2 = byte.MaxValue;

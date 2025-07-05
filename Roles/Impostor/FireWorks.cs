@@ -136,9 +136,10 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
                             }
                             else
                             {
-                                PlayerState.GetByPlayerId(fireTarget.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                                fireTarget.SetRealKiller(Player);
-                                fireTarget.RpcMurderPlayer(fireTarget);
+                                if (CustomRoleManager.OnCheckMurder(Player, fireTarget, fireTarget, fireTarget, true, false, 2))
+                                {
+                                    PlayerState.GetByPlayerId(fireTarget.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                                }
                             }
                         }
                     }

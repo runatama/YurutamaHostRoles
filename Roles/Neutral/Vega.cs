@@ -228,7 +228,8 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
         if (addon == CustomRoles.NotAssigned) return;
         if (addon == CustomRoles.Guarding)
         {
-            Main.Guard[Altair.PlayerId] += Guarding.HaveGuard;
+            var state = Altair.GetPlayerState();
+            state.HaveGuard[1] += Guarding.HaveGuard;
         }
         Altair.RpcSetCustomRole(addon);
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player), 0.15f);

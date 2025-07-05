@@ -91,12 +91,6 @@ namespace TownOfHost.Roles.Neutral
 
             if (info.IsFakeSuicide) return;
 
-            if (target.Is(CustomRoles.King))
-            {
-                info.DoKill = false;
-                return;
-            }
-
             if (cankill)
             {
                 if (!GrimPlayers.ContainsKey(target.PlayerId))
@@ -154,7 +148,7 @@ namespace TownOfHost.Roles.Neutral
             {
                 PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Grim;
                 target.SetRealKiller(Grim);
-                CustomRoleManager.OnCheckMurder(Grim, target, target, target, true, true);
+                CustomRoleManager.OnCheckMurder(Grim, target, target, target, true, true, Killpower: 2);
                 if (!isButton && Grim.IsAlive()) RPC.PlaySoundRPC(Grim.PlayerId, Sounds.KillSound);
             }
         }

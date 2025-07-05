@@ -64,16 +64,15 @@ namespace TownOfHost.Roles.Neutral
             if (!info.CanKill) return; //キル出来ない相手には無効
             var (killer, target) = info.AttemptTuple;
 
-            if (target.Is(CustomRoles.King))
+            if (info.IsFakeSuicide) return;
+            if (info.CheckHasGuard())
             {
-                info.DoKill = false;
+                info.IsGuard = true;
                 return;
             }
-            if (info.IsFakeSuicide) return;
             //登録
-            killer.SetKillCooldown(KillCooldown);
+            killer.SetKillCooldown(KillCooldown, target: target);
             ReamoteTargetId = target.PlayerId;
-            killer.RpcProtectedMurderPlayer(target);
             info.DoKill = false;
         }
         public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __)

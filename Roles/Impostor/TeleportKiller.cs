@@ -221,9 +221,11 @@ public sealed class TeleportKiller : RoleBase, IImpostor
                 if (!target.inVent && !target.MyPhysics.Animations.IsPlayingEnterVentAnimation())
                 {
                     if (target.GetCustomRole().IsImpostor()) return;
-                    PlayerState.GetByPlayerId(target.PlayerId).DeathReason = DeathReason ? CustomDeathReason.TeleportKill : CustomDeathReason.Kill;
-                    target.SetRealKiller(Player);
-                    target.RpcMurderPlayer(target, true);
+                    if (CustomRoleManager.OnCheckMurder(Player, target, target, target, true, false))
+                    {
+                        PlayerState.GetByPlayerId(target.PlayerId).DeathReason = DeathReason ? CustomDeathReason.TeleportKill : CustomDeathReason.Kill;
+                        target.SetRealKiller(Player);
+                    }
                     if (TeleportKillerKillCooldownReset) Player.SetKillCooldown(KillCooldown);
                 }
             }, 0.5f, "TeleportKiller-2");

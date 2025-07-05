@@ -193,7 +193,7 @@ public sealed class JackalDoll : RoleBase
         //サイドキックがガード等発動しないため。
         if (RoleAddAddons.GetRoleAddon(CustomRoles.Jackaldoll, out var addondate, doll, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
         {
-            if (addondate.GiveGuarding.GetBool()) Main.Guard[doll.PlayerId] += addondate.Guard.GetInt();
+            if (addondate.GiveGuarding.GetBool()) doll.GetPlayerState().HaveGuard[1] += addondate.Guard.GetInt();
             if (addondate.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[doll.PlayerId] = addondate.Speed.GetFloat();
         }
         foreach (var jackals in PlayerCatch.AllPlayerControls)

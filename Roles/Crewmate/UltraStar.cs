@@ -2,10 +2,11 @@ using AmongUs.GameOptions;
 using UnityEngine;
 
 using TownOfHost.Roles.Core;
+using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Crewmate;
 
-public sealed class UltraStar : RoleBase
+public sealed class UltraStar : RoleBase, IKiller
 {
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
@@ -114,15 +115,7 @@ public sealed class UltraStar : RoleBase
             if (target != null && cankill && KillCool <= 0)
             {
                 KillCool = Optionkillcool.GetFloat();
-                if (OptionCheckKill.GetBool())
-                {
-                    CustomRoleManager.OnCheckMurder(Player, target, Player, target);
-                    UtilsOption.MarkEveryoneDirtySettings();
-                    Player.RpcResetAbilityCooldown(Sync: true);
-                    return;
-                }
-                target.SetRealKiller(player);
-                player.RpcMurderPlayer(target);
+                CustomRoleManager.OnCheckMurder(Player, target, Player, target, Killpower: OptionCheckKill.GetBool() ? 1 : 2);
                 UtilsOption.MarkEveryoneDirtySettings();
                 Player.RpcResetAbilityCooldown(Sync: true);
             }
@@ -152,4 +145,9 @@ public sealed class UltraStar : RoleBase
     public override void StartGameTasks() => Main.AllPlayerSpeed[Player.PlayerId] += Speed;
 
     public override string GetAbilityButtonText() => GetString(StringNames.KillLabel);
+
+    public bool CanUseSabotageButton() => false;
+    bool IKiller.CanUseImpostorVentButton() => false;
+    bool IKiller.CanKill => false;
+    bool IKiller.IsKiller => true;
 }

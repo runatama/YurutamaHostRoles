@@ -413,11 +413,11 @@ namespace TownOfHost
                     else if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 0.7f, delay: true));
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 0.7f, force: true, delay: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     else _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, force: true, delay: true));
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, force: true, delay: true, AfterReset: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     GameStates.Intro = false;
                     GameStates.AfterIntro = true;

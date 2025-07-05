@@ -50,7 +50,7 @@ namespace TownOfHost
                     return false;
                 }
             // targetがキル可能な状態か
-            if (force is not null and not true)
+            if (force == false)
             {
                 if (// PlayerDataがnullじゃないか確認
                     target.Data == null ||

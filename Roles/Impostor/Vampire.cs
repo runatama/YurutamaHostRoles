@@ -68,14 +68,14 @@ namespace TownOfHost.Roles.Impostor
             if (!info.CanKill) return; //キル出来ない相手には無効
             var (killer, target) = info.AttemptTuple;
 
-            if (target.Is(CustomRoles.King))
-            {
-                info.DoKill = false;
-                return;
-            }
             if (target.Is(CustomRoles.Bait)) return;
             if (target.Is(CustomRoles.InSender)) return;
             if (info.IsFakeSuicide) return;
+            if (info.CheckHasGuard())
+            {
+                info.IsGuard = true;
+                return;
+            }
 
             //誰かに噛まれていなければ登録
             if (!BittenPlayers.ContainsKey(target.PlayerId))
@@ -162,17 +162,15 @@ namespace TownOfHost.Roles.Impostor
 
             if (target.IsAlive())
             {
-                PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
-                target.SetRealKiller(vampire);
-                CustomRoleManager.OnCheckMurder(
-                    vampire, target,
-                    target, target, true
-                );
-                Logger.Info($"Vampireに噛まれている{target.name}を自爆させました。", "Vampire.KillBitten");
-                if (!isButton && vampire.IsAlive())
+                if (CustomRoleManager.OnCheckMurder(vampire, target, target, target, true, Killpower: 1))
                 {
-                    RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
+                    PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bite;
+                    target.SetRealKiller(vampire);
+                    Logger.Info($"Vampireに噛まれている{target.name}を自爆させました。", "Vampire");
+                    if (!isButton && vampire.IsAlive())
+                        RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
                 }
+                else Logger.Info($"Vampireに噛まれた{target.name}にキルが通りませんでした。", "Vampire");
             }
             else
             {

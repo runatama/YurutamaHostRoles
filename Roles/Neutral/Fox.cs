@@ -123,9 +123,9 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
 
             killer.SetKillCooldown(target: target, force: true);
             Guard--;
-            info.CanKill = false;
+            info.GuardPower = 2;
             if (canseeguardcount) UtilsNotifyRoles.NotifyRoles(SpecifySeer: target);
-            return false;
+            return true;
         }
         return true;
     }

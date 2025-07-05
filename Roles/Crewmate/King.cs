@@ -90,7 +90,7 @@ public sealed class King : RoleBase
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
-        info.CanKill = false;
+        info.GuardPower = 9;
         var (killer, target) = info.AppearanceTuple;
         if (killer.GetRoleClass() is BountyHunter bountyHunter)
         {
@@ -165,7 +165,7 @@ public sealed class King : RoleBase
 
                 PlayerState state = PlayerState.GetByPlayerId(pc.PlayerId);
                 state.DeathReason = deathReasons[OpDeathReason.GetValue()];
-                CustomRoleManager.OnCheckMurder(Player, pc, pc, pc, true);
+                CustomRoleManager.OnCheckMurder(Player, pc, pc, pc, true, true, 999);
                 Logger.Info($"{pc.name}が巻き込まれちゃった！", "Kingaboooooon");
                 crews.Remove(pc);
             }

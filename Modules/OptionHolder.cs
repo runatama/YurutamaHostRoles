@@ -442,7 +442,6 @@ namespace TownOfHost
         public static bool firstturnmeeting;
         public static OptionItem FirstTurnMeetingCantability;
         public static OptionItem FixFirstKillCooldown;
-        public static OptionItem FixZeroKillCooldown;
         public static OptionItem CanseeVoteresult;
         public static OptionItem CommnTaskResetAssing;
         public static OptionItem OutroCrewWinreasonchenge;
@@ -568,6 +567,8 @@ namespace TownOfHost
             StandardHASWaitingTime = FloatOptionItem.Create(100007, "StandardHASWaitingTime", new(0f, 180f, 2.5f), 10f, TabGroup.MainSettings, false).SetParent(StandardHAS)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+            //最初のオプションのみここ
+            SuddenDeathMode.SuddenDeathModeActive = BooleanOptionItem.Create(101000, "SuddenDeathMode", false, TabGroup.MainSettings, false).SetParent(ONspecialMode).SetGameMode(CustomGameMode.Standard);
             SuddenDeathMode.CreateOption();
 
             // 試験的機能
@@ -1127,19 +1128,15 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#fa7373")
                 .SetParent(ConvenientOptions);
-            FixZeroKillCooldown = BooleanOptionItem.Create(111004, "FixZeroKillCooldown", false, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#e63054")
-                .SetParent(ConvenientOptions);
-            CommnTaskResetAssing = BooleanOptionItem.Create(111005, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
+            CommnTaskResetAssing = BooleanOptionItem.Create(111004, "CommnTaskResetAssing", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColor(Color.yellow)
                 .SetParent(ConvenientOptions);
-            CanseeVoteresult = BooleanOptionItem.Create(111006, "CanseeVoteresult", false, TabGroup.MainSettings, false)
+            CanseeVoteresult = BooleanOptionItem.Create(111005, "CanseeVoteresult", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#64ff0a")
                 .SetParent(ConvenientOptions);
-            OutroCrewWinreasonchenge = BooleanOptionItem.Create(111007, "OutroCrewWinreasonchenge", true, TabGroup.MainSettings, false)
+            OutroCrewWinreasonchenge = BooleanOptionItem.Create(111006, "OutroCrewWinreasonchenge", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#66ffff")
                 .SetParent(ConvenientOptions);

@@ -6,6 +6,7 @@ using UnityEngine;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using Sentry.Unity.NativeUtils;
 
 namespace TownOfHost.Roles.Crewmate;
 
@@ -141,11 +142,11 @@ public sealed class VentHunter : RoleBase
     public void TrapKill(PlayerControl pc)
     {
         if (!pc.IsAlive()) return;
-        pc.SetRealKiller(Player);
-        var state = PlayerState.GetByPlayerId(pc.PlayerId);
-        state.DeathReason = CustomDeathReason.Trap;
-        pc.RpcMurderPlayer(pc, true);
-        state.SetDead();
+        if (CustomRoleManager.OnCheckMurder(Player, pc, pc, pc, true, false))
+        {
+            var state = PlayerState.GetByPlayerId(pc.PlayerId);
+            state.DeathReason = CustomDeathReason.Trap;
+        }
     }
 
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)

@@ -260,8 +260,8 @@ namespace TownOfHost.Modules
                 //キルクール0に設定+修正する設定をONにした時だけ呼び出す。
                 if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out var killCooldown))
                 {
-                    //設定が有効で、キルボタンが使用可能の時は最小0.000...1　設定無効 or キルボタンが使用不可なら最小0
-                    AURoleOptions.KillCooldown = Mathf.Max(FixZeroKillCooldown.GetBool() && ((roleClass as IKiller)?.CanUseKillButton() == true) ? 0.00000000000000000000000000000000000000000001f : 0f, killCooldown);
+                    //キルボタンが使用可能の時は最小0.000...1　設定無効 or キルボタンが使用不可なら最小0
+                    AURoleOptions.KillCooldown = Mathf.Max(((roleClass as IKiller)?.CanUseKillButton() == true) ? 0.00000000000000000000000000000000000000000001f : 0f, killCooldown);
                 }
 
                 state.taskState.hasTasks = UtilsTask.HasTasks(player.Data, false);

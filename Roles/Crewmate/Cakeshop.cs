@@ -48,7 +48,9 @@ public sealed class Cakeshop : RoleBase, INekomata
         }
         foreach (var gu in Addedaddons.Where(v => v.Value is CustomRoles.Guarding))
         {
-            Main.Guard[gu.Key] -= Guarding.HaveGuard;
+            var state = PlayerCatch.GetPlayerState(gu.Key);
+
+            state.HaveGuard[1] -= Guarding.HaveGuard;
         }
         Speedings.Clear();
         PlayerState.AllPlayerStates.DoIf(
@@ -73,7 +75,8 @@ public sealed class Cakeshop : RoleBase, INekomata
             }
             if (addon is CustomRoles.Guarding)
             {
-                Main.Guard[pc.PlayerId] += Guarding.HaveGuard;
+                var state = pc.GetPlayerState();
+                state.HaveGuard[pc.PlayerId] += Guarding.HaveGuard;
             }
             pc.RpcSetCustomRole(addon);
         });

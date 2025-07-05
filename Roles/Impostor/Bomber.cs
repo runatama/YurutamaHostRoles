@@ -82,7 +82,6 @@ namespace TownOfHost.Roles.Impostor
             if (target == null || BomberExplosionPlayers.ContainsKey(target?.PlayerId ?? byte.MaxValue)) return;
 
             AdjustKillCoolDown = false;
-            if (target.Is(CustomRoles.King)) return;
             if (!BomberExplosionPlayers.TryAdd(target.PlayerId, 0f)) return;
             BomberExplosion--;
             SendRPC();
@@ -106,16 +105,16 @@ namespace TownOfHost.Roles.Impostor
                         var pos = target.transform.position;
                         foreach (var target2 in PlayerCatch.AllAlivePlayerControls)
                         {
-                            if (target2.Is(CustomRoles.King)) continue;
                             var dis = Vector2.Distance(pos, target2.transform.position);
                             if (dis > Blastrange) continue;
                             if (target2.IsAlive())
                             {
-                                PlayerState.GetByPlayerId(target2.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                                target2.SetRealKiller(Player);
-                                target2.RpcMurderPlayer(target2, true);
-                                RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
-                                Logger.Info($"{target.name}を爆発させました。", "bomber");
+                                if (CustomRoleManager.OnCheckMurder(Player, target2, target2, target2, true, true, 1))
+                                {
+                                    PlayerState.GetByPlayerId(target2.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                                    RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
+                                    Logger.Info($"{target2.name}を爆発させました。", "bomber");
+                                }
                             }
                         }
                     }

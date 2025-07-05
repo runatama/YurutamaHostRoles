@@ -106,7 +106,7 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
                 }
             killer.RpcProtectedMurderPlayer(target);
             target.RpcProtectedMurderPlayer(target);
-            info.CanKill = false;
+            info.GuardPower = 1;
             UtilsGameLog.AddGameLog($"Driver", UtilsName.GetPlayerColor(Player) + ":  " + string.Format(GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(killer, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(killer.PlayerId, false)}</b>)"));
             UtilsNotifyRoles.NotifyRoles();
         }

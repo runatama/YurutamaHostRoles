@@ -107,12 +107,10 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
                         float Distance = Vector2.Distance(player.transform.position, target.transform.position);
                         if (Distance <= (Jumpdistance == 1 ? 1.22f : (Jumpdistance == 2 ? 1.82f : 2.2)))
                         {
-                            PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                            target.SetRealKiller(player);
-                            CustomRoleManager.OnCheckMurder(
-                                player, target,
-                                target, target, true
-                            );
+                            if (CustomRoleManager.OnCheckMurder(player, target, target, target, true, Killpower: 3))
+                            {
+                                PlayerState.GetByPlayerId(target.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                            }
                         }
                     }
                 }

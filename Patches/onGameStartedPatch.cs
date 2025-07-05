@@ -49,7 +49,6 @@ namespace TownOfHost
             UtilsGameLog.LastLogPro = new Dictionary<byte, string>();
             UtilsGameLog.LastLogSubRole = new Dictionary<byte, string>();
             Main.KillCount = new Dictionary<byte, int>();
-            Main.Guard = new Dictionary<byte, int>();
             Main.AllPlayerTask = new Dictionary<byte, List<uint>>();
             GhostRoleAssingData.GhostAssingCount = new Dictionary<CustomRoles, int>();
 
@@ -193,7 +192,7 @@ namespace TownOfHost
             CustomRoleManager.MarkOthers.Add(ReportDeadBodyPatch.Dontrepomark);
 
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
-            Main.Time = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
+            Main.MeetingTime = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);
 
             if (GameStates.IsOnlineGame)
             {
@@ -554,12 +553,12 @@ namespace TownOfHost
                 PlayerCatch.AllPlayerFirstTypes.Add(pc.PlayerId, roletype);
 
                 //Addons
-                Main.Guard.Add(pc.PlayerId, 0);
-                if (pc.Is(CustomRoles.Guarding)) Main.Guard[pc.PlayerId] += Guarding.HaveGuard;
+                var state = pc.GetPlayerState();
+                if (pc.Is(CustomRoles.Guarding)) state.HaveGuard[1] += Guarding.HaveGuard;
                 //RoleAddons
                 if (RoleAddAddons.GetRoleAddon(role, out var data, pc, subrole: [CustomRoles.Speeding, CustomRoles.Guarding]))
                 {
-                    if (data.GiveGuarding.GetBool()) Main.Guard[pc.PlayerId] += data.Guard.GetInt();
+                    if (data.GiveGuarding.GetBool()) state.HaveGuard[1] += data.Guard.GetInt();
                     if (data.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = data.Speed.GetFloat();
                 }
                 if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId))

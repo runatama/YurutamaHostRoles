@@ -618,7 +618,6 @@ namespace TownOfHost.Modules
         public static OptionItem SuddenPurpleTeamRole;
         public static void CreateOption()
         {
-            SuddenDeathModeActive = BooleanOptionItem.Create(101000, "SuddenDeathMode", false, TabGroup.MainSettings, false).SetParent(Options.ONspecialMode).SetGameMode(CustomGameMode.Standard);
             SuddenSharingRoles = BooleanOptionItem.Create(101001, "SuddenSharingRoles", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
             SuddenCantSeeOtherName = BooleanOptionItem.Create(101012, "SuddenCannotSeeName", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
             SuddenRemainingPlayerCount = BooleanOptionItem.Create(101013, "SuddenRemainingPlayerCount", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
@@ -627,7 +626,7 @@ namespace TownOfHost.Modules
             SuddenfinishTaskWin = BooleanOptionItem.Create(101016, "SuddenfinishTaskWin", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);
             SuddenDeathTimeLimit = FloatOptionItem.Create(101017, "SuddenDeathTimeLimit", new(0, 300, 1f), 120f, TabGroup.MainSettings, false, true).SetParent(SuddenDeathModeActive).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
             SuddenDeathReactortime = FloatOptionItem.Create(101018, "SuddenDeathReactortime", new(1, 300, 1f), 15f, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
-            SuddenPlayerArrow = BooleanOptionItem.Create(101019, "SuddenItijohoSend", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
+            SuddenPlayerArrow = BooleanOptionItem.Create(101019, "SuddenPlayerArrow", true, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive).SetGameMode(CustomGameMode.Standard);
             SuddenArrowSendTime = FloatOptionItem.Create(101020, "SuddenArrowSendTime", new(0, 300, 0.5f), 90f, TabGroup.MainSettings, false).SetParent(SuddenPlayerArrow).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
             SuddenArrowSenddis = FloatOptionItem.Create(101021, "SuddenArrowSenddis", new(0, 180, 0.5f), 5f, TabGroup.MainSettings, false).SetParent(SuddenPlayerArrow).SetValueFormat(OptionFormat.Seconds).SetGameMode(CustomGameMode.Standard);
             SuddenTeam = BooleanOptionItem.Create(101022, "SuddenTeam", false, TabGroup.MainSettings, false).SetParent(SuddenDeathModeActive);

@@ -123,6 +123,11 @@ class Penguin : RoleBase, IImpostor
         }
         else
         {
+            if (info.CheckHasGuard())
+            {
+                info.IsGuard = false;
+                return;
+            }
             info.DoKill = false;
             AddVictim(target);
         }

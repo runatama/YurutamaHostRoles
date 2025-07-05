@@ -37,174 +37,160 @@ public static class CustomRoleManager
     /// <param name="attemptTarget">>Killerが実際にキルを行おうとしたプレイヤー 不変</param>
     public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget)
         => OnCheckMurder(attemptKiller, attemptTarget, attemptKiller, attemptTarget);
-    /// <summary>
-    ///
-    /// </summary>
+
     /// <param name="attemptKiller">実際にキルを行ったプレイヤー 不変</param>
-    /// <param name="attemptTarget">>Killerが実際にキルを行おうとしたプレイヤー 不変</param>
+    /// <param name="attemptTarget">Killerが実際にキルを行おうとしたプレイヤー 不変</param>
     /// <param name="appearanceKiller">見た目上でキルを行うプレイヤー 可変</param>
     /// <param name="appearanceTarget">見た目上でキルされるプレイヤー 可変</param>
+    /// <param name="force">RoleClassのCheckMurder/Guardのチェックをスルーしてキルを行うか</param>
+    /// <param name="RoleAbility">キル後のMurderPlayerの処理を行うか</param>
+    /// <param name="Killpower">キルの強さ</param>
     /// <returns></returns>
-    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool? force = false, bool? RoleAbility = false, bool? noCheckForInvalidMurdering = false)
+    public static bool OnCheckMurder(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearanceTarget, bool? force = false, bool? DontRoleAbility = false, int Killpower = 1)
     {
         Logger.Info($"Attempt  :{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
         if (appearanceKiller != attemptKiller || appearanceTarget != attemptTarget)
             Logger.Info($"Apperance:{appearanceKiller.GetNameWithRole().RemoveHtmlTags()} => {appearanceTarget.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
-        var info = new MurderInfo(attemptKiller, attemptTarget, appearanceKiller, appearanceTarget, RoleAbility);
+        var info = new MurderInfo(attemptKiller, attemptTarget, appearanceKiller, appearanceTarget, DontRoleAbility, Killpower, 0);
 
         appearanceKiller.ResetKillCooldown();
 
         // 無効なキルをブロックする処理 必ず最初に実行する
-        if (!CheckMurderPatch.CheckForInvalidMurdering(info, force == true || noCheckForInvalidMurdering == true))
+        if (!CheckMurderPatch.CheckForInvalidMurdering(info, force == true))
         {
             return false;
         }
 
         var killerRole = attemptKiller.GetRoleClass();
         var targetRole = attemptTarget.GetRoleClass();
+        int GuardreasonNumber = -1;
 
         // キラーがキル能力持ちなら
-        if (force == false)
-            if (killerRole is IKiller killer)
+        if (killerRole is IKiller killer)
+        {
+            if (killer.IsKiller)//一応今は属性ガード有線にしてますが
             {
-                if (killer.IsKiller)//一応今は属性ガード有線にしてますが
+                if (killerRole is EarnestWolf earnestWolf)//最優先
                 {
-                    if (killerRole is EarnestWolf earnestWolf)//最優先
-                    {
-                        if (Amnesia.CheckAbility(attemptKiller)) earnestWolf.OnCheckMurderAsEarnestWolf(info);
-                        if (!info.DoKill || !info.CanKill)
-                        {
-                            killer.OnCheckMurderDontKill(info);
-                            return false;
-                        }
-                    }
-
-                    if (targetRole != null)
-                        if (Amnesia.CheckAbility(attemptTarget))
-                            if (!targetRole.OnCheckMurderAsTarget(info))
-                            {
-                                killer.OnCheckMurderDontKill(info);
-                                CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
-                                return false;
-                            }
-
-                    if (AsistingAngel.Guard)
-                    {
-                        if (attemptTarget == AsistingAngel.Asist)
-                        {
-                            CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
-                            attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
-
-                            UtilsGameLog.AddGameLog($"AsistingAngel", UtilsName.GetPlayerColor(PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
-                            + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
-
-                            UtilsNotifyRoles.NotifyRoles();
-
-                            killer.OnCheckMurderDontKill(info);
-                            return false;
-                        }
-                    }
-                }
-                //守護天使ちゃんの天使チェック
-                if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
-                    info.IsGuard = true;
-
-                //属性ガードがある場合はDokillのみ先にfalseで返す。
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                        info.IsGuard = true;
-
-                // キラーのキルチェック処理実行
-
-                //ダブルトリガー無効なら通常処理
-                if (!DoubleTrigger.OnCheckMurderAsKiller(info))
-                {
-                    killer.OnCheckMurderAsKiller(info);
-                }
-
-                if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
-                {
-                    CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
-                    attemptKiller.RpcProtectedMurderPlayer(attemptTarget);
-                    //死んでる人にはパリーン見せる
-                    PlayerCatch.AllPlayerControls.Where(pc => pc is not null && !pc.IsAlive())
-                        .Do(pc => attemptKiller.RpcProtectedMurderPlayer(pc, attemptTarget));
-                    GuardianAngel.MeetingNotify |= true;
-                    UtilsGameLog.AddGameLog($"GuardianAngel", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
-                    Logger.Info($"{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}守護天使ちゃんのガード!", "GuardianAngel");
-                    UtilsNotifyRoles.NotifyRoles();
-                    if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
-                        GuardianAngel.Guarng[attemptTarget.PlayerId] = 999f;//時間経過で削除させる(なんかこっちで削除したら下手すりゃバグりそう)
+                    if (Amnesia.CheckAbility(attemptKiller)) earnestWolf.OnCheckMurderAsEarnestWolf(info);
                     return false;
                 }
 
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
-                {
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                    {
-                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
-                        Main.Guard[attemptTarget.PlayerId]--;
-                        attemptKiller.SetKillCooldown(target: attemptTarget, force: true, delay: true);
-
-                        UtilsGameLog.AddGameLog($"Guard", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
-                        Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
-                        UtilsNotifyRoles.NotifyRoles();
-                        killer.OnCheckMurderDontKill(info);
-                        return false;
-                    }
-                }
-            }
-            //ほぼウルトラスター用
-            else if (info.CanKill && info.DoKill && !info.IsGuard && force == false)
-            {
                 if (targetRole != null)
+                {
                     if (Amnesia.CheckAbility(attemptTarget))
+                    {
                         if (!targetRole.OnCheckMurderAsTarget(info))
                         {
+                            killer.OnCheckMurderDontKill(info);
                             CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
                             return false;
                         }
+                    }
+                }
+
                 if (AsistingAngel.Guard)
                 {
                     if (attemptTarget == AsistingAngel.Asist)
                     {
-                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;//タゲ側でガードされるときってキルガードだけのはずだから。
-                        attemptKiller.SetKillCooldown(target: attemptTarget, delay: true);
-
-                        UtilsGameLog.AddGameLog($"AsistingAngel", UtilsName.GetPlayerColor(PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
-                        + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
-
-                        UtilsNotifyRoles.NotifyRoles();
-                        return false;
-                    }
-                }
-
-                //属性ガードがある場合はDokillのみ先にfalseで返す。
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId))
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                        info.IsGuard = true;
-
-                if (Main.Guard.ContainsKey(attemptTarget.PlayerId) && info.IsGuard && info.DoKill && info.CanKill)
-                {
-                    if (Main.Guard[attemptTarget.PlayerId] > 0)
-                    {
-                        CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
-                        Main.Guard[attemptTarget.PlayerId]--;
-                        attemptKiller.SetKillCooldown(target: attemptTarget, force: true, delay: true);
-
-                        UtilsGameLog.AddGameLog($"Guard", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
-                        Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} : ガード残り{Main.Guard[attemptTarget.PlayerId]}回", "Guarding");
-                        UtilsNotifyRoles.NotifyRoles();
-                        return false;
+                        GuardreasonNumber = 2;
+                        info.GuardPower = 1;
                     }
                 }
             }
+            //守護天使ちゃんの天使チェック
+            if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
+            {
+                GuardreasonNumber = 1;
+                info.GuardPower = 1;
+            }
+            //属性ガードのチェック
+            if (info.KillPower > info.GuardPower)//消費する必要がある
+            {
+                var state = attemptTarget.GetPlayerState();
+                var CanuseGuards = state.HaveGuard.Where(data => data.Value > 0).Where(data => info.KillPower <= data.Key);
+
+                if (CanuseGuards.Count() > 0)//今ここで使えるガードがある場合
+                {
+                    info.GuardPower = CanuseGuards.First().Key;
+                    GuardreasonNumber = 0;
+                }
+            }
+
+            // キラーのキルチェック処理実行
+
+            //ダブルトリガー無効なら通常処理
+            if (!DoubleTrigger.OnCheckMurderAsKiller(info) && force is false)//特殊強制キルの場合は処理しない
+            {
+                killer.OnCheckMurderAsKiller(info);
+            }
+
+            /* キル可能かのチェック */
+            if (info.KillPower <= info.GuardPower)
+            {
+                info.IsGuard = true;
+                info.CanKill = false;
+                if (GuardreasonNumber is -1) GuardreasonNumber = 3;
+            }
+
+            if (info.IsGuard)
+            {
+                switch (GuardreasonNumber)
+                {
+                    case 0: //AddonGuard
+                        var state = attemptTarget.GetPlayerState();
+                        var CanuseGuards = state.HaveGuard.Where(data => data.Value > 0).Where(data => info.KillPower <= data.Key);
+
+                        if (CanuseGuards.Count() > 0)//今ここで使えるガードがある場合
+                        {
+                            state.HaveGuard[CanuseGuards.First().Key] += -1;
+                        }
+                        var HaveGuardCount = 0;
+                        state.HaveGuard.Do(data =>
+                        {
+                            HaveGuardCount += data.Value;
+                        });
+
+                        UtilsGameLog.AddGameLog($"Guard", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} ガード残り : {HaveGuardCount}", "Guarding");
+                        break;
+                    case 1: //Guardianangel
+                            //死んでる人にはパリーン見せる
+                        PlayerCatch.AllPlayerControls.Where(pc => pc is not null && !pc.IsAlive())
+                            .Do(pc => attemptKiller.RpcProtectedMurderPlayer(pc, attemptTarget));
+                        GuardianAngel.MeetingNotify |= true;
+                        UtilsGameLog.AddGameLog($"GuardianAngel", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        Logger.Info($"{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}守護天使ちゃんのガード!", "GuardianAngel");
+                        if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
+                            GuardianAngel.Guarng[attemptTarget.PlayerId] = 999f;
+                        break;
+                    case 2://AsistingAngel
+                        UtilsGameLog.AddGameLog($"AsistingAngel", UtilsName.GetPlayerColor(PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
+                        + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        break;
+                    case 3://Role
+                        break;
+                    default:
+                        break;
+                }
+                attemptKiller.RpcProtectedMurderPlayer(attemptTarget);
+                CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
+                UtilsNotifyRoles.NotifyRoles();
+                killer.OnCheckMurderDontKill(info);
+            }
+
+            /* 結果確定 */
+            if (info.IsGuard && info.DoKill && info.CanKill)
+            {
+                return false;
+            }
+        }
 
         //キル可能だった場合のみMurderPlayerに進む
         if (info.CanKill && info.DoKill)//ノイメ対応
         {
-            if (info.RoleAbility is false)
+            if (info.DontRoleAbility is false)
             {
                 if (appearanceTarget.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Noisemaker)
                 {
@@ -231,7 +217,7 @@ public static class CustomRoleManager
                     }
             }
 
-            if (info.RoleAbility is false)
+            if (info.DontRoleAbility is false)
                 Psychic.CanAbility(appearanceTarget);
 
             //MurderPlayer用にinfoを保存
@@ -278,7 +264,7 @@ public static class CustomRoleManager
 
         (var attemptKiller, var attemptTarget) = info.AttemptTuple;
 
-        var roleability = info.RoleAbility;
+        var roleability = info.DontRoleAbility;
 
         Logger.Info($"Real Killer={attemptKiller.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
 
@@ -646,7 +632,7 @@ public class MurderInfo
     public PlayerControl AppearanceTarget { get; set; }
 
     /// <summary>
-    /// targetがキル出来るか
+    /// targetをキル出来るか
     /// </summary>
     public bool CanKill = true;
     /// <summary>
@@ -657,13 +643,16 @@ public class MurderInfo
     /// ガーディングが発生しているか
     /// </summary>
     public bool IsGuard = false;
+
+    public int KillPower = 1;
+    public int GuardPower = 0;
     /// <summary>
     /// キル後、役職処理を行うか
     /// falseで通常処理
     /// trueでキラー,ターゲット共に行わない
     /// nullでターゲットのみ行わない
     /// </summary>
-    public bool? RoleAbility = false;
+    public bool? DontRoleAbility = false;
     /// <summary>
     ///転落死など事故の場合(キラー不在)
     /// </summary>
@@ -684,16 +673,19 @@ public class MurderInfo
     /// <summary>
     /// キルができる状態か
     /// </summary>
-    public bool IsCanKilling => !IsGuard && !IsSuicide && !IsFakeSuicide && DoKill && CanKill && !IsAccident;
-    public MurderInfo(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearancetarget, bool? roleability = false)
+    public bool IsCanKilling => !CheckHasGuard() && !IsSuicide && !IsFakeSuicide && DoKill && CanKill && !IsAccident;
+    public MurderInfo(PlayerControl attemptKiller, PlayerControl attemptTarget, PlayerControl appearanceKiller, PlayerControl appearancetarget, bool? DontRoleAbility = false, int Killpower = 1, int guardpower = 0)
     {
         AttemptKiller = attemptKiller;
         AttemptTarget = attemptTarget;
         AppearanceKiller = appearanceKiller;
         AppearanceTarget = appearancetarget;
-        RoleAbility = roleability;
+        this.DontRoleAbility = DontRoleAbility;
         killerpos = appearanceKiller.transform.position;
+        KillPower = Killpower;
+        GuardPower = guardpower;
     }
+    public bool CheckHasGuard() => KillPower <= GuardPower;
 }
 
 public enum CustomRoles

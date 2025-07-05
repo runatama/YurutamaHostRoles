@@ -73,7 +73,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
             KillCoolDown = KillCoolDown * OptionOverKillBairitu.GetFloat();
             info.DoKill = false;
 
-            CustomRoleManager.OnCheckMurder(killer, target, OptionOverKillDontKillM.GetBool() ? target : killer, target, true, null);
+            CustomRoleManager.OnCheckMurder(killer, target, OptionOverKillDontKillM.GetBool() ? target : killer, target, true, null, 10);
             OverKillMode = false;
 
             _ = new LateTask(() =>

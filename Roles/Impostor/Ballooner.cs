@@ -142,16 +142,16 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)
         {
-            if (target.Is(CustomRoles.King)) continue;
             if (target.PlayerId == Player.PlayerId && !OptionSuicide.GetBool()) continue;//自殺が無効なら除外
             if (target.PlayerId != Player.PlayerId && target.GetCustomRole().GetCustomRoleTypes() is CustomRoleTypes.Impostor && !OptionTargetImpostor.GetBool()) continue;
 
             var dis = Vector2.Distance(target.GetTruePosition(), Player.GetTruePosition());
             if (dis <= NowBoomDis)
             {
-                target.GetPlayerState().DeathReason = CustomDeathReason.Bombed;
-                target.SetRealKiller(Player);
-                target.RpcMurderPlayerV2(target);
+                if (CustomRoleManager.OnCheckMurder(Player, target, target, target, true, false, 2))
+                {
+                    target.GetPlayerState().DeathReason = CustomDeathReason.Bombed;
+                }
             }
         }
         if (OptionSuicide.GetBool() is false)
