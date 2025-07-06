@@ -52,6 +52,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
         RevealKillableFactions = OptionRevealKillableFactions.GetBool();
         RKFThreshold = OptionRKFThreshold.GetInt();
         FactionBasedStarColor = OptionFactionBasedStarColor.GetBool();
+        AddWin = OptionAddWin.GetBool();
 
         RendezvousCount = 0;
         Rendezvoused = false;
@@ -71,6 +72,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
     private static OptionItem OptionRevealKillableFactions;
     private static OptionItem OptionRKFThreshold;
     private static OptionItem OptionFactionBasedStarColor;
+    private static OptionItem OptionAddWin;
 
     public static float KillCooldown;
     private static float RendezvousCooldown;
@@ -84,6 +86,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
     private static bool RevealKillableFactions;
     private static int RKFThreshold;
     public static bool FactionBasedStarColor;
+    public static bool AddWin;
     private int RendezvousCount;
     private bool Rendezvoused;
     public bool CanSeeKiller;
@@ -104,6 +107,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
         VegaRevealKillableFactions,
         VegaRKFThreshold,
         VegaFactionBasedStarColor,
+        VegaAddWin
     }
 
     private static void SetupOptionItems()
@@ -128,6 +132,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
         OptionRKFThreshold = IntegerOptionItem.Create(RoleInfo, 20, OptionName.VegaRKFThreshold, new(1, 99, 1), 8, false, OptionRevealKillableFactions)
                 .SetValueFormat(OptionFormat.Times);
         OptionFactionBasedStarColor = BooleanOptionItem.Create(RoleInfo, 21, OptionName.VegaFactionBasedStarColor, true, false, OptionRevealKillableFactions);
+        OptionAddWin = BooleanOptionItem.Create(RoleInfo, 22, OptionName.VegaAddWin, true, false);
     }
 
     public float CalculateKillCooldown() => RendezvousCooldown;
@@ -267,7 +272,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
 
     public bool CheckWin(ref CustomRoles winnerRole)
     {
-        if (Altair == null) return false;
+        if (Altair == null || !AddWin) return false;
 
         return Check(Altair.PlayerId, CustomRoles.Altair);
 

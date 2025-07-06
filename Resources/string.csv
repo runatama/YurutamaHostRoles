@@ -1395,6 +1395,7 @@
 "VentOpenerNeutral","Boot <#cccccc>Neutral</color>","<#cccccc>ニュートラル</color>をベントから追い出せる"
 "VentOpenerCount","MaxBootCount","ベント追い出し可能回数"
 "VentOpenerFuhatu","Not Boot target Remove Count","対象がいなかった場合も回数を消費する"
+"VentOpenerBlockKill","","追い出されたキラーはそのターン中自身をキルできない"
 "VentHunterCount","Trap Count","罠の所持数"
 "VentHunterTime","Trap DisappearTime ","罠の有効時間"
 "SatelliteCount","AbilityMax","再生可能回数","","","",""
@@ -1511,6 +1512,7 @@
 "VegaRevealKillableFactions","","キル可能陣営がわかるか"
 "VegaRKFThreshold","","必要な逢い引き回数"
 "VegaFactionBasedStarColor","","陣営毎に星の色が変わる"
+"VegaAddWin","","相方が勝利した場合その相方も追加勝利する"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール"

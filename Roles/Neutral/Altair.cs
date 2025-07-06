@@ -66,7 +66,7 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
 
     public bool CheckWin(ref CustomRoles winnerRole)
     {
-        if (Vega?.Player == null) return false;
+        if (Vega?.Player == null || !Vega.AddWin) return false;
 
         return Check(Vega.Player.PlayerId, CustomRoles.Vega);
 
