@@ -22,6 +22,7 @@ namespace TownOfHost
         {
             if (GameStates.IsMeeting || GameStates.IsLobby) return false;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
+            if (SuddenDeathMode.NowSuddenDeathMode) return false;
 
             Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ReportDeadBody");
 
