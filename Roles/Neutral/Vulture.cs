@@ -126,8 +126,9 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
             //食べたときにシェイプを
             if (OptEatShape)
             {
+                var dummyshapetarget = PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != Player.PlayerId).FirstOrDefault(PlayerControl.LocalPlayer);
+                Player.RpcShapeshift(dummyshapetarget, true);
                 Player.RpcShapeshift(Player, true);
-                Player.RpcRejectShapeshift();
             }
 
             return true;

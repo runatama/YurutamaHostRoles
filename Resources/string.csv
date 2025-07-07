@@ -1245,7 +1245,7 @@
 "AmnesiacCantKillImpostor","Can't Kill Impostor","インポスターをキルできない"
 "AmnesiacMatchSettingstoSheriff","Option Role","設定を思い込んでいる役職に合わせる"
 "AmnesiacRealize","Can Realize","思い出すことができる"
-"AmnesiacImpNeedtoKill","Realize Impostro Kill","インポスターを切ると思い出せる"
+"AmnesiacImpNeedtoKill","Realize Impostor Kill","インポスターを切ると思い出せる"
 "AmnesiacNeedtoKill","Realize Kill","キルすると思い出せる"
 "AmnesiacKillsRequired","Realize Must KillCount","思い出すのに必要なキル数"
 "AmnesiacCanUseVent","Can Use Vent After Realize","思い出すとベントが入れるようになる"
