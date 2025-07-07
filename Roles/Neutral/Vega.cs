@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using Hazel;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
@@ -18,7 +17,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
             CustomRoles.Vega,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            16300,
+            22100,
             (3, 0),
             SetupOptionItems,
             "vg",
