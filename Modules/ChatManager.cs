@@ -408,6 +408,7 @@ namespace TownOfHost.Modules.ChatManager
             if (title.RemoveHtmlTags() == title) // ホストが送信した場合、
             {
                 senderplayer = PlayerControl.LocalPlayer;
+                name = PlayerControl.LocalPlayer.Data.GetLogPlayerName();
                 if (senderplayer == null) senderplayer = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
             }
             if (senderplayer == PlayerControl.LocalPlayer) _ = new LateTask(() => Utils.ApplySuffix(null, true), 0.24f, "", true);
