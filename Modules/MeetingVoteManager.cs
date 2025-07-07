@@ -300,7 +300,13 @@ public class MeetingVoteManager
         foreach (var vote in votes.OrderBy(x => x.Value))
         {
             if (vote.Value == 0) continue;
-            Logger.Info($"{vote.Key} => {vote.Value}", "VoteCount");
+            string voteforname = vote.Key switch
+            {
+                Skip => "スキップ",
+                NoVote => "無投票",
+                _ => PlayerCatch.GetPlayerInfoById(vote.Key).GetLogPlayerName(),
+            };
+            Logger.Info($"{voteforname} => {vote.Value}", "VoteCount");
         }
         return new VoteResult(votes, Tie, ClearAndExile);
     }
@@ -394,11 +400,11 @@ public class MeetingVoteManager
         public bool HasVoted => HasVotedCheck();
         public bool HasVotedCheck()
         {
-            if (!PlayerCatch.GetPlayerById(Voter)) return true;
-            if (PlayerState.GetByPlayerId(Voter) == null) return true;
+            if (PlayerCatch.GetPlayerById(Voter) is null) return true;
+            if (PlayerState.GetByPlayerId(Voter) is null) return true;
             if (PlayerState.GetByPlayerId(Voter).IsDead || VotedFor == Skip) return true;
             if (VotedFor is /*Skip or*/ NoVote) return false;//ここのスキップいらなくね?
-            if (PlayerCatch.GetPlayerById(VotedFor) != null) return !PlayerState.GetByPlayerId(VotedFor).IsDead;
+            if (PlayerCatch.GetPlayerById(VotedFor) is not null) return !PlayerState.GetByPlayerId(VotedFor).IsDead;
             return false;
         }
 

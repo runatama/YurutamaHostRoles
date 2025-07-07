@@ -59,7 +59,7 @@ public sealed class Dictator : RoleBase
                     UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), UtilsName.GetPlayerColor(Player)));
                 }
                 SetMode(Player, status is VoteStatus.Self);
-                return false;
+                return status is VoteStatus.Vote;
             }
         }
 
