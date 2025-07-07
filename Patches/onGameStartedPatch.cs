@@ -556,10 +556,9 @@ namespace TownOfHost
                 var state = pc.GetPlayerState();
                 if (pc.Is(CustomRoles.Guarding)) state.HaveGuard[1] += Guarding.HaveGuard;
                 //RoleAddons
-                if (RoleAddAddons.GetRoleAddon(role, out var data, pc, subrole: [CustomRoles.Speeding, CustomRoles.Guarding]))
+                if (RoleAddAddons.GetRoleAddon(role, out var data, pc, subrole: [CustomRoles.Guarding]))
                 {
                     if (data.GiveGuarding.GetBool()) state.HaveGuard[1] += data.Guard.GetInt();
-                    if (data.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = data.Speed.GetFloat();
                 }
                 if (!Main.AllPlayerKillCooldown.ContainsKey(pc.PlayerId))
                     Main.AllPlayerKillCooldown.Add(pc.PlayerId, Options.DefaultKillCooldown);

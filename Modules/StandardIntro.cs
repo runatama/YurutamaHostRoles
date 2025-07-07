@@ -85,41 +85,44 @@ class StandardIntro
             stream.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
+            if (!Main.IsroleAssigned)
+            {
+                roleAssigned = true;
+                PlayerCatch.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
+            }
             InnerNetClientPatch.DontTouch = false;
 
             MeetingHudPatch.StartPatch.Serialize = false;
 
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                foreach (var pc in PlayerCatch.AllPlayerControls)
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                if (pc.GetClientId() == -1) continue;
+                var role = pc.GetCustomRole();
+                var roleType = role.GetRoleTypes();
+
+                if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
                 {
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (pc.GetClientId() == -1) continue;
-                    var role = pc.GetCustomRole();
-                    var roleType = role.GetRoleTypes();
+                    roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
+                    if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
+                }
+                if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
+                if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
+                {
+                    roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                }
 
-                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
-                    {
-                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Crewmate : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Impostor : roleType));
-                        if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
-                    }
-                    if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
-                    if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
-                    {
-                        roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                    }
+                pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
 
-                    pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
-
-                    if (pc.Is(CustomRoles.Amnesiac)) continue;
-                    foreach (var seen in PlayerCatch.AllPlayerControls)
+                if (pc.Is(CustomRoles.Amnesiac)) continue;
+                foreach (var seen in PlayerCatch.AllPlayerControls)
+                {
+                    if (!SuddenDeathMode.NowSuddenDeathMode && (role.GetCustomRoleTypes() is CustomRoleTypes.Impostor || role is CustomRoles.Egoist)
+                    && (seen.GetCustomRole().GetCustomRoleTypes() is CustomRoleTypes.Impostor || seen.GetCustomRole() is CustomRoles.Egoist))
                     {
-                        if (!SuddenDeathMode.NowSuddenDeathMode && (role.GetCustomRoleTypes() is CustomRoleTypes.Impostor || role is CustomRoles.Egoist)
-                        && (seen.GetCustomRole().GetCustomRoleTypes() is CustomRoleTypes.Impostor || seen.GetCustomRole() is CustomRoles.Egoist))
-                        {
-                            _ = new LateTask(() =>
-                            seen.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable)
-                            , Main.LagTime, "SetHostImpostor", true);
-                        }
+                        _ = new LateTask(() =>
+                        seen.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId(), SendOption.Reliable)
+                        , Main.LagTime, "SetHostImpostor", true);
                     }
                 }
             }
@@ -179,11 +182,6 @@ class StandardIntro
                     send = true;
                 }
                 if (send) RPC.RpcSyncAllNetworkedPlayer();
-                if (!Main.IsroleAssigned)
-                {
-                    roleAssigned = true;
-                    PlayerCatch.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
-                }
 
                 PlayerCatch.AllPlayerControls.Do(Player => PlayerOutfitManager.Save(Player));
                 if (Options.CurrentGameMode == CustomGameMode.Standard)

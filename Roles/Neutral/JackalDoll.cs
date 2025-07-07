@@ -191,10 +191,9 @@ public sealed class JackalDoll : RoleBase
         doll.RpcSetRole(CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate, true);
 
         //サイドキックがガード等発動しないため。
-        if (RoleAddAddons.GetRoleAddon(CustomRoles.Jackaldoll, out var addondate, doll, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
+        if (RoleAddAddons.GetRoleAddon(CustomRoles.Jackaldoll, out var addondate, doll, subrole: [CustomRoles.Guarding]))
         {
             if (addondate.GiveGuarding.GetBool()) doll.GetPlayerState().HaveGuard[1] += addondate.Guard.GetInt();
-            if (addondate.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[doll.PlayerId] = addondate.Speed.GetFloat();
         }
         foreach (var jackals in PlayerCatch.AllPlayerControls)
         {

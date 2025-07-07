@@ -60,10 +60,9 @@ public sealed class Stolener : RoleBase
         UtilsNotifyRoles.NotifyRoles();
 
         if (realkiller is not null)
-            if (RoleAddAddons.GetRoleAddon(CustomRoles.Stolener, out var d, null, subrole: [CustomRoles.Guarding, CustomRoles.Speeding]))
+            if (RoleAddAddons.GetRoleAddon(CustomRoles.Stolener, out var d, null, subrole: [CustomRoles.Guarding]))
             {
                 if (d.GiveGuarding.GetBool()) realkiller.GetPlayerState().HaveGuard[1] += d.Guard.GetInt();
-                if (d.GiveSpeeding.GetBool() && !realkiller.Is(CustomRoles.UltraStar)) Main.AllPlayerSpeed[realkiller.PlayerId] = d.Speed.GetFloat();
             }
         UtilsOption.SyncAllSettings();
     }

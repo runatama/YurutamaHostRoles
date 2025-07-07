@@ -145,6 +145,8 @@ namespace TownOfHost.Modules
                 AURoleOptions.EngineerInVentMaxTime = 0;
                 return opt;
             }
+            CustomRoles role = player.GetCustomRole();
+            var HasRoleAddon = RoleAddAddons.GetRoleAddon(role, out var data, player, subrole: [CustomRoles.Lighting, CustomRoles.Moon, CustomRoles.Watching, CustomRoles.Speeding]);
 
             if (player.IsAlive())
             {
@@ -154,7 +156,6 @@ namespace TownOfHost.Modules
                 var HasLithing = player.Is(CustomRoles.Lighting);
                 var HasMoon = player.Is(CustomRoles.Moon);
 
-                CustomRoles role = player.GetCustomRole();
                 switch (role.GetCustomRoleTypes())
                 {
                     case CustomRoleTypes.Impostor:
@@ -214,7 +215,7 @@ namespace TownOfHost.Modules
                 }
 
                 //書く役職の処
-                if (RoleAddAddons.GetRoleAddon(role, out var data, player, subrole: [CustomRoles.Lighting, CustomRoles.Moon, CustomRoles.Watching]))
+                if (HasRoleAddon)
                 {
                     //Wac
                     if (data.GiveWatching.GetBool()) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
@@ -292,6 +293,7 @@ namespace TownOfHost.Modules
             {
                 bool HaveWatching = player.Is(CustomRoles.Watching);
 
+                if (HasRoleAddon && data.GiveWatching.GetBool()) HaveWatching = true;
                 if ((GhostCanSeeOtherVotes.GetBool() || !GhostOptions.GetBool()) && !player.Is(CustomRoles.AsistingAngel) && (!player.IsGhostRole() || GhostRoleCanSeeOtherVotes.GetBool()))
                     HaveWatching |= true;
                 if (HaveWatching is false)
@@ -304,7 +306,7 @@ namespace TownOfHost.Modules
                             case CustomRoles.LastNeutral: HaveWatching |= LastImpostor.GiveWatching.GetBool(); break;
                         }
                     }
-                    if (player.GetCustomRole().IsMadmate() && MadmateCanSeeOtherVotes.GetBool()) HaveWatching = true;
+                    if (role.IsMadmate() && MadmateCanSeeOtherVotes.GetBool()) HaveWatching = true;
                 }
 
                 if (HaveWatching) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
@@ -330,6 +332,12 @@ namespace TownOfHost.Modules
 
             if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out var speed))
             {
+                if (0.25f <= speed)
+                {
+                    var addspeed = player.Is(CustomRoles.Speeding) ? Speeding.Speed : 0;
+                    if (HasRoleAddon) addspeed = data.GiveSpeeding.GetBool() ? data.Speed.GetFloat() : addspeed;
+                    speed += addspeed;
+                }
                 AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 10f);
             }
 

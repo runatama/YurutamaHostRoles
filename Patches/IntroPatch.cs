@@ -468,12 +468,6 @@ namespace TownOfHost
                         NameColorManager.RemoveAll(pc.PlayerId);
                         PlayerCatch.AllPlayerControls.DoIf(pl => pl != pc, pl => NameColorManager.Add(pc.PlayerId, pl.PlayerId, Main.PlayerColors[pl.PlayerId].ColorCode()));
                     }
-                    if (pc.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
-                    //RoleAddons
-                    if (RoleAddAddons.GetRoleAddon(role, out var d, pc, subrole: [CustomRoles.Speeding]))
-                    {
-                        if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[pc.PlayerId] = d.Speed.GetFloat();
-                    }
                     //マッドメイトの最初からの内通
                     if (role.IsMadmate() && Options.MadCanSeeImpostor.GetBool())
                     {

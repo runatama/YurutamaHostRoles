@@ -33,26 +33,20 @@ public sealed class Cakeshop : RoleBase, INekomata
     )
     {
         Addedaddons.Clear();
-        Speedings.Clear();
         CustomRoleManager.LowerOthers.Add(GetLowerTextOthers);
     }
 
     public Dictionary<byte, CustomRoles> Addedaddons = new();
-    public Dictionary<byte, float> Speedings = new();
+
 
     public override void AfterMeetingTasks()
     {
-        foreach (var sp in Speedings)
-        {
-            Main.AllPlayerSpeed[sp.Key] = sp.Value;
-        }
         foreach (var gu in Addedaddons.Where(v => v.Value is CustomRoles.Guarding))
         {
             var state = PlayerCatch.GetPlayerState(gu.Key);
 
             state.HaveGuard[1] -= Guarding.HaveGuard;
         }
-        Speedings.Clear();
         PlayerState.AllPlayerStates.DoIf(
             x => Addedaddons.ContainsKey(x.Key),
             state => state.Value.RemoveSubRole(Addedaddons[state.Key]));
@@ -68,11 +62,6 @@ public sealed class Cakeshop : RoleBase, INekomata
                               .FirstOrDefault();
             Addedaddons[pc.PlayerId] = addon;
 
-            if (addon is CustomRoles.Speeding)
-            {
-                Speedings.Add(pc.PlayerId, Main.AllPlayerSpeed[pc.PlayerId]);
-                Main.AllPlayerSpeed[pc.PlayerId] = Speeding.Speed;
-            }
             if (addon is CustomRoles.Guarding)
             {
                 var state = pc.GetPlayerState();

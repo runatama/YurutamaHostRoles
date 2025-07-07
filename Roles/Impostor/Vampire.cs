@@ -150,13 +150,6 @@ namespace TownOfHost.Roles.Impostor
             _ = new LateTask(() =>
             {
                 Main.AllPlayerSpeed[target.PlayerId] = tmpSpeed;
-
-                if (target.Is(CustomRoles.Speeding)) Main.AllPlayerSpeed[target.PlayerId] = AddOns.Common.Speeding.Speed;
-                //RoleAddons
-                if (RoleAddAddons.GetRoleAddon(target.GetCustomRole(), out var d, target, subrole: CustomRoles.Speeding))
-                {
-                    if (d.GiveSpeeding.GetBool()) Main.AllPlayerSpeed[target.PlayerId] = d.Speed.GetFloat();
-                }
                 _ = new LateTask(() => target.MarkDirtySettings(), 0.9f, "Do-ki");
             }, 0.4f, "Modosu");
 

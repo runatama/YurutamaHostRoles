@@ -137,7 +137,7 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
             ResetCoolDown = false;
             return;
         }
-        AdjustKillCoolDown = true;
+        AdjustKillCoolDown = false;
         ResetCoolDown = true;
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)
