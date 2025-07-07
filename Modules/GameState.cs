@@ -21,6 +21,7 @@ namespace TownOfHost
         public bool IsBlackOut { get; set; }
         private bool _canUseMovingPlatform = true;
         public string KillRoom;
+        public bool Is10secKillButton;
 
         /// <summary>
         /// 持っているガード。<br/>
@@ -61,6 +62,7 @@ namespace TownOfHost
             TargetColorData = new();
             NumberOfRemainingButtons = Main.NormalOptions.NumEmergencyMeetings;
             KillRoom = "";
+            Is10secKillButton = true;
             HaveGuard = new(2)
             {
                 { 1, 0 },

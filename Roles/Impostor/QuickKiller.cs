@@ -66,7 +66,7 @@ public sealed class QuickKiller : RoleBase, IImpostor
         {
             timer = null;
             player.ResetKillCooldown();
-            player.SetKillCooldown(force: true, AfterReset: true);
+            player.SetKillCooldown(force: true);
             player.RpcResetAbilityCooldown();
         }
     }

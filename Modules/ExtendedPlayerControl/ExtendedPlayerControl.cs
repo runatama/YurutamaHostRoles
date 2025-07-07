@@ -82,7 +82,7 @@ namespace TownOfHost
             return PlayerState.GetByPlayerId(player.PlayerId)?.CountType ?? CountTypes.None;
         }
 
-        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool force = false, bool delay = false, bool AfterReset = false)
+        public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool force = false, bool delay = false)
         {
             if (player == null) return;
             if (target == null) target = player;
@@ -100,6 +100,7 @@ namespace TownOfHost
                 if (0f <= time)
                 {
                     Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
+                    player.GetPlayerState().Is10secKillButton = false;
                 }
                 else
                 {
@@ -121,7 +122,7 @@ namespace TownOfHost
                 player.RpcProtectedMurderPlayer(target);
                 if (player != target) player.RpcProtectedMurderPlayer();
             }
-            if (player.CanUseKillButton() && AfterReset)
+            if (player.CanUseKillButton())
             {
                 _ = new LateTask(() =>
                 {

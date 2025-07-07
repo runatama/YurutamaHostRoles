@@ -228,8 +228,9 @@ namespace TownOfHost
             float TurnTimer = 0;
             IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out TurnTimer);
             Main.AllPlayerKillCooldown.TryGetValue(__instance.PlayerId, out var killcool);
-            /* 初手で、キルク修正がオフでキルクが10s以上で、キルが0回*/
-            if (MeetingStates.FirstMeeting && !Options.FixFirstKillCooldown.GetBool() && killcool > 10 && PlayerState.GetByPlayerId(__instance.PlayerId)?.GetKillCount() is 0 or null)
+            /* 初手で、キルク修正がオフでキルクが10s以上で、10sのまま*/
+            if (MeetingStates.FirstMeeting && !Options.FixFirstKillCooldown.GetBool() && killcool > 10 &&
+            (PlayerState.GetByPlayerId(__instance.PlayerId)?.Is10secKillButton == true))
                 killcool = 10;
             float cooldown = killcool - TurnTimer;
             if (cooldown <= 1) cooldown = 0.005f;

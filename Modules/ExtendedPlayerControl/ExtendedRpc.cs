@@ -93,7 +93,7 @@ namespace TownOfHost
 
                 if (GameStates.IsInTask && !GameStates.CalledMeeting && GameStates.AfterIntro && (role.IsGhostRole() || role < CustomRoles.NotAssigned))
                 {
-                    player.SetKillCooldown(delay: true, force: true, AfterReset: true);
+                    player.SetKillCooldown(delay: true, force: true);
                     player.RpcResetAbilityCooldown();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     (roleClass as IUsePhantomButton)?.Init(player);

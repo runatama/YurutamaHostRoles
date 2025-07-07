@@ -336,6 +336,7 @@ public static class CustomRoleManager
 
         targetState.SetDead();
         attemptTarget.SetRealKiller(attemptKiller, true);
+        appearanceKiller.GetPlayerState().Is10secKillButton = false;
 
         GhostRoleAssingData.AssignAddOnsFromList(true);
 

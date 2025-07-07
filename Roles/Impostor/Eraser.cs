@@ -102,7 +102,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
         EraseTargets.Add(target.PlayerId);//消す予定の人
 
         _ = new LateTask(() =>
-            Player.SetKillCooldown(target: target, AfterReset: true), Main.LagTime, "EraserNoyatu", true);
+            Player.SetKillCooldown(target: target), Main.LagTime, "EraserNoyatu", true);
 
         if (!DeltimingAfterMeeting) ErasePlayer();
 

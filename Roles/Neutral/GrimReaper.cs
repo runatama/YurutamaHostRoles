@@ -95,7 +95,7 @@ namespace TownOfHost.Roles.Neutral
             {
                 if (!GrimPlayers.ContainsKey(target.PlayerId))
                 {
-                    killer.SetKillCooldown(delay: true, AfterReset: false);
+                    killer.SetKillCooldown(delay: true);
                     GrimPlayers.Add(target.PlayerId, OptionGrimActiveTime.GetFloat());
                     cankill = false;
                 }

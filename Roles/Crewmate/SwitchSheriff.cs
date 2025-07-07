@@ -355,7 +355,7 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
         //シェリフモードのみ実行
         if (!Taskmode)
         {
-            Player.SetKillCooldown(Mathf.Max(LastCooltime, 0.1f), delay: true, AfterReset: false);//ラグで貯まる一瞬前にぼーんできないように
+            Player.SetKillCooldown(Mathf.Max(LastCooltime, 0.1f), delay: true);//ラグで貯まる一瞬前にぼーんできないように
         }
         return Taskmode;
     }

@@ -417,7 +417,7 @@ namespace TownOfHost
                         }, 0.7f, "FixKillCooldownTask", null);
                     else _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, force: true, delay: true, AfterReset: true));
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(10f, force: true, delay: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     GameStates.Intro = false;
                     GameStates.AfterIntro = true;
