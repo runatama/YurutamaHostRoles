@@ -90,7 +90,11 @@ namespace TownOfHost
         public static bool ResetAndSetAndChWinner(CustomWinner winner, byte playerId, bool AddWin = true, CustomRoles hantrole = CustomRoles.NotAssigned)
         {
             GameStates.CalledMeeting = false;
-            Logger.Info($"RASACW {WinnerTeam} => {winner}", "CustomWinner");
+            var caller = new System.Diagnostics.StackFrame(1, false);
+            var callerMethod = caller.GetMethod();
+            string callerMethodName = callerMethod.Name;
+            string callerClassName = callerMethod.DeclaringType.FullName;
+            Logger.Info($"RASACW {WinnerTeam} => {winner} , Call:{callerMethodName}.{callerClassName}", "CustomWinner");
 
             if (SoloWinOption.AllData.TryGetValue(hantrole is CustomRoles.NotAssigned ? (CustomRoles)winner : hantrole, out var data))
             {
