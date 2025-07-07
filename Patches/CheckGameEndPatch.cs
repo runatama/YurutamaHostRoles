@@ -539,6 +539,7 @@ namespace TownOfHost
         {
             reason = GameOverReason.ImpostorsByKill;
             if (ShipStatus.Instance.Systems == null) return false;
+            if (GameStates.IsMeeting) return false;
 
             // TryGetValueは使用不可
             var systems = ShipStatus.Instance.Systems;
