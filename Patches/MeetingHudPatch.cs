@@ -4,9 +4,9 @@ using System.Text;
 
 using HarmonyLib;
 using UnityEngine;
-using AmongUs.GameOptions;
 
 using TownOfHost.Modules;
+using TownOfHost.Patches;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Crewmate;
@@ -78,7 +78,6 @@ public static class MeetingHudPatch
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
     public class StartPatch
     {
-        public static bool Serialize = false;
         public static void Prefix()
         {
             Logger.Info($"------------会議開始　day:{UtilsGameLog.day}------------", "Phase");
@@ -109,7 +108,7 @@ public static class MeetingHudPatch
 
             if (Options.ExHideChatCommand.GetBool() && !Assassin.NowUse)
             {
-                _ = new LateTask(() =>
+                _ = new LateTask(static () =>
                 {
                     if (AntiBlackout.IsCached || AntiBlackout.IsSet) return;
 
@@ -131,9 +130,8 @@ public static class MeetingHudPatch
                             tg.Data.IsDead = true;
                         }
                         pc.Data.IsDead = false;
-                        Serialize = true;
+                        GameDataSerializePatch.SerializeMessageCount++;
                         RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                        Serialize = false;
                     }
                     foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
                     {
@@ -511,14 +509,14 @@ public static class MeetingHudPatch
 
                     if (Options.ExHideChatCommand.GetBool() && !AntiBlackout.IsCached)
                     {
-                        StartPatch.Serialize = true;
+                        GameDataSerializePatch.SerializeMessageCount++;
                         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                         {
                             if (pc == player) continue;
                             pc.Data.IsDead = false;
                         }
                         RPC.RpcSyncAllNetworkedPlayer(player.GetClientId());
-                        StartPatch.Serialize = false;
+                        GameDataSerializePatch.SerializeMessageCount--;
                     }
                 });
             }

@@ -7,6 +7,7 @@ using System.Linq;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.AddOns.Common;
 using static TownOfHost.SelectRolesPatch;
+using TownOfHost.Patches;
 
 namespace TownOfHost.Modules;
 
@@ -18,7 +19,7 @@ class StandardIntro
         if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
         {
             InnerNetClientPatch.DontTouch = true;
-            MeetingHudPatch.StartPatch.Serialize = true;
+            GameDataSerializePatch.SerializeMessageCount++; ;
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
@@ -34,7 +35,7 @@ class StandardIntro
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
             InnerNetClientPatch.DontTouch = false;
-            MeetingHudPatch.StartPatch.Serialize = false;
+            GameDataSerializePatch.SerializeMessageCount--; ;
             foreach (var data in GameData.Instance.AllPlayers)
             {
                 data.Disconnected = false;
@@ -47,7 +48,7 @@ class StandardIntro
         var host = PlayerControl.LocalPlayer;
 
         InnerNetClientPatch.DontTouch = true;
-        MeetingHudPatch.StartPatch.Serialize = true;
+        GameDataSerializePatch.SerializeMessageCount++; ;
         if (Options.ExIntroWeight.GetBool())
         {
             foreach (var data in GameData.Instance.AllPlayers) data.Disconnected = true;
@@ -92,7 +93,7 @@ class StandardIntro
             }
             InnerNetClientPatch.DontTouch = false;
 
-            MeetingHudPatch.StartPatch.Serialize = false;
+            GameDataSerializePatch.SerializeMessageCount--; ;
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {

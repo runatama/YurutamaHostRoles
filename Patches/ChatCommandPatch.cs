@@ -25,6 +25,7 @@ using static TownOfHost.UtilsName;
 using static TownOfHost.Translator;
 using static TownOfHost.PlayerCatch;
 using TownOfHost.Roles.Core.Descriptions;
+using TownOfHost.Patches;
 
 namespace TownOfHost
 {
@@ -1503,8 +1504,6 @@ namespace TownOfHost
 
                     if (GameStates.CalledMeeting && GameStates.IsMeeting && !AntiBlackout.IsSet && !AntiBlackout.IsCached && !canceled)
                     {
-                        if (GameStates.ExiledAnimate) break;
-
                         if (!player.IsAlive()) break;
                         _ = new LateTask(() =>
                         {
@@ -1523,7 +1522,7 @@ namespace TownOfHost
                                     var sender = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
                                     sender.StartMessage(pc.GetClientId());
 
-                                    MeetingHudPatch.StartPatch.Serialize = true;
+                                    GameDataSerializePatch.SerializeMessageCount++;
 
                                     sender.Write((wit) =>
                                     {
@@ -1534,7 +1533,7 @@ namespace TownOfHost
                                         }
                                         wit.EndMessage();
                                     }, true);
-                                    MeetingHudPatch.StartPatch.Serialize = false;
+                                    GameDataSerializePatch.SerializeMessageCount--;
                                     sender.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                     .Write(player.NetId)
                                     .Write(playername)
@@ -1543,7 +1542,7 @@ namespace TownOfHost
                                             .Write(text)
                                             .EndRpc();
                                     player.Data.IsDead = true;
-                                    MeetingHudPatch.StartPatch.Serialize = true;
+                                    GameDataSerializePatch.SerializeMessageCount++;
 
                                     sender.Write((wit) =>
                                     {
@@ -1556,7 +1555,7 @@ namespace TownOfHost
                                     }, true);
                                     sender.EndMessage();
                                     sender.SendMessage();
-                                    MeetingHudPatch.StartPatch.Serialize = false;
+                                    GameDataSerializePatch.SerializeMessageCount--;
                                 }
                                 player.Data.IsDead = false;
                             }
@@ -1566,7 +1565,7 @@ namespace TownOfHost
             }
             if (AntiBlackout.IsCached && !player.IsAlive() && GameStates.InGame)
             {
-                ChatManager.SendPreviousMessagesToAll();
+                ChatManager.SendPreviousMessagesToAll(false);
             }
             canceled &= Options.ExHideChatCommand.GetBool();
 

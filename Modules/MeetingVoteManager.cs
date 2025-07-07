@@ -195,8 +195,11 @@ public class MeetingVoteManager
         Main.CanUseAbility = false;
         if (!AntiBlackout.OverrideExiledPlayer())
         {
-            AntiBlackout.SetIsDead();
-            AntiBlackout.SetRole(result);
+            _ = new LateTask(() =>
+            {
+                AntiBlackout.SetIsDead();
+                AntiBlackout.SetRole(result);
+            }, 4.7f, "LateAntiBlackoutSet", null);
         }
 
         if (AntiBlackout.OverrideExiledPlayer())

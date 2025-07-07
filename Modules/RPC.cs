@@ -399,7 +399,6 @@ namespace TownOfHost
                 writer.Write(AmongUsClient.Instance.GameId);
                 writer.WritePacked(TargetClientId);
             }
-            GameDataSerializePatch.Sending = true;
             foreach (var player in GameData.Instance.AllPlayers)
             {
                 // データを分割して送信
@@ -430,7 +429,6 @@ namespace TownOfHost
                 }
                 writer.EndMessage();
             }
-            GameDataSerializePatch.Sending = false;
             writer.EndMessage();
 
             AmongUsClient.Instance.SendOrDisconnect(writer);

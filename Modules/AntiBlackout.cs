@@ -7,6 +7,7 @@ using Hazel;
 
 using TownOfHost.Attributes;
 using TownOfHost.Modules;
+using TownOfHost.Patches;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
@@ -89,7 +90,7 @@ namespace TownOfHost
         public static void SendGameData([CallerMemberName] string callerMethodName = "")
         {
             logger.Info($"SendGameData is called from {callerMethodName}");
-            MeetingHudPatch.StartPatch.Serialize = true;
+            GameDataSerializePatch.SerializeMessageCount++;
             foreach (var playerinfo in GameData.Instance.AllPlayers)
             {
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
@@ -109,7 +110,7 @@ namespace TownOfHost
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Recycle();
             }
-            MeetingHudPatch.StartPatch.Serialize = false;
+            GameDataSerializePatch.SerializeMessageCount--;
         }
         public static void OnDisconnect(NetworkedPlayerInfo player)
         {
@@ -146,7 +147,7 @@ namespace TownOfHost
                 {
                     AntiBlackout.isRoleCache.Add(player.PlayerId);
                 }
-                MeetingHudPatch.StartPatch.Serialize = true;
+                GameDataSerializePatch.SerializeMessageCount++;
                 var sender = CustomRpcSender.Create("AntiBlackoutSetRole", SendOption.Reliable);
                 sender.StartMessage();
                 foreach (var target in GameData.Instance.AllPlayers)
@@ -191,8 +192,7 @@ namespace TownOfHost
                 check = true;
                 sender.EndMessage();
                 sender.SendMessage();
-                MeetingHudPatch.StartPatch.Serialize = false;
-                //}
+                GameDataSerializePatch.SerializeMessageCount--;
             }
         }
 

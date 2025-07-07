@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using TownOfHost.Modules;
+using TownOfHost.Patches;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
@@ -131,9 +132,9 @@ public sealed class Assassin : RoleBase, IImpostor
                 }
                 isDeadCache.Clear();
 
-                MeetingHudPatch.StartPatch.Serialize = true;
+                GameDataSerializePatch.SerializeMessageCount++; ;
                 AntiBlackout.SendGameData();
-                MeetingHudPatch.StartPatch.Serialize = false;
+                GameDataSerializePatch.SerializeMessageCount--; ;
 
                 if (Options.ExHideChatCommand.GetBool())
                 {
@@ -162,9 +163,9 @@ public sealed class Assassin : RoleBase, IImpostor
                                     tg.Data.IsDead = true;
                                 }
                                 pc.Data.IsDead = false;
-                                MeetingHudPatch.StartPatch.Serialize = true;
+                                GameDataSerializePatch.SerializeMessageCount++; ;
                                 RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                MeetingHudPatch.StartPatch.Serialize = false;
+                                GameDataSerializePatch.SerializeMessageCount--; ;
                             }, count * 0.1f, "SetDienoNaka", true);
                         }
                         _ = new LateTask(() =>

@@ -5,25 +5,22 @@ namespace TownOfHost.Patches;
 [HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.Serialize))]
 class GameDataSerializePatch
 {
-    public static bool Sending;
+    public static int SerializeMessageCount;
 
     public static bool Prefix(NetworkedPlayerInfo __instance, ref bool __result)
     {
         if (AmongUsClient.Instance == null || !GameStates.InGame)
         {
-            Sending = false;
             __result = true;
             return true;
         }
-        if (MeetingHudPatch.StartPatch.Serialize)
+        if (SerializeMessageCount > 0)
         {
-            Sending = false;
             __result = true;
             return true;
         }
         if (Options.CurrentGameMode != CustomGameMode.Standard || !GameStates.IsMeeting || GameStates.ExiledAnimate || AntiBlackout.IsCached)
         {
-            Sending = false;
             return true;
         }
 

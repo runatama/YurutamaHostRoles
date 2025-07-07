@@ -15,6 +15,7 @@ using TownOfHost.Roles.Madmate;
 using TownOfHost.Roles.Crewmate;
 
 using static TownOfHost.Translator;
+using TownOfHost.Patches;
 
 namespace TownOfHost;
 
@@ -219,14 +220,14 @@ public static class GuessManager
 
                     if (Options.ExHideChatCommand.GetBool() && !AntiBlackout.IsCached)
                     {
-                        MeetingHudPatch.StartPatch.Serialize = true;
+                        GameDataSerializePatch.SerializeMessageCount++; ;
                         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                         {
                             if (pc == dp) continue;
                             pc.Data.IsDead = false;
                         }
                         RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
-                        MeetingHudPatch.StartPatch.Serialize = false;
+                        GameDataSerializePatch.SerializeMessageCount--; ;
                     }
                     _ = new LateTask(() =>
                     {
