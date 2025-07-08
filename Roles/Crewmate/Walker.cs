@@ -33,11 +33,13 @@ public sealed class Walker : RoleBase
         timer = 0;
         TaskRoom = null;
         TaskPSR = null;
+        RoomArrow = Vector2.zero;
     }
     float timer;
     public int completeroom;
     SystemTypes? TaskRoom;
     PlainShipRoom TaskPSR;
+    Vector2 RoomArrow;
     enum OptionName
     {
         WalkerWalkTaskCount
@@ -99,6 +101,9 @@ public sealed class Walker : RoleBase
 
         var rand = IRandom.Instance;
         TaskPSR = rooms[rand.Next(0, rooms.Count)];
+        if (RoomArrow != Vector2.zero) GetArrow.Remove(Player.PlayerId, RoomArrow);
+        RoomArrow = TaskPSR.transform.position;
+        GetArrow.Add(Player.PlayerId, RoomArrow);
         TaskRoom = TaskPSR.RoomId;
         Logger.Info($"NextTask : {TaskRoom}", "Walker");
         _ = new LateTask(() => UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player), 0.3f, "WalkerChengeRoom", null);
@@ -108,11 +113,13 @@ public sealed class Walker : RoleBase
         timer = 0;
         TaskRoom = null;
         TaskPSR = null;
+        GetArrow.Remove(Player.PlayerId, RoomArrow);
+        RoomArrow = Vector2.zero;
     }
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
         if (isForMeeting || seer != seen || completeroom == WalkTaskCount.GetInt() || TaskRoom == null) return "";
-        return $"<color=#057a2c>{string.Format(GetString("FoxRoomMission"), $"<color=#cccccc><b>{GetString($"{TaskRoom}")}<b></color>")}</color>";
+        return $"<color=#057a2c>{GetArrow.GetArrows(seer, [RoomArrow])} {string.Format(GetString("FoxRoomMission"), $"<color=#cccccc><b>{GetString($"{TaskRoom}")}<b></color>")}</color>";
     }
 }
