@@ -172,8 +172,8 @@ public sealed class ShrineMaiden : RoleBase
 >>>>>>> 41c340a8 (Fix : 関数名の修正)
         var madmate = Options.MadTellOpt().GetCustomRoleTypes();
         //マッドならimpにする
-        if (t1 == CustomRoleTypes.Madmate) t1 = madmate is CustomRoleTypes.Madmate ? madmate : CustomRoleTypes.Impostor;
-        if (t2 == CustomRoleTypes.Madmate) t2 = madmate is CustomRoleTypes.Madmate ? madmate : CustomRoleTypes.Impostor;
+        if (t1 == CustomRoleTypes.Madmate) t1 = madmate is CustomRoleTypes.Madmate ? CustomRoleTypes.Impostor : madmate;
+        if (t2 == CustomRoleTypes.Madmate) t2 = madmate is CustomRoleTypes.Madmate ? CustomRoleTypes.Impostor : madmate;
 
         if (t1 == t2)
         {
