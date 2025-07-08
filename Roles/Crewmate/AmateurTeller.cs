@@ -89,7 +89,7 @@ public sealed class AmateurTeller : RoleBase
     {
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.AbilityVotemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 12, Option.TellRole, true, false);
         TargetCanseePlayer = BooleanOptionItem.Create(RoleInfo, 13, Option.AmateurTellerTargetCanseePlayer, true, false);
         TargetCanseeArrow = BooleanOptionItem.Create(RoleInfo, 14, Option.AmateurTellerTargetCanseeArrow, true, false, TargetCanseePlayer);

@@ -75,7 +75,7 @@ public sealed class FortuneTeller : RoleBase
     {
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.AbilityVotemode, EnumHelper.GetAllNames<VoteMode>(), 1, false);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
         Optionrolename = BooleanOptionItem.Create(RoleInfo, 12, Option.TellerCanSeeRolename, true, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.TellRole, true, false);
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);

@@ -96,7 +96,7 @@ public sealed class PonkotuTeller : RoleBase
         OptionNonAlignFortuneTeller = BooleanOptionItem.Create(RoleInfo, 17, Option.PonkotuTellerFTOption, true, false);
         OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1f, 99f, 1f), 1f, false, OptionNonAlignFortuneTeller)
             .SetValueFormat(OptionFormat.Times);
-        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.AbilityVotemode, EnumHelper.GetAllNames<VoteMode>(), 1, false, OptionNonAlignFortuneTeller);
+        OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false, OptionNonAlignFortuneTeller);
         Optionrolename = BooleanOptionItem.Create(RoleInfo, 19, Option.TellerCanSeeRolename, true, false, OptionNonAlignFortuneTeller);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.TellRole, true, false, OptionNonAlignFortuneTeller);
         Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false, OptionNonAlignFortuneTeller);
