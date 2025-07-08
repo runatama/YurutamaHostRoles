@@ -263,7 +263,7 @@ namespace TownOfHost
                         .EndRpc();
                 }
             }
-            if (AdjustKillCoolDown && !(cooldown < 10))
+            if (AdjustKillCoolDown && 10 < cooldown)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.MurderPlayer)
                     .WriteNetObject(__instance)
@@ -306,7 +306,13 @@ namespace TownOfHost
             if (Amnesia.CheckAbilityreturn(user)) roleClass = null;
             if ((!roleClass?.OnEnterVent(user.MyPhysics, id) ?? false) || !CoEnterVentPatch.CanUse(user.MyPhysics, id))
             {
-                return Options.CurrentGameMode == CustomGameMode.TaskBattle;
+                if (Options.CurrentGameMode is not CustomGameMode.TaskBattle)
+                {
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(user.MyPhysics.NetId, (byte)RpcCalls.BootFromVent, SendOption.None, user.GetClientId());
+                    writer.Write(id);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    return false;
+                }
             }
             return true;
         }
