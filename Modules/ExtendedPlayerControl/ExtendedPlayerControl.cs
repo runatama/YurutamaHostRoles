@@ -91,20 +91,27 @@ namespace TownOfHost
 
             if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) CustomButtonHud.BottonHud();
 
-            if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId))
+            if (player.CanUseKillButton())
             {
-                player.ResetKillCooldown();
+                if (IUsePhantomButton.IPPlayerKillCooldown.ContainsKey(player.PlayerId))
+                {
+                    IUsePhantomButton.IPPlayerKillCooldown[player.PlayerId] = 0;
+                }
+                if (!Main.AllPlayerKillCooldown.ContainsKey(player.PlayerId))
+                {
+                    player.ResetKillCooldown();
+                }
+                if (0f <= time)
+                {
+                    Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
+                    player.GetPlayerState().Is10secKillButton = false;
+                }
+                else
+                {
+                    Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
+                }
+                player.SyncSettings();
             }
-            if (0f <= time)
-            {
-                Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
-                player.GetPlayerState().Is10secKillButton = false;
-            }
-            else
-            {
-                Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
-            }
-            player.SyncSettings();
 
             if (delay)
             {

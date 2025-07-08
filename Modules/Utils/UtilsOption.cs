@@ -452,7 +452,7 @@ namespace TownOfHost
             sb.Append($"{GetString(StringNames.GamePlayerSpeed)}:{Main.NormalOptions.PlayerSpeedMod.ToString()}x\n");
             sb.Append($"{GetString(StringNames.GameCrewLight)}:{Main.NormalOptions.CrewLightMod.ToString()}x\n");
             sb.Append($"{GetString(StringNames.GameImpostorLight)}:{Main.NormalOptions.ImpostorLightMod.ToString()}x\n");
-            sb.Append($"{GetString(StringNames.GameKillCooldown)}:{Main.NormalOptions.KillCooldown.ToString()}s\n");
+            sb.Append($"{GetString(StringNames.GameKillCooldown)}:{Options.DefaultKillCooldown.ToString()}s\n");
             sb.Append($"{GetString(StringNames.GameCommonTasks)}:{Main.NormalOptions.NumCommonTasks.ToString()}\n");
             sb.Append($"{GetString(StringNames.GameLongTasks)}:{Main.NormalOptions.NumLongTasks.ToString()}\n");
             sb.Append($"{GetString(StringNames.GameShortTasks)}:{Main.NormalOptions.NumShortTasks.ToString()}\n");
