@@ -22,8 +22,11 @@ namespace TownOfHost
         {
             if (GameStates.IsMeeting || GameStates.IsLobby) return false;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
-            if (SuddenDeathMode.NowSuddenDeathMode) return false;
-
+            if (SuddenDeathMode.NowSuddenDeathMode)
+            {
+                CheckMeeting(__instance, target);
+                return false;
+            }
             Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ReportDeadBody");
 
             var State = PlayerState.GetByPlayerId(__instance.PlayerId);
@@ -289,14 +292,9 @@ namespace TownOfHost
                         check = true;
                     }
                 }
-            }
-
-            if (SuddenDeathMode.NowSuddenDeathMode)
-            {
-                Logger.Info($"サドンデスモードなのにボタンを使おうと?", "ReportDeadBody");
-                AddDontrepo(repoter, DontReportreson.CantUseButton);
                 return false;
             }
+
             //サボタージュ中でボタンの時、キャンセルする
             if ((Utils.IsActive(SystemTypes.Reactor)
                 || Utils.IsActive(SystemTypes.Electrical)
