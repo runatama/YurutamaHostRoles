@@ -147,24 +147,6 @@ namespace TownOfHost
                         }
                     }
 
-                    //バウンティハンターのターゲットテキスト
-                    if (LowerInfoText == null)
-                    {
-                        LowerInfoText = UnityEngine.Object.Instantiate(__instance.TaskPanel.taskText);
-                        LowerInfoText.transform.parent = __instance.transform;
-                        LowerInfoText.transform.localPosition = new Vector3(0, -2f, 0);
-                        LowerInfoText.alignment = TMPro.TextAlignmentOptions.Center;
-                        LowerInfoText.overflowMode = TMPro.TextOverflowModes.Overflow;
-                        LowerInfoText.enableWordWrapping = false;
-                        LowerInfoText.color = Palette.EnabledColor;
-                        LowerInfoText.fontSizeMin = 2.0f;
-                        LowerInfoText.fontSizeMax = 2.0f;
-                    }
-
-                    LowerInfoText.text = roleClass?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
-                    if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
-                    if (player.GetMisidentify(out _)) LowerInfoText.text = "";
-
 #if DEBUG
                     if (Main.ShowDistance.Value)
                     {
@@ -218,6 +200,24 @@ namespace TownOfHost
                         __instance.AbilityButton.OverrideText(GetString(StringNames.HauntAbilityName));
                     }
                 }
+
+                //バウンティハンターのターゲットテキスト
+                if (LowerInfoText == null)
+                {
+                    LowerInfoText = UnityEngine.Object.Instantiate(__instance.TaskPanel.taskText);
+                    LowerInfoText.transform.parent = __instance.transform;
+                    LowerInfoText.transform.localPosition = new Vector3(0, -2f, 0);
+                    LowerInfoText.alignment = TMPro.TextAlignmentOptions.Center;
+                    LowerInfoText.overflowMode = TMPro.TextOverflowModes.Overflow;
+                    LowerInfoText.enableWordWrapping = false;
+                    LowerInfoText.color = Palette.EnabledColor;
+                    LowerInfoText.fontSizeMin = 2.0f;
+                    LowerInfoText.fontSizeMax = 2.0f;
+                }
+
+                LowerInfoText.text = player.GetRoleClass()?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
+                if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
+                if (player.GetMisidentify(out _)) LowerInfoText.text = "";
             }
 
             if (Input.GetKeyDown(KeyCode.Y) && AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
