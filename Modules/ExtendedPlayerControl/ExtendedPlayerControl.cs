@@ -306,6 +306,10 @@ namespace TownOfHost
             {
                 role = pc.GetCustomRole();
             }
+            if (role is CustomRoles.SKMadmate)
+            {
+                role = Options.MadTellOpt() is CustomRoles.NotAssigned ? role : Options.MadTellOpt();
+            }
             return role;
         }
         public static void ResetKillCooldown(this PlayerControl player)
