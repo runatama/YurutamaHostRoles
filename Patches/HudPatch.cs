@@ -155,8 +155,6 @@ namespace TownOfHost
                     }
 #endif
 
-                    LowerInfoText.enabled = LowerInfoText.text != "";
-
                     if (Main.RTAMode && GameStates.IsInTask)
                     {
                         LowerInfoText.enabled = true;
@@ -218,6 +216,8 @@ namespace TownOfHost
                 LowerInfoText.text = player.GetRoleClass()?.GetLowerText(player, isForMeeting: GameStates.IsMeeting, isForHud: true) ?? "";
                 if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
                 if (player.GetMisidentify(out _)) LowerInfoText.text = "";
+
+                LowerInfoText.enabled = LowerInfoText.text != "";
             }
 
             if (Input.GetKeyDown(KeyCode.Y) && AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
