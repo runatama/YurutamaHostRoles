@@ -743,6 +743,8 @@ public enum CustomRoles
     EvilMaker,
     Eraser,
     QuickKiller,
+    CharismaStar,
+    //DEBUG only Impostor
     Ballooner,
     BorderKiller,
     ShapeKiller,
