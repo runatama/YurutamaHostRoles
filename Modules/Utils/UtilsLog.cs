@@ -401,6 +401,10 @@ namespace TownOfHost
             {
                 Logger.Info("なんかTryAddが失敗に終わったよ!", "WriteGameLog");
             }
+            else if (GameLog.TryGetValue(day, out var Oldlog))
+            {
+                GameLog[day] = Oldlog + TodayLog;
+            }
             TodayLog = "";
         }
         public static string gamelog;
