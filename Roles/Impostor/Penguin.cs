@@ -88,6 +88,7 @@ class Penguin : RoleBase, IImpostor
     void AddVictim(PlayerControl target)
     {
         PlayerState.GetByPlayerId(target.PlayerId).CanUseMovingPlatform = MyState.CanUseMovingPlatform = false;
+        CheckMurderPatch.TimeSinceLastKill[Player.PlayerId] = 0f;
         AbductVictim = target;
         AbductTimer = AbductTimerLimit;
         Player.SyncSettings();

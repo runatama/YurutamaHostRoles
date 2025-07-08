@@ -312,6 +312,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         {
             info.DoKill = false;
             PlayerState.GetByPlayerId(target.PlayerId).CanUseMovingPlatform = MyState.CanUseMovingPlatform = false;
+            CheckMurderPatch.TimeSinceLastKill[killer.PlayerId] = 0f;
             AbductVictim = target;
             AbductTimer = AbductTimerLimit;
             Player.SyncSettings();

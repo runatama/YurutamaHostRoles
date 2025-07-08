@@ -55,7 +55,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         InsiderCansee.Clear();
         NameAddmin.Clear();
-        if (FirstAbility.GetBool()) AfterMeetingTasks();
     }
     public override void Add()
     {
@@ -65,6 +64,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         oldsendabtimer = 255f;
         stopCount = false;
         Aliens.Add(this);
+        if (FirstAbility.GetBool()) AfterMeetingTasks();
     }
     public override void OnDestroy()
     {
@@ -339,6 +339,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         {
             info.DoKill = false;
             PlayerState.GetByPlayerId(target.PlayerId).CanUseMovingPlatform = MyState.CanUseMovingPlatform = false;
+            CheckMurderPatch.TimeSinceLastKill[killer.PlayerId] = 0f;
             AbductVictim = target;
             AbductTimer = AbductTimerLimit;
             Player.SyncSettings();
@@ -590,7 +591,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         if (!Player.IsAlive() && !gamelog) return "";
-        if (AlienHitoku || GameStates.CalledMeeting || gamelog) return Mode(gamelog);
+        if (AlienHideAbility || GameStates.CalledMeeting || gamelog) return Mode(gamelog);
 
         return "";
     }
@@ -629,7 +630,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 }
                 return "";
             }
-            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHitoku && !GameStates.CalledMeeting && !MeetingStates.FirstMeeting)
+            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHideAbility && !GameStates.CalledMeeting && !MeetingStates.FirstMeeting)
             {
                 return $"<size=50%>{al.Mode()}</size>";
             }
@@ -1022,7 +1023,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         TimeThiefDecreaseMeetingTime = OptionTimeThiefDecreaseMeetingTime.GetInt();
         NotifierCance = OptionNotifierProbability.GetInt();
         VampireKillDelay = OptionVampireKillDelay.GetFloat();
-        AlienHitoku = OptionAlienHitoku.GetBool();
+        AlienHideAbility = OptionAlienHideAbility.GetBool();
         Limiterblastrange = Optionblastrange.GetFloat();
         TimeThiefReturnStolenTimeUponDeath = OptionTimeThiefReturnStolenTimeUponDeath.GetBool();
         StealthDarkenDuration = OptionStealthDarkenDuration.GetInt();
@@ -1185,8 +1186,8 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
 
     //秘匿設定
     static OptionItem FirstAbility;
-    static OptionItem OptionAlienHitoku;
-    static bool AlienHitoku;
+    static OptionItem OptionAlienHideAbility;
+    static bool AlienHideAbility;
     bool modeNone;
     //植え付け
     static OptionItem OptUetuke;
@@ -1196,7 +1197,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     bool UetukeUsed;
     enum OptionName
     {
-        AlienHitoku, AlienFirstAbility,
+        AlienHideAbility, AlienFirstAbility,
         AlienCVampire, VampireKillDelay, VampireSpeedDownCount, VampireSpeedDown,
         AlienCEvilHacker,
         AlienCLimiter, blastrange,
@@ -1219,7 +1220,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     static void SetupOptionItem()//NowMax : 42
     {
         FirstAbility = BooleanOptionItem.Create(RoleInfo, 7, OptionName.AlienFirstAbility, false, false);
-        OptionAlienHitoku = BooleanOptionItem.Create(RoleInfo, 9, OptionName.AlienHitoku, false, false);
+        OptionAlienHideAbility = BooleanOptionItem.Create(RoleInfo, 9, OptionName.AlienHideAbility, false, false);
         OptionModeVampire = FloatOptionItem.Create(RoleInfo, 10, OptionName.AlienCVampire, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         SpeedDown = BooleanOptionItem.Create(RoleInfo, 40, OptionName.VampireSpeedDown, true, false, OptionModeVampire);
         SpeedDownCount = FloatOptionItem.Create(RoleInfo, 41, OptionName.VampireSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown).SetValueFormat(OptionFormat.Seconds);

@@ -1097,7 +1097,7 @@
 
 "## Impostor Role Setting"
 "AlienFirstAbility","Firse Turn Have Ability","初手ターンから能力を持っている"
-"AlienHitoku","Known mode task turn.","現在の能力がタスクターン中も分かる"
+"AlienHideAbility","Known mode task turn.","現在の能力がタスクターン中も分かる"
 "AlienCVampire","<#ff1919>Vampire</color>.","<#ff1919>ヴァンパイア</color>になる確率"
 "AlienCEvilHacker","<#ff1919>Evil Hacker</color>.","<#ff1919>イビルハッカー</color>になる確率"
 "AlienCLimiter","<#ff1919> Limiter</color>","<#ff1919>リミッター</color>になる確率"

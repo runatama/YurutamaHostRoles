@@ -57,8 +57,6 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         CustomRoleManager.MarkOthers.Add(GetMarkOthers);
         InsiderCansee.Clear();
         NameAddmin.Clear();
-
-        if (FirstAbility.GetBool()) AfterMeetingTasks();
     }
     public override void Add()
     {
@@ -75,6 +73,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         InsiderCansee.Clear();
         NameAddmin.Clear();
         Aliens.Add(this);
+        if (FirstAbility.GetBool()) AfterMeetingTasks();
     }
     public override void OnDestroy()
     {
@@ -338,6 +337,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         {
             info.DoKill = false;
             PlayerState.GetByPlayerId(target.PlayerId).CanUseMovingPlatform = MyState.CanUseMovingPlatform = false;
+            CheckMurderPatch.TimeSinceLastKill[killer.PlayerId] = 0f;
             AbductVictim = target;
             AbductTimer = AbductTimerLimit;
             Player.SyncSettings();
@@ -356,11 +356,11 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
             if (GameStates.IsMeeting || info.IsAccident || info.IsSuicide || !info.CanKill || !info.DoKill) return;
             // 殺してきた人を殺し返す
             if (!GameStates.CalledMeeting && MyState.DeathReason is CustomDeathReason.Revenge) return;
-            Logger.Info("ネコカボチャの仕返し", "Alien");
+            Logger.Info("ネコカボチャの仕返し", "JJAlien");
             var killer = info.AttemptKiller;
             if (!IsCandidate(killer))
             {
-                Logger.Info("キラーは仕返し対象ではないので仕返しされません", "Alien");
+                Logger.Info("キラーは仕返し対象ではないので仕返しされません", "JAlien");
                 return;
             }
             if (CustomRoleManager.OnCheckMurder(Player, killer, Player, killer, true, false))
@@ -590,7 +590,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
         if (!Player.IsAlive() && !gamelog) return "";
-        if (AlienHitoku || GameStates.CalledMeeting || gamelog) return Mode(gamelog);
+        if (AlienHideAbility || GameStates.CalledMeeting || gamelog) return Mode(gamelog);
 
         return "";
     }
@@ -629,7 +629,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 }
                 return "";
             }
-            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHitoku && !GameStates.CalledMeeting && !MeetingStates.FirstMeeting)
+            if (al.Player != seer && seen == al.Player && !seer.IsAlive() && !AlienHideAbility && !GameStates.CalledMeeting && !MeetingStates.FirstMeeting)
             {
                 return $"<size=50%>{al.Mode()}</size>";
             }
@@ -931,98 +931,98 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (chance <= RateVampire)
         {
             modeVampire = true;
-            Logger.Info("Alienはヴァンパイアになりました。", "Alien");
+            Logger.Info("Alienはヴァンパイアになりました。", "JAlien");
         }
         else if (chance <= RateVampire + RateEvilHacker)
         {
-            Logger.Info("Alienはイビルハッカーになりました。", "Alien");
+            Logger.Info("Alienはイビルハッカーになりました。", "JAlien");
             modeEvilHacker = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter)
         {
-            Logger.Info("Alienはリミッターになりました。", "Alien");
+            Logger.Info("Alienはリミッターになりました。", "JAlien");
             modeLimiter = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer)
         {
-            Logger.Info("Alienはパペッティアになりました。", "Alien");
+            Logger.Info("Alienはパペッティアになりました。", "JAlien");
             modePuppeteer = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth)
         {
-            Logger.Info("Alienはステルスになりました。", "Alien");
+            Logger.Info("Alienはステルスになりました。", "JAlien");
             modeStealth = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller)
         {
-            Logger.Info("Alienはリモートキラーになりました。", "Alien");
+            Logger.Info("Alienはリモートキラーになりました。", "JAlien");
             modeRemotekiller = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier)
         {
-            Logger.Info("Alienはノーティファーになりました。", "Alien");
+            Logger.Info("Alienはノーティファーになりました。", "JAlien");
             modeNotifier = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief)
         {
-            Logger.Info("Alienはタイムシーフになりました。", "Alien");
+            Logger.Info("Alienはタイムシーフになりました。", "JAlien");
             modeTimeThief = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo)
         {
-            Logger.Info("Alienは大狼になりました。", "Alien");
+            Logger.Info("Alienは大狼になりました。", "JAlien");
             modeTairo = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor)
         {
-            Logger.Info("Alienはメイヤーになりました。", "Alien");
+            Logger.Info("Alienはメイヤーになりました。", "JAlien");
             modeMayor = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole)
         {
-            Logger.Info("Alienはモグラになりました。", "Alien");
+            Logger.Info("Alienはモグラになりました。", "JAlien");
             modeMole = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller)
         {
-            Logger.Info("Alienはプログレスキラーになりました。", "Alien");
+            Logger.Info("Alienはプログレスキラーになりました。", "JAlien");
             modeProgresskiller = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha)
         {
-            Logger.Info("Alienはネコカボチャになりました。", "Alien");
+            Logger.Info("Alienはネコカボチャになりました。", "JAlien");
             modeNekokabocha = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider)
         {
-            Logger.Info("Alienはインサイダーになりました。", "Alien");
+            Logger.Info("Alienはインサイダーになりました。", "JAlien");
             modeinsider = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
         + RatePenguin)
         {
-            Logger.Info("Alienはペングインになりました", "Alien");
+            Logger.Info("Alienはペングインになりました", "JAlien");
             modepenguin = true;
         }
         else if (chance <= RateVampire + RateEvilHacker + RateLimiter + RatePuppeteer + RateStealth + RateRemotekiller
         + RateNotifier + RateTimeThief + RateTairo + RateMayor + RateMole + RateProgresskiller + RateNekokabocha + RateInsider
         + RatePenguin + RateComebaker)
         {
-            Logger.Info("Alienはカムバッカーになりました。", "Alien");
+            Logger.Info("Alienはカムバッカーになりました。", "JAlien");
             modeComebaker = true;
         }
         else//どれにもあてはまらないならとりあえずノーマル
         {
-            Logger.Info("ｴｰﾘｱﾝﾜﾀｼｴｰﾘｱﾝ", "Alien");
+            Logger.Info("ｴｰﾘｱﾝﾜﾀｼｴｰﾘｱﾝ", "JAlien");
             modeNomal = true;
         }
     }
@@ -1049,7 +1049,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         TimeThiefDecreaseMeetingTime = OptionTimeThiefDecreaseMeetingTime.GetInt();
         NotifierCance = OptionNotifierProbability.GetInt();
         VampireKillDelay = OptionVampireKillDelay.GetFloat();
-        AlienHitoku = OptionAlienHitoku.GetBool();
+        AlienHideAbility = OptionAlienHideAbility.GetBool();
         Limiterblastrange = Optionblastrange.GetFloat();
         TimeThiefReturnStolenTimeUponDeath = OptionTimeThiefReturnStolenTimeUponDeath.GetBool();
         StealthDarkenDuration = OptionStealthDarkenDuration.GetInt();
@@ -1212,8 +1212,8 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
 
     //秘匿設定
     static OptionItem FirstAbility;
-    static OptionItem OptionAlienHitoku;
-    static bool AlienHitoku;
+    static OptionItem OptionAlienHideAbility;
+    static bool AlienHideAbility;
     bool modeNone;
     /* JackalOption*/
     public static OptionItem OptionKillCooldown;
@@ -1231,7 +1231,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     bool CanSideKick;
     enum OptionName
     {
-        AlienHitoku, AlienFirstAbility,
+        AlienHideAbility, AlienFirstAbility,
         AlienCVampire, VampireKillDelay, VampireSpeedDownCount, VampireSpeedDown,
         AlienCEvilHacker,
         AlienCLimiter, blastrange,
@@ -1267,7 +1267,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         .SetValueFormat(OptionFormat.Seconds);
         OptionSidekickPromotion = BooleanOptionItem.Create(RoleInfo, 17, JackalMafia.JackalOption.JackalSidekickPromotion, false, false, OptionCanMakeSidekick);
         FirstAbility = BooleanOptionItem.Create(RoleInfo, 4, OptionName.AlienFirstAbility, false, false);
-        OptionAlienHitoku = BooleanOptionItem.Create(RoleInfo, 18, OptionName.AlienHitoku, false, false);
+        OptionAlienHideAbility = BooleanOptionItem.Create(RoleInfo, 18, OptionName.AlienHideAbility, false, false);
         OptionModeVampire = FloatOptionItem.Create(RoleInfo, 19, OptionName.AlienCVampire, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         SpeedDown = BooleanOptionItem.Create(RoleInfo, 20, OptionName.VampireSpeedDown, true, false, OptionModeVampire);
         SpeedDownCount = FloatOptionItem.Create(RoleInfo, 21, OptionName.VampireSpeedDownCount, new(0f, 1000f, 1f), 10f, false, SpeedDown).SetValueFormat(OptionFormat.Seconds);
