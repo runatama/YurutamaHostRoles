@@ -203,7 +203,7 @@ namespace TownOfHost
                         {
                             var role = option.Key;
                             if (role is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
-                            if (Event.IsE(role) && !Event.Special) continue;
+                            if (Event.CheckRole(role) is false) continue;
                             if (role.IsImpostor() || role.IsCrewmate() || role.IsMadmate() || role.IsNeutral())
                             {
                                 if (option.Value.GetValue() is not 10)
@@ -228,8 +228,8 @@ namespace TownOfHost
                         foreach (var option in Options.CustomRoleSpawnChances)
                         {
                             var role = option.Key;
-                            if (role is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
-                            if (Event.IsE(role) && !Event.Special) continue;
+                            if (role is CustomRoles.NotAssigned) continue;
+                            if (Event.CheckRole(role) is false) continue;
                             if (option.Value.GetValue() is not 10)
                                 option.Value.SetValue(10);
                         }
@@ -248,7 +248,7 @@ namespace TownOfHost
                     SadondesuMode.OnClick = new();
                     SadondesuMode.OnClick.AddListener((Action)(() =>
                     {
-                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned and not CustomRoles.Assassin && (!Event.IsE(option.Key) || Event.Special)))
+                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && Event.CheckRole(option.Key)))
                         {
                             int IsShrima = option.Key is CustomRoles.Jumper or CustomRoles.Evilgambler or CustomRoles.EvilHacker or CustomRoles.Mole or CustomRoles.QuickKiller or CustomRoles.Sniper
                             or CustomRoles.UltraStar or CustomRoles.Shyboy or CustomRoles.DoppelGanger or CustomRoles.Terrorist or CustomRoles.Vulture ? 10 : 0;

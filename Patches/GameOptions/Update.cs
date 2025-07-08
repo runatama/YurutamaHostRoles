@@ -273,9 +273,9 @@ namespace TownOfHost
                                     enabled = v is not null && option.Parent.GetBool();
                                 }
                         }
-                        if (!Event.Special)
+                        if (!Event.CheckRole(option.CustomRole))
                         {
-                            if (Event.OptionLoad.Contains(option.Name)) enabled = false;
+                            enabled = false;
                         }
                     }
                     var opt = option.OptionBehaviour.LabelBackground;

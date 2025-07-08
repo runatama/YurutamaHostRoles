@@ -1222,7 +1222,6 @@ namespace TownOfHost
                     foreach (var info in RoleList.OrderBy(role => role.OptionSort.SortNumber))
                     {
                         if (info.RoleName is CustomRoles.AlienHijack) continue;
-                        if (!Event.CheckRole(info.RoleName)) continue;
                         SetupRoleOptions(info);
                         info.OptionCreator?.Invoke();
                     }

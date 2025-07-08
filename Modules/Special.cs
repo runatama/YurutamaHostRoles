@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using TownOfHost.Attributes;
@@ -33,7 +34,12 @@ static class Event
     private static Dictionary<CustomRoles, Func<bool>> EventRoles = new()
     {
         {CustomRoles.Altair,() => Tanabata},
-        {CustomRoles.Vega,() => Tanabata}
+        {CustomRoles.Vega,() => Tanabata},
+        {CustomRoles.Assassin , () => DebugModeManager.AmDebugger},
+        {CustomRoles.Merlin , () => DebugModeManager.AmDebugger},
+        {CustomRoles.SpeedStar , () => Special},
+        {CustomRoles.Chameleon , () => Special},
+        {CustomRoles.Cakeshop , () => NowRoleEvent}
     };
 }
 
@@ -119,7 +125,6 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
     [PluginModuleInitializer]
     public static void Load()
     {
-        if (DateTime.Now.Month is 1 && DateTime.Now.Day is 1 or 2 or 3 or 4 or 5 or 6 or 7 or 8) return;
         Event.OptionLoad.Add("SpeedStar");
         Event.OptionLoad.Add("Chameleon");
     }

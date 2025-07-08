@@ -125,7 +125,7 @@ namespace TownOfHost
                     for (int index2 = 0; index2 < Options.CustomRoleSpawnChances.Count; ++index2)
                     {
                         CustomRoles role = Options.CustomRoleSpawnChances.Keys.ToList()[index2];
-                        if (role is CustomRoles.Cakeshop or CustomRoles.Assassin || Event.IsE(role) || !Event.CheckRole(role)) continue;
+                        if (!Event.CheckRole(role)) continue;
                         var info = role.GetRoleInfo();
                         if ((info?.Tab != null) && (TabGroup)index1 + 1 == info.Tab)
                         {

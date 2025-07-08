@@ -202,7 +202,6 @@ namespace TownOfHost
                 if (roledata.Value.Item1 == roledata.Value.Item2 && roledata.Value.Item2 == 0) continue;
                 if (roledata.Key.IsE()) continue;
                 if (!Event.CheckRole(roledata.Key)) continue;
-                if ((Event.OptionLoad.Contains($"{roledata.Key}") || roledata.Key is CustomRoles.Cakeshop) && !Event.Special && !Event.NowRoleEvent) continue;
 
                 role += $"\n{GetRoleColorAndtext(roledata.Key)}：{roledata.Value.Item2}/{roledata.Value.Item1}";
                 wincount += roledata.Value.Item2;
