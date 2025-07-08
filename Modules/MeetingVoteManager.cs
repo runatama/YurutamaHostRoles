@@ -150,7 +150,8 @@ public class MeetingVoteManager
     /// </summary>
     public void CheckAndEndMeeting()
     {
-        if (meetingHud.discussionTimer - (float)Main.NormalOptions.DiscussionTime >= Main.NormalOptions.VotingTime || AllVotes.Values.All(vote => vote.HasVoted))
+        if (meetingHud.discussionTimer - (float)Main.NormalOptions.DiscussionTime >= Main.NormalOptions.VotingTime ||
+        AllVotes.Values.All(vote => vote.HasVoted))
         {
             EndMeeting(Roles.Crewmate.Balancer.Id == 255);
         }
@@ -404,7 +405,7 @@ public class MeetingVoteManager
             if (PlayerState.GetByPlayerId(Voter) is null) return true;
             if (PlayerState.GetByPlayerId(Voter).IsDead || VotedFor == Skip) return true;
             if (VotedFor is /*Skip or*/ NoVote) return false;//ここのスキップいらなくね?
-            if (PlayerCatch.GetPlayerById(VotedFor) is not null) return !PlayerState.GetByPlayerId(VotedFor).IsDead;
+            if (PlayerCatch.GetPlayerById(VotedFor) is not null) return PlayerState.GetByPlayerId(VotedFor).IsDead is false;
             return false;
         }
 

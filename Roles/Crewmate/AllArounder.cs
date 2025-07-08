@@ -130,8 +130,9 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             PlayerCatch.GetPlayerById(sourceVotedForId).SetRealKiller(Player);
             MeetingVoteManager.Instance.ClearAndExile(Player.PlayerId, sourceVotedForId);
             UtilsGameLog.AddGameLog($"Dictator", string.Format(GetString("Dictator.log"), UtilsName.GetPlayerColor(Player)));
+            return (votedForId, numVotes, false);
         }
-        return (votedForId, numVotes, false);
+        return baseVote;
     }
     #endregion
 
