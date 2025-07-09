@@ -176,6 +176,20 @@ namespace TownOfHost
                     }
                 }, 0.52f, "AfterMeetingDeathPlayers Task");
             }
+            if (Main.NormalOptions.MapId is 4 && !AntiBlackout.OverrideExiledPlayer())
+            {
+                _ = new LateTask(() =>
+                {
+                    if (CustomWinnerHolder.WinnerTeam is CustomWinner.Default)
+                        AntiBlackout.isRoleCache.Do(id =>
+                        {
+                            var pc = PlayerCatch.GetPlayerById(id);
+                            if (pc == null) return;
+                            AntiBlackout.ResetSetRole(pc);
+                            pc.KillFlash(true);
+                        });
+                }, 11.5f, "BlackoutPlayerSetRole", null);
+            }
 
             UtilsGameLog.WriteGameLog();
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
