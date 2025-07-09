@@ -26,26 +26,26 @@ public sealed class Workaholic : RoleBase
     : base(
         RoleInfo,
         player,
-        () => (CannotWinAtDeath && player.Data.IsDead) ? HasTask.False : HasTask.ForRecompute
+        () => HasTask.ForRecompute
     )
     {
         ventCooldown = OptionVentCooldown.GetFloat();
-        CannotWinAtDeath = true;
+        CanWinAtDeath = OptionWinatDeath.GetBool();
     }
     private static OptionItem OptionCanVent;
     private static OptionItem OptionVentCooldown;
-    enum OptionName
-    {
-        VentCooldown,
-    }
-    private static bool CannotWinAtDeath;
+    private static OptionItem OptionWinatDeath;
+    enum OptionName { WorkaholicCanWinAtDeath }
+    private static bool CanWinAtDeath;
     private static float ventCooldown;
     private static void SetupOptionItem()
     {
-        SoloWinOption.Create(RoleInfo, 9, defo: 1);
-        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.CanVent, false, false);
-        OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, OptionName.VentCooldown, new(0f, 180f, 2.5f), 0f, false, OptionCanVent)
+        SoloWinOption.Create(RoleInfo, 10, defo: 1);
+        OptionCanVent = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.CanVent, false, false);
+        OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 2.5f), 0f, false, OptionCanVent)
                 .SetValueFormat(OptionFormat.Seconds);
+        OptionWinatDeath = BooleanOptionItem.Create(RoleInfo, 13, OptionName.WorkaholicCanWinAtDeath, false, false);
+
         OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)
@@ -55,7 +55,7 @@ public sealed class Workaholic : RoleBase
     }
     public override bool OnCompleteTask(uint taskid)
     {
-        if (IsTaskFinished && !(CannotWinAtDeath && !Player.IsAlive()))
+        if (IsTaskFinished && (CanWinAtDeath || Player.IsAlive()))
         {
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Workaholic, Player.PlayerId, true))
             {
@@ -63,5 +63,16 @@ public sealed class Workaholic : RoleBase
             }
         }
         return true;
+    }
+    public override void OverrideProgressTextAsSeen(PlayerControl seer, ref bool enabled, ref string text)
+    {
+        seer ??= Player; //自視点/GMは変更なし
+        if (!Player.IsAlive() && !CanWinAtDeath)
+        {
+            text = "";
+        }
+
+        if (Is(seer) || seer.Is(CustomRoles.GM)) return;
+        text = $"(?/{MyTaskState.AllTasksCount})";
     }
 }

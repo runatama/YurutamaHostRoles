@@ -1535,6 +1535,7 @@
 "VegaRKFThreshold","","必要な逢い引き回数"
 "VegaFactionBasedStarColor","","陣営毎に星の色が変わる"
 "VegaAddWin","","相方が勝利した場合その相方も追加勝利する"
+"WorkaholicCanWinAtDeath","","死亡後も勝利できる"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール"
