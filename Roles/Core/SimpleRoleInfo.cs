@@ -95,6 +95,7 @@ public class SimpleRoleInfo
         CountType = countType;
         ConfigId = configId;
         OptionCreator = optionCreator;
+        this.OptionSort = OptionSort.HasValue ? OptionSort.Value : (0, 0);
         IsDesyncImpostor = isDesyncImpostor;
         this.introSound = introSound;
         this.canMakeMadmate = canMakeMadmate;
@@ -126,10 +127,6 @@ public class SimpleRoleInfo
                 _ => tab
             };
         Tab = tab;
-        if (OptionSort.HasValue is false)
-        {
-            OptionSort = (0, 0);
-        }
 
         CustomRoleManager.AllRolesInfo.Add(roleName, this);
         CustomRoleManager.CustomRoleIds.Add(configId, roleName);
