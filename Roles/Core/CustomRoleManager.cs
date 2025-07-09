@@ -7,7 +7,6 @@ using Hazel;
 using HarmonyLib;
 using AmongUs.GameOptions;
 
-using TownOfHost.Attributes;
 using TownOfHost.Roles.Core.Interfaces;
 using TownOfHost.Roles.AddOns.Common;
 using TownOfHost.Roles.Ghost;
@@ -746,6 +745,7 @@ public enum CustomRoles
     QuickKiller,
     Ballooner,
     BorderKiller,
+    ShapeKiller,
     //DEBUG only Impostor
     Assassin,
     //Madmate
