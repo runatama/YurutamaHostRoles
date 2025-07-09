@@ -564,21 +564,6 @@ namespace TownOfHost
 
             pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
         }
-        public static void AllPlayerOnlySeeMePet()
-        {
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-            {
-                var petid = Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var cos) ? cos.PetId : "pet_EmptyPet";
-
-                if (petid is "" or "pet_EmptyPet" || !pc.IsAlive()) continue;
-
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, pc.GetClientId());
-                writer.Write(petid);
-                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-
-                pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
-            }
-        }
+        public static void AllPlayerOnlySeeMePet() => PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : ""));
     }
 }
