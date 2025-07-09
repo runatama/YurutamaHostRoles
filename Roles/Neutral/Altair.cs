@@ -13,7 +13,7 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
             CustomRoles.Altair,
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
-            16200,
+            22600,
             null,
             "alt",
             "#b0c4de",

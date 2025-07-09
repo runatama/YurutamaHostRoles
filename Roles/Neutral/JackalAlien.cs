@@ -386,6 +386,7 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     }
     void KillBitten(PlayerControl target, bool isButton = false)
     {
+        if (target == null) return;
         var vampire = Player;
         if (target.IsAlive())
         {

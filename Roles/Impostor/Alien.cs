@@ -388,6 +388,7 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     }
     void KillBitten(PlayerControl target, bool isButton = false)
     {
+        if (target == null) return;
         var vampire = Player;
         if (target.IsAlive())
         {

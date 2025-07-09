@@ -145,6 +145,7 @@ namespace TownOfHost.Roles.Impostor
 
         private void KillBitten(PlayerControl target, bool isButton = false)
         {
+            if (target == null) return;
             var vampire = Player;
 
             _ = new LateTask(() =>

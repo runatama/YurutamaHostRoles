@@ -143,6 +143,7 @@ namespace TownOfHost.Roles.Neutral
         }
         private void KillBitten(PlayerControl target, bool isButton = false)
         {
+            if (target == null) return;
             var Grim = Player;
             if (target.IsAlive() && Player.IsAlive())
             {

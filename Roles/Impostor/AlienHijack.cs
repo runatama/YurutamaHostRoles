@@ -361,6 +361,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     }
     void KillBitten(PlayerControl target, bool isButton = false)
     {
+        if (target == null) return;
         var vampire = Player;
         if (target.IsAlive())
         {
