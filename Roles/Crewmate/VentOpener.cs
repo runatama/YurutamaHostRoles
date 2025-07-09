@@ -41,8 +41,8 @@ public sealed class VentOpener : RoleBase
         Neutral = OptionNeutral.GetBool();
         taskc = OptionCanTaskcount.GetFloat();
         BlockKill = OptionBlockKill.GetBool();
-        BlockVent = false;//OptionBlockVent.GetBool();
-        BlockSabotage = false;//OptionBlockSabotage.GetBool();
+        //BlockVent = OptionBlockVent.GetBool();
+        //BlockSabotage = OptionBlockSabotage.GetBool();
 
         expelledPlayers = new();
     }
@@ -68,8 +68,8 @@ public sealed class VentOpener : RoleBase
     static bool Defo;
     static float taskc;
     static bool BlockKill;
-    static bool BlockVent;
-    static bool BlockSabotage;
+    // static bool BlockVent;
+    //static bool BlockSabotage;
     int count;
 
     static Dictionary<byte, int> currentVent;
@@ -121,6 +121,7 @@ public sealed class VentOpener : RoleBase
                 || (role.IsNeutral() && Neutral)))
             {
                 pc.MyPhysics?.RpcBootFromVent(id);
+                expelledPlayers.Add(pc.PlayerId);
                 check = true;
             }
         }
@@ -179,16 +180,15 @@ public sealed class VentOpener : RoleBase
 
     public override bool OnCheckMurderAsTarget(MurderInfo info)
     {
-        if (!BlockKill || !expelledPlayers.Contains(info.AttemptKiller.PlayerId))
+        if (BlockKill && expelledPlayers.Contains(info.AttemptKiller.PlayerId))
         {
             info.GuardPower = 1;
         }
         return true;
     }
 
-    public override bool OnSabotage(PlayerControl player, SystemTypes systemType) => !BlockSabotage || !expelledPlayers.Contains(player.PlayerId);
+    //public override bool OnSabotage(PlayerControl player, SystemTypes systemType) => !BlockSabotage || !expelledPlayers.Contains(player.PlayerId);
     public override void OnReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target) => expelledPlayers.Clear();
-
 
     public override void ApplyGameOptions(IGameOptions opt)
     {
