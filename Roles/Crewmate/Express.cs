@@ -1,23 +1,23 @@
-using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
-using TownOfHost;
+
 using TownOfHost.Roles.Core;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class Express : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
-         SimpleRoleInfo.Create(
+        SimpleRoleInfo.Create(
             typeof(Express),
             player => new Express(player),
             CustomRoles.Express,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            25200,
+            22300,
             SetupOptionItem,
             "exp",
             "#00ffff",
+            (4, 3),
             from: From.TownOfHost_Y
         );
 

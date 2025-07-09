@@ -1,23 +1,23 @@
 using AmongUs.GameOptions;
-using TownOfHost;
 using TownOfHost.Roles.Core;
-using TownOfHost.Roles.Crewmate;
 using UnityEngine;
 
 namespace TownOfHost.Roles.Crewmate;
+
 public sealed class CandleLighter : RoleBase
 {
     public static readonly SimpleRoleInfo RoleInfo =
-         SimpleRoleInfo.Create(
+        SimpleRoleInfo.Create(
             typeof(Lighter),
             player => new CandleLighter(player),
             CustomRoles.CandleLighter,
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
-            25100,
+            22200,
             SetupOptionItem,
             "cl",
             "#ff7f50",
+            (7, 4),
             from: From.TownOfHost_Y
         );
 

@@ -8,6 +8,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class CharismaStar : RoleBase, IImpostor, IUsePhantomButton, IDoubleTrigger
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -17,9 +18,10 @@ public sealed class CharismaStar : RoleBase, IImpostor, IUsePhantomButton, IDoub
             CustomRoles.CharismaStar,
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
-            25400,
+            22400,
             SetUpOptionItem,
             "chs",
+            OptionSort: (6, 9),
             from: From.TownOfHost_Y
         );
 
@@ -146,12 +148,12 @@ public sealed class CharismaStar : RoleBase, IImpostor, IUsePhantomButton, IDoub
 
     public bool UseOneclickButton => gatherLimitCount > 0;
 
-    public void OnClick(ref bool resetkillcooldown, ref bool? fall)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         // クールダウン設定(使用時は既にキルクールがない想定)
-        resetkillcooldown = false;
+        AdjustKillCooldown = true;
         Main.AllPlayerKillCooldown[Player.PlayerId] = 0.1f;
-        fall = false;
+        ResetCooldown = false;
 
         // リストに誰も登録されていない
         if (gatherChoosePlayers.Count == 0)

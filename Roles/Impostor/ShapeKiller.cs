@@ -4,6 +4,7 @@ using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Impostor;
+
 public sealed class ShapeKiller : RoleBase, IImpostor, ISidekickable
 {
     public static readonly SimpleRoleInfo RoleInfo =
@@ -13,9 +14,10 @@ public sealed class ShapeKiller : RoleBase, IImpostor, ISidekickable
             CustomRoles.ShapeKiller,
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
-            25300,
+            22500,
             SetUpOptionItem,
             "shk",
+            OptionSort: (6, 5),
             from: From.TownOfHost_Y
         );
 
