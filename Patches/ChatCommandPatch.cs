@@ -1311,7 +1311,7 @@ namespace TownOfHost
                 case "/kf":
                     canceled = true;
                     if (GameStates.InGame)
-                        player.KillFlash(kiai: true);
+                        player.KillFlash(force: true);
                     break;
 
                 case "/MeeginInfo":

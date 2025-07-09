@@ -153,7 +153,7 @@ namespace TownOfHost
             };
         }
         public static bool NowKillFlash = false;
-        public static void KillFlash(this PlayerControl player, bool kiai = false)
+        public static void KillFlash(this PlayerControl player, bool force = false)
         {
             //キルフラッシュ(ブラックアウト+リアクターフラッシュ)の処理
             bool ReactorCheck = IsActive(GetCriticalSabotageSystemType());
@@ -163,8 +163,8 @@ namespace TownOfHost
 
             //実行
             var state = PlayerState.GetByPlayerId(player.PlayerId);
-            if (!kiai) state.IsBlackOut = true; //ブラックアウト
-            if (player.PlayerId == 0 && !kiai)
+            if (!force) state.IsBlackOut = true; //ブラックアウト
+            if (player.PlayerId == 0 && !force)
             {
                 FlashColor(new(1f, 0f, 0f, 0.5f));
                 if (Constants.ShouldPlaySfx()) RPC.PlaySound(player.PlayerId, Sounds.KillSound);
