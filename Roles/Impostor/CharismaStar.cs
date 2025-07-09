@@ -153,7 +153,7 @@ public sealed class CharismaStar : RoleBase, IImpostor, IUsePhantomButton, IDoub
         // クールダウン設定(使用時は既にキルクールがない想定)
         AdjustKillCooldown = true;
         Main.AllPlayerKillCooldown[Player.PlayerId] = 0.1f;
-        ResetCooldown = false;
+        ResetCooldown = true;
 
         // リストに誰も登録されていない
         if (gatherChoosePlayers.Count == 0)

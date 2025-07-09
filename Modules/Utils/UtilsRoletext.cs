@@ -363,6 +363,8 @@ namespace TownOfHost
             if (Amnesia.CheckAbility(seer))
                 seer.GetRoleClass()?.OverrideProgressTextAsSeer(seen, ref enabled, ref text);
 
+            seen.GetRoleClass()?.OverrideProgressTextAsSeen(seer, ref enabled, ref text);
+
             var progress = enabled ? text : "";
             if (SuddenDeathMode.NowSuddenDeathMode && seer == seen)
             {

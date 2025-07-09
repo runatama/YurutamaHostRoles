@@ -362,6 +362,14 @@ public abstract class RoleBase : IDisposable
     public virtual void OverrideProgressTextAsSeer(PlayerControl seen, ref bool enabled, ref string text)
     { }
     /// <summary>
+    /// seenによるProgressTextの書き換え
+    /// </summary>
+    /// <param name="seer">見る側</param>
+    /// <param name="enabled">ProgressTextを表示するかどうか</param>
+    /// <param name="text">ProgressTextのテキスト</param>
+    public virtual void OverrideProgressTextAsSeen(PlayerControl seer, ref bool enabled, ref string text)
+    { }
+    /// <summary>
     /// 役職名の横に出るテキスト
     /// </summary>
     /// <param name="comms">コミュサボ中扱いするかどうか</param>
