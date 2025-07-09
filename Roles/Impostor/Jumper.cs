@@ -16,9 +16,9 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             3000,
-            (1, 1),
             SetupOptionItem,
-            "Jm"
+            "Jm",
+            OptionSort: (1, 1)
         );
     public Jumper(PlayerControl player)
     : base(
@@ -143,14 +143,14 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     }
     public override void OnReportDeadBody(PlayerControl _, NetworkedPlayerInfo __) => Player.RpcSetColor((byte)PlayerColor);
     public bool CanUseKillButton() => !Jumping;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         if (Jumping) return;
-        ResetCoolDown = true;
+        ResetCooldown = true;
         if (JumpToPosition == new Vector2(999f, 999f))
         {
             JumpToPosition = Player.transform.position;
-            AdjustKillCoolDown = true;
+            AdjustKillCooldown = true;
             Player.RpcSpecificRejectShapeshift(Player, false);
             Player.RpcResetAbilityCooldown(Sync: true);
             Logger.Info($"Set:{JumpToPosition.x}-{JumpToPosition.y} (${Player.PlayerId})", "Jumper");
@@ -159,7 +159,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         }
         timer = 0;
         NowJumpcount = 1;
-        AdjustKillCoolDown = false;
+        AdjustKillCooldown = false;
         Jumping = true;
         UsePosition = Player.transform.position;
         var X = JumpToPosition.x - UsePosition.x;

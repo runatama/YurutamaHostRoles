@@ -15,9 +15,9 @@ public sealed class Evilgambler : RoleBase, IImpostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 3300,
-                (2, 2),
                 SetupOptionItem,
                 "eg",
+                OptionSort: (2, 2),
                 from: From.SuperNewRoles
             );
     public Evilgambler(PlayerControl player)

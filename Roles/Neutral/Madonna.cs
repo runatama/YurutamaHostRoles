@@ -17,10 +17,10 @@ public sealed class Madonna : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             14400,
-            (5, 0),
             SetupOptionItem,
             "Ma",
             "#f09199",
+            (5, 0),
             introSound: () => GetIntroSound(RoleTypes.Scientist),
             assignInfo: new RoleAssignInfo(CustomRoles.Madonna, CustomRoleTypes.Neutral)
             {

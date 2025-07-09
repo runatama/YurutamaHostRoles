@@ -15,9 +15,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 4700,
-                (4, 1),
                 SetupOptionItem,
                 "tt",
+                OptionSort: (4, 1),
                 from: From.TownOfHost
             );
         public TimeThief(PlayerControl player)

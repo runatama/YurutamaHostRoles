@@ -17,10 +17,10 @@ public sealed class Turncoat : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             15500,
-            (7, 1),
             SetupOptionItem,
             "Tu",
-            "#371a1a"
+            "#371a1a",
+            (7, 1)
         );
     public Turncoat(PlayerControl player)
     : base(

@@ -14,10 +14,10 @@ public sealed class Seer : RoleBase, IKillFlashSeeable
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             11000,
-            (6, 2),
             SetupOptionItem,
             "se",
             "#61b26c",
+            (6, 2),
             from: From.TheOtherRoles
         );
     public Seer(PlayerControl player)

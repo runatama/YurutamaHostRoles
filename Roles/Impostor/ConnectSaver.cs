@@ -23,9 +23,9 @@ public sealed class ConnectSaver : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             4500,
-            (3, 7),
             SetupOptionItem,
-            "Cs"
+            "Cs",
+            OptionSort: (3, 7)
         );
     public ConnectSaver(PlayerControl player)
     : base(

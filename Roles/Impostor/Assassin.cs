@@ -21,15 +21,16 @@ public sealed class Assassin : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             15800,
-            (2, 0),
             SetupOptionItem,
             "as",
+            OptionSort: (2, 0),
             tab: TabGroup.Combinations,
             assignInfo: new RoleAssignInfo(CustomRoles.Assassin, CustomRoleTypes.Impostor)
             {
                 AssignUnitRoles = [CustomRoles.Assassin, CustomRoles.Merlin]
             },
-            combination: CombinationRoles.AssassinandMerlin
+            combination: CombinationRoles.AssassinandMerlin,
+            from: From.ExtremeRoles
         );
     public Assassin(PlayerControl player)
     : base(
@@ -81,7 +82,7 @@ public sealed class Assassin : RoleBase, IImpostor
             NowState = AssassinMeeting.Guessing;
             AntiBlackout.SendGameData();
             _ = new LateTask(() =>
-            ReportDeadBodyPatch.DieCheckReport(Player, null, false, "アサシン会議", "#ff1919"), 3, "", true);
+            ReportDeadBodyPatch.ExReportDeadBody(Player, null, false, "アサシン会議", "#ff1919"), 3, "", true);
         }
     }
     public override void OnSpawn(bool initialState = false)
@@ -110,7 +111,7 @@ public sealed class Assassin : RoleBase, IImpostor
                     NowState = AssassinMeeting.Guessing;
                     AntiBlackout.SendGameData();
                     _ = new LateTask(() =>
-                    ReportDeadBodyPatch.DieCheckReport(Player, null, false, "アサシン会議", "#ff1919"), 3, "", true);
+                    ReportDeadBodyPatch.ExReportDeadBody(Player, null, false, "アサシン会議", "#ff1919"), 3, "", true);
                 }
             }//, 0.5f, "AssassinShori");
         }

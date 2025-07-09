@@ -19,10 +19,10 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
             () => Optionfire.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             13800,
-            (3, 0),
             SetupOptionItem,
             "ar",
             "#ff6633",
+            (3, 0),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             from: From.TownOfUs
@@ -295,7 +295,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
 
         return (doused, all);
     }
-    void IUsePhantomButton.OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    void IUsePhantomButton.OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         if (GameStates.IsInGame && IsDouseDone(Player) && Optionfire.GetBool())
         {

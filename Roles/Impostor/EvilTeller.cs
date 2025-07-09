@@ -17,9 +17,9 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             3700,
-            (2, 6),
             SetUpOptionItem,
-            "Et"
+            "Et",
+            OptionSort: (2, 6)
         );
     public EvilTeller(PlayerControl player)
     : base(
@@ -86,20 +86,20 @@ public sealed class EvilTeller : RoleBase, IImpostor, IUsePhantomButton
     public float CalculateKillCooldown() => killcooldown;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = maxtellcount <= seentarget.Count ? 200f : (fall ? 1 : (nowuse ? telltime : cooldown));
     bool IUsePhantomButton.IsPhantomRole => maxtellcount > seentarget.Count;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
+        AdjustKillCooldown = true;
         if (maxtellcount <= seentarget.Count) return;
-        ResetCoolDown = false;
+        ResetCooldown = false;
         var target = Player.GetKillTarget(true);
-        if (target == null) { ResetCoolDown = false; return; }
-        if (target.Is(CustomRoleTypes.Impostor)) { ResetCoolDown = false; return; }
+        if (target == null) { ResetCooldown = false; return; }
+        if (target.Is(CustomRoleTypes.Impostor)) { ResetCooldown = false; return; }
 
-        if (seentarget.ContainsKey(target.PlayerId) || TargetInfo != null) { ResetCoolDown = false; return; }
+        if (seentarget.ContainsKey(target.PlayerId) || TargetInfo != null) { ResetCooldown = false; return; }
 
         TargetInfo = new(target.PlayerId, 0f);
         nowuse = true;
-        ResetCoolDown = false;
+        ResetCooldown = false;
         _ = new LateTask(() =>
         {
             Player.RpcResetAbilityCooldown(Sync: true);

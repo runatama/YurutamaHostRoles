@@ -18,10 +18,10 @@ public sealed class Executioner : RoleBase, IAdditionalWinner
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             14300,
-            (4, 1),
             SetupOptionItem,
             "exe",
             "#611c3a",
+            (4, 1),
             introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
             from: From.TownOfUs
         );

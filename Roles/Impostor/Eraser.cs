@@ -18,9 +18,9 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             5700,
-            (6, 3),
             SetupOptionItem,
-            "Er"
+            "Er",
+            OptionSort: (6, 3)
         );
     public Eraser(PlayerControl player)
     : base(
@@ -84,18 +84,18 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
     }
     public float CalculateKillCooldown() => KillCooldown;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = AbilityCoolDown;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
 
         var target = Player.GetKillTarget(true);
         if (!target.IsAlive()) return;
         if (EraseMarkTargets.Contains(target.PlayerId)) return;
         if (MaxUseCount <= UseCount) return;
 
-        AdjustKillCoolDown = false;
-        ResetCoolDown = true;
+        AdjustKillCooldown = false;
+        ResetCooldown = true;
         UseCount++;
 
         EraseMarkTargets.Add(target.PlayerId);//マークつける用

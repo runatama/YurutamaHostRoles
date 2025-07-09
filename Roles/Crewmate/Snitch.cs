@@ -17,10 +17,10 @@ public class Snitch : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10900,
-            (6, 0),
             SetupOptionItem,
             "sn",
             "#b8fb4f",
+            (6, 0),
             from: From.TheOtherRoles
         );
     public Snitch(PlayerControl player)

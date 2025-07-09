@@ -17,9 +17,9 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             3900,
-            (3, 0),
             SetupOptionItem,
-            "Ba"
+            "Ba",
+            OptionSort: (3, 0)
         );
     public Ballooner(PlayerControl player)
     : base(
@@ -129,16 +129,16 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
         NowWalkCount = 0;
     }
 
-    void IUsePhantomButton.OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    void IUsePhantomButton.OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         if (NowBoomDis <= 0)
         {
-            AdjustKillCoolDown = true;
-            ResetCoolDown = false;
+            AdjustKillCooldown = true;
+            ResetCooldown = false;
             return;
         }
-        AdjustKillCoolDown = false;
-        ResetCoolDown = true;
+        AdjustKillCooldown = false;
+        ResetCooldown = true;
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)
         {

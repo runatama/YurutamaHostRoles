@@ -15,10 +15,10 @@ public sealed class Workaholic : RoleBase
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             14700,
-            (5, 3),
             SetupOptionItem,
             "wh",
             "#008b8b",
+            (5, 3),
             from: From.TownOfHost_Y,
             introSound: () => ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixWiring).FirstOrDefault().MinigamePrefab.OpenSound
         );

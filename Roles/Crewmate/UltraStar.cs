@@ -16,10 +16,10 @@ public sealed class UltraStar : RoleBase, IKiller
             () => OptionCanseeKillcooltime.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9900,
-            (4, 0),
             SetupOptionItem,
             "us",
-            "#ffff8e"
+            "#ffff8e",
+            (4, 0)
         );
     public UltraStar(PlayerControl player)
     : base(

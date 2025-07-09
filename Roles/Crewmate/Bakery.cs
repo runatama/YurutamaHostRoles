@@ -16,10 +16,10 @@ public sealed class Bakery : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10200,
-            (4, 2),
             null,
             "bak",
             "#8f6121",
+            (4, 2),
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );
     public Bakery(PlayerControl player)

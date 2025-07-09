@@ -15,9 +15,9 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             6900,
-            (7, 4),
             SetupOptionItem,
             "rd",
+            OptionSort: (7, 4),
             from: From.RevolutionaryHostRoles
         );
     public Reloader(PlayerControl player)
@@ -59,13 +59,13 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
     public float CalculateKillCooldown() => KillCooldown;
     public override bool CanUseAbilityButton() => Count > 0;
     bool IUsePhantomButton.IsPhantomRole => Count > 0;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = true;
+        AdjustKillCooldown = true;
+        ResetCooldown = true;
         if (Count <= 0) return;
 
-        AdjustKillCoolDown = false;
+        AdjustKillCooldown = false;
         Count--;
         Player.SetKillCooldown(ReloadKillCooldown, delay: true);
         UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);

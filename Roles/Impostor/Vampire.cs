@@ -18,9 +18,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 4800,
-                (4, 2),
                 SetupOptionItem,
                 "va",
+                OptionSort: (4, 2),
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
                 from: From.TheOtherRoles
             );

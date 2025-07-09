@@ -17,10 +17,10 @@ public sealed class VentOpener : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             12700,
-            (9, 5),
             SetupOptionItem,
             "vo",
             "#fbe000",
+            (9, 5),
             introSound: () => GetIntroSound(RoleTypes.Engineer)
         );
     public VentOpener(PlayerControl player)

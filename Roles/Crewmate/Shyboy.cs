@@ -14,10 +14,10 @@ public sealed class Shyboy : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             11900,
-            (8, 0),
             SetupOptionItem,
             "Sy",
             "#00fa9a",
+            (8, 0),
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );
     public Shyboy(PlayerControl player)

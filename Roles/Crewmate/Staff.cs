@@ -13,10 +13,10 @@ public sealed class Staff : RoleBase
             () => CanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             12400,
-            (9, 2),
             SetupOptionItem,
             "sf",
             "#00ffff",
+            (9, 2),
             from: From.RevolutionaryHostRoles
         );
     public Staff(PlayerControl player)

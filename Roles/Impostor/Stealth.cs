@@ -27,9 +27,9 @@ public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
         () => optionAddDarkenRoom.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
         CustomRoleTypes.Impostor,
         6100,
-        (6, 6),
         SetupOptionItems,
         "st",
+        OptionSort: (6, 6),
         introSound: () => GetIntroSound(RoleTypes.Phantom),
         from: From.TownOfHost);
     private static LogHandler logger = Logger.Handler(nameof(Stealth));
@@ -147,15 +147,15 @@ public sealed class Stealth : RoleBase, IImpostor, IUsePhantomButton
     {
         AURoleOptions.PhantomCooldown = optioncooldown.GetFloat();
     }
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
         var room = Player.GetPlainShipRoom();
         if (room == null) return;
         if (adddarkenroom.Contains(room.RoomId)) return;
         if (optionmax.GetInt() <= adddarkenroom.Count) return;
-        ResetCoolDown = true;
+        ResetCooldown = true;
         adddarkenroom.Add(room.RoomId);
     }
     public override void OnStartMeeting()

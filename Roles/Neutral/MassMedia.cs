@@ -20,10 +20,10 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             14500,
-            (5, 1),
             SetupOptionItem,
             "MM",
             "#512513",
+            (5, 1),
             true,
             introSound: () => GetIntroSound(RoleTypes.Shapeshifter),
             from: From.None

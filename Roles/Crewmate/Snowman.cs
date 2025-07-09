@@ -15,10 +15,10 @@ public sealed class Snowman : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             12000,
-            (8, 1),
             SetupOptionItem,
             "snm",
-            "#c4d6e3"
+            "#c4d6e3",
+            (8, 1)
         );
     public Snowman(PlayerControl player)
     : base(

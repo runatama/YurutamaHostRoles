@@ -21,9 +21,9 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
             () => (TargetMode)OptionTargetMode.GetValue() == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             3200,
-            (2, 1),
             SetupOptionItem,
             "et",
+            OptionSort: (2, 1),
             canMakeMadmate: () => OptionCanCreateSideKick.GetBool(),
             from: From.TOR_GM_Haoming_Edition
         );

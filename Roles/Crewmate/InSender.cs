@@ -13,10 +13,10 @@ public sealed class InSender : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10600,
-            (5, 2),
             SetupOptionItem,
             "in",
             "#eee8aa",
+            (5, 2),
             from: From.RevolutionaryHostRoles
         );
     public InSender(PlayerControl player)
@@ -58,7 +58,7 @@ public sealed class InSender : RoleBase
         }
         var (killer, target) = info.AttemptTuple;
         if (target.Is(CustomRoles.InSender) && !info.IsSuicide && !info.IsFakeSuicide && (!OptCanUseActiveComms.GetBool() || !Utils.IsActive(SystemTypes.Comms)))
-            _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(target, target.Data, false), 0.15f + OptReportDelay.GetFloat() + tien, "InSender Self Report");
+            _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(target, target.Data, false), 0.15f + OptReportDelay.GetFloat() + tien, "InSender Self Report");
     }
 
     public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;

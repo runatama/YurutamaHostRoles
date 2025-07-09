@@ -18,10 +18,10 @@ public sealed class WhiteHacker : RoleBase
             () => CanUseTrackAbility.GetBool() && !OptAwakening.GetBool() ? RoleTypes.Tracker : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10100,
-            (3, 7),
             SetupOptionItem,
             "WH",
-            "#efefef"
+            "#efefef",
+            (3, 7)
         );
 
     public WhiteHacker(PlayerControl player)

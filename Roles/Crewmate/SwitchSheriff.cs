@@ -22,10 +22,10 @@ public sealed class SwitchSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             8900,
-            (2, 1),
             SetupOptionItem,
             "swsh",
             "#f8cd46",
+            (2, 1),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );

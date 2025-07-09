@@ -14,10 +14,10 @@ public sealed class VentMaster : RoleBase
             () => CanUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             12600,
-            (9, 4),
             SetUpOptionItem,
             "vm",
             "#ff6666",
+            (9, 4),
             introSound: () => GetIntroSound(RoleTypes.Noisemaker)
         );
     public VentMaster(PlayerControl player)

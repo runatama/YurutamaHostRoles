@@ -16,10 +16,10 @@ public sealed class AmateurTeller : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9400,
-            (3, 2),
             SetupOptionItem,
             "AT",
-            "#6b3ec3"
+            "#6b3ec3",
+            (3, 2)
         );
     public AmateurTeller(PlayerControl player)
     : base(

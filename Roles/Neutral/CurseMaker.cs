@@ -17,10 +17,10 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Neutral,
             14100,
-            (3, 3),
             SetupOptionItem,
             "Cm",
             "#554d59",
+            (3, 3),
             true,
             introSound: () => GetIntroSound(RoleTypes.Phantom)
         );
@@ -179,13 +179,13 @@ public sealed class CurseMaker : RoleBase, IKiller, IUsePhantomButton
         opt.SetVision(false);
     }
     public float CalculateKillCooldown() => fall ? 0.00000000001f : KillCooldown;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        ResetCoolDown = false;
+        ResetCooldown = false;
         if (!Player.IsAlive()) return;
         if (CursedPlayers.Count == 0) return;
-        AdjustKillCoolDown = false;
-        ResetCoolDown = true;
+        AdjustKillCooldown = false;
+        ResetCooldown = true;
 
         CursedPlayers.Add(Player.PlayerId, 0);
         foreach (var Cursedid in CursedPlayers)

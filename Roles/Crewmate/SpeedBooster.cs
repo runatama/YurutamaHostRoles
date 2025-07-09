@@ -16,10 +16,10 @@ public sealed class SpeedBooster : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             11500,
-            (7, 1),
             SetupOptionItem,
             "sb",
             "#00ffff",
+            (7, 1),
             from: From.TownOfHost
         );
     public SpeedBooster(PlayerControl player)

@@ -15,10 +15,10 @@ public sealed class Terrorist : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Neutral,
             15400,
-            (7, 0),
             SetupOptionItem,
             "te",
             "#00ff00",
+            (7, 0),
             introSound: () => ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.FixWiring).FirstOrDefault().MinigamePrefab.OpenSound,
             from: From.FoolersMod,
             Desc: () =>

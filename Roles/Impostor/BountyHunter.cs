@@ -22,9 +22,9 @@ public sealed class BountyHunter : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             6500,
-            (7, 1),
             SetupOptionItem,
             "bo",
+            OptionSort: (7, 1),
             from: From.TheOtherRoles
         );
     public BountyHunter(PlayerControl player)

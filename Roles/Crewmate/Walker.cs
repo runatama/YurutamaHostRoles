@@ -18,10 +18,10 @@ public sealed class Walker : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             12100,
-            (8, 2),
             SetupOptionItem,
             "wa",
-            "#057a2c"
+            "#057a2c",
+            (8, 2)
         );
     public Walker(PlayerControl player)
     : base(

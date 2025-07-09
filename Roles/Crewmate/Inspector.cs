@@ -18,10 +18,10 @@ public sealed class Inspector : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9700,
-            (3, 5),
             SetupOptionItem,
             "Is",
-            "#977b48"
+            "#977b48",
+            (3, 5)
         );
     public Inspector(PlayerControl player)
     : base(

@@ -16,9 +16,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 5800,
-                (6, 1),
                 null,
-                "ml"
+                "ml",
+                OptionSort: (6, 1)
             );
         public Mole(PlayerControl player)
         : base(

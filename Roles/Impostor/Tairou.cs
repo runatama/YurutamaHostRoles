@@ -14,9 +14,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 6000,
-                (6, 5),
                 SetupOptionItem,
-                "t"
+                "t",
+                OptionSort: (6, 10)
             );
         public Tairou(PlayerControl player)
             : base(

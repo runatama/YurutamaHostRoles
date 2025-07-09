@@ -58,7 +58,7 @@ namespace TownOfHost.Roles.Ghost
                 if (nowcont > 0)
                 {
                     count[pc.PlayerId]--;
-                    ReportDeadBodyPatch.DieCheckReport(pc, null, false);
+                    ReportDeadBodyPatch.ExReportDeadBody(pc, null, false);
                 }
             }
         }

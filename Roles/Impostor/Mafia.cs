@@ -16,9 +16,9 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
             () => CanmakeSidekickMadMate.GetBool() && Options.CanMakeMadmateCount.GetInt() != 0 ? RoleTypes.Phantom : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             6400,
-            (6, 8),
             SetupCustomOption,
             "mf",
+            OptionSort: (6, 8),
             from: From.TheOtherRoles
         );
     public Mafia(PlayerControl player)
@@ -70,10 +70,10 @@ public sealed class Mafia : RoleBase, IImpostor, IUsePhantomButton
         if (CanKillDay.GetFloat() <= UtilsGameLog.day) canusekill = true;
     }
     bool IUsePhantomButton.IsPhantomRole => SKMad && Options.CanMakeMadmateCount.GetInt() > PlayerCatch.SKMadmateNowCount;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
         if (!SKMad || Options.CanMakeMadmateCount.GetInt() <= PlayerCatch.SKMadmateNowCount) return;
         var target = Player.GetKillTarget(true);
         if (target == null || target.GetCustomRole() is CustomRoles.King or CustomRoles.Merlin || (target.Is(CustomRoleTypes.Impostor) && !SuddenDeathMode.NowSuddenDeathTemeMode)) return;

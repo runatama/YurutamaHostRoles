@@ -22,10 +22,10 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
                 () => OptionCanMakeSidekick.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
                 13000,
-                (1, 1),
                 SetupOptionItem,
                 "JA",
                 "#00b4eb",
+                (1, 1),
                 true,
                 countType: CountTypes.Jackal,
                 assignInfo: new RoleAssignInfo(CustomRoles.JackalAlien, CustomRoleTypes.Neutral)
@@ -803,9 +803,9 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override bool CanUseAbilityButton() => CanSideKick;
     bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount;
 
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
+        AdjustKillCooldown = true;
         if (!CanSideKick) return;
 
         if (JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount)
@@ -817,13 +817,13 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
 
         if (target == null)
         {
-            ResetCoolDown = false;
+            ResetCooldown = false;
             return;
         }
         var targetrole = target.GetCustomRole();
         if (target == null || (targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.Merlin) || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !OptionImpostorCanSidekick.GetBool()))
         {
-            ResetCoolDown = false;
+            ResetCooldown = false;
             return;
         }
         if (SuddenDeathMode.NowSuddenDeathTemeMode)

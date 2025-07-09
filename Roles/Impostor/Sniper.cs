@@ -20,9 +20,9 @@ public sealed class Sniper : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             6200,
-            (3, 10),
             SetupOptionItem,
             "snp",
+            OptionSort: (3, 10),
             from: From.NebulaontheShip
         );
     public Sniper(PlayerControl player)

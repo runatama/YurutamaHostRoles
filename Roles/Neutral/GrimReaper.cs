@@ -17,10 +17,10 @@ namespace TownOfHost.Roles.Neutral
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
                 13500,
-                (2, 2),
                 SetupOptionItem,
                 "GhostRole",
                 "#4b0082",
+                (2, 2),
                 true,
                 countType: CountTypes.GrimReaper,//こいつ生存カウント分ける。(生存カウント入れないため)
                 assignInfo: new RoleAssignInfo(CustomRoles.GrimReaper, CustomRoleTypes.Neutral)

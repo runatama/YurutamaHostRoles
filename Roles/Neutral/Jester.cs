@@ -17,15 +17,15 @@ public sealed class Jester : RoleBase, IKiller
             () => CanUseShape.GetBool() ? RoleTypes.Shapeshifter : (CanUseVent.GetBool() ? RoleTypes.Impostor : RoleTypes.Crewmate),
             CustomRoleTypes.Neutral,
             14200,
-            (4, 0),
             SetupOptionItem,
             "je",
             "#ec62a5",
-                true,
-                assignInfo: new RoleAssignInfo(CustomRoles.Jester, CustomRoleTypes.Neutral)
-                {
-                    AssignCountRule = new(0, 15, 1)
-                },
+            (4, 0),
+            true,
+            assignInfo: new RoleAssignInfo(CustomRoles.Jester, CustomRoleTypes.Neutral)
+            {
+                AssignCountRule = new(0, 15, 1)
+            },
             from: From.Jester
         );
     public Jester(PlayerControl player)

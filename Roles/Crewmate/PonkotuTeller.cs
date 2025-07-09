@@ -18,10 +18,10 @@ public sealed class PonkotuTeller : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9300,
-            (3, 1),
             SetupOptionItem,
             "po",
             "#6b3ec3",
+            (3, 1),
             introSound: () => GetIntroSound(RoleTypes.Scientist)
         );
     public PonkotuTeller(PlayerControl player)

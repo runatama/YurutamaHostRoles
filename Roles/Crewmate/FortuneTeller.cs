@@ -19,10 +19,10 @@ public sealed class FortuneTeller : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9200,
-            (3, 0),
             SetupOptionItem,
             "fo",
             "#6b3ec3",
+            (3, 0),
             introSound: () => GetIntroSound(RoleTypes.Scientist)
         );
     public FortuneTeller(PlayerControl player)

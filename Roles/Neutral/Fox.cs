@@ -22,10 +22,10 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             () => RoleTypes.Engineer,
             CustomRoleTypes.Neutral,
             15000,
-            (6, 0),
             SetupOptionItem,
             "Fox",
             "#d288ee",
+            (6, 0),
             false,
             countType: CountTypes.Fox,
             assignInfo: new RoleAssignInfo(CustomRoles.Fox, CustomRoleTypes.Neutral)

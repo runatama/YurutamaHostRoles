@@ -17,9 +17,9 @@ class Penguin : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             4100,
-            (4, 0),
             SetupOptionItem,
             "pe",
+            OptionSort: (4, 0),
             from: From.SuperNewRoles
         );
     public Penguin(PlayerControl player)

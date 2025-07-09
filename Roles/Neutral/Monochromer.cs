@@ -14,10 +14,10 @@ public sealed class Monochromer : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             15100,
-            (6, 1),
             SetupOptionItem,
             "Mc",
             "#808080",
+            (6, 1),
             assignInfo: new RoleAssignInfo(CustomRoles.Monochromer, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(0, 15, 1)

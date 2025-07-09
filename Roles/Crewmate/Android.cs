@@ -15,10 +15,10 @@ public sealed class Android : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             12300,
-            (9, 1),
             SetupOptionItem,
             "And",
             "#8a99b7",
+            (9, 1),
             false
         );
     public Android(PlayerControl player)

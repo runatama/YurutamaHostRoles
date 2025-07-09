@@ -15,10 +15,10 @@ public sealed class Doctor : RoleBase, IDeathReasonSeeable
             () => RoleTypes.Scientist,
             CustomRoleTypes.Crewmate,
             11100,
-            (6, 1),
             SetupOptionItem,
             "doc",
             "#80ffdd",
+            (6, 1),
             from: From.NebulaontheShip
         );
     public Doctor(PlayerControl player)

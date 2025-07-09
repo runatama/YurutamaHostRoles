@@ -19,11 +19,10 @@ public sealed class Comebacker : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             12200,
-            (9, 0),
             SetupOptionItem,
             "cb",
-            "#ff9966"//,
-                     //introSound: () => ShipStatus.Instance.CommonTasks.Where(task => task.TaskType == TaskTypes.StartFans).FirstOrDefault().MinigamePrefab.OpenSound
+            "#ff9966",
+            (9, 0)
         );
     public Comebacker(PlayerControl player)
     : base(

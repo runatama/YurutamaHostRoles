@@ -15,10 +15,10 @@ public sealed class CountKiller : RoleBase, ILNKiller, ISchrodingerCatOwner, IAd
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             13300,
-            (2, 0),
             SetupOptionItem,
             "ck",
             "#FF1493",
+            (2, 0),
             true,
             assignInfo: new RoleAssignInfo(CustomRoles.CountKiller, CustomRoleTypes.Neutral)
             {

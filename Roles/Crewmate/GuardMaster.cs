@@ -13,10 +13,10 @@ public sealed class GuardMaster : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10800,
-            (5, 4),
             SetupOptionItem,
             "gms",
-            "#8FBC8B"
+            "#8FBC8B",
+            (5, 4)
         );
     public GuardMaster(PlayerControl player)
     : base(

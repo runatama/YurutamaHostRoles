@@ -20,10 +20,10 @@ public sealed class VentHunter : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             12800,
-            (9, 6),
             SetupOptionItem,
             "vh",
             "#83FFF2",
+            (9, 6),
             introSound: () => PlayerControl.LocalPlayer.KillSfx
         );
     public VentHunter(PlayerControl player)

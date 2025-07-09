@@ -24,10 +24,10 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             15600,
-            (7, 2),
             SetupOptionItem,
             "sc",
             "#696969",
+            (7, 2),
             introSound: () => GetIntroSound(RoleTypes.Impostor),
             from: From.TOR_GM_Haoming_Edition
         );

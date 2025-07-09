@@ -15,9 +15,9 @@ public sealed class ShapeMaster : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             5900,
-            (6, 4),
             SetupOptionItem,
             "sha",
+            OptionSort: (6, 4),
             from: From.TownOfHost
         );
     public ShapeMaster(PlayerControl player)

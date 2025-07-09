@@ -189,7 +189,7 @@ namespace TownOfHost
             RpcSetTasksPatch.HostFin = false;
             Main.DontGameSet = Options.NoGameEnd.GetBool();
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
-            CustomRoleManager.MarkOthers.Add(ReportDeadBodyPatch.Dontrepomark);
+            CustomRoleManager.MarkOthers.Add(ReportDeadBodyPatch.GetDontReportMark);
 
             Logger.Info($"==============　{Main.GameCount}試合目　==============", "OnGamStarted");
             Main.MeetingTime = (Main.NormalOptions?.DiscussionTime ?? 0, Main.NormalOptions?.VotingTime ?? 180);

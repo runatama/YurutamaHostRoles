@@ -16,10 +16,10 @@ public sealed class SabotageMaster : RoleBase, ISystemTypeUpdateHook
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             11800,
-            (7, 3),
             SetupOptionItem,
             "sa",
             "#0000ff",
+            (7, 3),
             introSound: () => ShipStatus.Instance.SabotageSound,
             from: From.TownOfHost
         );

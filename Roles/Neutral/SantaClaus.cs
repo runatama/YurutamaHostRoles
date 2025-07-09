@@ -20,10 +20,10 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
             () => RoleTypes.Engineer,
             CustomRoleTypes.Neutral,
             14800,
-            (5, 4),
             SetupOptionItem,
             "Sac",
             "#e05050",
+            (5, 4),
             Desc: () =>
             {
                 return string.Format(GetString("SantaClausDesc"), OptWinGivePresentCount.GetInt(), OptAddWin.GetBool() ? GetString("AddWin") : GetString("SoloWin"));

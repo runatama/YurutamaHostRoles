@@ -17,10 +17,10 @@ public sealed class ShrineMaiden : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9600,
-            (3, 4),
             SetupOptionItem,
             "SM",
             "#b7282e",
+            (3, 4),
             introSound: () => GetIntroSound(RoleTypes.Scientist)
         );
     public ShrineMaiden(PlayerControl player)

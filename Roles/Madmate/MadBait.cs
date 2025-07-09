@@ -16,9 +16,9 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             8000,
-            (2, 4),
             SetupOptionItem,
             "mb",
+            OptionSort: (2, 4),
             introSound: () => GetIntroSound(RoleTypes.Impostor)
         );
     public MadBait(PlayerControl player)

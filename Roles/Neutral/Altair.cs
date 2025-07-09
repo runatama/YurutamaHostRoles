@@ -14,10 +14,10 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             16200,
-            (3, 1),
             null,
             "alt",
             "#b0c4de",
+            (3, 1),
             true,
             countType: CountTypes.MilkyWay,
             combination: CombinationRoles.VegaandAltair

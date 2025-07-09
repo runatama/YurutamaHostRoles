@@ -16,10 +16,10 @@ public sealed class Dictator : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9800,
-            (3, 6),
             SetupOptionItem,
             "dic",
             "#df9b00",
+            (3, 6),
             from: From.TownOfHost
         );
     public Dictator(PlayerControl player)

@@ -16,9 +16,9 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             3600,
-            (2, 5),
             SetupOptionItem,
-            "Em"
+            "Em",
+            OptionSort: (2, 5)
         );
     public EvilMaker(PlayerControl player)
     : base(
@@ -44,9 +44,9 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
     public float CalculateKillCooldown() => KillCooldown;
     bool IUsePhantomButton.IsPhantomRole => !Used;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = AbilityCooldown;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        ResetCoolDown = true;
+        ResetCooldown = true;
 
         if (Used) return;
 
@@ -55,7 +55,7 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
         if ((target.GetCustomRole() is CustomRoles.SKMadmate or CustomRoles.King or CustomRoles.Merlin || target.GetCustomRole().IsImpostor()) && !SuddenDeathMode.NowSuddenDeathMode) return;
 
         Used = true;
-        AdjustKillCoolDown = false;
+        AdjustKillCooldown = false;
         if (SuddenDeathMode.NowSuddenDeathTemeMode)
         {
             target.SideKickChangeTeam(Player);
@@ -75,7 +75,7 @@ public sealed class EvilMaker : RoleBase, IImpostor, IUsePhantomButton
         target.MarkDirtySettings();
         UtilsNotifyRoles.NotifyRoles();
         UtilsGameLog.LastLogRole[target.PlayerId] += "<b>⇒" + Utils.ColorString(UtilsRoleText.GetRoleColor(target.GetCustomRole()), GetString($"{target.GetCustomRole()}")) + "</b>" + UtilsRoleText.GetSubRolesText(target.PlayerId);
-        AdjustKillCoolDown = true;
+        AdjustKillCooldown = true;
     }
     public override string GetAbilityButtonText() => GetString("Sidekick");
     public override bool OverrideAbilityButton(out string text)

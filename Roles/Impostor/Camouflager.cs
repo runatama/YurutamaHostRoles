@@ -18,9 +18,9 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             5600,
-            (6, 0),
             SetupOptionItem,
             "Mo",
+            OptionSort: (6, 0),
             from: From.TheOtherRoles
         );
     public Camouflager(PlayerControl player)
@@ -134,10 +134,10 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
         PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, force: null));
     }
     public override bool NotifyRolesCheckOtherName => true;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
         if (NowUse) return;
 
         foreach (var target in PlayerCatch.AllAlivePlayerControls)

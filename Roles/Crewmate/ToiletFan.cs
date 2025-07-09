@@ -14,10 +14,10 @@ public sealed class ToiletFan : RoleBase
             () => RoleTypes.Engineer,
             CustomRoleTypes.Crewmate,
             12500,
-            (9, 3),
             SetupOptionItem,
             "to",
             "#5f5573",
+            (9, 3),
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             from: From.SuperNewRoles
         );

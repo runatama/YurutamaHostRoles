@@ -27,9 +27,9 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             4400,
-            (3, 6),
             SetupCustomOption,
             "fw",
+            OptionSort: (3, 6),
             from: From.TownOfHost
         );
     public FireWorks(PlayerControl player)
@@ -97,10 +97,10 @@ public sealed class FireWorks : RoleBase, IImpostor, IUsePhantomButton
     }
     public override bool CanUseAbilityButton() => State != FireWorksState.FireEnd || !Player.IsAlive();
     public bool UseOneclickButton => true;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = true;
+        AdjustKillCooldown = true;
+        ResetCooldown = true;
         Logger.Info($"FireWorks ShapeShift", "FireWorks");
         switch (State)
         {

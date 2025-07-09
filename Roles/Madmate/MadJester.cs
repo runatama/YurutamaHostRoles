@@ -15,9 +15,9 @@ public sealed class MadJester : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             8300,
-            (4, 1),
             SetupOptionItem,
             "mje",
+            OptionSort: (4, 1),
             introSound: () => GetIntroSound(RoleTypes.Impostor),
             from: From.au_libhalt_net
         );

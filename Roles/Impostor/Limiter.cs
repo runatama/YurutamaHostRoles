@@ -18,9 +18,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 6700,
-                (7, 3),
                 SetupOptionItem,
-                "Lm"
+                "Lm",
+                OptionSort: (7, 3)
             );
         public Limiter(PlayerControl player)
         : base(

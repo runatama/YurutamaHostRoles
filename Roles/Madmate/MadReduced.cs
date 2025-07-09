@@ -16,9 +16,9 @@ public sealed class MadReduced : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             20900,
-            (3, 1),
             SetupOptionItem,
             "mre",
+            OptionSort: (3, 1),
             introSound: () => GetIntroSound(RoleTypes.Impostor)
         );
     public MadReduced(PlayerControl player)

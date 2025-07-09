@@ -19,9 +19,9 @@ public sealed class TeleportKiller : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             4300,
-            (3, 5),
             SetupOptionItem,
-            "tk"
+            "tk",
+            OptionSort: (3, 5)
         );
     public TeleportKiller(PlayerControl player)
     : base(

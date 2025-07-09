@@ -18,10 +18,10 @@ public sealed class JackalDoll : RoleBase
             () => CanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             13200,
-            (1, 3),
             SetupOptionItem,
             "jacd",
             "#00b4eb",
+            (1, 3),
                 assignInfo: new RoleAssignInfo(CustomRoles.Jackaldoll, CustomRoleTypes.Neutral)
                 {
                     AssignCountRule = new(0, 15, 1)

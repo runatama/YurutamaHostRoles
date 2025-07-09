@@ -20,10 +20,10 @@ public sealed class Cakeshop : RoleBase, INekomata
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             21200,
-            (0, 15),
             null,
             "cs",
             "#aacbff",
+            (0, 15),
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );
     public Cakeshop(PlayerControl player)

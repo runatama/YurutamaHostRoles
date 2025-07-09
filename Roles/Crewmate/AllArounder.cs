@@ -25,10 +25,10 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             8500,
-            (1, 0),
             SetupOptionItem,
             "AA",
-            "#599afb"
+            "#599afb",
+            (1, 0)
         );
     public AllArounder(PlayerControl player)
     : base(
@@ -68,7 +68,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
                 Logger.Info($"{tien}sの追加遅延発生!!", "AllArounder");
             }
             if (!info.IsSuicide && !info.IsFakeSuicide)
-                _ = new LateTask(() => ReportDeadBodyPatch.DieCheckReport(NowRole is NowMode.Bait ? killer : target, target.Data, NowRole is NowMode.Bait), 0.15f + OptChien.GetFloat() + tien, "AllArounder Self Report");
+                _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(NowRole is NowMode.Bait ? killer : target, target.Data, NowRole is NowMode.Bait), 0.15f + OptChien.GetFloat() + tien, "AllArounder Self Report");
         }
         if (NowRole is NowMode.Trapper)
         {

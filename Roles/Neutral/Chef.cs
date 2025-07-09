@@ -18,10 +18,10 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             13900,
-            (3, 1),
             SetUpOptionItem,
             "ch",
             "#c79b2c",
+            (3, 1),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );

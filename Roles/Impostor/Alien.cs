@@ -32,9 +32,9 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 2000,
-                (1, 0),
                 SetupOptionItem,
                 "Al",
+                OptionSort: (1, 0),
                 introSound: () => GetIntroSound(RoleTypes.Shapeshifter)
             );
     public Alien(PlayerControl player)

@@ -21,10 +21,10 @@ public sealed class Balancer : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10300,
-            (3, 8),
             SetupOptionItem,
             "bal",
             "#cff100",
+            (3, 8),
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             from: From.SuperNewRoles
         );
@@ -317,7 +317,7 @@ public sealed class Balancer : RoleBase
             _ = new LateTask(() =>
             {
                 _ = new LateTask(() => Utils.AllPlayerKillFlash(), 1f, "BMkillf", true);
-                ReportDeadBodyPatch.DieCheckReport(reporter, oniku.Data, false, GetString("Balancer.meeting"), UtilsRoleText.GetRoleColorCode(CustomRoles.Balancer));
+                ReportDeadBodyPatch.ExReportDeadBody(reporter, oniku.Data, false, GetString("Balancer.meeting"), UtilsRoleText.GetRoleColorCode(CustomRoles.Balancer));
             }, 2f, "BalanerMeeting");
 
             //対象の名前を天秤の色に

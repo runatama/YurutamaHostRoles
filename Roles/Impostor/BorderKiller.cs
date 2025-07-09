@@ -15,9 +15,9 @@ public sealed class BorderKiller : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             7300,
-            (8, 1),
             SetupOptionItem,
             "Br",
+            OptionSort: (8, 1),
             Desc: () =>
             {
                 return string.Format(GetString("BorderKillerDesc"), OptionMissionKillcount.GetInt());

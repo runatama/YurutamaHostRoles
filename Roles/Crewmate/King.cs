@@ -16,10 +16,10 @@ public sealed class King : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             21100,
-            (5, 4),
             SetupOptionItem,
             "k",
-            "#FFD700"
+            "#FFD700",
+            (5, 4)
         );
     public King(PlayerControl player)
     : base(

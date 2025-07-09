@@ -14,10 +14,10 @@ public sealed class Gasp : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10700,
-            (5, 3),
             SetupOptionItem,
             "gp",
-            "#ab9d44"
+            "#ab9d44",
+            (5, 3)
         );
     public Gasp(PlayerControl player)
     : base(

@@ -14,10 +14,10 @@ public sealed class Trapper : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             21300,
-            (5, 5),
             SetupOptionItem,
             "tra",
             "#5a8fd0",
+            (5, 5),
             from: From.TownOfHost
         );
     public Trapper(PlayerControl player)

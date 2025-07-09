@@ -219,11 +219,11 @@ namespace TownOfHost
         {
             if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId) return false;
             Logger.Info($"{__instance?.Data?.PlayerName}", "CheckVanish and Appear");
-            var AdjustKillCoolDown = true;
-            bool? ResetCoolDown = true;
+            var AdjustKillCooldown = true;
+            bool? ResetCooldown = true;
 
             if (__instance.GetRoleClass() is IUsePhantomButton iusephantombutton && Main.CanUseAbility)
-                iusephantombutton.CheckOnClick(ref AdjustKillCoolDown, ref ResetCoolDown);
+                iusephantombutton.CheckOnClick(ref AdjustKillCooldown, ref ResetCooldown);
 
             float TurnTimer = 0;
             IUsePhantomButton.IPPlayerKillCooldown.TryGetValue(__instance.PlayerId, out TurnTimer);
@@ -235,7 +235,7 @@ namespace TownOfHost
             float cooldown = killcool - TurnTimer;
             if (cooldown <= 1) cooldown = 0.005f;
 
-            if (AdjustKillCoolDown)
+            if (AdjustKillCooldown)
             {
                 Main.AllPlayerKillCooldown[__instance.PlayerId] = cooldown < 10 ? cooldown : cooldown * 2;
                 __instance.SyncSettings();
@@ -249,7 +249,7 @@ namespace TownOfHost
             writer.StartRpc(__instance.NetId, (byte)RpcCalls.StartAppear)
                 .Write(true)//falseにしたら動かない。多分ベント用
                 .EndRpc();*/
-            if (ResetCoolDown is not null)
+            if (ResetCooldown is not null)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.SetRole)
                     .Write((ushort)RoleTypes.Impostor)
@@ -263,14 +263,14 @@ namespace TownOfHost
                         .EndRpc();
                 }
             }
-            if (AdjustKillCoolDown && 10 < cooldown)
+            if (AdjustKillCooldown && 10 < cooldown)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.MurderPlayer)
                     .WriteNetObject(__instance)
                     .Write((int)MurderResultFlags.FailedProtected)
                     .EndRpc();
             }
-            if (ResetCoolDown is true && (__instance.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is true)
+            if (ResetCooldown is true && (__instance.GetRoleClass() as IUsePhantomButton)?.IsPhantomRole is true)
             {
                 writer.StartRpc(__instance.NetId, (byte)RpcCalls.ProtectPlayer)
                     .WriteNetObject(__instance)

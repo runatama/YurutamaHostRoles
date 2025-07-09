@@ -15,9 +15,9 @@ public sealed class ProgressKiller : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             5300,
-            (5, 1),
             SetupOptionItem,
-            "pk"
+            "pk",
+            OptionSort: (5, 1)
         );
     public ProgressKiller(PlayerControl player)
     : base(

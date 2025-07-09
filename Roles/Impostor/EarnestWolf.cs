@@ -15,9 +15,9 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             4600,
-            (3, 8),
             SetupOptionItem,
-            "EW"
+            "EW",
+            OptionSort: (3, 8)
         );
     public EarnestWolf(PlayerControl player)
     : base(
@@ -95,10 +95,10 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         if (seer == seen && !isForMeeting) return OverKillMode ? "<color=#ff1919>◎</color>" : "";
         return "";
     }
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
         if (!Player.IsAlive()) return;
         if (count >= OptionOverKillCanCount.GetFloat())
         {

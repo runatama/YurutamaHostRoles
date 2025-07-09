@@ -15,9 +15,9 @@ public sealed class Notifier : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             7100,
-            (7, 6),
             SetupOptionItems,
-            "nt"
+            "nt",
+            OptionSort: (7, 6)
         );
     public Notifier(PlayerControl player)
     : base(

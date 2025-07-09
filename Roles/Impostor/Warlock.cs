@@ -18,9 +18,9 @@ public sealed class Warlock : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             5000,
-            (4, 4),
             null,
             "wa",
+            OptionSort: (4, 4),
             from: From.TheOtherRoles
         );
     public Warlock(PlayerControl player)

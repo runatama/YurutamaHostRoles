@@ -20,9 +20,9 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             8100,
-            (3, 1),
             SetupOptionItem,
             "Mt",
+            OptionSort: (3, 1),
             introSound: () => GetIntroSound(RoleTypes.Scientist)
         );
     public MadTeller(PlayerControl player)

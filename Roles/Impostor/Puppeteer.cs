@@ -21,9 +21,9 @@ public sealed class Puppeteer : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             4900,
-            (4, 3),
             SetUpOption,
             "pup",
+            OptionSort: (4, 3),
             from: From.TownOfHost
         );
     public Puppeteer(PlayerControl player)

@@ -21,10 +21,10 @@ public sealed class PlagueDoctor : RoleBase, IKiller
             () => RoleTypes.Impostor,
             CustomRoleTypes.Neutral,
             14000,
-            (3, 2),
             SetupOptionItem,
             "pd",
             "#ff6633",
+            (3, 2),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             from: From.TOR_GM_Edition

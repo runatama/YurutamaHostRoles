@@ -15,9 +15,9 @@ public sealed class Curser : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             6600,
-            (7, 2),
             SetupCustomOption,
-            "cs"
+            "cs",
+            OptionSort: (7, 2)
         );
     public Curser(PlayerControl player)
     : base(

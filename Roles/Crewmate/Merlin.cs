@@ -17,10 +17,10 @@ public sealed class Merlin : RoleBase, IKillFlashSeeable
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             15900,
-            (2, 1),
             null,
             "mer",
             "#8cc2ff",
+            (2, 1),
             combination: CombinationRoles.AssassinandMerlin
         );
     public Merlin(PlayerControl player)

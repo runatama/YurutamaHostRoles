@@ -17,10 +17,10 @@ public sealed class Amnesiac : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             7200,
-            (8, 0),
             SetupCustomOption,
             "am",
             "#f8cd46",
+            OptionSort: (8, 0),
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             isCantSeeTeammates: true
         );

@@ -15,9 +15,9 @@ public sealed class MadTracker : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
             () => RoleTypes.Tracker,
             CustomRoleTypes.Madmate,
             7800,
-            (2, 2),
             SetupOptionItem,
             "mt",
+            OptionSort: (2, 2),
             introSound: () => GetIntroSound(RoleTypes.Impostor)
         );
     public MadTracker(PlayerControl player)

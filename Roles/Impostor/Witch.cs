@@ -19,9 +19,9 @@ namespace TownOfHost.Roles.Impostor
                 () => ((SwitchTrigger)OptionModeSwitchAction.GetValue() is SwitchTrigger.OnPhantom or SwitchTrigger.WitchOcButton) ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 5100,
-                (3, 9),
                 SetupOptionItem,
                 "wi",
+                OptionSort: (3, 9),
                 from: From.TheOtherRoles
             );
         public Witch(PlayerControl player)
@@ -187,11 +187,11 @@ namespace TownOfHost.Roles.Impostor
             }
         }
         public bool UseOneclickButton => NowSwitchTrigger is SwitchTrigger.OnPhantom or SwitchTrigger.WitchOcButton;
-        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+        public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
         {
             if (NowSwitchTrigger is SwitchTrigger.WitchOcButton)
             {
-                ResetCoolDown = true;
+                ResetCooldown = true;
                 var target = Player.GetKillTarget(true);
                 if (target != null)
                 {
@@ -218,14 +218,14 @@ namespace TownOfHost.Roles.Impostor
                     _ = new LateTask(() => SetSpelled(target), 0.35f, "WhichSetKIll", true);
                     UtilsNotifyRoles.NotifyRoles(SpecifySeer: Player);
                 }
-                ResetCoolDown = target is not null;
-                AdjustKillCoolDown = target == null;
+                ResetCooldown = target is not null;
+                AdjustKillCooldown = target == null;
             }
             else
             if (NowSwitchTrigger is SwitchTrigger.OnPhantom)
             {
-                ResetCoolDown = false;
-                AdjustKillCoolDown = true;
+                ResetCooldown = false;
+                AdjustKillCooldown = true;
                 SwitchSpellMode(false);
             }
         }

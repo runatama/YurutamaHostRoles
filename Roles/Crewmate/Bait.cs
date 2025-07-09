@@ -14,10 +14,10 @@ public sealed class Bait : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10400,
-            (5, 1),
             SetupOptionItem,
             "ba",
             "#00f7ff",
+            (5, 1),
             from: From.TheOtherRoles
         );
     public Bait(PlayerControl player)

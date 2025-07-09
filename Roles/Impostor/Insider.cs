@@ -17,9 +17,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Impostor,
                 CustomRoleTypes.Impostor,
                 5400,
-                (5, 2),
                 SetupOptionItem,
                 "ins",
+                OptionSort: (5, 2),
                 from: From.TownOfHost
             );
         public Insider(PlayerControl player)

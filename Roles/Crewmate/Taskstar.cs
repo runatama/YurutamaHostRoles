@@ -15,10 +15,10 @@ public sealed class TaskStar : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10000,
-            (4, 1),
             SetupOptionItem,
             "ts",
-            "#FFD700"
+            "#FFD700",
+            (4, 1)
         );
     public TaskStar(PlayerControl player)
     : base(

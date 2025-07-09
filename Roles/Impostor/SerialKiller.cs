@@ -17,9 +17,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Shapeshifter,
                 CustomRoleTypes.Impostor,
                 6800,
-                (7, 0),
                 SetUpOptionItem,
                 "sk",
+                OptionSort: (7, 0),
                 from: From.TOR_GM_Edition
             );
         public SerialKiller(PlayerControl player)

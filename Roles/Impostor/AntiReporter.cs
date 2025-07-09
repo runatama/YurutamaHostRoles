@@ -19,9 +19,9 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             5500,
-            (6, 2),
             SetupOptionItem,
-            "anr"
+            "anr",
+            OptionSort: (6, 2)
         );
     public AntiReporter(PlayerControl player)
     : base(
@@ -71,14 +71,14 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     {
         Use = reader.ReadInt32();
     }
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
         var target = Player.GetKillTarget(true);
         if (target == null) return;
         if (!CanUseAbilityButton() || ReportCrashTimers.ContainsKey(target.PlayerId)) return;
-        ResetCoolDown = true;
+        ResetCooldown = true;
         ReportCrashTimers.Add(target.PlayerId, 0f);
         Use--;
         Player.RpcProtectedMurderPlayer(target);

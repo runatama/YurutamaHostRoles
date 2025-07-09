@@ -15,9 +15,9 @@ public sealed class Decrescendo : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             21000,
-            (8, 2),
             SetupOptionItem,
-            "De"
+            "De",
+            OptionSort: (8, 2)
         );
     public Decrescendo(PlayerControl player)
     : base(

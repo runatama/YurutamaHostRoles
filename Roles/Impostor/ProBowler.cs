@@ -19,9 +19,9 @@ public sealed class ProBowler : RoleBase, IImpostor
             () => RoleTypes.Shapeshifter,
             CustomRoleTypes.Impostor,
             4200,
-            (3, 4),
             SetupOptionItem,
-            "Pb"
+            "Pb",
+            OptionSort: (3, 4)
         );
     public ProBowler(PlayerControl player)
     : base(

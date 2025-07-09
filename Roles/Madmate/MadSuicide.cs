@@ -18,9 +18,9 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlas
             () => RoleTypes.Phantom,
             CustomRoleTypes.Madmate,
             7700,
-            (2, 1),
             SetupOptionItem,
             "MSu",
+            OptionSort: (2, 1),
             isDesyncImpostor: true,
             introSound: () => GetIntroSound(RoleTypes.Impostor),
             from: From.SuperNewRoles
@@ -107,11 +107,11 @@ public sealed class MadSuicide : RoleBase, IKiller, IUsePhantomButton, IKillFlas
         Player.SetRealKiller(Player);
         killer.RpcMurderPlayer(killer);
     }
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
         if (!Player.IsAlive()) return;
-        AdjustKillCoolDown = false;
-        ResetCoolDown = false;
+        AdjustKillCooldown = false;
+        ResetCooldown = false;
         MyState.DeathReason = deathReasons[OptionAbilityDeathreason.GetValue()];
         Player.RpcMurderPlayer(Player);
     }

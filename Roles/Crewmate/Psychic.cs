@@ -15,10 +15,10 @@ public sealed class Psychic : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             11200,
-            (6, 3),
             SetupOptionItem,
             "Ps",
             "#a34fee",
+            (6, 3),
             false,
             from: From.None
         );

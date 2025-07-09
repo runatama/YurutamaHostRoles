@@ -20,10 +20,10 @@ namespace TownOfHost.Roles.Neutral
                 () => RoleTypes.Crewmate,
                 CustomRoleTypes.Neutral,
                 15700,
-                (7, 3),
                 SetupOptionItem,
                 "bk",
                 "#ededc7",
+                (7, 3),
                 true,
                 countType: CountTypes.Crew
             );

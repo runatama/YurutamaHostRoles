@@ -19,10 +19,10 @@ public sealed class WolfBoy : RoleBase, IKiller, ISchrodingerCatOwner
             () => RoleTypes.Impostor,
             CustomRoleTypes.Crewmate,
             9100,
-            (2, 3),
             SetupOptionItem,
             "wb",
             "#727171",
+            (2, 3),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate)
         );

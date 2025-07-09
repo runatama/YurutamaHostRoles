@@ -22,10 +22,10 @@ public sealed class MeetingSheriff : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             9000,
-            (2, 2),
             SetupOptionItem,
             "Ms",
             "#f8cd46",
+            (2, 2),
             from: From.SuperNewRoles
             );
     public MeetingSheriff(PlayerControl player)

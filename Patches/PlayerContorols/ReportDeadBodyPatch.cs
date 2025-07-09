@@ -156,16 +156,16 @@ namespace TownOfHost
         /// <param name="repo">通報者</param>
         /// <param name="target">死体(null=button)</param>
         /// <param name="Cancelcheck">属性等のチェック入れるか</param>
-        public static void DieCheckReport(PlayerControl repo, NetworkedPlayerInfo target = null, bool? Cancelcheck = true, string Meetinginfo = "", string colorcode = "#000000")
+        public static void ExReportDeadBody(PlayerControl repo, NetworkedPlayerInfo target = null, bool? Cancelcheck = true, string Meetinginfo = "", string colorcode = "#000000")
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
 
-            Logger.Info($"{repo.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "DieCheckReport");
+            Logger.Info($"{repo.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ExReportDeadBody");
 
             if (repo == null)
             {
-                Logger.Error($"{repo?.Data?.GetLogPlayerName() ?? "???"} がnull!", "DieCheckReport");
+                Logger.Error($"{repo?.Data?.GetLogPlayerName() ?? "???"} がnull!", "ExReportDeadBody");
             }
             if (GameStates.IsMeeting || GameStates.IsLobby) return;
 
@@ -248,7 +248,7 @@ namespace TownOfHost
             repo.RpcStartMeeting(target);
         }
         public static Dictionary<byte, (float time, DontReportreson reason)> DontReport = new();
-        public static string Dontrepomark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
+        public static string GetDontReportMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
         {
             seen ??= seer;
             if (isForMeeting) return "";

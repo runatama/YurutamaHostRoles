@@ -18,10 +18,10 @@ namespace TownOfHost.Roles.Crewmate
                 () => RoleTypes.Phantom,
                 CustomRoleTypes.Crewmate,
                 8700,
-                (1, 2),
                 SetupOptionItem,
                 "NL",
                 "#4a5c59",
+                (1, 2),
                 true
             );
         public NiceLogger(PlayerControl player)
@@ -68,10 +68,10 @@ namespace TownOfHost.Roles.Crewmate
             opt.SetVision(false);
             AURoleOptions.PhantomCooldown = 0.0001f;
         }
-        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+        public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
         {
-            AdjustKillCoolDown = false;
-            ResetCoolDown = null;
+            AdjustKillCooldown = false;
+            ResetCooldown = null;
             Dictionary<OpenableDoor, float> Distance = new();
             Vector2 position = Player.transform.position;
             foreach (var door in ShipStatus.Instance.AllDoors)

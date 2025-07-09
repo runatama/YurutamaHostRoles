@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using AmongUs.GameOptions;
 using TownOfHost.Attributes;
@@ -81,9 +80,9 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             20800,
-            (0, 51),
             SetUpOptionItem,
             "SS",
+            OptionSort: (0, 51),
             from: From.Speyrp
         );
     public SpeedStar(PlayerControl player)
@@ -129,10 +128,10 @@ public sealed class SpeedStar : RoleBase, IImpostor, IUsePhantomButton
         Event.OptionLoad.Add("Chameleon");
     }
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = cooldown;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        ResetCoolDown = true;
-        AdjustKillCoolDown = true;
+        ResetCooldown = true;
+        AdjustKillCooldown = true;
         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
         {
             Main.AllPlayerSpeed[pc.PlayerId] = speed;
@@ -182,10 +181,10 @@ public sealed class Chameleon : RoleBase, IAdditionalWinner
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             20700,
-            (0, 50),
             SetUpOptionItem,
             "Ch",
             "#357a39",
+            OptionSort: (0, 50),
             from: From.Speyrp
         );
     public Chameleon(PlayerControl player)

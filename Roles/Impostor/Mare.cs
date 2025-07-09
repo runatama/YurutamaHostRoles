@@ -16,9 +16,9 @@ public sealed class Mare : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             5200,
-            (4, 5),
             SetupCustomOption,
             "ma",
+            OptionSort: (4, 5),
             assignInfo: new(CustomRoles.Mare, CustomRoleTypes.Impostor)
             {
                 IsInitiallyAssignableCallBack = () => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Electrical, out var systemType) && systemType.TryCast<SwitchSystem>(out _),  // 停電が存在する

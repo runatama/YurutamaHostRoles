@@ -15,9 +15,9 @@ public sealed class Madmate : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
             () => OptionCanVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
             CustomRoleTypes.Madmate,
             7400,
-            (1, 0),
             SetupOptionItem,
             "mm",
+            OptionSort: (1, 0),
             introSound: () => GetIntroSound(RoleTypes.Impostor),
                 assignInfo: new RoleAssignInfo(CustomRoles.Madmate, CustomRoleTypes.Madmate)
                 {

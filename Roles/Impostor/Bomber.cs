@@ -19,9 +19,9 @@ namespace TownOfHost.Roles.Impostor
                 () => RoleTypes.Phantom,
                 CustomRoleTypes.Impostor,
                 3800,
-                (3, 1),
                 SetupOptionItem,
-                "bb"
+                "bb",
+                OptionSort: (3, 1)
             );
         public Bomber(PlayerControl player)
         : base(
@@ -73,15 +73,15 @@ namespace TownOfHost.Roles.Impostor
         {
             BomberExplosion = reader.ReadInt32();
         }
-        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+        public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
         {
             if (BomberExplosion <= 0) return;
-            ResetCoolDown = true;
+            ResetCooldown = true;
             var target = Player.GetKillTarget(true);
             Logger.Info($"{Player?.Data?.GetLogPlayerName() ?? "???"} => {target?.Data?.GetLogPlayerName() ?? "失敗"}", "Bomber");
             if (target == null || BomberExplosionPlayers.ContainsKey(target?.PlayerId ?? byte.MaxValue)) return;
 
-            AdjustKillCoolDown = false;
+            AdjustKillCooldown = false;
             if (!BomberExplosionPlayers.TryAdd(target.PlayerId, 0f)) return;
             BomberExplosion--;
             SendRPC();

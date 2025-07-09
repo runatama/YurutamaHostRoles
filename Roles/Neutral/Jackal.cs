@@ -16,10 +16,10 @@ namespace TownOfHost.Roles.Neutral
                 () => OptionCanMakeSidekick.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
                 CustomRoleTypes.Neutral,
                 12900,
-                (1, 0),
                 SetupOptionItem,
                 "jac",
                 "#00b4eb",
+                (1, 0),
                 true,
                 countType: CountTypes.Jackal,
                 assignInfo: new RoleAssignInfo(CustomRoles.Jackal, CustomRoleTypes.Neutral)
@@ -96,9 +96,9 @@ namespace TownOfHost.Roles.Neutral
         public bool UseOneclickButton => CanSideKick;
         public override bool CanUseAbilityButton() => CanSideKick;
         bool IUsePhantomButton.IsPhantomRole => JackalDoll.GetSideKickCount() > JackalDoll.NowSideKickCount;
-        public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+        public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
         {
-            AdjustKillCoolDown = true;
+            AdjustKillCooldown = true;
             if (!CanSideKick) return;
 
             if (JackalDoll.GetSideKickCount() <= JackalDoll.NowSideKickCount)
@@ -109,14 +109,14 @@ namespace TownOfHost.Roles.Neutral
             var target = Player.GetKillTarget(true);
             if (target == null)
             {
-                ResetCoolDown = false;
+                ResetCooldown = false;
                 return;
             }
             var targetrole = target.GetCustomRole();
             if ((targetrole is CustomRoles.King or CustomRoles.Jackal or CustomRoles.JackalAlien or CustomRoles.Jackaldoll or CustomRoles.JackalMafia or CustomRoles.Merlin)
             || ((targetrole.IsImpostor() || targetrole is CustomRoles.Egoist) && !OptionImpostorCanSidekick.GetBool()))
             {
-                ResetCoolDown = false;
+                ResetCooldown = false;
                 return;
             }
             if (SuddenDeathMode.NowSuddenDeathTemeMode)

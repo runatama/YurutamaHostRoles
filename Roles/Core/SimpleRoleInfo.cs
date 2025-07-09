@@ -72,10 +72,10 @@ public class SimpleRoleInfo
         CustomRoleTypes customRoleType,
         CountTypes countType,
         int configId,
-        (int TabNumber, int SortNumber) OptionSort,
         OptionCreatorDelegate optionCreator,
         string chatCommand,
         string colorCode,
+        (int TabNumber, int SortNumber)? OptionSort,
         bool isDesyncImpostor,
         TabGroup tab,
         Func<AudioClip> introSound,
@@ -94,7 +94,6 @@ public class SimpleRoleInfo
         CustomRoleType = customRoleType;
         CountType = countType;
         ConfigId = configId;
-        this.OptionSort = OptionSort;
         OptionCreator = optionCreator;
         IsDesyncImpostor = isDesyncImpostor;
         this.introSound = introSound;
@@ -127,6 +126,10 @@ public class SimpleRoleInfo
                 _ => tab
             };
         Tab = tab;
+        if (OptionSort.HasValue is false)
+        {
+            OptionSort = (0, 0);
+        }
 
         CustomRoleManager.AllRolesInfo.Add(roleName, this);
         CustomRoleManager.CustomRoleIds.Add(configId, roleName);
@@ -138,10 +141,10 @@ public class SimpleRoleInfo
         Func<RoleTypes> baseRoleType,
         CustomRoleTypes customRoleType,
         int configId,
-        (int TabNumber, int SortNumber) OptionSort,
         OptionCreatorDelegate optionCreator,
         string chatCommand,
         string colorCode = "",
+        (int TabNumber, int SortNumber)? OptionSort = null,
         bool isDesyncImpostor = false,
         TabGroup tab = TabGroup.MainSettings,
         Func<AudioClip> introSound = null,
@@ -167,10 +170,10 @@ public class SimpleRoleInfo
             customRoleType,
             countType.Value,
             configId,
-            OptionSort,
             optionCreator,
             chatCommand,
             colorCode,
+            OptionSort,
             isDesyncImpostor,
             tab,
             introSound,
@@ -268,10 +271,10 @@ public class SimpleRoleInfo
             customRoleType,
             countType,
             configId,
-            OptionSort,
             optionCreator,
             null,
             colorCode,
+            OptionSort,
             false,
             TabGroup.MainSettings,
             null,

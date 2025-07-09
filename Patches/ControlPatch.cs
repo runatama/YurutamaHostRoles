@@ -197,7 +197,7 @@ namespace TownOfHost
             //自分自身の死体をレポート
             if (GetKeysDown(KeyCode.Return, KeyCode.M, KeyCode.RightShift) && GameStates.IsInGame && ((!GameStates.CalledMeeting && !GameStates.Intro) || DebugModeManager.IsDebugMode))
             {
-                ReportDeadBodyPatch.DieCheckReport(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, Translator.GetString("MI.force"), Main.ModColor);
+                ReportDeadBodyPatch.ExReportDeadBody(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data, false, Translator.GetString("MI.force"), Main.ModColor);
             }
             if (GameStates.IsLobby && !GameStates.InGame)
             {

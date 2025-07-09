@@ -15,11 +15,10 @@ public sealed class Stolener : RoleBase
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Crewmate,
             10500,
-            (5, 0),
             SetupOptionItem,
             "slt",
             "#605eb7",
-            false
+            (5, 0)
         );
     public Stolener(PlayerControl player)
     : base(

@@ -17,10 +17,10 @@ public sealed class Banker : RoleBase, IKiller, IAdditionalWinner
             () => RoleTypes.Engineer,
             CustomRoleTypes.Neutral,
             14900,
-            (5, 5),
             SetUpOptionItem,
             "bu",
             "#489972",
+            (5, 5),
             true,
             introSound: () => GetIntroSound(RoleTypes.Tracker),
             Desc: () =>

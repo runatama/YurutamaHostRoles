@@ -18,9 +18,9 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
             () => RoleTypes.Phantom,
             CustomRoleTypes.Impostor,
             4000,
-            (3, 2),
             SetupOptionItem,
-            "mc"
+            "mc",
+            OptionSort: (3, 2)
         );
     public Magician(PlayerControl player)
     : base(
@@ -100,12 +100,12 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
 
     public void OnMurderPlayerAsKiller(MurderInfo info) => HaveKillCount++;
     bool IUsePhantomButton.IsPhantomRole => MagicCount < Maximum || Maximum is 0;
-    public void OnClick(ref bool AdjustKillCoolDown, ref bool? ResetCoolDown)
+    public void OnClick(ref bool AdjustKillCooldown, ref bool? ResetCooldown)
     {
-        AdjustKillCoolDown = true;
-        ResetCoolDown = false;
+        AdjustKillCooldown = true;
+        ResetCooldown = false;
         if (Maximum <= MagicCount && Maximum > 0) return;
-        ResetCoolDown = true;
+        ResetCooldown = true;
         Dictionary<PlayerControl, float> distance = new();
         float dis;
         bool check = false;

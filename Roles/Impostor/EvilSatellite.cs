@@ -20,9 +20,9 @@ public sealed class EvilSatellite : RoleBase, IImpostor
             () => RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             3400,
-            (2, 3),
             SetupOptionItem,
-            "Es"
+            "Es",
+            OptionSort: (2, 3)
         );
     public EvilSatellite(PlayerControl player)
     : base(

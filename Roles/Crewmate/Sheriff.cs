@@ -22,10 +22,10 @@ public sealed class Sheriff : RoleBase, IKiller, ISchrodingerCatOwner
             () => RoleTypes.Impostor,
             CustomRoleTypes.Crewmate,
             8800,
-            (2, 0),
             SetupOptionItem,
             "sh",
             "#f8cd46",
+            (2, 0),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
             from: From.SheriffMod

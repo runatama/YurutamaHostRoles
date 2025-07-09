@@ -15,10 +15,10 @@ public sealed class Opportunist : RoleBase, IAdditionalWinner
             () => RoleTypes.Crewmate,
             CustomRoleTypes.Neutral,
             15200,
-            (6, 2),
             null,
             "op",
             "#00ff00",
+            (6, 2),
             from: From.TOR_GM_Edition
         );
     public Opportunist(PlayerControl player)
