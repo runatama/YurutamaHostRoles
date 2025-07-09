@@ -148,6 +148,11 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
     public override void OnExileWrapUp(NetworkedPlayerInfo exiled, ref bool DecidedWinner) => CheckAlive(exiled?.Object);
     public override void ReceiveRPC(MessageReader reader) => Rendezvous();
 
+    public override string GetMark(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false)
+    {
+        if (!Is(seer) || Altair == null) return "";
+        return seen == Altair ? $"<color={TeamColor}>☆</color>" : "";
+    }
     public void OnCheckMurderAsKiller(MurderInfo info)
     {
         info.DoKill = false;

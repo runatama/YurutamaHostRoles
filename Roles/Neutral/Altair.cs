@@ -44,6 +44,10 @@ public sealed class Altair : RoleBase, IKiller, ISchrodingerCatOwner, IAdditiona
         //seenが省略の場合seer
         seen ??= seer;
         if (!Is(seer) || Vega == null) return "";
+
+        if (seen == Vega.Player)
+            return $"<color={Vega.TeamColor}>☆</color>";
+
         if (Options.firstturnmeeting && MeetingStates.FirstMeeting) return "";
         if (!Vega.CanSeeKiller || GameStates.CalledMeeting) return "";
 
