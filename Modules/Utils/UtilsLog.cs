@@ -403,7 +403,10 @@ namespace TownOfHost
             }
             else if (GameLog.TryGetValue(day, out var Oldlog))
             {
-                GameLog[day] = Oldlog + TodayLog;
+                if (Oldlog != TodayLog)
+                {
+                    GameLog[day] = Oldlog + TodayLog;
+                }
             }
             TodayLog = "";
         }
