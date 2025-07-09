@@ -41,8 +41,8 @@ public sealed class VentOpener : RoleBase
         Neutral = OptionNeutral.GetBool();
         taskc = OptionCanTaskcount.GetFloat();
         BlockKill = OptionBlockKill.GetBool();
-        BlockVent = OptionBlockVent.GetBool();
-        BlockSabotage = OptionBlockSabotage.GetBool();
+        BlockVent = false;//OptionBlockVent.GetBool();
+        BlockSabotage = false;//OptionBlockSabotage.GetBool();
 
         expelledPlayers = new();
     }
@@ -101,8 +101,8 @@ public sealed class VentOpener : RoleBase
         OptionNeutral = BooleanOptionItem.Create(RoleInfo, 16, OptionName.VentOpenerNeutral, true, false);
         OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 17, OptionName.cantaskcount, new(0, 99, 1), 5, false);
         OptionBlockKill = BooleanOptionItem.Create(RoleInfo, 18, OptionName.VentOpenerBlockKill, false, false);
-        OptionBlockVent = BooleanOptionItem.Create(RoleInfo, 19, OptionName.VentOpenerBlockVent, false, false);
-        OptionBlockSabotage = BooleanOptionItem.Create(RoleInfo, 20, OptionName.VentOpenerBlockSabotage, false, false);
+        //OptionBlockVent = BooleanOptionItem.Create(RoleInfo, 19, OptionName.VentOpenerBlockVent, false, false);
+        // OptionBlockSabotage = BooleanOptionItem.Create(RoleInfo, 20, OptionName.VentOpenerBlockSabotage, false, false);
     }
 
     public override bool OnEnterVent(PlayerPhysics physics, int ventId)
