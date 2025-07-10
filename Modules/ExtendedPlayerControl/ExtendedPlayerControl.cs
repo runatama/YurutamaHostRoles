@@ -405,13 +405,10 @@ namespace TownOfHost
             if (ta == pc) return null;
             return ta;
         }
-        public static bool IsNeutralKiller(this PlayerControl player)
+        public static bool IsNeutralKiller(this CustomRoles role)
         {
-            if (player.GetRoleClass() is BakeCat bakeCat) return bakeCat.Team is not BakeCat.TeamType.None;
-
-            //return player.Is(CustomRoleTypes.Neutral) && player.GetRoleClass() is IKiller killer && (killer?.IsKiller ?? false);
             return
-                player.GetCustomRole() is
+                role is
                 CustomRoles.Egoist or
                 CustomRoles.Banker or
                 CustomRoles.DoppelGanger or
@@ -421,6 +418,12 @@ namespace TownOfHost
                 CustomRoles.Remotekiller or
                 CustomRoles.CountKiller or
                 CustomRoles.Altair;
+        }
+        public static bool IsNeutralKiller(this PlayerControl player)
+        {
+            if (player.GetRoleClass() is BakeCat bakeCat) return bakeCat.Team is not BakeCat.TeamType.None;
+
+            return player.GetCustomRole().IsNeutralKiller();
         }
         public static bool KnowDeathReason(this PlayerControl seer, PlayerControl seen)
         {
