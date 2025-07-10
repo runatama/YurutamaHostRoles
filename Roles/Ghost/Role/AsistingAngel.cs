@@ -150,16 +150,8 @@ namespace TownOfHost.Roles.Ghost
                     }
                     Logger.Info($"{playerid} => Asist対象が負けてるので負け。", "AsistingAngel");
                 }
-<<<<<<< HEAD
-                else
-                {
-                    Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
-                }
-                CustomWinnerHolder.IdRemoveLovers.Add(playerid);
-=======
                 Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
                 CustomWinnerHolder.CantWinPlayerIds.Add(playerid);
->>>>>>> 41c340a8 (Fix : 関数名の修正)
             }
 
             return false;

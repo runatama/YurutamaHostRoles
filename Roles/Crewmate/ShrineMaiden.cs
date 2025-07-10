@@ -155,21 +155,11 @@ public sealed class ShrineMaiden : RoleBase
         MeetingUsedcount++;
 
         Logger.Info($"Player: {Player.name},Target1: {target1.name}Target2: {target2.name}", "ShrineMaiden");
-<<<<<<< HEAD
-        var targetRoleClass = target1.GetRoleClass()?.GetFtResults(Player);
-        var targetRole = targetRoleClass is not CustomRoles.NotAssigned ? targetRoleClass.Value : target1.GetCustomRole();
-        var deadtargetRoleClass = target2.GetRoleClass()?.GetFtResults(Player);
-        var deadRole = deadtargetRoleClass is not CustomRoles.NotAssigned ? deadtargetRoleClass.Value : target2.GetCustomRole();
-        SendRPC();
-        var t1 = targetRole.GetCustomRoleTypes();
-        var t2 = deadRole.GetCustomRoleTypes();
-=======
         var role1 = target1.GetTellResults(Player);
         var role2 = target2.GetTellResults(Player);
         SendRPC();
         var t1 = role1.GetCustomRoleTypes();
         var t2 = role2.GetCustomRoleTypes();
->>>>>>> 41c340a8 (Fix : 関数名の修正)
         var madmate = Options.MadTellOpt().GetCustomRoleTypes();
         //マッドならimpにする
         if (t1 == CustomRoleTypes.Madmate) t1 = madmate is CustomRoleTypes.Madmate ? CustomRoleTypes.Impostor : madmate;
