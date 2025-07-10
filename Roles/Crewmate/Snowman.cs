@@ -88,6 +88,7 @@ public sealed class Snowman : RoleBase
 
         var distance = Vector2.Distance(OldPosition, player.GetTruePosition());
         OldPosition = player.GetTruePosition();
+        if (distance > 5) return; //Snapto等で長距離移動が起こった場合はノーカウント
         //歩数計の確認
         NowWalkCount += distance;
         stoptimer = 0;
