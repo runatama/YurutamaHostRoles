@@ -104,7 +104,7 @@ namespace TownOfHost
                 if (0f <= time)
                 {
                     Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
-                    player.GetPlayerState().Is10secKillButton = false;
+                    if (force is false) player.GetPlayerState().Is10secKillButton = false;
                 }
                 else
                 {
