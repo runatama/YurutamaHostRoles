@@ -354,7 +354,7 @@ namespace TownOfHost
             var seerisAlive = seer.IsAlive();
             bool enabled = seer == seen
                         || (Main.VisibleTasksCount && !seer.Is(CustomRoles.AsistingAngel) && !seerisAlive && (!seer.IsGhostRole() || Options.GhostRoleCanSeeOtherTasks.GetBool()) && (Options.GhostCanSeeOtherTasks.GetBool() || !Options.GhostOptions.GetBool()));
-            string text = GetProgressText(seen.PlayerId, comms, ShowManegementText, hide: seer != seen && seen.Is(CustomRoles.Fox));
+            string text = GetProgressText(seen.PlayerId, comms, ShowManegementText);
 
             if ((Options.GhostCanSeeNumberOfButtonsOnOthers.GetBool() || !Options.GhostOptions.GetBool()) && !seerisAlive && !seer.Is(CustomRoles.AsistingAngel) && (!seer.IsGhostRole() || Options.GhostRoleCanSeeNumberOfButtonsOnOthers.GetBool()))
                 text += $"[{PlayerState.GetByPlayerId(seen.PlayerId).NumberOfRemainingButtons}]";

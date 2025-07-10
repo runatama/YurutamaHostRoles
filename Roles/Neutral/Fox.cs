@@ -124,6 +124,7 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
 
             killer.SetKillCooldown(target: target, force: true);
             Guard--;
+            Logger.Info($"ガード残り:{Guard}", "Fox");
             info.GuardPower = 2;
             if (canseeguardcount) UtilsNotifyRoles.NotifyRoles(SpecifySeer: target);
             return true;
@@ -254,6 +255,13 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
         if (!Player.IsAlive()) return 0;
         //     4人以上で　　　　　　　　　　タスク完了しているフラグがある　　　生存Countに入れる : 入れない
         return PlayerCatch.AllAlivePlayersCount > 3 && checktaskwinflag ? 1 : 0;
+    }
+    public override void OverrideProgressTextAsSeen(PlayerControl seer, ref bool enabled, ref string text)
+    {
+        if (seer == null) return;
+        if (Is(seer) || seer.Is(CustomRoles.GM)) return;
+
+        text = $"<#cccccc>(?/{MyTaskState.AllTasksCount})";
     }
     bool ISystemTypeUpdateHook.UpdateReactorSystem(ReactorSystemType reactorSystem, byte amount) => false;
     bool ISystemTypeUpdateHook.UpdateHeliSabotageSystem(HeliSabotageSystem heliSabotageSystem, byte amount) => false;
