@@ -72,8 +72,9 @@ public static class CustomRoleManager
             {
                 if (killerRole is EarnestWolf earnestWolf)//最優先
                 {
-                    if (Amnesia.CheckAbility(attemptKiller)) earnestWolf.OnCheckMurderAsEarnestWolf(info);
-                    return false;
+                    if (Amnesia.CheckAbility(attemptKiller))
+                        if (earnestWolf.OnCheckMurderAsEarnestWolf(info))
+                            return true;
                 }
 
                 if (targetRole != null)

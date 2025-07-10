@@ -62,7 +62,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         AURoleOptions.KillDistance = OverKillMode ? OptionOverKillDistance.GetInt() : OptionNomalKillDistance.GetInt();
         AURoleOptions.PhantomCooldown = 0;
     }
-    public void OnCheckMurderAsEarnestWolf(MurderInfo info)
+    public bool OnCheckMurderAsEarnestWolf(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
 
@@ -71,9 +71,14 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
         {
             count++;
             KillCoolDown = KillCoolDown * OptionOverKillBairitu.GetFloat();
-            info.DoKill = false;
 
-            CustomRoleManager.OnCheckMurder(killer, target, OptionOverKillDontKillM.GetBool() ? target : killer, target, true, null, 10);
+            info.DontRoleAbility = null;
+            info.KillPower = 10;
+            var dummykiller = OptionOverKillDontKillM.GetBool() ? target : killer;
+
+            if (info.IsCanKilling) return false;
+            CustomRoleManager.CheckMurderInfos[info.AppearanceKiller.PlayerId] = info;
+            dummykiller.RpcMurderPlayer(target);
             OverKillMode = false;
 
             _ = new LateTask(() =>
@@ -82,7 +87,9 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
                 Player.SetKillCooldown(delay: true);
                 Player.SyncSettings();
             }, 0.2f, "EarnestWolf");
+            return true;
         }
+        return false;
     }
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
