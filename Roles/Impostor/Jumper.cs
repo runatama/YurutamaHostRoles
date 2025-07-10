@@ -161,6 +161,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
         NowJumpcount = 1;
         AdjustKillCooldown = false;
         Jumping = true;
+        ShowMark = true;
         UsePosition = Player.transform.position;
         var X = JumpToPosition.x - UsePosition.x;
         var Y = JumpToPosition.y - UsePosition.y;
