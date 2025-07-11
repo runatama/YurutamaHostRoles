@@ -1687,6 +1687,24 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100065,
+                    Title = "～.30.1xの内容通知書～",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.13.30.11</color>",
+                    ShortTitle = "<color=#00c1ff>◆TOH-K v.51.13.30.11</color>",
+                    Text = "<size=80%>\n2周年に向けて準備を...(2周年何しよう...)"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・シェイプシフト使用時、名前が正常に適応されない問題の修正\n"
+                    + "・ハッキング判定食らう問題の対応...?(心当たりあるものを修正しました...)\n"
+                    + "\n<size=125%>【新設定】</size>\n"
+                    + "・試験的設定に\"会議前に視界を暗転させる\"設定の追加。\n\nねむい。by:yoran"
+                    ,
+                    Date = "2025-07-10T21:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }

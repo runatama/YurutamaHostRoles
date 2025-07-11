@@ -55,12 +55,12 @@ namespace TownOfHost
                 // ==========
                 //Sorry for many Japanese comments.
                 public const string PluginGuid = "com.kymario.townofhost-k";
-                public const string PluginVersion = "51.13.30";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-                public const string PluginShowVersion = "51.13.30";
+                public const string PluginVersion = "51.13.30.11";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+                public const string PluginShowVersion = "51.13.30<sub>.11</sub>";
                 public const string ModVersion = ".30";//リリースver用バージョン変更
 
                 /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-                public static bool DebugVersion = true;
+                public static bool DebugVersion = false;
 
                 // サポートされている最低のAmongUsバージョン
                 public static readonly string LowestSupportedVersion = "2025.4.20";
