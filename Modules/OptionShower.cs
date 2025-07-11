@@ -13,9 +13,20 @@ namespace TownOfHost
     public static class OptionShower
     {
         public static int currentPage = 0;
-        public static List<string> pages = new();
+        public static bool Update = false;
+        public static List<string> pages;
         public static string GetText()
         {
+            if (pages == null || Update) UpdateText();
+
+            if (currentPage >= pages.Count) currentPage = pages.Count - 1; //現在のページが最大ページ数を超えていれば最後のページに修正
+            return $"{pages[currentPage]}{GetString("PressTabToNextPage")}({currentPage + 1}/{pages.Count})";
+        }
+        public static void UpdateText()
+        {
+            Update = false;
+            if (AmongUsClient.Instance == null) return;
+
             //初期化
             var flug = false;
             StringBuilder sb = new();
@@ -166,8 +177,6 @@ namespace TownOfHost
                     pages.Add(tmp[i] + "\n\n");
                 else pages[^1] += tmp[i] + "\n\n";
             }
-            if (currentPage >= pages.Count) currentPage = pages.Count - 1; //現在のページが最大ページ数を超えていれば最後のページに修正
-            return $"{pages[currentPage]}{GetString("PressTabToNextPage")}({currentPage + 1}/{pages.Count})";
         }
 
         public static void Next()

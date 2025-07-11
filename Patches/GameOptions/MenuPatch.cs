@@ -18,6 +18,7 @@ namespace TownOfHost
     {
         public static void Postfix()
         {
+            OptionShower.Update = true;
             OptionItem.SyncAllOptions();
         }
     }

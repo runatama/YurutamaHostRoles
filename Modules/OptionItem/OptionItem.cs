@@ -269,6 +269,7 @@ namespace TownOfHost
                 opt.ValueText.text = GetString();
                 opt.oldValue = opt.Value = CurrentValue;
             }
+            OptionShower.Update = true;
         }
         public virtual void SetValue(int afterValue, bool doSave, bool doSync = true)
         {
