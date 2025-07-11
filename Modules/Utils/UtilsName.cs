@@ -66,6 +66,13 @@ namespace TownOfHost
         }
         public static string GetRealName(this PlayerControl player, bool isMeeting = false)
         {
+            if (Main.ShapeshiftTarget.TryGetValue(player.PlayerId, out var targetid) && targetid != player.PlayerId && !isMeeting)
+            {
+                if (Camouflage.PlayerSkins.TryGetValue(targetid, out var outfit))
+                {
+                    return outfit.PlayerName;
+                }
+            }
             if (GameStates.InGame && Camouflage.PlayerSkins.TryGetValue(player?.PlayerId ?? byte.MaxValue, out var skin)) return skin.PlayerName;
             return isMeeting ? player?.Data?.PlayerName : player?.name;
         }
