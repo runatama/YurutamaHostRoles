@@ -200,7 +200,7 @@ public class MeetingVoteManager
             {
                 AntiBlackout.SetIsDead();
                 AntiBlackout.SetRole(result);
-            }, 4.7f, "LateAntiBlackoutSet", null);
+            }, 4f, "LateAntiBlackoutSet", null);
         }
 
         if (AntiBlackout.OverrideExiledPlayer())
