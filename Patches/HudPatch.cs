@@ -52,7 +52,7 @@ namespace TownOfHost
                     player.Collider.offset = new Vector2(0f, -0.3636f);
                 }
             }
-            GameObject.Find("Main Camera/Hud/TaskDisplay/ProgressTracker")?.SetActive(false);
+
 #if DEBUG
             if (Main.DebugChatopen.Value && DebugModeManager.EnableDebugMode.GetBool())
                 if (__instance.Chat)
@@ -83,8 +83,8 @@ namespace TownOfHost
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
 
                 var settaskPanel = GameStates.IsLobby && !GameStates.IsCountDown && !GameStates.InGame && (GameSettingMenuStartPatch.ModSettingsButton?.selected ?? false);// && GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned;
-                GameObject.Find("Main Camera/Hud/TaskDisplay")?.SetActive(settaskPanel);
-                GameObject.Find("Main Camera/Hud/TaskDisplay")?.transform.SetLocalZ(settaskPanel ? -500 : 5);
+                __instance.TaskPanel?.gameObject?.SetActive(settaskPanel);
+                __instance.TaskPanel?.transform.SetLocalZ(settaskPanel ? -500 : 5);
 
                 if (settaskPanel)
                 {
@@ -665,6 +665,18 @@ namespace TownOfHost
             }
         }
     }
+
+    [HarmonyPatch(typeof(ProgressTracker), nameof(ProgressTracker.FixedUpdate))]
+    class ProgressTrackerFixedUpdatePatch
+    {
+        //タスクバー
+        public static void Postfix(ProgressTracker __instance)
+        {
+            if (__instance.gameObject.active)
+                __instance.gameObject.SetActive(false);
+        }
+    }
+
     [HarmonyPatch(typeof(FriendsListBar), nameof(FriendsListBar.Update))]
     class FriendsListBarUpdatePatch
     {
