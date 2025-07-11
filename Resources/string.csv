@@ -2045,6 +2045,7 @@
 "DebugSendAmout","right shift Send Amout","Amout"
 "ShowDistance","Show Distance","距離を表示"
 "DebugTours","DebugTours","DebugTours"
+"FpsLimitRemoval","Fps Limit Removal","FPSの制限を解除する"
 "AutoSaveScreenShot","Auto Save ScreenShot","試合結果のスクショを自動保存する"
 
 "## ヘルプテキスト"

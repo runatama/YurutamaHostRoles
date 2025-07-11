@@ -56,11 +56,11 @@ namespace TownOfHost
                 //Sorry for many Japanese comments.
                 public const string PluginGuid = "com.kymario.townofhost-k";
                 public const string PluginVersion = "51.13.30";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-                public const string PluginShowVersion = "51.13.30";//.29<sub>.32</sub>";
+                public const string PluginShowVersion = "51.13.30";
                 public const string ModVersion = ".30";//リリースver用バージョン変更
 
                 /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-                public static bool DebugVersion = false;
+                public static bool DebugVersion = true;
 
                 // サポートされている最低のAmongUsバージョン
                 public static readonly string LowestSupportedVersion = "2025.4.20";
@@ -97,6 +97,7 @@ namespace TownOfHost
                 public static ConfigEntry<bool> DebugSendAmout { get; private set; }
                 public static ConfigEntry<bool> DebugTours { get; private set; }
                 public static ConfigEntry<bool> ShowDistance { get; private set; }
+                public static ConfigEntry<bool> FpsLimitRemoval { get; private set; }
                 public static Dictionary<byte, PlayerVersion> playerVersion = new();
                 //Preset Name Options
                 public static ConfigEntry<string> Preset1 { get; private set; }
@@ -192,6 +193,7 @@ namespace TownOfHost
                         DebugSendAmout = Config.Bind("Client Options", "Debug Send Amout", false);
                         DebugTours = Config.Bind("Client Options", "DebugTours", false);
                         ShowDistance = Config.Bind("Client Options", "Show Distance", false);
+                        FpsLimitRemoval = Config.Bind("Client Options", "Fps Limit Removal", false);
                         DebugKeyInput = Config.Bind("Authentication", "Debug Key", "");
                         ExplosionKeyInput = Config.Bind("Authentication", "Explosion Key", "");
 
@@ -468,6 +470,7 @@ namespace TownOfHost
                 SelfVote,
                 Skip
         }
+
         public enum TieMode
         {
                 Default,

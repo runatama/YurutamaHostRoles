@@ -25,6 +25,7 @@ namespace TownOfHost
         private static ClientActionItem DebugSendAmout;
         private static ClientActionItem DebugTours;
         private static ClientActionItem ShowDistance;
+        private static ClientActionItem FpsLimitRemoval;
         private static ClientActionItem AutoSaveScreenShot;
 
         public static void Postfix(OptionsMenuBehaviour __instance)
@@ -102,6 +103,14 @@ namespace TownOfHost
             if (DebugTours == null || DebugTours.ToggleButton == null)
             {
                 DebugTours = ClientOptionItem.Create("DebugTours", Main.DebugTours, __instance);
+            }
+            if (FpsLimitRemoval == null || FpsLimitRemoval.ToggleButton == null)
+            {
+                Application.targetFrameRate = Main.FpsLimitRemoval.Value ? -1 : 60;//起動時
+                FpsLimitRemoval = ClientOptionItem.Create("FpsLimitRemoval", Main.FpsLimitRemoval, __instance, () =>
+                {
+                    Application.targetFrameRate = Main.FpsLimitRemoval.Value ? -1 : 60;//クリック時
+                });
             }
 #endif
             if ((CustomName == null || CustomName.ToggleButton == null) && Event.IsEventDay)
