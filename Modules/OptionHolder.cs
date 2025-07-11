@@ -43,6 +43,7 @@ namespace TownOfHost
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
         public static void WaitOptionsLoad()
         {
+            if (IsLoaded) return;
             //taskOptionsLoad.Wait();
             Logger.Info("Options.Load End", "Options");
         }
@@ -127,6 +128,7 @@ namespace TownOfHost
         public static OptionItem FixSpawnPacketSize;
         public static OptionItem ExIntroWeight;
         public static OptionItem ExRpcWeightR;
+        public static OptionItem ExCallMeetingBlackout;
 
         //幽霊役職
         public static OptionItem GhostRoleOption;
@@ -598,6 +600,7 @@ namespace TownOfHost
                 .SetGameMode(CustomGameMode.All)
                 .SetColor(UtilsRoleText.GetRoleColor(CustomRoles.Connecting)).SetParent(TeamHideChat);
             ExRpcWeightR = BooleanOptionItem.Create(105009, "ExRpcWeightR", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode);
+            ExCallMeetingBlackout = BooleanOptionItem.Create(105010, "ExCallMeetingBlackout", false, TabGroup.MainSettings, false).SetParent(ExperimentalMode);
 
             //9人以上部屋で落ちる現象の対策
             FixSpawnPacketSize = BooleanOptionItem.Create(105010, "FixSpawnPacketSize", false, TabGroup.MainSettings, true)

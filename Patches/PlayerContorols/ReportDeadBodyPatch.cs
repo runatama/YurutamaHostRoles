@@ -76,7 +76,8 @@ namespace TownOfHost
             {
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
                 kvp.Value.LastRoom = pc?.GetPlainShipRoom();
-                kvp.Value.IsBlackOut = true;
+                if (Options.ExCallMeetingBlackout.GetBool())
+                    kvp.Value.IsBlackOut = true;
             }
             UtilsOption.MarkEveryoneDirtySettings();
 
@@ -147,9 +148,9 @@ namespace TownOfHost
                 MeetingRoomManager.Instance.AssignSelf(__instance, target);
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
                 __instance.RpcStartMeeting(target);
-            }, 0.2f, "StartMeeting", true);
+            }, Options.ExCallMeetingBlackout.GetBool() ? 0.2f : 0, "StartMeeting", true);
 
-            return false;
+            return !Options.ExCallMeetingBlackout.GetBool();
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)
         {
@@ -162,29 +163,29 @@ namespace TownOfHost
         /// <summary>
         /// 死者でもReportさせるやーつ
         /// </summary>
-        /// <param name="repo">通報者</param>
+        /// <param name="reporter">通報者</param>
         /// <param name="target">死体(null=button)</param>
         /// <param name="Cancelcheck">属性等のチェック入れるか</param>
-        public static void ExReportDeadBody(PlayerControl repo, NetworkedPlayerInfo target = null, bool? Cancelcheck = true, string Meetinginfo = "", string colorcode = "#000000")
+        public static void ExReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target = null, bool? Cancelcheck = true, string Meetinginfo = "", string colorcode = "#000000")
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
 
-            Logger.Info($"{repo.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ExReportDeadBody");
+            Logger.Info($"{reporter.GetNameWithRole().RemoveHtmlTags()} => {target?.Object?.GetNameWithRole()?.RemoveHtmlTags() ?? "null"}", "ExReportDeadBody");
 
-            if (repo == null)
+            if (reporter == null)
             {
-                Logger.Error($"{repo?.Data?.GetLogPlayerName() ?? "???"} がnull!", "ExReportDeadBody");
+                Logger.Error($"{reporter?.Data?.GetLogPlayerName() ?? "???"} がnull!", "ExReportDeadBody");
             }
             if (GameStates.IsMeeting || GameStates.IsLobby) return;
 
-            var State = PlayerState.GetByPlayerId(repo.PlayerId);
+            var State = PlayerState.GetByPlayerId(reporter.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null && Cancelcheck is not false) return;
 
             if (Cancelcheck is null or true)
-                if (!CheckMeeting(repo, target, checkdie: Cancelcheck is true)) return;
+                if (!CheckMeeting(reporter, target, checkdie: Cancelcheck is true)) return;
 
-            PlayerControlRpcUseZiplinePatch.OnMeeting(repo, target);
+            PlayerControlRpcUseZiplinePatch.OnMeeting(reporter, target);
 
             GameStates.CalledMeeting = true;
             GameStates.task = false;// Pos.Clear();
@@ -194,19 +195,20 @@ namespace TownOfHost
             {
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
                 kvp.Value.LastRoom = pc?.GetPlainShipRoom();
-                kvp.Value.IsBlackOut = true;
+                if (Options.ExCallMeetingBlackout.GetBool())
+                    kvp.Value.IsBlackOut = true;
             }
 
             UtilsOption.MarkEveryoneDirtySettings();
             AdminProvider.CalculateAdmin(true);
             // シェイプキラー：通報者書き換え
-            ShapeKiller.SetDummyReport(ref repo, target);
+            ShapeKiller.SetDummyReport(ref reporter, target);
 
             if (Meetinginfo == "")
             {
                 if (target != null)
                 {
-                    UtilsGameLog.AddGameLog("Meeting", UtilsName.GetPlayerColor(target, true) + Translator.GetString("Meeting.Report") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(repo.PlayerId, true)));
+                    UtilsGameLog.AddGameLog("Meeting", UtilsName.GetPlayerColor(target, true) + Translator.GetString("Meeting.Report") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(reporter.PlayerId, true)));
                     var colorid = Camouflage.PlayerSkins[target.PlayerId].ColorId;
                     var DieName = Palette.GetColorName(colorid);
                     var check = false;
@@ -217,14 +219,14 @@ namespace TownOfHost
                         check = true;
                         DieName = output;
                     }
-                    MeetingHudPatch.Oniku = (check ? DieName : UtilsName.GetPlayerColor(target, true)) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(repo.PlayerId, true));
-                    UtilsNotifyRoles.ExtendedMeetingText = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</u></color>";
+                    MeetingHudPatch.Oniku = (check ? DieName : UtilsName.GetPlayerColor(target, true)) + Translator.GetString("Meeting.Report") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(reporter.PlayerId, true));
+                    UtilsNotifyRoles.ExtendedMeetingText = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[reporter.PlayerId].ColorId]) + "<#ffffff>" + string.Format(Translator.GetString("MI.die"), DieName.Color(color)) + "</u></color>";
                 }
                 else
                 {
-                    UtilsGameLog.AddGameLog("Meeting", Translator.GetString("Meeting.Button") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(repo.PlayerId, true)));
-                    MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(repo.PlayerId, true));
-                    UtilsNotifyRoles.ExtendedMeetingText = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[repo.PlayerId].ColorId]) + "<#ffffff>" + Translator.GetString("MI.Bot") + "</u></color>";
+                    UtilsGameLog.AddGameLog("Meeting", Translator.GetString("Meeting.Button") + "\n\t\t┗  " + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(reporter.PlayerId, true)));
+                    MeetingHudPatch.Oniku = Translator.GetString("Meeting.Button") + "\n　" + string.Format(Translator.GetString("Meeting.Shoushu"), UtilsName.GetPlayerColor(reporter.PlayerId, true));
+                    UtilsNotifyRoles.ExtendedMeetingText = "<u>★".Color(Palette.PlayerColors[Camouflage.PlayerSkins[reporter.PlayerId].ColorId]) + "<#ffffff>" + Translator.GetString("MI.Bot") + "</u></color>";
                 }
             }
             else
@@ -237,7 +239,7 @@ namespace TownOfHost
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     var roleClass = pc.GetRoleClass();
-                    roleClass?.OnReportDeadBody(repo, target);
+                    roleClass?.OnReportDeadBody(reporter, target);
                 }
             _ = new LateTask(() =>
             {
@@ -257,10 +259,10 @@ namespace TownOfHost
 
                 UtilsOption.SyncAllSettings();
 
-                MeetingRoomManager.Instance.AssignSelf(repo, target);
-                DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
-                repo.RpcStartMeeting(target);
-            }, 0.2f, "StartMeeting", true);
+                MeetingRoomManager.Instance.AssignSelf(reporter, target);
+                DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
+                reporter.RpcStartMeeting(target);
+            }, Options.ExCallMeetingBlackout.GetBool() ? 0.2f : 0, "StartMeeting", true);
         }
         public static Dictionary<byte, (float time, DontReportreson reason)> DontReport = new();
         public static string GetDontReportMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)

@@ -844,6 +844,7 @@
 "ExIntroWeight","Intro Disconnect Rpc Weight","イントロの通信量を改善してみる"
 "ExIntroWeightInfo","Only Disconnect player on Intor.","イントロ落ちが発生した時のみ"
 "ExRpcWeightR","Rpc Weight","Rpcの送信頻度を制限する"
+"ExCallMeetingBlackout","Meeting Blackout","会議前に視界を暗転させる"
 "UseZoom","UseZoom (ModClient Only)","ズームを有効にする(ModClient Only)"
 "SoloWinOption","%role%SoloWin","%role%の勝利優先順位"
 
