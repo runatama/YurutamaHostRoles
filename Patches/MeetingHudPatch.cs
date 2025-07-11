@@ -91,6 +91,7 @@ public static class MeetingHudPatch
             Sender.StartMessage();
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
+                pc.GetPlayerState().IsBlackOut = false;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
 
                 if (!pc.IsAlive() && !Assassin.NowUse)
@@ -102,6 +103,7 @@ public static class MeetingHudPatch
                     PlayerCatch.OldAlivePlayerControles.Add(pc);
                 }
             }
+            UtilsOption.MarkEveryoneDirtySettings();
             ReportDeadBodyPatch.DontReport.Clear();
             MeetingStates.MeetingCalled = true;
             GameStates.ExiledAnimate = false;

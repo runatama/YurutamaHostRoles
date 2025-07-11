@@ -76,8 +76,8 @@ namespace TownOfHost
             {
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
                 kvp.Value.LastRoom = pc?.GetPlainShipRoom();
+                kvp.Value.IsBlackOut = true;
             }
-
             UtilsOption.MarkEveryoneDirtySettings();
 
             AdminProvider.CalculateAdmin(true);
@@ -136,11 +136,20 @@ namespace TownOfHost
             //if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
             //サボ関係多分なしに～
             //押したのなら強制で始める
-            MeetingRoomManager.Instance.AssignSelf(__instance, target);
-            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
-            __instance.RpcStartMeeting(target);
+            _ = new LateTask(() =>
+            {
+                UtilsNotifyRoles.NotifyMeetingRoles();
 
-            return true;
+                MeetingTimeManager.OnReportDeadBody();
+
+                UtilsOption.SyncAllSettings();
+
+                MeetingRoomManager.Instance.AssignSelf(__instance, target);
+                DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
+                __instance.RpcStartMeeting(target);
+            }, 0.2f, "StartMeeting", true);
+
+            return false;
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)
         {
@@ -185,10 +194,13 @@ namespace TownOfHost
             {
                 var pc = PlayerCatch.GetPlayerById(kvp.Key);
                 kvp.Value.LastRoom = pc?.GetPlainShipRoom();
+                kvp.Value.IsBlackOut = true;
             }
 
             UtilsOption.MarkEveryoneDirtySettings();
             AdminProvider.CalculateAdmin(true);
+            // シェイプキラー：通報者書き換え
+            ShapeKiller.SetDummyReport(ref repo, target);
 
             if (Meetinginfo == "")
             {
@@ -237,15 +249,18 @@ namespace TownOfHost
             }, 1f, "SetSkin", false);
 
             //if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-            UtilsNotifyRoles.NotifyMeetingRoles();
+            _ = new LateTask(() =>
+            {
+                UtilsNotifyRoles.NotifyMeetingRoles();
 
-            MeetingTimeManager.OnReportDeadBody();
+                MeetingTimeManager.OnReportDeadBody();
 
-            UtilsOption.SyncAllSettings();
+                UtilsOption.SyncAllSettings();
 
-            MeetingRoomManager.Instance.AssignSelf(repo, target);
-            DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
-            repo.RpcStartMeeting(target);
+                MeetingRoomManager.Instance.AssignSelf(repo, target);
+                DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(repo);
+                repo.RpcStartMeeting(target);
+            }, 0.2f, "StartMeeting", true);
         }
         public static Dictionary<byte, (float time, DontReportreson reason)> DontReport = new();
         public static string GetDontReportMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
@@ -307,6 +322,7 @@ namespace TownOfHost
                 || Utils.IsActive(SystemTypes.LifeSupp)
                 || Utils.IsActive(SystemTypes.HeliSabotage)) && target == null)
             {
+                GameStates.CalledMeeting = false;
                 Logger.Info($"サボ発生中！キャンセルする！", "ReportDeadBody");
                 return false;
             }

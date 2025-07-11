@@ -112,6 +112,7 @@ namespace TownOfHost
                 }
                 player.SyncSettings();
             }
+            else if (force) player.SyncSettings();
 
             if (delay)
             {

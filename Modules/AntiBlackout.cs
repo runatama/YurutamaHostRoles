@@ -279,7 +279,7 @@ namespace TownOfHost
                 Player.Revive();
             }
 
-            Player.PlayerId.GetPlayerState().IsBlackOut = false;
+            Player.GetPlayerState().IsBlackOut = false;
             Player.ResetKillCooldown();
             _ = new LateTask(() =>
                 {
