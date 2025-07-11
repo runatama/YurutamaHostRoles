@@ -388,7 +388,7 @@ namespace TownOfHost
             if ((name != PlayerControl.LocalPlayer.name || countdown) && !PlayerControl.LocalPlayer.name.Contains("マーリン") && !PlayerControl.LocalPlayer.name.Contains("どちらも") && !RpcTimer && PlayerControl.LocalPlayer.CurrentOutfitType == PlayerOutfitType.Default)
             {
                 PlayerControl.LocalPlayer.RpcSetName(name);
-                if (!Iscountdown) _ = new LateTask(() => ApplySuffix(null, force: true), 0.2f, "LobySetName", null);
+                if (!Iscountdown && GameStates.IsLobby) _ = new LateTask(() => ApplySuffix(null, force: true), 0.2f, "LobySetName", null);
             }
 
             if (GameStates.IsLobby && !Iscountdown && (force || (pc.name != "Player(Clone)" && pc.PlayerId != PlayerControl.LocalPlayer.PlayerId && !pc.IsModClient())))
@@ -471,7 +471,6 @@ namespace TownOfHost
                 ventilationSystem.IsDirty = true;
             }
             GuessManager.Reset();//会議後にリセット入れる
-            ExtendedRpc.AllPlayerOnlySeeMePet();
             GameStates.ExiledAnimate = false;
         }
         #endregion

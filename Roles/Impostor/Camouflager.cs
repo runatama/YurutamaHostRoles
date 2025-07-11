@@ -176,7 +176,6 @@ public sealed class Camouflager : RoleBase, IImpostor, IUsePhantomButton
             sender.SendMessage();
         }
 
-        ExtendedRpc.AllPlayerOnlySeeMePet();
         Limit = OptionAblitytime.GetFloat();
         NowUse = true;
         _ = new LateTask(() =>

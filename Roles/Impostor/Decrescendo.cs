@@ -92,7 +92,6 @@ public sealed class Decrescendo : RoleBase, IImpostor
             {
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown(delay: true);
-                killer.SyncSettings();
             }, 0.2f, "Decrecend SyncSetting");
         }
     }

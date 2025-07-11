@@ -14,6 +14,8 @@ class VentManager
     public static Dictionary<byte, int> VentDuringDisabling = new();
     public static void UpdateDesyncVentCleaning(PlayerControl player, RoleBase roleclass)
     {
+        if (ShipStatus.Instance is null) return;
+
         if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && GameStates.introDestroyed && player.IsAlive() && !player.IsModClient())
         {
             Dictionary<int, float> Distance = new();

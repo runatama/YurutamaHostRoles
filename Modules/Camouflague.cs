@@ -145,17 +145,7 @@ namespace TownOfHost
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
 
-            if (target.IsAlive() && !GameStates.CalledMeeting)
-            {
-                target.SetPet(newOutfit.PetId);
-                sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
-                    .Write("")
-                    .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                    .EndRpc();
-            }
             sender.SendMessage();
-
-            if (!GameStates.CalledMeeting) ExtendedRpc.AllPlayerOnlySeeMePet();
         }
     }
 }

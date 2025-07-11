@@ -431,12 +431,6 @@ namespace TownOfHost
                 VersionMenu.SetActive(false);
             if (betaVersionMenu != null)
                 betaVersionMenu.SetActive(false);
-            if (Statistisc != null)
-                Statistisc.gameObject.SetActive(false);
-            if (NextButton != null)
-                NextButton.Button.gameObject.SetActive(false);
-            if (BackButton != null)
-                BackButton.Button.gameObject.SetActive(false);
 
             {
                 var warning = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/CrossplayWarning");
@@ -459,12 +453,11 @@ namespace TownOfHost
                 VersionMenu.SetActive(false);
             if (betaVersionMenu != null)
                 betaVersionMenu.SetActive(false);
-            if (Statistisc != null)
-                Statistisc.gameObject.SetActive(false);
-            if (NextButton != null)
-                NextButton?.Button?.gameObject.SetActive(false);
-            if (BackButton != null)
-                BackButton?.Button?.gameObject.SetActive(false);
+        }
+        public static void DestroyButton()
+        {
+            VersionMenu = null;
+            betaVersionMenu = null;
         }
     }
     public class ModNews

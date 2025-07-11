@@ -164,7 +164,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
     class ShapeshiftPatch
     {
-        public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+        public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target, [HarmonyArgument(1)] bool animate)
         {
             Logger.Info($"{__instance?.GetNameWithRole().RemoveHtmlTags()} => {target?.GetNameWithRole().RemoveHtmlTags()}", "Shapeshift");
 
@@ -196,8 +196,10 @@ namespace TownOfHost
             if (!shapeshifting)
             {
                 Camouflage.RpcSetSkin(shapeshifter);
-                shapeshifter.OnlySeeMyPet(shapeshifter.Data.DefaultOutfit.PetId);
             }
+            _ = new LateTask(() =>
+                shapeshifter.OnlySeeMyPet(target.Data.DefaultOutfit.PetId), animate ? 1.2f : 0.1f, "ShapeSetPet", null);
+
             //変身解除のタイミングがずれて名前が直せなかった時のために強制書き換え
             if (!shapeshifting)
             {

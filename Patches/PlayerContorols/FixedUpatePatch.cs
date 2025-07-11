@@ -270,7 +270,6 @@ namespace TownOfHost
 
                         if (remove.Count > 0)
                         {
-                            ExtendedRpc.AllPlayerOnlySeeMePet();
                             remove.ForEach(task => Camouflage.ventplayr.Remove(task));
                         }
                     }

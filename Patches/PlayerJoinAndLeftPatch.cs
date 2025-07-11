@@ -34,6 +34,7 @@ namespace TownOfHost
             GameStates.InGame = false;
             Main.ForcedGameEndColl = 0;
             GameStates.canmusic = true;
+            MainMenuManagerPatch.DestroyButton();
             //AntiBlackout.Reset();
             ErrorText.Instance.Clear();
             foreach (var pc in PlayerCatch.AllPlayerControls)

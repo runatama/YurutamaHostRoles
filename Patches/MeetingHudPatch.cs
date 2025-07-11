@@ -94,6 +94,10 @@ public static class MeetingHudPatch
                 pc.GetPlayerState().IsBlackOut = false;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId].Clear();
 
+                if (Main.CheckShapeshift.TryGetValue(pc.PlayerId, out var shapeshifting) && shapeshifting)
+                {
+                    pc.RpcShapeshift(pc, false);
+                }
                 if (!pc.IsAlive() && !Assassin.NowUse)
                 {
                     pc.RpcExileV2();

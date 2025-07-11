@@ -97,7 +97,6 @@ namespace TownOfHost
                     player.RpcResetAbilityCooldown();
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     (roleClass as IUsePhantomButton)?.Init(player);
-                    AllPlayerOnlySeeMePet();
                     foreach (var roleclass in CustomRoleManager.AllActiveRoles.Values)
                     {
                         roleclass.ChangeColor();
@@ -507,7 +506,6 @@ namespace TownOfHost
                     pc.SetSkin("", Color);
                     pc.SetHat("", Color);
                     pc.SetVisor("", Color);
-                    pc.SetPet("", Color);
                     return;
                 }
             }
@@ -533,10 +531,6 @@ namespace TownOfHost
                 .Write("")
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
-                sender.StartRpc(pc.NetId, RpcCalls.SetPetStr)
-                .Write("")
-                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                .EndRpc();
             }
             sender.EndMessage();
             sender.SendMessage();
@@ -544,24 +538,21 @@ namespace TownOfHost
 
         public static void OnlySeeMyPet(this PlayerControl pc, string petid)
         {
-            pc.RpcSetPet("");
-            foreach (var ap in PlayerCatch.AllPlayerControls)
-            {
-                if (ap.GetClient() == null) continue;
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, ap.GetClientId());
-                writer.Write("pet_EmptyPet");
-                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
+            var sender = CustomRpcSender.Create("SetOnlySeeMypet", SendOption.None);
+            sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr)
+                .Write("")
+                .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                .EndRpc();
 
-            }
             if (pc.IsAlive() && pc.GetClient() != null)
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(pc.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, pc.GetClientId());
-                writer.Write(petid);
-                writer.Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr));
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
+                sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr, pc.GetClientId())
+                    .Write(petid)
+                    .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
+                    .EndRpc();
             }
-
+            sender.SendMessage();
             pc.RawSetPet(pc.PlayerId == PlayerControl.LocalPlayer.PlayerId ? petid : "pet_EmptyPet", pc.Data.DefaultOutfit.ColorId);
         }
         public static void AllPlayerOnlySeeMePet() => PlayerCatch.AllPlayerControls.Do(pc => pc.OnlySeeMyPet(Camouflage.PlayerSkins.TryGetValue(pc.PlayerId, out var outfit) ? outfit.PetId : ""));
