@@ -8,6 +8,7 @@ using TownOfHost.Modules;
 using TownOfHost.Roles.Core;
 using TownOfHost.Templates;
 using static TownOfHost.Translator;
+using System.Linq;
 
 namespace TownOfHost
 {
@@ -16,11 +17,13 @@ namespace TownOfHost
     {
         public static SpriteRenderer TohkLogo { get; private set; }
         public static TextMeshPro credentialsText;
+        private static float deltaTime = 0.0f;
 
         [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
         class PingTrackerUpdatePatch
         {
             static StringBuilder sb = new();
+            static StringBuilder exSb = new();
             static void Postfix(PingTracker __instance)
             {
                 if (!credentialsText)
@@ -36,9 +39,8 @@ namespace TownOfHost
 
                 sb.Clear();
 
-                var Debugver = "";
-                if (Main.DebugVersion) Debugver = $"<{Main.ModColor}>☆Debug☆</color>";
-                sb.Append("\r\n").Append($"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}" + Debugver);
+                sb.Append("\r\n").Append($"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}");
+                if (Main.DebugVersion) sb.Append($"<{Main.ModColor}>☆Debug☆</color>");
 
                 if ((Options.NoGameEnd.OptionMeGetBool() && GameStates.IsLobby) || (Main.DontGameSet && !GameStates.IsLobby)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
                 if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
@@ -52,22 +54,24 @@ namespace TownOfHost
                     sb.Append("\r\n");
                     sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
                 }
-                var text = "";
+
+                exSb.Clear();
+
                 // #ffef39
                 if (Options.ExHideChatCommand.GetBool())
-                    text += $"<#ffdfaf>Ⓗ</color> ";
+                    exSb.Append($"<#ffdfaf>Ⓗ</color> ");
                 if (Options.ExAftermeetingflash.GetBool())
-                    text += $"<#d62c12>Ⓚ</color> ";
+                    exSb.Append($"<#d62c12>Ⓚ</color> ");
                 if (Options.FixSpawnPacketSize.GetBool())
-                    text += $"<#ffef39>Ⓟ</color> ";
+                    exSb.Append($"<#ffef39>Ⓟ</color> ");
                 if (Options.ExIntroWeight.GetBool())
-                    text += $"<#8839ff>Ⓘ</color> ";
+                    exSb.Append($"<#8839ff>Ⓘ</color> ");
                 if (Options.ExRpcWeightR.GetBool())
-                    text += $"<#3d83c5>Ⓡ</color> ";
+                    exSb.Append($"<#3d83c5>Ⓡ</color> ");
 
-                if (text != "")
+                if (exSb.Length > 0)
                 {
-                    sb.Append("\r\n<size=50%>").Append(text + "</size>");
+                    sb.Append("\r\n<size=50%>").Append(exSb).Append("</size>");
                 }
 
                 var offset_x = 2.5f; //右端からのオフセット
@@ -84,7 +88,10 @@ namespace TownOfHost
 #if DEBUG
                 if (Main.ViewPingDetails.Value)
                 {
-                    __instance.text.text += $"({AmongUsClient.Instance.Ping / 1000f}秒/{(GameStates.IsOnlineGame ? (Main.IsCs() ? ServerManager.Instance.CurrentRegion.Name : GetString(ServerManager.Instance.CurrentRegion.TranslateName)) : "ローカル")})\n";
+                    var serverName = GameStates.IsOnlineGame ? (Main.IsCs() ? ServerManager.Instance.CurrentRegion.Name : GetString(ServerManager.Instance.CurrentRegion.TranslateName)) : "ローカル";
+                    deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
+                    float fps = 1.0f / deltaTime;
+                    __instance.text.text += $"({AmongUsClient.Instance.Ping / 1000f}秒/{serverName}/FPS: {Mathf.Ceil(fps)})\n";
                     __instance.text.alignment = TextAlignmentOptions.Top;
                 }
                 else __instance.text.alignment = TextAlignmentOptions.TopLeft;
