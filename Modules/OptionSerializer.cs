@@ -42,6 +42,8 @@ public static class OptionSerializer
     public static string GenerateOptionsString()
     {
         var builder = new StringBuilder(Header, 1024);
+        builder.Append(OptionSaver.Version);
+        builder.Append('|');
         builder.Append(GenerateModOptionsString());
         builder.Append('&');
         builder.Append(GenerateVanillaOptionsString());
@@ -118,6 +120,23 @@ public static class OptionSerializer
         }
         // ヘッダ以前とフッタ以降を削除
         source = source[(headerAt + Header.Length)..footerAt];
+
+        var versionAt = source.IndexOf('|');
+        if (versionAt < 0)
+        {
+            logger.Info("バージョン情報がありません");
+            goto Failed;
+        }
+
+        var version = source[0..versionAt];
+        if (version != $"{OptionSaver.Version}")
+        {
+            logger.Info($"バージョン{version}との互換性がありません。");
+            goto Failed;
+        }
+
+        // バージョンを削除
+        source = source[(versionAt + 1)..];
 
         try
         {
