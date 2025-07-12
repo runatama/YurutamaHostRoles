@@ -539,11 +539,14 @@ namespace TownOfHost
         public static void OnlySeeMyPet(this PlayerControl pc, string petid)
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return;
-            var sender = CustomRpcSender.Create("SetOnlySeeMypet", SendOption.None);
+            pc.RpcSetPet("");
+            /*var sender = CustomRpcSender.Create("SetOnlySeeMypet", SendOption.None);
             sender.AutoStartRpc(pc.NetId, RpcCalls.SetPetStr)
                 .Write("")
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
-                .EndRpc();
+                .EndRpc();*/
+
+            var sender = CustomRpcSender.Create("SetOnlySeeMypet", SendOption.None);
 
             if (pc.IsAlive() && pc.GetClient() != null)
             {
