@@ -73,8 +73,22 @@ namespace TownOfHost.Modules
                 var visualTasks = IsAlive ? opt.GetBool(BoolOptionNames.VisualTasks) : false;
                 var taskBarMode = IsAlive ? opt.GetInt(Int32OptionNames.TaskBarMode) : 0;
                 var confirmImpostor = opt.GetBool(BoolOptionNames.ConfirmImpostor);
+                var engcooldown = IsAlive ? opt.GetFloat(FloatOptionNames.EngineerCooldown) : 0;
+                var engmaxtime = IsAlive ? opt.GetFloat(FloatOptionNames.EngineerInVentMaxTime) : 0;
+                var scicooldown = IsAlive ? opt.GetFloat(FloatOptionNames.ScientistCooldown) : 0;
+                var scibattery = IsAlive ? opt.GetFloat(FloatOptionNames.ScientistBatteryCharge) : 0;
+                var trackercool = IsAlive ? opt.GetFloat(FloatOptionNames.TrackerCooldown) : 0;
+                var trackerdelay = IsAlive ? opt.GetFloat(FloatOptionNames.TrackerDelay) : 0;
+                var tarckduration = IsAlive ? opt.GetFloat(FloatOptionNames.TrackerDuration) : 0;
+                var noisealert = opt.GetFloat(FloatOptionNames.NoisemakerAlertDuration);
+                var noiseimp = opt.GetBool(BoolOptionNames.NoisemakerImpostorAlert);
+                var shapecool = IsAlive ? opt.GetFloat(FloatOptionNames.ShapeshifterCooldown) : 0;
+                var ShapeshifterDuration = opt.GetFloat(FloatOptionNames.ShapeshifterDuration);
+                var shapeskin = IsAlive ? opt.GetBool(BoolOptionNames.ShapeshifterLeaveSkin) : false;
+                var phantom = IsAlive ? opt.GetFloat(FloatOptionNames.PhantomCooldown) : 0;
 
                 string NowOption = $"{killCooldown},{killDistance},{impostorLight},{crewLight},{playerSpeed},{numEmergency},{emergencyCooldown},{discussionTime},{votingTime},{anonymousVotes},{numCommonTasks},{numLongTasks},{numShortTasks},{visualTasks},{taskBarMode},{confirmImpostor}";
+                NowOption += $"{engcooldown},{engmaxtime},{scicooldown},{scibattery},{trackercool},{trackerdelay},{tarckduration},{noisealert},{noiseimp},{shapecool},{ShapeshifterDuration},{shapeskin},{phantom}";
                 if (OldOptionstext == NowOption)//再度送信するならキャンセル
                 {
                     return;
