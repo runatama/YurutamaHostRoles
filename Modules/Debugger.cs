@@ -20,9 +20,16 @@ namespace TownOfHost
             {
                 { "content", text },
             };
-            TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
-                ClientOptionsManager.WebhookUrl, new FormUrlEncodedContent(strs)).GetAwaiter();
-            awaiter.GetResult();
+            try
+            {
+                TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
+                    ClientOptionsManager.WebhookUrl, new FormUrlEncodedContent(strs)).GetAwaiter();
+                awaiter.GetResult();
+            }
+            catch
+            {
+                Logger.Warn("WebHookの送信に失敗", nameof(Webhook));
+            }
         }
         //参考元→https://github.com/Dolly1016/Nebula-Public/
         public static void SendResult(byte[] pngImage)
