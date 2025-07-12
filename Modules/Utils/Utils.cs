@@ -330,6 +330,7 @@ namespace TownOfHost
         {
             if (!AmongUsClient.Instance.AmHost) return;
             if (GameStates.IsOutro) return;
+            if (PlayerControl.LocalPlayer == null) return;
 
             var Iscountdown = countdown || GameStates.IsCountDown;
             string name = DataManager.player.Customization.Name;
