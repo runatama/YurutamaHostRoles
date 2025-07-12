@@ -18,10 +18,11 @@ namespace TownOfHost
         public static Dictionary<byte, bool> Musisuruoniku;
         public static Dictionary<byte, string> ChengeMeetingInfo;
         public static Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = new();
+        static bool Wait;
         //public static Dictionary<byte, Vector2> Pos = new();
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
         {
-            if (GameStates.IsMeeting || GameStates.IsLobby) return false;
+            if (GameStates.IsMeeting || GameStates.IsLobby || Wait) return false;
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
             if (SuddenDeathMode.NowSuddenDeathMode)
             {
@@ -69,6 +70,7 @@ namespace TownOfHost
             //以下、ボタンが押されることが確定したものとする。
             //=============================================
 
+            Wait = true;
             GameStates.task = false;
 
             DisableDevice.StartMeeting();
@@ -148,6 +150,7 @@ namespace TownOfHost
                 MeetingRoomManager.Instance.AssignSelf(__instance, target);
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
                 __instance.RpcStartMeeting(target);
+                Wait = false;
             }, Options.ExCallMeetingBlackout.GetBool() ? 0.2f : 0, "StartMeeting", true);
 
             return !Options.ExCallMeetingBlackout.GetBool();
@@ -177,7 +180,7 @@ namespace TownOfHost
             {
                 Logger.Error($"{reporter?.Data?.GetLogPlayerName() ?? "???"} がnull!", "ExReportDeadBody");
             }
-            if (GameStates.IsMeeting || GameStates.IsLobby) return;
+            if (GameStates.IsMeeting || GameStates.IsLobby || Wait) return;
 
             var State = PlayerState.GetByPlayerId(reporter.PlayerId);
             if (State.NumberOfRemainingButtons <= 0 && target is null && Cancelcheck is not false) return;
@@ -189,6 +192,7 @@ namespace TownOfHost
 
             GameStates.CalledMeeting = true;
             GameStates.task = false;// Pos.Clear();
+            Wait = true;
 
             DisableDevice.StartMeeting();
             foreach (var kvp in PlayerState.AllPlayerStates)
@@ -262,6 +266,7 @@ namespace TownOfHost
                 MeetingRoomManager.Instance.AssignSelf(reporter, target);
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
                 reporter.RpcStartMeeting(target);
+                Wait = false;
             }, Options.ExCallMeetingBlackout.GetBool() ? 0.2f : 0, "StartMeeting", true);
         }
         public static Dictionary<byte, (float time, DontReportreson reason)> DontReport = new();
