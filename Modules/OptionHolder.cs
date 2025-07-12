@@ -1164,7 +1164,7 @@ namespace TownOfHost
                 .SetColorcode("#00c1ff");
             HideSettingsDuringGame = BooleanOptionItem.Create(1_000_003, "HideGameSettingsDuringGame", false, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#00c1ff"); ;
+                .SetColorcode("#00c1ff");
             SuffixMode = StringOptionItem.Create(1_000_001, "SuffixMode", suffixModes, 0, TabGroup.MainSettings, true)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#00c1ff");

@@ -180,7 +180,7 @@ public sealed class BountyHunter : RoleBase, IImpostor
         ChangeTimer = 0f;
 
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}:ターゲットリセット", "BountyHunter");
-        Player.RpcResetAbilityCooldown(); ;//タイマー（変身クールダウン）のリセットと
+        Player.RpcResetAbilityCooldown();//タイマー（変身クールダウン）のリセットと
 
         var cTargets = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls
         .Where(pc =>

@@ -27,7 +27,7 @@ public sealed class GuardMaster : RoleBase
         CanSeeProtect = OptionCanSeeProtect.GetBool();
         AddGuardCount = OptionAddGuardCount.GetInt();
         Guard = 0;
-        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskcount.GetInt() < 1; ;
+        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskcount.GetInt() < 1;
     }
     private static OptionItem OptionAddGuardCount;
     private static OptionItem OptionCanSeeProtect;

@@ -35,7 +35,7 @@ public sealed class FortuneTeller : RoleBase
         Divination.Clear();
         count = 0;
         MeetingUsedcount = 0;
-        Awakened = !OptAwakening.GetBool() || OptionCanTaskcount.GetInt() < 1; ;
+        Awakened = !OptAwakening.GetBool() || OptionCanTaskcount.GetInt() < 1;
         Votemode = (AbilityVoteMode)OptionVoteMode.GetValue();
         rolename = Optionrolename.GetBool();
         srole = OptionRole.GetBool();

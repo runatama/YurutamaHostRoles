@@ -133,9 +133,9 @@ public sealed class Assassin : RoleBase, IImpostor
                 }
                 isDeadCache.Clear();
 
-                GameDataSerializePatch.SerializeMessageCount++; ;
+                GameDataSerializePatch.SerializeMessageCount++;
                 AntiBlackout.SendGameData();
-                GameDataSerializePatch.SerializeMessageCount--; ;
+                GameDataSerializePatch.SerializeMessageCount--;
 
                 if (Options.ExHideChatCommand.GetBool())
                 {
@@ -164,9 +164,9 @@ public sealed class Assassin : RoleBase, IImpostor
                                     tg.Data.IsDead = true;
                                 }
                                 pc.Data.IsDead = false;
-                                GameDataSerializePatch.SerializeMessageCount++; ;
+                                GameDataSerializePatch.SerializeMessageCount++;
                                 RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                                GameDataSerializePatch.SerializeMessageCount--; ;
+                                GameDataSerializePatch.SerializeMessageCount--;
                             }, count * 0.1f, "SetDienoNaka", true);
                         }
                         _ = new LateTask(() =>

@@ -40,7 +40,7 @@ public sealed class PonkotuTeller : RoleBase
         cantaskcount = Optioncantaskcount.GetFloat();
         Votemode = (AbilityVoteMode)OptionVoteMode.GetValue();
         onemeetingmaximum = Option1MeetingMaximum.GetFloat();
-        Awakened = !OptAwakening.GetBool() || cantaskcount < 1; ;
+        Awakened = !OptAwakening.GetBool() || cantaskcount < 1;
         if (!OptionNonAlignFortuneTeller.GetBool())
         {
             rolename = FortuneTeller.Optionrolename.GetBool();

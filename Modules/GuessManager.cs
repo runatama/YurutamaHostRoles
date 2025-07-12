@@ -220,14 +220,14 @@ public static class GuessManager
 
                     if (Options.ExHideChatCommand.GetBool() && !AntiBlackout.IsCached)
                     {
-                        GameDataSerializePatch.SerializeMessageCount++; ;
+                        GameDataSerializePatch.SerializeMessageCount++;
                         foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                         {
                             if (pc == dp) continue;
                             pc.Data.IsDead = false;
                         }
                         RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
-                        GameDataSerializePatch.SerializeMessageCount--; ;
+                        GameDataSerializePatch.SerializeMessageCount--;
                     }
                     _ = new LateTask(() =>
                     {

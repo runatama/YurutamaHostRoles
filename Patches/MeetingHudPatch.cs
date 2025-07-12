@@ -414,7 +414,7 @@ public static class MeetingHudPatch
                     if (subRole is not CustomRoles.OneLove && subRole.IsLovers() && (seer.GetLoverRole() == subRole || seer.Data.IsDead))
                     {
                         sb.Append(Utils.ColorString(UtilsRoleText.GetRoleColor(subRole), "♥"));
-                        continue; ;
+                        continue;
                     }
                     switch (subRole)
                     {

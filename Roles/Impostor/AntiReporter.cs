@@ -98,7 +98,7 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
     }
     public override string GetAbilityButtonText()
     {
-        return AntiReporterResetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText"); ;
+        return AntiReporterResetse == 0 ? GetString("DestroyButtonText") : GetString("DisableButtonText");
     }
 
     public override void OnStartMeeting()

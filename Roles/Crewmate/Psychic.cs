@@ -33,7 +33,7 @@ public sealed class Psychic : RoleBase
     }
     public override void Add()
     {
-        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskCount.GetInt() < 1; ;
+        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskCount.GetInt() < 1;
 
         Psychics.Add(this);
     }

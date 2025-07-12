@@ -149,14 +149,14 @@ public sealed class Fox : RoleBase, ISystemTypeUpdateHook
             var meetingHud = MeetingHud.Instance;
             var hudManager = DestroyableSingleton<HudManager>.Instance.KillOverlay;
             {
-                GameDataSerializePatch.SerializeMessageCount++; ;
+                GameDataSerializePatch.SerializeMessageCount++;
                 foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                 {
                     if (pc == Player) continue;
                     pc.Data.IsDead = false;
                 }
                 RPC.RpcSyncAllNetworkedPlayer(Player.GetClientId());
-                GameDataSerializePatch.SerializeMessageCount--; ;
+                GameDataSerializePatch.SerializeMessageCount--;
             }
 
             Utils.SendMessage(UtilsName.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));

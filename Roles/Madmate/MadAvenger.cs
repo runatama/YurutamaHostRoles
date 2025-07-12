@@ -32,7 +32,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         canSeeKillFlash = Options.MadmateCanSeeKillFlash.GetBool();
         canSeeDeathReason = Options.MadmateCanSeeDeathReason.GetBool();
         Count = OptionCount.GetFloat();
-        Cooldown = OptionCooldown.GetFloat(); ;
+        Cooldown = OptionCooldown.GetFloat();
         Skill = false;
         Guessd = new(GameData.Instance.PlayerCount);
         fin = false;

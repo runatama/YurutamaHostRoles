@@ -27,7 +27,7 @@ public sealed class Trapper : RoleBase
     )
     {
         BlockMoveTime = OptionBlockMoveTime.GetFloat();
-        Awakened = !Awakening.GetBool() || AwakeningTask.GetInt() < 1; ;
+        Awakened = !Awakening.GetBool() || AwakeningTask.GetInt() < 1;
     }
     static OptionItem Awakening;
     static OptionItem AwakeningTask;

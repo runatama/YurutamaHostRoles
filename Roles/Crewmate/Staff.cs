@@ -27,7 +27,7 @@ public sealed class Staff : RoleBase
     )
     {
         EndedTaskInAlive = false;
-        Awakened = !OptAwakening.GetBool() || OptAwakeningTask.GetInt() < 1; ;
+        Awakened = !OptAwakening.GetBool() || OptAwakeningTask.GetInt() < 1;
     }
 
     public bool EndedTaskInAlive = false;

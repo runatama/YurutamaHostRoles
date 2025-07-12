@@ -36,7 +36,7 @@ public sealed class WhiteHacker : RoleBase
         cont = 0;
         Useing = false;
         NowTracker = false;
-        Awakened = !OptAwakening.GetBool() || cantaskcount < 1; ;
+        Awakened = !OptAwakening.GetBool() || cantaskcount < 1;
     }
 
     private static OptionItem Optioncantaskcount;

@@ -151,14 +151,14 @@ public sealed class MeetingSheriff : RoleBase
 
             if (Options.ExHideChatCommand.GetBool())
             {
-                Patches.GameDataSerializePatch.SerializeMessageCount++; ;
+                Patches.GameDataSerializePatch.SerializeMessageCount++;
                 foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                 {
                     if (pc == target) continue;
                     pc.Data.IsDead = false;
                 }
                 RPC.RpcSyncAllNetworkedPlayer(target.GetClientId());
-                Patches.GameDataSerializePatch.SerializeMessageCount--; ;
+                Patches.GameDataSerializePatch.SerializeMessageCount--;
             }
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{Max - Usedcount}", "MeetingSheriff");
             Utils.SendMessage(UtilsName.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
@@ -182,7 +182,7 @@ public sealed class MeetingSheriff : RoleBase
 
         if (Options.ExHideChatCommand.GetBool())
         {
-            Patches.GameDataSerializePatch.SerializeMessageCount++; ;
+            Patches.GameDataSerializePatch.SerializeMessageCount++;
             foreach (var pc in PlayerCatch.AllAlivePlayerControls)
             {
                 if (pc == Player) continue;
