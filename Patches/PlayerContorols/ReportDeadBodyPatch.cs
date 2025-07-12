@@ -151,7 +151,7 @@ namespace TownOfHost
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
                 __instance.RpcStartMeeting(target);
                 Wait = false;
-            }, Options.ExCallMeetingBlackout.GetBool() ? 0.2f : 0, "StartMeeting", true);
+            }, Options.ExCallMeetingBlackout.GetBool() ? 0.12f : 0, "StartMeeting", true);
 
             return !Options.ExCallMeetingBlackout.GetBool();
         }
@@ -267,7 +267,7 @@ namespace TownOfHost
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
                 reporter.RpcStartMeeting(target);
                 Wait = false;
-            }, Options.ExCallMeetingBlackout.GetBool() ? 0.2f : 0, "StartMeeting", true);
+            }, Options.ExCallMeetingBlackout.GetBool() ? 0.12f : 0, "StartMeeting", true);
         }
         public static Dictionary<byte, (float time, DontReportreson reason)> DontReport = new();
         public static string GetDontReportMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)

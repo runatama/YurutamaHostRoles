@@ -1533,7 +1533,6 @@ namespace TownOfHost
                                         }
                                         wit.EndMessage();
                                     }, true);
-                                    GameDataSerializePatch.SerializeMessageCount--;
                                     sender.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                                     .Write(player.NetId)
                                     .Write(playername)
@@ -1542,7 +1541,6 @@ namespace TownOfHost
                                             .Write(text)
                                             .EndRpc();
                                     player.Data.IsDead = true;
-                                    GameDataSerializePatch.SerializeMessageCount++;
 
                                     sender.Write((wit) =>
                                     {

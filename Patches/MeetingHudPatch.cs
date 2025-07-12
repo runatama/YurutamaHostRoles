@@ -123,6 +123,7 @@ public static class MeetingHudPatch
                     {
                         State.TryAdd(player.PlayerId, player.IsAlive());
                     }
+                    GameDataSerializePatch.SerializeMessageCount++;
                     foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                     {
                         if (!State.ContainsKey(pc.PlayerId)) continue;
@@ -136,9 +137,9 @@ public static class MeetingHudPatch
                             tg.Data.IsDead = true;
                         }
                         pc.Data.IsDead = false;
-                        GameDataSerializePatch.SerializeMessageCount++;
                         RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
                     }
+                    GameDataSerializePatch.SerializeMessageCount--;
                     foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
                     {
                         var data = State.TryGetValue(player.PlayerId, out var outdata) ? outdata : false;
