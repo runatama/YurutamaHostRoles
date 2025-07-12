@@ -41,6 +41,7 @@ public sealed class Cakeshop : RoleBase, INekomata
 
     public override void AfterMeetingTasks()
     {
+        Logger.Info("あっ、ケーキの効果が切れちゃった!!", nameof(Cakeshop));
         foreach (var gu in Addedaddons.Where(v => v.Value is CustomRoles.Guarding))
         {
             var state = PlayerCatch.GetPlayerState(gu.Key);
@@ -52,9 +53,11 @@ public sealed class Cakeshop : RoleBase, INekomata
             state => state.Value.RemoveSubRole(Addedaddons[state.Key]));
 
         if (!Player.IsAlive()) return;
+        Logger.Info("ケーキちょうど焼けたからあげる!!", nameof(Cakeshop));
 
         PlayerCatch.AllAlivePlayerControls.Do(pc =>
         {
+            if (pc == null) return;
             var addons = GetAddons(pc.GetCustomRole().GetCustomRoleTypes());
             if (addons == null) return;
             var addon = addons.Where(x => !pc.GetCustomSubRoles().Contains(x) && x is not CustomRoles.Amnesia and not CustomRoles.Amanojaku)
