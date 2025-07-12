@@ -14,7 +14,8 @@ class VentManager
     public static Dictionary<byte, int> VentDuringDisabling = new();
     public static void UpdateDesyncVentCleaning(PlayerControl player, RoleBase roleclass)
     {
-        if (ShipStatus.Instance is null) return;
+        //ゲーム中でなければ実行しない
+        if (!GameStates.IsInGame) return;
 
         if (Options.CurrentGameMode == CustomGameMode.Standard && GameStates.IsInTask && GameStates.introDestroyed && player.IsAlive() && !player.IsModClient())
         {
