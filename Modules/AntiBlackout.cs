@@ -281,6 +281,7 @@ namespace TownOfHost
 
             Player.GetPlayerState().IsBlackOut = false;
             Player.ResetKillCooldown();
+            Player.OnlySeeMyPet();
             _ = new LateTask(() =>
                 {
                     Player.SetKillCooldown(force: true, delay: true);
