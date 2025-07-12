@@ -19,7 +19,7 @@ class StandardIntro
         if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
         {
             InnerNetClientPatch.DontTouch = true;
-            GameDataSerializePatch.SerializeMessageCount++; ;
+            GameDataSerializePatch.SerializeMessageCount++;
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
@@ -35,11 +35,7 @@ class StandardIntro
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
             InnerNetClientPatch.DontTouch = false;
-            GameDataSerializePatch.SerializeMessageCount--; ;
-            foreach (var data in GameData.Instance.AllPlayers)
-            {
-                data.Disconnected = false;
-            }
+            GameDataSerializePatch.SerializeMessageCount--;
         }
     }
     public static void CoResetRoleY()
@@ -48,7 +44,7 @@ class StandardIntro
         var host = PlayerControl.LocalPlayer;
 
         InnerNetClientPatch.DontTouch = true;
-        GameDataSerializePatch.SerializeMessageCount++; ;
+        GameDataSerializePatch.SerializeMessageCount++;
         if (Options.ExIntroWeight.GetBool())
         {
             foreach (var data in GameData.Instance.AllPlayers) data.Disconnected = true;
@@ -93,7 +89,7 @@ class StandardIntro
             }
             InnerNetClientPatch.DontTouch = false;
 
-            GameDataSerializePatch.SerializeMessageCount--; ;
+            GameDataSerializePatch.SerializeMessageCount--;
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {

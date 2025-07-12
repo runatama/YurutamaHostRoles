@@ -289,7 +289,7 @@ namespace TownOfHost
                 Il2CppSystem.Collections.Generic.List<NetworkedPlayerInfo> playerInfos = new();
                 foreach (NetworkedPlayerInfo data in GameData.Instance.AllPlayers)
                 {
-                    if (data.Object != null && !data.IsDead && !data.Disconnected)
+                    if (data.Object != null && !data.IsDead && !Disconnected.Contains(data.PlayerId))
                         playerInfos.Add(data);
                 }
                 IGameOptions currentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
