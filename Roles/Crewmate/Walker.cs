@@ -62,6 +62,7 @@ public sealed class Walker : RoleBase
         else //ある場合
         {
             if (MyState.HasSpawned) timer += Time.fixedDeltaTime;
+            if (timer <= 0.1f) return; //変わってすぐは処理しない...
 
             var nowroom = player.GetPlainShipRoom();
             if (!player.IsAlive())
@@ -85,6 +86,8 @@ public sealed class Walker : RoleBase
                     MyTaskState.Update(player);
                     CheckFin();
                 }
+                else
+                    Logger.Info($"{TaskRoom}にはもう既にいたから変更するよ", "Walker");
                 ChengeRoom();
             }
         }
