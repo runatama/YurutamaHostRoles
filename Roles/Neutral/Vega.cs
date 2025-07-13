@@ -163,6 +163,7 @@ public sealed class Vega : RoleBase, IKiller, IAdditionalWinner
         //既にそのターンにしているならブロック
         if (Rendezvoused) return;
         RpcRendezvous();
+        Player.SetKillCooldown(255, info.AttemptTarget, delay: true);
     }
 
     private void Rendezvous()
