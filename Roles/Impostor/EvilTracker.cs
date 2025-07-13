@@ -229,6 +229,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
         if (CurrentTargetMode == TargetMode.EveryMeeting)
         {
             ReEnableTargeting();
+            Player.RpcResetAbilityCooldown(Sync: true);
         }
         var target = PlayerCatch.GetPlayerById(TargetId);
         if (!Player.IsAlive() || !target.IsAlive())
@@ -368,7 +369,7 @@ public sealed class EvilTracker : RoleBase, IImpostor, IKillFlashSeeable, ISidek
     public override void OnFixedUpdate(PlayerControl player)
     {
         timer += Time.fixedDeltaTime;
-        if (timer > 0.5f && PlayerCatch.GetPlayerById(TargetId).IsAlive() && player.IsAlive())
+        if (timer > 0.5f && PlayerCatch.GetPlayerById(TargetId).IsAlive() && player.IsAlive() && CanSeeDistance)
         {
             timer = 0;
             var oldtext = disting;
