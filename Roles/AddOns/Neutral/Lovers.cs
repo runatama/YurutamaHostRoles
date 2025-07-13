@@ -148,7 +148,7 @@ class Lovers
                             if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                             {
                                 MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                                ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
+                                ReportDeadBodyPatch.IgnoreBodyids[loversPlayer.PlayerId] = false;
                             }
                             else
                                 partnerPlayer.RpcMurderPlayer(partnerPlayer, true);
@@ -169,7 +169,7 @@ class Lovers
                     if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                     {
                         MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, my.PlayerId);
-                        ReportDeadBodyPatch.Musisuruoniku[my.PlayerId] = false;
+                        ReportDeadBodyPatch.IgnoreBodyids[my.PlayerId] = false;
                     }
                     else
                         my.RpcMurderPlayer(my, true);
@@ -195,7 +195,7 @@ class Lovers
                         if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                            ReportDeadBodyPatch.Musisuruoniku[MadonnaLoversPlayer.PlayerId] = false;
+                            ReportDeadBodyPatch.IgnoreBodyids[MadonnaLoversPlayer.PlayerId] = false;
                         }
                         else
                             partnerPlayer.RpcMurderPlayer(partnerPlayer, true);

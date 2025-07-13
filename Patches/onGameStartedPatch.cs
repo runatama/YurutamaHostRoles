@@ -62,7 +62,7 @@ namespace TownOfHost
             Main.ShapeshiftTarget = new();
 
             ReportDeadBodyPatch.CanReport = new();
-            ReportDeadBodyPatch.Musisuruoniku = new();
+            ReportDeadBodyPatch.IgnoreBodyids = new();
             ReportDeadBodyPatch.ChengeMeetingInfo = new();
 
             Options.UsedButtonCount = 0;
@@ -120,7 +120,7 @@ namespace TownOfHost
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod); //移動速度をデフォルトの移動速度に変更
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = new();
-                ReportDeadBodyPatch.Musisuruoniku[pc.PlayerId] = true;
+                ReportDeadBodyPatch.IgnoreBodyids[pc.PlayerId] = true;
                 Main.clientIdList.Add(pc.GetClientId());
                 pc.RemoveProtection();
                 Main.KillCount.Add(pc.PlayerId, 0);

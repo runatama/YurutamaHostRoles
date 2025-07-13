@@ -162,7 +162,7 @@ public sealed class Madonna : RoleBase
             target.RpcProtectedMurderPlayer();
         }
     }
-    public override void AfterMeetingTasks()
+    public override void OnSpawn(bool initialState = false)
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Player.Is(CustomRoles.MadonnaLovers))
@@ -188,7 +188,7 @@ public sealed class Madonna : RoleBase
             Player.RpcExileV2();
             MyState.SetDead();
             MyState.DeathReason = CustomDeathReason.Suicide;
-            ReportDeadBodyPatch.Musisuruoniku[Player.PlayerId] = false;
+            ReportDeadBodyPatch.IgnoreBodyids[Player.PlayerId] = false;
             UtilsGameLog.AddGameLog($"Madonna", string.Format(GetString("log.AM"), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(Player.PlayerId)), UtilsRoleText.GetTrueRoleName(Player.PlayerId, false)));
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}は指定ターン経過したため自殺。", "Madonna");
         }

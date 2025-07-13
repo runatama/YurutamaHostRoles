@@ -570,7 +570,7 @@ public static class MeetingHudPatch
         foreach (var playerId in playerIds)
             if (Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason))
             {
-                ReportDeadBodyPatch.Musisuruoniku[playerId] = false;
+                ReportDeadBodyPatch.IgnoreBodyids[playerId] = false;
                 AddedIdList.Add(playerId);
                 if (deathReason == CustomDeathReason.Revenge)
                 {

@@ -192,7 +192,7 @@ public sealed class King : RoleBase
                 state.DeathReason = deathReasons[OpDeathReason.GetValue()];
                 Player.RpcExileV2();
                 state.SetDead();
-                ReportDeadBodyPatch.Musisuruoniku[Player.PlayerId] = false;
+                ReportDeadBodyPatch.IgnoreBodyids[Player.PlayerId] = false;
 
                 Logger.Info($"{pc.name}が後追いしちゃった！", "KingEx");
                 crews.Remove(pc);

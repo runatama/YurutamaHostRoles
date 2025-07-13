@@ -15,7 +15,7 @@ namespace TownOfHost
     class ReportDeadBodyPatch
     {
         public static Dictionary<byte, bool> CanReport;
-        public static Dictionary<byte, bool> Musisuruoniku;
+        public static Dictionary<byte, bool> IgnoreBodyids;
         public static Dictionary<byte, string> ChengeMeetingInfo;
         public static Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = new();
         static bool Wait;

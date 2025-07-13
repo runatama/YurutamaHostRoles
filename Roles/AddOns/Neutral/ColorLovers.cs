@@ -205,7 +205,7 @@ class ColorLovers
                         if (isExiled || GameStates.IsMeeting || AntiBlackout.IsSet || GameStates.ExiledAnimate)
                         {
                             MeetingHudPatch.TryAddAfterMeetingDeathPlayers(CustomDeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                            ReportDeadBodyPatch.Musisuruoniku[loversPlayer.PlayerId] = false;
+                            ReportDeadBodyPatch.IgnoreBodyids[loversPlayer.PlayerId] = false;
                         }
                         else
                             partnerPlayer.RpcMurderPlayer(partnerPlayer, true);

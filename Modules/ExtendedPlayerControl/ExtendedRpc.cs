@@ -91,7 +91,7 @@ namespace TownOfHost
                 writer.WritePacked((int)role);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
-                if (GameStates.IsInTask && !GameStates.CalledMeeting && GameStates.AfterIntro && (role.IsGhostRole() || role < CustomRoles.NotAssigned))
+                if (role.IsGhostRole() || role < CustomRoles.NotAssigned)
                 {
                     player.SetKillCooldown(delay: true, force: true);
                     player.RpcResetAbilityCooldown();
