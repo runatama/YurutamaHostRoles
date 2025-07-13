@@ -7,6 +7,7 @@ using HarmonyLib;
 using InnerNet;
 
 using TownOfHost.Modules;
+using TownOfHost.Modules.ChatManager;
 using TownOfHost.Roles;
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Neutral;
@@ -185,6 +186,7 @@ namespace TownOfHost
                         PlayerGameOptionsSender.RemoveSender(data.Character);
                         PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, force: true));
                         UtilsNotifyRoles.NotifyRoles(NoCache: true);
+                        ChatManager.OnDisconnect(data.Character.PlayerId);
                     }
                     /*Croissant.diaries.Remove($"{data.Character.PlayerId}");
                     var diary = Croissant.diaries.Where(x => x.Value.day == data.Character.PlayerId).FirstOrDefault().Value;
