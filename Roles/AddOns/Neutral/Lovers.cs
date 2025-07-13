@@ -242,8 +242,7 @@ class Lovers
             data.SoloWin(ref reason);
         }
 
-        if (!Madonna.MadonnaLoverAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.MadonnaLovers &&
-            MaMadonnaLoversPlayers.Count > 0 && (MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()) || MaMadonnaLoversPlayers.Any(pc => CustomWinnerHolder.NeutralWinnerIds.Contains(pc.PlayerId))))
+        if (!Madonna.MadonnaLoverAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is not CustomWinner.MadonnaLovers && MaMadonnaLoversPlayers.Count > 0 && (MaMadonnaLoversPlayers.ToArray().All(p => p.IsAlive()) || MaMadonnaLoversPlayers.Any(pc => CustomWinnerHolder.NeutralWinnerIds.Contains(pc.PlayerId))))
         {
             if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.MadonnaLovers, byte.MaxValue, false))
             {
@@ -258,7 +257,7 @@ class Lovers
             }
         }
         if (CustomRoles.OneLove.IsPresent())
-            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is CustomWinner.OneLove
+            if (!OneLoveRoleAddwin.GetBool() && CustomWinnerHolder.WinnerTeam is not CustomWinner.OneLove
                 && ((PlayerCatch.GetPlayerById(OneLovePlayer.OneLove).IsAlive() && PlayerCatch.GetPlayerById(OneLovePlayer.BelovedId).IsAlive())
                 || CustomWinnerHolder.NeutralWinnerIds.Contains(OneLovePlayer.OneLove) || CustomWinnerHolder.NeutralWinnerIds.Contains(OneLovePlayer.BelovedId)))
             { //両者生存 or どちらかが人外勝利してる
