@@ -29,7 +29,7 @@ public sealed class InSender : RoleBase
     }
     enum OptionName
     {
-        BaitCanUseActiveComms, BaitReportDelay, BaitMaxDelay
+        BaitReportDelay, BaitMaxDelay
     }
     static OptionItem OptAwakening;
     static OptionItem OptAwakeningTaskCount;
@@ -39,7 +39,7 @@ public sealed class InSender : RoleBase
     bool Awakened;
     private static void SetupOptionItem()
     {
-        OptCanUseActiveComms = BooleanOptionItem.Create(RoleInfo, 9, OptionName.BaitCanUseActiveComms, true, false);
+        OptCanUseActiveComms = BooleanOptionItem.Create(RoleInfo, 9, GeneralOption.CanUseActiveComms, true, false);
         OptReportDelay = FloatOptionItem.Create(RoleInfo, 12, OptionName.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         OptMaxDelay = FloatOptionItem.Create(RoleInfo, 13, OptionName.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskAwakening, false, false);
