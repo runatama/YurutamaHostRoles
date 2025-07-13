@@ -91,7 +91,13 @@ public sealed class EvilSatellite : RoleBase, IImpostor
         {
             AllAlivePlayerRoute[player.PlayerId].Add(nowroom.RoomId);
         }
-        else Logger.Error($"{player.name} : AllAlivePlayerKeiroがぬる!", "EvilSatellite");
+        else
+        {
+            List<SystemTypes> Route = [nowroom.RoomId];
+            if (AllAlivePlayerRoute.TryAdd(player.PlayerId, Route))
+                return;
+            Logger.Error($"{player.name} : AllAlivePlayerRouteがぬる!", "EvilSatellite");
+        }
     }
     public float CalculateKillCooldown() => OptionKillCoolDown.GetFloat();
     public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)

@@ -41,6 +41,12 @@ public sealed class Cakeshop : RoleBase, INekomata
 
     public override void AfterMeetingTasks()
     {
+        if (Event.CheckRole(CustomRoles.Cakeshop) is false)
+        {
+            Logger.Info($"真っ黒こげのケーキ", "CakeShop");
+            Player.RpcSetCustomRole(CustomRoles.Emptiness);
+            return;
+        }
         Logger.Info("あっ、ケーキの効果が切れちゃった!!", nameof(Cakeshop));
         foreach (var gu in Addedaddons.Where(v => v.Value is CustomRoles.Guarding))
         {
@@ -68,7 +74,7 @@ public sealed class Cakeshop : RoleBase, INekomata
             if (addon is CustomRoles.Guarding)
             {
                 var state = pc.GetPlayerState();
-                state.HaveGuard[pc.PlayerId] += Guarding.HaveGuard;
+                state.HaveGuard[1] += Guarding.HaveGuard;
             }
             pc.RpcSetCustomRole(addon);
         });
