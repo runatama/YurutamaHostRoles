@@ -50,7 +50,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
     float Count;
     bool fin;
     bool can;
-    enum OptionName { TaskBattleVentCooldown, MadAvengerMeetingPlayerCount, MadAvengerReserveTimeCanVent, MadAvengerCanSeeImpcont }
+    enum OptionName { TaskBattleVentCooldown, MadAvengerMeetingPlayerCount, MadAvengerReserveTimeCanVent, MadAvengerCanSeeImpCount }
 
     public bool? CheckKillFlash(MurderInfo info) => canSeeKillFlash;
     public bool? CheckSeeDeathReason(PlayerControl seen) => canSeeDeathReason;
@@ -62,7 +62,7 @@ public sealed class MadAvenger : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, OptionName.TaskBattleVentCooldown, new(0f, 180f, 0.5f), 45f, false).SetValueFormat(OptionFormat.Seconds);
         OptionCount = FloatOptionItem.Create(RoleInfo, 14, OptionName.MadAvengerMeetingPlayerCount, new(1, 15, 1), 8, false).SetValueFormat(OptionFormat.Players);
         OptionVent = BooleanOptionItem.Create(RoleInfo, 15, OptionName.MadAvengerReserveTimeCanVent, true, false);
-        OptionCanseeimpostorCount = BooleanOptionItem.Create(RoleInfo, 16, OptionName.MadAvengerCanSeeImpcont, true, false);
+        OptionCanseeimpostorCount = BooleanOptionItem.Create(RoleInfo, 16, OptionName.MadAvengerCanSeeImpCount, true, false);
         Tasks = OverrideTasksData.Create(RoleInfo, 20);
     }
     public override void ApplyGameOptions(IGameOptions opt)

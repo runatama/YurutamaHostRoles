@@ -33,7 +33,7 @@ public sealed class WhiteHacker : RoleBase
         cantaskcount = Optioncantaskcount.GetFloat();
         targetId = byte.MaxValue;
         Maximum = OptionMaximum.GetFloat();
-        cont = 0;
+        count = 0;
         Useing = false;
         NowTracker = false;
         Awakened = !OptAwakening.GetBool() || cantaskcount < 1;
@@ -50,7 +50,7 @@ public sealed class WhiteHacker : RoleBase
     private static float cantaskcount;
     private int targetId;
     static float Maximum;
-    float cont;
+    float count;
     bool Useing;
     bool NowTracker;
     enum Option
@@ -82,45 +82,42 @@ public sealed class WhiteHacker : RoleBase
     private void SendRPC()
     {
         using var sender = CreateSender();
-        sender.Writer.Write(cont);
+        sender.Writer.Write(count);
     }
     public override void ReceiveRPC(MessageReader reader)
     {
-        cont = reader.ReadInt32();
+        count = reader.ReadInt32();
     }
     private bool IsTrackTarget(PlayerControl target)
     => (Player.IsAlive() && target.IsAlive() && !Is(target)) || targetId == target.PlayerId;
     public override string GetLowerText(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isForHud = false)
     {
         seen ??= seer;
-        if (isForMeeting && Player.IsAlive() && Awakened && seer.PlayerId == seen.PlayerId && SelfVoteManager.Canuseability() && Maximum > cont && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
+        if (isForMeeting && Player.IsAlive() && Awakened && seer.PlayerId == seen.PlayerId && SelfVoteManager.Canuseability() && Maximum > count && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount))
         {
             var mes = $"<color={RoleInfo.RoleColorCode}>{GetString("NomalVoteRoleInfoMeg")}</color>";
             return isForHud ? mes : $"<size=40%>{mes}</size>";
         }
         return "";
     }
-    public override bool CheckVoteAsVoter(byte votedForId, PlayerControl voter)
+    public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
     {
-        if (!SelfVoteManager.Canuseability()) return true;
-        if (Is(voter) && MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Maximum > cont)
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Maximum > count)
         {
-            if (Player.PlayerId == votedForId || votedForId == 253)
+            if (Player.PlayerId == sourceVotedForId || sourceVotedForId == 253)
             {
                 targetId = byte.MaxValue;
-                return true;
             }
             else
             {
-                cont++;
-                targetId = votedForId;
+                count++;
+                targetId = sourceVotedForId;
                 Useing = true;
-                Utils.SendMessage(string.Format(GetString("Skill.WhiteHacker"), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(votedForId), true), Maximum - cont), Player.PlayerId);
+                Utils.SendMessage(string.Format(GetString("Skill.WhiteHacker"), UtilsName.GetPlayerColor(PlayerCatch.GetPlayerById(sourceVotedForId), true), Maximum - count), Player.PlayerId);
                 SendRPC();
-                return true;
             }
         }
-        return true;
+        return (null, null, true);
     }
     public override void AfterMeetingTasks()
     {
@@ -141,7 +138,7 @@ public sealed class WhiteHacker : RoleBase
         }
         return "";
     }
-    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Maximum <= cont ? Color.gray : Color.cyan, $"({Maximum - cont})");
+    public override string GetProgressText(bool comms = false, bool gamelog = false) => Utils.ColorString(!MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) ? Color.gray : Maximum <= count ? Color.gray : Color.cyan, $"({Maximum - count})");
 
     public string GetLastRoom(PlayerControl seen)
     {

@@ -50,12 +50,12 @@ namespace TownOfHost.Roles.Ghost
                     Logger.Info("サボ中なう", "Ghostbuttoner");
                     return;
                 }
-                if (!count.TryGetValue(pc.PlayerId, out var nowcont))
+                if (!count.TryGetValue(pc.PlayerId, out var nowcount))
                 {
                     count[pc.PlayerId] = Count.GetInt();
-                    nowcont = Count.GetInt();
+                    nowcount = Count.GetInt();
                 }
-                if (nowcont > 0)
+                if (nowcount > 0)
                 {
                     count[pc.PlayerId]--;
                     ReportDeadBodyPatch.ExReportDeadBody(pc, null, false);
