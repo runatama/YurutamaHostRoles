@@ -130,12 +130,6 @@ namespace TownOfHost
             if (State.NumberOfRemainingButtons > 0 && target is null)
                 State.NumberOfRemainingButtons--;
 
-            MeetingTimeManager.OnReportDeadBody();
-
-            UtilsNotifyRoles.NotifyMeetingRoles();
-
-            UtilsOption.SyncAllSettings();
-
             //if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Default) return false;
             //サボ関係多分なしに～
             //押したのなら強制で始める
@@ -153,7 +147,7 @@ namespace TownOfHost
                 Wait = false;
             }, Options.ExCallMeetingBlackout.GetBool() ? 0.12f : 0, "StartMeeting", true);
 
-            return !Options.ExCallMeetingBlackout.GetBool();
+            return false;
         }
         public static async void ChangeLocalNameAndRevert(string name, int time)
         {
