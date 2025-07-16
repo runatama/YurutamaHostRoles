@@ -11,10 +11,16 @@ namespace TownOfHost
     class GameSettingMenuChangeTabPatch
     {
         public static string meg;
-        public static void Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] int tabNum, [HarmonyArgument(1)] bool previewOnly)
+        public static void Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] ref int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
             if (!previewOnly)
             {
+                if (tabNum is 0 && !IsClick)
+                {
+                    __instance.ChangeTab(1, false);
+                    return;
+                }
+                IsClick = false;
                 var ModSettingsTab = GameSettingMenuStartPatch.ModSettingsTab;
                 if (!ModSettingsTab) return;
                 ModSettingsTab.gameObject.SetActive(false);
@@ -28,6 +34,13 @@ namespace TownOfHost
                 __instance.ToggleRightSideDarkener(false);
                 ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
                 ModSettingsButton.SelectButton(true);
+            }
+            else
+            {
+                if (tabNum is 0)
+                {
+                    tabNum = 1;
+                }
             }
         }
         static int Last = 0;

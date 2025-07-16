@@ -42,6 +42,7 @@ namespace TownOfHost
             roleopts = new();
             rolebutton = new();
             roleInfobutton = new();
+            IsClick = false;
             ModoruTabu = (TabGroup.MainSettings, 0);
             timer = -100;
             ShowFilter.CheckAndReset();
@@ -75,6 +76,7 @@ namespace TownOfHost
         public static Dictionary<CustomRoles, PassiveButton> roleInfobutton = new();
         public static (TabGroup, float) ModoruTabu;
         public static float timer;
+        public static bool IsClick = false;
         public static void Postfix(GameSettingMenu __instance)
         {
             var ErrorNumber = 0;
@@ -117,6 +119,13 @@ namespace TownOfHost
 
                 GamePresetButton.transform.localScale = new(0.45f, 0.45f);
                 GamePresetButton.transform.localPosition = new Vector3(-3.76f, -0.62f, -2);
+
+                GamePresetButton.OnClick = new();
+                GamePresetButton.OnClick.AddListener((Action)(() =>
+                {
+                    IsClick = true;
+                    __instance.ChangeTab(0, false);
+                }));
 
                 var AlternateRules = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/PRESETS TABS/AlternateRules");
                 AlternateRules.transform.localScale = new(0.6f, 0.6f);
