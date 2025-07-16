@@ -586,6 +586,11 @@ namespace TownOfHost
         // タスク表示の文章が更新・適用された後に実行される
         public static void Postfix(TaskPanelBehaviour __instance)
         {
+            if (Main.EditMode && GameStates.IsFreePlay)
+            {
+                __instance.taskText.text = GetString("CustomSpawnEditInfo");
+                return;
+            }
             if (GameStates.IsLobby && (GameSettingMenuStartPatch.NowRoleTab is not CustomRoles.NotAssigned || GameSettingMenuStartPatch.Nowinfo is not CustomRoles.NotAssigned))
             {
                 var text = "";
@@ -652,7 +657,7 @@ namespace TownOfHost
                 __instance.taskText.text = RepairSender.GetText();
             }
 
-            if (Main.DebugTours.Value && AmongUsClient.Instance.NetworkMode is not NetworkModes.OnlineGame)
+            if (Main.DebugTours.Value && AmongUsClient.Instance.NetworkMode is not NetworkModes.OnlineGame && GameStates.introDestroyed)
             {
                 __instance.taskText.text = "";
                 var debugmessage = "";
@@ -661,7 +666,7 @@ namespace TownOfHost
                     debugmessage += $"{UtilsName.GetPlayerColor(pl)}({(pl.IsAlive() ? "<#3cff63>●</color>" : $"{Utils.GetVitalText(pl.PlayerId, true)}")}) : "
                     + $"{UtilsRoleText.GetTrueRoleName(pl.PlayerId)} (pos:{pl.GetTruePosition()}) ({(pl.inVent ? "Vent" : "Walk")}) ({pl.Data.RoleType})\n";
                 }
-                __instance.taskText.text = debugmessage;
+                __instance.taskText.text = debugmessage + $"{PlayerControl.LocalPlayer.GetShipRoomName()}";
             }
         }
     }

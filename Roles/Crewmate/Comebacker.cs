@@ -67,31 +67,7 @@ public sealed class Comebacker : RoleBase
         ShipStatus.Instance.AllVents.DoIf(vent => vent.Id == ventId, vent => OldPosition = (Vector2)vent.transform.position);
         Logger.Info("ベントを設定するよ!", "Comebacker");
 
-        var NowRoom = Player.GetPlainShipRoom();
-
-        var Rooms = ShipStatus.Instance.AllRooms;
-        Dictionary<PlainShipRoom, float> Distance = new();
-
-        if (Rooms != null)
-            foreach (var room in Rooms)
-            {
-                if (room.RoomId == SystemTypes.Hallway) continue;
-                Distance.Add(room, Vector2.Distance(Player.GetTruePosition(), room.transform.position));
-            }
-
-        var near = GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");
-
-        if (NowRoom != null)
-        {
-            var now = GetString($"{NowRoom.RoomId}");
-
-            if (NowRoom.RoomId == SystemTypes.Hallway)
-            {
-                now = near + now;
-            }
-            ComebackPosString = now;
-        }
-        else ComebackPosString = string.Format(GetString($"SantaClausnear"), $"{near}");
+        ComebackPosString = Player.GetShipRoomName();
 
         UtilsNotifyRoles.NotifyRoles(Player, OnlyMeName: true);
         return true;

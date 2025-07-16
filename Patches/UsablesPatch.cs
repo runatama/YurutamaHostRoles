@@ -11,6 +11,11 @@ namespace TownOfHost
     {
         public static bool Prefix(ref float __result, Console __instance, [HarmonyArgument(0)] NetworkedPlayerInfo pc, [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
         {
+            if (GameStates.IsFreePlay)
+            {
+                canUse = couldUse = false;
+                return true;
+            }
             canUse = couldUse = false;
             var role = PlayerControl.LocalPlayer.GetCustomRole();
             var hastask = UtilsTask.HasTasks(PlayerControl.LocalPlayer.Data, false);

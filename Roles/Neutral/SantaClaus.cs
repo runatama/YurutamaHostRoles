@@ -153,31 +153,7 @@ public sealed class SantaClaus : RoleBase, IAdditionalWinner
         MeetingNotify = true;
 
         // 通知の奴
-        var NowRoom = Player.GetPlainShipRoom();
-
-        var Rooms = ShipStatus.Instance.AllRooms;
-        Dictionary<PlainShipRoom, float> Distance = new();
-
-        if (Rooms != null)
-            foreach (var room in Rooms)
-            {
-                if (room.RoomId == SystemTypes.Hallway) continue;
-                Distance.Add(room, Vector2.Distance(Player.GetTruePosition(), room.transform.position));
-            }
-
-        var near = GetString($"{Distance.OrderByDescending(x => x.Value).Last().Key.RoomId}");
-
-        if (NowRoom != null)
-        {
-            var now = GetString($"{NowRoom.RoomId}");
-
-            if (NowRoom.RoomId == SystemTypes.Hallway)
-            {
-                now = near + now;
-            }
-            MeetingNotifyRoom.Add(now);
-        }
-        else MeetingNotifyRoom.Add(string.Format(GetString($"SantaClausnear"), $"{near}"));
+        MeetingNotifyRoom.Add(Player.GetShipRoomName());
 
         GetArrow.Remove(Player.PlayerId, (Vector3)EntotuVentPos);
         if (WinGivePresentCount <= giftpresent)

@@ -84,7 +84,7 @@ namespace TownOfHost
             else if (player.PlayerId is not 0)
             {
                 var check = CustomSpawnPosition[mapid].Count >= player.PlayerId - 1;
-                player.SetName(check ? $"{Translator.GetString("EDCustomSpawn")}{player.PlayerId - 1}" : "<size=0>");
+                player.SetName(check ? $"{Translator.GetString("EDCustomSpawn")}{player.PlayerId - 1}<size=60%><#8cffff>\n@{player.GetShipRoomName()}" : "<size=0>");
                 player.NetTransform.SnapTo(check ? CustomSpawnPosition[mapid][player.PlayerId - 2] : new Vector2(9999f, 9999f));
             }
 
@@ -95,7 +95,8 @@ namespace TownOfHost
             {
                 string name = DataManager.player.Customization.Name;
                 if (Main.nickName != "") name = Main.nickName;
-                player.SetName($"<{Main.ModColor}>{name}</color>");
+                var nowcount = CustomSpawnEditor.CustomSpawnPosition[Main.NormalOptions.MapId].Count;
+                player.SetName($"<#ffffff>{name}" + $"<{(nowcount is 8 ? "#ff1919" : "#8cffff")}> ({nowcount}/8)");
             }
         }
 
@@ -107,7 +108,10 @@ namespace TownOfHost
                 if (Main.page is 0)
                 {
                     if (CustomSpawnPosition[mapid].Count < 8)
+                    {
                         CustomSpawnPosition[mapid].Add(__instance.transform.position);
+                        RPC.PlaySound(0, Sounds.TaskComplete);
+                    }
                 }
                 else
                     __instance.NetTransform.SnapTo(CustomSpawnPosition[mapid][Main.page - 2]);
@@ -117,6 +121,7 @@ namespace TownOfHost
                 if (target.PlayerId is 2)
                 {
                     CustomSpawnPosition[mapid][Main.page - 2] = __instance.transform.position;
+                    RPC.PlaySound(0, Sounds.TaskComplete);
                 }
                 if (target.PlayerId is 3)
                 {

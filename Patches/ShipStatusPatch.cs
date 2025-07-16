@@ -97,8 +97,8 @@ namespace TownOfHost
                     }
                     finally
                     {
-                        Logger.Error("0.2f後でErrorが発生したため5秒後に再度実行", "SetCustomSporn");
-                        _ = new LateTask(() => CustomSpawnEditor.Setup(), 5f, "SetCustomSporn");
+                        Logger.Error("0.2f後でErrorが発生したた2秒後に再度実行", "SetCustomSporn");
+                        _ = new LateTask(() => CustomSpawnEditor.Setup(), 2f, "SetCustomSporn");
                     }
                 }, 0.2f, "SetCustomSporn");
                 return;

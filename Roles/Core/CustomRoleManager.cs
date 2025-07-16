@@ -308,30 +308,7 @@ public static class CustomRoleManager
             targetState.DeathReason = CustomDeathReason.Kill;
         }
         //あっ!死ぬ前にどこにいたかだけ教えてね!
-        var roomName = "";
-        var KillRoom = appearanceTarget.GetPlainShipRoom();
-        if (KillRoom != null)
-        {
-            roomName = Translator.GetString($"{KillRoom.RoomId}");
-
-            if (KillRoom.RoomId == SystemTypes.Hallway)
-            {
-                var Rooms = ShipStatus.Instance.AllRooms;
-                Dictionary<PlainShipRoom, float> Distance = new();
-
-                if (Rooms != null)
-                    foreach (var room in Rooms)
-                    {
-                        if (room.RoomId == SystemTypes.Hallway) continue;
-                        Distance.Add(room, Vector2.Distance(attemptTarget.transform.position, room.transform.position));
-                    }
-
-                var Nearestroom = Distance.OrderByDescending(x => x.Value).Last().Key;
-                roomName = Translator.GetString($"{Nearestroom.RoomId}") + roomName;
-            }
-            roomName = $"〔{roomName}〕";
-        }
-        else roomName = "〔???〕";
+        var roomName = attemptTarget.GetShipRoomName();
         targetState.KillRoom = roomName;
 
         targetState.SetDead();

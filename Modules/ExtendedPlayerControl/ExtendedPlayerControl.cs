@@ -15,6 +15,7 @@ using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 
 using static TownOfHost.Translator;
+using UnityEngine.ProBuilder;
 
 namespace TownOfHost
 {
@@ -542,11 +543,26 @@ namespace TownOfHost
             var killerId = PlayerState.GetByPlayerId(target.PlayerId).GetRealKiller();
             return killerId == byte.MaxValue ? null : PlayerCatch.GetPlayerById(killerId);
         }
-        public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
+        public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc, bool IsDead = false)
         {
-            if (!pc.IsAlive()) return null;
             var Rooms = ShipStatus.Instance.AllRooms;
             if (Rooms == null) return null;
+
+            if (!pc.IsAlive())
+            {
+                PlainShipRoom room = null;
+                if (IsDead)
+                {
+                    foreach (var psr in Rooms)
+                    {
+                        if (psr.roomArea.OverlapPoint((Vector2)pc.transform.position))
+                        {
+                            room = psr;
+                        }
+                    }
+                }
+                return room;
+            }
             foreach (var room in Rooms)
             {
                 if (!room.roomArea) continue;
@@ -554,6 +570,40 @@ namespace TownOfHost
                     return room;
             }
             return null;
+        }
+        public static string GetShipRoomName(this PlayerControl pc)
+        {
+            if (ShipStatus.Instance is null || pc is null) return "";
+            var RoomName = "";
+            var Room = pc.GetPlainShipRoom(true);
+            RoomName = Room is null ? "" : GetString($"{Room.RoomId}");
+
+            if (Room?.RoomId is SystemTypes.Hallway or null)
+            {
+                var AllRooms = ShipStatus.Instance.AllRooms;
+                Dictionary<byte, float> Distance = new();
+
+                if (AllRooms != null)
+                {
+                    if (Main.NormalOptions.MapId is (byte)MapNames.Fungle)
+                    {
+                        Distance.Add(200, Vector2.Distance(pc.transform.position, new Vector2(-7.95f, -14.10f))); //西ジャングル
+                        Distance.Add(201, Vector2.Distance(pc.transform.position, new Vector2(1.74f, -9.76f)));//中央ジャングル
+                        Distance.Add(202, Vector2.Distance(pc.transform.position, new Vector2(15.81f, -8.3f)));//東ジャングル
+                        Distance.Add(203, Vector2.Distance(pc.transform.position, new Vector2(-8.95f, 1.79f)));//焚火
+                    }
+                    foreach (var room in AllRooms)
+                    {
+                        if (room.RoomId == SystemTypes.Hallway) continue;
+                        Distance.Add((byte)room.RoomId, Vector2.Distance(pc.transform.position, room.transform.position));
+                    }
+                }
+                var Nearestroomid = Distance.OrderByDescending(x => x.Value).Last().Key;
+                var Nearestroom = 200 <= Nearestroomid ? GetString($"ModMapName.{Nearestroomid}") : GetString($"{(SystemTypes)Nearestroomid}");
+                RoomName = Room is null ? string.Format(GetString("Nearroom"), Nearestroom)
+                : Nearestroom + RoomName;
+            }
+            return RoomName;
         }
         public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 

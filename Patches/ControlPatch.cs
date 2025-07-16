@@ -15,7 +15,7 @@ namespace TownOfHost
         public static void Postfix(ControllerManager __instance)
         {
             //カスタム設定切り替え
-            if (GameStates.IsLobby)
+            if (GameStates.IsLobby && !GameStates.IsFreePlay)
             {
                 if (Input.GetKeyDown(KeyCode.Tab))
                 {

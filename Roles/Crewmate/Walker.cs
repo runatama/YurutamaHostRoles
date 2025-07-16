@@ -64,14 +64,7 @@ public sealed class Walker : RoleBase
             if (MyState.HasSpawned) timer += Time.fixedDeltaTime;
             if (timer <= 0.1f) return; //変わってすぐは処理しない...
 
-            var nowroom = player.GetPlainShipRoom();
-            if (!player.IsAlive())
-            {
-                if (TaskPSR.roomArea.OverlapPoint((Vector2)player.transform.position))
-                {
-                    nowroom = TaskPSR;
-                }
-            }
+            var nowroom = player.GetPlainShipRoom(true);
             if (nowroom == null) return;
 
             if (TaskRoom == nowroom.RoomId)
@@ -84,6 +77,7 @@ public sealed class Walker : RoleBase
                     completeroom++;
                     timer = 0;
                     MyTaskState.Update(player);
+                    RPC.PlaySoundRPC(Player.PlayerId, Sounds.TaskComplete);
                     CheckFin();
                 }
                 else
