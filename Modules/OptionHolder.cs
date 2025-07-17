@@ -87,6 +87,8 @@ namespace TownOfHost
         public static OptionItem DoubleTriggerThreshold;
         public static OptionItem DefaultShapeshiftCooldown;
         public static OptionItem DefaultShapeshiftDuration;
+        public static OptionItem DefaultEngineerCooldown;
+        public static OptionItem DefaultEngineerInVentMaxTime;
         public static OptionItem CanMakeMadmateCount;
         public static OptionItem SkMadCanUseVent;
         public static OptionItem MadMateOption;
@@ -627,6 +629,11 @@ namespace TownOfHost
             // Madmate, Crewmate, Neutral
             CreateRoleOption(sortedRoleInfo, CustomRoleTypes.Madmate);
             CreateRoleOption(sortedRoleInfo, CustomRoleTypes.Crewmate);
+            DefaultEngineerCooldown = FloatOptionItem.Create(102503, "DefaultEngineerCooldown", new(0, 180, 1f), 15, TabGroup.CrewmateRoles, false)
+                .SetHeader(true).SetValueFormat(OptionFormat.Seconds);
+            DefaultEngineerInVentMaxTime = FloatOptionItem.Create(102504, "DefaultEngineerInVentMaxTime", new(0, 180, 1), 5, TabGroup.CrewmateRoles, false, true)
+                .SetValueFormat(OptionFormat.Seconds);
+
             CreateRoleOption(sortedRoleInfo, CustomRoleTypes.Neutral);
 
             SetupRoleOptions(102800, TabGroup.MainSettings, CustomRoles.NotAssigned, new(1, 1, 1));

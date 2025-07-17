@@ -164,6 +164,8 @@ namespace TownOfHost.Modules
 
             if (player.IsAlive())
             {
+                opt.SetFloat(FloatOptionNames.EngineerCooldown, DefaultEngineerCooldown.GetFloat());
+                opt.SetFloat(FloatOptionNames.EngineerInVentMaxTime, DefaultEngineerInVentMaxTime.GetFloat());
                 opt.SetInt(Int32OptionNames.NumEmergencyMeetings, (int)state.NumberOfRemainingButtons);
                 opt.BlackOut(state.IsBlackOut);
 
