@@ -47,6 +47,7 @@ namespace TownOfHost.Roles.AddOns.Common
             return false;
 
         remove:
+            CustomWinnerHolder.WinnerIds.Remove(pc.PlayerId);
             CustomWinnerHolder.CantWinPlayerIds.Add(pc.PlayerId);
             return false;
         }
