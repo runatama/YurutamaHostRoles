@@ -292,41 +292,6 @@ namespace TownOfHost
             if (m.RemoveHtmlTags() != "")
                 SendMessage(m, PlayerId);
         }
-        public static string TmpRole()
-        {
-            var sb = new StringBuilder().AppendFormat("<line-height={0}>", ActiveSettingsLineHeight);
-            sb.AppendFormat("<size={0}>", "70%");
-            sb.AppendFormat("\n◆{0}:{1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString());
-            sb.Append("\n<size=100%>\n").Append(GetString("Roles")).Append("</size><line-height=82%>");
-            CustomRoles[] roles = null;
-            CustomRoles[] addons = null;
-            if (Options.CurrentGameMode == CustomGameMode.Standard) roles = CustomRolesHelper.AllStandardRoles;
-            if (Options.CurrentGameMode == CustomGameMode.Standard) addons = CustomRolesHelper.AllAddOns;
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) roles = CustomRolesHelper.AllHASRoles;
-            if (roles != null)
-            {
-                foreach (CustomRoles role in roles)
-                {//Roles
-                    if (role.IsEnable())
-                    {
-                        var longestNameByteCount = roles.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
-                        var co = role.IsImpostor() ? ColorString(Palette.ImpostorRed, "Ⓘ") : (role.IsCrewmate() ? ColorString(Palette.CrewmateBlue, "Ⓒ") : (role.IsMadmate() ? "<#ff7f50>Ⓜ</color>" : ColorString(Palette.DisabledGrey, "Ⓝ")));
-                        sb.AppendFormat("\n" + co + "{0}:{1}x{2}", role.GetCombinationName(), $"{role.GetChance()}%", role.GetCount());
-                    }
-                }
-            }
-            if (addons != null)
-            {
-                sb.Append("\n<size=100%>\n").Append(GetString("Addons")).Append("</size>");
-                foreach (CustomRoles Addon in addons)
-                {
-                    var longestNameByteCount = addons.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
-                    var pos = Math.Min(((float)longestNameByteCount / 2) + 1.5f, 11.5f);
-                    if (Addon.IsEnable()) sb.AppendFormat("\n★{0}:{1}x{2}", GetRoleName(Addon).Color(GetRoleColor(Addon)), $"{Addon.GetChance()}%", Addon.GetCount());
-                }
-            }
-            return sb.ToString();
-        }
         public static string GetActiveRoleText(byte pc)
         {
             var sb = new StringBuilder().AppendFormat("<line-height={0}>", ActiveSettingsLineHeight);
@@ -387,7 +352,7 @@ namespace TownOfHost
                         co = $"<{GetRoleColorCode(role, true)}>{co}";
                         sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + co + "{0}</color>:{1}", role.GetCombinationName(false), role.GetChance() is 100 ? role.GetCount() : $"{role.GetChance()}%x{role.GetCount()}");
                         if (nowcount > 1) nowcount = 0;
-                        P(sb);
+                        checkpage(sb);
                     }
                 }
             }
@@ -408,14 +373,16 @@ namespace TownOfHost
                         var longestNameByteCount = addons.Select(x => x.GetCombinationName().Length).OrderByDescending(x => x).FirstOrDefault();
                         sb.AppendFormat($"{(nowcount is 1 ? "　" : (nowcount is 2 ? "\n" : ""))}" + m + "{0}:{1}", GetRoleColorAndtext(Addon), Addon.GetChance() is 100 ? $"{Addon.GetCount()}" : $"{Addon.GetChance()}%x{Addon.GetCount()}");
                         if (nowcount > 1) nowcount = 0;
-                        P(sb);
+                        checkpage(sb);
                     }
                 }
             }
             return sb.ToString();
 
-            void P(StringBuilder sb)
+            void checkpage(StringBuilder sb)
             {
+                if (pc == byte.MaxValue) return;
+
                 var n = sb.ToString().Length;
                 if (n > 600)
                 {
