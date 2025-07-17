@@ -429,7 +429,7 @@ namespace TownOfHost
                 sb = new StringBuilder("```cs\n").Append(GetString("Roles")).Append(':');
                 sb.AppendFormat("\n# {0}:{1}", GetRoleName(CustomRoles.GM), Options.EnableGM.GetString().RemoveHtmlTags());
                 CustomRoleTypes? rr = null;//☆インポスターも表示させるため
-                foreach (CustomRoles role in CustomRolesHelper.AllRoles)
+                foreach (CustomRoles role in EnumHelper.GetAllValues<CustomRoles>())
                 {
                     if (role is CustomRoles.GM or CustomRoles.NotAssigned) continue;
                     if (rr == null && rr != role.GetCustomRoleTypes() && role.IsEnable())
