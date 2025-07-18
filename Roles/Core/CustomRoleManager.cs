@@ -178,11 +178,6 @@ public static class CustomRoleManager
                 CheckMurderPatch.TimeSinceLastKill[attemptKiller.PlayerId] = 0f;
                 UtilsNotifyRoles.NotifyRoles();
                 killer.OnCheckMurderDontKill(info);
-            }
-
-            /* 結果確定 */
-            if (info.IsGuard && info.DoKill && info.CanKill)
-            {
                 return false;
             }
         }
