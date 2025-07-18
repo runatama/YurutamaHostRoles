@@ -267,7 +267,7 @@ namespace TownOfHost.Modules.ChatManager
                 }
             }
         }
-        public static void SendMessageInGame()
+        public static void SendMessageInGame(ChatController chatController)
         {
             PlayerControl senderplayer = PlayerCatch.AllAlivePlayerControls.OrderBy(x => x.PlayerId).FirstOrDefault();
             if (senderplayer == null) return;
@@ -316,6 +316,9 @@ namespace TownOfHost.Modules.ChatManager
                     Nwriter.SendMessage();
                     UtilsNotifyRoles.NotifyRoles();
                 }
+                if (sendTo is byte.MaxValue)
+                    chatController.timeSinceLastMessage = 0;
+                Logger.Info($"{sendTo} , {msg}", "task");
                 return;
             }
 
@@ -329,6 +332,7 @@ namespace TownOfHost.Modules.ChatManager
                     senderplayer.SetName(title);
                     DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderplayer, msg);
                     senderplayer.SetName(name);
+                    chatController.timeSinceLastMessage = 0;
                 }
                 var Nwriter = CustomRpcSender.Create("MessagesToSend", SendOption.None);
                 Nwriter.StartMessage(clientId);
@@ -353,6 +357,7 @@ namespace TownOfHost.Modules.ChatManager
                         ChatUpdatePatch.DoBlockChat = false;
                     }, Main.LagTime, "Setname", true);
                 }
+                Logger.Info($"{sendTo} , {msg}", "meeting");
                 return;
             }
             if (Options.ExHideChatCommand.GetBool())
@@ -387,9 +392,11 @@ namespace TownOfHost.Modules.ChatManager
                     Nwriter.EndMessage();
                     Nwriter.SendMessage();
                 }
+                if (sendTo is byte.MaxValue)
+                    chatController.timeSinceLastMessage = 0;
             }
         }
-        public static void SendmessageInLobby()
+        public static void SendmessageInLobby(ChatController chatController)
         {
             PlayerControl senderplayer = PlayerCatch.AllAlivePlayerControls.Where(x => x.PlayerId is not 0).OrderBy(x => x.PlayerId).FirstOrDefault();
             if (senderplayer == null)
@@ -438,6 +445,10 @@ namespace TownOfHost.Modules.ChatManager
             .EndRpc();
             Nwriter.EndMessage();
             Nwriter.SendMessage();
+            if (sendTo is byte.MaxValue && title.RemoveHtmlTags() != title)
+            {
+                chatController.timeSinceLastMessage = 0;
+            }
         }
         public static void OnDisconnect(byte playerid)
         {

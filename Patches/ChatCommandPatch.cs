@@ -1596,8 +1596,8 @@ namespace TownOfHost
             if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count < 1 || (Main.MessagesToSend[0].Item2 == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage)) return;
             if (DoBlockChat) return;
 
-            if (GameStates.IsLobby) ChatManager.SendmessageInLobby();
-            else ChatManager.SendMessageInGame();
+            if (GameStates.IsLobby) ChatManager.SendmessageInLobby(__instance);
+            else ChatManager.SendMessageInGame(__instance);
         }
     }
     /*
