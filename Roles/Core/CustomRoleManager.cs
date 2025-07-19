@@ -68,7 +68,7 @@ public static class CustomRoleManager
         // キラーがキル能力持ちなら
         if (killerRole is IKiller killer)
         {
-            if (killer.IsKiller)//一応今は属性ガード有線にしてますが
+            if (killer.IsKiller)
             {
                 if (killerRole is EarnestWolf earnestWolf)//最優先
                 {
@@ -98,28 +98,27 @@ public static class CustomRoleManager
                         info.GuardPower = 1;
                     }
                 }
-            }
-            //守護天使ちゃんの天使チェック
-            if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
-            {
-                GuardreasonNumber = 1;
-                info.GuardPower = 1;
-            }
-            //属性ガードのチェック
-            if (info.KillPower > info.GuardPower)//消費する必要がある
-            {
-                var state = attemptTarget.GetPlayerState();
-                var CanuseGuards = state.HaveGuard.Where(data => data.Value > 0).Where(data => info.KillPower <= data.Key);
-
-                if (CanuseGuards.Count() > 0)//今ここで使えるガードがある場合
+                //守護天使ちゃんの天使チェック
+                if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
                 {
-                    info.GuardPower = CanuseGuards.First().Key;
-                    GuardreasonNumber = 0;
+                    GuardreasonNumber = 1;
+                    info.GuardPower = 1;
+                }
+                //属性ガードのチェック
+                if (info.KillPower > info.GuardPower)//消費する必要がある
+                {
+                    var state = attemptTarget.GetPlayerState();
+                    var CanuseGuards = state.HaveGuard.Where(data => data.Value > 0).Where(data => info.KillPower <= data.Key);
+
+                    if (CanuseGuards.Count() > 0)//今ここで使えるガードがある場合
+                    {
+                        info.GuardPower = CanuseGuards.First().Key;
+                        GuardreasonNumber = 0;
+                    }
                 }
             }
 
             // キラーのキルチェック処理実行
-
             //ダブルトリガー無効なら通常処理
             if (!DoubleTrigger.OnCheckMurderAsKiller(info) && force is false)//特殊強制キルの場合は処理しない
             {
@@ -127,14 +126,14 @@ public static class CustomRoleManager
             }
 
             /* キル可能かのチェック */
-            if (info.KillPower <= info.GuardPower)
+            if (info.KillPower <= info.GuardPower && killer.IsKiller)
             {
                 info.IsGuard = true;
                 info.CanKill = false;
                 if (GuardreasonNumber is -1) GuardreasonNumber = 3;
             }
 
-            if (info.IsGuard)
+            if (info.IsGuard && killer.IsKiller)
             {
                 switch (GuardreasonNumber)
                 {
