@@ -56,15 +56,15 @@ public static class MeetingHudPatch
                 if (roleClass?.CheckVoteAsVoter(suspectPlayerId, voter) == false || (!votefor.IsAlive() && suspectPlayerId != 253 && suspectPlayerId != 254 && !Assassin.NowUse))
                 {
                     __instance.RpcClearVote(voter.GetClientId());
-                    Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} は投票しない！ => {srcPlayerId}", nameof(CastVotePatch));
+                    Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} は投票しない！ => {suspectPlayerId}", nameof(CastVotePatch));
                     return false;
                 }
                 else
                 if (voter.Is(CustomRoles.Elector) && suspectPlayerId == 253 || (RoleAddAddons.GetRoleAddon(voter.GetCustomRole(), out var da, voter, subrole: CustomRoles.Elector) && da.GiveElector.GetBool() && suspectPlayerId == 253))
                 {
-                    Utils.SendMessage("君はイレクターなんだよ。\nスキップできない属性でね。\n誰かに投票してね。", voter.PlayerId);
+                    Utils.SendMessage(GetString("ElectorCancelMessage"), voter.PlayerId);
                     __instance.RpcClearVote(voter.GetClientId());
-                    Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} イレクター発動 => {srcPlayerId}", nameof(CastVotePatch));
+                    Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} イレクター発動 => {suspectPlayerId}", nameof(CastVotePatch));
                     return false;
                 }
             }
