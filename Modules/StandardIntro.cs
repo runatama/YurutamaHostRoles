@@ -36,6 +36,11 @@ class StandardIntro
             stream.Recycle();
             InnerNetClientPatch.DontTouch = false;
             GameDataSerializePatch.SerializeMessageCount--;
+            // スポーン2つでるかもしれないけど、オートミュート使用時に勝手に解除されるので擬装を一回戻す。
+            foreach (var data in GameData.Instance.AllPlayers)
+            {
+                data.Disconnected = false;
+            }
         }
     }
     public static void CoResetRoleY()
