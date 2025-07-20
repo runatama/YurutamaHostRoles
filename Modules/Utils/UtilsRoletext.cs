@@ -428,7 +428,7 @@ namespace TownOfHost
                 NonCompleteColor = Workhorse.RoleColor;
 
             var NormalColor = state.taskState.IsTaskFinished ? TaskCompleteColor : NonCompleteColor;
-            if (state.taskState.GetNeedCountOrAll() <= state.taskState.CompletedTasksCount) NormalColor = TaskCompleteColor;
+            if (state.taskState.GetNeedCountOrAll() <= state.taskState.CompletedTasksCount && !pc.Is(CustomRoles.Amnesia)) NormalColor = TaskCompleteColor;
 
             TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{state.taskState.CompletedTasksCount}";
