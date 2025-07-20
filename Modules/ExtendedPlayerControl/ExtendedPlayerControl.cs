@@ -306,7 +306,7 @@ namespace TownOfHost
             }
             if (role is CustomRoles.NotAssigned)
             {
-                role = pc.GetCustomRole();
+                role = target.GetCustomRole();
             }
             if (role is CustomRoles.SKMadmate)
             {

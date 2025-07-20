@@ -144,7 +144,6 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         MeetingUsedcount++;
         if (chance < collect)
         {
-
             Logger.Info($"Player: {Player.name},Target: {target.name}, count: {count}(成功)", "MadTeller");
             var role = target.GetTellResults(Player); //結果を変更するかチェック
             var lasttext = "です" + (role.IsImpostorTeam() ? "!" : "...");
