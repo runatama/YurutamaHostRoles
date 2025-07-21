@@ -108,7 +108,7 @@ namespace TownOfHost
                 ErrorNumber = 1;
                 if (activeonly)
                 {
-                    activeonly.buttonText.text = "有効なMap設定/役職のみ表示する <size=5>(OFF)</size>";
+                    activeonly.buttonText.text = $"{GetString("ActiveOptionOnly")} <size=5>(OFF)</size>";
                     activeonly.gameObject.name = "ActiveOnly";
 
                     activeonly.inactiveSprites.GetComponent<SpriteRenderer>().color =
@@ -138,7 +138,7 @@ namespace TownOfHost
                 var RoleReset = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
                 if (RoleReset)
                 {
-                    RoleReset.buttonText.text = $"役職をリセットする";
+                    RoleReset.buttonText.text = $"{GetString("RoleReset")}";
                     RoleReset.buttonText.DestroyTranslator();
                     RoleReset.inactiveSprites.GetComponent<SpriteRenderer>().color =
                     RoleReset.activeSprites.GetComponent<SpriteRenderer>().color =
@@ -158,7 +158,7 @@ namespace TownOfHost
                 var SheriffAndMad = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
                 if (SheriffAndMad)
                 {
-                    SheriffAndMad.buttonText.text = $"<#f8cd46>シェリ</color><#ff1919>マ <#ffffff>+ </color>イビハカトラ</color>構成";
+                    SheriffAndMad.buttonText.text = GetString("SheriffAndMadPreset");
                     SheriffAndMad.buttonText.DestroyTranslator();
                     SheriffAndMad.inactiveSprites.GetComponent<SpriteRenderer>().color =
                     SheriffAndMad.activeSprites.GetComponent<SpriteRenderer>().color =
@@ -178,7 +178,7 @@ namespace TownOfHost
                 var SetMenyRole = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
                 if (SetMenyRole)
                 {
-                    SetMenyRole.buttonText.text = $"多役構成";
+                    SetMenyRole.buttonText.text = GetString("SetMenyRole");
                     SetMenyRole.buttonText.DestroyTranslator();
                     SetMenyRole.inactiveSprites.GetComponent<SpriteRenderer>().color =
                     SetMenyRole.activeSprites.GetComponent<SpriteRenderer>().color =
@@ -199,7 +199,7 @@ namespace TownOfHost
                 var SetAllRole = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
                 if (SetAllRole)
                 {
-                    SetAllRole.buttonText.text = $"<#aa84f0>闇鍋</color>";
+                    SetAllRole.buttonText.text = $"<#aa84f0>{GetString("AllRole")}</color>";
                     SetAllRole.buttonText.DestroyTranslator();
                     SetAllRole.inactiveSprites.GetComponent<SpriteRenderer>().color =
                     SetAllRole.activeSprites.GetComponent<SpriteRenderer>().color =
@@ -225,7 +225,7 @@ namespace TownOfHost
                 var SetAllRoleAndAddon = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
                 if (SetAllRoleAndAddon)
                 {
-                    SetAllRoleAndAddon.buttonText.text = $"<#aa84f0>属性,幽霊役職入り闇鍋</color>";
+                    SetAllRoleAndAddon.buttonText.text = $"<#aa84f0>{GetString("AllRoleAndSubRole")}</color>";
                     SetAllRoleAndAddon.buttonText.DestroyTranslator();
                     SetAllRoleAndAddon.inactiveSprites.GetComponent<SpriteRenderer>().color =
                     SetAllRoleAndAddon.activeSprites.GetComponent<SpriteRenderer>().color =
@@ -245,18 +245,18 @@ namespace TownOfHost
                         }
                     }));
                 }
-                var SadondesuMode = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (SadondesuMode)
+                var SetSuddenDeathMode = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (SetSuddenDeathMode)
                 {
-                    SadondesuMode.buttonText.text = $"<#ffaf8a>サドンデス用！</color>";
-                    SadondesuMode.buttonText.DestroyTranslator();
-                    SadondesuMode.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    SadondesuMode.activeSprites.GetComponent<SpriteRenderer>().color =
-                    SadondesuMode.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(242, 125, 70, byte.MaxValue);
-                    SadondesuMode.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 5), 0);
-                    SadondesuMode.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    SadondesuMode.OnClick = new();
-                    SadondesuMode.OnClick.AddListener((Action)(() =>
+                    SetSuddenDeathMode.buttonText.text = $"<#ffaf8a>{GetString("SetSuddenDeathMode")}</color>";
+                    SetSuddenDeathMode.buttonText.DestroyTranslator();
+                    SetSuddenDeathMode.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    SetSuddenDeathMode.activeSprites.GetComponent<SpriteRenderer>().color =
+                    SetSuddenDeathMode.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(242, 125, 70, byte.MaxValue);
+                    SetSuddenDeathMode.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 5), 0);
+                    SetSuddenDeathMode.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    SetSuddenDeathMode.OnClick = new();
+                    SetSuddenDeathMode.OnClick.AddListener((Action)(() =>
                     {
                         foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && Event.CheckRole(option.Key)))
                         {
@@ -270,7 +270,7 @@ namespace TownOfHost
                 RoleSettingsButton.gameObject.SetActive(false);
 
                 ModSettingsButton.gameObject.name = "TownOfHostSetting";
-                ModSettingsButton.buttonText.text = "TownOfHost-Kの設定";
+                ModSettingsButton.buttonText.text = "TownOfHost-K";
                 var activeSprite = ModSettingsButton.activeSprites.GetComponent<SpriteRenderer>();
                 var selectedSprite = ModSettingsButton.selectedSprites.GetComponent<SpriteRenderer>();
                 activeSprite.color = StringHelper.CodeColor(Main.ModColor);
@@ -288,7 +288,7 @@ namespace TownOfHost
                         activeonly.activeSprites.GetComponent<SpriteRenderer>().color =
                         activeonly.selectedSprites.GetComponent<SpriteRenderer>().color = ActiveOnlyMode ? ModColors.GhostRoleColor : ModColors.bluegreen;
                         var now = ActiveOnlyMode ? "ON" : "OFF";
-                        activeonly.buttonText.text = $"有効なMap設定/役職のみ表示する <size=5>({now})</size>";
+                        activeonly.buttonText.text = $"{GetString("ActiveOptionOnly")} <size=5>({now})</size>";
                         activeonly.selected = false;
                         ModSettingsTab.scrollBar.velocity = Vector2.zero;
                         ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
@@ -307,10 +307,10 @@ namespace TownOfHost
                         search = Object.Instantiate(HudManager.Instance.Chat.freeChatField, __instance.RoleSettingsTab.transform.parent);
 
                         prisettext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
-                        prisettext.text = "<size=120%><#cccccc><b>プリセット名編集</b></color></size>";
+                        prisettext.text = $"<size=120%><#cccccc><b>{GetString("SetPresetName")}</b></color></size>";
                         prisettext.transform.localPosition = new Vector3(-2f, -1.1f);
                         searchtext = Object.Instantiate(HudManager.Instance.TaskPanel.taskText, priset.transform);
-                        searchtext.text = "<size=120%><#ffa826><b>検索</b></color></size>";
+                        searchtext.text = $"<size=120%><#ffa826><b>{GetString("Search")}</b></color></size>";
                         searchtext.transform.localPosition = new Vector3(-2f, -0.3f);
                     }
                     catch (Exception ex)

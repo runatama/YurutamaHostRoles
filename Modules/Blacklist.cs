@@ -114,7 +114,9 @@ public static class Blacklist
             if (PlayerControl.LocalPlayer.GetClientId() == clientData.Id)
             {
                 AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=180%>データがダウンロードされていません</size>\n\nネットワーク環境を見直してください。\n再起動をしてデータをダウンロードしてください。";
+                if (Main.UseingJapanese)
+                    AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=180%>データがダウンロードされていません</size>\n\nネットワーク環境を見直してください。\n再起動をしてデータをダウンロードしてください。";
+                else AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=180%>No data has been downloaded.</size>\n\nPlease review your network environment. \nRestart the system and download the data.";
             }
         }
         if ((clientData.FriendCode == "" || !clientData.FriendCode.Contains('#')) && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
@@ -122,7 +124,10 @@ public static class Blacklist
             if (PlayerControl.LocalPlayer.GetClientId() == clientData.Id)
             {
                 AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
-                AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=225%>フレンドコードがありません</size>\n\nおうちのひとにみせてください。\n\n【保護者の方へ】\nフレンドコードが設定されていないため、\nこのMODをプレイできません。\nフレンド機能を有効にしてください。\nフレンド機能を有効にする：<link=\"https://parents.innersloth.com/ja/login\">https://parents.innersloth.com/ja/login</link>";
+                if (Main.UseingJapanese)
+                    AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=225%>フレンドコードがありません</size>\n\nおうちのひとにみせてください。\n\n【保護者の方へ】\nフレンドコードが設定されていないため、\nこのMODをプレイできません。\nフレンド機能を有効にしてください。\nフレンド機能を有効にする：<link=\"https://parents.innersloth.com/ja/login\">https://parents.innersloth.com/ja/login</link>";
+                else
+                    AmongUsClient.Instance.LastCustomDisconnect = "<size=0%>MOD</size><size=0%>NoFriend</size>" + "<size=225%>No friend code</size>\n\nPlease show it to your family.\n\n【For Parents】\nYou cannot play this mod because you do not have a friend code set up.。\nPlease enable the friend function.\nEnable the friend function:<link=\"https://parents.innersloth.com/ja/login\">https://parents.innersloth.com/ja/login</link>";
             }
             //フレコ持ってないクライアントをキックするやつ。もとから実装してるなら下のコメントのところまで消して
             /*else if (CustomOptionHolder.DisconnectDontHaveFriendCodeOption.GetBool() && !ModHelpers.IsCustomServer())

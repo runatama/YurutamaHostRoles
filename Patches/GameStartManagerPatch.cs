@@ -142,25 +142,6 @@ namespace TownOfHost
                         if (dummyComponent != null && dummyComponent.enabled)
                             continue;
 
-                        /* Debugversion
-                        if (!Main.NotKigenDebug && Main.DebugVersion)
-                        {
-                            var now = DateTime.Now.Year * 10000 + DateTime.Now.Month * 100 + DateTime.Now.Day;
-                            int Re = Main.ReleaseYear * 10000 + Main.ReleaseMonth * 100 + Main.ReleaseDay;
-                            int Rem = Main.DebugvalidityYear * 10000 + Main.DebugvalidityMonth * 100 + Main.DebugvalidityDay;
-
-                            if (!(Re <= now && now <= Rem))
-                            {
-                                __instance.StartButton.gameObject.SetActive(false);
-                                warningMessage = " <color=red>このデバッグ版は期限切れのため利用できません...(´・ω・｀)</color>";
-                            }
-                        }*/
-
-                        /*if (Options.KickModClient.GetBool() && Client(client.Character.PlayerId) && client.Character.PlayerId != 0)
-                        {
-                            canStartGame = false;
-                            mismatchedPlayerNameList.Add(Utils.ColorString(Palette.PlayerColors[client.ColorId], client.Character.Data.PlayerName));
-                        }*/
                         if (!MatchVersions(client.Character.PlayerId, true))
                         {
                             canStartGame = false;
@@ -173,24 +154,10 @@ namespace TownOfHost
                         warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.MismatchedVersion"), String.Join(" ", mismatchedPlayerNameList), $"<{Main.ModColor}>{Main.ModName}</color>"));
                     }
 
-                    __instance.GameStartText.text += "\n<size=2.5><color=red>(クリックしてキャンセル)</size>";
+                    __instance.GameStartText.text += $"\n<size=2.5><color=red>({GetString("ClicktoCancel")})</size>";
                 }
                 else
                 {
-                    /*if (Options.KickModClient.GetBool())
-                    {
-                        if (GameStates.IsModHost)
-                        {
-                            ext += Time.deltaTime;
-                            if (ext > 10)
-                            {
-                                ext = 0;
-                                AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
-                                SceneChanger.ChangeScene("MainMenu");
-                            }
-                            warningMessage = Utils.ColorString(Color.red, string.Format(GetString("Warning.CantModClient"), $"<color={Main.ModColor}>{Main.ModName}</color>", Math.Round(10 - ext).ToString()));
-                        }
-                    }*/
                     if (MatchVersions(0))
                         exitTimer = 0;
                     else
@@ -236,7 +203,7 @@ namespace TownOfHost
                     timerv.DestroyTranslator();
                     __instance.RulesPresetText.DestroyTranslator();
                     __instance.RulesPresetText.text = countDown;
-                    timerv.text = "タイマー";
+                    timerv.text = GetString("SuffixMode.Timer").RemoveDeltext("ルーム");
                 }
             }
             private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
@@ -362,7 +329,7 @@ namespace TownOfHost
 
                 if (host?.PlayerName == null || host?.ColorId == null || Palette.PlayerColors.Length <= host.ColorId)
                 {
-                    __instance.playerName.text = "???(ホストの情報の取得に失敗)";
+                    __instance.playerName.text = "???";
                     return false;
                 }
                 return true;

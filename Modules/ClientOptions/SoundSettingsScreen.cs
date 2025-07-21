@@ -25,7 +25,7 @@ public static class SoundSettingsScreen
 
         Text = Object.Instantiate(optionsMenuBehaviour.DisableMouseMovement.Text, Popup.transform);
         Text.name = "Sound Settings";
-        Text.text = "<size=3>サウンド設定";
+        Text.text = $"<size=3>{Translator.GetString("SoundOption")}";
         Text.transform.localPosition = new(0f, 2.25f, -1f);
         Text.gameObject.SetActive(true);
 
@@ -87,7 +87,7 @@ public static class SoundSettingsScreen
         var button = Object.Instantiate(optionsMenuBehaviour.DisableMouseMovement, Slideer.transform);
         button.transform.localPosition = new Vector3(4.5f, 0f, 0f);
         button.transform.localScale -= new Vector3(0.4f, 0.4f);
-        button.Text.text = "リセット";
+        button.Text.text = Translator.GetString("Reset");
         var passiveButton = button.GetComponent<PassiveButton>();
         button.Background.size -= new Vector2(0.2f, 0f);
         button.transform.FindChild("ButtonHighlight").GetComponent<SpriteRenderer>().size -= new Vector2(0.2f, 0f);
@@ -114,7 +114,7 @@ public static class SoundSettingsScreen
                 break;
             case Buttons.Ambience:
                 Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().DestroyTranslator();
-                Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().text = "環境";
+                Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().text = Translator.GetString("Ambience");
                 Ambience = Slideer;
                 passiveButton.OnClick.AddListener((Action)(() =>
                 {
@@ -125,7 +125,7 @@ public static class SoundSettingsScreen
                 break;
             case Buttons.MapTheme:
                 Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().DestroyTranslator();
-                Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().text = "<size=60%>ロビー\nBGM</size>";
+                Slideer.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>().text = $"<size=60%>{Translator.GetString("LobbyBgm")}</size>";
                 MapTheme = Slideer;
                 passiveButton.OnClick.AddListener((Action)(() =>
                 {

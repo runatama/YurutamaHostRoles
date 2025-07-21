@@ -81,10 +81,10 @@ namespace TownOfHost
             var pos1 = pos + 4f;
             var pos2 = pos + 4f + (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.English ? 8f : 4.5f);
 
-            var name = LastLog.TryGetValue(pc, out var log) ? log : "('ω')";
-            var pro = LastLogPro.TryGetValue(pc, out var prog) ? prog : "(;;)";
-            var role = LastLogRole.TryGetValue(pc, out var rolelog) ? rolelog : "_(:3 」∠)_";
-            var addon = "(´-ω-`)";
+            var name = LastLog.TryGetValue(pc, out var log) ? log : "???";
+            var pro = LastLogPro.TryGetValue(pc, out var prog) ? prog : "(????)";
+            var role = LastLogRole.TryGetValue(pc, out var rolelog) ? rolelog : "??????";
+            var addon = "??";
             addon = LastLogSubRole.TryGetValue(pc, out var m) ? m : GetSubRolesText(pc, mark: true);
 
             return name + pro + " : " + GetVitalText(pc, true) + " " + role + addon;
@@ -288,12 +288,12 @@ namespace TownOfHost
                 sb.Append($"{GetString("TaskPlayerB")}:\n　{Main.AllPlayerNames[winnerList[0]] ?? "?"}");
 
             sb.Append($"\n{GetString("TaskCount")}:")
-            .Append($"\n　通常タスク数: {Main.NormalOptions.NumCommonTasks + AddCommon}")
-            .Append($"\n　ショートタスク数: {Main.NormalOptions.NumShortTasks + AddLong}")
-            .Append($"\n　ロングタスク数: {Main.NormalOptions.NumLongTasks + AddShort}")
+            .Append($"\n　{GetString(StringNames.GameCommonTasks)}: {Main.NormalOptions.NumCommonTasks + AddCommon}")
+            .Append($"\n　{GetString(StringNames.GameShortTasks)}: {Main.NormalOptions.NumShortTasks + AddLong}")
+            .Append($"\n　{GetString(StringNames.GameLongTasks)}: {Main.NormalOptions.NumLongTasks + AddShort}")
             .Append($"\nタイム: {HudManagerPatch.GetTaskBattleTimer()}")
-            .Append($"\nマップ: {(MapNames)Main.NormalOptions.MapId}")
-            .Append($"\nベント: " + (TaskBattle.TaskBattleCanVent.GetBool() ? "あり" : "なし"));//マップの設定なども記載しなければならない
+            .Append($"\nMap: {(MapNames)Main.NormalOptions.MapId}")
+            .Append($"\nVent: " + (TaskBattle.TaskBattleCanVent.GetBool() ? "On" : "Off"));//マップの設定なども記載しなければならない
             if (TaskBattle.TaskBattleCanVent.GetBool())
                 sb.Append($"\n　クールダウン:{TaskBattle.TaskBattleVentCooldown.GetFloat()}");
             return sb;

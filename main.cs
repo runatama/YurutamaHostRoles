@@ -60,7 +60,7 @@ namespace TownOfHost
                 public const string ModVersion = ".30";//リリースver用バージョン変更
 
                 /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
-                public static bool DebugVersion = false;
+                public static bool DebugVersion = true;
 
                 // サポートされている最低のAmongUsバージョン
                 public static readonly string LowestSupportedVersion = "2025.4.20";
@@ -113,6 +113,7 @@ namespace TownOfHost
                 public static ConfigEntry<float> LastKillCooldown { get; private set; }
                 public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
                 public static ConfigEntry<bool> LastKickModClient { get; private set; }
+                public static bool UseingJapanese => ForceJapanese.Value || TranslationController.Instance.currentLanguage.languageID is SupportedLangs.Japanese;
                 public static OptionBackupData RealOptionsData;
                 public static Dictionary<byte, Vector2> AllPlayerLastkillpos = new();
                 public static Dictionary<byte, string> AllPlayerNames = new();

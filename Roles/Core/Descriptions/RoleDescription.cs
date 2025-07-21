@@ -242,7 +242,7 @@ public abstract class RoleDescription
             if (opt.Value.ValueFormat is not OptionFormat.None)
             {
                 //かっこの色がおかしくなるけどご愛敬。とると判定が狂って削除エラー吐く
-                tani = $"({Translator.GetString("Format." + opt.Value.ValueFormat).RemoveDeltext("{0").RemoveDeltext("}")})";
+                tani = $"({string.Format(Translator.GetString("Format." + opt.Value.ValueFormat), "")})";
             }
 
             sb.Append($"{opt.Value.GetName(true)}{tani}|{val}||\n");

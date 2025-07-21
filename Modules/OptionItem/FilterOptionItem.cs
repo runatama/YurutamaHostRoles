@@ -87,7 +87,7 @@ namespace TownOfHost
 
             if (role is CustomRoles.NotAssigned)
             {
-                return "未設定";
+                return Translator.GetString("Unsettled");
             }
 
             return UtilsRoleText.GetRoleColorAndtext(role);
@@ -98,7 +98,7 @@ namespace TownOfHost
 
             if (role is CustomRoles.NotAssigned)
             {
-                return "未設定";
+                return Translator.GetString("Unsettled");
             }
 
             return UtilsRoleText.GetRoleColorAndtext(role);

@@ -190,10 +190,10 @@ namespace TownOfHost
 
             if (Statistics.NowStatistics == null)
             {
-                return "オンラインでゲームをプレイすることで統計が加算されまス!";
+                return GetString("StatisticsError.Null");
             }
 
-            text += $"<size=60%>ゲーム数：{Statistics.NowStatistics.gamecount}";
+            text += $"<size=60%>{GetString("Statistics.GameCount")}：{Statistics.NowStatistics.gamecount}";
 
             var role = "";
             var wincount = 0;
@@ -206,8 +206,8 @@ namespace TownOfHost
                 role += $"\n{GetRoleColorAndtext(roledata.Key)}：{roledata.Value.Item2}/{roledata.Value.Item1}";
                 wincount += roledata.Value.Item2;
             }
-            text += $"\n勝利数：{wincount}";
-            if (role != "") text += $"\n★役職(勝/計)<size=50%>{role}</size>";
+            text += $"\n{GetString("Statistics.WinCount")}{wincount}";
+            if (role != "") text += $"\n★{GetString("Statistics.RoleWinCount")}<size=50%>{role}</size>";
 
             var kill = "";
             foreach (var killdata in Statistics.NowStatistics.Killcount)
@@ -215,7 +215,7 @@ namespace TownOfHost
                 if (killdata.Value == 0) continue;
                 kill += $"\n{GetString($"DeathReason.{killdata.Key}")} : {killdata.Value}";
             }
-            if (kill != "") text += $"\n★死因別のキル数<size=50%>{kill}</size>";
+            if (kill != "") text += $"\n★{GetString("Statistics.Killcount")}<size=50%>{kill}</size>";
 
             var die = "";
             foreach (var diedata in Statistics.NowStatistics.diecount)
@@ -223,11 +223,11 @@ namespace TownOfHost
                 if (diedata.Value == 0) continue;
                 die += $"\n{GetString($"DeathReason.{diedata.Key}")} : {diedata.Value}";
             }
-            if (die != "") text += $"\n★死因別のデス数<size=50%>{die}</size>";
+            if (die != "") text += $"\n★{GetString("Statistics.deadcount")}<size=50%>{die}</size>";
 
             var task = "";
-            task = $"\n・合計完了タスク数：{Statistics.NowStatistics.task.Item1}"
-            + $"\n・タスクを全て完了した回数：{Statistics.NowStatistics.task.Item2}";
+            task = $"\n・{GetString("Statistics.taskcount")}：{Statistics.NowStatistics.task.Item1}"
+            + $"\n・{GetString("Statistics.completetaskcount")}：{Statistics.NowStatistics.task.Item2}";
 
             return text + task;
         }
@@ -253,13 +253,13 @@ namespace TownOfHost
 
         public static string CheckAdd(bool InLoby)
         {
-            if (CustomWinnerHolder.WinnerTeam == CustomWinner.Default && !InLoby) return "廃村の為、統計されません";
+            if (CustomWinnerHolder.WinnerTeam == CustomWinner.Default && !InLoby) return GetString("StatisticsError.forceend");
 #if DEBUG
-            if (DebugModeManager.EnableDebugMode.GetBool() || DebugModeManager.EnableTOHkDebugMode.GetBool()) return "デバッグモードがONの為統計されませぬ";
+            if (DebugModeManager.EnableDebugMode.GetBool() || DebugModeManager.EnableTOHkDebugMode.GetBool()) return GetString("StatisticsError.Debug");
 #endif
-            if (GameStates.IsLocalGame) return "ローカルの為、統計されません";
-            if (UtilsGameLog.LastLogRole.Count <= 4 && !InLoby) return "人数不足の為、統計されません";
-            if (InLoby && AllPlayerControls.Count() <= 4) return "人数不足の為、統計されません\n又、暗転が起こる可能性が高いです。";
+            if (GameStates.IsLocalGame) return GetString("StatisticsError.Local");
+            if (UtilsGameLog.LastLogRole.Count <= 4 && !InLoby) return GetString("StatisticsError.insufficient");
+            if (InLoby && AllPlayerControls.Count() <= 4) return GetString("StatisticsError.insufficient") + GetString("LobbyError.insufficient");
 
             return "";
         }

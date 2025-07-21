@@ -53,7 +53,7 @@ namespace TownOfHost
                 button.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
 
                 text.DestroyTranslator();
-                text.text = "前回のコードを復元";
+                text.text = Translator.GetString("RestorCode");
 
                 button.OnClick = new();
                 button.OnClick.AddListener((Action)(() =>
@@ -78,7 +78,7 @@ namespace TownOfHost
                 button.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
 
                 text.DestroyTranslator();
-                text.text = "ホストのバージョンをダウンロード";
+                text.text = Translator.GetString("DownloadMod");
 
                 button.OnClick = new();
 
@@ -97,7 +97,7 @@ namespace TownOfHost
                 button.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
 
                 text.DestroyTranslator();
-                text.text = "MODをアンロードして参加";
+                text.text = Translator.GetString("UnloadMod");
 
                 button.OnClick = new();
                 button.OnClick.AddListener((Action)(() =>
@@ -182,7 +182,7 @@ namespace TownOfHost
                 {
                     VersionText.fontSize =
                     VersionText.fontSizeMin = 1f;
-                    VersionText.text = $"バージョンがホストと合致しません\nホストが使用しているバージョン<color=green>{hostVersion.forkId}v{hostVersion.version}</color>";
+                    VersionText.text = $"{Translator.GetString("Warning.MismatchedVersion")}\nHost→<color=green>{hostVersion.forkId}v{hostVersion.version}</color>";
                     var version = ModUpdater.snapshots.FirstOrDefault(x => hostVersion.version.ToString() == x.TagName.TrimStart('v')?.Trim('S')?.Trim('s'));
                     if (version != null)
                     {
@@ -198,7 +198,7 @@ namespace TownOfHost
             }
             else
             {
-                VersionText.text = $"ホストが<color={Main.ModColor}>{Main.ForkId}</color>を導入していません。";
+                VersionText.text = Translator.GetString("Warning.NoModHost");
             }
         }
 

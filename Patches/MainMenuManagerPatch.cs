@@ -273,7 +273,7 @@ namespace TownOfHost
                             i++;
                         }
                     },
-                    $"バージョン切り替え");
+                    Translator.GetString("versionchangebutton"));
                 betaversionchange.FontSize = 2;
             }
 

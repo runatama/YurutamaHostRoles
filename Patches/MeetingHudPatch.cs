@@ -287,11 +287,11 @@ public static class MeetingHudPatch
                 limittext = GetString("TimeLimit") + "<size=80%>";
 
                 var admins = Check(DisableDevice.GetAddminTimer(false));
-                if (admins is not "") admins = $"\nアドミンの{admins}";
+                if (admins is not "") admins = $"\n{GetString("Addmin")}{admins}";
                 var vitals = Check(DisableDevice.GetVitalTimer(false));
-                if (vitals is not "") vitals = $"\nバイタルの{vitals}";
+                if (vitals is not "") vitals = $"\n{GetString("Vital")}{vitals}";
                 var cams = Check(DisableDevice.GetCamTimr(false));
-                if (cams is not "") cams = $"\n{(Main.NormalOptions.MapId is 1 ? "ドアログ" : "カメラ")}の{cams}";
+                if (cams is not "") cams = $"\n{(Main.NormalOptions.MapId is 1 ? GetString("Doorlog") : GetString("Camera"))}:{cams}";
 
                 var lt = admins + vitals + cams;
 
@@ -321,9 +321,9 @@ public static class MeetingHudPatch
                     text = text.RemoveColorTags();
                     switch (text)
                     {
-                        case "×": text = "使用不可"; break;
+                        case "×": text = GetString("DeviceCantUse"); break;
                         case "": text = ""; break;
-                        default: text = $"残り時間{text}"; break;
+                        default: text = $"{GetString("LimitTime")}{text}"; break;
                     }
                     return text;
                 }
