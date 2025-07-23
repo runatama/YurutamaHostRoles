@@ -72,7 +72,7 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        OptionJumpcount = FloatOptionItem.Create(RoleInfo, 11, Option.JumperJumpcount, new(1f, 30f, 1f), 4f, false);
+        OptionJumpcount = IntegerOptionItem.Create(RoleInfo, 11, Option.JumperJumpcount, new(1, 30, 1), 4, false);
         OptionJumpDistance = IntegerOptionItem.Create(RoleInfo, 15, Option.JumperDistance, new(1, 3, 1), 1, false);
         OptionOnecooltime = FloatOptionItem.Create(RoleInfo, 12, Option.JumperOneCoolTime, new(0f, 180f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         OptionJumpcooltime = FloatOptionItem.Create(RoleInfo, 13, Option.JumperCCoolTime, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);

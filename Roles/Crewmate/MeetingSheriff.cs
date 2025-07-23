@@ -67,14 +67,14 @@ public sealed class MeetingSheriff : RoleBase
     }
     private static void SetupOptionItem()
     {
-        OptionSheriffShotLimit = FloatOptionItem.Create(RoleInfo, 10, Option.SheriffShotLimit, new(1f, 15f, 1f), 1f, false)
+        OptionSheriffShotLimit = IntegerOptionItem.Create(RoleInfo, 10, Option.SheriffShotLimit, new(1, 15, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 11, Option.cantaskcount, new(0, 99, 1), 5, false);
+        Optioncantaskcount = IntegerOptionItem.Create(RoleInfo, 11, Option.cantaskcount, new(0, 99, 1), 5, false);
         OptionMeetingSheriffCanKillMadMate = BooleanOptionItem.Create(RoleInfo, 12, Option.MeetingSheriffCanKillMadMate, true, false);
         OptionMeetingSheriffCanKillNeutrals = BooleanOptionItem.Create(RoleInfo, 13, Option.MeetingSheriffCanKillNeutrals, true, false);
         OptionMeetingSheriffCanKillLovers = BooleanOptionItem.Create(RoleInfo, 15, Option.SheriffCanKillLovers, true, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
+        Option1MeetingMaximum = IntegerOptionItem.Create(RoleInfo, 14, GeneralOption.MeetingMaxTime, new(0, 99, 1), 0, false)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
     }
     public override void Add() => AddSelfVotes(Player);
     private void SendRPC()

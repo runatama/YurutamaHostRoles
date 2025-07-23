@@ -224,13 +224,13 @@ public abstract class RoleDescription
             }
             if (opt.Value is FloatOptionItem floatOption)
             {
-                var i = opt.Value.Infinity;
+                var i = opt.Value.ZeroNotation;
                 var min = $"{floatOption.Rule.MinValue}";
                 var step = $"{floatOption.Rule.Step}";
-                if (i is not false)
+                if (i is not OptionZeroNotation.None)
                 {
-                    if (min == "0") min = i == true ? "∞" : "ー";
-                    if (step == "0") step = i == true ? "∞" : "ー";
+                    if (min == "0") min = i == OptionZeroNotation.Infinity ? "∞" : "ー";
+                    if (step == "0") step = i == OptionZeroNotation.Infinity ? "∞" : "ー";
                 }
 
                 val = $"{min}/{floatOption.Rule.MaxValue}/{step} ({opt.Value.GetFloat()})";

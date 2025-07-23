@@ -45,7 +45,7 @@ public sealed class Trapper : RoleBase
         OptionBlockMoveTime = FloatOptionItem.Create(RoleInfo, 10, OptionName.TrapperBlockMoveTime, new(1f, 180f, 1f), 5f, false)
             .SetValueFormat(OptionFormat.Seconds);
         Awakening = BooleanOptionItem.Create(RoleInfo, 11, GeneralOption.TaskAwakening, false, false);
-        AwakeningTask = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, Awakening);
+        AwakeningTask = IntegerOptionItem.Create(RoleInfo, 12, GeneralOption.AwakeningTaskcount, new(1, 255, 1), 5, false, Awakening);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {

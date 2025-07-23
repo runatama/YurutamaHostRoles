@@ -19,7 +19,7 @@ class Faction
         {
             if (SoloWinOption.AllData.ContainsKey(role))
             {
-                var option = BooleanOptionItem.Create(id++, "AssingroleType", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Faction).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Faction]).SetCansee(() => role.IsEnable());
+                var option = BooleanOptionItem.Create(id++, "AssingroleType", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Faction).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Faction]).SetEnabled(() => role.IsEnable());
                 option.ReplacementDictionary = new Dictionary<string, string> { { "%roletype%", UtilsRoleText.GetRoleColorAndtext(role) } };
 
                 if (!OptionRole.TryAdd(role, option))

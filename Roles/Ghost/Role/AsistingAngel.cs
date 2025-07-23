@@ -30,7 +30,7 @@ namespace TownOfHost.Roles.Ghost
             .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.AsistingAngel]).SetParentRole(CustomRoles.AsistingAngel);
             Guardtime = FloatOptionItem.Create(Id + 4, "AsistingAngelGuardtime", new(1f, 30f, 1f), 5f, TabGroup.GhostRoles, false)
                 .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.AsistingAngel]).SetParentRole(CustomRoles.AsistingAngel);
-            LimitDay = FloatOptionItem.Create(Id + 5, "AsistingAngelLimitDay", new(0f, 5f, 1f), 3f, TabGroup.GhostRoles, false)
+            LimitDay = IntegerOptionItem.Create(Id + 5, "AsistingAngelLimitDay", new(0, 5, 1), 3, TabGroup.GhostRoles, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.AsistingAngel]).SetParentRole(CustomRoles.AsistingAngel);
         }
         public static void Init()

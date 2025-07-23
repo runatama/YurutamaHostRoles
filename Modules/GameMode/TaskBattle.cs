@@ -185,11 +185,11 @@ class TaskBattle
         TaskBattleShowFastestPlayer = BooleanOptionItem.Create(200312, "TaskBattleShowFastestPlayer", false, TabGroup.MainSettings, false).SetGameMode(CustomGameMode.TaskBattle).SetParent(TaskBattleSet);
         TaskBattleTeamMode = BooleanOptionItem.Create(200313, "TaskBattleTeamMode", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
             .SetGameMode(CustomGameMode.TaskBattle);
-        TaskBattleTeamCount = FloatOptionItem.Create(200314, "TaskBattleTeamCount", new(1f, 15f, 1f), 2f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
+        TaskBattleTeamCount = IntegerOptionItem.Create(200314, "TaskBattleTeamCount", new(1, 15, 1), 2, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
             .SetGameMode(CustomGameMode.TaskBattle);
         TaskBattleTeamWinType = BooleanOptionItem.Create(200315, "TaskBattleTeamGameTaskComp", false, TabGroup.MainSettings, false).SetParent(TaskBattleTeamMode)
             .SetGameMode(CustomGameMode.TaskBattle);
-        TaskBattleTeamWinTaskc = FloatOptionItem.Create(200316, "TaskBattleTeamWinTaskc", new(1f, 999f, 1f), 20f, TabGroup.MainSettings, false).SetParent(TaskBattleTeamWinType)
+        TaskBattleTeamWinTaskc = IntegerOptionItem.Create(200316, "TaskBattleTeamWinTaskc", new(1, 999, 1), 20, TabGroup.MainSettings, false).SetParent(TaskBattleTeamWinType)
             .SetGameMode(CustomGameMode.TaskBattle);
         TaskSoroeru = BooleanOptionItem.Create(200318, "TaskSoroeru", false, TabGroup.MainSettings, false).SetParent(TaskBattleSet)
             .SetGameMode(CustomGameMode.TaskBattle);

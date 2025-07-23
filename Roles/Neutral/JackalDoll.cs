@@ -89,10 +89,10 @@ public sealed class JackalDoll : RoleBase
         OptionSideKickMaxmim = IntegerOptionItem.Create(RoleInfo, 9, Option.SideKickJackaldollMacCount, new(0, 15, 1), 1, false);
         OptionJackaldieMode = StringOptionItem.Create(RoleInfo, 10, Option.JackaldolldieMode, EnumHelper.GetAllNames<Diemode>(), 0, false);
         OptionChangeRole = StringOptionItem.Create(RoleInfo, 15, Option.JackaldollRoleChe, cRolesString, 3, false)
-        .SetCansee(() => OptionJackaldieMode.GetValue() is 2);
+        .SetEnabled(() => OptionJackaldieMode.GetValue() is 2);
         CanVent = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.CanVent, false, false);
         VentCool = FloatOptionItem.Create(RoleInfo, 17, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetValueFormat(OptionFormat.Seconds);
-        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentCooldown, new(0f, 180f, 0.5f), 0f, false, CanVent, true).SetValueFormat(OptionFormat.Seconds);
+        VentIntime = FloatOptionItem.Create(RoleInfo, 18, GeneralOption.EngineerInVentCooldown, new(0f, 180f, 0.5f), 0f, false, CanVent).SetZeroNotation(OptionZeroNotation.Infinity).SetValueFormat(OptionFormat.Seconds);
         CanVentMove = BooleanOptionItem.Create(RoleInfo, 19, "MadmateCanMovedByVent", false, false, CanVent);
         RoleAddAddons.Create(RoleInfo, 20, MadMate: true);
     }

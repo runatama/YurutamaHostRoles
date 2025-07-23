@@ -45,10 +45,10 @@ public sealed class GuardMaster : RoleBase
     private static void SetupOptionItem()
     {
         OptionCanSeeProtect = BooleanOptionItem.Create(RoleInfo, 10, OptionName.MadGuardianCanSeeWhoTriedToKill, true, false);
-        OptionAddGuardCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.AddGuardCount, new(1f, 99f, 1f), 1f, false)
+        OptionAddGuardCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.AddGuardCount, new(1, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskAwakening, false, false);
-        OptAwakeningTaskcount = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, OptAwakening);
+        OptAwakeningTaskcount = IntegerOptionItem.Create(RoleInfo, 13, GeneralOption.AwakeningTaskcount, new(1, 255, 1), 5, false, OptAwakening);
         OverrideTasksData.Create(RoleInfo, 20);
     }
     public override bool OnCheckMurderAsTarget(MurderInfo info)

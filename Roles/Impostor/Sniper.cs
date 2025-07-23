@@ -92,13 +92,13 @@ public sealed class Sniper : RoleBase, IImpostor
         SniperBulletCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SniperBulletCount, new(1, 99, 1), 2, false)
             .SetValueFormat(OptionFormat.Pieces);
         OpShapeCool = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
-        OpShapeDuration = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Duration, new(0f, 180f, 0.5f), 10f, false, infinity: true).SetValueFormat(OptionFormat.Seconds);
+        OpShapeDuration = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Duration, new(0f, 180f, 0.5f), 10f, false).SetZeroNotation(OptionZeroNotation.Infinity).SetValueFormat(OptionFormat.Seconds);
         SniperPrecisionShooting = BooleanOptionItem.Create(RoleInfo, 13, OptionName.SniperPrecisionShooting, false, false);
         SniperAimAssist = BooleanOptionItem.Create(RoleInfo, 14, OptionName.SniperAimAssist, false, false);
         SniperAimAssistOnshot = BooleanOptionItem.Create(RoleInfo, 15, OptionName.SniperAimAssistOneshot, false, false, SniperAimAssist);
         OpCanShape = BooleanOptionItem.Create(RoleInfo, 16, OptionName.SniperCanShapeshift, false, false);
         OpCankill = BooleanOptionItem.Create(RoleInfo, 17, OptionName.SniperCanKill, true, false);
-        OpShowArrowTime = FloatOptionItem.Create(RoleInfo, 18, OptionName.SniperShowArrowTime, new(0f, 60f, 1f), 10f, false, infinity: null).SetValueFormat(OptionFormat.Seconds);
+        OpShowArrowTime = FloatOptionItem.Create(RoleInfo, 18, OptionName.SniperShowArrowTime, new(0f, 60f, 1f), 10f, false).SetZeroNotation(OptionZeroNotation.Hyphen).SetValueFormat(OptionFormat.Seconds);
         OpFriendlyFire = BooleanOptionItem.Create(RoleInfo, 19, OptionName.SniperFriendlyFire, true, false);
     }
     public override void ApplyGameOptions(IGameOptions opt)

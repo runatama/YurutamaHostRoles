@@ -68,11 +68,11 @@ public sealed class ShrineMaiden : RoleBase
 
     private static void SetupOptionItem()
     {
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, infinity: true)
+        Optioncantaskcount = IntegerOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        Option1MeetingMaximum = IntegerOptionItem.Create(RoleInfo, 15, GeneralOption.MeetingMaxTime, new(0, 99, 1), 0, false)
             .SetValueFormat(OptionFormat.Times);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.AbilityAwakening, false, false);
     }

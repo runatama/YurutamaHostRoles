@@ -74,12 +74,12 @@ public sealed class MadTeller : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         Optioncollect = FloatOptionItem.Create(RoleInfo, 10, Option.TellerCollectRect, new(0f, 100f, 2f), 100f, false)
             .SetValueFormat(OptionFormat.Percent);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.TellRole, true, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
+        Option1MeetingMaximum = IntegerOptionItem.Create(RoleInfo, 14, GeneralOption.MeetingMaxTime, new(0, 99, 1), 0, false)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
         OptionTaskTrigger = IntegerOptionItem.Create(RoleInfo, 15, GeneralOption.TaskTrigger, new(0, 99, 1), 1, false).SetValueFormat(OptionFormat.Pieces);
         OverrideTasksData.Create(RoleInfo, 20);
     }

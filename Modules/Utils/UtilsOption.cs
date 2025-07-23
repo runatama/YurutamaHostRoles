@@ -431,7 +431,7 @@ namespace TownOfHost
         {
             foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
             {
-                if (!opt.Value.Setcansee()) continue;
+                if (!opt.Value.IsEnabled()) continue;
                 if (!opt.Value.GetBool())
                 {
                     switch (opt.Value.Name)

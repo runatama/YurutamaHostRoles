@@ -42,9 +42,9 @@ public static class Guesser
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Guesser, fromtext: "<color=#000000>From:</color><color=#ff0000>The Other Roles</color></size>");
         AddOnsAssignData.Create(Id + 10, CustomRoles.Guesser, true, true, true, true);
         //共通設定
-        CanGuessTime = FloatOptionItem.Create(Id + 49, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
+        CanGuessTime = IntegerOptionItem.Create(Id + 49, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
                 .SetValueFormat(OptionFormat.Players).SetParentRole(CustomRoles.Guesser);
-        OwnCanGuessTime = FloatOptionItem.Create(Id + 50, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
+        OwnCanGuessTime = IntegerOptionItem.Create(Id + 50, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
                 .SetValueFormat(OptionFormat.Players).SetParentRole(CustomRoles.Guesser);
         //クルーメイト
         Crewmateset = BooleanOptionItem.Create(Id + 52, "Cremateset", true, TabGroup.Addons, false).SetParentRole(CustomRoles.Guesser).SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);

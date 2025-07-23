@@ -65,7 +65,7 @@ public sealed class ProBowler : RoleBase, IImpostor
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, OptionBaseCoolTime, 20f, false).SetValueFormat(OptionFormat.Seconds);
         OptionAbilityCoolDown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 25f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionMaxUseCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.ProBowlerMaxUseCount, new(0, 99, 1), 4, false);
+        OptionMaxUseCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.ProBowlerMaxUseCount, new(1, 99, 1), 4, false);
         OptionBowling = BooleanOptionItem.Create(RoleInfo, 13, OptionName.ProBowlerBowling, true, false);
         OptionDeathReasonIsFall = BooleanOptionItem.Create(RoleInfo, 14, OptionName.ProBowlerDeathReasonIsFall, false, false);
     }

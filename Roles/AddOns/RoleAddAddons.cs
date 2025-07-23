@@ -80,10 +80,10 @@ namespace TownOfHost
             GiveAddons = BooleanOptionItem.Create(idStart++, "addaddons", DefaaultOn || NeutralKiller, tab, false).SetParent(Options.CustomRoleSpawnChances[role]).SetParentRole(role)
                     .SetValueFormat(OptionFormat.None).SetParentRole(role);
             GiveGuesser = BooleanOptionItem.Create(idStart++, "GiveGuesser", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
-            CanGuessTime = FloatOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser).SetParentRole(role)
+            CanGuessTime = IntegerOptionItem.Create(idStart++, "CanGuessTime", new(1, 15, 1), 3, tab, false).SetParent(GiveGuesser).SetParentRole(role)
                 .SetValueFormat(OptionFormat.Players);
             AddShotLimit = BooleanOptionItem.Create(idStart++, "AddShotLimit", false, tab, false).SetParent(GiveGuesser).SetParentRole(role);
-            OwnCanGuessTime = FloatOptionItem.Create(idStart++, "OwnCanGuessTime", new(1, 15, 1), 1, tab, false).SetParent(GiveGuesser).SetParentRole(role)
+            OwnCanGuessTime = IntegerOptionItem.Create(idStart++, "OwnCanGuessTime", new(1, 15, 1), 1, tab, false).SetParent(GiveGuesser).SetParentRole(role)
                     .SetValueFormat(OptionFormat.Players);
             ICanGuessVanilla = BooleanOptionItem.Create(idStart++, "CanGuessVanilla", true, tab, false).SetParent(GiveGuesser).SetParentRole(role);
             ICanGuessNakama = BooleanOptionItem.Create(idStart++, "CanGuessNakama", true, tab, false).SetParent(GiveGuesser).SetParentRole(role);
@@ -103,7 +103,7 @@ namespace TownOfHost
             GiveSpeeding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding).SetParentRole(role);
             GiveGuarding = BooleanOptionItem.Create(idStart++, "GiveGuarding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
-            Guard = FloatOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding).SetParentRole(role);
+            Guard = IntegerOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding).SetParentRole(role);
             GiveManagement = BooleanOptionItem.Create(idStart++, "GiveManagement", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             PercentGage = BooleanOptionItem.Create(idStart++, "PercentGage", false, tab, false).SetParent(GiveManagement).SetParentRole(role);
             RoughPercentage = BooleanOptionItem.Create(idStart++, "RoughPercentage", false, tab, false).SetParent(PercentGage).SetParentRole(role);

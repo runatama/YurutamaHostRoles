@@ -37,8 +37,8 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     public static bool CanVent;
     static OptionItem RandomRepo;
     static OptionItem ImpRepo;
-    static OptionItem Chien;
-    static OptionItem Saiaichien;
+    static OptionItem OptionReportDelay;
+    static OptionItem OptionMaxReportDelay;
     public static OptionItem OptionCanVent;
     enum Option
     {
@@ -52,8 +52,8 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
     {
         RandomRepo = BooleanOptionItem.Create(RoleInfo, 10, Option.MadBaitRandomReport, true, false);
         ImpRepo = BooleanOptionItem.Create(RoleInfo, 11, Option.MadBaitIgnoreImpostor, false, false, RandomRepo);
-        Chien = FloatOptionItem.Create(RoleInfo, 12, Option.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
-        Saiaichien = FloatOptionItem.Create(RoleInfo, 13, Option.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionReportDelay = FloatOptionItem.Create(RoleInfo, 12, Option.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
+        OptionMaxReportDelay = FloatOptionItem.Create(RoleInfo, 13, Option.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
 
     }
@@ -63,23 +63,23 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         var (killer, target) = info.AttemptTuple;
 
         var tien = 0f;
-        if (Saiaichien.GetFloat() != 0)
+        if (OptionMaxReportDelay.GetFloat() != 0)
         {
-            int ti = IRandom.Instance.Next(0, (int)Saiaichien.GetFloat() * 10);
+            int ti = IRandom.Instance.Next(0, (int)OptionMaxReportDelay.GetFloat() * 10);
             tien = ti * 0.1f;
             Logger.Info($"{tien}sの追加遅延発生!!", "Bait");
         }
         var killerrole = killer.GetCustomRole();
 
         if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && (!killerrole.IsImpostor() || killerrole == CustomRoles.WolfBoy))
-            _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f + Chien.GetFloat() + tien, "MadBait Self Report");
+            _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f + OptionReportDelay.GetFloat() + tien, "MadBait Self Report");
         else if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && RandomRepo.GetBool())
         {
             var nise = PlayerCatch.AllAlivePlayerControls.Where(x => !x.GetCustomRole().IsImpostor() && !x.Is(CustomRoles.WolfBoy)).ToArray();
             if (!ImpRepo.GetBool()) nise = PlayerCatch.AllAlivePlayerControls.ToArray();
             var rand = IRandom.Instance;
             var P = nise[rand.Next(0, nise.Length)];
-            _ = new LateTask(() => P.CmdReportDeadBody(target.Data), 0.15f + Chien.GetFloat() + tien, "Bait Self Report");
+            _ = new LateTask(() => P.CmdReportDeadBody(target.Data), 0.15f + OptionReportDelay.GetFloat() + tien, "Bait Self Report");
         }
     }
 }

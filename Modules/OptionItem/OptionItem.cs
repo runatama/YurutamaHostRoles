@@ -31,13 +31,12 @@ namespace TownOfHost
         public Color NameColor { get; protected set; }
         public string NameColorCode { get; protected set; }
         public string Fromtext { get; protected set; }
-        /// <summary>true→0が∞ false→通常 null→ 0がー</summary>
-        public bool? Infinity { get; protected set; }
+        public OptionZeroNotation ZeroNotation { get; protected set; }
         public OptionFormat ValueFormat { get; protected set; }
         public CustomGameMode GameMode { get; protected set; }
         public bool IsHeader { get; protected set; }
         public bool IsHidden { get; protected set; }
-        public Func<bool> Setcansee { get; protected set; }
+        public Func<bool> IsEnabled { get; protected set; }
         public bool HideValue { get; protected set; }
         public CustomRoles CustomRole { get; protected set; }
         public CustomRoles ParentRole { get; protected set; }
@@ -74,7 +73,7 @@ namespace TownOfHost
         // - 直接的な呼び出し
         public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
-        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false, bool? infinity = false)
+        public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string From = "", bool hidevalue = false)
         {
             // 必須情報の設定
             Id = id;
@@ -92,8 +91,8 @@ namespace TownOfHost
             GameMode = CustomGameMode.All;
             IsHeader = false;
             IsHidden = false;
-            Setcansee = () => true;
-            Infinity = infinity;
+            IsEnabled = () => true;
+            ZeroNotation = OptionZeroNotation.None;
             parented = false;
             CustomRole = CustomRoles.NotAssigned;
             ParentRole = CustomRoles.NotAssigned;
@@ -145,8 +144,9 @@ namespace TownOfHost
         public OptionItem SetHeader(bool value) => Do(i => i.IsHeader = value);
         public OptionItem SetCustomRole(CustomRoles role) => Do(i => i.CustomRole = role);
         public OptionItem SetHidden(bool value) => Do(i => i.IsHidden = value);
-        public OptionItem SetCansee(Func<bool> value) => Do(i => i.Setcansee = value);
+        public OptionItem SetEnabled(Func<bool> value) => Do(i => i.IsEnabled = value);
         public OptionItem SetInfo(string value) => Do(i => i.Fromtext = "<line-height=25%><size=25%>\n</size><size=60%></color> <b>" + value + "</b></size>");
+        public OptionItem SetZeroNotation(OptionZeroNotation value) => Do(i => i.ZeroNotation = value);
 
         public OptionItem SetParent(OptionItem parent) => Do(i =>
         {
@@ -213,9 +213,9 @@ namespace TownOfHost
         // 旧IsHidden関数
         public virtual bool IsHiddenOn(CustomGameMode mode)
         {
-            if (Setcansee == null) return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
+            if (IsEnabled == null) return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
 
-            return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode) || !Setcansee();
+            return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode) || !IsEnabled();
         }
 
         public string ApplyFormat(string value)
@@ -223,7 +223,12 @@ namespace TownOfHost
             if (value == "-0") value = "0";
             if (value == "0")
             {
-                if (Infinity != false) return Infinity == true ? "∞" : "<b>―</b>";
+                switch (ZeroNotation)
+                {
+                    case OptionZeroNotation.Infinity: return "∞";
+                    case OptionZeroNotation.Hyphen: return "―";
+                    default: break;
+                }
             }
             if (ValueFormat == OptionFormat.None) return value;
             if (CustomRole is not CustomRoles.NotAssigned)
@@ -384,5 +389,11 @@ namespace TownOfHost
         Pieces,
         day,
         Set
+    }
+    public enum OptionZeroNotation
+    {
+        None,
+        Infinity,
+        Hyphen
     }
 }

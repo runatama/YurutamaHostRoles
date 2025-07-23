@@ -71,7 +71,7 @@ public sealed class Madonna : RoleBase
     {
         SoloWinOption.Create(RoleInfo, 9, CustomRoles.MadonnaLovers, () => !MadonnaLoverAddwin.GetBool(), defo: 13);
         var cRolesString = ChangeRoles.Select(x => x.ToString()).ToArray();
-        Optionlimit = FloatOptionItem.Create(RoleInfo, 10, Option.Madonnalimit, new(1f, 10f, 1f), 3f, false).SetValueFormat(OptionFormat.day);
+        Optionlimit = IntegerOptionItem.Create(RoleInfo, 10, Option.Madonnalimit, new(1, 10, 1), 3, false).SetValueFormat(OptionFormat.day);
         OptionLoverChenge = StringOptionItem.Create(RoleInfo, 11, Option.MadonnaFallChenge, cRolesString, 4, false);
         MadonnaLoverAddwin = BooleanOptionItem.Create(RoleInfo, 12, Option.LoversRoleAddwin, false, false);
         MaLoversSolowin3players = BooleanOptionItem.Create(RoleInfo, 13, Option.LoverSoloWin3players, false, false);

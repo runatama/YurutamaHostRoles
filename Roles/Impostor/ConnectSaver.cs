@@ -56,7 +56,7 @@ public sealed class ConnectSaver : RoleBase, IImpostor
     };
     enum OptionName
     {
-        ConnectSaverPlayerusedcount, ConnectSaverDeathReason, ConnectSaverTageKillCooldown
+        ConnectSaverPlayerCount, ConnectSaverDeathReason, ConnectSaverTageKillCooldown
     }
     private static void SetupOptionItem()
     {
@@ -64,8 +64,8 @@ public sealed class ConnectSaver : RoleBase, IImpostor
 
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 9, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 30f, false).SetValueFormat(OptionFormat.Seconds);
         OptionTageKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, OptionName.ConnectSaverTageKillCooldown, new(0f, 180f, 0.5f), 40f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.OptionCount, new(1f, 99f, 1f), 1f, false).SetValueFormat(OptionFormat.Times);
-        OptionMinimumPlayerCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.ConnectSaverPlayerusedcount, new(0, 15, 1), 6, false).SetValueFormat(OptionFormat.Players);
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 11, GeneralOption.OptionCount, new(1, 99, 1), 1, false).SetValueFormat(OptionFormat.Times);
+        OptionMinimumPlayerCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.ConnectSaverPlayerCount, new(0, 15, 1), 6, false).SetValueFormat(OptionFormat.Players);
         OptionDeathReason = StringOptionItem.Create(RoleInfo, 13, OptionName.ConnectSaverDeathReason, cRolesString, 3, false);
     }
     public override void Add() => AddSelfVotes(Player);

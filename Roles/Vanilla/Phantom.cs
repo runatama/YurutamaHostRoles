@@ -28,8 +28,8 @@ public sealed class Phantom : RoleBase, IImpostor
     {
         PhantomCooldown = FloatOptionItem.Create(RoleInfo, 43, "PhantomCooldown", new(0f, 180f, 2.5f), 15f, false)
         .SetValueFormat(OptionFormat.Seconds);
-        PhantomDuration = FloatOptionItem.Create(RoleInfo, 44, "PhantomDuration", new(0f, 180f, 2.5f), 5f, false, infinity: true)
-                .SetValueFormat(OptionFormat.Seconds);
+        PhantomDuration = FloatOptionItem.Create(RoleInfo, 44, "PhantomDuration", new(0f, 180f, 2.5f), 5f, false)
+                .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

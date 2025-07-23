@@ -7,6 +7,7 @@ namespace TownOfHost.Roles.Impostor;
 
 public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
 {
+    //Memo:回数0時無限にする
     public static readonly SimpleRoleInfo RoleInfo =
         SimpleRoleInfo.Create(
             typeof(EarnestWolf),
@@ -51,7 +52,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     static void SetupOptionItem()
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionOverKillCanCount = FloatOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0f, 15f, 1f), 2f, false).SetValueFormat(OptionFormat.Times);
+        OptionOverKillCanCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0, 15, 1), 2, false).SetValueFormat(OptionFormat.Times);
         OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(0.25f, 10f, 0.01f), 1.05f, false).SetValueFormat(OptionFormat.Multiplier);
         OptionNomalKillDistance = StringOptionItem.Create(RoleInfo, 13, OptionName.EarnestWolfNomalKllDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
         OptionOverKillDistance = StringOptionItem.Create(RoleInfo, 14, OptionName.EarnestWolfOverKillDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 2, false);

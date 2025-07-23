@@ -65,7 +65,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 ImpostorAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
                     .SetParent(ImpostorFixedRole).SetParentRole(role);
                 ImpostorAssignTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, imp: true, notassing: InvalidRoles)
-                    .SetParent(ImpostorFixedRole).SetParentRole(role).SetCansee(() => ImpostorAssignTarget.GetBool());
+                    .SetParent(ImpostorFixedRole).SetParentRole(role).SetEnabled(() => ImpostorAssignTarget.GetBool());
             }
             if (assignMadmate)
             {
@@ -85,7 +85,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 NeutralAssignTarget = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, neu: true, notassing: InvalidRoles)
                     .SetParent(NeutralFixedRole).SetParentRole(role);
                 NeutralAssingTarget2 = (FilterOptionItem)FilterOptionItem.Create(idStart++, "Role", 0, TabGroup.Addons, false, neu: true, notassing: InvalidRoles)
-                    .SetParent(NeutralFixedRole).SetParentRole(role).SetCansee(() => NeutralAssignTarget.GetBool());
+                    .SetParent(NeutralFixedRole).SetParentRole(role).SetEnabled(() => NeutralAssignTarget.GetBool());
             }
 
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);

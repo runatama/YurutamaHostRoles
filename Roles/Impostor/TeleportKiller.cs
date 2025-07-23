@@ -100,10 +100,10 @@ public sealed class TeleportKiller : RoleBase, IImpostor
             .SetValueFormat(OptionFormat.Seconds);
         OptionCoolDown = FloatOptionItem.Create(RoleInfo, 11, OptionName.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionmMaximum = FloatOptionItem.Create(RoleInfo, 12, OptionName.TeleportKillerMaximum, new(0f, 999, 1f), 0f, false, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
-        OptionDuration = FloatOptionItem.Create(RoleInfo, 13, OptionName.Duration, new(0f, 15, 1f), 5f, false, infinity: true)
-            .SetValueFormat(OptionFormat.Seconds);
+        OptionmMaximum = IntegerOptionItem.Create(RoleInfo, 12, OptionName.TeleportKillerMaximum, new(0, 999, 1), 2, false)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
+        OptionDuration = FloatOptionItem.Create(RoleInfo, 13, OptionName.Duration, new(0f, 15, 1f), 5f, false)
+            .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
         OptionTeleportKillerFall = BooleanOptionItem.Create(RoleInfo, 14, OptionName.TeleportKillerFall, false, false);
         OptionTeleportKillerVentgaaa = BooleanOptionItem.Create(RoleInfo, 15, OptionName.TeleportKillerVentgaaa, false, false, OptionTeleportKillerFall);
         OptionTeleportKillerPlatformFall = BooleanOptionItem.Create(RoleInfo, 16, OptionName.TeleportKillerPlatformFall, false, false, OptionTeleportKillerFall);

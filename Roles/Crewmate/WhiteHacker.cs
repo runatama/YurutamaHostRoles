@@ -61,15 +61,15 @@ public sealed class WhiteHacker : RoleBase
 
     private static void SetupOptionItem()
     {
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        Optioncantaskcount = IntegerOptionItem.Create(RoleInfo, 10, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
         CanUseTrackAbility = BooleanOptionItem.Create(RoleInfo, 13, Option.WhiteHackerCanUseTrackAbility, false, false);
         TrackerCooldown = FloatOptionItem.Create(RoleInfo, 14, "TrackerCooldown", new(0f, 180f, 0.5f), 15f, false, CanUseTrackAbility)
         .SetValueFormat(OptionFormat.Seconds);
         TrackerDelay = FloatOptionItem.Create(RoleInfo, 15, "TrackerDelay", new(0f, 180f, 0.5f), 5f, false, CanUseTrackAbility)
                 .SetValueFormat(OptionFormat.Seconds);
-        TrackerDuration = FloatOptionItem.Create(RoleInfo, 16, "TrackerDuration", new(0f, 180f, 1f), 5f, false, CanUseTrackAbility, true)
-                .SetValueFormat(OptionFormat.Seconds);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.WhiteHackerTrackTimes, new(1f, 99f, 1f), 1f, false)
+        TrackerDuration = FloatOptionItem.Create(RoleInfo, 16, "TrackerDuration", new(0f, 180f, 1f), 5f, false, CanUseTrackAbility)
+                .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 11, Option.WhiteHackerTrackTimes, new(1, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.AbilityAwakening, false, false);
     }

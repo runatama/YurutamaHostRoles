@@ -33,12 +33,12 @@ public sealed class Psychic : RoleBase
     }
     public override void Add()
     {
-        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskCount.GetInt() < 1;
+        Awakened = !OptAwakening.GetBool();
 
         Psychics.Add(this);
     }
     static OptionItem OptAwakening;
-    static OptionItem OptAwakeningTaskCount;
+    static OptionItem OptAwakeningTaskcount;
     static OptionItem OptionCallRate;
     static OptionItem OptionTaskAddRate;
     static float callrate;
@@ -55,11 +55,11 @@ public sealed class Psychic : RoleBase
         OptionCallRate = FloatOptionItem.Create(RoleInfo, 12, OptionName.PsychicCallRate, new(0, 100, 1), 50, false).SetValueFormat(OptionFormat.Percent);
         OptionTaskAddRate = BooleanOptionItem.Create(RoleInfo, 13, OptionName.PsychicTaskAddrate, false, false);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskAwakening, false, false);
-        OptAwakeningTaskCount = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, OptAwakening);
+        OptAwakeningTaskcount = IntegerOptionItem.Create(RoleInfo, 14, GeneralOption.AwakeningTaskcount, new(1, 255, 1), 5, false, OptAwakening);
     }
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskCount.GetInt()))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskcount.GetInt()))
         {
             if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))

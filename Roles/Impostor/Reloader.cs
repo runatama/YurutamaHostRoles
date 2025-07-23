@@ -52,7 +52,7 @@ public sealed class Reloader : RoleBase, IImpostor, IUsePhantomButton
             .SetValueFormat(OptionFormat.Seconds);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.ReloaderCount, new(1, 15, 1), 2, false);
+        OptionCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.ReloaderCount, new(1, 15, 1), 2, false);
     }
     public bool UseOneclickButton => true;
     public override void ApplyGameOptions(IGameOptions opt) => AURoleOptions.PhantomCooldown = Count > 0 ? Cooldown : 200f;

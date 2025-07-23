@@ -58,8 +58,8 @@ public sealed class AntiReporter : RoleBase, IImpostor, IUsePhantomButton
         OptionMax = IntegerOptionItem.Create(RoleInfo, 11, OptionName.AntiReporterMaximum, new(1, 1000, 1), 3, false)
             .SetValueFormat(OptionFormat.Times);
         OptionAntiReporterResetMeeting = BooleanOptionItem.Create(RoleInfo, 12, OptionName.AntiReporterResetMeeting, true, false);
-        OptionAntiReporterResetse = FloatOptionItem.Create(RoleInfo, 13, OptionName.AntiReporterResetse, new(0f, 999f, 1f), 20f, false, infinity: true)
-            .SetValueFormat(OptionFormat.Seconds);
+        OptionAntiReporterResetse = IntegerOptionItem.Create(RoleInfo, 13, OptionName.AntiReporterResetse, new(0, 999, 1), 20, false)
+            .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
     }
     private void SendRPC()
     {

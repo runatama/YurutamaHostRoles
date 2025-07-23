@@ -87,14 +87,14 @@ public sealed class AmateurTeller : RoleBase
     }
     private static void SetupOptionItem()
     {
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.TellMaximum, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 10, Option.TellMaximum, new(1, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 12, Option.TellRole, true, false);
         TargetCanseePlayer = BooleanOptionItem.Create(RoleInfo, 13, Option.AmateurTellerTargetCanseePlayer, true, false);
         TargetCanseeArrow = BooleanOptionItem.Create(RoleInfo, 14, Option.AmateurTellerTargetCanseeArrow, true, false, TargetCanseePlayer);
         AbilityUseTurnCanButton = BooleanOptionItem.Create(RoleInfo, 15, Option.AmateurTellerCanUseAbilityTurnButton, true, false);
-        OptionCanTaskcount = FloatOptionItem.Create(RoleInfo, 16, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
+        OptionCanTaskcount = IntegerOptionItem.Create(RoleInfo, 16, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 17, GeneralOption.AbilityAwakening, false, false);
     }
     public override bool NotifyRolesCheckOtherName => true;

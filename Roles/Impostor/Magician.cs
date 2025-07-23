@@ -76,8 +76,8 @@ public sealed class Magician : RoleBase, IImpostor, IUsePhantomButton
     {
         OptionMagicCooldown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.Cooldown, new FloatValueRule(0, 120, 1), 15, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.MagicianMaximum, new FloatValueRule(0, 99, 1), 3, false, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 11, Option.MagicianMaximum, new(0, 99, 1), 3, false)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
         OptionRadius = FloatOptionItem.Create(RoleInfo, 12, Option.MagicianRadius, new(0.5f, 3f, 0.5f), 1.5f, false)
             .SetValueFormat(OptionFormat.Multiplier);
         OptionMagicUseKillCount = IntegerOptionItem.Create(RoleInfo, 13, Option.MagicianMagicUseKillCount, new(0, 99, 1), 1, false)

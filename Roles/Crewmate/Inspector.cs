@@ -29,7 +29,7 @@ public sealed class Inspector : RoleBase
         player
     )
     {
-        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskcount.GetInt() < 1;
+        Awakened = !OptAwakening.GetBool();
         Max = OptionMaximum.GetInt();
         count = 0;
         TargetPlayerId = byte.MaxValue;
@@ -66,11 +66,11 @@ public sealed class Inspector : RoleBase
     public override void Add() => AddSelfVotes(Player);
     private static void SetupOptionItem()
     {
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.OptionCount, new(1f, 99f, 1f), 1f, false)
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 10, GeneralOption.OptionCount, new(1, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 11, OptionName.InspectVoteMode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.TaskAwakening, false, false);
-        OptAwakeningTaskcount = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.AwakeningTaskcount, new(1f, 99f, 1f), 5f, false, OptAwakening);
+        OptAwakeningTaskcount = IntegerOptionItem.Create(RoleInfo, 13, GeneralOption.AwakeningTaskcount, new(1, 255, 1), 5, false, OptAwakening);
     }
     public override void OnFixedUpdate(PlayerControl player)
     {

@@ -41,10 +41,10 @@ namespace TownOfHost.Roles.AddOns.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastImpostor);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParentRole(CustomRoles.LastImpostor).SetParent(CustomRoleSpawnChances[CustomRoles.LastImpostor]);
-            CanGuessTime = FloatOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor)
+            CanGuessTime = IntegerOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor)
                 .SetValueFormat(OptionFormat.Players);
             AddShotLimit = BooleanOptionItem.Create(Id + 9, "AddShotLimit", false, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor);
-            OwnCanGuessTime = FloatOptionItem.Create(Id + 13, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor)
+            OwnCanGuessTime = IntegerOptionItem.Create(Id + 13, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor)
                     .SetValueFormat(OptionFormat.Players);
             ICanGuessVanilla = BooleanOptionItem.Create(Id + 15, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor);
             ICanGuessNakama = BooleanOptionItem.Create(Id + 16, "CanGuessNakama", true, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastImpostor);

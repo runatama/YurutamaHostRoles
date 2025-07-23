@@ -126,7 +126,7 @@ namespace TownOfHost
             if (tab is TabGroup.MainSettings)
             {
                 OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
-                .SetCansee(show)
+                .SetEnabled(show)
                 .SetColor(UtilsRoleText.GetRoleColor(role));
             }
             else
@@ -134,7 +134,7 @@ namespace TownOfHost
                 OptionWin = IntegerOptionItem.Create(IdStart, "SoloWinOption", new(0, 50, 1), defo, tab, false)
                 .SetParent(CustomRoleSpawnChances[role])
                 .SetParentRole(role)
-                .SetCansee(show);
+                .SetEnabled(show);
             }
             OptionWin.ReplacementDictionary = replacementDic;
 

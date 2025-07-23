@@ -94,17 +94,17 @@ public sealed class PonkotuTeller : RoleBase
         Optioncollect = FloatOptionItem.Create(RoleInfo, 10, Option.TellerCollectRect, new(0f, 100f, 2f), 70f, false)
             .SetValueFormat(OptionFormat.Percent);
         OptionNonAlignFortuneTeller = BooleanOptionItem.Create(RoleInfo, 17, Option.PonkotuTellerFTOption, true, false);
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1f, 99f, 1f), 1f, false, OptionNonAlignFortuneTeller)
+        OptionMaximum = IntegerOptionItem.Create(RoleInfo, 11, Option.TellMaximum, new(1, 99, 1), 1, false, OptionNonAlignFortuneTeller)
             .SetValueFormat(OptionFormat.Times);
         OptionVoteMode = StringOptionItem.Create(RoleInfo, 12, Option.AbilityVotemode, EnumHelper.GetAllNames<AbilityVoteMode>(), 1, false, OptionNonAlignFortuneTeller);
         Optionrolename = BooleanOptionItem.Create(RoleInfo, 19, Option.TellerCanSeeRolename, true, false, OptionNonAlignFortuneTeller);
         OptionRole = BooleanOptionItem.Create(RoleInfo, 13, Option.TellRole, true, false, OptionNonAlignFortuneTeller);
-        Optioncantaskcount = FloatOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false, OptionNonAlignFortuneTeller);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 15, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, OptionNonAlignFortuneTeller, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
+        Optioncantaskcount = IntegerOptionItem.Create(RoleInfo, 14, GeneralOption.cantaskcount, new(0, 99, 1), 5, false, OptionNonAlignFortuneTeller);
+        Option1MeetingMaximum = IntegerOptionItem.Create(RoleInfo, 15, GeneralOption.MeetingMaxTime, new(0, 99, 1), 0, false, OptionNonAlignFortuneTeller)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 16, GeneralOption.AbilityAwakening, false, false, OptionNonAlignFortuneTeller);
         MeisFT = BooleanOptionItem.Create(RoleInfo, 18, Option.PonkotuTellerMyisFT, false, false);
-        OptionDontChengeGame = BooleanOptionItem.Create(RoleInfo, 20, Option.PonkotuDontChengeGame, false, true);
+        OptionDontChengeGame = BooleanOptionItem.Create(RoleInfo, 20, Option.PonkotuDontChengeGame, false, false);
     }
     public override void Add() => AddSelfVotes(Player);
     private void SendRPC()

@@ -59,7 +59,7 @@ namespace TownOfHost.Roles.Impostor
         {
             OptionKillDelay = FloatOptionItem.Create(RoleInfo, 10, OptionName.BomberKillDelay, new(1f, 1000f, 1f), 10f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionBlastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(1f, 30f, 0.5f), 1f, false).SetValueFormat(OptionFormat.Multiplier);
+            OptionBlastrange = FloatOptionItem.Create(RoleInfo, 11, OptionName.blastrange, new(0.5f, 30f, 0.5f), 1f, false).SetValueFormat(OptionFormat.Multiplier);
             OptionBomberExplosion = IntegerOptionItem.Create(RoleInfo, 12, OptionName.BomberExplosion, new(1, 99, 1), 2, false);
             OptionCooldown = FloatOptionItem.Create(RoleInfo, 13, GeneralOption.Cooldown, new(0f, 999f, 0.5f), 15f, false).SetValueFormat(OptionFormat.Seconds);
         }

@@ -54,7 +54,7 @@ public sealed class Shyboy : RoleBase
         OptionShytime = FloatOptionItem.Create(RoleInfo, 10, OptionName.ShyboyShytime, new(0f, 15f, 0.5f), 5f, false);
         OptionNotShy = FloatOptionItem.Create(RoleInfo, 11, OptionName.ShyboyAfterMeetingNotShytime, new(0f, 30f, 1f), 10f, false);
         OptionShyDieBom = BooleanOptionItem.Create(RoleInfo, 12, OptionName.ShyboyBooooom, false, false)
-        .SetInfo(GetString("AprilfoolOnly")).SetCansee(() => Event.April || Event.Special);
+        .SetInfo(GetString("AprilfoolOnly")).SetEnabled(() => Event.April || Event.Special);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

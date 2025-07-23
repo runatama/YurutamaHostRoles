@@ -54,7 +54,7 @@ public sealed class Curser : RoleBase, IImpostor
             .SetValueFormat(OptionFormat.Seconds);
         OptionCooldown = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.Cooldown, OptionBaseCoolTime, 30f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionCurseCount = FloatOptionItem.Create(RoleInfo, 12, OptionName.CurserCurseCount, new(1, 15, 1), 2, false);
+        OptionCurseCount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.CurserCurseCount, new(1, 15, 1), 2, false);
     }
     private void SetTarget(byte targetId)
     {

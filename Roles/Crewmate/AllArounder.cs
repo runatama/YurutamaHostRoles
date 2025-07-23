@@ -61,14 +61,14 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         {
             var tien = 0f;
             //小数対応
-            if (OptSaiaichien.GetFloat() > 0)
+            if (OptReportMaxDelay.GetFloat() > 0)
             {
-                int ti = IRandom.Instance.Next(0, (int)OptSaiaichien.GetFloat() * 10);
+                int ti = IRandom.Instance.Next(0, (int)OptReportMaxDelay.GetFloat() * 10);
                 tien = ti * 0.1f;
                 Logger.Info($"{tien}sの追加遅延発生!!", "AllArounder");
             }
             if (!info.IsSuicide && !info.IsFakeSuicide)
-                _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(NowRole is NowMode.Bait ? killer : target, target.Data, NowRole is NowMode.Bait), 0.15f + OptChien.GetFloat() + tien, "AllArounder Self Report");
+                _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(NowRole is NowMode.Bait ? killer : target, target.Data, NowRole is NowMode.Bait), 0.15f + OptReportDelay.GetFloat() + tien, "AllArounder Self Report");
         }
         if (NowRole is NowMode.Trapper)
         {
@@ -426,9 +426,9 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         {
             var tien = 0f;
             //小数対応
-            if (OptionMaxdelay.GetFloat() > 0)
+            if (OptionSeerMaxdelay.GetFloat() > 0)
             {
-                int ti = IRandom.Instance.Next(0, (int)OptionMaxdelay.GetFloat() * 10);
+                int ti = IRandom.Instance.Next(0, (int)OptionSeerMaxdelay.GetFloat() * 10);
                 tien = ti * 0.1f;
                 Logger.Info($"{Player?.Data?.GetLogPlayerName()} => {tien}sの追加遅延発生!!", "AllArounder");
             }
@@ -440,7 +440,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
                     return;
                 }
                 Player.KillFlash();
-            }, tien + OptionMindelay.GetFloat(), "SeerDelayKillFlash", null);
+            }, tien + OptionSeerMindelay.GetFloat(), "SeerDelayKillFlash", null);
             return null;
         }
         return false;
@@ -596,7 +596,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     static OptionItem RandomNone; int RNone;
     static OptionItem RandomBait; int RBait;
     static OptionItem RandomInsender; int RInsender;
-    static OptionItem OptChien; static OptionItem OptSaiaichien;
+    static OptionItem OptReportDelay; static OptionItem OptReportMaxDelay;
     static OptionItem RandomBakery; int RBakery;
     static OptionItem RandomDicator; int RDicator;
     static OptionItem RandomLighter; int RLighter;
@@ -605,8 +605,8 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     static OptionItem RandomSabotageMaster; int RSabotageMaster;
     static OptionItem OptionSkillLimit;
     static OptionItem RandomSeer; int RSeer;
-    static OptionItem OptionMindelay;
-    static OptionItem OptionMaxdelay;
+    static OptionItem OptionSeerMindelay;
+    static OptionItem OptionSeerMaxdelay;
     static OptionItem RandomTimeManager; int RTimeManager;
     static OptionItem OptionIncreaseMeetingTime;
     static OptionItem RandomTrapper; int RTarapper;
@@ -644,33 +644,33 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
         RandomBait = IntegerOptionItem.Create(RoleInfo, 12, OptionName.AllArounderRandomBait, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RandomInsender = IntegerOptionItem.Create(RoleInfo, 13, OptionName.AllArounderRandomInsender, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         {
-            OptChien = FloatOptionItem.Create(RoleInfo, 14, OptionName.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
-            .SetCansee(() => RandomBait.GetBool() || RandomInsender.GetBool());
-            OptSaiaichien = FloatOptionItem.Create(RoleInfo, 15, OptionName.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
-            .SetCansee(() => RandomBait.GetBool() || RandomInsender.GetBool());
+            OptReportDelay = FloatOptionItem.Create(RoleInfo, 14, OptionName.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
+            .SetEnabled(() => RandomBait.GetBool() || RandomInsender.GetBool());
+            OptReportMaxDelay = FloatOptionItem.Create(RoleInfo, 15, OptionName.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds)
+            .SetEnabled(() => RandomBait.GetBool() || RandomInsender.GetBool());
         }
         RandomBakery = IntegerOptionItem.Create(RoleInfo, 16, OptionName.AllArounderRandomBakery, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RandomDicator = IntegerOptionItem.Create(RoleInfo, 17, OptionName.AllArounderRandomDicator, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RandomLighter = IntegerOptionItem.Create(RoleInfo, 18, OptionName.AllArounderRandomLighter, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         RandomMeetingSheriff = IntegerOptionItem.Create(RoleInfo, 19, OptionName.AllArounderRandomMeetingSheriff, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         {
-            OptionSheriffShotLimit = FloatOptionItem.Create(RoleInfo, 20, OptionName.SheriffShotLimit, new(1f, 15f, 1f), 1f, false, RandomMeetingSheriff)
+            OptionSheriffShotLimit = IntegerOptionItem.Create(RoleInfo, 20, OptionName.SheriffShotLimit, new(1, 15, 1), 1, false, RandomMeetingSheriff)
                 .SetValueFormat(OptionFormat.Times);
             OptionMeetingSheriffCanKillMadMate = BooleanOptionItem.Create(RoleInfo, 21, OptionName.MeetingSheriffCanKillMadMate, true, false, RandomMeetingSheriff);
             OptionMeetingSheriffCanKillNeutrals = BooleanOptionItem.Create(RoleInfo, 22, OptionName.MeetingSheriffCanKillNeutrals, true, false, RandomMeetingSheriff);
             OptionMeetingSheriffCanKillLovers = BooleanOptionItem.Create(RoleInfo, 23, OptionName.SheriffCanKillLovers, true, false, RandomMeetingSheriff);
-            Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 24, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 0f, false, RandomMeetingSheriff, infinity: true)
-                .SetValueFormat(OptionFormat.Times);
+            Option1MeetingMaximum = IntegerOptionItem.Create(RoleInfo, 24, GeneralOption.MeetingMaxTime, new(0, 99, 1), 0, false, RandomMeetingSheriff)
+                .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
         }
         RandomSabotageMaster = IntegerOptionItem.Create(RoleInfo, 25, OptionName.AllArounderRandomsabotageMaster, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         {
-            OptionSkillLimit = FloatOptionItem.Create(RoleInfo, 26, OptionName.SabotageMasterSkillLimit, new(0, 99, 1), 1, false, RandomSabotageMaster, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
+            OptionSkillLimit = IntegerOptionItem.Create(RoleInfo, 26, OptionName.SabotageMasterSkillLimit, new(0, 99, 1), 1, false, RandomSabotageMaster)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
         }
         RandomSeer = IntegerOptionItem.Create(RoleInfo, 27, OptionName.AllArounderRandomSeer, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         {
-            OptionMindelay = FloatOptionItem.Create(RoleInfo, 35, OptionName.SeerMindelay, new(0, 60, 0.5f), 3f, false, RandomSeer).SetValueFormat(OptionFormat.Seconds);
-            OptionMaxdelay = FloatOptionItem.Create(RoleInfo, 36, OptionName.SeerMaxdelay, new(0, 60, 0.5f), 3f, false, RandomSeer).SetValueFormat(OptionFormat.Seconds);
+            OptionSeerMindelay = FloatOptionItem.Create(RoleInfo, 35, OptionName.SeerMindelay, new(0, 60, 0.5f), 3f, false, RandomSeer).SetValueFormat(OptionFormat.Seconds);
+            OptionSeerMaxdelay = FloatOptionItem.Create(RoleInfo, 36, OptionName.SeerMaxdelay, new(0, 60, 0.5f), 3f, false, RandomSeer).SetValueFormat(OptionFormat.Seconds);
         }
         RandomTimeManager = IntegerOptionItem.Create(RoleInfo, 28, OptionName.AllArounderRandomTimeManager, new(0, 100, 5), 100, false).SetValueFormat(OptionFormat.Percent);
         {

@@ -67,8 +67,8 @@ public sealed class SabotageMaster : RoleBase, ISystemTypeUpdateHook
 
     public static void SetupOptionItem()
     {
-        OptionSkillLimit = FloatOptionItem.Create(RoleInfo, 10, OptionName.SabotageMasterSkillLimit, new(0, 99, 1), 1, false, infinity: true)
-            .SetValueFormat(OptionFormat.Times);
+        OptionSkillLimit = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SabotageMasterSkillLimit, new(0, 99, 1), 1, false)
+            .SetValueFormat(OptionFormat.Times).SetZeroNotation(OptionZeroNotation.Infinity);
         OptionFixesDoors = BooleanOptionItem.Create(RoleInfo, 11, OptionName.SabotageMasterFixesDoors, false, false);
         OptionFixesReactors = BooleanOptionItem.Create(RoleInfo, 12, OptionName.SabotageMasterFixesReactors, false, false);
         OptionFixesOxygens = BooleanOptionItem.Create(RoleInfo, 13, OptionName.SabotageMasterFixesOxygens, false, false);

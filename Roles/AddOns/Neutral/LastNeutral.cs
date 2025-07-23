@@ -49,10 +49,10 @@ namespace TownOfHost.Roles.AddOns.Neutral
             CanNotCrewWin = BooleanOptionItem.Create(Id + 30, "LastNeutralCanNotCrewWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist).SetParentRole(CustomRoles.LastNeutral);
             CanNotTaskWin = BooleanOptionItem.Create(Id + 31, "LastNeutralCanNottaskwWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist).SetParentRole(CustomRoles.LastNeutral);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
-            CanGuessTime = FloatOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
+            CanGuessTime = IntegerOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
                 .SetValueFormat(OptionFormat.Players);
             AddShotLimit = BooleanOptionItem.Create(Id + 13, "AddShotLimit", false, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);
-            OwnCanGuessTime = FloatOptionItem.Create(Id + 14, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
+            OwnCanGuessTime = IntegerOptionItem.Create(Id + 14, "OwnCanGuessTime", new(1, 15, 1), 1, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
                     .SetValueFormat(OptionFormat.Players);
             ICanGuessVanilla = BooleanOptionItem.Create(Id + 16, "CanGuessVanilla", true, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);
             ICanGuessTaskDoneSnitch = BooleanOptionItem.Create(Id + 17, "CanGuessTaskDoneSnitch", false, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral);

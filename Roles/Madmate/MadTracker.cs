@@ -40,8 +40,8 @@ public sealed class MadTracker : RoleBase, IKillFlashSeeable, IDeathReasonSeeabl
         .SetValueFormat(OptionFormat.Seconds);
         TrackerDelay = FloatOptionItem.Create(RoleInfo, 4, "TrackerDelay", new(0f, 180f, 0.5f), 5f, false)
                 .SetValueFormat(OptionFormat.Seconds);
-        TrackerDuration = FloatOptionItem.Create(RoleInfo, 5, "TrackerDuration", new(0f, 180f, 1f), 5f, false, infinity: true)
-                .SetValueFormat(OptionFormat.Seconds);
+        TrackerDuration = FloatOptionItem.Create(RoleInfo, 5, "TrackerDuration", new(0f, 180f, 1f), 5f, false)
+                .SetValueFormat(OptionFormat.Seconds).SetZeroNotation(OptionZeroNotation.Infinity);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

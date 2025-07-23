@@ -25,14 +25,14 @@ public sealed class InSender : RoleBase
         player
     )
     {
-        Awakened = !OptAwakening.GetBool() || OptAwakeningTaskCount.GetInt() < 1;
+        Awakened = !OptAwakening.GetBool();
     }
     enum OptionName
     {
         BaitReportDelay, BaitMaxDelay
     }
     static OptionItem OptAwakening;
-    static OptionItem OptAwakeningTaskCount;
+    static OptionItem OptAwakeningTaskcount;
     static OptionItem OptCanUseActiveComms;
     static OptionItem OptReportDelay;
     static OptionItem OptMaxDelay;
@@ -43,7 +43,7 @@ public sealed class InSender : RoleBase
         OptReportDelay = FloatOptionItem.Create(RoleInfo, 12, OptionName.BaitReportDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         OptMaxDelay = FloatOptionItem.Create(RoleInfo, 13, OptionName.BaitMaxDelay, new(0f, 180f, 0.5f), 3f, false).SetValueFormat(OptionFormat.Seconds);
         OptAwakening = BooleanOptionItem.Create(RoleInfo, 10, GeneralOption.TaskAwakening, false, false);
-        OptAwakeningTaskCount = FloatOptionItem.Create(RoleInfo, 11, GeneralOption.AwakeningTaskcount, new(0f, 255f, 1f), 5f, false, OptAwakening);
+        OptAwakeningTaskcount = IntegerOptionItem.Create(RoleInfo, 14, GeneralOption.AwakeningTaskcount, new(1, 255, 1), 5, false, OptAwakening);
     }
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
@@ -64,7 +64,7 @@ public sealed class InSender : RoleBase
     public override CustomRoles Misidentify() => Awakened ? CustomRoles.NotAssigned : CustomRoles.Crewmate;
     public override bool OnCompleteTask(uint taskid)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskCount.GetInt()))
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(OptAwakeningTaskcount.GetInt()))
         {
             if (Awakened == false)
                 if (!Utils.RoleSendList.Contains(Player.PlayerId))

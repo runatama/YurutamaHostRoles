@@ -30,11 +30,11 @@ public sealed class King : RoleBase
         IsDead = false;
         IsExiled = false;
     }
-    static OptionItem ExileVoteCount;
-    static OptionItem ExiledCrewDie;
-    static OptionItem OpDeathReason;
-    static OptionItem ExiledAddonBaaaaay;
-    static OptionItem ExiledRoleAboooon;
+    static OptionItem OptExileVoteCount;
+    static OptionItem OptExiledInvolvementCrewmates;
+    static OptionItem OptDeathReason;
+    static OptionItem OptExiledRemoveAddonPlayercount;
+    static OptionItem OptExiledRemoveRolePlayercount;
     public static OptionItem OptIsGuessTarget;
     public static readonly CustomDeathReason[] deathReasons =
     {
@@ -54,11 +54,11 @@ public sealed class King : RoleBase
     static void SetupOptionItem()
     {
         var cRolesString = deathReasons.Select(x => x.ToString()).ToArray();
-        ExileVoteCount = FloatOptionItem.Create(RoleInfo, 10, OptionName.KingExileVoteCount, new(1, 15, 1), 3, false).SetValueFormat(OptionFormat.Votes);
-        ExiledCrewDie = FloatOptionItem.Create(RoleInfo, 11, OptionName.KingExileCrewDies, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
-        OpDeathReason = StringOptionItem.Create(RoleInfo, 12, OptionName.KingDeathReason, cRolesString, 3, false);
-        ExiledAddonBaaaaay = FloatOptionItem.Create(RoleInfo, 13, OptionName.KingAddon, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
-        ExiledRoleAboooon = FloatOptionItem.Create(RoleInfo, 14, OptionName.KingRole, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
+        OptExileVoteCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.KingExileVoteCount, new(1, 15, 1), 3, false).SetValueFormat(OptionFormat.Votes);
+        OptExiledInvolvementCrewmates = IntegerOptionItem.Create(RoleInfo, 11, OptionName.KingExileCrewDies, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
+        OptDeathReason = StringOptionItem.Create(RoleInfo, 12, OptionName.KingDeathReason, cRolesString, 3, false);
+        OptExiledRemoveAddonPlayercount = IntegerOptionItem.Create(RoleInfo, 13, OptionName.KingAddon, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
+        OptExiledRemoveRolePlayercount = IntegerOptionItem.Create(RoleInfo, 14, OptionName.KingRole, new(0, 15, 1), 5, false).SetValueFormat(OptionFormat.Players);
         OptIsGuessTarget = BooleanOptionItem.Create(RoleInfo, 15, OptionName.KingCanGuesser, true, false);
     }
     public override bool? CheckGuess(PlayerControl killer)
@@ -69,7 +69,7 @@ public sealed class King : RoleBase
     {
         if (vote.TryGetValue(Player.PlayerId, out var count))
         {
-            if (count >= ExileVoteCount.GetInt())
+            if (count >= OptExileVoteCount.GetInt())
             {
                 IsTie = false;
                 Exiled = Player.Data;
@@ -132,7 +132,7 @@ public sealed class King : RoleBase
     {
         if (IsDead && !IsExiled) return;
         var rand = IRandom.Instance;
-        int Count = ExiledCrewDie.GetInt();
+        int Count = OptExiledInvolvementCrewmates.GetInt();
 
         List<PlayerControl> crews = new();
 
@@ -164,7 +164,7 @@ public sealed class King : RoleBase
                 }
 
                 PlayerState state = PlayerState.GetByPlayerId(pc.PlayerId);
-                state.DeathReason = deathReasons[OpDeathReason.GetValue()];
+                state.DeathReason = deathReasons[OptDeathReason.GetValue()];
                 CustomRoleManager.OnCheckMurder(Player, pc, pc, pc, true, true, 999);
                 Logger.Info($"{pc.name}が巻き込まれちゃった！", "Kingaboooooon");
                 crews.Remove(pc);
@@ -189,7 +189,7 @@ public sealed class King : RoleBase
                 }
 
                 PlayerState state = PlayerState.GetByPlayerId(pc.PlayerId);
-                state.DeathReason = deathReasons[OpDeathReason.GetValue()];
+                state.DeathReason = deathReasons[OptDeathReason.GetValue()];
                 Player.RpcExileV2();
                 state.SetDead();
                 ReportDeadBodyPatch.IgnoreBodyids[Player.PlayerId] = false;
@@ -201,7 +201,7 @@ public sealed class King : RoleBase
 
         //役職 & 属性ぼっしゅー
 
-        var addoncount = ExiledAddonBaaaaay.GetInt();
+        var addoncount = OptExiledRemoveAddonPlayercount.GetInt();
         if (addoncount != 0)
         {
             for (var i = 0; i < addoncount; i++)
@@ -238,7 +238,7 @@ public sealed class King : RoleBase
             }
         }
 
-        var rolecount = ExiledRoleAboooon.GetInt();
+        var rolecount = OptExiledRemoveRolePlayercount.GetInt();
         if (rolecount != 0)
         {
             for (var i = 0; i < rolecount; i++)

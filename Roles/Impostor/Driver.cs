@@ -70,13 +70,13 @@ public sealed class Driver : RoleBase, IImpostor, IKillFlashSeeable, IDeathReaso
         OptionBraidKillCooldown = FloatOptionItem.Create(RoleInfo, 10, OptionName.BraidKillCooldown, new(0f, 180f, 0.5f), 15f, false)
                 .SetValueFormat(OptionFormat.Seconds);
         OptionGiveKillFlash = BooleanOptionItem.Create(RoleInfo, 11, OptionName.GiveKillFlash, false, false);
-        OptionGiveKillFlashtaskTrigger = FloatOptionItem.Create(RoleInfo, 12, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveKillFlash);
+        OptionGiveKillFlashtaskTrigger = IntegerOptionItem.Create(RoleInfo, 12, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveKillFlash);
         OptionGiveKnowDeathreason = BooleanOptionItem.Create(RoleInfo, 13, OptionName.GiveKnowDeathreason, false, false);
-        OptionGiveKnowDeathreasontaskTrigger = FloatOptionItem.Create(RoleInfo, 14, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveKnowDeathreason);
+        OptionGiveKnowDeathreasontaskTrigger = IntegerOptionItem.Create(RoleInfo, 14, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveKnowDeathreason);
         OptionGiveWatchVotes = BooleanOptionItem.Create(RoleInfo, 15, OptionName.GiveWatchVotes, false, false);
-        OptionGiveWatchVotestaskTrigger = FloatOptionItem.Create(RoleInfo, 16, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveWatchVotes);
+        OptionGiveWatchVotestaskTrigger = IntegerOptionItem.Create(RoleInfo, 16, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveWatchVotes);
         OptionGiveGuard = BooleanOptionItem.Create(RoleInfo, 17, OptionName.GiveGuard, false, false);
-        OptionGiveGuardtaskTrigger = FloatOptionItem.Create(RoleInfo, 18, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveGuard);
+        OptionGiveGuardtaskTrigger = IntegerOptionItem.Create(RoleInfo, 18, OptionName.DriverTaskTrigger, new(1, 297, 1), 5, false, OptionGiveGuard);
         OptionBraidCanSeeDriver = BooleanOptionItem.Create(RoleInfo, 19, OptionName.BraidCanSeeDriver, false, false);
         OptionDriverCanSeeBraid = BooleanOptionItem.Create(RoleInfo, 21, OptionName.DriverCanSeeBraid, false, false);
         OptionBraidCanUseVent = BooleanOptionItem.Create(RoleInfo, 22, OptionName.BraidCanVent, true, false);

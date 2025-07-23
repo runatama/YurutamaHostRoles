@@ -86,12 +86,12 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
     private static void SetupOptionItem()
     {
         SoloWinOption.Create(RoleInfo, 8, defo: 1);
-        OptionAddWinEatCount = FloatOptionItem.Create(RoleInfo, 9, OptionName.VultrueAddWinEatcount, new(0, 14, 1), 2, false, null, null);
+        OptionAddWinEatCount = IntegerOptionItem.Create(RoleInfo, 9, OptionName.VultrueAddWinEatcount, new(0, 14, 1), 2, false).SetZeroNotation(OptionZeroNotation.Hyphen);
         OptionWinEatCount = IntegerOptionItem.Create(RoleInfo, 10, OptionName.VultrueWinEatcount, new(1, 14, 1), 3, false);
         OptionEatShape = BooleanOptionItem.Create(RoleInfo, 11, OptionName.VultrueEatShape, true, false);
         OptionCanUseVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
         OptionVentCooldown = FloatOptionItem.Create(RoleInfo, 15, StringNames.EngineerCooldown, OptionBaseCoolTime, 15, false, OptionCanUseVent).SetValueFormat(OptionFormat.Seconds);
-        OptionVentIntime = FloatOptionItem.Create(RoleInfo, 16, StringNames.EngineerInVentCooldown, OptionBaseCoolTime, 5, false, OptionCanUseVent, true).SetValueFormat(OptionFormat.Seconds);
+        OptionVentIntime = FloatOptionItem.Create(RoleInfo, 16, StringNames.EngineerInVentCooldown, OptionBaseCoolTime, 5, false, OptionCanUseVent).SetZeroNotation(OptionZeroNotation.Infinity).SetValueFormat(OptionFormat.Seconds);
         OptionKillflashtaskcount = IntegerOptionItem.Create(RoleInfo, 12, OptionName.VultrueCanSeeKillFlushTaskCount, new(0, 255, 1), 3, false);
         OptionOnikuArrowtskcount = IntegerOptionItem.Create(RoleInfo, 13, OptionName.VultrueCanSeeOnikuArrowTaskCount, new(0, 255, 1), 5, false);
 

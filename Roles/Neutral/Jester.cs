@@ -49,7 +49,7 @@ public sealed class Jester : RoleBase, IKiller
         SoloWinOption.Create(RoleInfo, 8, defo: 1);
         CanUseShape = BooleanOptionItem.Create(RoleInfo, 3, Option.JesterCanUseShapeshift, false, false);
         Cooldown = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 30f, false, CanUseShape).SetValueFormat(OptionFormat.Seconds);
-        Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 0.5f), 5f, false, CanUseShape, infinity: true).SetValueFormat(OptionFormat.Seconds);
+        Duration = FloatOptionItem.Create(RoleInfo, 5, GeneralOption.Duration, new(0f, 180f, 0.5f), 5f, false, CanUseShape).SetZeroNotation(OptionZeroNotation.Infinity).SetValueFormat(OptionFormat.Seconds);
         CanUseVent = BooleanOptionItem.Create(RoleInfo, 6, GeneralOption.CanVent, false, false);
         CanVentMove = BooleanOptionItem.Create(RoleInfo, 7, Option.MadmateCanMovedByVent, false, false, CanUseVent);
     }
