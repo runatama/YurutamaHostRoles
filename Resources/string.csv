@@ -2412,7 +2412,7 @@
 "Doorlog","Doorlog","ドアログ"
 "Vital","Vital","バイタル"
 "Addmin","Addmin","アドミン"
-"LimitTime","Limit:","残り時間:"
+"LimitTime","Limit","残り時間"
 "DeviceCantUse","CantUse","使用不可"
 "ActiveOptionOnly","Active Option Only","有効なMap設定/役職のみ表示する"
 "RoleReset","Role Reset","役職をリセットする"

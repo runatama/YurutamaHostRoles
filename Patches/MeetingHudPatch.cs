@@ -291,7 +291,7 @@ public static class MeetingHudPatch
                 var vitals = Check(DisableDevice.GetVitalTimer(false));
                 if (vitals is not "") vitals = $"\n{GetString("Vital")}{vitals}";
                 var cams = Check(DisableDevice.GetCamTimr(false));
-                if (cams is not "") cams = $"\n{(Main.NormalOptions.MapId is 1 ? GetString("Doorlog") : GetString("Camera"))}:{cams}";
+                if (cams is not "") cams = $"\n{(Main.NormalOptions.MapId is 1 ? GetString("Doorlog") : GetString("Camera"))}{cams}";
 
                 var lt = admins + vitals + cams;
 
@@ -323,7 +323,7 @@ public static class MeetingHudPatch
                     {
                         case "×": text = GetString("DeviceCantUse"); break;
                         case "": text = ""; break;
-                        default: text = $"{GetString("LimitTime")}{text}"; break;
+                        default: text = $"{GetString("LimitTime")}:{text}"; break;
                     }
                     return text;
                 }

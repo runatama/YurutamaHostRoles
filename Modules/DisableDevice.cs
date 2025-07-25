@@ -101,28 +101,25 @@ namespace TownOfHost
         {
             if (optTimeLimitAdmin == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
-            var mark = "<#00ff99>Ⓐ";
-            if (!showmark) mark = "";
+            var mark = showmark ? "<#00ff99>Ⓐ:" : "";
             if (optTimeLimitAdmin <= GameAdminTimer) return mark + "×";
-            else return mark + ":" + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
+            else return mark + Math.Round(optTimeLimitAdmin - GameAdminTimer) + "s";
         }
         public static string GetCamTimr(bool showmark = true)
         {
             if (optTimeLimitCamAndLog == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Fungle) return "";
-            var mark = (MapNames)Main.NormalOptions.MapId is MapNames.MiraHQ ? "<#cccccc>Ⓛ" : "<#cccccc>Ⓒ";
-            if (!showmark) mark = "";
+            var mark = showmark ? ((MapNames)Main.NormalOptions.MapId is MapNames.MiraHQ ? "<#cccccc>Ⓛ:" : "<#cccccc>Ⓒ:") : "";
             if (optTimeLimitCamAndLog <= GameLogAndCamTimer) return mark + "×";
-            else return mark + ":" + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
+            else return mark + Math.Round(optTimeLimitCamAndLog - GameLogAndCamTimer) + "s";
         }
         public static string GetVitalTimer(bool showmark = true)
         {
             if (optTimeLimitVital == 0
             || (MapNames)Main.NormalOptions.MapId is MapNames.Skeld or MapNames.MiraHQ) return "";
-            var mark = "<#33ccff>Ⓥ";
-            if (!showmark) mark = "";
+            var mark = showmark ? "<#33ccff>Ⓥ:" : "";
             if (optTimeLimitVital <= GameVitalTimer) return mark + "×";
-            else return mark + ":" + Math.Round(optTimeLimitVital - GameVitalTimer) + "s";
+            else return mark + Math.Round(optTimeLimitVital - GameVitalTimer) + "s";
         }
         public static readonly Dictionary<string, Vector2> DevicePos = new()
         {
