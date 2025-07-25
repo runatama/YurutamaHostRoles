@@ -135,6 +135,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerLeft))]
     class OnPlayerLeftPatch
     {
+        public static bool IsIntroError;
         static void Prefix([HarmonyArgument(0)] ClientData data)
         {
             if (CustomRoles.Executioner.IsPresent())
@@ -206,6 +207,7 @@ namespace TownOfHost
             {
                 Logger.Warn($"正常に完了しなかった切断 - 名前:{(data == null || data.PlayerName == null ? "(不明)" : data.PlayerName)}, 理由:{reason}, ping:{AmongUsClient.Instance.Ping}, Platform:{data?.PlatformData?.Platform ?? Platforms.Unknown} , friendcode:{data?.FriendCode ?? "???"} , PuId:{data?.ProductUserId ?? "???"}", "Session");
                 ErrorText.Instance.AddError(AmongUsClient.Instance.GameState is InnerNetClient.GameStates.Started ? ErrorCode.OnPlayerLeftPostfixFailedInGame : ErrorCode.OnPlayerLeftPostfixFailedInLobby);
+                IsIntroError = GameStates.Intro && Options.ExIntroWeight.GetBool() is false;
             }
         }
     }
@@ -263,6 +265,11 @@ namespace TownOfHost
                             Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。\nバグが発生した場合はTOH-KのDiscordで報告すること!", client.Character.PlayerId, "<color=red>【=====　これはデバッグ版です　=====】</color>");
                         else
                             Utils.SendMessage($"<size=120%>☆This is a debug version☆</size=120%>\n<line-height=80%><size=80%>This is not an official release version. \n If you encounter a bug, report it on TOH-K Discord!", client.Character.PlayerId, "<color=red>【==　This is Debug version　==】</color>");
+                    }
+                    if (OnPlayerLeftPatch.IsIntroError && client.Character.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                    {
+                        Utils.SendMessage(GetString("IntroLeftPlayerError"), client.Character.PlayerId);
+                        OnPlayerLeftPatch.IsIntroError = false;
                     }
                     Utils.ApplySuffix(client.Character, true);
                 }, 3.0f, "Welcome Meg");

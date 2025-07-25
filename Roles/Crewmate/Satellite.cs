@@ -76,22 +76,12 @@ public sealed class Satellite : RoleBase
 
     private static void SetupOptionItem()
     {
-<<<<<<< HEAD
-        OptionMaximum = FloatOptionItem.Create(RoleInfo, 10, Option.SatelliteCount, new(1f, 99f, 1f), 2f, false)
-            .SetValueFormat(OptionFormat.Times);
-        OptiontaskCount = FloatOptionItem.Create(RoleInfo, 11, Option.cantaskcount, new(0, 99, 1), 5, false);
-        Option1MeetingMaximum = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.MeetingMaxTime, new(0f, 99f, 1f), 1f, false)
-            .SetValueFormat(OptionFormat.Times);
-        Optioncomms = BooleanOptionItem.Create(RoleInfo, 13, Option.SatelliteComms, false, false);
-        OptionVent = BooleanOptionItem.Create(RoleInfo, 14, Option.SatelliteVent, false, false);
-=======
         OptionMaximum = IntegerOptionItem.Create(RoleInfo, 10, OptionName.SatelliteCount, new(1, 99, 1), 2, false)
             .SetValueFormat(OptionFormat.Times);
         Option1MeetingMaximum = IntegerOptionItem.Create(RoleInfo, 11, GeneralOption.MeetingMaxTime, new(0, 99, 1), 1, false)
             .SetValueFormat(OptionFormat.Times);
         OptiontaskCount = IntegerOptionItem.Create(RoleInfo, 12, GeneralOption.cantaskcount, new(0, 99, 1), 5, false);
         OptionAwakening = BooleanOptionItem.Create(RoleInfo, 13, GeneralOption.AbilityAwakening, false, false);
->>>>>>> 815d394d (fix : Float型の必要がないオプションをInt型に変更)
     }
 
     class LocationData
