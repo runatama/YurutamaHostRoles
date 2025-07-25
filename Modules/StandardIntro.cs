@@ -87,11 +87,29 @@ class StandardIntro
             stream.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
-            if (!Main.IsroleAssigned)
+            _ = new LateTask(() =>
             {
-                roleAssigned = true;
-                PlayerCatch.AllPlayerControls.DoIf(x => RpcSetTasksPatch.taskIds.ContainsKey(x.PlayerId), pc => pc.Data.RpcSetTasks(RpcSetTasksPatch.taskIds[pc.PlayerId]));
-            }
+                if (!Main.IsroleAssigned)
+                {
+                    roleAssigned = true;
+                    PlayerCatch.AllPlayerControls.Do(pc =>
+                    {
+                        if (RpcSetTasksPatch.taskIds.TryGetValue(pc.PlayerId, out var taskids))
+                            pc.Data.RpcSetTasks(taskids);
+                        else
+                        {
+                            Logger.Error($"{pc.Data.GetLogPlayerName()} => taskIds is null", "AssingTask");
+                            pc.Data.RpcSetTasks(Array.Empty<byte>());//再配布と同じ処理を行なっておく。
+                        }
+                    });
+                }
+                if (Options.ExIntroWeight.GetBool())
+                {
+                    PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
+                    GameData.Instance.RecomputeTaskCounts();
+                    TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
+                }
+            }, Options.ExIntroWeight.GetBool() ? 5f : 0f, "SetTaskDelay");
             InnerNetClientPatch.DontTouch = false;
 
             GameDataSerializePatch.SerializeMessageCount--;

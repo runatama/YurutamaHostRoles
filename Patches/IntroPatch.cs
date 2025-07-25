@@ -195,10 +195,12 @@ namespace TownOfHost
                     logger.Info($"{(o.Parent == null ? o.Name.PadRightV2(40) : $"┗ {o.Name}".PadRightV2(41))}:{o.GetString().RemoveSN().RemoveHtmlTags()}");
             logger.Info("-------------その他-------------");
             logger.Info($"プレイヤー数: {PlayerCatch.AllPlayerControls.Count()}人");
-            PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
-            GameData.Instance.RecomputeTaskCounts();
-            TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-
+            if (Options.CurrentGameMode is not CustomGameMode.Standard || !Options.ExIntroWeight.GetBool())
+            {
+                PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
+                GameData.Instance.RecomputeTaskCounts();
+                TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
+            }
             GameStates.InGame = true;
         }
     }
