@@ -599,7 +599,11 @@ namespace TownOfHost
                     }
                 }
                 var Nearestroomid = Distance.OrderByDescending(x => x.Value).Last().Key;
-                if (Room.RoomId is SystemTypes.Hallway && 200 > Nearestroomid && (SystemTypes)Nearestroomid is SystemTypes.VaultRoom) Nearestroomid = (byte)SystemTypes.Comms;
+                if (Room is not null)
+                {
+                    if (Room?.RoomId is SystemTypes.Hallway && 200 > Nearestroomid && (SystemTypes)Nearestroomid is SystemTypes.VaultRoom)
+                        Nearestroomid = (byte)SystemTypes.Comms;
+                }
                 var Nearestroom = 200 <= Nearestroomid ? GetString($"ModMapName.{Nearestroomid}") : GetString($"{(SystemTypes)Nearestroomid}");
                 RoomName = Room is null ? string.Format(GetString("Nearroom"), Nearestroom)
                 : Nearestroom + RoomName;
