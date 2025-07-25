@@ -120,6 +120,7 @@ public sealed class Eraser : RoleBase, IImpostor, IUsePhantomButton
             var role = player.GetCustomRole();
             //インポスターならキャンセル
             if (role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode) continue;
+            if (player.IsAlive() is false) continue;//既に死んでたら役職を消さない。
 
             //消したと思ってるリスト
             TryedEraseds.Add(player.PlayerId);
