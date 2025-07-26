@@ -34,6 +34,7 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     )
     {
         KillCooldown = OptionKillCooldown.GetFloat();
+        shapecountup = OptionShapeCountUp.GetFloat();
         Cankill = false;
         Target = byte.MaxValue;
         Afterkill = false;
@@ -47,7 +48,9 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     static OptionItem OptionShepeCoolDown;
     static OptionItem OptionAddWinCount;
     static OptionItem OptionSoloWinCount;
+    static OptionItem OptionShapeCountUp;
     static float KillCooldown;
+    static float shapecountup;
     bool Cankill;
     bool Afterkill;
     bool SecondsWin;
@@ -57,6 +60,13 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
     bool win;
     public SchrodingerCat.TeamType SchrodingerCatChangeTo => SchrodingerCat.TeamType.DoppelGanger;
 
+    enum OptionName
+    {
+        DoppelGangerAddWinCount,
+        DoppelGangerSoloWinCount,
+        DoppelGangerShapeCountUp
+    }
+
     private static void SetupOptionItem()
     {
         SoloWinOption.Create(RoleInfo, 9, defo: 1);
@@ -64,8 +74,9 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
             .SetValueFormat(OptionFormat.Seconds);
         OptionShepeCoolDown = FloatOptionItem.Create(RoleInfo, 12, GeneralOption.Cooldown, new(0f, 180f, 0.5f), 20f, false)
             .SetValueFormat(OptionFormat.Seconds);
-        OptionAddWinCount = FloatOptionItem.Create(RoleInfo, 13, "DoppelGangerWinCount", new(0f, 300f, 1f), 45f, false);
-        OptionSoloWinCount = FloatOptionItem.Create(RoleInfo, 14, "DoppelGangerWin", new(0f, 300f, 1f), 70f, false);
+        OptionShapeCountUp = FloatOptionItem.Create(RoleInfo, 90, OptionName.DoppelGangerShapeCountUp, new(0, 0.9f, 0.1f), 0.1f, false);
+        OptionAddWinCount = FloatOptionItem.Create(RoleInfo, 13, OptionName.DoppelGangerAddWinCount, new(0f, 300f, 1f), 45f, false);
+        OptionSoloWinCount = FloatOptionItem.Create(RoleInfo, 14, OptionName.DoppelGangerSoloWinCount, new(0f, 300f, 1f), 70f, false);
         RoleAddAddons.Create(RoleInfo, 15);
     }
     public float CalculateKillCooldown() => KillCooldown;
@@ -151,12 +162,13 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         if (Afterkill)
         {
             UseingShape = true;
-            Seconds += Time.fixedDeltaTime * 0.9f;
+            Seconds += Time.fixedDeltaTime;
+            return;
         }
         if (Target != byte.MaxValue)
         {
             UseingShape = true;
-            Seconds += Time.fixedDeltaTime * 0.1f;
+            Seconds += Time.fixedDeltaTime * shapecountup;
         }
 
         if (UseingShape is false) return;
