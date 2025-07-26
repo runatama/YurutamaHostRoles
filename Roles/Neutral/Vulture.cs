@@ -129,6 +129,17 @@ public sealed class Vulture : RoleBase, IKillFlashSeeable, IAdditionalWinner
                 var dummyshapetarget = PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != Player.PlayerId).FirstOrDefault(PlayerControl.LocalPlayer);
                 Player.RpcShapeshift(dummyshapetarget, true);
                 Player.RpcShapeshift(Player, true);
+                var sender = CustomRpcSender.Create("VultureEatShape");
+                sender.AutoStartRpc(Player.NetId, RpcCalls.Shapeshift)
+                    .Write(dummyshapetarget)
+                    .Write(true)
+                    .EndRpc();
+                sender.AutoStartRpc(Player.NetId, RpcCalls.Shapeshift)
+                    .Write(Player)
+                    .Write(true)
+                    .EndRpc();
+                sender.EndMessage();
+                sender.SendMessage();
             }
 
             return true;
