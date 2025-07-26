@@ -482,29 +482,6 @@ namespace TownOfHost
                                 NameColorManager.Add(seer.PlayerId, pc.PlayerId);
                         }
                     }
-
-                    if (role.GetRoleInfo()?.IsCantSeeTeammates == true && role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode)
-                    {
-                        var clientId = pc.GetClientId();
-                        foreach (var killer in PlayerCatch.AllPlayerControls)
-                        {
-                            if (!killer.GetCustomRole().IsImpostor()) continue;
-                            //Amnesiac視点インポスターをクルーにする
-                            killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
-                        }
-                    }
-                    if (pc.Is(CustomRoles.Amnesiac) && !SuddenDeathMode.NowSuddenDeathMode)
-                    {
-                        foreach (var killer in PlayerCatch.AllPlayerControls)
-                        {
-                            if (killer == null) continue;
-                            if (pc.PlayerId == killer.PlayerId) continue;
-                            if (!killer.GetCustomRole().IsImpostor()) continue;
-                            var clientId = killer.GetClientId();
-                            //他者視点Amnesiacをインポスターにする
-                            pc.RpcSetRoleDesync(RoleTypes.Impostor, clientId);
-                        }
-                    }
                 }
 
                 RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom };
@@ -599,7 +576,6 @@ namespace TownOfHost
                 if (role is CustomRoles.Amnesiac)
                 {
                     selfRole = RoleTypes.Crewmate;
-                    Main.NormalOptions.SetInt(Int32OptionNames.NumImpostors, Main.NormalOptions.GetInt(Int32OptionNames.NumImpostors) - 1);
                 }
                 //Desync役職視点
                 foreach (var target in PlayerCatch.AllPlayerControls)

@@ -591,7 +591,7 @@ namespace TownOfHost
             if (role is CustomRoles.Amnesiac)
             {
                 if (roleclas is Amnesiac amnesiac && !amnesiac.Realized)
-                    role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                    role = Amnesiac.IsWolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             }
 
             if (role is CustomRoles.Crewmate or CustomRoles.Impostor)

@@ -13,7 +13,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
             typeof(EarnestWolf),
             player => new EarnestWolf(player),
             CustomRoles.EarnestWolf,
-            () => RoleTypes.Phantom,
+            () => OptionOverKillCanCount.GetBool() ? RoleTypes.Phantom : RoleTypes.Impostor,
             CustomRoleTypes.Impostor,
             4600,
             SetupOptionItem,
@@ -28,7 +28,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     {
         KillCoolDown = OptionKillCoolDown.GetFloat();
         count = 0;
-        OverKillMode = false;
+        OverKillMode = OptionOverKillCanCount.GetBool() is false;
     }
     static OptionItem OptionKillCoolDown;
     static OptionItem OptionOverKillCanCount;
@@ -52,7 +52,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
     static void SetupOptionItem()
     {
         OptionKillCoolDown = FloatOptionItem.Create(RoleInfo, 10, GeneralOption.KillCooldown, new(0f, 180f, 0.5f), 25f, false).SetValueFormat(OptionFormat.Seconds);
-        OptionOverKillCanCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0, 15, 1), 2, false).SetValueFormat(OptionFormat.Times);
+        OptionOverKillCanCount = IntegerOptionItem.Create(RoleInfo, 11, OptionName.EarnestWolfOverKillCount, new(0, 15, 1), 2, false).SetZeroNotation(OptionZeroNotation.Infinity).SetValueFormat(OptionFormat.Times);
         OptionOverKillBairitu = FloatOptionItem.Create(RoleInfo, 12, OptionName.EarnestWolfOverBairitu, new(0.25f, 10f, 0.01f), 1.05f, false).SetValueFormat(OptionFormat.Multiplier);
         OptionNomalKillDistance = StringOptionItem.Create(RoleInfo, 13, OptionName.EarnestWolfNomalKllDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 0, false);
         OptionOverKillDistance = StringOptionItem.Create(RoleInfo, 14, OptionName.EarnestWolfOverKillDistance, EnumHelper.GetAllNames<OverrideKilldistance.KillDistance>(), 2, false);
@@ -80,7 +80,7 @@ public sealed class EarnestWolf : RoleBase, IImpostor, IUsePhantomButton
             if (info.IsCanKilling) return false;
             CustomRoleManager.CheckMurderInfos[info.AppearanceKiller.PlayerId] = info;
             dummykiller.RpcMurderPlayer(target);
-            OverKillMode = false;
+            OverKillMode = OptionOverKillCanCount.GetBool() is false;
 
             _ = new LateTask(() =>
             {

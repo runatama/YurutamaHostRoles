@@ -214,7 +214,31 @@ class StandardIntro
                         {
                             if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool()) continue;
 
-                            var roleinfo = pc.GetCustomRole().GetRoleInfo();
+                            var role = pc.GetCustomRole();
+                            var roleinfo = role.GetRoleInfo();
+
+                            if (role.GetRoleInfo()?.IsCantSeeTeammates == true && role.IsImpostor() && !SuddenDeathMode.NowSuddenDeathMode)
+                            {
+                                var clientId = pc.GetClientId();
+                                foreach (var killer in PlayerCatch.AllPlayerControls)
+                                {
+                                    if (!killer.GetCustomRole().IsImpostor()) continue;
+                                    //Amnesiac視点インポスターをクルーにする
+                                    killer.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
+                                }
+                            }
+                            if (pc.Is(CustomRoles.Amnesiac) && !SuddenDeathMode.NowSuddenDeathMode)
+                            {
+                                foreach (var killer in PlayerCatch.AllPlayerControls)
+                                {
+                                    if (killer == null) continue;
+                                    if (pc.PlayerId == killer.PlayerId) continue;
+                                    if (!killer.GetCustomRole().IsImpostor()) continue;
+                                    var clientId = killer.GetClientId();
+                                    //他者視点Amnesiacをインポスターにする
+                                    pc.RpcSetRoleDesync(RoleTypes.Impostor, clientId);
+                                }
+                            }
                             if (pc.Is(CustomRoles.Amnesia))//continueでいいかもだけど一応...
                             {
                                 if (roleinfo?.IsDesyncImpostor == true && pc.Is(CustomRoleTypes.Crewmate))

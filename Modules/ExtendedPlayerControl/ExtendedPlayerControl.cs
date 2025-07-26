@@ -175,7 +175,7 @@ namespace TownOfHost
         {
             var roleClass = player.GetRoleClass();
             var role = player.GetCustomRole();
-            if (role is CustomRoles.Amnesiac && Amnesiac.iamwolf) return UtilsRoleText.GetRoleColor(CustomRoles.WolfBoy);
+            if (role is CustomRoles.Amnesiac && Amnesiac.IsWolf) return UtilsRoleText.GetRoleColor(CustomRoles.WolfBoy);
 
             if (player.Is(CustomRoles.Amnesia))
             {
@@ -499,7 +499,7 @@ namespace TownOfHost
             {
                 if (roleClass is Amnesiac amnesiac && !amnesiac.Realized)
                 {
-                    text = Amnesiac.iamwolf ? CustomRoles.WolfBoy.ToString() : CustomRoles.Sheriff.ToString();
+                    text = Amnesiac.IsWolf ? CustomRoles.WolfBoy.ToString() : CustomRoles.Sheriff.ToString();
                 }
             }
 

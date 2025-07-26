@@ -386,7 +386,7 @@ namespace TownOfHost
                             if (role is CustomRoles.Amnesiac)
                             {
                                 if (roleClass is Amnesiac amnesiac && !amnesiac.Realized)
-                                    role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                                    role = Amnesiac.IsWolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                             }
                             var hRoleTextData = GetRoleColorCode(role);
                             string hRoleInfoTitleString = $"{GetString("RoleInfoTitle")}";
@@ -416,7 +416,7 @@ namespace TownOfHost
                                         if (role is CustomRoles.Amnesiac)
                                         {
                                             if (roleClass is Amnesiac amnesiac && !amnesiac.Realized)
-                                                role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                                                role = Amnesiac.IsWolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                                         }
 
                                         var RoleTextData = GetRoleColorCode(role);
@@ -1249,7 +1249,7 @@ namespace TownOfHost
                         if (role is CustomRoles.Amnesiac)
                         {
                             if (roleclass is Amnesiac amnesiac && !amnesiac.Realized)
-                                role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+                                role = Amnesiac.IsWolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
                         }
 
                         var RoleTextData = GetRoleColorCode(role);

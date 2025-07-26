@@ -39,7 +39,7 @@ namespace TownOfHost
                     //Amnesiacだった場合シェリフと表示させる
                     if (role == CustomRoles.Amnesiac)
                     {
-                        _instance.RoleText.text = Amnesiac.iamwolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        _instance.RoleText.text = Amnesiac.IsWolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
                         _instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
                         _instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
                         _instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
@@ -78,7 +78,7 @@ namespace TownOfHost
                     //Amnesiacだった場合シェリフと表示させる
                     if (role == CustomRoles.Amnesiac)
                     {
-                        __instance.RoleText.text = Amnesiac.iamwolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
+                        __instance.RoleText.text = Amnesiac.IsWolf ? UtilsRoleText.GetRoleName(CustomRoles.WolfBoy) : UtilsRoleText.GetRoleName(CustomRoles.Sheriff);
                         __instance.YouAreText.color = UtilsRoleText.GetRoleColor(role);
                         __instance.RoleText.color = UtilsRoleText.GetRoleColor(role);
                         __instance.RoleBlurbText.color = UtilsRoleText.GetRoleColor(role);
@@ -118,45 +118,6 @@ namespace TownOfHost
             patcher.AddPrefix(typeof(IntroCutscene._ShowRole_d__41), () => SetUpRoleTextPatch.Postfix(__instance));Add commentMore actions
             __result = patcher.EnumerateWithPatch();
             */
-            foreach (var pc in PlayerCatch.AllPlayerControls)
-            {
-                if (pc.Is(CustomRoles.Amnesia))
-                {
-                    if (pc.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor == true && pc.Is(CustomRoleTypes.Crewmate))
-                    {
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                        {
-                            RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
-                            continue;
-                        }
-                        pc.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
-                        continue;
-                    }
-                    if (Amnesia.dontcanUseability)
-                    {
-                        if (pc.Is(CustomRoleTypes.Impostor))
-                        {
-                            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                            {
-                                RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Impostor);
-                                continue;
-                            }
-                            pc.RpcSetRoleDesync(RoleTypes.Impostor, pc.GetClientId());
-                            continue;
-                        }
-                        else
-                        {
-                            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                            {
-                                RoleManager.Instance.SetRole(PlayerControl.LocalPlayer, RoleTypes.Crewmate);
-                                continue;
-                            }
-                            pc.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId());
-                            continue;
-                        }
-                    }
-                }
-            }
             var logger = Logger.Handler("Info");
             logger.Info("------------名前表示------------");
             foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -250,7 +211,7 @@ namespace TownOfHost
                     else __instance.BackgroundBar.material.color = Palette.DisabledGrey;
                     break;
             }
-            if (role is CustomRoles.Amnesiac) role = Amnesiac.iamwolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
+            if (role is CustomRoles.Amnesiac) role = Amnesiac.IsWolf ? CustomRoles.WolfBoy : CustomRoles.Sheriff;
             switch (role)
             {
                 case CustomRoles.Sheriff:
