@@ -296,7 +296,7 @@ namespace TownOfHost
         /// 能力行使相手の役職を取得する<br/>
         /// </summary>
         /// <returns></returns>
-        public static CustomRoles GetTellResults(this PlayerControl pc, PlayerControl target)
+        public static CustomRoles GetTellResults(this PlayerControl target, PlayerControl pc)
         {
             var roleclass = target.GetRoleClass();
             var role = CustomRoles.NotAssigned;
