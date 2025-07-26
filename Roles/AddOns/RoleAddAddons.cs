@@ -101,7 +101,7 @@ namespace TownOfHost
             RevengeToMadmate = BooleanOptionItem.Create(idStart++, "NekoKabochaMadmatesGetRevenged", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
             RevengeToNeutral = BooleanOptionItem.Create(idStart++, "RevengeToNeutral", true, tab, false).SetParent(GiveRevenger).SetParentRole(role);
             GiveSpeeding = BooleanOptionItem.Create(idStart++, "GiveSpeeding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
-            Speed = FloatOptionItem.Create(idStart++, "Speed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding).SetParentRole(role);
+            Speed = FloatOptionItem.Create(idStart++, "AddSpeed", new(0.5f, 10f, 0.25f), 2f, tab, false).SetParent(GiveSpeeding).SetParentRole(role);
             GiveGuarding = BooleanOptionItem.Create(idStart++, "GiveGuarding", false, tab, false).SetParent(GiveAddons).SetParentRole(role);
             Guard = IntegerOptionItem.Create(idStart++, "AddGuardCount", new(1, 10, 1), 1, tab, false).SetParent(GiveGuarding).SetParentRole(role);
             GiveManagement = BooleanOptionItem.Create(idStart++, "GiveManagement", false, tab, false).SetParent(GiveAddons).SetParentRole(role);

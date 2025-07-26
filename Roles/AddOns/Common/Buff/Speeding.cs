@@ -17,7 +17,7 @@ namespace TownOfHost.Roles.AddOns.Common
         {
             SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Speeding);
             AddOnsAssignData.Create(Id + 10, CustomRoles.Speeding, true, true, true, true);
-            OptionSpeed = FloatOptionItem.Create(Id + 50, "Speed", new(0.5f, 10f, 0.25f), 2f, TabGroup.Addons, false)
+            OptionSpeed = FloatOptionItem.Create(Id + 50, "AddSpeed", new(0.5f, 10f, 0.25f), 2f, TabGroup.Addons, false)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Speeding]).SetParentRole(CustomRoles.Speeding);
         }
         public static void Init()

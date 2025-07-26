@@ -41,7 +41,7 @@ public sealed class UltraStar : RoleBase, IKiller
     static OptionItem OptionCanseeAllplayer;
     enum OptionName
     {
-        Speed,
+        AddSpeed,
         UltraStarCankill,
         UltraStarcheckkill,
         UltraStarVentCanseekillcool,
@@ -56,7 +56,7 @@ public sealed class UltraStar : RoleBase, IKiller
 
     private static void SetupOptionItem()
     {
-        OptionSpeed = FloatOptionItem.Create(RoleInfo, 9, OptionName.Speed, new(0f, 5f, 0.25f), 2.0f, false)
+        OptionSpeed = FloatOptionItem.Create(RoleInfo, 9, OptionName.AddSpeed, new(0f, 5f, 0.25f), 2.0f, false)
             .SetValueFormat(OptionFormat.Multiplier);
         OptionCanseeAllplayer = BooleanOptionItem.Create(RoleInfo, 14, OptionName.UltraStarCanseeallplayer, false, false);
         Optioncankill = BooleanOptionItem.Create(RoleInfo, 10, OptionName.UltraStarCankill, false, false);
