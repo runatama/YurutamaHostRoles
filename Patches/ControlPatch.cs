@@ -212,12 +212,12 @@ namespace TownOfHost
                     }*/
                     if (GetKeysDown(KeyCode.Return))
                     {
-                        if (GameSettingMenuStartPatch.search.textArea.text != "")
+                        if (GameSettingMenuStartPatch.search?.textArea?.text is not "")
                         {
                             GameSettingMenuStartPatch.search?.submitButton?.OnPressed?.Invoke();
                         }
                         else
-                        if (GameSettingMenuStartPatch.priset.textArea.text != "")
+                        if (GameSettingMenuStartPatch.priset?.textArea?.text is not "")
                         {
                             var pr = OptionItem.AllOptions.Where(op => op.Id == 0).FirstOrDefault();
                             switch (pr.CurrentValue)

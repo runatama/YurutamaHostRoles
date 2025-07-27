@@ -194,6 +194,11 @@ namespace TownOfHost
                             Main.nickName = "";
                             break;
                         }
+                        if (GameStates.IsLobby is false)
+                        {
+                            SendMessage(GetString("RenameError.NotLobby"), PlayerControl.LocalPlayer.PlayerId);
+                            break;
+                        }
                         if (name.StartsWith(" ")) break;
                         Main.nickName = name;
                         break;

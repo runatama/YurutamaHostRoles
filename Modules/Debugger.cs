@@ -96,7 +96,7 @@ namespace TownOfHost
         {
             if (!isEnable || disableList.Contains(tag)) return;
             var logger = Main.Logger;
-            string t = DateTime.Now.ToString("HH:mm:ss");
+            string t = DateTime.Now.ToString("HH:mm:ss:ff");
             if (sendToGameList.Contains(tag) || isAlsoInGame) seeingame($"[{tag}]{text}");
             if (escapeCRLF)
                 text = text.Replace("\r", "\\r").Replace("\n", "\\n");
