@@ -64,18 +64,17 @@ public sealed class Shyboy : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 0;
     }
     public override void StartGameTasks() => Shydeathdi = MathF.Min(Player.Is(CustomRoles.Lighting) ? 4.5f * Main.DefaultImpostorVision : 4.5f * Main.DefaultCrewmateVision, 4);
-
-    public override void OnStartMeeting() => StartGameTasks();
-    public override void OnSpawn(bool initialState = false)
+    public override void OnStartMeeting()
     {
         Notify = true;
-        Shydeath = 0;//会議明け修正
+        Shydeath = 0;
         AfterMeeting = 0;
+        StartGameTasks();
     }
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (GameStates.CalledMeeting || GameStates.ExiledAnimate) return;
+        if (GameStates.CalledMeeting || GameStates.ExiledAnimate || !MyState.HasSpawned) return;
         if (!Player.IsAlive()) return;
         Cool += Time.fixedDeltaTime;
         if (0.25 < Cool)
