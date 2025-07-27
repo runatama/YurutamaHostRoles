@@ -218,23 +218,13 @@ public static class GuessManager
                     if (!dp.IsModClient() && !dp.AmOwner) pc.RpcMeetingKill(dp);
                     CustomRoleManager.OnMurderPlayer(pc, target);
 
-                    if (Options.ExHideChatCommand.GetBool() && !AntiBlackout.IsCached)
-                    {
-                        GameDataSerializePatch.SerializeMessageCount++;
-                        foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                        {
-                            if (pc == dp) continue;
-                            pc.Data.IsDead = false;
-                        }
-                        RPC.RpcSyncAllNetworkedPlayer(dp.GetClientId());
-                        GameDataSerializePatch.SerializeMessageCount--;
-                    }
                     _ = new LateTask(() =>
                     {
                         foreach (var pl in PlayerCatch.AllPlayerControls)
                         {
                             Utils.SendMessage(UtilsName.GetPlayerColor(dp, true) + GetString("Meetingkill"), pl.PlayerId, GetString("MSKillTitle"));
                         }
+                        ChatManager.OnDisconnectOrDeadPlayer(dp.PlayerId);
                     }, 0.1f, "Guess Msg");
                 }, Main.LagTime, "Guesser Kill");
 

@@ -271,14 +271,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
 
             if (Options.ExHideChatCommand.GetBool())
             {
-                GameDataSerializePatch.SerializeMessageCount++;
-                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                {
-                    if (pc == target) continue;
-                    pc.Data.IsDead = false;
-                }
-                RPC.RpcSyncAllNetworkedPlayer(target.GetClientId());
-                GameDataSerializePatch.SerializeMessageCount--;
+                ChatManager.OnDisconnectOrDeadPlayer(target.PlayerId);
             }
             Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ成功({target.GetNameWithRole().RemoveHtmlTags()}) 残り{OptionSheriffShotLimit.GetInt() - NowCount}", "AllArounder");
             Utils.SendMessage(UtilsName.GetPlayerColor(target, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));
@@ -302,14 +295,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
 
         if (Options.ExHideChatCommand.GetBool())
         {
-            GameDataSerializePatch.SerializeMessageCount++;
-            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-            {
-                if (pc == Player) continue;
-                pc.Data.IsDead = false;
-            }
-            RPC.RpcSyncAllNetworkedPlayer(Player.GetClientId());
-            GameDataSerializePatch.SerializeMessageCount--;
+            ChatManager.OnDisconnectOrDeadPlayer(Player.PlayerId);
         }
         Logger.Info($"{Player.GetNameWithRole().RemoveHtmlTags()}がシェリフ失敗({target.GetNameWithRole().RemoveHtmlTags()}) 残り{OptionSheriffShotLimit.GetInt() - NowCount}", "AllArounder");
         Utils.SendMessage(UtilsName.GetPlayerColor(Player, true) + GetString("Meetingkill"), title: GetString("MSKillTitle"));

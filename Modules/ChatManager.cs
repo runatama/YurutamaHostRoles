@@ -450,16 +450,18 @@ namespace TownOfHost.Modules.ChatManager
                 chatController.timeSinceLastMessage = 0;
             }
         }
-        public static void OnDisconnect(byte playerid)
+        public static void OnDisconnectOrDeadPlayer(byte id)
         {
             if (!Options.ExHideChatCommand.GetBool() || !GameStates.IsMeeting || AntiBlackout.IsSet || Roles.Impostor.Assassin.NowUse) return;
 
             if (AntiBlackout.IsCached || AntiBlackout.IsSet) return;
 
             Dictionary<byte, bool> State = new();
+            var deaddata = PlayerCatch.GetPlayerInfoById(id);
+            if (deaddata is not null) deaddata.IsDead = true;
             foreach (var player in PlayerCatch.AllAlivePlayerControls)
             {
-                if (player.PlayerId == playerid) continue;
+                if (player.PlayerId == id) continue;
                 State.TryAdd(player.PlayerId, player.IsAlive());
             }
             GameDataSerializePatch.SerializeMessageCount++;
@@ -471,9 +473,8 @@ namespace TownOfHost.Modules.ChatManager
 
                 foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
                 {
-                    if (tg.PlayerId == playerid) continue;
                     if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (tg.IsModClient()) continue;
+                    if (tg.IsModClient() && tg.PlayerId != id) continue;
                     tg.Data.IsDead = true;
                 }
                 pc.Data.IsDead = false;
