@@ -102,7 +102,7 @@ public sealed class WhiteHacker : RoleBase
     }
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
     {
-        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Maximum > count)
+        if (MyTaskState.HasCompletedEnoughCountOfTasks(cantaskcount) && Maximum > count && voterId == Player.PlayerId)
         {
             if (Player.PlayerId == sourceVotedForId || sourceVotedForId == 253)
             {
