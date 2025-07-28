@@ -27,7 +27,9 @@ namespace TownOfHost
 
             ResolutionManager.SetResolution(Screen.width, Screen.height, Screen.fullScreen);
             Logger.Info($"{__instance.GameId}に参加", "OnGameJoined");
+            SelectRolesPatch.Disconnected.Clear();
             GameStates.IsOutro = false;
+            GameStates.Intro = false;
             Main.playerVersion = new Dictionary<byte, PlayerVersion>();
             RPC.RpcVersionCheck();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -139,7 +141,7 @@ namespace TownOfHost
         static void Prefix([HarmonyArgument(0)] ClientData data)
         {
             if (CustomRoles.Executioner.IsPresent())
-                Executioner.ChangeRoleByTarget(data.Character.PlayerId);
+                Executioner.ChangeRoleByTarget(data?.Character?.PlayerId ?? byte.MaxValue);
         }
         public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData data, [HarmonyArgument(1)] DisconnectReasons reason)
         {
@@ -156,19 +158,24 @@ namespace TownOfHost
                 else if (data.Character == null)
                 {
                     isFailure = true;
+                    SetDisconnect(data);
                     Logger.Warn("退出者のPlayerControlがnull", nameof(OnPlayerLeftPatch));
                 }
                 else if (data.Character.Data == null)
                 {
                     isFailure = true;
+                    SetDisconnect(data);
                     Logger.Warn("退出者のPlayerInfoがnull", nameof(OnPlayerLeftPatch));
                 }
                 else
                 {
+                    if (GameStates.Intro || GameStates.IsInGame)
+                    {
+                        SelectRolesPatch.Disconnected.Add(data.Character.PlayerId);
+                    }
                     if (GameStates.IsInGame)
                     {
                         //data.Character.Data.Role.Role = RoleTypes.CrewmateGhost;
-                        SelectRolesPatch.Disconnected.Add(data.Character.PlayerId);
 
                         Lovers.LoverDisconnected(data.Character);
                         var state = PlayerState.GetByPlayerId(data.Character.PlayerId);
@@ -208,6 +215,17 @@ namespace TownOfHost
                 Logger.Warn($"正常に完了しなかった切断 - 名前:{(data == null || data.PlayerName == null ? "(不明)" : data.PlayerName)}, 理由:{reason}, ping:{AmongUsClient.Instance.Ping}, Platform:{data?.PlatformData?.Platform ?? Platforms.Unknown} , friendcode:{data?.FriendCode ?? "???"} , PuId:{data?.ProductUserId ?? "???"}", "Session");
                 ErrorText.Instance.AddError(AmongUsClient.Instance.GameState is InnerNetClient.GameStates.Started ? ErrorCode.OnPlayerLeftPostfixFailedInGame : ErrorCode.OnPlayerLeftPostfixFailedInLobby);
                 IsIntroError = GameStates.Intro && Options.ExIntroWeight.GetBool() is false;
+            }
+
+            void SetDisconnect(ClientData data)
+            {
+                if (data == null) return;
+                if (GameStates.Intro || GameStates.IsInGame)
+                {
+                    var info = GameData.Instance.AllPlayers.ToArray().Where(info => info.Puid == data.ProductUserId).FirstOrDefault();
+                    if (info == null) return;
+                    SelectRolesPatch.Disconnected.Add(info.PlayerId);
+                }
             }
         }
     }

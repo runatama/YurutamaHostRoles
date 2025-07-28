@@ -372,7 +372,7 @@ namespace TownOfHost.Modules
         public override bool AmValid()
         {
             //キルクとか反映されないから～
-            return base.AmValid() && player != null && (!player.Data.Disconnected || !SelectRolesPatch.Disconnected.Contains(player.PlayerId)) && Main.RealOptionsData != null;
+            return base.AmValid() && player is not null && !(player.Data.Disconnected || SelectRolesPatch.Disconnected.Contains(player.PlayerId)) && Main.RealOptionsData != null;
         }
     }
 }

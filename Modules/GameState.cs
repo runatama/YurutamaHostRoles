@@ -256,7 +256,6 @@ namespace TownOfHost
             MeetingStates.FirstMeeting = true;
             MeetingStates.First = true;
             AlreadyDied = false;
-            Intro = true;
             task = true;
             AfterIntro = false;
             CalledMeeting = false;

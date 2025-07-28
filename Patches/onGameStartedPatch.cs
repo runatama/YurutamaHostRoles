@@ -22,6 +22,7 @@ namespace TownOfHost
         public static void Postfix(AmongUsClient __instance)
         {
             //注:この時点では役職は設定されていません。
+            GameStates.Intro = true;
             Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
 
             if (GameStates.IsOnlineGame && !Main.IsCs())
@@ -185,7 +186,6 @@ namespace TownOfHost
 
             Attributes.GameModuleInitializerAttribute.InitializeAll();
 
-            SelectRolesPatch.Disconnected.Clear();
             RpcSetTasksPatch.HostFin = false;
             Main.DontGameSet = Options.NoGameEnd.GetBool();
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
