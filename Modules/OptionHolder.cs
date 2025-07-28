@@ -31,7 +31,7 @@ namespace TownOfHost
             Logger.Info("Options.Load Start", "Options");
             Main.UseYomiage.Value = false;
 #if RELEASE
-            Main.ViewPingDetails.Value = false; 
+            Main.ViewPingDetails.Value = false;
             Main.DebugSendAmout.Value = false;
             Main.DebugTours.Value = false;
             Main.ShowDistance.Value = false;
