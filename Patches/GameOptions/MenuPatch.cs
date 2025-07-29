@@ -148,10 +148,10 @@ namespace TownOfHost
                     __instance.ChangeTab(0, false);
                 }));
 
-                var AlternateRules = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/PRESETS TABS/AlternateRules");
+                var AlternateRules = __instance.PresetsTab.SecondPresetButton;
                 AlternateRules.transform.localScale = new(0.6f, 0.6f);
                 AlternateRules.transform.localPosition = new(-0.638f, 0.8f);//StandardRules
-                var StandardRules = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/PRESETS TABS/StandardRules");
+                var StandardRules = __instance.PresetsTab.StandardPresetButton;
                 StandardRules.transform.localScale = new(0.6f, 0.6f);
                 StandardRules.transform.localPosition = new(-2.38f, 0.8f, 0);
 
