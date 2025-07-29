@@ -52,18 +52,17 @@ namespace TownOfHost
     [HarmonyPatch(typeof(GameOptionsMenu))]
     class GameOptionsMenuInitializePatch
     {
-        public static bool check = false;
         public static bool CheckModMenu(GameOptionsMenu __instance) => __instance.name.IndexOf("-Stg".AsSpan(), StringComparison.Ordinal) > 0;
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameOptionsMenu.Awake))]
         [HarmonyPatch(nameof(GameOptionsMenu.CloseMenu))]
         public static bool CheckPrefix(GameOptionsMenu __instance)
-            => check || !CheckModMenu(__instance);
+            => !CheckModMenu(__instance);
 
         [HarmonyPatch(nameof(GameOptionsMenu.Initialize)), HarmonyPrefix]
         public static bool InitializePrefix(GameOptionsMenu __instance)
         {
-            if (check || !CheckModMenu(__instance)) return true;
+            if (!CheckModMenu(__instance)) return true;
             __instance.cachedData = GameOptionsManager.Instance.CurrentGameOptions;
             return false;
         }
