@@ -98,6 +98,8 @@ namespace TownOfHost
                         string tag = reader.ReadString();
                         string forkId = 3 <= version.Major ? reader.ReadString() : Main.OriginalForkId;
                         Main.playerVersion[__instance.PlayerId] = new PlayerVersion(version, tag, forkId);
+                        //バージョンが一致した場合送信(SyncAllOptionsでホスト以外は弾かれるためホスト以外は送信しません)
+                        if (GameStartManagerPatch.GameStartManagerUpdatePatch.MatchVersions(__instance.PlayerId)) OptionItem.SyncAllOptions();
                     }
                     catch
                     {
@@ -229,13 +231,13 @@ namespace TownOfHost
         }
         public static async void RpcVersionCheck()//クラッシュの原因。正味まだクライアント対応してないから消してもいい気はする
         {
-            while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
-            /*
+            while (PlayerControl.LocalPlayer == null) await Task.Delay(800);
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck, SendOption.Reliable);
             writer.Write(Main.PluginVersion);
             writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
             writer.Write(Main.ForkId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);*/
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
             Main.playerVersion[PlayerControl.LocalPlayer.PlayerId] = new PlayerVersion(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
         }
         public static void RpcModUnload(byte playerId)
