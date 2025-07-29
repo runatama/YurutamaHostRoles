@@ -586,7 +586,7 @@ namespace TownOfHost
                     option.OptionBehaviour.gameObject.active = true;
                 }
 
-                Object.Destroy(template);
+                Object.Destroy(template.gameObject);
                 ErrorNumber = 7;
                 var templateTabButton = ModSettingsTab.AllButton;
                 {
