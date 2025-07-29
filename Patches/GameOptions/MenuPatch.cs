@@ -155,138 +155,70 @@ namespace TownOfHost
                 StandardRules.transform.localScale = new(0.6f, 0.6f);
                 StandardRules.transform.localPosition = new(-2.38f, 0.8f, 0);
 
+                var RoleReset = CreatePresetButton(GetString("RoleReset"), new Color32(255, 100, 255, byte.MaxValue), 0, () =>
+                {
+                    foreach (var roleopt in Options.CustomRoleSpawnChances)
+                    {
+                        if (roleopt.Value.GetValue() is not 0)
+                            roleopt.Value.SetValue(0);
+                    }
+                });
 
-                var RoleReset = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (RoleReset)
+                var SheriffAndMad = CreatePresetButton(GetString("SheriffAndMadPreset"), new Color32(255, 178, 40, byte.MaxValue), 1, () =>
                 {
-                    RoleReset.buttonText.text = $"{GetString("RoleReset")}";
-                    RoleReset.buttonText.DestroyTranslator();
-                    RoleReset.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    RoleReset.activeSprites.GetComponent<SpriteRenderer>().color =
-                    RoleReset.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 100, 255, byte.MaxValue);
-                    RoleReset.transform.localPosition = new Vector3(5.561f, 1.7467f, 0);
-                    RoleReset.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    RoleReset.OnClick = new();
-                    RoleReset.OnClick.AddListener((Action)(() =>
+                    foreach (var roleopt in Options.CustomRoleSpawnChances)
                     {
-                        foreach (var roleopt in Options.CustomRoleSpawnChances)
-                        {
-                            if (roleopt.Value.GetValue() is not 0)
-                                roleopt.Value.SetValue(0);
-                        }
-                    }));
-                }
-                var SheriffAndMad = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (SheriffAndMad)
+                        bool IsShrima = roleopt.Key is CustomRoles.Sheriff or CustomRoles.MadSnitch or CustomRoles.EvilHacker or CustomRoles.EvilTracker;
+                        roleopt.Value.SetValue(IsShrima ? 10 : 0);
+                    }
+                });
+
+                var SetMenyRole = CreatePresetButton(GetString("SetMenyRole"), new Color32(255, 0, 40, byte.MaxValue), 2, () =>
                 {
-                    SheriffAndMad.buttonText.text = GetString("SheriffAndMadPreset");
-                    SheriffAndMad.buttonText.DestroyTranslator();
-                    SheriffAndMad.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    SheriffAndMad.activeSprites.GetComponent<SpriteRenderer>().color =
-                    SheriffAndMad.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 178, 40, byte.MaxValue);
-                    SheriffAndMad.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f), 0);
-                    SheriffAndMad.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    SheriffAndMad.OnClick = new();
-                    SheriffAndMad.OnClick.AddListener((Action)(() =>
+                    foreach (var roleopt in Options.CustomRoleSpawnChances)
                     {
-                        foreach (var roleopt in Options.CustomRoleSpawnChances)
-                        {
-                            bool IsShrima = roleopt.Key is CustomRoles.Sheriff or CustomRoles.MadSnitch or CustomRoles.EvilHacker or CustomRoles.EvilTracker;
-                            roleopt.Value.SetValue(IsShrima ? 10 : 0);
-                        }
-                    }));
-                }
-                var SetMenyRole = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (SetMenyRole)
+                        bool IsShrima = roleopt.Key is CustomRoles.Jumper or CustomRoles.EvilSatellite or CustomRoles.MadGuardian or CustomRoles.SwitchSheriff or CustomRoles.PonkotuTeller or CustomRoles.Insider
+                        or CustomRoles.Stolener or CustomRoles.Snowman or CustomRoles.Walker or CustomRoles.Jackal or CustomRoles.Jester;
+                        if ((IsShrima ? 10 : 0) != roleopt.Value.GetValue()) roleopt.Value.SetValue(IsShrima ? 10 : 0);
+                    }
+                });
+
+                var SetAllRole = CreatePresetButton($"<#aa84f0>{GetString("AllRole")}</color>", new Color32(69, 24, 153, byte.MaxValue), 3, () =>
                 {
-                    SetMenyRole.buttonText.text = GetString("SetMenyRole");
-                    SetMenyRole.buttonText.DestroyTranslator();
-                    SetMenyRole.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    SetMenyRole.activeSprites.GetComponent<SpriteRenderer>().color =
-                    SetMenyRole.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(255, 0, 40, byte.MaxValue);
-                    SetMenyRole.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 2), 0);
-                    SetMenyRole.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    SetMenyRole.OnClick = new();
-                    SetMenyRole.OnClick.AddListener((Action)(() =>
+                    foreach (var option in Options.CustomRoleSpawnChances)
                     {
-                        foreach (var roleopt in Options.CustomRoleSpawnChances)
+                        var role = option.Key;
+                        if (role is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
+                        if (Event.CheckRole(role) is false) continue;
+                        if (role.IsImpostor() || role.IsCrewmate() || role.IsMadmate() || role.IsNeutral())
                         {
-                            bool IsShrima = roleopt.Key is CustomRoles.Jumper or CustomRoles.EvilSatellite or CustomRoles.MadGuardian or CustomRoles.SwitchSheriff or CustomRoles.PonkotuTeller or CustomRoles.Insider
-                            or CustomRoles.Stolener or CustomRoles.Snowman or CustomRoles.Walker or CustomRoles.Jackal or CustomRoles.Jester;
-                            if ((IsShrima ? 10 : 0) != roleopt.Value.GetValue()) roleopt.Value.SetValue(IsShrima ? 10 : 0);
-                        }
-                    }));
-                }
-                var SetAllRole = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (SetAllRole)
-                {
-                    SetAllRole.buttonText.text = $"<#aa84f0>{GetString("AllRole")}</color>";
-                    SetAllRole.buttonText.DestroyTranslator();
-                    SetAllRole.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    SetAllRole.activeSprites.GetComponent<SpriteRenderer>().color =
-                    SetAllRole.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(69, 24, 153, byte.MaxValue);
-                    SetAllRole.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 3), 0);
-                    SetAllRole.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    SetAllRole.OnClick = new();
-                    SetAllRole.OnClick.AddListener((Action)(() =>
-                    {
-                        foreach (var option in Options.CustomRoleSpawnChances)
-                        {
-                            var role = option.Key;
-                            if (role is CustomRoles.NotAssigned or CustomRoles.Assassin) continue;
-                            if (Event.CheckRole(role) is false) continue;
-                            if (role.IsImpostor() || role.IsCrewmate() || role.IsMadmate() || role.IsNeutral())
-                            {
-                                if (option.Value.GetValue() is not 10)
-                                    option.Value.SetValue(10);
-                            }
-                        }
-                    }));
-                }
-                var SetAllRoleAndAddon = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (SetAllRoleAndAddon)
-                {
-                    SetAllRoleAndAddon.buttonText.text = $"<#aa84f0>{GetString("AllRoleAndSubRole")}</color>";
-                    SetAllRoleAndAddon.buttonText.DestroyTranslator();
-                    SetAllRoleAndAddon.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    SetAllRoleAndAddon.activeSprites.GetComponent<SpriteRenderer>().color =
-                    SetAllRoleAndAddon.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(60, 60, 60, byte.MaxValue);
-                    SetAllRoleAndAddon.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 4), 0);
-                    SetAllRoleAndAddon.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    SetAllRoleAndAddon.OnClick = new();
-                    SetAllRoleAndAddon.OnClick.AddListener((Action)(() =>
-                    {
-                        foreach (var option in Options.CustomRoleSpawnChances)
-                        {
-                            var role = option.Key;
-                            if (role is CustomRoles.NotAssigned) continue;
-                            if (Event.CheckRole(role) is false) continue;
                             if (option.Value.GetValue() is not 10)
                                 option.Value.SetValue(10);
                         }
-                    }));
-                }
-                var SetSuddenDeathMode = Object.Instantiate(GamePresetButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
-                if (SetSuddenDeathMode)
+                    }
+                });
+
+                var SetAllRoleAndAddon = CreatePresetButton($"<#aa84f0>{GetString("AllRoleAndSubRole")}</color>", new Color32(60, 60, 60, byte.MaxValue), 4, () =>
                 {
-                    SetSuddenDeathMode.buttonText.text = $"<#ffaf8a>{GetString("SetSuddenDeathMode")}</color>";
-                    SetSuddenDeathMode.buttonText.DestroyTranslator();
-                    SetSuddenDeathMode.inactiveSprites.GetComponent<SpriteRenderer>().color =
-                    SetSuddenDeathMode.activeSprites.GetComponent<SpriteRenderer>().color =
-                    SetSuddenDeathMode.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(242, 125, 70, byte.MaxValue);
-                    SetSuddenDeathMode.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * 5), 0);
-                    SetSuddenDeathMode.transform.localScale = new Vector3(1.25f, 1.25f, 0);
-                    SetSuddenDeathMode.OnClick = new();
-                    SetSuddenDeathMode.OnClick.AddListener((Action)(() =>
+                    foreach (var option in Options.CustomRoleSpawnChances)
                     {
-                        foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && Event.CheckRole(option.Key)))
-                        {
-                            int IsShrima = option.Key is CustomRoles.Jumper or CustomRoles.Evilgambler or CustomRoles.EvilHacker or CustomRoles.Mole or CustomRoles.QuickKiller or CustomRoles.Sniper
-                            or CustomRoles.UltraStar or CustomRoles.Shyboy or CustomRoles.DoppelGanger or CustomRoles.Terrorist or CustomRoles.Vulture ? 10 : 0;
-                            if (option.Value.GetValue() != IsShrima) option.Value.SetValue(IsShrima);
-                        }
-                    }));
-                }
+                        var role = option.Key;
+                        if (role is CustomRoles.NotAssigned) continue;
+                        if (Event.CheckRole(role) is false) continue;
+                        if (option.Value.GetValue() is not 10)
+                            option.Value.SetValue(10);
+                    }
+                });
+
+                var SetSuddenDeathMode = CreatePresetButton($"<#ffaf8a>{GetString("SetSuddenDeathMode")}</color>", new Color32(242, 125, 70, byte.MaxValue), 5, () =>
+                {
+                    foreach (var option in Options.CustomRoleSpawnChances.Where(option => option.Key is not CustomRoles.NotAssigned && Event.CheckRole(option.Key)))
+                    {
+                        int IsShrima = option.Key is CustomRoles.Jumper or CustomRoles.Evilgambler or CustomRoles.EvilHacker or CustomRoles.Mole or CustomRoles.QuickKiller or CustomRoles.Sniper
+                        or CustomRoles.UltraStar or CustomRoles.Shyboy or CustomRoles.DoppelGanger or CustomRoles.Terrorist or CustomRoles.Vulture ? 10 : 0;
+                        if (option.Value.GetValue() != IsShrima) option.Value.SetValue(IsShrima);
+                    }
+                });
 
                 RoleSettingsButton.gameObject.SetActive(false);
 
@@ -906,6 +838,24 @@ namespace TownOfHost
 
                 InfoTimer = timer.transform.GetComponentInChildren<TMPro.TextMeshPro>();
                 InfoCount = count.transform.GetComponentInChildren<TMPro.TextMeshPro>();
+            }
+
+            PassiveButton CreatePresetButton(string text, Color32 color, int yNum, Action onClick)
+            {
+                var setPresetButton = Object.Instantiate(__instance.GamePresetsButton, __instance.PresetsTab.AlternateRulesText.transform.parent);
+                if (setPresetButton)
+                {
+                    setPresetButton.buttonText.text = text;
+                    setPresetButton.buttonText.DestroyTranslator();
+                    setPresetButton.inactiveSprites.GetComponent<SpriteRenderer>().color =
+                    setPresetButton.activeSprites.GetComponent<SpriteRenderer>().color =
+                    setPresetButton.selectedSprites.GetComponent<SpriteRenderer>().color = color;
+                    setPresetButton.transform.localPosition = new Vector3(5.561f, 1.7467f - (0.89803f * yNum), 0);
+                    setPresetButton.transform.localScale = new Vector3(1.25f, 1.25f, 0);
+                    setPresetButton.OnClick = new();
+                    setPresetButton.OnClick.AddListener(onClick);
+                }
+                return setPresetButton;
             }
         }
     }
