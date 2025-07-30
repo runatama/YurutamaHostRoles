@@ -45,6 +45,7 @@ namespace TownOfHost
             IsClick = false;
             ModoruTabu = (TabGroup.MainSettings, 0);
             timer = -100;
+            tabGenerated = null;
             ShowFilter.CheckAndReset();
         }
     }
@@ -97,6 +98,8 @@ namespace TownOfHost
         public static bool IsClick = false;
         public static TMPro.TextMeshPro InfoTimer;
         public static TMPro.TextMeshPro InfoCount;
+        public static StringOption BaseOption;
+        public static HashSet<TabGroup> tabGenerated;
 
         public static void Postfix(GameSettingMenu __instance)
         {
@@ -110,6 +113,7 @@ namespace TownOfHost
                 rolebutton = new();
                 roleInfobutton = new();
                 NowRoleTab = CustomRoles.NotAssigned;
+                tabGenerated = new();
                 if (HudManager.Instance?.TaskPanel?.open is true)
                 {
                     HudManager.Instance.TaskPanel.ToggleOpen();
@@ -304,70 +308,10 @@ namespace TownOfHost
                 __instance?.GameSettingsTab?.gameObject?.SetActive(true);
                 GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/ROLES TAB(Clone)/Gradient")?.SetActive(false);
 
-                var template = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB/Scroller/SliderInner/GameOption_String(Clone)")?.GetComponent<StringOption>();
+                BaseOption = GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)/MainArea/GAME SETTINGS TAB/Scroller/SliderInner/GameOption_String(Clone)")?.GetComponent<StringOption>();
 
                 ErrorNumber = 4;
-                if (template == null) return;
 
-                template = Object.Instantiate(template);
-                {
-                    Vector3 pos = new();
-                    Vector3 scale = new();
-
-                    template.stringOptionName = AmongUs.GameOptions.Int32OptionNames.TaskBarMode;
-                    //Background
-                    var label = template.LabelBackground.transform;
-                    {
-                        label.localScale = new Vector3(1.3f, 1.14f, 1f);
-                        label.SetLocalX(-2.2695f * w);
-                    }
-                    //プラスボタン
-                    var plusButton = template.PlusBtn.transform;
-                    {
-                        pos = plusButton.localPosition;
-                        scale = plusButton.localScale;
-                        plusButton.localScale = new Vector3(scale.x * w, scale.y * h);
-                        plusButton.localPosition = new Vector3((pos.x + 1.1434f) * w, pos.y * h, pos.z);
-                    }
-                    //マイナスボタン
-                    var minusButton = template.MinusBtn.transform;
-                    {
-                        pos = minusButton.localPosition;
-                        scale = minusButton.localScale;
-                        minusButton.localPosition = new Vector3((pos.x + 0.3463f) * w, (pos.y * h), pos.z);
-                        minusButton.localScale = new Vector3(scale.x * w, scale.y * h);
-                    }
-                    //値を表示するテキスト
-                    var valueTMP = template.ValueText.transform;
-                    {
-                        pos = valueTMP.localPosition;
-                        valueTMP.localPosition = new Vector3((pos.x + 2.5f) * w, pos.y * h, pos.z);
-                        scale = valueTMP.localScale;
-                        valueTMP.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
-                    }
-                    //上のテキストを囲む箱(ﾀﾌﾞﾝ)
-                    var valueBox = template.transform.FindChild("ValueBox");
-                    {
-                        pos = valueBox.localPosition;
-                        valueBox.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
-                        scale = valueBox.localScale;
-                        valueBox.localScale = new Vector3((scale.x + 0.2f) * w, scale.y * h, scale.z);
-                    }
-                    //タイトル(設定名)
-                    var titleText = template.TitleText;
-                    {
-                        var transform = titleText.transform;
-                        pos = transform.localPosition;
-                        transform.localPosition = new Vector3((pos.x + -1.096f) * w, pos.y * h, pos.z);
-                        scale = transform.localScale;
-                        transform.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
-                        titleText.rectTransform.sizeDelta = new Vector2(6.5f, 0.37f);
-                        titleText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
-                        titleText.SetOutlineColor(Color.black);
-                        titleText.SetOutlineThickness(0.125f);
-                    }
-                    template.OnValueChanged = new Action<OptionBehaviour>((o) => { });
-                }
                 list = new();
                 scOptions = new();
                 crlist = new();
@@ -397,196 +341,7 @@ namespace TownOfHost
                 }
 
                 ErrorNumber = 6;
-                var LabelBackgroundSprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
 
-                foreach (var option in OptionItem.AllOptions)
-                {
-                    if (option.OptionBehaviour == null)
-                    {
-                        var parentrole = option.ParentRole;
-                        //役職設定の場合
-                        if (parentrole is not CustomRoles.NotAssigned && option.CustomRole is CustomRoles.NotAssigned)
-                        {
-                            var optionsMenu = crlist[parentrole];
-                            var stringOption = Object.Instantiate(template, optionsMenu.transform);
-                            crOptions[parentrole].Add(stringOption);
-                            roleopts.Add(option);
-                            stringOption.TitleText.text = $"<b>{option.Name}</b>";
-                            stringOption.Value = stringOption.oldValue = option.CurrentValue;
-                            stringOption.ValueText.text = "読み込み中..";
-                            stringOption.name = option.Name;
-
-                            stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
-                            if (option.HideValue)
-                            {
-                                stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
-                                stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
-                            }
-                            // フィルターオプション、属性設定なら
-                            if (option is FilterOptionItem)
-                            {
-                                stringOption.MinusBtn.OnClick = new();
-                                stringOption.MinusBtn.OnClick.AddListener((Action)(() =>
-                                {
-                                    if (option is FilterOptionItem filterOptionItem) filterOptionItem.SetRoleValue(parentrole);
-                                }));
-                                stringOption.MinusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<size=80%>←";
-                                stringOption.PlusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<rotate=-20>ρ";
-                                stringOption.PlusBtn.OnClick = new();
-                                stringOption.PlusBtn.OnClick.AddListener((Action)(() =>
-                                {
-                                    if (rolebutton.TryGetValue(parentrole, out var button))
-                                    {
-                                        button?.OnClick?.Invoke();
-                                    }
-                                    _ = new LateTask(() =>
-                                    {
-                                        ShowFilter.NosetOptin = option;
-                                        ShowFilter.NowSettingRole = parentrole;
-                                        GameSettingMenuChangeTabPatch.meg = GetString("ShowFilters");
-                                    }, 0.2f, "Set", true);
-                                }));
-                            }
-
-                            var transform = stringOption.ValueText.transform;
-                            var pos = transform.localPosition;
-                            transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
-                            stringOption.SetClickMask(optionsMenu.ButtonClickMask);
-                            option.OptionBehaviour = stringOption;
-                        }
-                        else
-                        {
-                            var optionsMenu = list[option.Tab];
-                            var stringOption = Object.Instantiate(template, optionsMenu.transform);
-                            scOptions[option.Tab].Add(stringOption);
-                            stringOption.TitleText.text = $"<b>{option.Name}</b>";
-                            stringOption.Value = stringOption.oldValue = option.CurrentValue;
-                            stringOption.ValueText.text = "読み込み中..";
-                            stringOption.name = option.Name;
-
-                            stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
-                            if (option.HideValue)
-                            {
-                                stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
-                                stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
-                            }
-                            if (option.CustomRole is not CustomRoles.NotAssigned and not CustomRoles.GM)
-                            {
-                                var button = Object.Instantiate(GameSettingsButton, stringOption.transform);
-                                button.inactiveSprites.GetComponent<SpriteRenderer>().sprite =
-                                button.selectedSprites.GetComponent<SpriteRenderer>().sprite = null;
-
-                                button.OnClick = new();
-                                button.buttonText.DestroyTranslator();
-                                button.buttonText.text = " ";
-                                button.gameObject.name = $"{option.Name}OptionButton";
-                                button.transform.localPosition = new Vector3(-2.06f * w, 0.0446f, -2);
-                                button.transform.localScale = new Vector3(1.64f * w, 1.14f * h, 1f);
-                                button.activeSprites.GetComponent<SpriteRenderer>().sprite = LabelBackgroundSprite;
-                                button.activeSprites.GetComponent<SpriteRenderer>().color = UtilsRoleText.GetRoleColor(option.CustomRole).ShadeColor(0.2f).SetAlpha(0.35f);
-
-                                button.OnClick.AddListener((Action)(() =>
-                                {
-                                    if (ShowFilter.NowSettingRole is not CustomRoles.NotAssigned)
-                                    {
-                                        ShowFilter.SetRoleAndReset(option.CustomRole);
-                                        return;
-                                    }
-                                    if (NowRoleTab is not CustomRoles.NotAssigned)
-                                    {
-                                        var atabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
-                                        CategoryHeaderEditRole[] stabsubtitle = atabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
-                                        atabtitle.Title.DestroyTranslator();
-                                        atabtitle.Title.text = GetString("TabGroup." + ModoruTabu.Item1);
-
-                                        atabtitle.Background.color = ModColors.Gray;
-                                        atabtitle.Title.color = Color.white;
-                                        NowRoleTab = CustomRoles.NotAssigned;
-                                        menus[ModoruTabu.Item1].SetActive(true);
-                                        foreach (var sub in stabsubtitle)
-                                        {
-                                            Object.Destroy(sub.gameObject);
-                                        }
-                                        ModSettingsTab.scrollBar.velocity = Vector2.zero;
-                                        ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
-                                        ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, ModoruTabu.Item2, ModSettingsTab.scrollBar.Inner.localPosition.z);
-                                        return;
-                                    }
-                                    button.selected = false;
-                                    NowRoleTab = option.CustomRole;
-                                    ModoruTabu = (option.Tab, ModSettingsTab.scrollBar.Inner.localPosition.y);
-
-                                    menus[option.Tab].SetActive(false);
-                                    crmenus[option.CustomRole].SetActive(true);
-                                    var tabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
-                                    CategoryHeaderEditRole[] tabsubtitle = tabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
-                                    tabtitle.Title.DestroyTranslator();
-                                    Color.RGBToHSV(UtilsRoleText.GetRoleColor(option.CustomRole, true), out var h, out var s, out var v);
-                                    if (v < 0.6f)
-                                    {
-                                        v = 0.6f;
-                                    }
-                                    var rolecolor = Color.HSVToRGB(h, s, v);
-                                    tabtitle.Title.text = Utils.ColorString(rolecolor, GetString(option.CustomRole.ToString()));
-                                    tabtitle.Title.color = Color.white;
-                                    var type = option.CustomRole.GetCustomRoleTypes();
-                                    Color color = ModColors.CrewMateBlue;
-
-                                    switch (type)
-                                    {
-                                        case CustomRoleTypes.Impostor: color = ModColors.ImpostorRed; break;
-                                        case CustomRoleTypes.Madmate: color = ModColors.MadMateOrenge; break;
-                                        case CustomRoleTypes.Neutral: color = ModColors.NeutralGray; break;
-                                        case CustomRoleTypes.Crewmate:
-                                            color = ModColors.CrewMateBlue;
-                                            if (option.CustomRole.IsAddOn()) color = ModColors.AddonsColor;
-                                            if (option.CustomRole.IsGhostRole()) color = ModColors.GhostRoleColor;
-                                            if (option.CustomRole.IsLovers()) color = UtilsRoleText.GetRoleColor(option.CustomRole);
-                                            break;
-                                    }
-
-                                    tabtitle.Background.color = color.ShadeColor(0.7f);
-
-                                    ModSettingsTab.scrollBar.velocity = Vector2.zero;
-                                    ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
-                                    ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
-                                    foreach (var sub in tabsubtitle)
-                                    {
-                                        Object.Destroy(sub.gameObject);
-                                    }
-                                }));
-                                rolebutton.Add(option.CustomRole, button);
-
-                                {
-                                    var infobutton = Object.Instantiate(stringOption.MinusBtn, stringOption.transform);
-                                    {
-                                        infobutton.gameObject.name = $"{option.Name}-InfoButton";
-                                        infobutton.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "?";
-
-                                        infobutton.OnClick = new();
-                                        infobutton.OnClick.AddListener((Action)(() =>
-                                        {
-                                            Nowinfo = option.CustomRole;
-                                            HudManager.Instance.TaskPanel.ToggleOpen();
-                                        }));
-                                        infobutton.gameObject.transform.SetLocalX(0);
-                                        infobutton.gameObject.transform.SetLocalZ(-50);
-
-                                        roleInfobutton.Add(option.CustomRole, infobutton);
-                                    }
-                                }
-                            }
-                            var transform = stringOption.ValueText.transform;
-                            var pos = transform.localPosition;
-                            transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
-                            stringOption.SetClickMask(optionsMenu.ButtonClickMask);
-                            option.OptionBehaviour = stringOption;
-                        }
-                    }
-                    option.OptionBehaviour.gameObject.active = true;
-                }
-
-                Object.Destroy(template.gameObject);
                 ErrorNumber = 7;
                 var templateTabButton = ModSettingsTab.AllButton;
                 {
@@ -664,6 +419,8 @@ namespace TownOfHost
                         {
                             Object.Destroy(sub.gameObject);
                         }
+
+                        CreateOptions(tab, menus, crmenus);
                     }));
 
                     ModSettingsTab.roleTabs.Add(tabButton);
@@ -857,6 +614,268 @@ namespace TownOfHost
                 }
                 return setPresetButton;
             }
+        }
+
+        public static void CreateOptions(TabGroup tab, Dictionary<TabGroup, GameObject> menus, Dictionary<CustomRoles, GameObject> crmenus, bool forceAllTabs = false)
+        {
+            if (!forceAllTabs && tabGenerated.Contains(tab)) return;
+            var template = GetTeamplate();
+            if (template == null) return;
+            var LabelBackgroundSprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Label.LabelBackground.png");
+
+            foreach (var option in OptionItem.AllOptions)
+            {
+                if (!forceAllTabs && option.Tab != tab) continue;
+                if (option.OptionBehaviour == null)
+                {
+                    var parentrole = option.ParentRole;
+                    //役職設定の場合
+                    if (parentrole is not CustomRoles.NotAssigned && option.CustomRole is CustomRoles.NotAssigned)
+                    {
+                        var optionsMenu = crlist[parentrole];
+                        var stringOption = Object.Instantiate(template, optionsMenu.transform);
+                        crOptions[parentrole].Add(stringOption);
+                        roleopts.Add(option);
+                        stringOption.TitleText.text = $"<b>{option.Name}</b>";
+                        stringOption.Value = stringOption.oldValue = option.CurrentValue;
+                        stringOption.ValueText.text = "読み込み中..";
+                        stringOption.name = option.Name;
+
+                        stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
+                        if (option.HideValue)
+                        {
+                            stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                            stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                        }
+                        // フィルターオプション、属性設定なら
+                        if (option is FilterOptionItem)
+                        {
+                            stringOption.MinusBtn.OnClick = new();
+                            stringOption.MinusBtn.OnClick.AddListener((System.Action)(() =>
+                            {
+                                if (option is FilterOptionItem filterOptionItem) filterOptionItem.SetRoleValue(parentrole);
+                            }));
+                            stringOption.MinusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<size=80%>←";
+                            stringOption.PlusBtn.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "<rotate=-20>ρ";
+                            stringOption.PlusBtn.OnClick = new();
+                            stringOption.PlusBtn.OnClick.AddListener((System.Action)(() =>
+                            {
+                                if (rolebutton.TryGetValue(parentrole, out var button))
+                                {
+                                    button?.OnClick?.Invoke();
+                                }
+                                _ = new LateTask(() =>
+                                {
+                                    ShowFilter.NosetOptin = option;
+                                    ShowFilter.NowSettingRole = parentrole;
+                                    GameSettingMenuChangeTabPatch.meg = GetString("ShowFilters");
+                                }, 0.2f, "Set", true);
+                            }));
+                        }
+
+                        var transform = stringOption.ValueText.transform;
+                        var pos = transform.localPosition;
+                        transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        stringOption.SetClickMask(optionsMenu.ButtonClickMask);
+                        option.OptionBehaviour = stringOption;
+                    }
+                    else
+                    {
+                        var optionsMenu = list[option.Tab];
+                        var stringOption = Object.Instantiate(template, optionsMenu.transform);
+                        scOptions[option.Tab].Add(stringOption);
+                        stringOption.TitleText.text = $"<b>{option.Name}</b>";
+                        stringOption.Value = stringOption.oldValue = option.CurrentValue;
+                        stringOption.ValueText.text = "読み込み中..";
+                        stringOption.name = option.Name;
+
+                        stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
+                        if (option.HideValue)
+                        {
+                            stringOption.PlusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                            stringOption.MinusBtn.transform.localPosition = new Vector3(100, 100, 100);
+                        }
+                        if (option.CustomRole is not CustomRoles.NotAssigned and not CustomRoles.GM)
+                        {
+                            var button = Object.Instantiate(GameSettingMenu.Instance.GameSettingsButton, stringOption.transform);
+                            button.inactiveSprites.GetComponent<SpriteRenderer>().sprite =
+                            button.selectedSprites.GetComponent<SpriteRenderer>().sprite = null;
+
+                            button.OnClick = new();
+                            button.buttonText.DestroyTranslator();
+                            button.buttonText.text = " ";
+                            button.gameObject.name = $"{option.Name}OptionButton";
+                            button.transform.localPosition = new Vector3(-2.06f * w, 0.0446f, -2);
+                            button.transform.localScale = new Vector3(1.64f * w, 1.14f * h, 1f);
+                            button.activeSprites.GetComponent<SpriteRenderer>().sprite = LabelBackgroundSprite;
+                            button.activeSprites.GetComponent<SpriteRenderer>().color = UtilsRoleText.GetRoleColor(option.CustomRole).ShadeColor(0.2f).SetAlpha(0.35f);
+
+                            button.OnClick.AddListener((System.Action)(() =>
+                            {
+                                if (ShowFilter.NowSettingRole is not CustomRoles.NotAssigned)
+                                {
+                                    ShowFilter.SetRoleAndReset(option.CustomRole);
+                                    return;
+                                }
+                                if (NowRoleTab is not CustomRoles.NotAssigned)
+                                {
+                                    var atabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
+                                    CategoryHeaderEditRole[] stabsubtitle = atabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
+                                    atabtitle.Title.DestroyTranslator();
+                                    atabtitle.Title.text = GetString("TabGroup." + ModoruTabu.Item1);
+
+                                    atabtitle.Background.color = ModColors.Gray;
+                                    atabtitle.Title.color = Color.white;
+                                    NowRoleTab = CustomRoles.NotAssigned;
+                                    menus[ModoruTabu.Item1].SetActive(true);
+                                    crmenus[option.CustomRole].SetActive(false);
+                                    foreach (var sub in stabsubtitle)
+                                    {
+                                        Object.Destroy(sub.gameObject);
+                                    }
+                                    ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                                    ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                                    ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, ModoruTabu.Item2, ModSettingsTab.scrollBar.Inner.localPosition.z);
+                                    return;
+                                }
+                                button.selected = false;
+                                NowRoleTab = option.CustomRole;
+                                ModoruTabu = (option.Tab, ModSettingsTab.scrollBar.Inner.localPosition.y);
+
+                                menus[option.Tab].SetActive(false);
+                                crmenus[option.CustomRole].SetActive(true);
+                                var tabtitle = ModSettingsTab.transform.FindChild("Scroller/SliderInner/ChancesTab/CategoryHeaderMasked").GetComponent<CategoryHeaderMasked>();
+                                CategoryHeaderEditRole[] tabsubtitle = tabtitle.transform.parent.GetComponentsInChildren<CategoryHeaderEditRole>();
+                                tabtitle.Title.DestroyTranslator();
+                                Color.RGBToHSV(UtilsRoleText.GetRoleColor(option.CustomRole, true), out var h, out var s, out var v);
+                                if (v < 0.6f)
+                                {
+                                    v = 0.6f;
+                                }
+                                var rolecolor = Color.HSVToRGB(h, s, v);
+                                tabtitle.Title.text = Utils.ColorString(rolecolor, GetString(option.CustomRole.ToString()));
+                                tabtitle.Title.color = Color.white;
+                                var type = option.CustomRole.GetCustomRoleTypes();
+                                Color color = ModColors.CrewMateBlue;
+
+                                switch (type)
+                                {
+                                    case CustomRoleTypes.Impostor: color = ModColors.ImpostorRed; break;
+                                    case CustomRoleTypes.Madmate: color = ModColors.MadMateOrenge; break;
+                                    case CustomRoleTypes.Neutral: color = ModColors.NeutralGray; break;
+                                    case CustomRoleTypes.Crewmate:
+                                        color = ModColors.CrewMateBlue;
+                                        if (option.CustomRole.IsAddOn()) color = ModColors.AddonsColor;
+                                        if (option.CustomRole.IsGhostRole()) color = ModColors.GhostRoleColor;
+                                        if (option.CustomRole.IsLovers()) color = UtilsRoleText.GetRoleColor(option.CustomRole);
+                                        break;
+                                }
+
+                                tabtitle.Background.color = color.ShadeColor(0.7f);
+
+                                ModSettingsTab.scrollBar.velocity = Vector2.zero;
+                                ModSettingsTab.scrollBar.Inner.localPosition = new Vector3(ModSettingsTab.scrollBar.Inner.localPosition.x, 0, ModSettingsTab.scrollBar.Inner.localPosition.z);
+                                ModSettingsTab.scrollBar.ScrollRelative(Vector2.zero);
+                                foreach (var sub in tabsubtitle)
+                                {
+                                    Object.Destroy(sub.gameObject);
+                                }
+                            }));
+                            rolebutton.Add(option.CustomRole, button);
+
+                            {
+                                var infobutton = Object.Instantiate(stringOption.MinusBtn, stringOption.transform);
+                                {
+                                    infobutton.gameObject.name = $"{option.Name}-InfoButton";
+                                    infobutton.transform.FindChild("Text_TMP").GetComponent<TMPro.TextMeshPro>().text = "?";
+
+                                    infobutton.OnClick = new();
+                                    infobutton.OnClick.AddListener((System.Action)(() =>
+                                    {
+                                        Nowinfo = option.CustomRole;
+                                        HudManager.Instance.TaskPanel.ToggleOpen();
+                                    }));
+                                    infobutton.gameObject.transform.SetLocalX(0);
+                                    infobutton.gameObject.transform.SetLocalZ(-50);
+
+                                    roleInfobutton.Add(option.CustomRole, infobutton);
+                                }
+                            }
+                        }
+                        var transform = stringOption.ValueText.transform;
+                        var pos = transform.localPosition;
+                        transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        stringOption.SetClickMask(optionsMenu.ButtonClickMask);
+                        option.OptionBehaviour = stringOption;
+                    }
+                }
+                option.OptionBehaviour.gameObject.active = true;
+            }
+
+            tabGenerated.Add(tab);
+            Object.Destroy(template.gameObject);
+        }
+
+        public static StringOption GetTeamplate()
+        {
+            var template = Object.Instantiate(BaseOption);
+            Vector3 pos = new();
+            Vector3 scale = new();
+
+            template.stringOptionName = AmongUs.GameOptions.Int32OptionNames.TaskBarMode;
+            //Background
+            var label = template.LabelBackground.transform;
+            {
+                label.localScale = new Vector3(1.3f, 1.14f, 1f);
+                label.SetLocalX(-2.2695f * w);
+            }
+            //プラスボタン
+            var plusButton = template.PlusBtn.transform;
+            {
+                pos = plusButton.localPosition;
+                scale = plusButton.localScale;
+                plusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+                plusButton.localPosition = new Vector3((pos.x + 1.1434f) * w, pos.y * h, pos.z);
+            }
+            //マイナスボタン
+            var minusButton = template.MinusBtn.transform;
+            {
+                pos = minusButton.localPosition;
+                scale = minusButton.localScale;
+                minusButton.localPosition = new Vector3((pos.x + 0.3463f) * w, (pos.y * h), pos.z);
+                minusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+            }
+            //値を表示するテキスト
+            var valueTMP = template.ValueText.transform;
+            {
+                pos = valueTMP.localPosition;
+                valueTMP.localPosition = new Vector3((pos.x + 2.5f) * w, pos.y * h, pos.z);
+                scale = valueTMP.localScale;
+                valueTMP.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+            }
+            //上のテキストを囲む箱(ﾀﾌﾞﾝ)
+            var valueBox = template.transform.FindChild("ValueBox");
+            {
+                pos = valueBox.localPosition;
+                valueBox.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                scale = valueBox.localScale;
+                valueBox.localScale = new Vector3((scale.x + 0.2f) * w, scale.y * h, scale.z);
+            }
+            //タイトル(設定名)
+            var titleText = template.TitleText;
+            {
+                var transform = titleText.transform;
+                pos = transform.localPosition;
+                transform.localPosition = new Vector3((pos.x + -1.096f) * w, pos.y * h, pos.z);
+                scale = transform.localScale;
+                transform.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                titleText.rectTransform.sizeDelta = new Vector2(6.5f, 0.37f);
+                titleText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
+                titleText.SetOutlineColor(Color.black);
+                titleText.SetOutlineThickness(0.125f);
+            }
+            template.OnValueChanged = new System.Action<OptionBehaviour>((o) => { });
+            return template;
         }
     }
 
