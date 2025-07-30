@@ -201,7 +201,7 @@ namespace TownOfHost
             }
             if (GameStates.IsLobby && !GameStates.InGame)
             {
-                if (GameSettingMenuStartPatch.search?.gameObject?.active ?? false)
+                if (GameSettingMenu.Instance && (GameSettingMenuStartPatch.search?.gameObject?.active ?? false))
                 {
                     /*
                     if (!(HudManager.Instance?.Chat?.IsOpenOrOpening ?? false) && GetKeysDown(KeyCode.Escape) && (GameSettingMenuStartPatch.ModSettingsTab?.gameObject?.active ?? false))
