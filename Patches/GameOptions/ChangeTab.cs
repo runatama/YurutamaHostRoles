@@ -13,6 +13,26 @@ namespace TownOfHost
         public static string meg;
         public static void Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] ref int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
+            var flag1 = previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick;
+            if (flag1 || !previewOnly)
+            {
+                ModSettingsTab.gameObject.SetActive(false);
+                ModSettingsButton.SelectButton(false);
+            }
+
+            if (tabNum == 3)
+            {
+                __instance.MenuDescriptionText.text = meg;
+                ModSettingsTab.gameObject.SetActive(true);
+                ModSettingsButton.SelectButton(true);
+
+                if (!flag1)
+                {
+                    ControllerManager.Instance.OpenOverlayMenu(ModSettingsTab.name, ModSettingsTab.BackButton, ModSettingsTab.DefaultButtonSelected, ModSettingsTab.ControllerSelectable);
+                    ModSettingsTab.EnableTabControllerGlyphs(true);
+                }
+            }
+
             if (!previewOnly)
             {
                 if (tabNum is 0 && !IsClick)
@@ -21,19 +41,6 @@ namespace TownOfHost
                     return;
                 }
                 IsClick = false;
-                var ModSettingsTab = GameSettingMenuStartPatch.ModSettingsTab;
-                if (!ModSettingsTab) return;
-                ModSettingsTab.gameObject.SetActive(false);
-                ModSettingsButton.SelectButton(false);
-                if (tabNum != 3) return;
-                ModSettingsTab.gameObject.SetActive(true);
-
-                __instance.MenuDescriptionText.text = meg;
-
-                __instance.ToggleLeftSideDarkener(true);
-                __instance.ToggleRightSideDarkener(false);
-                ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
-                ModSettingsButton.SelectButton(true);
             }
             else
             {
