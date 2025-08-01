@@ -630,7 +630,7 @@ namespace TownOfHost
                         if (Assassin.NowUse) break;
                         if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && PlayerControl.LocalPlayer.IsAlive() && PlayerControl.LocalPlayer.Is(CustomRoles.Connecting))
                         {
-                            if (GameStates.ExiledAnimate)
+                            if (GameStates.ExiledAnimate || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.WolfBoy)
                             {
                                 canceled = true;
                                 break;
@@ -646,7 +646,7 @@ namespace TownOfHost
                             Logger.Info($"{PlayerControl.LocalPlayer.Data.GetLogPlayerName()} : {send}", "Connectingchat");
                             foreach (var connect in AllPlayerControls)
                             {
-                                if (connect && (connect.Is(CustomRoles.Connecting) || !connect.IsAlive()))
+                                if (connect && ((connect.Is(CustomRoles.Connecting) && !connect.Is(CustomRoles.WolfBoy)) || !connect.IsAlive()))
                                 {
                                     if (AmongUsClient.Instance.AmHost)
                                     {
@@ -1467,14 +1467,14 @@ namespace TownOfHost
                 case "/Connectingchat":
                 case "/cc":
                     if (Assassin.NowUse) break;
-                    if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && player.IsAlive() && player.Is(CustomRoles.Connecting))
+                    if (GameStates.InGame && Options.ConnectingHideChat.GetBool() && player.IsAlive() && player.Is(CustomRoles.Connecting) && !player.Is(CustomRoles.WolfBoy))
                     {
                         string send = "";
                         if (GetHideSendText(ref canceled, ref send) is false) return;
                         Logger.Info($"{player.Data.GetLogPlayerName()} : {send}", "Connectingchat");
                         foreach (var connect in AllPlayerControls)
                         {
-                            if (connect && (connect.Is(CustomRoles.Connecting) || (PlayerControl.LocalPlayer.PlayerId == connect?.PlayerId && !connect.IsAlive())) && connect.PlayerId != player.PlayerId)
+                            if (connect && ((connect.Is(CustomRoles.Connecting) && !connect.Is(CustomRoles.WolfBoy)) || (PlayerControl.LocalPlayer.PlayerId == connect?.PlayerId && !connect.IsAlive())) && connect.PlayerId != player.PlayerId)
                             {
                                 if (AmongUsClient.Instance.AmHost)
                                 {
