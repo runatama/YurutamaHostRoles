@@ -478,7 +478,6 @@ namespace TownOfHost
         public static OptionItem HideSettingsDuringGame;
         public static OptionItem ChangeNameToRoleInfo;
         public static OptionItem RoleAssigningAlgorithm;
-        public static OptionItem UseLobbyTpCommand;
         public static OptionItem UseZoom;
 
         public static OptionItem ApplyDenyNameList;
@@ -1184,9 +1183,6 @@ namespace TownOfHost
                 .RegisterUpdateValueEvent(
                     (object obj, OptionItem.UpdateValueEventArgs args) => IRandom.SetInstanceById(args.CurrentValue)
                 );
-            UseLobbyTpCommand = BooleanOptionItem.Create(1_000_007, "UseLobbyTpCommand", true, TabGroup.MainSettings, false)
-                .SetGameMode(CustomGameMode.All)
-                .SetColorcode("#00c1ff");
             UseZoom = BooleanOptionItem.Create(1_000_008, "UseZoom", true, TabGroup.MainSettings, false)
                 .SetGameMode(CustomGameMode.All)
                 .SetColorcode("#9199a1");

@@ -763,7 +763,7 @@ namespace TownOfHost
                     case "/allplayertp":
                     case "/apt":
                         canceled = true;
-                        if (!GameStates.IsLobby) break;
+                        if (!GameStates.IsLobby || !Main.IsCs()) break;
                         foreach (var tp in PlayerCatch.AllPlayerControls)
                         {
                             Vector2 position = new(0.0f, 0.0f);
@@ -1296,7 +1296,7 @@ namespace TownOfHost
 
 
                 case "/tp":
-                    if (!GameStates.IsLobby || !Options.UseLobbyTpCommand.GetBool() || args.Length < 1) break;
+                    if (!GameStates.IsLobby || args.Length < 1 || !Main.IsCs()) break;
                     canceled = true;
                     subArgs = args[1];
                     switch (subArgs)

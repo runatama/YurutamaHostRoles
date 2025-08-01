@@ -61,19 +61,6 @@ namespace TownOfHost
 
             if (AmongUsClient.Instance.AmHost)
             {//実行クライアントがホストの場合のみ実行
-                if (GameStates.IsLobby)
-                {
-                    //非導入者が遥か彼方へ行かないように。
-                    if (!player.IsModClient())
-                    {
-                        if (player?.transform?.position is null) return;
-                        Vector2 pj = player.transform.position;
-                        if (pj.y < -8) player.RpcSnapToForced(Vector2.zero);
-                        if (pj.y > 8) player.RpcSnapToForced(Vector2.zero);
-                        if (pj.x < -8) player.RpcSnapToForced(Vector2.zero);
-                        if (pj.x > 8) player.RpcSnapToForced(Vector2.zero);
-                    }
-                }
                 if (__instance && GameStates.IsInTask)
                 {
                     if (ReportDeadBodyPatch.CanReport[__instance.PlayerId] && ReportDeadBodyPatch.WaitReport[__instance.PlayerId].Count > 0)

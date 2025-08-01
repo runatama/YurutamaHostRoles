@@ -827,7 +827,6 @@
 "SuffixMode.RoomHost","Room Host","部屋主","房主","房主","Хост Румы","Anfitrião",""
 "SuffixMode.OriginalName","OriginalName","元の名前","玩家名称","玩家原名稱","Настоящий Никнейм","Nome Original",""
 "SuffixMode.Timer","Timer","ルームタイマー"
-"UseLobbyTpCommand","Can Use /tp","tpコマンドを有効にする"
 "ApplyDenyNameList","Apply DenyName List","DenyNameリストを適用する","启用违禁昵称名单","自動禁止具有不良名字的人加入","Применить файл запрещённых имён (DenyName)","Aplicar Lista de Nomes Proibidos (DenyName)",""
 "KickPlayerFriendCodeNotExist","Kick Players Whose Friend Code Does Not Exist","フレンドコードを持たないとkickする","踢出好友编号无效的玩家","將沒有好友代碼的玩家自動踢出","Кикнуть игроков у которых нет Кода Друга","Expulsar Jogadores Sem Código de Amigo",""
 "KickModClient","Kick Not Host Mod Client","ホスト以外のModクライアントをキックする"
