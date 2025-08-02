@@ -222,11 +222,17 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
         if (modeLimiter)//爆弾最優先
         {
             var Targets = new List<PlayerControl>(PlayerCatch.AllAlivePlayerControls);
+            info.DoKill = false;
             foreach (var bomtarget in Targets)
             {
-                info.DoKill = false;
                 var distance = Vector3.Distance(Player.transform.position, bomtarget.transform.position);
                 if (distance > Limiterblastrange) continue;
+                if (bomtarget.PlayerId == Player.PlayerId)
+                {
+                    PlayerState.GetByPlayerId(Player.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                    Player.RpcMurderPlayer(Player);
+                    continue;
+                }
                 if (CustomRoleManager.OnCheckMurder(Player, bomtarget, bomtarget, bomtarget, true, true, 2))
                 {
                     PlayerState.GetByPlayerId(bomtarget.PlayerId).DeathReason = CustomDeathReason.Bombed;
