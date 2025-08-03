@@ -13,23 +13,23 @@ namespace TownOfHost
         public static string meg;
         public static void Prefix(GameSettingMenu __instance, [HarmonyArgument(0)] ref int tabNum, [HarmonyArgument(1)] bool previewOnly)
         {
-            var flag1 = previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick;
+            var flag1 = previewOnly && Controller.currentTouchType is Controller.TouchType.Joystick;
             if (flag1 || !previewOnly)
             {
-                ModSettingsTab.gameObject.SetActive(false);
-                ModSettingsButton.SelectButton(false);
+                ModSettingsTab?.gameObject?.SetActive(false);
+                ModSettingsButton?.SelectButton(false);
             }
 
             if (tabNum == 3)
             {
                 __instance.MenuDescriptionText.text = meg;
-                ModSettingsTab.gameObject.SetActive(true);
-                ModSettingsButton.SelectButton(true);
+                ModSettingsTab?.gameObject?.SetActive(true);
+                ModSettingsButton?.SelectButton(true);
 
                 if (!flag1)
                 {
-                    ControllerManager.Instance.OpenOverlayMenu(ModSettingsTab.name, ModSettingsTab.BackButton, ModSettingsTab.DefaultButtonSelected, ModSettingsTab.ControllerSelectable);
-                    ModSettingsTab.EnableTabControllerGlyphs(true);
+                    ControllerManager.Instance?.OpenOverlayMenu(ModSettingsTab.name, ModSettingsTab.BackButton, ModSettingsTab.DefaultButtonSelected, ModSettingsTab.ControllerSelectable);
+                    ModSettingsTab?.EnableTabControllerGlyphs(true);
                 }
             }
 
@@ -92,6 +92,11 @@ namespace TownOfHost
                     meg = GetString("ModSettingInfo7");
             }
             else meg = GetString("ModSettingInfo9");
+
+            if (Widthratio is not 1 || Heightratio is not 1)
+            {
+                meg = $"<size=60%>{meg}</size><size=70%>\n\n{GetString("ModSettingInfo_Camratio")}";
+            }
 
             if (tabNum == 1)
             {

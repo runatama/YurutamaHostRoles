@@ -78,7 +78,7 @@ namespace TownOfHost
                 GameSettings.text = Main.ShowGameSettingsTMP.Value ? OptionShower.GetText() : "";
                 GameSettings.SetOutlineColor(Color.black);
                 GameSettings.SetOutlineThickness(0.13f);
-                GameSettings.transform.localPosition = new(-3.325f * GameSettingMenuStartPatch.w, 2.78f);
+                GameSettings.transform.localPosition = new(-3.325f * GameSettingMenuStartPatch.Widthratio, 2.78f);
                 GameSettings.fontSizeMin =
                 GameSettings.fontSizeMax = (TranslationController.Instance.currentLanguage.languageID == SupportedLangs.Japanese || Main.ForceJapanese.Value) ? 1.05f : 1.2f;
 

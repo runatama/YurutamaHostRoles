@@ -2426,3 +2426,4 @@
 "Search","Search","検索"
 "IntroLeftPlayerError","If you are experiencing the same person error drop during the intro, please try turning on the yellow “Intro Disconnect Rpc Weight” setting at the top of the \n “Mod Settings”.","イントロ時に同一人物のエラー落ちが多発する場合、\n「Mod設定」の上の方にある黄色の「イントロの通信量を改善してみる」設定をONにしてお試しください。"
 "RenameError.NotLobby","The /rename command cannot be used outside of the lobby.","/renameコマンドはロビー以外で使用できません。"
+"ModSettingInfo_Camratio","It is not 16:9 aspect ratio!!\nThe UI will be broken!","画面比率が16:9のものではありません!!\nUIが崩れます!"

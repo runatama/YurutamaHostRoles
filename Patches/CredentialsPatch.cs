@@ -76,7 +76,7 @@ namespace TownOfHost
 
                 var offset_x = 2.5f; //右端からのオフセット
                 if (HudManager.InstanceExists && HudManager._instance.Chat.gameObject.active) offset_x += 0.6f; //チャットがある場合の追加オフセット
-                credentialsText.transform.localPosition = new Vector3((5.6779f * GameSettingMenuStartPatch.h) - offset_x, 3.0745f, 0f);
+                credentialsText.transform.localPosition = new Vector3((5.6779f * GameSettingMenuStartPatch.Heightratio) - offset_x, 3.0745f, 0f);
 
                 if (GameStates.IsLobby)
                 {

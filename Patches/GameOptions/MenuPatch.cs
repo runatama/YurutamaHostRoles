@@ -72,8 +72,8 @@ namespace TownOfHost
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
     class GameSettingMenuStartPatch
     {
-        public static float w = 1;
-        public static float h = 1;
+        public static float Widthratio = 1;
+        public static float Heightratio = 1;
         public static bool ShowModSetting;
         public static PassiveButton ModSettingsButton;
         public static RolesSettingsMenu ModSettingsTab;
@@ -296,7 +296,7 @@ namespace TownOfHost
 
                     var tabButton = Object.Instantiate(templateTabButton, templateTabButton.transform.parent);
                     tabButton.name = tab.ToString();
-                    tabButton.transform.position = templateTabButton.transform.position + new Vector3((0.762f * i * 0.8f) + (0.762f * i * w * 0.2f), 0, -300f);
+                    tabButton.transform.position = templateTabButton.transform.position + new Vector3((0.762f * i * 0.8f) + (0.762f * i * Widthratio * 0.2f), 0, -300f);
                     tabButton.inactiveSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 60);
                     tabButton.activeSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_S_{tab}.png", 120);
                     tabButton.selectedSprites.GetComponent<SpriteRenderer>().sprite = UtilsSprite.LoadSprite($"TownOfHost.Resources.Tab.TabIcon_{tab}.png", 120);
@@ -494,7 +494,7 @@ namespace TownOfHost
             {
                 var ToggleButton = Object.Instantiate(HudManager.Instance.SettingsButton.GetComponent<PassiveButton>(), GameObject.Find("Main Camera/PlayerOptionsMenu(Clone)").transform);
                 ToggleButton.GetComponent<AspectPosition>().DistanceFromEdge += new Vector3(position.x, 0, 200f);
-                ToggleButton.transform.localScale -= new Vector3(0.25f * w, 0.25f * h);
+                ToggleButton.transform.localScale -= new Vector3(0.25f * Widthratio, 0.25f * Heightratio);
                 ToggleButton.name = text;
                 if (sprite != null)
                 {
@@ -591,7 +591,7 @@ namespace TownOfHost
 
                         var transform = stringOption.ValueText.transform;
                         var pos = transform.localPosition;
-                        transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        transform.localPosition = new Vector3((pos.x + 0.7322f) * Widthratio, pos.y * Heightratio, pos.z);
                         stringOption.SetClickMask(optionsMenu.ButtonClickMask);
                         option.OptionBehaviour = stringOption;
                     }
@@ -621,8 +621,8 @@ namespace TownOfHost
                             button.buttonText.DestroyTranslator();
                             button.buttonText.text = " ";
                             button.gameObject.name = $"{option.Name}OptionButton";
-                            button.transform.localPosition = new Vector3(-2.06f * w, 0.0446f, -2);
-                            button.transform.localScale = new Vector3(1.64f * w, 1.14f * h, 1f);
+                            button.transform.localPosition = new Vector3(-2.06f * Widthratio, 0.0446f, -2);
+                            button.transform.localScale = new Vector3(1.64f * Widthratio, 1.14f * Heightratio, 1f);
                             button.activeSprites.GetComponent<SpriteRenderer>().sprite = LabelBackgroundSprite;
                             button.activeSprites.GetComponent<SpriteRenderer>().color = UtilsRoleText.GetRoleColor(option.CustomRole).ShadeColor(0.2f).SetAlpha(0.35f);
 
@@ -721,7 +721,7 @@ namespace TownOfHost
                         }
                         var transform = stringOption.ValueText.transform;
                         var pos = transform.localPosition;
-                        transform.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                        transform.localPosition = new Vector3((pos.x + 0.7322f) * Widthratio, pos.y * Heightratio, pos.z);
                         stringOption.SetClickMask(optionsMenu.ButtonClickMask);
                         option.OptionBehaviour = stringOption;
                     }
@@ -744,48 +744,48 @@ namespace TownOfHost
             var label = template.LabelBackground.transform;
             {
                 label.localScale = new Vector3(1.3f, 1.14f, 1f);
-                label.SetLocalX(-2.2695f * w);
+                label.SetLocalX(-2.2695f * Widthratio);
             }
             //プラスボタン
             var plusButton = template.PlusBtn.transform;
             {
                 pos = plusButton.localPosition;
                 scale = plusButton.localScale;
-                plusButton.localScale = new Vector3(scale.x * w, scale.y * h);
-                plusButton.localPosition = new Vector3((pos.x + 1.1434f) * w, pos.y * h, pos.z);
+                plusButton.localScale = new Vector3(scale.x * Widthratio, scale.y * Heightratio);
+                plusButton.localPosition = new Vector3((pos.x + 1.1434f) * Widthratio, pos.y * Heightratio, pos.z);
             }
             //マイナスボタン
             var minusButton = template.MinusBtn.transform;
             {
                 pos = minusButton.localPosition;
                 scale = minusButton.localScale;
-                minusButton.localPosition = new Vector3((pos.x + 0.3463f) * w, (pos.y * h), pos.z);
-                minusButton.localScale = new Vector3(scale.x * w, scale.y * h);
+                minusButton.localPosition = new Vector3((pos.x + 0.3463f) * Widthratio, (pos.y * Heightratio), pos.z);
+                minusButton.localScale = new Vector3(scale.x * Widthratio, scale.y * Heightratio);
             }
             //値を表示するテキスト
             var valueTMP = template.ValueText.transform;
             {
                 pos = valueTMP.localPosition;
-                valueTMP.localPosition = new Vector3((pos.x + 2.5f) * w, pos.y * h, pos.z);
+                valueTMP.localPosition = new Vector3((pos.x + 2.5f) * Widthratio, pos.y * Heightratio, pos.z);
                 scale = valueTMP.localScale;
-                valueTMP.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                valueTMP.localScale = new Vector3(scale.x * Widthratio, scale.y * Heightratio, scale.z);
             }
             //上のテキストを囲む箱(ﾀﾌﾞﾝ)
             var valueBox = template.transform.FindChild("ValueBox");
             {
                 pos = valueBox.localPosition;
-                valueBox.localPosition = new Vector3((pos.x + 0.7322f) * w, pos.y * h, pos.z);
+                valueBox.localPosition = new Vector3((pos.x + 0.7322f) * Widthratio, pos.y * Heightratio, pos.z);
                 scale = valueBox.localScale;
-                valueBox.localScale = new Vector3((scale.x + 0.2f) * w, scale.y * h, scale.z);
+                valueBox.localScale = new Vector3((scale.x + 0.2f) * Widthratio, scale.y * Heightratio, scale.z);
             }
             //タイトル(設定名)
             var titleText = template.TitleText;
             {
                 var transform = titleText.transform;
                 pos = transform.localPosition;
-                transform.localPosition = new Vector3((pos.x + -1.096f) * w, pos.y * h, pos.z);
+                transform.localPosition = new Vector3((pos.x + -1.096f) * Widthratio, pos.y * Heightratio, pos.z);
                 scale = transform.localScale;
-                transform.localScale = new Vector3(scale.x * w, scale.y * h, scale.z);
+                transform.localScale = new Vector3(scale.x * Widthratio, scale.y * Heightratio, scale.z);
                 titleText.rectTransform.sizeDelta = new Vector2(6.5f, 0.37f);
                 titleText.alignment = TMPro.TextAlignmentOptions.MidlineLeft;
                 titleText.SetOutlineColor(Color.black);

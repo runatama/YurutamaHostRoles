@@ -182,7 +182,7 @@ namespace TownOfHost
             //#######################################
 
             var showInitially = Main.ShowResults.Value;
-            var x = GameSettingMenuStartPatch.w == 1 ? 0 : 0.3f;
+            var x = GameSettingMenuStartPatch.Widthratio == 1 ? 0 : 0.3f;
             showHideButton = new SimpleButton(
                 __instance.transform,
                 "ShowHideResultsButton",
