@@ -72,7 +72,7 @@ public sealed class Psychic : RoleBase
     public override void OnDestroy() => Psychics.Clear();
     public float GetChance()
     {
-        var MaxPercent = callrate;
+        var MaxPercent = callrate * 100;
         float proportion = MyTaskState.CompletedTasksCount * 100 / MyTaskState.AllTasksCount;
 
         if (taskaddrate)
