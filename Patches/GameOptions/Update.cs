@@ -388,24 +388,13 @@ namespace TownOfHost
             #endregion
         }
     }
-    [HarmonyPatch(typeof(NumberOption), nameof(NumberOption.FixedUpdate))]
-    class NumberOptionFixUpdataPatch
+    [HarmonyPatch(typeof(GameOptionButton), nameof(GameOptionButton.SetInteractable))]
+    class GameOptionButtonSetInteractablePatch
     {
-        public static void Postfix(NumberOption __instance)
+        public static bool Prefix(GameOptionButton __instance)
         {
-            if (__instance?.PlusBtn == null || __instance?.MinusBtn == null) return;
-            __instance.PlusBtn.isInteractable = true;
-            __instance.MinusBtn.isInteractable = true;
-        }
-    }
-    [HarmonyPatch(typeof(StringOption), nameof(StringOption.FixedUpdate))]
-    class StringOptionFixUpdataPatch
-    {
-        public static void Postfix(StringOption __instance)
-        {
-            if (__instance?.PlusBtn == null || __instance?.MinusBtn == null) return;
-            __instance.PlusBtn.isInteractable = true;
-            __instance.MinusBtn.isInteractable = true;
+            __instance.isInteractable = true;
+            return false;
         }
     }
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Update))]
