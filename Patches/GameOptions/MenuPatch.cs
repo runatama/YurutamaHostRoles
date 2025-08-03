@@ -53,7 +53,7 @@ namespace TownOfHost
     [HarmonyPatch(typeof(GameOptionsMenu))]
     class GameOptionsMenuInitializePatch
     {
-        public static bool CheckModMenu(GameOptionsMenu __instance) => __instance.name.IndexOf("-Stg".AsSpan(), StringComparison.Ordinal) > 0;
+        public static bool CheckModMenu(GameOptionsMenu __instance) => __instance.name.IndexOf("-Stg".AsSpan().ToString(), StringComparison.Ordinal) > 0;
         [HarmonyPrefix]
         [HarmonyPatch(nameof(GameOptionsMenu.Awake))]
         [HarmonyPatch(nameof(GameOptionsMenu.CloseMenu))]
