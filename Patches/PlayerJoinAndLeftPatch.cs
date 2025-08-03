@@ -192,7 +192,7 @@ namespace TownOfHost
                         state.SetDead();
                         AntiBlackout.OnDisconnect(data.Character.Data);
                         PlayerGameOptionsSender.RemoveSender(data.Character);
-                        PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, force: true));
+                        //PlayerCatch.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, RevertToDefault: true, force: true));
                         UtilsNotifyRoles.NotifyRoles(NoCache: true);
                         ChatManager.OnDisconnectOrDeadPlayer(data.Character.PlayerId);
                     }
