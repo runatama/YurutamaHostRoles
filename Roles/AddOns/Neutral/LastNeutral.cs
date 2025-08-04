@@ -16,8 +16,8 @@ namespace TownOfHost.Roles.AddOns.Neutral
         public static OptionItem ChKilldis;
         //追加勝利
         public static OptionItem GiveOpportunist;
-        public static OptionItem CanNotCrewWin;
-        public static OptionItem CanNotTaskWin;
+        public static OptionItem CanCrewWin;
+        public static OptionItem CanTaskWin;
         //ゲッサー
         public static OptionItem GiveGuesser;
         public static OptionItem CanGuessTime; public static OptionItem OwnCanGuessTime;
@@ -46,8 +46,8 @@ namespace TownOfHost.Roles.AddOns.Neutral
             ChKilldis = BooleanOptionItem.Create(Id + 7, "ChKilldis", false, TabGroup.Addons, false).SetParentRole(CustomRoles.LastNeutral).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]);
             OverrideKilldistance.Create(Id + 5, TabGroup.Addons, CustomRoles.LastNeutral);
             GiveOpportunist = BooleanOptionItem.Create(Id + 10, "GiveOpportunist", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
-            CanNotCrewWin = BooleanOptionItem.Create(Id + 30, "LastNeutralCanNotCrewWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist).SetParentRole(CustomRoles.LastNeutral);
-            CanNotTaskWin = BooleanOptionItem.Create(Id + 31, "LastNeutralCanNottaskwWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist).SetParentRole(CustomRoles.LastNeutral);
+            CanCrewWin = BooleanOptionItem.Create(Id + 30, "LastNeutralCanCrewWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist).SetParentRole(CustomRoles.LastNeutral);
+            CanTaskWin = BooleanOptionItem.Create(Id + 31, "LastNeutralCantaskWin", false, TabGroup.Addons, false).SetParent(GiveOpportunist).SetParentRole(CustomRoles.LastNeutral);
             GiveGuesser = BooleanOptionItem.Create(Id + 11, "GiveGuesser", false, TabGroup.Addons, false).SetParent(CustomRoleSpawnChances[CustomRoles.LastNeutral]).SetParentRole(CustomRoles.LastNeutral);
             CanGuessTime = IntegerOptionItem.Create(Id + 12, "CanGuessTime", new(1, 15, 1), 3, TabGroup.Addons, false).SetParent(GiveGuesser).SetParentRole(CustomRoles.LastNeutral)
                 .SetValueFormat(OptionFormat.Players);
@@ -122,16 +122,15 @@ namespace TownOfHost.Roles.AddOns.Neutral
         }
         public static bool CheckAddWin(PlayerControl pc, GameOverReason reason)
         {
-            if (!pc.Is(CustomRoles.LastNeutral) || GiveOpportunist.GetBool()) return false;
-            if (reason.Equals(GameOverReason.CrewmatesByTask) && !CanNotTaskWin.GetBool()) return false;
-            if (CustomWinnerHolder.WinnerTeam is CustomWinner.Crewmate
-            && reason.Equals(GameOverReason.CrewmatesByVote) && !reason.Equals(GameOverReason.CrewmatesByTask)
-            && !CanNotCrewWin.GetBool()) return false;
+            if ((pc.Is(CustomRoles.LastNeutral) && GiveOpportunist.GetBool()) is false) return false;
+            if (reason.Equals(GameOverReason.CrewmatesByTask) && !CanTaskWin.GetBool()) return false;
+            if (reason.Equals(GameOverReason.CrewmatesByVote) && !CanCrewWin.GetBool()) return false;
 
             if (pc.GetCustomRole() is CustomRoles.Terrorist or CustomRoles.Madonna) return false;
 
             if (pc.IsAlive() && !pc.IsLovers())
             {
+                Logger.Info($"{pc.Data.GetLogPlayerName()} : LastNeutralで追加勝利", "LastNeutral");
                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.LastNeutral);
                 return true;
