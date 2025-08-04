@@ -243,7 +243,7 @@ namespace TownOfHost
 
             var pc = AmongUsClient.Instance.allClients.ToArray().Where(x => x.Id == clientId).FirstOrDefault();
 
-            Logger.Info($"({pc?.PlayerName ?? "???"}){player?.Data?.GetLogPlayerName() ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
+            //Logger.Info($"({pc?.PlayerName ?? "???"}){player?.Data?.GetLogPlayerName() ?? "( ᐛ )"} =>  {role}", "RpcSetRoleDesync");
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {

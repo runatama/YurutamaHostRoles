@@ -117,7 +117,7 @@ namespace TownOfHost
 
             if (newOutfit.Compare(target.Data.DefaultOutfit) && force is false) return;
 
-            Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
+            //Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
 
             var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
 

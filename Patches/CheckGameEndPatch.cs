@@ -119,6 +119,7 @@ namespace TownOfHost
                                 var winnerRole = pc.GetCustomRole();
                                 if (additionalWinner.CheckWin(ref winnerRole))
                                 {
+                                    Logger.Info($"{pc.Data.GetLogPlayerName()}:{winnerRole}での追加勝利", "AdditinalWinner");
                                     CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                                     CustomWinnerHolder.AdditionalWinnerRoles.Add(winnerRole);
                                     continue;

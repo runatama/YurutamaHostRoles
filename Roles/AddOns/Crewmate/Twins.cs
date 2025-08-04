@@ -92,6 +92,7 @@ class Twins
             //相方が勝利してるなら
             if (CustomWinnerHolder.WinnerIds.Contains(twins.Value) || CustomWinnerHolder.WinnerRoles.Contains(twins.Value.GetPlayerControl()?.GetCustomRole() ?? CustomRoles.Emptiness))
             {   // Id追加して勝利
+                Logger.Info($"{twins.Key}:相方勝利に相乗り勝利", "Twins");
                 CustomWinnerHolder.WinnerIds.Add(twins.Key);
                 if (!flug)
                 {

@@ -159,7 +159,7 @@ namespace TownOfHost
             Logger.Msg($"\"{stack.GetMethod().ReflectedType.Name}.{stack.GetMethod().Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
         }
 
-        public static LogHandler Handler(string tag)
-            => new(tag);
+        public static LogHandler Handler(string tag, bool escapeCRLF = true)
+            => new(tag, escapeCRLF);
     }
 }

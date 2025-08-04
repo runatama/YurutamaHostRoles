@@ -39,6 +39,7 @@ namespace TownOfHost.Roles.AddOns.Common
                 if (pc.Is(CustomRoles.LastNeutral) && LastNeutral.GiveOpportunist.GetBool()) goto remove;
                 if (!pc.IsAlive() && SurvivetoWin.GetBool()) goto remove;
 
+                Logger.Info($"{pc.Data.GetLogPlayerName()}:天邪鬼で追加勝利", "Amanojaku");
                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
                 CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.Amanojaku);
                 return true;
