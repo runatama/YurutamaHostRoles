@@ -30,11 +30,14 @@ namespace TownOfHost
             //初期化
             var flug = false;
             StringBuilder sb = new();
-            pages = new()
+            pages = new();
             {
                 //1ページに基本ゲーム設定を格納
-                GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10) + "\n\n"
-            };
+                StringBuilder gameoptionsb = new();
+                GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").SkipLast(8)
+                .Do(option => gameoptionsb.Append(option + "\r\n"));
+                pages.Add(gameoptionsb.ToString() + "\r\n");
+            }
             //ゲームモードの表示
             sb.Append($"{Options.GameMode.GetName()}: {Options.GameMode.GetString()}\n\n");
             //sb.AppendFormat("{0}: {1}\n\n", RoleAssignManager.OptionAssignMode.GetName(), RoleAssignManager.OptionAssignMode.GetString());
