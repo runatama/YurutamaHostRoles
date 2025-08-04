@@ -19,7 +19,9 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
             3900,
             SetupOptionItem,
             "Ba",
-            OptionSort: (3, 0)
+            OptionSort: (3, 0),
+            Desc: () => string.Format(GetString("BalloonerDesc"), OptionChargeWalk.GetFloat(), OptionChargeStep.GetFloat(), OptionMaxBoomDis.GetFloat(),
+            OptionAfterMeetingRemoveCharge.GetFloat(), OptionSuicide.GetBool() ? GetString("BalloonerSuicide") : "")
         );
     public Ballooner(PlayerControl player)
     : base(

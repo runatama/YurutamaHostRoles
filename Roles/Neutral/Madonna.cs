@@ -25,7 +25,8 @@ public sealed class Madonna : RoleBase
             assignInfo: new RoleAssignInfo(CustomRoles.Madonna, CustomRoleTypes.Neutral)
             {
                 AssignCountRule = new(1, 1, 1)
-            }
+            },
+            Desc: () => string.Format(GetString("MadonnaDesc"), GetString(ChangeRoles[OptionLoverChenge.GetValue()].ToString()), Optionlimit.GetInt())
         );
     public Madonna(PlayerControl player)
     : base(
@@ -183,7 +184,7 @@ public sealed class Madonna : RoleBase
             Player.RpcSetCustomRole(LoverChenge, true, log: true);
         }
         else
-        if (limit <= UtilsGameLog.day && IsNonLover && Player.IsAlive())
+        if (limit <= (UtilsGameLog.day - 1) && IsNonLover && Player.IsAlive())
         {
             Player.RpcExileV2();
             MyState.SetDead();
@@ -197,6 +198,6 @@ public sealed class Madonna : RoleBase
     {
         if (!Player.IsAlive() || !IsNonLover || Player.Is(CustomRoles.MadonnaLovers)) return "";
 
-        return $" <color={RoleInfo.RoleColorCode}>({UtilsGameLog.day}/{limit})</color>";
+        return $" <color={(UtilsGameLog.day == limit ? "#ff1919" : $"{RoleInfo.RoleColorCode}")}>({UtilsGameLog.day}/{limit})</color>";
     }
 }

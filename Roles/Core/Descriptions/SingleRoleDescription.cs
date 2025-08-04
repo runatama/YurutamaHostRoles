@@ -20,7 +20,8 @@ public class SingleRoleDescription : RoleDescription
     {
         get
         {
-            if (RoleInfo.Desc == null) return Translator.GetString(DescriptionKey);
+            // Descの英語対応後、消す
+            if (RoleInfo.Desc == null || !Main.UseingJapanese) return Translator.GetString(DescriptionKey);
             var CustomDescription = RoleInfo.Desc();
 
             if (CustomDescription == null) return Translator.GetString(DescriptionKey);

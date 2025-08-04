@@ -7,7 +7,7 @@ namespace TownOfHost
         /// <summary></summary>
         /// <param name="player">色表示にするプレイヤー</param>
         /// <param name="bold">trueの場合ボールドで返します。</param>
-        public static string GetPlayerColor(PlayerControl player, bool bold = false)
+        public static string GetPlayerColor(this PlayerControl player, bool bold = false)
         {
             if (player == null) return "";
             var name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var N) ? N : player.Data.PlayerName;
@@ -18,7 +18,7 @@ namespace TownOfHost
         /// <summary></summary>
         /// <param name="player">色表示にするプレイヤー</param>
         /// <param name="bold">trueの場合ボールドで返します。</param>
-        public static string GetPlayerColor(byte player, bool bold = false)
+        public static string GetPlayerColor(this byte player, bool bold = false)
         {
             var pc = PlayerCatch.GetPlayerById(player);
             if (pc == null) return "";
@@ -30,7 +30,7 @@ namespace TownOfHost
         /// <summary></summary>
         /// <param name="player">色表示にするプレイヤー</param>
         /// <param name="bold">trueの場合ボールドで返します。</param>
-        public static string GetPlayerColor(NetworkedPlayerInfo player, bool bold = false)
+        public static string GetPlayerColor(this NetworkedPlayerInfo player, bool bold = false)
         {
             if (player == null) return "";
             var name = player.PlayerName;

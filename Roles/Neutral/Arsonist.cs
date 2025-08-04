@@ -25,7 +25,8 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
             (3, 0),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
-            from: From.TownOfUs
+            from: From.TownOfUs,
+            Desc: () => string.Format(GetString("ArsonistDesc"), Optionfire.GetBool() ? GetString(StringNames.PhantomAbility) : GetString("Vent"))
         );
     public Arsonist(PlayerControl player)
     : base(
@@ -186,6 +187,7 @@ public sealed class Arsonist : RoleBase, IKiller, IUsePhantomButton
                     Player.SetKillCooldown();
                     TargetInfo = null;//塗が完了したのでTupleから削除
                     IsDoused[ar_target.PlayerId] = true;//塗り完了
+                    UtilsGameLog.AddGameLog("Arsonist", string.Format(GetString("ArsonistLogInfo"), ar_target.GetPlayerColor()));
                     SendRPC(RPC_type.SetDousedPlayer, ar_target.PlayerId, true);
                     UtilsNotifyRoles.NotifyRoles();//名前変更
                     SendRPC(RPC_type.SetCurrentDousingTarget);
