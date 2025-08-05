@@ -26,6 +26,15 @@ namespace TownOfHost
         public static TextMeshPro HideName;
         private static TextMeshPro GameMaster;
 
+        public static string GetTimerString()
+        {
+            int minutes = (int)timer / 60;
+            int seconds = (int)timer % 60;
+            string countDown = $"{minutes:00}:{seconds:00}";
+            if (timer <= 60) countDown = Utils.ColorString(Color.red, countDown);
+            return countDown;
+        }
+
         [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
         public class GameStartManagerStartPatch
         {
@@ -191,22 +200,18 @@ namespace TownOfHost
                     return;
 
                 timer = Mathf.Max(0f, timer -= Time.deltaTime);
-                int minutes = (int)timer / 60;
-                int seconds = (int)timer % 60;
-                string countDown = $"{minutes:00}:{seconds:00}";
 
-                var timerv = GameObject.Find("ModeLabel")?.transform?.FindChild("Text_TMP")?.GetComponent<TextMeshPro>();
+                var timerLabel = GameObject.Find("ModeLabel")?.transform?.FindChild("Text_TMP")?.GetComponent<TextMeshPro>();
 
-                if (__instance.RulesPresetText != null && timerv != null)
+                if (__instance.RulesPresetText != null && timerLabel != null)
                 {
-                    if (timer <= 60) countDown = Utils.ColorString(Color.red, countDown);
-                    timerv.DestroyTranslator();
+                    timerLabel.DestroyTranslator();
+                    timerLabel.text = "タイマー";
                     __instance.RulesPresetText.DestroyTranslator();
-                    __instance.RulesPresetText.text = countDown;
-                    timerv.text = GetString("SuffixMode.Timer").RemoveDeltext("ルーム");
+                    __instance.RulesPresetText.text = GetTimerString();
                 }
             }
-            private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
+            public static bool MatchVersions(byte playerId, bool acceptVanilla = false)
             {
                 if (!Main.playerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
                 return Main.ForkId == version.forkId

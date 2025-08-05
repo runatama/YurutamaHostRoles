@@ -68,6 +68,12 @@ namespace TownOfHost
                     else
                         GameSettingMenuChangeTabPatch.meg = GetString("ModSettingInfo7");
                 }
+
+                var isOnline = AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame;
+                var localString = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
+
+                if (InfoTimer) InfoTimer.text = isOnline ? GameStartManagerPatch.GetTimerString() : localString;
+                if (InfoCount) InfoCount.text = GameStartManager._instance.PlayerCounter.text;
             }
             catch { }
 

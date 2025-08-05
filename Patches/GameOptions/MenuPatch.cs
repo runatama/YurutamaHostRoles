@@ -49,6 +49,25 @@ namespace TownOfHost
         }
     }
 
+    [HarmonyPatch(typeof(GameOptionsMenu))]
+    class GameOptionsMenuInitializePatch
+    {
+        public static bool check = false;
+        public static bool CheckModMenu(GameOptionsMenu __instance) => __instance.name.IndexOf("-Stg".AsSpan(), StringComparison.Ordinal) > 0;
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(GameOptionsMenu.Awake))]
+        [HarmonyPatch(nameof(GameOptionsMenu.CloseMenu))]
+        public static bool CheckPrefix(GameOptionsMenu __instance)
+            => check || !CheckModMenu(__instance);
+
+        [HarmonyPatch(nameof(GameOptionsMenu.Initialize)), HarmonyPrefix]
+        public static bool InitializePrefix(GameOptionsMenu __instance)
+        {
+            if (check || !CheckModMenu(__instance)) return true;
+            __instance.cachedData = GameOptionsManager.Instance.CurrentGameOptions;
+            return false;
+        }
+    }
 
     [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
     class GameSettingMenuStartPatch
@@ -77,6 +96,9 @@ namespace TownOfHost
         public static (TabGroup, float) ModoruTabu;
         public static float timer;
         public static bool IsClick = false;
+        public static TMPro.TextMeshPro InfoTimer;
+        public static TMPro.TextMeshPro InfoCount;
+
         public static void Postfix(GameSettingMenu __instance)
         {
             var ErrorNumber = 0;
@@ -460,7 +482,7 @@ namespace TownOfHost
                             roleopts.Add(option);
                             stringOption.TitleText.text = $"<b>{option.Name}</b>";
                             stringOption.Value = stringOption.oldValue = option.CurrentValue;
-                            stringOption.ValueText.text = option.GetString();
+                            stringOption.ValueText.text = "読み込み中..";
                             stringOption.name = option.Name;
 
                             stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
@@ -508,7 +530,7 @@ namespace TownOfHost
                             scOptions[option.Tab].Add(stringOption);
                             stringOption.TitleText.text = $"<b>{option.Name}</b>";
                             stringOption.Value = stringOption.oldValue = option.CurrentValue;
-                            stringOption.ValueText.text = option.GetString();
+                            stringOption.ValueText.text = "読み込み中..";
                             stringOption.name = option.Name;
 
                             stringOption.LabelBackground.sprite = LabelBackground.OptionLabelBackground(option.Name) ?? LabelBackgroundSprite;
@@ -836,6 +858,10 @@ namespace TownOfHost
                     timer = 3;
                 }), UtilsSprite.LoadSprite("TownOfHost.Resources.LOAD-STG.png", 180f));
                 ErrorNumber = 13;
+
+                CreateLobbyInfo();
+
+                ErrorNumber = 14;
             }
             catch (Exception Error)
             {
@@ -863,6 +889,24 @@ namespace TownOfHost
                 textTMP.fontSize = 10f;
                 ToggleButton.OnClick = new();
                 ToggleButton.OnClick.AddListener(action);
+            }
+
+            void CreateLobbyInfo()
+            {
+                var baseTimer = GameStartManager._instance.RulesPresetText.transform.parent;
+                var baseCount = GameStartManager._instance.PlayerCounter.transform.parent;
+
+                var timer = GameObject.Instantiate(baseTimer, __instance.transform);
+                var count = GameObject.Instantiate(baseCount, __instance.transform);
+
+                timer.transform.localPosition = new(-1.7905f, 3.9055f, -200f);
+                count.transform.localPosition = new(-2.35f, 2.6545f, -200f);
+
+                timer.transform.localScale = new(0.45f, 0.45f, 1);
+                count.transform.localScale = new(0.45f, 0.45f, 1);
+
+                InfoTimer = timer.transform.GetComponentInChildren<TMPro.TextMeshPro>();
+                InfoCount = count.transform.GetComponentInChildren<TMPro.TextMeshPro>();
             }
         }
     }
