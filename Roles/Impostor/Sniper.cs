@@ -23,7 +23,16 @@ public sealed class Sniper : RoleBase, IImpostor
             SetupOptionItem,
             "snp",
             OptionSort: (3, 10),
-            from: From.NebulaontheShip
+            from: From.NebulaontheShip,
+            Desc: () =>
+            {
+                var adddesc = "";
+                if (SniperAimAssist.GetBool()) adddesc += GetString("SniperDescAimAssist");
+                if (OpShowArrowTime.GetBool()) adddesc += string.Format(GetString("SniperDescArrow"), OpShowArrowTime.GetFloat());
+                if (OpCankill.GetBool() is false) adddesc += GetString("SniperDescCantKill");
+
+                return string.Format(GetString("SniperDesc"), SniperBulletCount.GetInt()) + adddesc;
+            }
         );
     public Sniper(PlayerControl player)
     : base(

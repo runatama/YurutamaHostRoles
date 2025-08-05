@@ -18,7 +18,8 @@ public sealed class Jumper : RoleBase, IImpostor, IUsePhantomButton
             3000,
             SetupOptionItem,
             "Jm",
-            OptionSort: (1, 1)
+            OptionSort: (1, 1),
+            Desc: () => string.Format(GetString("JumperDesc"), OptionJumpdis.GetFloat(), OptionJumpcount.GetFloat())
         );
     public Jumper(PlayerControl player)
     : base(

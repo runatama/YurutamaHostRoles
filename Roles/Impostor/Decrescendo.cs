@@ -2,6 +2,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using UnityEngine;
 
 namespace TownOfHost.Roles.Impostor;
 
@@ -17,8 +18,22 @@ public sealed class Decrescendo : RoleBase, IImpostor
             21000,
             SetupOptionItem,
             "De",
-            OptionSort: (8, 2)
-        );
+            OptionSort: (8, 2),
+            Desc: () =>
+            {
+                var killcool = OptionNomalKillCool.GetFloat();
+                var killx = OptionKillCoolx.GetFloat();
+                var visiondesc = "";
+                if (OptionDecVision.GetBool())
+                {
+                    var vision = Main.NormalOptions.ImpostorLightMod;
+                    var visionx = OptionVisionx.GetFloat();
+                    visiondesc = string.Format(GetString("DecrescendDescVision"), vision, (vision * visionx).Round(0.01f), (vision * visionx * visionx).Round(0.01f), OptionMinVision.GetFloat());
+                }
+
+                return string.Format(GetString("DecrescendDesc"), OptionDecKillcount.GetInt(), killcool, (killcool * killx).Round(0.1f), (killcool * killx * killx).Round(0.1f), OptionMaxKillCool.GetFloat(), visiondesc);
+            }
+);
     public Decrescendo(PlayerControl player)
     : base(
         RoleInfo,

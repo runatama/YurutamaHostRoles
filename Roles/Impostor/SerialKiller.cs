@@ -20,7 +20,8 @@ namespace TownOfHost.Roles.Impostor
                 SetUpOptionItem,
                 "sk",
                 OptionSort: (7, 0),
-                from: From.TOR_GM_Edition
+                from: From.TOR_GM_Edition,
+                Desc: () => string.Format(GetString("SerialKillerDesc"), OptionTimeLimit.GetFloat())
             );
         public SerialKiller(PlayerControl player)
         : base(

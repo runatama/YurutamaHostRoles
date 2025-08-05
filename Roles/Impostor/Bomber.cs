@@ -21,7 +21,8 @@ namespace TownOfHost.Roles.Impostor
                 3800,
                 SetupOptionItem,
                 "bb",
-                OptionSort: (3, 1)
+                OptionSort: (3, 1),
+                Desc: () => string.Format(GetString("BomberDesc"), OptionKillDelay.GetFloat(), OptionBomberExplosion.GetInt())
             );
         public Bomber(PlayerControl player)
         : base(

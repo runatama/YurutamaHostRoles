@@ -622,6 +622,22 @@ namespace TownOfHost
             casted = obj.TryCast<T>();
             return casted != null;
         }
+        public static float Round(this float value, float digit)
+        {
+            var roundvalue = Mathf.Round(value / digit);
+            if ((roundvalue * digit).ToString().Contains("."))
+            {
+                var roundvaluestring = $"{roundvalue * digit}";
+                string[] ages = roundvaluestring.Split(".");
+                if (ages[1].Count() > digit.ToString().RemoveDeltext("0.", ".").Count())
+                {
+                    var ages1 = ages[1].ToString().Substring(0, digit.ToString().RemoveDeltext("0.", ".").Count());
+
+                    return float.TryParse(ages[0] + "." + ages1, out var result) ? result : roundvalue * digit;
+                }
+            }
+            return roundvalue * digit;
+        }
         public const string AdditionalWinnerMark = "<#dddd00>★</color>";
 
         public static void SyncAllSettings()

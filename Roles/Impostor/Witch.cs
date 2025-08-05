@@ -22,7 +22,20 @@ namespace TownOfHost.Roles.Impostor
                 SetupOptionItem,
                 "wi",
                 OptionSort: (3, 9),
-                from: From.TheOtherRoles
+                from: From.TheOtherRoles,
+                Desc: () =>
+                {
+                    var trigger = (SwitchTrigger)OptionModeSwitchAction.GetValue();
+                    switch (trigger)
+                    {
+                        case SwitchTrigger.WitchOcButton:
+                            return GetString("WitchPhantomButtonDesc");
+                        case SwitchTrigger.TriggerDouble:
+                            return GetString("WhichdoubleclickDesc");
+                        default:
+                            return string.Format(GetString("WitchDesc"), GetString($"{(trigger is SwitchTrigger.TriggerKill ? "Which_Kill" : (trigger is SwitchTrigger.OnPhantom ? "Which_Phantom" : "Which_Vent"))}"));
+                    }
+                }
             );
         public Witch(PlayerControl player)
         : base(
