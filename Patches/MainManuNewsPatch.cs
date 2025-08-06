@@ -1690,12 +1690,14 @@ public class ModNewsHistory
             {
                 var news = new ModNews
                 {
-                    Number = 100065,
+                    Number = 100066,
                     Title = "～.30.1xの内容通知書～",
-                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.13.30.11</color>",
-                    ShortTitle = "<color=#00c1ff>◆TOH-K v.51.13.30.11</color>",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.13.30.1x</color>",
+                    ShortTitle = "<color=#00c1ff>◆TOH-K v.51.13.30.1x</color>",
                     Text = "<size=80%>\n2周年に向けて準備を...(2周年何しよう...)"
                     + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・イントロ緩和設定ON時にクールタイムなどが同期されなくなる問題の修正\n"
+                    + "～～～～～～ v30.16 ～～～～～～\n"
                     + "・怪盗が追加勝利を奪えないことがある問題の修正\n"
                     + "・占いが自身の事を占ってる問題の修正\n"
                     + "・妖狐が通信妨害を修正できた問題の修正\n"
@@ -1740,14 +1742,13 @@ public class ModNewsHistory
                     + "・ロビー以外で/renameを使用不可に\n"
                     + "・/tpコマンドをカスタムサーバーのみに。\n"
                     + "・けーわいさんが設定画面軽くしたりなんかついかしたりした。\n"
-                    + ""
                     + "\n<size=125%>【新設定】</size>\n"
                     + "・記憶喪失者にラストインポスター時に自覚する設定の追加\n"
                     + "・ドッペルゲンガーにシェイプ中のカウント加算設定の追加\n"
                     + "<size=60%>・クルーメイトタブにエンジニアのデフォルト設定を追加(イツダッケ)\n"
                     + "・試験的設定に\"会議前に視界を暗転させる\"設定の追加。(.11)</size>\n\nねむい。おひさ。by:yoran"
                     ,
-                    Date = "2025-07-10T21:00:00Z"
+                    Date = "2025-08-06T21:00:00Z"
                 };
                 AllModNews.Add(news);
             }

@@ -133,7 +133,7 @@ namespace TownOfHost
                 IsSet = true;
                 Iswaitsend = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
-                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId || !PlayerControl.LocalPlayer.IsAlive())
                 {
                     byte[] DontImpostrTargetIds = [PlayerControl.LocalPlayer.PlayerId, (result?.Exiled?.PlayerId ?? byte.MaxValue)];
                     var impostortarget = PlayerCatch.AllAlivePlayerControls.Where(pc => !DontImpostrTargetIds.Contains(pc.PlayerId)).FirstOrDefault();
