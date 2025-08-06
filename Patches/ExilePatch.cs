@@ -233,7 +233,7 @@ namespace TownOfHost
         {
             if (PlayerCatch.AllPlayersCount < 4)
             {
-                __instance.completeString = Translator.GetString(Translator.GetString(StringNames.NoExileTie));
+                __instance.completeString = Translator.GetString(StringNames.NoExileTie);
                 return true;
             }
             var result = AntiBlackout.voteresult;
