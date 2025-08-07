@@ -296,6 +296,7 @@ namespace TownOfHost
                 int adjustedNumImpostors = GameOptionsManager.Instance.CurrentGameOptions.GetAdjustedNumImpostors(playerInfos.Count);
                 //一応呼ぶ....呼ぶ..
                 RoleManager.Instance.DebugRoleAssignments(playerInfos, ref adjustedNumImpostors);
+                if (CustomRoles.Amnesiac.IsPresent()) adjustedNumImpostors--;
 
                 GameManager.Instance.LogicRoleSelection.AssignRolesForTeam(playerInfos, currentGameOptions, RoleTeamTypes.Impostor, adjustedNumImpostors, new Il2CppSystem.Nullable<RoleTypes>(RoleTypes.Impostor));
                 GameManager.Instance.LogicRoleSelection.AssignRolesForTeam(playerInfos, currentGameOptions, RoleTeamTypes.Crewmate, int.MaxValue, new Il2CppSystem.Nullable<RoleTypes>(RoleTypes.Crewmate));
