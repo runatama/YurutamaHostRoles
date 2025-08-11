@@ -103,7 +103,7 @@ namespace TownOfHost
                 {
                     var OldWinnerRole = (CustomRoles)WinnerTeam;
                     var WinnerRole = (CustomRoles)winner;
-                    if (WinnerTeam is not CustomWinner.Default and CustomWinner.Draw)
+                    if (WinnerTeam is not CustomWinner.Default and not CustomWinner.Draw)
                         UtilsGameLog.AddGameLog("Winner", $"{UtilsRoleText.GetRoleColorAndtext(OldWinnerRole)} => {UtilsRoleText.GetRoleColorAndtext(WinnerRole)}");
                     //単独勝利
                     Reset();

@@ -372,7 +372,7 @@ namespace TownOfHost
                     break;
                 }
 
-                if (mes.Length > 700)
+                if (mes.Length > 700 && log.Key < day)
                 {
                     SendMessage(mes.ToString().RemoveDeltext("<b>").RemoveDeltext("</b>"), PlayerId);
                     mes = mes.Clear();
