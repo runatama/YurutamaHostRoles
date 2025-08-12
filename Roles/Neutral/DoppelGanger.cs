@@ -163,8 +163,8 @@ public sealed class DoppelGanger : RoleBase, ILNKiller, ISchrodingerCatOwner, IA
         {
             UseingShape = true;
             Seconds += Time.fixedDeltaTime;
-            return;
         }
+        else
         if (Target != byte.MaxValue)
         {
             UseingShape = true;
