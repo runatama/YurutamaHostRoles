@@ -433,7 +433,7 @@ namespace TownOfHost
             TextColor = comms ? Color.gray : NormalColor;
             string Completed = comms ? "?" : $"{state.taskState.CompletedTasksCount}";
             var isHasntTask = state == null || state.taskState == null || !state.taskState.hasTasks;
-            if (ShowManegementText && !pc.Is(CustomRoles.Amnesia) && missrole is not CustomRoles.NotAssigned)
+            if (ShowManegementText && !pc.Is(CustomRoles.Amnesia) && missrole is CustomRoles.NotAssigned)
             {
                 if (!isalive && Options.GhostCanSeeAllTasks.GetBool() && !pc.Is(CustomRoles.AsistingAngel) && (!pc.IsGhostRole() || Options.GhostRoleCanSeeAllTasks.GetBool()))//死んでて霊界がタスク進捗を見れるがON
                 {
