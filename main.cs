@@ -205,6 +205,7 @@ namespace TownOfHost
                         TownOfHost.Logger.Disable("ReceiveRPC");
                         TownOfHost.Logger.Disable("SwitchSystem");
                         TownOfHost.Logger.Disable("CustomRpcSender");
+                        TownOfHost.Logger.Disable("CoroutinPatcher");
                         //TownOfHost.Logger.isDetail = true;
 
                         // 認証関連-初期化
