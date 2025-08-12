@@ -60,5 +60,12 @@ public static class HqHudSystemTypeUpdateSystemPatch
     {
         Camouflage.CheckCamouflage();
         UtilsNotifyRoles.NotifyRoles();
+        if (PlayerControl.LocalPlayer.Data.RoleType is AmongUs.GameOptions.RoleTypes.Engineer && PlayerControl.LocalPlayer.inVent)
+        {
+            if (VentilationSystemUpdateSystemPatch.NowVentId.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ventid))
+            {
+                PlayerControl.LocalPlayer.MyPhysics.RpcExitVent(ventid);
+            }
+        }
     }
 }
