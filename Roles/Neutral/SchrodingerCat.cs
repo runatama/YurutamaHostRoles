@@ -151,6 +151,7 @@ public sealed class SchrodingerCat : RoleBase, IAdditionalWinner, IDeathReasonSe
                 var rolecolor = RoleInfo.RoleColorCode;
                 if (member.Is(CustomRoles.WolfBoy))
                 {
+                    if (killerRoleId is not CustomRoles.WolfBoy) continue;
                     rolecolor = WolfBoy.Shurenekodotti.GetBool() ? UtilsRoleText.GetRoleColorCode(CustomRoles.Impostor) : "#ffffff";
                 }
                 NameColorManager.Add(member.PlayerId, Player.PlayerId, rolecolor);
