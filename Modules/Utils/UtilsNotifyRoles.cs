@@ -175,8 +175,15 @@ namespace TownOfHost
                         SeerRealName = name;
 
                     if (MeetingStates.FirstMeeting && (Options.ChangeNameToRoleInfo.GetBool() || SuddenDeathMode.NowSuddenDeathMode) && Main.ShowRoleIntro)
+                    {
                         SeerRealName = seer?.GetRoleDesc() ?? "";
-
+                        if (GameStates.introDestroyed is false)
+                        {
+                            SelfMark.Clear();
+                            SelfSuffix.Clear();
+                            if (lover is not CustomRoles.NotAssigned and not CustomRoles.OneLove) SelfMark.Append(ColorString(GetRoleColor(lover), "♥"));
+                        }
+                    }
                     var colorName = SeerRealName.ApplyNameColorData(seer, seer, false);
 
                     //seerの役職名とSelfTaskTextとseerのプレイヤー名とSelfMarkを合成
