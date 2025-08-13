@@ -170,8 +170,8 @@ HostModなので部屋主のみModを導入すれば、<br>
 - [マッドリデュース](https://github.com/KYMario/TownOfHost-K/wiki/マッドリデュース)
 - [マッドアベンジャー](https://github.com/KYMario/TownOfHost-K/wiki/マッドアベンジャー)
 - [マッドジェスター](https://github.com/KYMario/TownOfHost-K/wiki/マッドジェスター)
-- [マッドワーカー](https://github.com/KYMario/TownOfHost-K/wiki/)
-- [サイドキックマッドメイト](https://github.com/KYMario/TownOfHost-K/wiki/)
+- [マッドワーカー](https://github.com/KYMario/TownOfHost-K/wiki/マッドワーカー)
+- [サイドキックマッドメイト](https://github.com/KYMario/TownOfHost-K/wiki/サイドキックマッドメイト)
 
 </details>
 
