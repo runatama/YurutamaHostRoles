@@ -110,7 +110,7 @@ namespace TownOfHost
                     Lovers.LoversAddWin();
 
                     //追加勝利陣営
-                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.GetCustomRole() is CustomRoles.PhantomThief or CustomRoles.Turncoat or CustomRoles.AllArounder || pc.Is(CustomRoles.AsistingAngel)))
+                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => !CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId) || pc.GetCustomRole() is CustomRoles.Turncoat or CustomRoles.AllArounder))
                     {
                         if (!pc.IsLovers() && !pc.Is(CustomRoles.Amanojaku))
                         {
@@ -129,18 +129,20 @@ namespace TownOfHost
                         LastNeutral.CheckAddWin(pc, reason);
                         Amanojaku.CheckWin(pc, reason);
 
-                        if (pc.GetRoleClass() is PhantomThief phantomThief)
-                        {
-                            phantomThief.CheckWin();
-                        }
-
-                        AsistingAngel.CheckAddWin(pc.PlayerId);
                     }
                 }
                 if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw)
                 {
                     CurseMaker.CheckWin();
                     Fox.SFoxCheckWin(ref reason);
+                }
+                AsistingAngel.CheckAddWin();
+                foreach (var phantomthiefplayer in PlayerCatch.AllAlivePlayerControls.Where(pc => pc.GetCustomRole() is CustomRoles.PhantomThief))
+                {
+                    if (phantomthiefplayer.GetRoleClass() is PhantomThief phantomThief)
+                    {
+                        phantomThief.CheckWin();
+                    }
                 }
                 foreach (var player in PlayerCatch.AllPlayerControls)
                 {

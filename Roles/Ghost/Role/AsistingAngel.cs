@@ -135,23 +135,26 @@ namespace TownOfHost.Roles.Ghost
 
             return "";
         }
-        public static bool CheckAddWin(byte playerid)
+        public static bool CheckAddWin()
         {
-            if (playerid.GetPlayerState().GhostRole is CustomRoles.AsistingAngel)
+            if (AsistingAngelId.GetPlayerState().GhostRole is CustomRoles.AsistingAngel)
             {
                 if (Asist != null)
                 {
-                    if (CustomWinnerHolder.WinnerIds.Contains(Asist.PlayerId))
+                    if (CustomWinnerHolder.WinnerIds.Contains(Asist.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(Asist.GetCustomRole()))
                     {
-                        CustomWinnerHolder.WinnerIds.Add(playerid);
+                        CustomWinnerHolder.WinnerIds.Add(AsistingAngelId);
                         CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.AsistingAngel);
-                        Logger.Info($"{playerid} => Asist対象が勝利したので自身も勝利", "AsistingAngel");
+                        Logger.Info($"{AsistingAngelId} => Asist対象が勝利したので自身も勝利", "AsistingAngel");
                         return true;
                     }
-                    Logger.Info($"{playerid} => Asist対象が負けてるので負け。", "AsistingAngel");
+                    Logger.Info($"{AsistingAngelId} => Asist対象が負けてるので負け。", "AsistingAngel");
                 }
-                Logger.Info($"{playerid} => Asist対象がいないので負け", "AsistingAngel");
-                CustomWinnerHolder.CantWinPlayerIds.Add(playerid);
+                else
+                {
+                    Logger.Info($"{AsistingAngelId} => Asist対象がいないので負け", "AsistingAngel");
+                }
+                CustomWinnerHolder.CantWinPlayerIds.Add(AsistingAngelId);
             }
 
             return false;
