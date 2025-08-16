@@ -57,7 +57,7 @@ public sealed class InSender : RoleBase
             Logger.Info($"{tien}sの追加遅延発生!!", "InSender");
         }
         var (killer, target) = info.AttemptTuple;
-        if (target.Is(CustomRoles.InSender) && !info.IsSuicide && !info.IsFakeSuicide && (!OptCanUseActiveComms.GetBool() || !Utils.IsActive(SystemTypes.Comms)))
+        if (target.Is(CustomRoles.InSender) && !info.IsSuicide && !info.IsFakeSuicide && (OptCanUseActiveComms.GetBool() || !Utils.IsActive(SystemTypes.Comms)))
             _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(target, target.Data, false), 0.15f + OptReportDelay.GetFloat() + tien, "InSender Self Report");
     }
 
