@@ -223,7 +223,7 @@ namespace TownOfHost
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
                     {
                         sender.StartRpc(pc.NetId, RpcCalls.SetRole)
-                        .Write((ushort)RoleTypes.Crewmate)
+                        .Write((ushort)RoleTypes.CrewmateGhost)
                         .Write(true)
                         .EndRpc();
                         continue;

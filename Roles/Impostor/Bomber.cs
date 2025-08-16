@@ -108,14 +108,11 @@ namespace TownOfHost.Roles.Impostor
                         {
                             var dis = Vector2.Distance(pos, target2.transform.position);
                             if (dis > Blastrange) continue;
-                            if (target2.IsAlive())
+                            if (CustomRoleManager.OnCheckMurder(Player, target2, target2, target2, true, true, 1))
                             {
-                                if (CustomRoleManager.OnCheckMurder(Player, target2, target2, target2, true, true, 1))
-                                {
-                                    PlayerState.GetByPlayerId(target2.PlayerId).DeathReason = CustomDeathReason.Bombed;
-                                    RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
-                                    Logger.Info($"{target2.name}を爆発させました。", "bomber");
-                                }
+                                PlayerState.GetByPlayerId(target2.PlayerId).DeathReason = CustomDeathReason.Bombed;
+                                RPC.PlaySoundRPC(Player.PlayerId, Sounds.KillSound);
+                                Logger.Info($"{target2.name}を爆発させました。", "bomber");
                             }
                         }
                     }
