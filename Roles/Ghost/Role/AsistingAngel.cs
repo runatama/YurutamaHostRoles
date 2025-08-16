@@ -137,7 +137,8 @@ namespace TownOfHost.Roles.Ghost
         }
         public static bool CheckAddWin()
         {
-            if (AsistingAngelId.GetPlayerState().GhostRole is CustomRoles.AsistingAngel)
+            if (AsistingAngelId is byte.MaxValue) return false;
+            if (AsistingAngelId.GetPlayerState()?.GhostRole is CustomRoles.AsistingAngel)
             {
                 if (Asist != null)
                 {

@@ -1752,6 +1752,38 @@ public class ModNewsHistory
                 };
                 AllModNews.Add(news);
             }
+            {
+                var news = new ModNews
+                {
+                    Number = 100067,
+                    Title = "㊗ TOH-K Discord鯖1000人突破！",
+                    SubTitle = "<color=#00c1ff>Town Of Host-K v.51.13.30.17</color>",
+                    ShortTitle = "<color=#00c1ff>◆TOH-K v.51.13.30.17</color>",
+                    Text = "<size=80%>\n皆様いつもありがとうございます。Discord入ってない人は入ってね。\n"
+                    + "\n<size=125%>【期間限定役職】</size>\n"
+                    + "Discord1000人突破記念にケーキが届いたようです。\n"
+                    + "八月いっぱいはケーキを提供してくれるようなのでいっぱい食べてやりましょう。\n"
+                    + "<size=100%>ケーキ屋</size>\nが8月中出現するようになりました。\nクルーメイトタブを開いてみよう！\n"
+                    + "\n<size=125%>【バグ修正】</size>\n"
+                    + "・記憶喪失者がいる時にインポスターが1増える問題の修正\n"
+                    + "・ディクテイターが他人に投票できなかった問題の修正\n"
+                    + "・乗っ取り勝利のゲームログが記載されない問題の修正\n"
+                    + "・ドッペルゲンガーのカウントが反映されない問題の修正\n"
+                    + "・タスク数確認ができない問題の修正\n"
+                    + "・コミュ発生時ホストがベントに入ったままの問題の修正\n"
+                    + "・狼少年がインポスシュレ猫を視認できる問題の修正\n"
+                    + "・GMが見える問題の対応?\n"
+                    + "・インセンダーの通報がされない問題の修正\n"
+                    + "\n<size=125%>【仕様変更】</size>\n"
+                    + "・アシスティングエンジェルの勝利判定を変更\n"
+                    + "・イントロ中のテキストを一部変更\n"
+                    + "・会議発生等、一部の処理を変更\n"
+                    + "\n\n2周年、属性一個作っただけ。 "
+                    ,
+                    Date = "2025-08-16T18:00:00Z"
+                };
+                AllModNews.Add(news);
+            }
             AnnouncementPopUp.UpdateState = AnnouncementPopUp.AnnounceState.NotStarted;
         }
     }
