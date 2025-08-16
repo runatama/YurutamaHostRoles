@@ -655,6 +655,8 @@ namespace TownOfHost
                         player.RpcSetColor(2);
                     else if (player.Is(CustomRoles.HASFox))
                         player.RpcSetColor(3);
+                    SetColorPatch.IsAntiGlitchDisabled = false;
+                    return AssignedPlayers;
                 }
 
                 if (role.GetRoleInfo().IsCantSeeTeammates && player != PlayerControl.LocalPlayer && !SuddenDeathMode.NowSuddenDeathMode)

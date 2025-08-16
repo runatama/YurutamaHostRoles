@@ -327,6 +327,11 @@ public static class CustomRoleManager
         (killerrole as IUsePhantomButton)?.Init(appearanceKiller);
         var roleinfo = appearanceKiller.GetCustomRole().GetRoleInfo();
 
+        if (Options.CurrentGameMode is CustomGameMode.HideAndSeek && targetState.MainRole is CustomRoles.HASTroll)
+        {
+            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.HASTroll);
+            CustomWinnerHolder.WinnerIds.Add(appearanceTarget.PlayerId);
+        }
         if (Main.KillCount.ContainsKey(appearanceKiller.PlayerId))
             if (appearanceKiller.Is(CustomRoles.Amnesia) && Amnesia.OptionCanRealizeKill.GetBool())
             {

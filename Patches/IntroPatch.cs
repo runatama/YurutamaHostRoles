@@ -379,7 +379,7 @@ namespace TownOfHost
                     else if (Options.FixFirstKillCooldown.GetBool())
                         _ = new LateTask(() =>
                         {
-                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 0.7f, force: true, delay: true));
+                            PlayerCatch.AllPlayerControls.Do(pc => pc.SetKillCooldown((Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var time) ? time : Main.LastKillCooldown.Value) - 0.7f, force: true, delay: true));
                         }, 0.7f, "FixKillCooldownTask", null);
                     else _ = new LateTask(() =>
                         {
