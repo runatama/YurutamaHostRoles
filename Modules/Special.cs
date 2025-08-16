@@ -20,7 +20,7 @@ static class Event
     public static bool Tanabata = DateTime.Now.Month == 7 && DateTime.Now.Day is > 6 and < 15;
     public static bool IsEventDay => IsChristmas || White || IsInitialRelease || IsHalloween || GoldenWeek || April;
     public static bool Special = false;
-    public static bool NowRoleEvent => DateTime.Now.Month == 6 && DateTime.Now.Day is 15 or 16 or 17 or 18 or 19 or 20 or 21 or 22;
+    public static bool NowRoleEvent => DateTime.Now.Month == 8 && DateTime.Now.Year is 2025;//&& DateTime.Now.Day is 16 or 17 or 18 or 19 or 20 or 21 or 22 or 23;
     public static List<string> OptionLoad = new();
     public static bool IsE(this CustomRoles role) => role is CustomRoles.SpeedStar or CustomRoles.Chameleon;
 
