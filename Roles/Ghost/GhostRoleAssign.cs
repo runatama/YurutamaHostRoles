@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using static TownOfHost.Translator;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Ghost
 {
@@ -119,7 +120,7 @@ namespace TownOfHost.Roles.Ghost
                 var pc = AP[rnd.Next(AP.Count)];
 
                 //ラバー or 天邪鬼の場合、勝利条件がくっっっっっそややこしなるから付与しない
-                if (pc.IsLovers() || pc.Is(CustomRoles.Amanojaku))
+                if (pc.IsLovers() || pc.Is(CustomRoles.Amanojaku) || (pc.GetRoleClass() as Staff)?.EndedTaskInAlive is false)
                 {
                     AP.Remove(pc);
                     continue;

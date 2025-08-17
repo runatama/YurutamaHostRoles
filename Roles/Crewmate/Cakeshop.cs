@@ -58,9 +58,12 @@ public sealed class Cakeshop : RoleBase, INekomata
             x => Addedaddons.ContainsKey(x.Key),
             state => state.Value.RemoveSubRole(Addedaddons[state.Key]));
 
-        if (!Player.IsAlive()) return;
+        if (!Player.IsAlive())
+        {
+            Addedaddons.Clear();
+            return;
+        }
         Logger.Info("ケーキちょうど焼けたからあげる!!", nameof(Cakeshop));
-
         PlayerCatch.AllAlivePlayerControls.Do(pc =>
         {
             if (pc == null) return;
