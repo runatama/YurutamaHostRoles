@@ -1483,6 +1483,14 @@ namespace TownOfHost
                     }
                     canceled = true;
                     break;
+                case "/callmeeting":
+                case "/cm":
+                    CustomRpcSender.Create("StartMeeting")
+                    .AutoStartRpc(ReportDeadBodyPatch.reporternetid, RpcCalls.StartMeeting, player.GetClientId())
+                    .Write(ReportDeadBodyPatch.targetid)
+                    .EndRpc()
+                    .SendMessage();
+                    break;
 
                 default:
                     if (args[0].StartsWith("/"))
