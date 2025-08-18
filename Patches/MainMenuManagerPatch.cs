@@ -408,14 +408,13 @@ namespace TownOfHost
         public static void OpenMenuPostfix(MainMenuManager __instance)
         {
             var Findbuttongo = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/Scaler/Find Game Button");
-            var Findbutton = Findbuttongo.transform.GetComponent<PassiveButton>();
+
             var codebuttongo = GameObject.Find("MainMenuManager/MainUI/AspectScaler/RightPanel/MaskedBlackScreen/OnlineButtons/AspectSize/Scaler/Enter Code Button");
             var Codebutton = codebuttongo.transform.GetComponent<PassiveButton>();
 
-            if (Findbutton)
+            if (Findbuttongo)
             {
-                var buttonCollider = Findbutton.GetComponent<BoxCollider2D>();
-                buttonCollider.offset = new(100f, 100f);
+                Findbuttongo.SetActive(false);
             }
             if (Codebutton)
             {
