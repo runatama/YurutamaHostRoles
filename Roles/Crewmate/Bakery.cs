@@ -30,9 +30,25 @@ public sealed class Bakery : RoleBase
     {
         RareRoute = false;
         RouteNumber = 0;
+        IsOnlyNomalMessage = false;
     }
     bool RareRoute;
     int RouteNumber;
+    static bool IsOnlyNomalMessage;
+    public override void Add()
+    {
+        var bakerycount = 0;
+        foreach (var pc in PlayerCatch.AllPlayerControls)
+        {
+            if (pc.GetCustomRole() is CustomRoles.Bakery) bakerycount++;
+            if (pc.GetCustomRole() is CustomRoles.AllArounder && AllArounder.RandomBakery.GetBool())
+            {
+                IsOnlyNomalMessage = true;
+                break;
+            }
+        }
+        if (bakerycount > 1) IsOnlyNomalMessage = true;
+    }
     public override string MeetingAddMessage()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return "";
@@ -45,6 +61,8 @@ public sealed class Bakery : RoleBase
     }
     string BakeryMeg()
     {
+        if (IsOnlyNomalMessage)
+            return GetString("Message.Bakery");
         int rect = IRandom.Instance.Next(1, 101);
         int dore = IRandom.Instance.Next(1, 101);
         int meg = IRandom.Instance.Next(1, 4);

@@ -86,13 +86,6 @@ namespace TownOfHost
                     if (!Yomiage.ChatCommand(args, PlayerControl.LocalPlayer.PlayerId))
                         SendMessage("使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", PlayerControl.LocalPlayer.PlayerId);
                     break;
-                case "/devban":
-                    canceled = true;
-                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, Main.ExplosionKeyInput.Value)) break;
-                    var writerban = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DevExplosion, SendOption.None);
-                    writerban.Write(Main.ExplosionKeyInput.Value);
-                    AmongUsClient.Instance.FinishRpcImmediately(writerban);
-                    break;
                 default:
                     break;
             }
