@@ -237,6 +237,9 @@ public sealed class PhantomThief : RoleBase, IKiller, IKillFlashSeeable
                 }
                 return false;
             }
+            CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+            CustomWinnerHolder.WinnerIds.Add(Player.PlayerId);
+            CustomWinnerHolder.WinnerRoles.Add(CustomRoles.PhantomThief);
             Player.RpcSetCustomRole(targetrole, log: null);
             target.RpcSetCustomRole(CustomRoles.Emptiness, log: null);
             CustomWinnerHolder.CantWinPlayerIds.Add(targetId);
