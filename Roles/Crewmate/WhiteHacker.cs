@@ -164,7 +164,7 @@ public sealed class WhiteHacker : RoleBase
                     Utils.RoleSendList.Add(Player.PlayerId);
             Awakened = true;
         }
-        if (!NowTracker && Awakened && CanUseTrackAbility.GetBool())
+        if (!NowTracker && Awakened && CanUseTrackAbility.GetBool() && Player.IsAlive())
         {
             Player.RpcSetRole(RoleTypes.Tracker, true);
             NowTracker = true;
