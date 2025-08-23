@@ -168,6 +168,7 @@ public sealed class Ballooner : RoleBase, IImpostor, IUsePhantomButton
     {
         NowBoomDis = Mathf.Clamp(NowBoomDis - OptionAfterMeetingRemoveCharge.GetFloat(), MinBoomDis, MaxBoomDis);
         NowBoomDis = Mathf.Round(NowBoomDis * 100) / 100;
+        UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
     }
 
     public override string GetAbilityButtonText() => GetString("BalloonerAbility");
