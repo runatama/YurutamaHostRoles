@@ -147,13 +147,6 @@ namespace TownOfHost
                         }
                     }
 
-#if DEBUG
-                    if (Main.ShowDistance.Value)
-                    {
-                        foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != 0))
-                            LowerInfoText.text += Utils.ColorString(Palette.PlayerColors[pc.cosmetics.ColorId], $"{Vector2.Distance(PlayerControl.LocalPlayer.transform.position, pc.transform.position)}");
-                    }
-#endif
 
                     if (Main.RTAMode && GameStates.IsInTask)
                     {
@@ -217,6 +210,13 @@ namespace TownOfHost
                 if (player.Is(CustomRoles.Amnesia)) LowerInfoText.text = "";
                 if (player.GetMisidentify(out _)) LowerInfoText.text = "";
 
+#if DEBUG
+                if (Main.ShowDistance.Value)
+                {
+                    foreach (var pc in PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != 0))
+                        LowerInfoText.text += Utils.ColorString(Palette.PlayerColors[pc.cosmetics.ColorId], $"{Vector2.Distance(PlayerControl.LocalPlayer.transform.position, pc.transform.position)}");
+                }
+#endif
                 LowerInfoText.enabled = LowerInfoText.text != "";
             }
 
