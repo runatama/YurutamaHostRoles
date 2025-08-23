@@ -53,7 +53,6 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     {
         UetukeNokori = OptUetuketukeTrun.GetInt();
         AbductTimer = 255f;
-        oldsendabtimer = 255f;
         stopCount = false;
         Aliens.Add(this);
     }
@@ -877,7 +876,6 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     PlayerControl AbductVictim;
     public bool modepenguin;
     float AbductTimer;
-    float oldsendabtimer;
     bool stopCount;
     //カムバッカー
     public bool modeComebaker;

@@ -61,7 +61,6 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     public override void Add()
     {
         AbductTimer = 255f;
-        oldsendabtimer = 255f;
         stopCount = false;
         CanSideKick = OptionCanMakeSidekick.GetBool();
         Init();
@@ -1209,7 +1208,6 @@ public sealed class JackalAlien : RoleBase, IMeetingTimeAlterable, ILNKiller, IS
     static OptionItem OptionMeetingKill;
     PlayerControl AbductVictim;
     static int RatePenguin;
-    float oldsendabtimer;
     bool modepenguin;
     float AbductTimer;
     float AbductTimerLimit;

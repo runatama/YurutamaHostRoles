@@ -61,7 +61,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
         Uetukecount = 0;
         AddSelfVotes(Player);
         AbductTimer = 255f;
-        oldsendabtimer = 255f;
         stopCount = false;
         Aliens.Add(this);
         if (FirstAbility.GetBool()) AfterMeetingTasks();
@@ -1185,7 +1184,6 @@ public sealed class Alien : RoleBase, IMeetingTimeAlterable, IImpostor, INekomat
     static int RatePenguin;
     bool modepenguin;
     public float AbductTimer;
-    float oldsendabtimer;
     public static float AbductTimerLimit;
     public bool stopCount;
     public static bool MeetingKill;

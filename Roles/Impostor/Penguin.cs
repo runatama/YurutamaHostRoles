@@ -47,7 +47,6 @@ class Penguin : RoleBase, IImpostor
     private float AbductTimerLimit;
     private bool stopCount;
     private bool MeetingKill;
-    float oldsendabtimer;
 
     //拉致中にキルしそうになった相手の能力を使わせないための処置
     public bool IsKiller => AbductVictim == null;
@@ -59,7 +58,6 @@ class Penguin : RoleBase, IImpostor
     }
     public override void Add()
     {
-        oldsendabtimer = 255f;
         AbductTimer = 255f;
         stopCount = false;
     }
