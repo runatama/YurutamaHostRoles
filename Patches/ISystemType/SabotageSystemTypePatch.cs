@@ -106,8 +106,52 @@ public static class ElectricTaskCompletePatch
 {
     public static void Postfix()
     {
+        SabotageComplete.CompleteSabotage();
         UtilsOption.MarkEveryoneDirtySettings();
         if (!GameStates.IsMeeting)
             UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
+    }
+}
+
+[HarmonyPatch(typeof(HeliCharlesTask), nameof(HeliCharlesTask.Complete))]
+public static class HeliCharlesTaskCompletePatch
+{
+    public static void Postfix() => SabotageComplete.CompleteSabotage();
+}
+[HarmonyPatch(typeof(HqHudOverrideTask), nameof(HqHudOverrideTask.Complete))]
+public static class HqHudOverrideTaskCompletePatch
+{
+    public static void Postfix() => SabotageComplete.CompleteSabotage();
+}
+[HarmonyPatch(typeof(MushroomMixupSabotageTask), nameof(MushroomMixupSabotageTask.Complete))]
+public static class MushroomMixupSabotageTaskCompletePatch
+{
+    public static void Postfix() => SabotageComplete.CompleteSabotage();
+}
+[HarmonyPatch(typeof(NoOxyTask), nameof(NoOxyTask.Complete))]
+public static class NoOxyTaskCompletePatch
+{
+    public static void Postfix() => SabotageComplete.CompleteSabotage();
+}
+[HarmonyPatch(typeof(ReactorTask), nameof(ReactorTask.Complete))]
+public static class ReactorTaskCompletePatch
+{
+    public static void Postfix() => SabotageComplete.CompleteSabotage();
+}
+public static class SabotageComplete
+{
+    public static void CompleteSabotage()
+    {
+        var sb = Translator.GetString($"sb.{Main.SabotageType}");
+        if (Main.SabotageType == SystemTypes.MushroomMixupSabotage)
+            UtilsGameLog.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
+        else UtilsGameLog.AddGameLog($"{Main.SabotageType}", string.Format(Translator.GetString("Log.FixSab"), sb));
+        Main.IsActiveSabotage = false;
+        Main.SabotageActivetimer = 0;
+
+        foreach (var role in CustomRoleManager.AllActiveRoles.Values)
+        {
+            role.AfterSabotage(Main.SabotageType);
+        }
     }
 }

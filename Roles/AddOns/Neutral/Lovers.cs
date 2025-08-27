@@ -124,10 +124,11 @@ class Lovers
                 Logger.Info("役職設定:" + player?.Data?.GetLogPlayerName() + " = " + player.GetCustomRole().ToString() + " + " + CustomRoles.OneLove.ToString(), "AssignLovers");
             }
         }
+        else isOneLoveDead = true;
     }
     public static void OneLoveSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
-        if (CustomRoles.OneLove.IsPresent() && isOneLoveDead == false)
+        if (isOneLoveDead == false)
         {
             var (Love, target, d) = OneLovePlayer;
             if (Love == byte.MaxValue || target == byte.MaxValue) return;
