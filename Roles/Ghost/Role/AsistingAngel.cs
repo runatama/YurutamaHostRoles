@@ -144,6 +144,7 @@ namespace TownOfHost.Roles.Ghost
                 {
                     if (CustomWinnerHolder.WinnerIds.Contains(Asist.PlayerId) || CustomWinnerHolder.WinnerRoles.Contains(Asist.GetCustomRole()))
                     {
+                        CustomWinnerHolder.CantWinPlayerIds.Remove(AsistingAngelId);
                         CustomWinnerHolder.WinnerIds.Add(AsistingAngelId);
                         CustomWinnerHolder.AdditionalWinnerRoles.Add(CustomRoles.AsistingAngel);
                         Logger.Info($"{AsistingAngelId} => Asist対象が勝利したので自身も勝利", "AsistingAngel");
