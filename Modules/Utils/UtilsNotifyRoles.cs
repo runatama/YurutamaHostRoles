@@ -23,7 +23,7 @@ namespace TownOfHost
 {
     public static class UtilsNotifyRoles
     {
-        const int chengepake = 800;
+        public const int chengepake = 800;
         private static StringBuilder SelfMark = new(20);
         private static StringBuilder SelfSuffix = new(20);
         private static StringBuilder TargetMark = new(20);
@@ -91,7 +91,7 @@ namespace TownOfHost
                 if (seer.IsModClient()) continue;
                 var clientId = seer.GetClientId();
                 if (clientId == -1) continue;
-                var sender = CustomRpcSender.Create("NotifyRoles");
+                var sender = CustomRpcSender.Create("NotifyRoles", Hazel.SendOption.None);
                 sender.StartMessage(clientId);
                 string fontSize = Main.RoleTextSize.ToString();
 
@@ -242,7 +242,7 @@ namespace TownOfHost
 
                         if (Sended)
                         {
-                            sender = CustomRpcSender.Create("NotifyRoles");
+                            sender = CustomRpcSender.Create("NotifyRoles", Hazel.SendOption.None);
                             sender.StartMessage(clientId);
                             Sended = false;
                         }
@@ -443,7 +443,7 @@ namespace TownOfHost
                 var clientid = seer.GetClientId();
                 if (clientid == -1) continue;
 
-                var sender = CustomRpcSender.Create("MeetingNotifyRoles");
+                var sender = CustomRpcSender.Create("MeetingNotifyRoles", Hazel.SendOption.None);
                 sender.StartMessage(clientid);
 
                 string fontSize = "1.5";
@@ -580,7 +580,7 @@ namespace TownOfHost
 
                         if (Sended)
                         {
-                            sender = CustomRpcSender.Create("MeetingNotifyRoles");
+                            sender = CustomRpcSender.Create("MeetingNotifyRoles", Hazel.SendOption.None);
                             sender.StartMessage(clientid);
                             Sended = false;
                         }

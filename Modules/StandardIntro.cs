@@ -20,27 +20,39 @@ class StandardIntro
         {
             InnerNetClientPatch.DontTouch = true;
             GameDataSerializePatch.SerializeMessageCount++;
+            bool IsSend = false;
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
             foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
             {
+                if (IsSend)
+                {
+                    stream = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
+                }
                 data.Disconnected = true;
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
                 stream.EndMessage();
+                if (stream.Length > UtilsNotifyRoles.chengepake && Options.ExRpcWeightR.GetBool())
+                {
+                    IsSend = true;
+                    stream.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(stream);
+                    stream.Recycle();
+                }
             }
-            stream.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
+            if (!IsSend)
+            {
+                stream.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(stream);
+                stream.Recycle();
+            }
             InnerNetClientPatch.DontTouch = false;
             GameDataSerializePatch.SerializeMessageCount--;
-            // スポーン2つでるかもしれないけど、オートミュート使用時に勝手に解除されるので擬装を一回戻す。
-            foreach (var data in GameData.Instance.AllPlayers)
-            {
-                data.Disconnected = false;
-            }
         }
     }
     public static void CoResetRoleY()
