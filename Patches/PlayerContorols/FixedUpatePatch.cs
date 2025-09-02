@@ -94,34 +94,34 @@ namespace TownOfHost
                     if (isAlive && !((roleclass as Jumper)?.Jumping == true) && timer is 5)
                     {
                         var nowpos = __instance.GetTruePosition();
-                        if (!Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
-                            tppos = Vector2.zero;
-
-                        if (!__instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+                        if (Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
                         {
-                            switch ((MapNames)Main.NormalOptions.MapId)
+                            if (!__instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                             {
-                                case MapNames.Airship:
-                                    if ((4.0 <= nowpos.x && nowpos.x <= 5.2 && 10.1 <= nowpos.y && nowpos.y <= 12.9)
-                                    || (10.2 <= nowpos.x && nowpos.x <= 11.7 && 6.9 <= nowpos.y && nowpos.y <= 7.2)
-                                    || (12.4 <= nowpos.x && nowpos.x <= 13.4 && -5.4 <= nowpos.y && nowpos.y <= -4.6)
-                                    )
-                                        __instance.RpcSnapToForced(tppos);
-                                    break;
-                                case MapNames.Fungle:
-                                    if ((10.8 <= nowpos.x && nowpos.x <= 12.4 && -5.3 <= nowpos.y && nowpos.y <= -2.1)
-                                    || (17.3 <= nowpos.x && nowpos.x <= 18.9 && -5.0 <= nowpos.y && nowpos.y <= -1.9)
-                                    || (18.5 <= nowpos.x && nowpos.x <= 19.8 && 4.8 <= nowpos.y && nowpos.y <= 5.7)
-                                    || (21.0 <= nowpos.x && nowpos.x <= 22.1 && 8.1 <= nowpos.y && nowpos.y <= 9.4)
-                                    )
-                                        __instance.RpcSnapToForced(tppos);
-                                    break;
+                                switch ((MapNames)Main.NormalOptions.MapId)
+                                {
+                                    case MapNames.Airship:
+                                        if ((4.0 <= nowpos.x && nowpos.x <= 5.2 && 10.1 <= nowpos.y && nowpos.y <= 12.9)
+                                        || (10.2 <= nowpos.x && nowpos.x <= 11.7 && 6.9 <= nowpos.y && nowpos.y <= 7.2)
+                                        || (12.4 <= nowpos.x && nowpos.x <= 13.4 && -5.4 <= nowpos.y && nowpos.y <= -4.6)
+                                        )
+                                            __instance.RpcSnapToForced(tppos);
+                                        break;
+                                    case MapNames.Fungle:
+                                        if ((10.8 <= nowpos.x && nowpos.x <= 12.4 && -5.3 <= nowpos.y && nowpos.y <= -2.1)
+                                        || (17.3 <= nowpos.x && nowpos.x <= 18.9 && -5.0 <= nowpos.y && nowpos.y <= -1.9)
+                                        || (18.5 <= nowpos.x && nowpos.x <= 19.8 && 4.8 <= nowpos.y && nowpos.y <= 5.7)
+                                        || (21.0 <= nowpos.x && nowpos.x <= 22.1 && 8.1 <= nowpos.y && nowpos.y <= 9.4)
+                                        )
+                                            __instance.RpcSnapToForced(tppos);
+                                        break;
+                                }
                             }
-                        }
-                        if (!__instance.inMovingPlat && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
-                        {
-                            if (6.3 <= nowpos.x && nowpos.x <= 9.3 && 7.8 <= nowpos.y && nowpos.y <= 9.1)
-                                __instance.RpcSnapToForced(tppos);
+                            if (!__instance.inMovingPlat && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                            {
+                                if (6.3 <= nowpos.x && nowpos.x <= 9.3 && 7.8 <= nowpos.y && nowpos.y <= 9.1)
+                                    __instance.RpcSnapToForced(tppos);
+                            }
                         }
                     }
                 }
