@@ -280,10 +280,13 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     public bool CanUseSabotageButton() => false;
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        opt.SetVision(false);
         if (IsBlackOut)
         {
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, OptionBlackVision.GetFloat());
+            opt.SetFloat(Player.AmOwner ? FloatOptionNames.CrewLightMod : FloatOptionNames.ImpostorLightMod, OptionBlackVision.GetFloat());
+        }
+        else
+        {
+            opt.SetVision(false);
         }
     }
     public float CalculateKillCooldown() => KillCooldown;
