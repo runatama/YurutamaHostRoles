@@ -282,7 +282,7 @@ public sealed class MassMedia : RoleBase, IKiller, IKillFlashSeeable
     {
         if (IsBlackOut)
         {
-            opt.SetFloat(Player.AmOwner ? FloatOptionNames.CrewLightMod : FloatOptionNames.ImpostorLightMod, OptionBlackVision.GetFloat());
+            opt.SetFloat(Player.IsModClient() ? FloatOptionNames.CrewLightMod : FloatOptionNames.ImpostorLightMod, OptionBlackVision.GetFloat());
         }
         else
         {

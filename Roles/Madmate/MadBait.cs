@@ -3,6 +3,7 @@ using AmongUs.GameOptions;
 
 using TownOfHost.Roles.Core;
 using TownOfHost.Roles.Core.Interfaces;
+using TownOfHost.Roles.Crewmate;
 
 namespace TownOfHost.Roles.Madmate;
 
@@ -57,10 +58,11 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         OptionCanVent = BooleanOptionItem.Create(RoleInfo, 14, GeneralOption.CanVent, true, false);
 
     }
-    public bool CanUseImpostorVentButton() => CanVent;
     public override void OnMurderPlayerAsTarget(MurderInfo info)
     {
         var (killer, target) = info.AttemptTuple;
+
+        if (Utils.IsActive(SystemTypes.Comms) && Bait.OptCanUseActiveComms.OptionMeGetBool() is false) return;
 
         var tien = 0f;
         if (OptionMaxReportDelay.GetFloat() != 0)
@@ -72,14 +74,14 @@ public sealed class MadBait : RoleBase, IKillFlashSeeable, IDeathReasonSeeable
         var killerrole = killer.GetCustomRole();
 
         if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && (!killerrole.IsImpostor() || killerrole == CustomRoles.WolfBoy))
-            _ = new LateTask(() => killer.CmdReportDeadBody(target.Data), 0.15f + OptionReportDelay.GetFloat() + tien, "MadBait Self Report");
+            _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(Player, target.Data), 0.15f + OptionReportDelay.GetFloat() + tien, "MadBait Self Report");
         else if (target.Is(CustomRoles.MadBait) && !info.IsSuicide && RandomRepo.GetBool())
         {
             var nise = PlayerCatch.AllAlivePlayerControls.Where(x => !x.GetCustomRole().IsImpostor() && !x.Is(CustomRoles.WolfBoy)).ToArray();
             if (!ImpRepo.GetBool()) nise = PlayerCatch.AllAlivePlayerControls.ToArray();
             var rand = IRandom.Instance;
             var P = nise[rand.Next(0, nise.Length)];
-            _ = new LateTask(() => P.CmdReportDeadBody(target.Data), 0.15f + OptionReportDelay.GetFloat() + tien, "Bait Self Report");
+            _ = new LateTask(() => ReportDeadBodyPatch.ExReportDeadBody(P, target.Data), 0.15f + OptionReportDelay.GetFloat() + tien, "Bait Self Report");
         }
     }
 }
