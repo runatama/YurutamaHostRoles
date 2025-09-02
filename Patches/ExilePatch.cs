@@ -186,6 +186,9 @@ namespace TownOfHost
                             AntiBlackout.ResetSetRole(pc);
                         });
                     }
+
+                    GameStates.task = true;
+                    Logger.Info("タスクフェイズ開始", "Phase");
                 }, 0.52f, "AfterMeetingDeathPlayers Task");
             }
             if (Main.NormalOptions.MapId is 4 && !AntiBlackout.OverrideExiledPlayer())
@@ -207,8 +210,6 @@ namespace TownOfHost
             GameStates.AlreadyDied |= !PlayerCatch.IsAllAlive;
             RemoveDisableDevicesPatch.UpdateDisableDevices();
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
-            GameStates.task = true;
-            Logger.Info("タスクフェイズ開始", "Phase");
             //ExtendedPlayerControl.RpcResetAbilityCooldownAllPlayer();
             Main.CanUseAbility = true;
             MeetingStates.First = false;

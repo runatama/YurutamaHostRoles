@@ -163,7 +163,7 @@ public sealed class Madonna : RoleBase
             target.RpcProtectedMurderPlayer();
         }
     }
-    public override void OnSpawn(bool initialState = false)
+    public override void AfterMeetingTasks()
     {
         if (AddOns.Common.Amnesia.CheckAbilityreturn(Player)) return;
         if (Player.Is(CustomRoles.MadonnaLovers))

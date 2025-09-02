@@ -1,7 +1,5 @@
-using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using Hazel;
 using InnerNet;
 using HarmonyLib;
@@ -71,17 +69,18 @@ namespace TownOfHost
                 {
                     if (setRole)
                     {
-                        if (AntiBlackout.IsSet)
+                        //タスクターン or ミーティング終了前ならその時点で役職変更処理を共有
+                        if (GameStates.task || GameStates.CalledMeeting)
                         {
-                            // 暗転対策が動作している状態なのであれば役職変更したら不味い。
+                            SetRole();
+                        }
+                        else
+                        {
+                            // 違うなら暗転対策が動作している状態なのであれば役職変更したら不味い。
                             new LateTask(() =>
                             {
                                 SetRole();
                             }, 10, "ExSetRole");
-                        }
-                        else
-                        {
-                            SetRole();
                         }
                     }
                 }
