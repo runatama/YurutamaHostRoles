@@ -18,6 +18,7 @@ using TownOfHost.Roles.AddOns.Impostor;
 using TownOfHost.Roles.AddOns.Neutral;
 using TownOfHost.Roles.AddOns.Common;
 using static TownOfHost.Translator;
+using TownOfHost.Modules.ChatManager;
 
 namespace TownOfHost;
 
@@ -114,38 +115,7 @@ public static class MeetingHudPatch
 
             if (Options.ExHideChatCommand.GetBool() && !Assassin.NowUse)
             {
-                _ = new LateTask(static () =>
-                {
-                    if (AntiBlackout.IsCached || AntiBlackout.IsSet) return;
-
-                    Dictionary<byte, bool> State = new();
-                    foreach (var player in PlayerCatch.AllAlivePlayerControls)
-                    {
-                        State.TryAdd(player.PlayerId, player.IsAlive());
-                    }
-                    GameDataSerializePatch.SerializeMessageCount++;
-                    foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                    {
-                        if (!State.ContainsKey(pc.PlayerId)) continue;
-                        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                        if (pc.IsModClient()) continue;
-
-                        foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
-                        {
-                            if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                            if (tg.IsModClient()) continue;
-                            tg.Data.IsDead = true;
-                        }
-                        pc.Data.IsDead = false;
-                        RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
-                    }
-                    GameDataSerializePatch.SerializeMessageCount--;
-                    foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
-                    {
-                        var data = State.TryGetValue(player.PlayerId, out var outdata) ? outdata : false;
-                        player.Data.IsDead = !data;
-                    }
-                }, 4f, "SetDie");
+                ChatManager.StratMeetingSetDead();
             }
         }
         public static void Postfix(MeetingHud __instance)
