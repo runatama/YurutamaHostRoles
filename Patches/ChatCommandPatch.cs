@@ -952,29 +952,6 @@ namespace TownOfHost
                             }
                         }
                         break;
-                    case "/fps":
-                        if (DebugModeManager.EnableTOHkDebugMode.GetBool() && DebugModeManager.AmDebugger)
-                        {
-                            CredentialsPatch.a = true;
-                            _ = new LateTask(() =>
-                            {
-                                CredentialsPatch.a = false;
-                                float goukei = 0;
-                                int count = 0;
-                                float min = 100;
-                                float max = 0;
-                                foreach (var fps in CredentialsPatch.fpss)
-                                {
-                                    count++;
-                                    goukei += fps;
-                                    if (min > fps) min = fps;
-                                    if (max < fps) max = fps;
-                                }
-                                SendMessage($"ave->{goukei / count}　({count})\nmin->{min}　max->{max}");
-                                CredentialsPatch.fpss.Clear();
-                            }, 5, "a", true);
-                        }
-                        break;
                     case "/wi":
                         if (DebugModeManager.EnableTOHkDebugMode.GetBool())
                         {
