@@ -371,8 +371,17 @@ namespace TownOfHost.Modules
 
         public override bool AmValid()
         {
-            //キルクとか反映されないから～
-            return base.AmValid() && player is not null && !((player.Data.Disconnected && GameStates.AfterIntro) || SelectRolesPatch.Disconnected.Contains(player.PlayerId)) && Main.RealOptionsData != null;
+            try
+            {
+                //キルクとか反映されないから～
+                return base.AmValid() && player is not null
+                && !((player.Data.Disconnected && GameStates.AfterIntro) || SelectRolesPatch.Disconnected.Contains(player.PlayerId)) && Main.RealOptionsData != null;
+            }
+            catch
+            {
+                Logger.Error($"{player?.Data?.GetLogPlayerName() ?? "???"} - Error", "PlayerGameOptionsSender.AmValid");
+                return false;
+            }
         }
     }
 }

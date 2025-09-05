@@ -14,47 +14,7 @@ namespace TownOfHost.Modules;
 class StandardIntro
 {
     public static void CoGameIntroWeight()
-    {
-        // イントロ通信分割
-        if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
-        {
-            InnerNetClientPatch.DontTouch = true;
-            GameDataSerializePatch.SerializeMessageCount++;
-            bool IsSend = false;
-            var stream = MessageWriter.Get(SendOption.Reliable);
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
-            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
-            {
-                if (IsSend)
-                {
-                    stream = MessageWriter.Get(SendOption.Reliable);
-                    stream.StartMessage(5);
-                    stream.Write(AmongUsClient.Instance.GameId);
-                }
-                data.Disconnected = true;
-                stream.StartMessage(1);
-                stream.WritePacked(data.NetId);
-                data.Serialize(stream, false);
-                stream.EndMessage();
-                if (stream.Length > UtilsNotifyRoles.chengepake && Options.ExRpcWeightR.GetBool())
-                {
-                    IsSend = true;
-                    stream.EndMessage();
-                    AmongUsClient.Instance.SendOrDisconnect(stream);
-                    stream.Recycle();
-                }
-            }
-            if (!IsSend)
-            {
-                stream.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(stream);
-                stream.Recycle();
-            }
-            InnerNetClientPatch.DontTouch = false;
-            GameDataSerializePatch.SerializeMessageCount--;
-        }
-    }
+    { }
     public static void CoResetRoleY()
     {
         //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない←重いよ?
@@ -62,14 +22,10 @@ class StandardIntro
 
         InnerNetClientPatch.DontTouch = true;
         GameDataSerializePatch.SerializeMessageCount++;
-        if (Options.ExIntroWeight.GetBool())
-        {
-            foreach (var data in GameData.Instance.AllPlayers) data.Disconnected = true;
-        }
         var stream = MessageWriter.Get(SendOption.Reliable);
         stream.StartMessage(5);
         stream.Write(AmongUsClient.Instance.GameId);
-        if (Options.ExIntroWeight.GetBool() is false)
+        _ = new LateTask(() =>
         {
             foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
             {
@@ -79,17 +35,17 @@ class StandardIntro
                 data.Serialize(stream, false);
                 stream.EndMessage();
             }
-        }
-        _ = new LateTask(() =>
-        {
             stream.StartMessage(2);
             stream.WritePacked(PlayerControl.LocalPlayer.NetId);
             stream.Write((byte)RpcCalls.SetRole);
             stream.Write((ushort)RoleTypes.Crewmate);
             stream.Write(true);
             stream.EndMessage();
-            foreach (var data in GameData.Instance.AllPlayers)
+            var i = 0;
+            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
             {
+                if (4 < i) break;
+                i++;
                 data.Disconnected = false;
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
@@ -103,7 +59,25 @@ class StandardIntro
             {
                 if (!Main.IsroleAssigned)
                 {
-                    roleAssigned = true;
+                    var sender = MessageWriter.Get(SendOption.Reliable);
+                    stream.StartMessage(5);
+                    stream.Write(AmongUsClient.Instance.GameId);
+                    i = 0;
+                    foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
+                    {
+                        if (4 < i)
+                        {
+                            data.Disconnected = false;
+                            sender.StartMessage(1);
+                            sender.WritePacked(data.NetId);
+                            data.Serialize(sender, false);
+                            sender.EndMessage();
+                        }
+                        i++;
+                    }
+                    stream.EndMessage();
+                    AmongUsClient.Instance.SendOrDisconnect(stream);
+                    stream.Recycle();
                     PlayerCatch.AllPlayerControls.Do(pc =>
                     {
                         if (RpcSetTasksPatch.taskIds.TryGetValue(pc.PlayerId, out var taskids))
@@ -114,14 +88,12 @@ class StandardIntro
                             pc.Data.RpcSetTasks(Array.Empty<byte>());//再配布と同じ処理を行なっておく。
                         }
                     });
-                }
-                if (Options.ExIntroWeight.GetBool())
-                {
+                    roleAssigned = true;
                     PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
                     GameData.Instance.RecomputeTaskCounts();
                     TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
                 }
-            }, Options.ExIntroWeight.GetBool() ? 5f : 0f, "SetTaskDelay");
+            }, 5f, "SetTaskDelay");
             InnerNetClientPatch.DontTouch = false;
 
             GameDataSerializePatch.SerializeMessageCount--;
@@ -169,33 +141,33 @@ class StandardIntro
                 UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
             }, 0.2f, "", true);
 
-            new LateTask(() =>
+            //new LateTask(() =>
+            //{
+            foreach (var pc in PlayerCatch.AllPlayerControls)
             {
-                foreach (var pc in PlayerCatch.AllPlayerControls)
+                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                if (pc.GetClientId() == -1) continue;
+                var role = pc.GetCustomRole();
+                var roleType = role.GetRoleTypes();
+                if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
                 {
-                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
-                    if (pc.GetClientId() == -1) continue;
-                    var role = pc.GetCustomRole();
-                    var roleType = role.GetRoleTypes();
-                    if (role.GetRoleInfo()?.IsDesyncImpostor == true || role is CustomRoles.Amnesiac || role.IsMadmate() || (role.IsNeutral() && role is not CustomRoles.Egoist) || SuddenDeathMode.NowSuddenDeathMode)
-                    {
-                        roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Crewmate : roleType));
-                        if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
-                    }
-
-                    if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
-
-                    if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
-                    {
-                        roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                    }
-                    pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
+                    roleType = role.IsCrewmate() ? RoleTypes.Crewmate : (role.IsMadmate() ? RoleTypes.Phantom : ((role.IsNeutral() && role is not CustomRoles.Egoist) ? RoleTypes.Crewmate : roleType));
+                    if (role is CustomRoles.Amnesiac) roleType = RoleTypes.Crewmate;
                 }
-                SuddenDeathMode.ColorSetAndRoleset();
-                senders2 = null;
-            }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
-            _ = new LateTask(() => SetRole(), 5.5f, "", true);
-        }, Options.ExIntroWeight.GetBool() ? 1f : 0f, "gamestartsetrole");
+
+                if (role is CustomRoles.BakeCat) roleType = RoleTypes.Crewmate;
+
+                if (pc.Is(CustomRoles.Amnesia) && Amnesia.dontcanUseability)
+                {
+                    roleType = role.IsImpostor() && !pc.Is(CustomRoles.Amnesiac) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                }
+                pc.RpcSetRoleDesync(roleType, pc.GetClientId(), SendOption.None);
+            }
+            SuddenDeathMode.ColorSetAndRoleset();
+            senders2 = null;
+        }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
+        _ = new LateTask(() => SetRole(), 5.5f, "", true);
+        //}, Options.ExIntroWeight.GetBool() ? 1f : 0f, "gamestartsetrole");
     }
     public static void SetRole()
     {

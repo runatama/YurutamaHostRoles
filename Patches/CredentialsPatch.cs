@@ -64,8 +64,8 @@ namespace TownOfHost
                     exSb.Append($"<#d62c12>Ⓚ</color> ");
                 if (Options.FixSpawnPacketSize.GetBool())
                     exSb.Append($"<#ffef39>Ⓟ</color> ");
-                if (Options.ExIntroWeight.GetBool())
-                    exSb.Append($"<#8839ff>Ⓘ</color> ");
+                /*if (Options.ExIntroWeight.GetBool())
+                    exSb.Append($"<#8839ff>Ⓘ</color> ");*/
                 if (Options.ExRpcWeightR.GetBool())
                     exSb.Append($"<#3d83c5>Ⓡ</color> ");
 

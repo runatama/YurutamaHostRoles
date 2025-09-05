@@ -159,12 +159,6 @@ namespace TownOfHost
                     logger.Info($"{(o.Parent == null ? o.Name.PadRightV2(40) : $"┗ {o.Name}".PadRightV2(41))}:{o.GetString().RemoveSN().RemoveHtmlTags()}");
             logger.Info("-------------その他-------------");
             logger.Info($"プレイヤー数: {PlayerCatch.AllPlayerControls.Count()}人");
-            if (Options.CurrentGameMode is not CustomGameMode.Standard || !Options.ExIntroWeight.GetBool())
-            {
-                PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
-                GameData.Instance.RecomputeTaskCounts();
-                TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-            }
             GameStates.InGame = true;
         }
     }
@@ -481,14 +475,15 @@ namespace TownOfHost
                     }
                     ExtendedRpc.RpcResetAbilityCooldownAllPlayer();
                     CustomButtonHud.BottonHud(true);
-                }, 0.3f, "", true);
+                }, 0.3f, "setnames", true);
 
                 _ = new LateTask(() =>
                 {
                     CustomRoleManager.AllActiveRoles.Values.Do(role => role.ChangeColor());
                     UtilsNotifyRoles.NotifyRoles(ForceLoop: true);
                     SuddenDeathMode.NotTeamKill();
-                }, 1.25f, "", true);
+                    ExtendedRpc.AllPlayerOnlySeeMePet();
+                }, 1.25f, "setcolorandpet", true);
 
                 if (Options.firstturnmeeting)
                 {

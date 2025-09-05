@@ -611,6 +611,7 @@ namespace TownOfHost
             ExIntroWeight = BooleanOptionItem.Create(105011, "ExIntroWeight", false, TabGroup.MainSettings, false)
                 .SetColor(new Color32(byte.MaxValue, byte.MaxValue, 0, byte.MaxValue))
                 .SetGameMode(CustomGameMode.All)
+                .SetEnabled(() => false)
                 .SetInfo(Translator.GetString("ExIntroWeightInfo"));
 
             // Impostor
