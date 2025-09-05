@@ -374,8 +374,7 @@ namespace TownOfHost.Modules
             try
             {
                 //キルクとか反映されないから～
-                return base.AmValid() && player is not null
-                && !((player.Data.Disconnected && GameStates.AfterIntro) || SelectRolesPatch.Disconnected.Contains(player.PlayerId)) && Main.RealOptionsData != null;
+                return base.AmValid() && player is not null && !SelectRolesPatch.Disconnected.Contains(player.PlayerId) && Main.RealOptionsData != null;
             }
             catch
             {
