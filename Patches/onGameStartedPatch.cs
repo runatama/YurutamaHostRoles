@@ -36,7 +36,8 @@ namespace TownOfHost
                     Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
                 }
             }
-            StandardIntro.CoGameIntroWeight();
+            Main.NormalOptions.SetInt(Int32OptionNames.TaskBarMode, 0);
+            Main.NormalOptions.SetBool(BoolOptionNames.ConfirmImpostor, false);
 
             UtilsGameLog.Reset();
             PlayerState.Clear();
@@ -157,6 +158,7 @@ namespace TownOfHost
                     Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId);
                 }
             }
+            StandardIntro.CoGameIntroWeight();
             if (Options.AllPlayerSkinShuffle.GetBool() && (Event.April || Event.Special))
             {
                 PlayerCatch.AllPlayerControls.Do(pc =>
@@ -607,7 +609,7 @@ namespace TownOfHost
         }
         public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
         {
-            //if (Options.ExIntroWeight.GetBool()) return;
+            if (Options.ExIntroWeight.GetBool()) return;
             var hostId = PlayerControl.LocalPlayer.PlayerId;
             foreach (var seer in PlayerCatch.AllPlayerControls)
             {
@@ -708,7 +710,6 @@ namespace TownOfHost
             }
             public static void Release()
             {
-                /*
                 if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
                 {
                     foreach (var pair in StoragedData)
@@ -716,7 +717,7 @@ namespace TownOfHost
                         pair.Item1.StartCoroutine(pair.Item1.CoSetRole(pair.Item2, Main.SetRoleOverride && Options.CurrentGameMode is CustomGameMode.Standard));
                     }
                     return;
-                }*/
+                }
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);
