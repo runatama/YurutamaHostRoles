@@ -36,7 +36,7 @@ namespace TownOfHost
                     Logger.Error($"全体のタスクが255を超えています", "CoStartGame ChTask");
                 }
             }
-            Main.NormalOptions.SetInt(Int32OptionNames.TaskBarMode, 0);
+            Main.NormalOptions.SetInt(Int32OptionNames.TaskBarMode, 2);
             Main.NormalOptions.SetBool(BoolOptionNames.ConfirmImpostor, false);
 
             UtilsGameLog.Reset();

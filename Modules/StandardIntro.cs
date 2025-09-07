@@ -70,7 +70,7 @@ class StandardIntro
             stream.Write(AmongUsClient.Instance.GameId);
             {
                 var data = host.Data;//ホストの偽装はこっちで。
-                data.Disconnected = false;
+                data.Disconnected = true;
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -88,7 +88,7 @@ class StandardIntro
                 i++;
                 data.Disconnected = false;
                 data.PlayerName = Camouflage.PlayerSkins.TryGetValue(data.PlayerId, out var cos) ? cos.PlayerName : data.GetLogPlayerName();
-                if (4 < i) break;//4人以上は後ででよい。
+                if (4 < i) continue;//4人以上は後ででよい。
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -182,7 +182,7 @@ class StandardIntro
                 {
                     i++;
                     data.Disconnected = false;
-                    if (4 < i && Options.ExRpcWeightR.GetBool()) break;
+                    if (4 < i && Options.ExRpcWeightR.GetBool()) continue;
                     stream.StartMessage(1);
                     stream.WritePacked(data.NetId);
                     data.Serialize(stream, false);
