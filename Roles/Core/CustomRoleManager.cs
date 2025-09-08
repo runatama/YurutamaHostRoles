@@ -793,7 +793,8 @@ public enum CustomRoles
     Express,
     Inspector,
     AllArounder,
-    //DEBUG only Crewmate
+    //YHR
+    YuruSheriff,
     //DEBUG only Crewmate
     Satellite,
     //DEBUG only Crewmate

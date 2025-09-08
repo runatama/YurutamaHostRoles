@@ -7,6 +7,26 @@
 "## 役職"
 "Neutral","Neutral","ニュートラル","中立阵营","中立陣營","Нейтрал","Neutro",""
 
+
+"YuruSheriff","YuruSheriff","ゆるシェリフ"
+"YuruSheriffInfo","",キャピキャピしよう☆
+"YuruSheriffInfoLong","",ゆるーく過ごしてるゆるシェリフ。\nそのため一定確率で弾を外してしまう\nその代わり、弾を打った後一定確率でキルクールを早くすることが出来る。\n設定で確率・倍率は変更可能。
+"SheriffShotMissRate","",外れる確率
+"SheriffHasteChanceSuccess","",成功時の短縮確率
+"SheriffHasteScaleSuccess","",成功時の短縮倍率
+"SheriffHasteOnMiss","",外れ時も短縮抽選を行う
+"SheriffHasteChanceMiss","",外れ時の短縮確率
+"SheriffHasteScaleMiss","",外れ時の短縮倍率
+
+
+"Totocalcio","","トトカルチョ"
+"TotocalcioInfo","",勝利できそうな人に賭けよう！！
+"TotocalcioDesc","",キルボタンで他のプレイヤーに賭ける役職。賭けた相手が最終的に勝利すると自分も勝利する。賭け直しは設定回数まで可能。クールダウンは生存人数に応じて変化する。
+"TotocalcioButtonText","",賭ける
+"TotocalcioInitialCoolDown","",初期クールダウン
+"TotocalcioFinalCoolDown","",最終クールダウン
+"TotocalcioBetChangeCount","",賭け直し回数
+
 "# バニラ役職"
 "Crewmate","Crewmate","クルーメイト","船员","船員","Член Экипажа","Tripulante","Tripulante"
 "Engineer","Engineer","エンジニア","工程师","工程師","Инженер","Engenheiro","Engenheiro"
@@ -1429,6 +1449,8 @@
 "AmateurTellerTargetCanseeArrow","target can see arrow","占い対象に自身の位置を通知する"
 "AmateurTellerCanUseAbilityTurnButton","can use button","能力発動中、緊急ボタンを使用できる"
 "DictatorSelfVote","SelfVote","自投票で効果を発揮する"
+"DictatorSurvive","","追放しても本人は追放されないか"
+"DictatorOneShot","","一度だけ使用可能"
 "StolenerCanuseaddon","Can Use Addon","自身も属性の能力が使える"
 "StolenerCanUseaddonOnfinish","Can Use Addon After Taskfinish","タスク完了後に能力が使用できる"
 "SnowmanFirstVision","Start and Max Vision","開始時の視界"
@@ -2207,7 +2229,7 @@
 "Executioner.ch","{0} has died, so I'm changing his Role to {1}.","{0}が死亡したので{1}に役職を変更します"
 "guesssuccess","{0} guessed {1} and hit the mark!","{0}が{1}を推測し、見事的中させた"
 "guessfall","{0} guessed {1} with {2}, but it misfired","{0}が{1}を{2}で推測したが、誤爆した"
-"Dictator.log","{0} used his ability and died","{0}が能力を使用し死亡した"
+"Dictator.log","{0} used his ability and died","{0}が能力を使用した"
 "MassMedia.log","Guessed {0}, but misjudged ","{0}を推測したが誤爆した"
 "Log.Amanojaku","{0} is Amanojaku!","{0}が<#005243>天邪鬼</color>になった!"
 "Log.MadonnaCo","{0} and {1} are now <#f09199>Madonna Lovers</color>!","{0}と{1}が<#f09199>マドンナラバーズ</color>になった!"
@@ -2332,7 +2354,7 @@
 "LastAdminInfo","Last-minute admin information","直前のアドミン情報","","","Актуальная информация администратора","Informações administrativas recentes",""
 "MurderNotify","Murder","キル発生","","","Убийство","Assassinato",""
 "Deadbody","DEAD","死体","","","Труп","MORTO",""
-"Message.AnnounceTOH-K","This room uses TownOfHost-K v{0}.","この部屋はTownOfHost-K v{0}を使用しています。","这个房间使用 TownOfHost-K v{0}.","這個房間使用 TownOfHost-K v{0}.","В этой комнате используется TownOfHost-K v{0}.","Esta sala usa TownOfHost-K v{0}.",""
+"Message.AnnounceTOH-K","This room uses YurutamaHostRolesK v{0}.","この部屋はYurutamaHostRoles v{0}を使用しています。","这个房间使用 TownOfHost-K v{0}.","這個房間使用 TownOfHost-K v{0}.","В этой комнате используется TownOfHost-K v{0}.","Esta sala usa TownOfHost-K v{0}.",""
 "RoleInfoTitle","【Your role】","【あなたの役職】","【你的角色】","【你的角色】","【ваша роль】","【Seu papel】",""
 "AddonInfoTitle","【Your Addons】","【あなたの属性】","【你的角色】","【你的角色】","【ваша роль】","【Seu papel】",""
 "GhostRolesIntoTitle","【Your GhostRole】","【あなたの幽霊役職】"

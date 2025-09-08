@@ -249,11 +249,17 @@ namespace TownOfHost
                     if (Main.UseingJapanese)
                     {
                         var varsion = Main.PluginShowVersion;
-                        var text = $"<size=80%>この部屋では\n<{Main.ModColor}><size=180%><b>{Main.ModName}</color></b></size> v.{varsion}\nを導入しております。<size=40%>\n\n</size>現在AmongUsでは、<#fc8803>公開ルームでのMod利用はできません</color><size=80%>\n";
-                        var text2 = "</size><color=red>公開ルームからMod部屋へ勧誘/誘導をするのは<b>禁止</b>です</color>。<size=40%>\n<color=red>勧誘/誘導行為</color>にあった場合はスクリーンショット等と一緒に開発者にお知らせください。";
-                        var text3 = "";//"</size>\n<size=60%>\n☆参加型配信を行ったり、SNSで募集するのは?\n<size=50%>→<#352ac9>全然大丈夫です!!やっちゃってください!!</color>\n　<#fc8803>バニラAmongUsの公開ルーム</color>での<red>宣伝/勧誘/誘導</color>がダメなのです!!</size>";
-                        var text4 = "";//"\n☆開発者から許可貰ってるって言ってる?　　\n<size=50%>→<#c9145a>個々で許可を出しておりません</color>!!大噓つきですよ!!</size>\n☆公開ルームに参加し、コード宣伝して「来てね～」って言うのは?\n<size=50%>→<color=red>勧誘/誘導</color>に当たるのでダメです。迷惑考えてくださいよ!!";
-                        Utils.SendMessage($"{text}{text2}{text3}{text4}", client.Character.PlayerId, $"<{Main.ModColor}>【This Room Use \"Town Of Host-K\"】");
+                        var text = "<size=80%>この部屋では\n" + $"<color={Main.ModColor}><size=180%><b>{Main.ModName}</b></size></color> v.{varsion}\n" + "を導入しております。</size>";
+                        var text2 = "<size=80%>\n\n現在AmongUsでは、<color=#fc8803>公開ルームでのMod利用はできません</color></size>\n" +
+    　　　　　　　　　　　　　　　　"<size=80%><color=red>公開ルームからMod部屋へ勧誘/誘導をするのは<b>禁止</b>です</color>。</size>\n" +
+    　　　　　　　　　　　　　　　　"<size=50%><color=red>勧誘/誘導行為</color>にあった場合はスクリーンショット等と一緒に開発者にお知らせください。</size>\n";
+                        var text3 = "<size=50%><voffset=0em>このmodは</voffset></size>" +
+    　　　　　　　　　　　　　　　　"<color=blue><size=70%>TownOfHost-K</size></color>" +
+   　　　　　　　　　　　　　　　　 "<size=50%><voffset=0em>のプライベートフォークです</voffset></size>\n";
+                        var text4 = "<size=35%>このmodに関して</size><size=50%><color=#007DC5>TOH</size></color><size=35%>または</size><size=50%><color=blue>TOH-K</size></color><size=35%>にフィードバックを送らないでください！！";
+                        //"</size>\n<size=60%>\n☆参加型配信を行ったり、SNSで募集するのは?\n<size=50%>→<#352ac9>全然大丈夫です!!やっちゃってください!!</color>\n　<#fc8803>バニラAmongUsの公開ルーム</color>での<red>宣伝/勧誘/誘導</color>がダメなのです!!</size>";
+                        //"\n☆開発者から許可貰ってるって言ってる?　　\n<size=50%>→<#c9145a>個々で許可を出しておりません</color>!!大噓つきですよ!!</size>\n☆公開ルームに参加し、コード宣伝して「来てね～」って言うのは?\n<size=50%>→<color=red>勧誘/誘導</color>に当たるのでダメです。迷惑考えてくださいよ!!";
+                        Utils.SendMessage($"{text}{text2}{text3}{text4}", client.Character.PlayerId, $"<{Main.ModColor}>【This Room Use \"YurutamaHostRoles\"】");
                     }
                     else
                     {

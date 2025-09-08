@@ -25,13 +25,13 @@ namespace TownOfHost
         {
                 // == プログラム設定 / Program Config ==
                 // modの名前 / Mod Name (Default: Town Of Host)
-                public static readonly string ModName = "Town Of Host-K";
+                public static readonly string ModName = "Yurutama Host Roles";
                 // modの色 / Mod Color (Default: #00bfff)
-                public static readonly string ModColor = "#00c1ff";
+                public static readonly string ModColor = "#FFA500";
                 // 公開ルームを許可する / Allow Public Room (Default: true)
                 public static readonly bool AllowPublicRoom = true;
                 // フォークID / ForkId (Default: OriginalTOH)
-                public static readonly string ForkId = "TOH-K";
+                public static readonly string ForkId = "YHR";
                 // Discordボタンを表示するか / Show Discord Button (Default: true)
                 public static readonly bool ShowDiscordButton = true;
                 // Discordサーバーの招待リンク / Discord Server Invite URL (Default: https://discord.gg/W5ug6hXB9V)
@@ -54,9 +54,9 @@ namespace TownOfHost
 
                 // ==========
                 //Sorry for many Japanese comments.
-                public const string PluginGuid = "com.kymario.townofhost-k";
+                public const string PluginGuid = "com.yurutama.YurutamahostRoles-yr";
                 public const string PluginVersion = "51.13.30.18";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-                public const string PluginShowVersion = "51.13.30<sub>.18</sub>";
+                public const string PluginShowVersion = "1.0.0<sub>.3</sub>";
                 public const string ModVersion = ".30";//リリースver用バージョン変更
 
                 /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -175,7 +175,7 @@ namespace TownOfHost
                         Instance = this;
 
                         //Client Options
-                        HideName = Config.Bind("Client Options", "Hide Game Code Name", "Town Of Host-K");
+                        HideName = Config.Bind("Client Options", "Hide Game Code Name", "Yurutama Host Roles-R");
                         HideColor = Config.Bind("Client Options", "Hide Game Code Color", $"{ModColor}");
                         ForceJapanese = Config.Bind("Client Options", "Force Japanese", false);
                         JapaneseRoleName = Config.Bind("Client Options", "Japanese Role Name", true);
