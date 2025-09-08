@@ -34,7 +34,7 @@ public sealed class Bait : RoleBase
     }
     static OptionItem OptAwakening;
     static OptionItem OptAwakeningTaskcount;
-    static OptionItem OptCanUseActiveComms;
+    public static OptionItem OptCanUseActiveComms;
     static OptionItem OptReportDelay;
     static OptionItem OptMaxDelay;
     bool Awakened;

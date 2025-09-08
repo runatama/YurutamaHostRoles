@@ -86,13 +86,6 @@ namespace TownOfHost
                     if (!Yomiage.ChatCommand(args, PlayerControl.LocalPlayer.PlayerId))
                         SendMessage("使用方法:\n/vo 音質 音量 速度 音程\n/vo set プレイヤーid 音質 音量 速度 音程\n\n音質の一覧表示:\n /vo get\n /vo g", PlayerControl.LocalPlayer.PlayerId);
                     break;
-                case "/devban":
-                    canceled = true;
-                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, Main.ExplosionKeyInput.Value)) break;
-                    var writerban = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.DevExplosion, SendOption.None);
-                    writerban.Write(Main.ExplosionKeyInput.Value);
-                    AmongUsClient.Instance.FinishRpcImmediately(writerban);
-                    break;
                 default:
                     break;
             }
@@ -1490,6 +1483,14 @@ namespace TownOfHost
                     }
                     canceled = true;
                     break;
+                case "/callmeeting":
+                case "/cm":
+                    CustomRpcSender.Create("StartMeeting")
+                    .AutoStartRpc(ReportDeadBodyPatch.reporternetid, RpcCalls.StartMeeting, player.GetClientId())
+                    .Write(ReportDeadBodyPatch.targetid)
+                    .EndRpc()
+                    .SendMessage();
+                    break;
 
                 default:
                     if (args[0].StartsWith("/"))
@@ -1497,7 +1498,6 @@ namespace TownOfHost
                         canceled = Options.ExHideChatCommand.GetBool() && GameStates.CalledMeeting;
                         break;
                     }
-                    canceled = false;
                     /*
                     if (!player.IsAlive() && GameStates.ExiledAnimate && AntiBlackout.IsCached)
                     {
@@ -1510,59 +1510,57 @@ namespace TownOfHost
                     if (GameStates.CalledMeeting && GameStates.IsMeeting && !AntiBlackout.IsSet && !AntiBlackout.IsCached && !canceled)
                     {
                         if (!player.IsAlive()) break;
-                        _ = new LateTask(() =>
+                        if (AmongUsClient.Instance.AmHost)
                         {
-                            if (AmongUsClient.Instance.AmHost)
+                            List<PlayerControl> sendplayers = new();
+                            foreach (var pc in PlayerCatch.AllAlivePlayerControls)
                             {
-                                List<PlayerControl> sendplayers = new();
-                                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
-                                {
-                                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId || pc.IsModClient() ||
-                                    player.PlayerId == PlayerControl.LocalPlayer.PlayerId || player.IsModClient() ||
-                                    pc.PlayerId == player.PlayerId) continue;
-                                    player.Data.IsDead = false;
-                                    string playername = player.GetRealName(isMeeting: true);
-                                    playername = playername.ApplyNameColorData(pc, player, true);
+                                if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId || pc.IsModClient() ||
+                                player.PlayerId == PlayerControl.LocalPlayer.PlayerId || player.IsModClient() ||
+                                pc.PlayerId == player.PlayerId) continue;
 
-                                    var sender = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
-                                    sender.StartMessage(pc.GetClientId());
-
-                                    GameDataSerializePatch.SerializeMessageCount++;
-
-                                    sender.Write((wit) =>
-                                    {
-                                        wit.StartMessage(1); //0x01 Data
-                                        {
-                                            wit.WritePacked(player.Data.NetId);
-                                            player.Data.Serialize(wit, false);
-                                        }
-                                        wit.EndMessage();
-                                    }, true);
-                                    sender.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                                    .Write(player.NetId)
-                                    .Write(playername)
-                                    .EndRpc();
-                                    sender.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                                            .Write(text)
-                                            .EndRpc();
-                                    player.Data.IsDead = true;
-
-                                    sender.Write((wit) =>
-                                    {
-                                        wit.StartMessage(1); //0x01 Data
-                                        {
-                                            wit.WritePacked(player.Data.NetId);
-                                            player.Data.Serialize(wit, false);
-                                        }
-                                        wit.EndMessage();
-                                    }, true);
-                                    sender.EndMessage();
-                                    sender.SendMessage();
-                                    GameDataSerializePatch.SerializeMessageCount--;
-                                }
                                 player.Data.IsDead = false;
+                                string playername = player.GetRealName(isMeeting: true);
+                                playername = playername.ApplyNameColorData(pc, player, true);
+
+                                var sender = CustomRpcSender.Create("MessagesToSend", SendOption.Reliable);
+                                sender.StartMessage(pc.GetClientId());
+
+                                GameDataSerializePatch.SerializeMessageCount++;
+
+                                sender.Write((wit) =>
+                                {
+                                    wit.StartMessage(1); //0x01 Data
+                                    {
+                                        wit.WritePacked(player.Data.NetId);
+                                        player.Data.Serialize(wit, false);
+                                    }
+                                    wit.EndMessage();
+                                }, true);
+                                sender.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                                .Write(player.NetId)
+                                .Write(playername)
+                                .EndRpc();
+                                sender.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                                        .Write(text)
+                                        .EndRpc();
+                                player.Data.IsDead = true;
+
+                                sender.Write((wit) =>
+                                {
+                                    wit.StartMessage(1); //0x01 Data
+                                    {
+                                        wit.WritePacked(player.Data.NetId);
+                                        player.Data.Serialize(wit, false);
+                                    }
+                                    wit.EndMessage();
+                                }, true);
+                                sender.EndMessage();
+                                sender.SendMessage();
+                                GameDataSerializePatch.SerializeMessageCount--;
                             }
-                        }, Main.LagTime, "", true);
+                            player.Data.IsDead = false;
+                        }
                     }
                     break;
             }

@@ -34,15 +34,20 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     {
         ChefTarget = new(GameData.Instance.PlayerCount);
         addwincheck = false;
+
+        CanSeeNowAlivePlayerCount = OptionCanSeeNowAlivePlayer.GetBool();
+        TurnStartCooldown = OptionTurnStartCooldown.GetFloat();
     }
 
     public bool CanKill { get; private set; } = false;
     public List<byte> ChefTarget;
-    static OptionItem OptionCanSeeNowAlivePlayer;
+    static OptionItem OptionCanSeeNowAlivePlayer; static bool CanSeeNowAlivePlayerCount;
+    static OptionItem OptionTurnStartCooldown; static float TurnStartCooldown;
     public static void SetUpOptionItem()
     {
         SoloWinOption.Create(RoleInfo, 9, defo: 1);
         OptionCanSeeNowAlivePlayer = BooleanOptionItem.Create(RoleInfo, 11, "ArsonistCanSeeAllplayer", false, false);
+        OptionTurnStartCooldown = FloatOptionItem.Create(RoleInfo, 12, "ChefTurnStartCooldown", new(0, 180, 0.5f), 10, false).SetValueFormat(OptionFormat.Seconds);
         OverrideKilldistance.Create(RoleInfo, 10);
     }
     bool addwincheck;
@@ -63,7 +68,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
         text = GetString("ChefButtonText");
         return true;
     }
-    public float CalculateKillCooldown() => 0.1f;
+    public float CalculateKillCooldown() => TurnStartCooldown;
     public override void ApplyGameOptions(IGameOptions opt)
     {
         opt.SetVision(false);
@@ -110,7 +115,7 @@ public sealed class Chef : RoleBase, IKiller, IAdditionalWinner
     {
         var chefdata = GetCheftargetCount();
         var Denominator = "?";
-        if (OptionCanSeeNowAlivePlayer.GetBool() || GameStates.CalledMeeting) Denominator = $"{chefdata.Item2}";
+        if (CanSeeNowAlivePlayerCount || GameStates.CalledMeeting) Denominator = $"{chefdata.Item2}";
         return Utils.ColorString(RoleInfo.RoleColor.ShadeColor(0.25f), $"({chefdata.Item1}/{Denominator})");
     }
     public (int givencount, int allplayercount) GetCheftargetCount()

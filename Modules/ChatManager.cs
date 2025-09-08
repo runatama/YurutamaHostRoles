@@ -316,9 +316,7 @@ namespace TownOfHost.Modules.ChatManager
                     Nwriter.SendMessage();
                     UtilsNotifyRoles.NotifyRoles();
                 }
-                if (sendTo is byte.MaxValue)
-                    chatController.timeSinceLastMessage = 0;
-                Logger.Info($"{sendTo} , {msg}", "task");
+                chatController.timeSinceLastMessage = sendTo is byte.MaxValue ? 0 : Main.MessageWait.Value - 0.2f;
                 return;
             }
 
@@ -357,7 +355,7 @@ namespace TownOfHost.Modules.ChatManager
                         ChatUpdatePatch.DoBlockChat = false;
                     }, Main.LagTime, "Setname", true);
                 }
-                Logger.Info($"{sendTo} , {msg}", "meeting");
+                chatController.timeSinceLastMessage = sendTo is byte.MaxValue ? 0 : Main.MessageWait.Value - 0.2f;
                 return;
             }
             if (Options.ExHideChatCommand.GetBool())
@@ -392,8 +390,7 @@ namespace TownOfHost.Modules.ChatManager
                     Nwriter.EndMessage();
                     Nwriter.SendMessage();
                 }
-                if (sendTo is byte.MaxValue)
-                    chatController.timeSinceLastMessage = 0;
+                chatController.timeSinceLastMessage = sendTo is byte.MaxValue ? 0 : Main.MessageWait.Value - 0.2f;
             }
         }
         public static void SendmessageInLobby(ChatController chatController)
@@ -445,9 +442,9 @@ namespace TownOfHost.Modules.ChatManager
             .EndRpc();
             Nwriter.EndMessage();
             Nwriter.SendMessage();
-            if (sendTo is byte.MaxValue && title.RemoveHtmlTags() != title)
+            if (title.RemoveHtmlTags() != title)
             {
-                chatController.timeSinceLastMessage = 0;
+                chatController.timeSinceLastMessage = sendTo is byte.MaxValue ? 0 : Main.MessageWait.Value - 0.2f;
             }
         }
         public static void OnDisconnectOrDeadPlayer(byte id)
@@ -486,6 +483,41 @@ namespace TownOfHost.Modules.ChatManager
                 var data = State.TryGetValue(player.PlayerId, out var outdata) ? outdata : false;
                 player.Data.IsDead = !data;
             }
+        }
+        public static void StratMeetingSetDead()
+        {
+            _ = new LateTask(() =>
+            {
+                if (AntiBlackout.IsCached || AntiBlackout.IsSet) return;
+
+                Dictionary<byte, bool> State = new();
+                foreach (var player in PlayerCatch.AllAlivePlayerControls)
+                {
+                    State.TryAdd(player.PlayerId, true);
+                }
+                GameDataSerializePatch.SerializeMessageCount++;
+                foreach (var pc in PlayerCatch.AllAlivePlayerControls)
+                {
+                    if (!State.ContainsKey(pc.PlayerId)) continue;
+                    if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                    if (pc.IsModClient()) continue;
+
+                    foreach (PlayerControl tg in PlayerCatch.AllAlivePlayerControls)
+                    {
+                        if (tg.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
+                        if (tg.IsModClient()) continue;
+                        tg.Data.IsDead = true;
+                    }
+                    pc.Data.IsDead = false;
+                    RPC.RpcSyncAllNetworkedPlayer(pc.GetClientId());
+                }
+                GameDataSerializePatch.SerializeMessageCount--;
+                foreach (PlayerControl player in PlayerCatch.AllAlivePlayerControls)
+                {
+                    var data = State.TryGetValue(player.PlayerId, out var outdata) ? outdata : false;
+                    player.Data.IsDead = !data;
+                }
+            }, 4f, "SetDie");
         }
     }
 }

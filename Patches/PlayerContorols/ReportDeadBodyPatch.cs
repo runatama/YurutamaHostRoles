@@ -19,6 +19,8 @@ namespace TownOfHost
         public static Dictionary<byte, string> ChengeMeetingInfo;
         public static Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = new();
         static bool Wait;
+        public static uint reporternetid;
+        public static byte targetid;
         //public static Dictionary<byte, Vector2> Pos = new();
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
         {
@@ -70,6 +72,8 @@ namespace TownOfHost
             //以下、ボタンが押されることが確定したものとする。
             //=============================================
 
+            reporternetid = __instance.NetId;
+            targetid = target?.PlayerId ?? byte.MaxValue;
             Wait = true;
             GameStates.task = false;
 
@@ -143,7 +147,15 @@ namespace TownOfHost
 
                 MeetingRoomManager.Instance.AssignSelf(__instance, target);
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(__instance);
-                __instance.RpcStartMeeting(target);
+                __instance.StartMeeting(target);
+                _ = new LateTask(() =>
+                {
+                    CustomRpcSender.Create("StartMeeting")
+                    .AutoStartRpc(__instance.NetId, RpcCalls.StartMeeting)
+                    .Write(target?.PlayerId ?? byte.MaxValue)
+                    .EndRpc()
+                    .SendMessage();
+                }, 0.2f, "Startmeeting", true);
                 Wait = false;
             }, Options.ExCallMeetingBlackout.GetBool() ? 0.12f : 0, "StartMeeting", true);
 
@@ -232,6 +244,8 @@ namespace TownOfHost
                 MeetingHudPatch.Oniku = Meetinginfo;
                 UtilsNotifyRoles.ExtendedMeetingText = $"<color={colorcode}><u>★" + Meetinginfo + "</u></color>";
             }
+            reporternetid = reporter.NetId;
+            targetid = target?.PlayerId ?? byte.MaxValue;
 
             if (!Options.firstturnmeeting || !MeetingStates.FirstMeeting)
                 foreach (var pc in PlayerCatch.AllPlayerControls)
@@ -259,7 +273,16 @@ namespace TownOfHost
 
                 MeetingRoomManager.Instance.AssignSelf(reporter, target);
                 DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
-                reporter.RpcStartMeeting(target);
+                reporter.StartMeeting(target);
+
+                _ = new LateTask(() =>
+                {
+                    CustomRpcSender.Create("StartMeeting")
+                    .AutoStartRpc(reporter.NetId, RpcCalls.StartMeeting)
+                    .Write(target?.PlayerId ?? byte.MaxValue)
+                    .EndRpc()
+                    .SendMessage();
+                }, 0.2f, "Startmeeting", true);
                 Wait = false;
             }, Options.ExCallMeetingBlackout.GetBool() ? 0.12f : 0, "StartMeeting", true);
         }

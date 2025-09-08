@@ -47,7 +47,6 @@ class Penguin : RoleBase, IImpostor
     private float AbductTimerLimit;
     private bool stopCount;
     private bool MeetingKill;
-    float oldsendabtimer;
 
     //拉致中にキルしそうになった相手の能力を使わせないための処置
     public bool IsKiller => AbductVictim == null;
@@ -59,7 +58,6 @@ class Penguin : RoleBase, IImpostor
     }
     public override void Add()
     {
-        oldsendabtimer = 255f;
         AbductTimer = 255f;
         stopCount = false;
     }
@@ -91,8 +89,7 @@ class Penguin : RoleBase, IImpostor
         CheckMurderPatch.TimeSinceLastKill[Player.PlayerId] = 0f;
         AbductVictim = target;
         AbductTimer = AbductTimerLimit;
-        Player.SyncSettings();
-        Player.RpcResetAbilityCooldown();
+        Player.RpcResetAbilityCooldown(Sync: true);
         SendRPC();
     }
     void RemoveVictim()
@@ -104,8 +101,7 @@ class Penguin : RoleBase, IImpostor
         }
         MyState.CanUseMovingPlatform = true;
         AbductTimer = 255f;
-        Player.SyncSettings();
-        Player.RpcResetAbilityCooldown();
+        Player.RpcResetAbilityCooldown(Sync: true);
         SendRPC();
     }
     public void OnCheckMurderAsKiller(MurderInfo info)
@@ -184,8 +180,10 @@ class Penguin : RoleBase, IImpostor
         if (AbductVictim != null)
         {
             stopCount = false;
+            state = 0;
         }
     }
+    static int state = 0;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -239,30 +237,33 @@ class Penguin : RoleBase, IImpostor
             // はしごの上にいるプレイヤーにはSnapToRPCが効かずホストだけ挙動が変わるため，一律でテレポートを行わない
             else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
             {
-                var position = Player.transform.position;
-                if (Player.PlayerId != 0 && AbductTimer < (oldsendabtimer - 0.1))
+                int div = 3;
+                state++;
+                if (state % div == 0)
                 {
-                    if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
-                    AbductVictim.RpcSnapToForced(position, SendOption.None);
-                }
-                else
-                {
-                    _ = new LateTask(() =>
+                    var position = Player.transform.position;
+                    if (Player.PlayerId != 0)
                     {
-                        if (AbductVictim != null && AbductTimer < (oldsendabtimer - 0.1))
-                        {
-                            if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
-                            AbductVictim.RpcSnapToForced(position, SendOption.None);
-                        }
+                        AbductVictim.RpcSnapToForced(position, SendOption.None);
                     }
-                    , 0.25f, "", true);
+                    else
+                    {
+                        _ = new LateTask(() =>
+                        {
+                            if (AbductVictim != null)
+                            {
+                                AbductVictim.RpcSnapToForced(position, SendOption.None);
+                            }
+                        }
+                        , 0.25f, "", true);
+                    }
                 }
             }
         }
         else if (AbductTimer <= 100f)
         {
             AbductTimer = 255f;
-            Player.RpcResetAbilityCooldown();
+            Player.RpcResetAbilityCooldown(Sync: true);
         }
     }
 }

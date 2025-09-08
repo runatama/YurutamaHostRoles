@@ -25,7 +25,6 @@ namespace TownOfHost
         SetMadonnaLovers,
         SyncRoomTimer,
         SyncYomiage,
-        DevExplosion,
         ModUnload,
         CustomRoleSync,
         SetAntiTeleporterPosition
@@ -69,7 +68,7 @@ namespace TownOfHost
             }
             if (__instance.PlayerId != 0
                 && Enum.IsDefined(typeof(CustomRPC), (int)callId)
-                && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck || callId == (byte)CustomRPC.DevExplosion || callId == (byte)CustomRPC.ModUnload)) //ホストではなく、CustomRPCで、VersionCheckではない
+                && !(callId == (byte)CustomRPC.VersionCheck || callId == (byte)CustomRPC.RequestRetryVersionCheck || callId == (byte)CustomRPC.ModUnload)) //ホストではなく、CustomRPCで、VersionCheckではない
             {
                 Logger.Warn($"{__instance?.Data?.GetLogPlayerName()}:{callId}({RPC.GetRpcName(callId)}) ホスト以外から送信されたためキャンセルしました。", "CustomRPC");
                 if (AmongUsClient.Instance.AmHost)
@@ -173,18 +172,6 @@ namespace TownOfHost
                     //foreach (PlayerControl pc in PlayerCatch.AllPlayerControls)
                     for (int i = 0; i < yomi; i++)
                         Yomiage.YomiageS[reader.ReadInt32()] = reader.ReadString();
-                    break;
-                case CustomRPC.DevExplosion:
-                    if (!DebugModeManager.AuthBool(Main.ExplosionKeyAuth, reader.ReadString()))
-                        break;
-                    Logger.Info("(灬՞ةڼ◔灬)", "RPC Dev");
-                    if (AmongUsClient.Instance.AmHost)
-                    {
-                        PlayerCatch.AllPlayerControls.Where(pc => pc.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-                            .Do(pc => AmongUsClient.Instance.KickPlayer(pc.GetClientId(), true));
-                        AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
-                        SceneChanger.ChangeScene("MainMenu");
-                    }
                     break;
                 case CustomRPC.ModUnload:
                     RPC.RpcModUnload(__instance.PlayerId);

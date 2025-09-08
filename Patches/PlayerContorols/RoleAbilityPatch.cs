@@ -519,6 +519,39 @@ namespace TownOfHost
                 ReMove();
                 return false;
             }
+
+            if (Camouflage.IsCamouflage)
+            {
+                var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({player.Data.GetLogPlayerName()})");
+                byte color = (byte)ModColors.PlayerColor.Gray;
+
+                player.SetColor(color);
+                sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetColor)
+                    .Write(player.Data.NetId)
+                    .Write(color)
+                    .EndRpc();
+
+                player.SetHat("", color);
+                sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetHatStr)
+                    .Write("")
+                    .Write(player.GetNextRpcSequenceId(RpcCalls.SetHatStr))
+                    .EndRpc();
+
+                player.SetSkin("", color);
+                sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetSkinStr)
+                    .Write("")
+                    .Write(player.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
+                    .EndRpc();
+
+                player.SetVisor("", color);
+                sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetVisorStr)
+                    .Write("")
+                    .Write(player.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
+                    .EndRpc();
+                sender.SendMessage();
+            }
+            else Camouflage.RpcSetSkin(player);
+
             return true;
 
             void ReMove()

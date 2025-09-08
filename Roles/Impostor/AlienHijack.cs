@@ -53,7 +53,6 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     {
         UetukeNokori = OptUetuketukeTrun.GetInt();
         AbductTimer = 255f;
-        oldsendabtimer = 255f;
         stopCount = false;
         Aliens.Add(this);
     }
@@ -148,7 +147,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         if (AmongUsClient.Instance.AmHost)
             ResetDarkenState();
     }
-    public override CustomRoles TellResults(PlayerControl player) => modeTairo ? CustomRoles.Alien : CustomRoles.Crewmate;
+    public override CustomRoles TellResults(PlayerControl player) => modeTairo ? CustomRoles.Crewmate : CustomRoles.Alien;
     public override (byte? votedForId, int? numVotes, bool doVote) ModifyVote(byte voterId, byte sourceVotedForId, bool isIntentional)
     {
         // 既定値
@@ -386,6 +385,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     }
     #endregion
     #region FixUpdata
+    static int state = 0;
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -488,23 +488,26 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
                 // はしごの上にいるプレイヤーにはSnapToRPCが効かずホストだけ挙動が変わるため，一律でテレポートを行わない
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
-                    var position = Player.transform.position;
-                    if (Player.PlayerId != 0 && AbductTimer < (oldsendabtimer - 0.1))
+                    int div = 3;
+                    state++;
+                    if (state % div == 0)
                     {
-                        if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
-                        AbductVictim.RpcSnapToForced(position);
-                    }
-                    else
-                    {
-                        _ = new LateTask(() =>
+                        var position = Player.transform.position;
+                        if (Player.PlayerId != 0)
                         {
-                            if (AbductVictim != null && AbductTimer < (oldsendabtimer - 0.1))
-                            {
-                                if (!Main.IsCs() && Options.ExRpcWeightR.GetBool()) oldsendabtimer = AbductTimer;
-                                AbductVictim.RpcSnapToForced(position);
-                            }
+                            AbductVictim.RpcSnapToForced(position, SendOption.None);
                         }
-                        , 0.25f, "", true);
+                        else
+                        {
+                            _ = new LateTask(() =>
+                            {
+                                if (AbductVictim != null)
+                                {
+                                    AbductVictim.RpcSnapToForced(position, SendOption.None);
+                                }
+                            }
+                            , 0.25f, "", true);
+                        }
                     }
                 }
             }
@@ -782,6 +785,7 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
         if (AbductVictim != null)
         {
             stopCount = false;
+            state = 0;
         }
     }
     public string Mode(bool gamelog = false)
@@ -872,7 +876,6 @@ public sealed class AlienHijack : RoleBase, IMeetingTimeAlterable, IImpostor, IN
     PlayerControl AbductVictim;
     public bool modepenguin;
     float AbductTimer;
-    float oldsendabtimer;
     bool stopCount;
     //カムバッカー
     public bool modeComebaker;

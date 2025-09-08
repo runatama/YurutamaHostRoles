@@ -583,7 +583,7 @@ public sealed class AllArounder : RoleBase, ISystemTypeUpdateHook, IKillFlashSee
     static OptionItem RandomBait; int RBait;
     static OptionItem RandomInsender; int RInsender;
     static OptionItem OptReportDelay; static OptionItem OptReportMaxDelay;
-    static OptionItem RandomBakery; int RBakery;
+    public static OptionItem RandomBakery; int RBakery;
     static OptionItem RandomDicator; int RDicator;
     static OptionItem RandomLighter; int RLighter;
     static OptionItem RandomMeetingSheriff; int RMeetingSheriff;

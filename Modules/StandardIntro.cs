@@ -14,35 +14,7 @@ namespace TownOfHost.Modules;
 class StandardIntro
 {
     public static void CoGameIntroWeight()
-    {
-        // イントロ通信分割
-        if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
-        {
-            InnerNetClientPatch.DontTouch = true;
-            GameDataSerializePatch.SerializeMessageCount++;
-            var stream = MessageWriter.Get(SendOption.Reliable);
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
-            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
-            {
-                data.Disconnected = true;
-                stream.StartMessage(1);
-                stream.WritePacked(data.NetId);
-                data.Serialize(stream, false);
-                stream.EndMessage();
-            }
-            stream.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
-            InnerNetClientPatch.DontTouch = false;
-            GameDataSerializePatch.SerializeMessageCount--;
-            // スポーン2つでるかもしれないけど、オートミュート使用時に勝手に解除されるので擬装を一回戻す。
-            foreach (var data in GameData.Instance.AllPlayers)
-            {
-                data.Disconnected = false;
-            }
-        }
-    }
+    { }
     public static void CoResetRoleY()
     {
         //playercount ^2だったのがこれだとplayercount * 3(Serialize,Setrole) + αで済む。重くない←重いよ?
@@ -50,14 +22,10 @@ class StandardIntro
 
         InnerNetClientPatch.DontTouch = true;
         GameDataSerializePatch.SerializeMessageCount++;
-        if (Options.ExIntroWeight.GetBool())
-        {
-            foreach (var data in GameData.Instance.AllPlayers) data.Disconnected = true;
-        }
         var stream = MessageWriter.Get(SendOption.Reliable);
         stream.StartMessage(5);
         stream.Write(AmongUsClient.Instance.GameId);
-        if (Options.ExIntroWeight.GetBool() is false)
+        //_ = new LateTask(() =>
         {
             foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
             {
@@ -67,18 +35,18 @@ class StandardIntro
                 data.Serialize(stream, false);
                 stream.EndMessage();
             }
-        }
-        _ = new LateTask(() =>
-        {
             stream.StartMessage(2);
             stream.WritePacked(PlayerControl.LocalPlayer.NetId);
             stream.Write((byte)RpcCalls.SetRole);
             stream.Write((ushort)RoleTypes.Crewmate);
             stream.Write(true);
             stream.EndMessage();
-            foreach (var data in GameData.Instance.AllPlayers)
+            var i = 0;
+            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
             {
+                i++;
                 data.Disconnected = false;
+                if (4 < i && Options.ExIntroWeight.GetBool()) break;
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
@@ -91,7 +59,33 @@ class StandardIntro
             {
                 if (!Main.IsroleAssigned)
                 {
-                    roleAssigned = true;
+                    if (Options.ExIntroWeight.GetBool())
+                    {
+                        var sender = MessageWriter.Get(SendOption.None);
+                        sender.StartMessage(5);
+                        sender.Write(AmongUsClient.Instance.GameId);
+                        i = 0;
+                        bool issend = false;
+                        foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
+                        {
+                            if (4 < i)
+                            {
+                                issend = true;
+                                data.Disconnected = false;
+                                sender.StartMessage(1);
+                                sender.WritePacked(data.NetId);
+                                data.Serialize(sender, false);
+                                sender.EndMessage();
+                            }
+                            i++;
+                        }
+                        if (issend)
+                        {
+                            sender.EndMessage();
+                            AmongUsClient.Instance.SendOrDisconnect(sender);
+                            sender.Recycle();
+                        }
+                    }
                     PlayerCatch.AllPlayerControls.Do(pc =>
                     {
                         if (RpcSetTasksPatch.taskIds.TryGetValue(pc.PlayerId, out var taskids))
@@ -102,17 +96,15 @@ class StandardIntro
                             pc.Data.RpcSetTasks(Array.Empty<byte>());//再配布と同じ処理を行なっておく。
                         }
                     });
-                }
-                if (Options.ExIntroWeight.GetBool())
-                {
+                    roleAssigned = true;
                     PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
                     GameData.Instance.RecomputeTaskCounts();
                     TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-                }
-            }, Options.ExIntroWeight.GetBool() ? 5f : 0f, "SetTaskDelay");
-            InnerNetClientPatch.DontTouch = false;
+                    InnerNetClientPatch.DontTouch = false;
 
-            GameDataSerializePatch.SerializeMessageCount--;
+                    GameDataSerializePatch.SerializeMessageCount--;
+                }
+            }, 0.3f, "SetTaskDelay");
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
@@ -183,7 +175,8 @@ class StandardIntro
                 senders2 = null;
             }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
             _ = new LateTask(() => SetRole(), 5.5f, "", true);
-        }, Options.ExIntroWeight.GetBool() ? 1f : 0f, "gamestartsetrole");
+            //}, Options.ExIntroWeight.GetBool() ? 1f : 0f, "gamestartsetrole");
+        }
     }
     public static void SetRole()
     {

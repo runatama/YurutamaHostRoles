@@ -20,10 +20,11 @@ namespace TownOfHost
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch
     {
+        static float timer;
+        static Dictionary<byte, string> oldname = new();
         private static StringBuilder Mark = new(20);
         private static StringBuilder Suffix = new(120);
         //public static float test = 13.1f;
-        public static float text = 0;
         public static void Postfix(PlayerControl __instance)
         {
             var player = __instance;
@@ -90,37 +91,37 @@ namespace TownOfHost
                         catch { Logger.Error($"{__instance.PlayerId}でエラー！", "DontReport"); }
                     }
                     //梯子バグ対応策。
-                    if (isAlive && !((roleclass as Jumper)?.Jumping == true))
+                    if (isAlive && !((roleclass as Jumper)?.Jumping == true) && timer is 5)
                     {
                         var nowpos = __instance.GetTruePosition();
-                        if (!Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
-                            tppos = Vector2.zero;
-
-                        if (!__instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
+                        if (Main.AllPlayerLastkillpos.TryGetValue(__instance.PlayerId, out var tppos))
                         {
-                            switch ((MapNames)Main.NormalOptions.MapId)
+                            if (!__instance.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                             {
-                                case MapNames.Airship:
-                                    if ((4.0 <= nowpos.x && nowpos.x <= 5.2 && 10.1 <= nowpos.y && nowpos.y <= 12.9)
-                                    || (10.2 <= nowpos.x && nowpos.x <= 11.7 && 6.9 <= nowpos.y && nowpos.y <= 7.2)
-                                    || (12.4 <= nowpos.x && nowpos.x <= 13.4 && -5.4 <= nowpos.y && nowpos.y <= -4.6)
-                                    )
-                                        __instance.RpcSnapToForced(tppos);
-                                    break;
-                                case MapNames.Fungle:
-                                    if ((10.8 <= nowpos.x && nowpos.x <= 12.4 && -5.3 <= nowpos.y && nowpos.y <= -2.1)
-                                    || (17.3 <= nowpos.x && nowpos.x <= 18.9 && -5.0 <= nowpos.y && nowpos.y <= -1.9)
-                                    || (18.5 <= nowpos.x && nowpos.x <= 19.8 && 4.8 <= nowpos.y && nowpos.y <= 5.7)
-                                    || (21.0 <= nowpos.x && nowpos.x <= 22.1 && 8.1 <= nowpos.y && nowpos.y <= 9.4)
-                                    )
-                                        __instance.RpcSnapToForced(tppos);
-                                    break;
+                                switch ((MapNames)Main.NormalOptions.MapId)
+                                {
+                                    case MapNames.Airship:
+                                        if ((4.0 <= nowpos.x && nowpos.x <= 5.2 && 10.1 <= nowpos.y && nowpos.y <= 12.9)
+                                        || (10.2 <= nowpos.x && nowpos.x <= 11.7 && 6.9 <= nowpos.y && nowpos.y <= 7.2)
+                                        || (12.4 <= nowpos.x && nowpos.x <= 13.4 && -5.4 <= nowpos.y && nowpos.y <= -4.6)
+                                        )
+                                            __instance.RpcSnapToForced(tppos);
+                                        break;
+                                    case MapNames.Fungle:
+                                        if ((10.8 <= nowpos.x && nowpos.x <= 12.4 && -5.3 <= nowpos.y && nowpos.y <= -2.1)
+                                        || (17.3 <= nowpos.x && nowpos.x <= 18.9 && -5.0 <= nowpos.y && nowpos.y <= -1.9)
+                                        || (18.5 <= nowpos.x && nowpos.x <= 19.8 && 4.8 <= nowpos.y && nowpos.y <= 5.7)
+                                        || (21.0 <= nowpos.x && nowpos.x <= 22.1 && 8.1 <= nowpos.y && nowpos.y <= 9.4)
+                                        )
+                                            __instance.RpcSnapToForced(tppos);
+                                        break;
+                                }
                             }
-                        }
-                        if (!__instance.inMovingPlat && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
-                        {
-                            if (6.3 <= nowpos.x && nowpos.x <= 9.3 && 7.8 <= nowpos.y && nowpos.y <= 9.1)
-                                __instance.RpcSnapToForced(tppos);
+                            if (!__instance.inMovingPlat && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+                            {
+                                if (6.3 <= nowpos.x && nowpos.x <= 9.3 && 7.8 <= nowpos.y && nowpos.y <= 9.1)
+                                    __instance.RpcSnapToForced(tppos);
+                            }
                         }
                     }
                 }
@@ -139,51 +140,42 @@ namespace TownOfHost
             //LocalPlayer専用
             if (__instance.AmOwner)
             {
-                SuddenDeathMode.UpdateTeam();
+                timer = (timer + 1) % 10;
                 if (GameStates.InGame)
                 {
                     VentManager.CheckVentLimit();
-                    DisableDevice.FixedUpdate();
-                    //情報機器制限
-                    var nowuseing = true;
-                    if (DisableDevice.optTimeLimitCamAndLog > 0 && DisableDevice.GameLogAndCamTimer > DisableDevice.optTimeLimitCamAndLog)
-                        nowuseing = false;
-
-                    if (DisableDevice.optTurnTimeLimitCamAndLog > 0 && DisableDevice.TurnLogAndCamTimer > DisableDevice.optTurnTimeLimitCamAndLog)
-                        nowuseing = false;
-
-                    if (DisableDevice.UseCount > 0)
+                    if (DisableDevice.DoDisable)
                     {
-                        if (nowuseing)
+                        DisableDevice.FixedUpdate();
+                        //情報機器制限
+                        if (DisableDevice.optTimeLimitDevices || DisableDevice.optTurnTimeLimitDevice)
                         {
-                            if (DisableDevice.optTimeLimitDevices)
-                                DisableDevice.GameLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
-                            if (DisableDevice.optTurnTimeLimitDevice)
-                                DisableDevice.TurnLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
-                        }
-                        else
-                        {
-                            DisableDevice.UseCount = 0;
+                            var nowuseing = true;
+                            if (DisableDevice.optTimeLimitCamAndLog > 0 && DisableDevice.GameLogAndCamTimer > DisableDevice.optTimeLimitCamAndLog)
+                                nowuseing = false;
+
+                            if (DisableDevice.optTurnTimeLimitCamAndLog > 0 && DisableDevice.TurnLogAndCamTimer > DisableDevice.optTurnTimeLimitCamAndLog)
+                                nowuseing = false;
+
+                            if (DisableDevice.UseCount > 0)
+                            {
+                                if (nowuseing)
+                                {
+                                    if (DisableDevice.optTimeLimitDevices)
+                                        DisableDevice.GameLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
+                                    if (DisableDevice.optTurnTimeLimitDevice)
+                                        DisableDevice.TurnLogAndCamTimer += Time.fixedDeltaTime * DisableDevice.UseCount;
+                                }
+                                else
+                                {
+                                    DisableDevice.UseCount = 0;
+                                }
+                            }
                         }
                     }
                     if (Main.IsActiveSabotage)
                     {
                         Main.SabotageActivetimer += Time.fixedDeltaTime;
-                        if (!Utils.IsActive(Main.SabotageType))
-                        {
-                            var sb = Translator.GetString($"sb.{Main.SabotageType}");
-
-                            if (Main.SabotageType == SystemTypes.MushroomMixupSabotage)
-                                UtilsGameLog.AddGameLog($"MushroomMixup", string.Format(Translator.GetString("Log.FixSab"), sb));
-                            else UtilsGameLog.AddGameLog($"{Main.SabotageType}", string.Format(Translator.GetString("Log.FixSab"), sb));
-                            Main.IsActiveSabotage = false;
-                            Main.SabotageActivetimer = 0;
-
-                            foreach (var role in CustomRoleManager.AllActiveRoles.Values)
-                            {
-                                role.AfterSabotage(Main.SabotageType);
-                            }
-                        }
                     }
 
                     ChatManager.IntaskCheckSendMessage(player);
@@ -202,72 +194,19 @@ namespace TownOfHost
                         if (SuddenDeathMode.SuddenDeathTimeLimit.GetFloat() > 0) SuddenDeathMode.SuddenDeathReactor();
                         if (SuddenDeathMode.SuddenPlayerArrow.GetBool()) SuddenDeathMode.ItijohoSend();
                     }
-
-                    //ネームカラー
-                    if (!(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (roleinfo?.IsDesyncImpostor ?? false) && !__instance.Data.IsDead)
-                        foreach (var pc in PlayerCatch.AllPlayerControls)
-                        {
-                            if (!pc || (pc?.Data == null)) continue;
-                            pc.Data.Role.NameColor = Color.white;
-                        }
-
-                    //カモフラ
-                    if (Camouflage.ventplayr.Count > 0)
-                    {
-                        var remove = new List<byte>();
-                        foreach (var id in Camouflage.ventplayr)
-                        {
-                            var target = PlayerCatch.GetPlayerById(id);
-                            if (target.inVent) continue;
-
-                            if (Camouflage.IsCamouflage)
-                            {
-                                var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.GetLogPlayerName()})");
-                                byte color = (byte)ModColors.PlayerColor.Gray;
-
-                                target.SetColor(color);
-                                sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
-                                    .Write(target.Data.NetId)
-                                    .Write(color)
-                                    .EndRpc();
-
-                                target.SetHat("", color);
-                                sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
-                                    .Write("")
-                                    .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
-                                    .EndRpc();
-
-                                target.SetSkin("", color);
-                                sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
-                                    .Write("")
-                                    .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
-                                    .EndRpc();
-
-                                target.SetVisor("", color);
-                                sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
-                                    .Write("")
-                                    .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
-                                    .EndRpc();
-                                sender.SendMessage();
-                            }
-                            else Camouflage.RpcSetSkin(target);
-
-                            remove.Add(id);
-                        }
-
-                        if (remove.Count > 0)
-                        {
-                            remove.ForEach(task => Camouflage.ventplayr.Remove(task));
-                        }
-                    }
+                }
+                else
+                {
+                    SuddenDeathMode.UpdateTeam();
                 }
 
                 var kiruta = GameStates.IsInTask && !GameStates.Intro && __instance.Is(CustomRoles.Amnesiac) && !(roleclass as Amnesiac).Realized;
                 //キルターゲットの上書き処理
                 if (GameStates.IsInTask && !GameStates.Intro && ((!(__instance.Is(CustomRoleTypes.Impostor) || __instance.Is(CustomRoles.Egoist)) && (roleinfo?.IsDesyncImpostor ?? false)) || kiruta) && !__instance.Data.IsDead)
                 {
-                    var target = __instance.TryGetKilltarget();
+                    PlayerControl target = null;
                     if (!__instance.CanUseKillButton()) target = null;
+                    else { target = __instance.TryGetKilltarget(); }
                     HudManager.Instance.KillButton.SetTarget(target);
                 }
             }
@@ -323,6 +262,11 @@ namespace TownOfHost
                 }
                 if (GameStates.IsInGame)
                 {
+                    if (timer is not 0)
+                    {
+                        __instance.cosmetics.nameText.text = oldname.TryGetValue(__instance.PlayerId, out var old) ? old : "";
+                        return;
+                    }
                     (RoleText.enabled, RoleText.text) = UtilsRoleText.GetRoleNameAndProgressTextData(PlayerControl.LocalPlayer, __instance, PlayerControl.LocalPlayer == __instance);
                     if (!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay)
                     {
@@ -426,11 +370,14 @@ namespace TownOfHost
                     bool? canseedeathreasoncolor = seer.PlayerId.CanDeathReasonKillerColor() == true ? true : null;
                     string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"<size=75%>({Utils.GetVitalText(target.PlayerId, canseedeathreasoncolor)})</size>" : "";
 
+                    string nametext = $"<#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
                     //Mark・Suffixの適用
-                    if (!seer.GetCustomRole().GetRoleInfo()?.IsDesyncImpostor ?? false)
-                        target.cosmetics.nameText.text = $"{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}";
-                    else
-                        target.cosmetics.nameText.text = $"<#ffffff>{RealName}{((TemporaryName && nomarker) ? "" : DeathReason + Mark)}</color>";
+                    target.cosmetics.nameText.text = nametext;
+
+                    if (!oldname.TryAdd(target.PlayerId, nametext))
+                    {
+                        oldname[target.PlayerId] = nametext;
+                    }
 
                     if (Suffix.ToString() != "" && (!TemporaryName || (TemporaryName && !nomarker)))
                     {

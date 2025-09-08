@@ -607,7 +607,7 @@ namespace TownOfHost
         }
         public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
         {
-            if (Options.ExIntroWeight.GetBool()) return;
+            //if (Options.ExIntroWeight.GetBool()) return;
             var hostId = PlayerControl.LocalPlayer.PlayerId;
             foreach (var seer in PlayerCatch.AllPlayerControls)
             {
@@ -655,6 +655,8 @@ namespace TownOfHost
                         player.RpcSetColor(2);
                     else if (player.Is(CustomRoles.HASFox))
                         player.RpcSetColor(3);
+                    SetColorPatch.IsAntiGlitchDisabled = false;
+                    return AssignedPlayers;
                 }
 
                 if (role.GetRoleInfo().IsCantSeeTeammates && player != PlayerControl.LocalPlayer && !SuddenDeathMode.NowSuddenDeathMode)
@@ -706,6 +708,7 @@ namespace TownOfHost
             }
             public static void Release()
             {
+                /*
                 if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
                 {
                     foreach (var pair in StoragedData)
@@ -713,7 +716,7 @@ namespace TownOfHost
                         pair.Item1.StartCoroutine(pair.Item1.CoSetRole(pair.Item2, Main.SetRoleOverride && Options.CurrentGameMode is CustomGameMode.Standard));
                     }
                     return;
-                }
+                }*/
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
                     var playerInfo = GameData.Instance.GetPlayerById(pc.PlayerId);

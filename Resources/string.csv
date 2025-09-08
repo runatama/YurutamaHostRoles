@@ -1489,6 +1489,13 @@
 "AllArounderRandomOpportunist","Opportunist rate","<#00ff00>オポチュニスト</color>になる確率"
 "AllArounderRandomNone","Crewmate rate","<#8cffff>クルーメイト</color>になる確率"
 "InspectVoteMode","VoteMode","捜査方法"
+"InspectSetRect","Set Rect","情報の確率を変更する"
+"InspectDeathReason","Rect Death Reason","死因情報の確率"
+"InspectColor","Rect Killer Color","キラーの明暗情報"
+"InspectTargetTeam","Rect Target Team","ターゲットの所属陣営の情報"
+"InspectKillerRole","Rect Killer Role","キラーの役職情報"
+"InspectDeathTimer","Rect Death Timer","死後経過時間の情報"
+"InspectTargetRoom","Rect Target Room","死亡した部屋の情報"
 "CandleLighterStartVision","Start Vision(Widest Vision)","初めの視界(一番広い視界)",
 "CandleLighterCountStartTime","Time to Start Changing Vision","視界が変わり始めるまでの時間",
 "CandleLighterEndVisionTime","Time to End Vision","最後の視界になる時間",
@@ -1592,7 +1599,8 @@
 "VegaRKFThreshold","","必要な逢い引き回数"
 "VegaFactionBasedStarColor","","陣営毎に星の色が変わる"
 "VegaAddWin","","相方が勝利した場合その相方も追加勝利する"
-"WorkaholicCanWinAtDeath","","死亡後も勝利できる"
+"WorkaholicCanWinAtDeath","Can Win Death","死亡後も勝利できる"
+"ChefTurnStartCooldown","TurnStart Cooldown","ターン開始後のクールダウン"
 
 "## Unit Role Setting"
 "BraidKillCooldown","Bread Task Complete Driver Killcool","ブレイドが全タスク完了時のキルクール"
