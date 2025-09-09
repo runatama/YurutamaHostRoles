@@ -18,6 +18,17 @@
 "SheriffHasteChanceMiss","",外れ時の短縮確率
 "SheriffHasteScaleMiss","",外れ時の短縮倍率
 
+"VentSeer","",ベントシーア
+"VentSeerInfo","",ベントを使う悪い子はどこかな？
+"VentSeerInfoLong","",誰かがベントを使うとフラッシュが発生する。オプションでランダム遅延や陣営別（インポ/クルー/第三）のカウント切り替えが可能。
+"VentSeerUseDelay","",ランダム遅延を使う
+"VentSeerMinDelay","",最小遅延(秒)
+"VentSeerMaxDelay","",最大遅延(秒)
+"VentSeerSplitByFaction","",陣営別に分ける
+"VentSeerShowImpostor","",インポをカウント
+"VentSeerShowMadmate","",マッドをカウント
+"VentSeerShowCrewmate","",クルーをカウント
+"VentSeerShowNeutral","",第三をカウント
 
 "Totocalcio","","トトカルチョ"
 "TotocalcioInfo","",勝利できそうな人に賭けよう！！

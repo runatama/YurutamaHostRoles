@@ -800,6 +800,7 @@ public enum CustomRoles
     AllArounder,
     //YHR
     YuruSheriff,
+    VentSeer,
     //DEBUG only Crewmate
     Satellite,
     //DEBUG only Crewmate
