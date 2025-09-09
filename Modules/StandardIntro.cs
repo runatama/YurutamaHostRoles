@@ -101,7 +101,7 @@ class StandardIntro
             {
                 if (!Main.IsroleAssigned)
                 {
-                    var sender = MessageWriter.Get(SendOption.None);
+                    var sender = MessageWriter.Get(SendOption.Reliable);
                     sender.StartMessage(5);
                     sender.Write(AmongUsClient.Instance.GameId);
                     i = 0;
@@ -110,16 +110,28 @@ class StandardIntro
                     {
                         if (4 < i)//イントロが始まるまでの間に戻しておく。
                         {
-                            issend = true;
+                            if (issend)
+                            {
+                                sender = MessageWriter.Get(SendOption.Reliable);
+                                sender.StartMessage(5);
+                                sender.Write(AmongUsClient.Instance.GameId);
+                            }
                             data.Disconnected = false;
                             sender.StartMessage(1);
                             sender.WritePacked(data.NetId);
                             data.Serialize(sender, false);
                             sender.EndMessage();
+                            if (sender.Length > UtilsNotifyRoles.chengepake && Options.ExRpcWeightR.GetBool())
+                            {
+                                issend = true;
+                                sender.EndMessage();
+                                AmongUsClient.Instance.SendOrDisconnect(sender);
+                                sender.Recycle();
+                            }
                         }
                         i++;
                     }
-                    if (issend)
+                    if (!issend)
                     {
                         sender.EndMessage();
                         AmongUsClient.Instance.SendOrDisconnect(sender);

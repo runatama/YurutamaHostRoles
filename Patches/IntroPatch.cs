@@ -472,6 +472,10 @@ namespace TownOfHost
                         if (pl.Data.Tasks != null)
                             foreach (var task in pl.Data.Tasks) TaskList.Add(task.Id);
                         Main.AllPlayerTask.TryAdd(pl.PlayerId, TaskList);
+                        if (pl.isDummy && Main.NormalOptions.MapId is 4)
+                        {
+                            new RandomSpawn.AirshipSpawnMap().RandomTeleport(pl);
+                        }
                     }
                     ExtendedRpc.RpcResetAbilityCooldownAllPlayer();
                     CustomButtonHud.BottonHud(true);
