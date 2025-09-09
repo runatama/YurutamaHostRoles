@@ -22,11 +22,16 @@ public sealed class Viper : RoleBase, IImpostor
     )
     {
         ViperDissolveTime = OptViperDissolveTime.GetFloat();
+        killcool = OptKillcool.GetFloat();
     }
+    static OptionItem OptKillcool; static float killcool;
     public static OptionItem OptViperDissolveTime; static float ViperDissolveTime;
     public static void SetUpCustomOption()
     {
-        OptViperDissolveTime = FloatOptionItem.Create(RoleInfo, 3, StringNames.ViperDissolveTime, new(0, 180, 1), 15, false);
+        OptKillcool = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.KillCooldown, OptionBaseCoolTime, 30, false)
+            .SetValueFormat(OptionFormat.Seconds);
+        OptViperDissolveTime = FloatOptionItem.Create(RoleInfo, 3, StringNames.ViperDissolveTime, new(0, 180, 1), 15, false)
+            .SetValueFormat(OptionFormat.Seconds);
     }
     public override void ApplyGameOptions(IGameOptions opt)
     {

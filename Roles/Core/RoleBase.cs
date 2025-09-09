@@ -413,7 +413,7 @@ public abstract class RoleBase : IDisposable
     /// </summary>
     public virtual string GetAbilityButtonText()
     {
-        StringNames? str = Player.Data.Role.Role switch
+        StringNames? str = Player?.Data?.Role?.Role switch
         {
             RoleTypes.Engineer => StringNames.VentAbility,
             RoleTypes.Scientist => StringNames.VitalsAbility,
