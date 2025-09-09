@@ -184,6 +184,14 @@ public static class CustomRoleManager
         //キル可能だった場合のみMurderPlayerに進む
         if (info.CanKill && info.DoKill)//ノイメ対応
         {
+            if (appearanceKiller.GetCustomRole() is CustomRoles.Viper)//DesyncImp役職だと死体が溶けないので一瞬だけViperにする。
+            {
+                if (AmongUsClient.Instance.AmHost)
+                    foreach (var pc in PlayerCatch.AllPlayerControls)
+                    {
+                        appearanceKiller.RpcSetRoleDesync(RoleTypes.Viper, pc.GetClientId());
+                    }
+            }
             if (info.DontRoleAbility is false)
             {
                 if (appearanceTarget.GetCustomRole().GetRoleInfo()?.BaseRoleType.Invoke() == RoleTypes.Noisemaker)
@@ -217,6 +225,16 @@ public static class CustomRoleManager
             //MurderPlayer用にinfoを保存
             CheckMurderInfos[appearanceKiller.PlayerId] = info;
             appearanceKiller.RpcMurderPlayer(appearanceTarget);
+
+            if (info.AppearanceKiller.GetCustomRole() is CustomRoles.Viper)
+            {
+                foreach (var pc in PlayerCatch.AllPlayerControls)
+                {
+                    if (pc.IsModClient()) continue;
+                    if (pc.PlayerId == info.AppearanceKiller.PlayerId || (pc.GetCustomRole().IsImpostor()) || pc.GetCustomRole() is CustomRoles.Egoist) continue;
+                    _ = new LateTask(() => info.AppearanceKiller.RpcSetRoleDesync(RoleTypes.Crewmate, pc.GetClientId()), 0.5f, "SetCrew", true); ;
+                }
+            }
             return true;
         }
         else
@@ -672,6 +690,7 @@ public enum CustomRoles
     Impostor,
     Shapeshifter,
     Phantom,
+    Viper,
     //Impostor
     BountyHunter,
     FireWorks,
@@ -748,6 +767,7 @@ public enum CustomRoles
     Scientist,
     Tracker,
     Noisemaker,
+    Detective,
     //Crewmate
     Bait,
     Lighter,

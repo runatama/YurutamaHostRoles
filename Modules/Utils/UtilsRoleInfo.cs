@@ -35,6 +35,7 @@ namespace TownOfHost
                 roleCommands.Add((CustomRoles)(-1), $"【=== {GetString("Impostor")} ===】");  // 区切り用
                 roleCommands.Add(CustomRoles.Shapeshifter, "She");
                 //roleCommands.Add(CustomRoles.Phantom, "Pha");//アプデ対応用 仮
+                roleCommands.Add(CustomRoles.Viper, "vi");
                 ConcatCommands(CustomRoleTypes.Impostor);
 
                 // Madmate役職
@@ -48,6 +49,7 @@ namespace TownOfHost
                 roleCommands.Add(CustomRoles.Scientist, "Sci");
                 roleCommands.Add(CustomRoles.Tracker, "Trac");
                 roleCommands.Add(CustomRoles.Noisemaker, "Nem");//アプデ対応用 仮
+                roleCommands.Add(CustomRoles.Detective, "Det");
 
                 ConcatCommands(CustomRoleTypes.Crewmate);
 

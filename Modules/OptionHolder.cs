@@ -1247,11 +1247,13 @@ namespace TownOfHost
                     case CustomRoles.Impostor: id = 10; break;
                     case CustomRoles.Shapeshifter: id = 30; break;
                     case CustomRoles.Phantom: id = 40; break;
+                    case CustomRoles.Viper: id = 23050; break;
                     case CustomRoles.Crewmate: id = 11; break;
                     case CustomRoles.Engineer: id = 200; break;
                     case CustomRoles.Scientist: id = 250; break;
                     case CustomRoles.Tracker: id = 300; break;
                     case CustomRoles.Noisemaker: id = 350; break;
+                    case CustomRoles.Detective: id = 23100; break;
                 }
             }
             assignCountRule ??= new(1, 15, 1);

@@ -39,7 +39,7 @@ class StandardIntro
                 stream.WritePacked(data.NetId);
                 data.Serialize(stream, false);
                 stream.EndMessage();
-                if (stream.Length > UtilsNotifyRoles.chengepake && Options.ExRpcWeightR.GetBool())
+                if (stream.Length > UtilsNotifyRoles.chengepake)
                 {
                     IsSend = true;
                     stream.EndMessage();

@@ -55,15 +55,15 @@ namespace TownOfHost
         // ==========
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.kymario.townofhost-k";
-        public const string PluginVersion = "51.13.30.22";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-        public const string PluginShowVersion = "51.13.30<sub>.22</sub>";
+        public const string PluginVersion = "51.13.30.23";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+        public const string PluginShowVersion = "51.13.30<sub>.23</sub>";
         public const string ModVersion = ".30";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
         public static bool DebugVersion = false;
 
         // サポートされている最低のAmongUsバージョン
-        public static readonly string LowestSupportedVersion = "2025.4.20";
+        public static readonly string LowestSupportedVersion = "2025.9.9";
         // このバージョンのみで公開ルームを無効にする場合
         public static readonly bool IsPublicAvailableOnThisVersion = false;
         public Harmony Harmony { get; } = new Harmony(PluginGuid);
@@ -74,8 +74,8 @@ namespace TownOfHost
         public static string ExceptionMessage;
         public static bool ExceptionMessageIsShown = false;
         public static string credentialsText;
-        public static NormalGameOptionsV09 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
-        public static HideNSeekGameOptionsV09 HideNSeekSOptions => GameOptionsManager.Instance.currentHideNSeekGameOptions;
+        public static NormalGameOptionsV10 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+        public static HideNSeekGameOptionsV10 HideNSeekSOptions => GameOptionsManager.Instance.currentHideNSeekGameOptions;
         //Client Options
         public static ConfigEntry<string> HideName { get; private set; }
         public static ConfigEntry<string> HideColor { get; private set; }

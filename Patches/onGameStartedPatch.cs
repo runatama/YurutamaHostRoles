@@ -237,7 +237,7 @@ namespace TownOfHost
                 }
                 else
                 {
-                    RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom };
+                    RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom, RoleTypes.Detective, RoleTypes.Viper };
                     foreach (var roleTypes in RoleTypesList)
                     {
                         var roleOpt = Main.NormalOptions.roleOptions;
@@ -327,9 +327,11 @@ namespace TownOfHost
             List<PlayerControl> Engineers = new();
             List<PlayerControl> Trackers = new();
             List<PlayerControl> Noisemakers = new();
+            List<PlayerControl> Detectives = new();
             List<PlayerControl> GuardianAngels = new();
             List<PlayerControl> Shapeshifters = new();
             List<PlayerControl> Phantoms = new();
+            List<PlayerControl> Vipers = new();
 
             foreach (var pc in PlayerCatch.AllPlayerControls)
             {
@@ -364,6 +366,10 @@ namespace TownOfHost
                         Noisemakers.Add(pc);
                         role = CustomRoles.Noisemaker;
                         break;
+                    case RoleTypes.Detective:
+                        Detectives.Add(pc);
+                        role = CustomRoles.Detective;
+                        break;
                     case RoleTypes.GuardianAngel:
                         GuardianAngels.Add(pc);
                         role = CustomRoles.GuardianAngel;
@@ -375,6 +381,10 @@ namespace TownOfHost
                     case RoleTypes.Phantom:
                         Phantoms.Add(pc);
                         role = CustomRoles.Phantom;
+                        break;
+                    case RoleTypes.Viper:
+                        Vipers.Add(pc);
+                        role = CustomRoles.Viper;
                         break;
                     default:
                         Logger.seeingame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.GetLogPlayerName()));
@@ -444,10 +454,12 @@ namespace TownOfHost
                         RoleTypes.Impostor => Impostors,
                         RoleTypes.Shapeshifter => Shapeshifters,
                         RoleTypes.Phantom => Phantoms,
+                        RoleTypes.Viper => Vipers,
                         RoleTypes.Scientist => Scientists,
                         RoleTypes.Engineer => Engineers,
                         RoleTypes.Tracker => Trackers,
                         RoleTypes.Noisemaker => Noisemakers,
+                        RoleTypes.Detective => Detectives,
                         RoleTypes.GuardianAngel => GuardianAngels,
                         _ => Crewmates,
                     };
@@ -487,7 +499,7 @@ namespace TownOfHost
                     }
                 }
 
-                RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom };
+                RoleTypes[] RoleTypesList = { RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.Tracker, RoleTypes.Noisemaker, RoleTypes.Shapeshifter, RoleTypes.Phantom, RoleTypes.Detective, RoleTypes.Viper };
                 foreach (var roleTypes in RoleTypesList)
                 {
                     var roleOpt = Main.NormalOptions.roleOptions;
