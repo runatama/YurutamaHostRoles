@@ -151,7 +151,7 @@ namespace TownOfHost
                 }
             }
             logger.Info("------------基本設定------------");
-            var tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1).SkipLast(8);
+            var tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1).SkipLast(10);
             foreach (var t in tmp) logger.Info(t);
             logger.Info("------------詳細設定------------");
             foreach (var o in OptionItem.AllOptions)
@@ -472,6 +472,10 @@ namespace TownOfHost
                         if (pl.Data.Tasks != null)
                             foreach (var task in pl.Data.Tasks) TaskList.Add(task.Id);
                         Main.AllPlayerTask.TryAdd(pl.PlayerId, TaskList);
+                        if (pl.isDummy && Main.NormalOptions.MapId is 4)
+                        {
+                            new RandomSpawn.AirshipSpawnMap().RandomTeleport(pl);
+                        }
                     }
                     ExtendedRpc.RpcResetAbilityCooldownAllPlayer();
                     CustomButtonHud.BottonHud(true);

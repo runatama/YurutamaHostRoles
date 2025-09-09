@@ -29,7 +29,7 @@ namespace TownOfHost.Modules
             .ToList().ForEach(sender => sender.SetDirty());
 
         public override IGameOptions BasedGameOptions =>
-            Main.RealOptionsData.Restore(new NormalGameOptionsV09(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+            Main.RealOptionsData.Restore(new NormalGameOptionsV10(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
         public override bool IsDirty { get; protected set; }
 
         public PlayerControl player;
@@ -86,9 +86,11 @@ namespace TownOfHost.Modules
                 var ShapeshifterDuration = opt.GetFloat(FloatOptionNames.ShapeshifterDuration);
                 var shapeskin = IsAlive ? opt.GetBool(BoolOptionNames.ShapeshifterLeaveSkin) : false;
                 var phantom = IsAlive ? opt.GetFloat(FloatOptionNames.PhantomCooldown) : 0;
+                var detective = IsAlive ? opt.GetFloat(FloatOptionNames.DetectiveSuspectLimit) : 0;
+                var vip = opt.GetFloat(FloatOptionNames.ViperDissolveTime);
 
                 string NowOption = $"{killCooldown},{killDistance},{impostorLight},{crewLight},{playerSpeed},{numEmergency},{emergencyCooldown},{discussionTime},{votingTime},{anonymousVotes},{numCommonTasks},{numLongTasks},{numShortTasks},{visualTasks},{taskBarMode},{confirmImpostor}";
-                NowOption += $"{engcooldown},{engmaxtime},{scicooldown},{scibattery},{trackercool},{trackerdelay},{tarckduration},{noisealert},{noiseimp},{shapecool},{ShapeshifterDuration},{shapeskin},{phantom}";
+                NowOption += $"{engcooldown},{engmaxtime},{scicooldown},{scibattery},{trackercool},{trackerdelay},{tarckduration},{noisealert},{noiseimp},{shapecool},{ShapeshifterDuration},{shapeskin},{phantom},{detective},{vip}";
                 if (OldOptionstext == NowOption)//再度送信するならキャンセル
                 {
                     return;
