@@ -839,6 +839,8 @@ public enum CustomRoles
     Vulture,
     SantaClaus,
     TaskPlayerB,
+    //YHR
+    God,
     //DEBUG only Neutral.
     //HideAndSeek
     HASFox,

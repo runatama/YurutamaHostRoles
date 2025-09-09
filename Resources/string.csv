@@ -38,6 +38,12 @@
 "TotocalcioFinalCoolDown","",最終クールダウン
 "TotocalcioBetChangeCount","",賭け直し回数
 
+"God","","神"
+"GodInfo","","絶対的な力を持つ存在。タスク完了で勝利できたり、投票先を暴くことができる。"
+"GodDesc","","生き残っていれば勝利条件を満たす。オプションでタスク完了が必須になる場合がある。投票先公開を有効にすると匿名投票が無効化される。"
+"GodTaskCompleteToWin","","タスクを全て終えたら勝利"
+"GodViewVoteFor","","投票先を公開（匿名投票OFF）"
+
 "# バニラ役職"
 "Crewmate","Crewmate","クルーメイト","船员","船員","Член Экипажа","Tripulante","Tripulante"
 "Engineer","Engineer","エンジニア","工程师","工程師","Инженер","Engenheiro","Engenheiro"
