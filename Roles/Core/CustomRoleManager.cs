@@ -841,6 +841,7 @@ public enum CustomRoles
     TaskPlayerB,
     //YHR
     God,
+    Tuna,
     //DEBUG only Neutral.
     //HideAndSeek
     HASFox,

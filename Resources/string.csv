@@ -44,6 +44,20 @@
 "GodTaskCompleteToWin","","タスクを全て終えたら勝利"
 "GodViewVoteFor","","投票先を公開（匿名投票OFF）"
 
+"Tuna","","マグロ"
+"TunaInfo","", "動き続けよう！！"
+"TunaInfoLong","","一定時間動かないと死亡。会議中は常時無敵、会議終了後もしばらく無敵。設定で共存勝利（追加勝利）か単独勝利UIを切替可能な中立ロール。"
+"TunaDesc","", "動かないと倒れる“鮪”ロール。会議中は強制無敵。会議が終わった後も指定秒数だけ無敵が続く。設定で「共存勝利（追加勝利）」をONにすると、生存していれば他陣営と一緒に勝利できる。OFFなら単独勝利UI（SoloWinOption）を使用。"
+
+"TunaIdleDeathSeconds","", "動かなかったら死ぬまでの秒数"
+"TunaPostMeetingInvincibleSeconds","", "会議後の無敵時間(秒)"
+"CountKillerAddWin","", "共存勝利（追加勝利）"
+
+"Tuna_StayedTooLong","", "[Tuna] 動かなかったため死亡…"
+
+
+
+
 "# バニラ役職"
 "Crewmate","Crewmate","クルーメイト","船员","船員","Член Экипажа","Tripulante","Tripulante"
 "Engineer","Engineer","エンジニア","工程师","工程師","Инженер","Engenheiro","Engenheiro"
