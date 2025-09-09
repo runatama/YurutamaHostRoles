@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|solutionrelative:main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|c:\\dev\\yurutamahostroles\\townofhost.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|solutionrelative:townofhost.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|c:\\dev\\yurutamahostroles\\patches\\playerjoinandleftpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|solutionrelative:patches\\playerjoinandleftpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -25,10 +29,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|c:\\dev\\yurutamahostroles\\roles\\addons\\roleaddaddons.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|solutionrelative:roles\\addons\\roleaddaddons.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|c:\\dev\\yurutamahostroles\\townofhost.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|solutionrelative:townofhost.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1FC72121-C82A-F097-6BE3-3B951E5B6959}|TownOfHost.csproj|c:\\dev\\yurutamahostroles\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
@@ -56,14 +56,14 @@
               "RelativeDocumentMoniker": "main.cs",
               "ToolTip": "C:\\Dev\\YurutamaHostRoles\\main.cs",
               "RelativeToolTip": "main.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAMkBAAAAAAAAAAAkwMkBAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-08T15:12:10.806Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "PlayerJoinAndLeftPatch.cs",
               "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\Patches\\PlayerJoinAndLeftPatch.cs",
               "RelativeDocumentMoniker": "Patches\\PlayerJoinAndLeftPatch.cs",
@@ -75,7 +75,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "CustomRoleManager.cs",
               "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\Roles\\Core\\CustomRoleManager.cs",
               "RelativeDocumentMoniker": "Roles\\Core\\CustomRoleManager.cs",
@@ -87,7 +87,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
+              "Title": "TownOfHost.csproj",
+              "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\TownOfHost.csproj",
+              "RelativeDocumentMoniker": "TownOfHost.csproj",
+              "ToolTip": "C:\\Dev\\YurutamaHostRoles\\TownOfHost.csproj",
+              "RelativeToolTip": "TownOfHost.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-09-08T13:03:31.062Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "RoleAssignManager.cs",
               "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\Roles\\RoleAssignManager.cs",
               "RelativeDocumentMoniker": "Roles\\RoleAssignManager.cs",
@@ -99,7 +112,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "CustomRolesHelper.cs",
               "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\Helpers\\CustomRolesHelper.cs",
               "RelativeDocumentMoniker": "Helpers\\CustomRolesHelper.cs",
@@ -111,7 +124,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "RoleAddAddons.cs",
               "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\Roles\\AddOns\\RoleAddAddons.cs",
               "RelativeDocumentMoniker": "Roles\\AddOns\\RoleAddAddons.cs",
@@ -132,18 +145,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2025-09-08T13:12:52.637Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "TownOfHost.csproj",
-              "DocumentMoniker": "C:\\Dev\\YurutamaHostRoles\\TownOfHost.csproj",
-              "RelativeDocumentMoniker": "TownOfHost.csproj",
-              "ToolTip": "C:\\Dev\\YurutamaHostRoles\\TownOfHost.csproj",
-              "RelativeToolTip": "TownOfHost.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-08T13:03:31.062Z"
             },
             {
               "$type": "Document",
