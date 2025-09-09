@@ -10,3 +10,11 @@ FodyWeavers.xsd
 /bin/
 /obj/
 /.vscode/
+/.vs/
+*.suo
+*.user
+*.vsidx
+*.v2
+/bin/
+/obj/
+/.vscode/
