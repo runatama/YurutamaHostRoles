@@ -59,7 +59,7 @@ namespace TownOfHost
         //Sorry for many Japanese comments.
         public const string PluginGuid = "com.yurutama.YurutamahostRoles-yr";
         public const string PluginVersion = "51.13.30.23";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
-        public const string PluginShowVersion = "1.0.0<sub>.6</sub>";
+        public const string PluginShowVersion = "1.0.1<sub>.2</sub>";
         public const string ModVersion = ".30";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。
@@ -449,6 +449,7 @@ namespace TownOfHost
                 Fox = CustomRoles.Fox,
                 PhantomThief = CustomRoles.PhantomThief,
                 MilkyWay = CustomRoles.Vega,
+                Tuna = CustomRoles.Tuna,
 
                 HASTroll = CustomRoles.HASTroll,
                 TaskPlayerB = CustomRoles.TaskPlayerB,
