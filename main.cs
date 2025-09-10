@@ -19,6 +19,7 @@ using TownOfHost.Modules;
 namespace TownOfHost
 {
 
+        //なにか追加したいなぁ
         [BepInPlugin(PluginGuid, "Yurutama Host Roles", PluginVersion)]
         [BepInIncompatibility("jp.ykundesu.supernewroles")]
         [BepInProcess("Among Us.exe")]
