@@ -25,6 +25,7 @@ namespace TownOfHost
     public static class Options
     {
         //static Task taskOptionsLoad;
+        public static bool LoadError;
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
         public static void OptionsLoadStart(TranslationController __instance)
         {
@@ -38,7 +39,16 @@ namespace TownOfHost
             Main.DebugChatopen.Value  =false;
 #endif
             //taskOptionsLoad = Task.Run(Load);
-            Load();
+            try
+            {
+                Load();
+                LoadError = false;
+            }
+            catch (Exception ex)
+            {
+                LoadError = true;
+                Logger.Exception(ex, "Options");
+            }
         }
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
         public static void WaitOptionsLoad()
