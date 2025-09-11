@@ -42,6 +42,7 @@ namespace TownOfHost
             Pages = new();
             now = byte.MaxValue;
             //Discordボタンを生成
+            
             if (SimpleButton.IsNullOrDestroyed(discordButton))
             {
                 discordButton = CreateButton(
@@ -53,7 +54,7 @@ namespace TownOfHost
                     "Discord",
                     isActive: Main.ShowDiscordButton);
             }
-
+            
             // GitHubボタンを生成
             if (SimpleButton.IsNullOrDestroyed(gitHubButton))
             {
@@ -62,7 +63,7 @@ namespace TownOfHost
                     new(-0.8f * Widthratio, -1f, 1f),//-1f
                     new(153, 153, 153, byte.MaxValue),
                     new(209, 209, 209, byte.MaxValue),
-                    () => Application.OpenURL("https://github.com/KYMario/TownOfHost-K"),
+                    () => Application.OpenURL("https://github.com/runatama/YurutamaHostRoles"),
                     "GitHub");
             }
 
@@ -74,10 +75,11 @@ namespace TownOfHost
                     new(0.9f * Widthratio, -1f, 1f),
                     new(0, 202, 255, byte.MaxValue),
                     new(60, 255, 255, byte.MaxValue),
-                    () => Application.OpenURL("https://twitter.com/Tohkserver_k"),
+                    () => Application.OpenURL("https://x.com/yururu_yurutama"),
                     "Twitter(X)");
             }
             // TOHkBOTボタンを生成
+            
             if (SimpleButton.IsNullOrDestroyed(TOHkBOTButton))
             {
                 TOHkBOTButton = CreateButton(
@@ -373,7 +375,7 @@ namespace TownOfHost
             Action action,
             string label,
             Vector2? scale = null,
-            bool isActive = true,
+            bool isActive = false,
             Transform transform = null)
         {
             var button = new SimpleButton(transform == null ? CredentialsPatch.TohkLogo.transform : transform, name, localPosition, normalColor, hoverColor, action, label, isActive);

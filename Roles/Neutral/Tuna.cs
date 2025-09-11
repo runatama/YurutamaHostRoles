@@ -7,6 +7,7 @@ using TownOfHost.Roles.Core.Interfaces;
 
 namespace TownOfHost.Roles.Neutral
 {
+    // 共存勝利にも対応するため IAdditionalWinner を実装
     public sealed class Tuna : RoleBase, IAdditionalWinner
     {
         public static readonly SimpleRoleInfo RoleInfo =
@@ -14,12 +15,13 @@ namespace TownOfHost.Roles.Neutral
                 typeof(Tuna),
                 player => new Tuna(player),
                 CustomRoles.Tuna,
-                () => OptionUseVent.GetBool() ? RoleTypes.Engineer : RoleTypes.Crewmate,
+                () => RoleTypes.Crewmate, // 常にベント不可
                 CustomRoleTypes.Neutral,
                 23400,
                 SetupOptionItem,
-                "マグロ",
-                "#00bfff"
+                "tuna",
+                "#00bfff",
+                from:From.TownOfHost_for_E
             );
 
         public Tuna(PlayerControl player)
@@ -37,7 +39,6 @@ namespace TownOfHost.Roles.Neutral
         // ====== Options ======
         private static OptionItem OptWaitTime;
         private static OptionItem OptAllowAdditionalWin;
-        private static OptionItem OptionUseVent;
 
         private float waitTime;
         private bool allowAddWin;
@@ -57,16 +58,18 @@ namespace TownOfHost.Roles.Neutral
             // 追加勝利ON/OFF
             OptAllowAdditionalWin = BooleanOptionItem.Create(RoleInfo, 11, "TunaAllowAdditionalWin", false, false);
 
-            // ベント可否
-            OptionUseVent = BooleanOptionItem.Create(RoleInfo, 12, GeneralOption.CanVent, false, false);
+            // 勝利優先度 (1～50) デフォルトは10
+            SoloWinOption.Create(RoleInfo, 12, defo: 10);
         }
 
-        // ====== 追加勝利（IAdditionalWinner） ======
+        // ====== 共存勝利 (IAdditionalWinner) ======
         public bool CheckWin(ref CustomRoles winnerRole)
         {
-            // 生存＋追加勝利が許可されている時 → 他陣営勝利にも便乗可能
-            if (Player.IsAlive() && allowAddWin)
+            if (!Player.IsAlive()) return false;
+
+            if (allowAddWin)
             {
+                // 共存勝利モード → 他陣営勝利に便乗
                 winnerRole = CustomRoles.Tuna;
                 return true;
             }
@@ -74,15 +77,17 @@ namespace TownOfHost.Roles.Neutral
         }
 
         // ====== 単独勝利 ======
-        public static void CheckAliveWin(PlayerControl pc)
+        public override void CheckWinner()
         {
-            if (pc == null || !pc.Is(CustomRoles.Tuna)) return;
+            if (!Player.IsAlive()) return;
 
-            if (pc.IsAlive())
+            if (!allowAddWin)
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Tuna);
-                CustomWinnerHolder.WinnerRoles.Add(CustomRoles.Tuna);
-                CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
+                // 単独勝利モード → Neutral 勝利を確定
+                if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.Tuna, Player.PlayerId))
+                {
+                    CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
+                }
             }
         }
 
@@ -120,7 +125,10 @@ namespace TownOfHost.Roles.Neutral
                     if (state != null)
                         state.DeathReason = CustomDeathReason.Suicide;
 
-                    Player.RpcMurderPlayer(Player);
+                    // ホストで強制死亡処理
+                    Player.SetRealKiller(Player);          // 自分をキラーに設定
+                    Player.RpcMurderPlayer(Player);        // 見た目の殺害
+                    state?.SetDead();                      // 状態を死亡に更新
                 }
             }
             else
@@ -128,6 +136,24 @@ namespace TownOfHost.Roles.Neutral
                 lastPos = Player.transform.position;
                 stillCounter = 0f;
             }
+        }
+
+        // ====== 名前横に残り秒数表示（自分だけ） ======
+        public override string GetMark(PlayerControl seer, PlayerControl seen, bool isForMeeting = false)
+        {
+            // 自分だけ見える
+            if (seer.PlayerId != Player.PlayerId) return "";
+
+            if (isForMeeting || !Player.IsAlive()) return "";
+            if (!afterFirstMeeting) return "";
+
+            float remaining = Mathf.Max(0f, waitTime - stillCounter);
+            if (remaining > 0f)
+            {
+                return Utils.ColorString(RoleInfo.RoleColor, $" ({remaining:F0}s)");
+            }
+
+            return "";
         }
     }
 }
