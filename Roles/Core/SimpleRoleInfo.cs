@@ -28,7 +28,10 @@ public enum From
     TownOfHost_E,
     Speyrp,
     RevolutionaryHostRoles,
-    Love_Couple_Mod
+    Love_Couple_Mod,
+    TownOfHost_K,
+    YurutamaHostRoles,
+
 
 }
 public class SimpleRoleInfo

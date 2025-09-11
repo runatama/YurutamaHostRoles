@@ -21,7 +21,7 @@ namespace TownOfHost.Roles.Neutral
                 SetupOptionItem,
                 "tuna",
                 "#00bfff",
-                from:From.TownOfHost_for_E
+                from:From.YurutamaHostRoles
             );
 
         public Tuna(PlayerControl player)

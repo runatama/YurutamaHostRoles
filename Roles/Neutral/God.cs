@@ -21,7 +21,8 @@ public sealed class God : RoleBase, IAdditionalWinner
             "#ffff00",
             (7, 4),
             true,
-            Desc: () => GetString("GodDesc")
+            Desc: () => GetString("GodDesc"),
+            from: From.TownOfHost_for_E
         );
 
     public God(PlayerControl player)

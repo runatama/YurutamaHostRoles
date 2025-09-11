@@ -10,7 +10,7 @@
 
 "YuruSheriff","YuruSheriff","ゆるシェリフ"
 "YuruSheriffInfo","",キャピキャピしよう☆
-"YuruSheriffInfoLong","",ゆるーく過ごしてるゆるシェリフ。\nそのため一定確率で弾を外してしまう\nその代わり、弾を打った後一定確率でキルクールを早くすることが出来る。\n設定で確率・倍率は変更可能。
+"YuruSheriffInfoLong","",ゆるーく過ごしてるゆるシェリフ。\nそのため一定確率で弾を外してしまう\nその代わり、弾を打った後一定確率でキルクールを早くすることが出来る。\n設定で確率・倍率は変更可能。\nSheriffMod(TOH-Kのシェリフを元に作成)
 "SheriffShotMissRate","",外れる確率
 "SheriffHasteChanceSuccess","",成功時の短縮確率
 "SheriffHasteScaleSuccess","",成功時の短縮倍率
@@ -46,11 +46,17 @@
 
 "Tuna","Tuna","マグロ"
 "TunaInfo","","立ち止まりすぎると自爆してしまう。"
-"TunaInfoLong","","立ち止まり続けると自爆してしまう危険な役職。\n単独勝利が可能で、生き残っていればマグロ勝利となる。\nオプションで追加勝利に変更可能。"
-"TunaWaitTime","","立ち止まり秒数"
+"TunaInfoLong","","立ち止まり続けると自爆してしまう危険な役職。\n単独勝利が可能で、生き残っていればマグロ勝利となる。\nオプションで追加勝利に変更可能。\nTownOfhost_For_Eを参考"
+"TunaWaitTime","","立ち止まれる秒数"
 "TunaAllowAdditionalWin","","追加勝利を許可する"
 "Win_Tuna","","全然立ち止まらなかった！！"
 
+"Cupid","","キューピッド"
+"CupidInfo","",矢を放ち二人を恋人にする存在。
+"CupidDesc","",ボタンを二回押すことで自分以外の二人を恋人にできる。恋人たちが勝利した場合、キューピッドも勝利する。オプションで乗っ取り勝利を有効化できる。
+"CupidButtonText","",恋人にする
+"CupidEnableSoloWin","",乗っ取り勝利を有効化
+"CupidWinPriority","",勝利優先度
 
 "TunaIdleDeathSeconds","", "動かなかったら死ぬまでの秒数"
 "TunaPostMeetingInvincibleSeconds","", "会議後の無敵時間(秒)"

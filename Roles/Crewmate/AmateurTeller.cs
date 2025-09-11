@@ -19,7 +19,8 @@ public sealed class AmateurTeller : RoleBase
             SetupOptionItem,
             "AT",
             "#6b3ec3",
-            (3, 2)
+            (3, 2),
+            from: From.TownOfHost_K
         );
     public AmateurTeller(PlayerControl player)
     : base(

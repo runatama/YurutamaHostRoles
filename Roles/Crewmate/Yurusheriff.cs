@@ -28,7 +28,8 @@ public sealed class YuruSheriff : RoleBase, IKiller, ISchrodingerCatOwner
             (2, 0),
             true,
             introSound: () => GetIntroSound(RoleTypes.Crewmate),
-            from: From.SheriffMod
+            from: From.YurutamaHostRoles
+            
         );
 
     public YuruSheriff(PlayerControl player)

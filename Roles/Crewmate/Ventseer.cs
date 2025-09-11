@@ -30,7 +30,9 @@ namespace TownOfHost.Roles.Crewmate
                 SetupOptionItem,
                 "vs",
                 "#61b26c",
-                (6, 3)
+                (6, 3),
+                from:From.YurutamaHostRoles
+
             );
 
         public VentSeer(PlayerControl player) : base(RoleInfo, player)

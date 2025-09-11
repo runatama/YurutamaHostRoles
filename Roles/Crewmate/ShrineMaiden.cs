@@ -21,7 +21,8 @@ public sealed class ShrineMaiden : RoleBase
             "SM",
             "#b7282e",
             (3, 4),
-            introSound: () => GetIntroSound(RoleTypes.Scientist)
+            introSound: () => GetIntroSound(RoleTypes.Scientist),
+            from: From.TownOfHost_K
         );
     public ShrineMaiden(PlayerControl player)
     : base(

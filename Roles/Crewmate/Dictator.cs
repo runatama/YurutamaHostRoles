@@ -23,6 +23,7 @@ namespace TownOfHost.Roles.Crewmate
                 "#df9b00",
                 (3, 6),
                 from: From.TownOfHost
+                
             );
 
         public Dictator(PlayerControl player)
