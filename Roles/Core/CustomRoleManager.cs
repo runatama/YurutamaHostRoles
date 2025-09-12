@@ -821,6 +821,7 @@ public enum CustomRoles
     //YHR
     YuruSheriff,
     VentSeer,
+    Angel,
     //DEBUG only Crewmate
     Satellite,
     //DEBUG only Crewmate

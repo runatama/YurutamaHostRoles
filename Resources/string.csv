@@ -18,6 +18,7 @@
 "SheriffHasteChanceMiss","",外れ時の短縮確率
 "SheriffHasteScaleMiss","",外れ時の短縮倍率
 
+
 "VentSeer","",ベントシーア
 "VentSeerInfo","",ベントを使う悪い子はどこかな？
 "VentSeerInfoLong","",誰かがベントを使うとフラッシュが発生する。オプションでランダム遅延や陣営別（インポ/クルー/第三）のカウント切り替えが可能。
@@ -30,6 +31,24 @@
 "VentSeerShowCrewmate","",クルーをカウント
 "VentSeerShowNeutral","",第三をカウント
 
+
+"Angel","Angel","エンジェル"
+"AngelInfo","",自投票すると天使モード発動☆
+"AngelInfoLong","",会議で自分に投票すると天使の力が目覚める！\n次の投票で選んだ相手を守護して処刑から救えるぞ！\nただし…守護した相手がどんな陣営かで、あなたは死んじゃうかも☆\n愛と勇気か、命知らずか…全部はキミ次第♪
+
+"AngelProtectUses","",守護できる回数
+"AngelRevealPopup","",守護発動をみんなにドーン！と表示
+
+"AngelSuicideIfImpostor","",インポ守護で爆散☆
+"AngelSuicideIfImpostorRate","",インポ守護で爆散する確率
+"AngelSuicideIfCrewmate","",クルー守護で過労死☆
+"AngelSuicideIfCrewmateRate","",クルー守護で過労死する確率
+"AngelSuicideIfMadmate","",マッド守護で裏切りショック死☆
+"AngelSuicideIfMadmateRate","",マッド守護でショック死する確率
+"AngelSuicideIfNeutral","",ニュートラル守護で虚無に消える☆
+"AngelSuicideIfNeutralRate","",虚無に消える確率
+
+
 "Totocalcio","","トトカルチョ"
 "TotocalcioInfo","",勝利できそうな人に賭けよう！！
 "TotocalcioDesc","",キルボタンで他のプレイヤーに賭ける役職。賭けた相手が最終的に勝利すると自分も勝利する。賭け直しは設定回数まで可能。クールダウンは生存人数に応じて変化する。
@@ -38,11 +57,13 @@
 "TotocalcioFinalCoolDown","",最終クールダウン
 "TotocalcioBetChangeCount","",賭け直し回数
 
+
 "God","","神"
 "GodInfo","","絶対的な力を持つ存在。タスク完了で勝利できたり、投票先を暴くことができる。"
 "GodDesc","","生き残っていれば勝利条件を満たす。オプションでタスク完了が必須になる場合がある。投票先公開を有効にすると匿名投票が無効化される。"
 "GodTaskCompleteToWin","","タスクを全て終えたら勝利"
 "GodViewVoteFor","","投票先を公開（匿名投票OFF）"
+
 
 "Tuna","Tuna","マグロ"
 "TunaInfo","","立ち止まりすぎると自爆してしまう。"
@@ -50,6 +71,8 @@
 "TunaWaitTime","","立ち止まれる秒数"
 "TunaAllowAdditionalWin","","追加勝利を許可する"
 "Win_Tuna","","全然立ち止まらなかった！！"
+"Tuna_StayedTooLong","", "[Tuna] 動かなかったため死亡…"
+
 
 "Cupid","","キューピッド"
 "CupidInfo","",矢を放ち二人を恋人にする存在。
@@ -62,7 +85,7 @@
 "TunaPostMeetingInvincibleSeconds","", "会議後の無敵時間(秒)"
 "CountKillerAddWin","", "共存勝利（追加勝利）"
 
-"Tuna_StayedTooLong","", "[Tuna] 動かなかったため死亡…"
+
 
 
 
