@@ -156,10 +156,17 @@ namespace TownOfHost
             logger.Info("------------詳細設定------------");
             foreach (var o in OptionItem.AllOptions)
                 if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent == null ? !o.GetString().Equals("0%") : o.Parent.InfoGetBool()))
-                    logger.Info($"{(o.Parent == null ? o.Name.PadRightV2(40) : $"┗ {o.Name}".PadRightV2(41))}:{o.GetString().RemoveSN().RemoveHtmlTags()}");
+                    logger.Info($"{(o.Parent == null ? o.Name.PadRightV2(40) : $"┗ {o.Name}".PadRightV2(41))}:{o.GetTextString().RemoveSN().RemoveHtmlTags()}");
             logger.Info("-------------その他-------------");
             logger.Info($"プレイヤー数: {PlayerCatch.AllPlayerControls.Count()}人");
             GameStates.InGame = true;
+
+            if (Options.CurrentGameMode is not CustomGameMode.Standard)
+            {
+                PlayerCatch.AllPlayerControls.Do(x => PlayerState.GetByPlayerId(x.PlayerId).InitTask(x));
+                GameData.Instance.RecomputeTaskCounts();
+                TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
+            }
         }
     }
     [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]

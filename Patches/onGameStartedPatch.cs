@@ -204,7 +204,7 @@ namespace TownOfHost
                 else Main.LagTime = 0.23f;
             }
             else Main.LagTime = 0.23f;
-            Logger.Info($"LagTime : {Main.LagTime} PlayerCount : {PlayerCatch.AllPlayerControls.Count()}", "OnGamStarted Fin");
+            Logger.Info($"LagTime : {Main.LagTime} ,({AmongUsClient.Instance.Ping}) PlayerCount : {PlayerCatch.AllPlayerControls.Count()}", "OnGamStarted Fin");
         }
     }
     [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
@@ -564,7 +564,7 @@ namespace TownOfHost
 
             if (Options.CurrentGameMode == CustomGameMode.Standard)
                 StandardIntro.CoResetRoleY();
-            RPC.RpcSyncAllNetworkedPlayer();
+            //RPC.RpcSyncAllNetworkedPlayer();
 
             PlayerCatch.CountAlivePlayers(true);
             UtilsOption.SyncAllSettings();

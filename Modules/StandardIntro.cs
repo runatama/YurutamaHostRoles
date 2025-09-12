@@ -18,47 +18,57 @@ class StandardIntro
         // イントロ通信分割
         if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)//役職配布前に通信擬装をしておく。
         {
-            InnerNetClientPatch.DontTouch = true;
-            GameDataSerializePatch.SerializeMessageCount++;
-            bool IsSend = false;
-            var stream = MessageWriter.Get(SendOption.Reliable);
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
-            foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
+            _ = new LateTask(() =>
             {
-                if (data.PlayerId == 0) continue;
-                if (IsSend)//全員通信擬装するとイントロが複数発生するのでホスト以外
+                InnerNetClientPatch.DontTouch = true;
+                GameDataSerializePatch.SerializeMessageCount++;
+                bool IsSend = false;
+                var stream = MessageWriter.Get(SendOption.Reliable);
+                stream.StartMessage(5);
+                stream.Write(AmongUsClient.Instance.GameId);
+                foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
                 {
-                    stream = MessageWriter.Get(SendOption.Reliable);
-                    stream.StartMessage(5);
-                    stream.Write(AmongUsClient.Instance.GameId);
+                    if (data.PlayerId == 0) continue;
+                    if (IsSend)//全員通信擬装するとイントロが複数発生するのでホスト以外
+                    {
+                        stream = MessageWriter.Get(SendOption.Reliable);
+                        stream.StartMessage(5);
+                        stream.Write(AmongUsClient.Instance.GameId);
+                    }
+                    data.Disconnected = true;
+                    //data.PlayerName = $"{data.PlayerName}★";//オートミュート一回反映なしにできないかな...?
+                    stream.StartMessage(1);
+                    stream.WritePacked(data.NetId);
+                    Logger.Info($"{data.GetLogPlayerName()}", "StandardIntro");
+                    data.Serialize(stream, false);
+                    stream.EndMessage();
+                    if (stream.Length > UtilsNotifyRoles.chengepake)
+                    {
+                        IsSend = true;
+                        stream.EndMessage();
+                        AmongUsClient.Instance.SendOrDisconnect(stream);
+                        stream.Recycle();
+                    }
                 }
-                data.Disconnected = true;
-                data.PlayerName = $"{data.PlayerName}★";//オートミュート一回反映なしにできないかな...?
-                stream.StartMessage(1);
-                stream.WritePacked(data.NetId);
-                data.Serialize(stream, false);
-                stream.EndMessage();
-                if (stream.Length > UtilsNotifyRoles.chengepake)
+                if (!IsSend)
                 {
-                    IsSend = true;
                     stream.EndMessage();
                     AmongUsClient.Instance.SendOrDisconnect(stream);
                     stream.Recycle();
                 }
-            }
-            if (!IsSend)
-            {
-                stream.EndMessage();
-                AmongUsClient.Instance.SendOrDisconnect(stream);
-                stream.Recycle();
-            }
-            InnerNetClientPatch.DontTouch = false;
-            GameDataSerializePatch.SerializeMessageCount--;
+                InnerNetClientPatch.DontTouch = false;
+                GameDataSerializePatch.SerializeMessageCount--;
+                Logger.Info($"SetDisconnected", "StandardIntro");
+                foreach (var data in GameData.Instance.AllPlayers)
+                {
+                    data.Disconnected = false;
+                }
+            }, 0.5f, "setdisconnected");
         }
     }
     public static void CoResetRoleY()
     {
+        Logger.Info($"ShowIntro", "StandardIntro");
         if (Options.ExIntroWeight.GetBool())
         {
             var host = PlayerControl.LocalPlayer;
@@ -87,7 +97,7 @@ class StandardIntro
             {
                 i++;
                 data.Disconnected = false;
-                data.PlayerName = Camouflage.PlayerSkins.TryGetValue(data.PlayerId, out var cos) ? cos.PlayerName : data.GetLogPlayerName();
+                //data.PlayerName = Camouflage.PlayerSkins.TryGetValue(data.PlayerId, out var cos) ? cos.PlayerName : data.GetLogPlayerName();
                 if (4 < i) continue;//4人以上は後ででよい。
                 stream.StartMessage(1);
                 stream.WritePacked(data.NetId);
@@ -121,7 +131,7 @@ class StandardIntro
                             sender.WritePacked(data.NetId);
                             data.Serialize(sender, false);
                             sender.EndMessage();
-                            if (sender.Length > UtilsNotifyRoles.chengepake && Options.ExRpcWeightR.GetBool())
+                            if (sender.Length > UtilsNotifyRoles.chengepake)
                             {
                                 issend = true;
                                 sender.EndMessage();
@@ -340,6 +350,7 @@ class StandardIntro
         {
             _ = new LateTask(() =>
             {
+                Logger.Info($"SetRole", "StandardIntro");
                 //イントロ中回線落ち用の奴
                 // ...ホストが廃村してほしいけド...一応...
                 var send = false;
