@@ -57,9 +57,15 @@ namespace TownOfHost
 
         // ==========
         //Sorry for many Japanese comments.
+<<<<<<< HEAD
         public const string PluginGuid = "com.yurutama.YurutamahostRoles-yr";
         public const string PluginVersion = "51.13.30.23";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
         public const string PluginShowVersion = "1.0.1<sub>.4</sub>";
+=======
+        public const string PluginGuid = "com.kymario.townofhost-k";
+        public const string PluginVersion = "51.13.30.24";//ほんとはx.y.z表記にしたかったけどx.y.z.km.ks表記だと警告だされる
+        public const string PluginShowVersion = "51.13.30<sub>.24</sub>";
+>>>>>>> main
         public const string ModVersion = ".30";//リリースver用バージョン変更
 
         /// 配布するデバッグ版なのであればtrue。リリース時にはfalseにすること。

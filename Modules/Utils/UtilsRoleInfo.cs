@@ -286,6 +286,7 @@ namespace TownOfHost
                 "魔女" or "ウィッチ" => GetString("Witch"),
                 "プロボウラー" or "プロボーラー" => GetString("ProBowler"),
                 "一途な狼" or "一途" or "いちず" => GetString("EarnestWolf"),
+                "ヴァイパー" or "バイパー" => GetString("Viper"),
 
                 //マッドメイト
                 "サイドキックマッドメイト" => GetString("SKMadmate"),

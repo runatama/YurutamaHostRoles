@@ -221,7 +221,7 @@ namespace TownOfHost
                 sender.StartMessage(Player.GetClientId());
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    if (pc.IsAlive() && pc.GetCustomRole() is CustomRoles.Detective) continue;
+                    if (pc.IsAlive() && pc.GetCustomRole() is CustomRoles.Detective && PlayerControl.LocalPlayer.PlayerId == pc.PlayerId) continue;
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
                     {
                         sender.StartRpc(pc.NetId, RpcCalls.SetRole)
