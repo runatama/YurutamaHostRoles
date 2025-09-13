@@ -151,7 +151,7 @@ public static class CustomRoleManager
                             HaveGuardCount += data.Value;
                         });
 
-                        UtilsGameLog.AddGameLog($"Guard", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        UtilsGameLog.AddGameLog($"Guard", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true)));
                         Logger.Info($"{attemptTarget.GetNameWithRole().RemoveHtmlTags()} ガード残り : {HaveGuardCount}", "Guarding");
                         break;
                     case 1: //Guardianangel
@@ -159,14 +159,14 @@ public static class CustomRoleManager
                         PlayerCatch.AllPlayerControls.Where(pc => pc is not null && !pc.IsAlive())
                             .Do(pc => attemptKiller.RpcProtectedMurderPlayer(pc, attemptTarget));
                         GuardianAngel.MeetingNotify |= true;
-                        UtilsGameLog.AddGameLog($"GuardianAngel", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        UtilsGameLog.AddGameLog($"GuardianAngel", UtilsName.GetPlayerColor(attemptTarget) + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true)));
                         Logger.Info($"{attemptKiller.GetNameWithRole().RemoveHtmlTags()} => {attemptTarget.GetNameWithRole().RemoveHtmlTags()}守護天使ちゃんのガード!", "GuardianAngel");
                         if (GuardianAngel.Guarng.ContainsKey(attemptTarget.PlayerId))
                             GuardianAngel.Guarng[attemptTarget.PlayerId] = 999f;
                         break;
                     case 2://AsistingAngel
                         UtilsGameLog.AddGameLog($"AsistingAngel", UtilsName.GetPlayerColor(PlayerCatch.AllPlayerControls.Where(x => x.Is(CustomRoles.AsistingAngel)).FirstOrDefault())
-                        + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true) + $"(<b>{UtilsRoleText.GetTrueRoleName(attemptKiller.PlayerId, false)}</b>)"));
+                        + ":  " + string.Format(Translator.GetString("GuardMaster.Guard"), UtilsName.GetPlayerColor(attemptKiller, true)));
                         break;
                     case 3://Role
                         break;

@@ -389,6 +389,15 @@ namespace TownOfHost.Modules.ChatManager
                     .EndRpc();
                     Nwriter.EndMessage();
                     Nwriter.SendMessage();
+
+                    if (Main.MessagesToSend.Count < 1)
+                        _ = new LateTask(() =>
+                        {
+                            if (seer.Data.PlayerName != playername)
+                            {
+                                seer.RpcSetName(playername);
+                            }
+                        }, 0.25f, "checkname", true);
                 }
                 chatController.timeSinceLastMessage = sendTo is byte.MaxValue ? 0 : Main.MessageWait.Value - 0.2f;
             }

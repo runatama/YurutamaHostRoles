@@ -326,12 +326,12 @@ public static class MeetingHudPatch
                 {
                     MeetingStates.Sending = false;
                     ChatUpdatePatch.DoBlockChat = false;
-                }, 2f, "Send to Chat", true);
+                }, 2.5f, "Send to Chat", true);
                 _ = new LateTask(() =>
                 {
                     ChatUpdatePatch.BlockSendName = false;
                     NameColorManager.RpcMeetingColorName();
-                }, 5f, "SetName", true);
+                }, 5.5f, "SetName", true);
             }
             Main.IsActiveSabotage =
                 Utils.IsActive(SystemTypes.Reactor)
