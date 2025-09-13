@@ -133,12 +133,16 @@ namespace TownOfHost
                 IsSet = true;
                 Iswaitsend = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
-                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId || !PlayerControl.LocalPlayer.IsAlive())
                 {
                     byte[] DontImpostrTargetIds = [PlayerControl.LocalPlayer.PlayerId, (result?.Exiled?.PlayerId ?? byte.MaxValue)];
                     var impostortarget = PlayerCatch.AllAlivePlayerControls.Where(pc => !DontImpostrTargetIds.Contains(pc.PlayerId) && pc.GetCustomRole() is not CustomRoles.Detective).FirstOrDefault();
                     ImpostorId = impostortarget == null ?
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
+                    if (impostortarget is null)
+                    {
+                        Logger.Warn("Impostortarget is null", "AntiBlackout");
+                    }
                     HostRole = null;
                 }
                 dummyImpostorPlayer = ImpostorId;
