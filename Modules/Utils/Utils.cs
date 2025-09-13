@@ -650,6 +650,7 @@ namespace TownOfHost
         [GameModuleInitializer]
         public static void Init()
         {
+            GameDataSerializePatch.DontTouch = false;
             Camouflage.ventplayr.Clear();
             PlayerCatch.OldAlivePlayerControles.Clear();
             ReportDeadBodyPatch.DontReport.Clear();

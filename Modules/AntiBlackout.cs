@@ -133,12 +133,16 @@ namespace TownOfHost
                 IsSet = true;
                 Iswaitsend = true;
                 var ImpostorId = PlayerControl.LocalPlayer.PlayerId;
-                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                if (result?.Exiled?.PlayerId == PlayerControl.LocalPlayer.PlayerId || !PlayerControl.LocalPlayer.IsAlive())
                 {
                     byte[] DontImpostrTargetIds = [PlayerControl.LocalPlayer.PlayerId, (result?.Exiled?.PlayerId ?? byte.MaxValue)];
                     var impostortarget = PlayerCatch.AllAlivePlayerControls.Where(pc => !DontImpostrTargetIds.Contains(pc.PlayerId) && pc.GetCustomRole() is not CustomRoles.Detective).FirstOrDefault();
                     ImpostorId = impostortarget == null ?
                                 PlayerCatch.AllPlayerControls?.FirstOrDefault()?.PlayerId ?? PlayerControl.LocalPlayer.PlayerId : impostortarget.PlayerId;
+                    if (impostortarget is null)
+                    {
+                        Logger.Warn("Impostortarget is null", "AntiBlackout");
+                    }
                     HostRole = null;
                 }
                 dummyImpostorPlayer = ImpostorId;
@@ -221,7 +225,17 @@ namespace TownOfHost
                 sender.StartMessage(Player.GetClientId());
                 foreach (var pc in PlayerCatch.AllPlayerControls)
                 {
-                    if (pc.IsAlive() && pc.GetCustomRole() is CustomRoles.Detective && PlayerControl.LocalPlayer.PlayerId == pc.PlayerId) continue;
+                    if (pc.IsAlive() && pc.GetCustomRole() is CustomRoles.Detective)
+                    {
+                        if (PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
+                        {
+                            sender.StartRpc(pc.NetId, RpcCalls.SetRole)
+                            .Write((ushort)RoleTypes.Detective)
+                            .Write(true)
+                            .EndRpc();
+                        }
+                        continue;
+                    }
                     if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && Options.EnableGM.GetBool())
                     {
                         sender.StartRpc(pc.NetId, RpcCalls.SetRole)
