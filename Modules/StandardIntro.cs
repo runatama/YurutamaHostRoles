@@ -34,9 +34,9 @@ class StandardIntro
                         stream = MessageWriter.Get(SendOption.Reliable);
                         stream.StartMessage(5);
                         stream.Write(AmongUsClient.Instance.GameId);
+                        IsSend = false;
                     }
                     data.Disconnected = true;
-                    //data.PlayerName = $"{data.PlayerName}★";//オートミュート一回反映なしにできないかな...?
                     stream.StartMessage(1);
                     stream.WritePacked(data.NetId);
                     Logger.Info($"{data.GetLogPlayerName()}", "StandardIntro");
@@ -59,6 +59,7 @@ class StandardIntro
                 InnerNetClientPatch.DontTouch = false;
                 GameDataSerializePatch.SerializeMessageCount--;
                 Logger.Info($"SetDisconnected", "StandardIntro");
+                GameDataSerializePatch.DontTouch = true;
                 foreach (var data in GameData.Instance.AllPlayers)
                 {
                     data.Disconnected = false;
@@ -73,6 +74,7 @@ class StandardIntro
         {
             var host = PlayerControl.LocalPlayer;
 
+            GameDataSerializePatch.DontTouch = false;
             InnerNetClientPatch.DontTouch = true;
             GameDataSerializePatch.SerializeMessageCount++;
             var stream = MessageWriter.Get(SendOption.Reliable);
@@ -118,6 +120,7 @@ class StandardIntro
                     bool issend = false;
                     foreach (var data in GameData.Instance.AllPlayers)//これ1人でstream.Lengthが111
                     {
+                        i++;
                         if (4 < i)//イントロが始まるまでの間に戻しておく。
                         {
                             if (issend)
@@ -125,6 +128,7 @@ class StandardIntro
                                 sender = MessageWriter.Get(SendOption.Reliable);
                                 sender.StartMessage(5);
                                 sender.Write(AmongUsClient.Instance.GameId);
+                                issend = false;
                             }
                             data.Disconnected = false;
                             sender.StartMessage(1);
@@ -139,7 +143,6 @@ class StandardIntro
                                 sender.Recycle();
                             }
                         }
-                        i++;
                     }
                     if (!issend)
                     {
@@ -168,7 +171,7 @@ class StandardIntro
 
                     GameDataSerializePatch.SerializeMessageCount--;
                 }
-            }, 0.3f, "SetTaskDelay");
+            }, 0.75f, "SetTaskDelay");
             Intoro();
             return;
         }
@@ -219,7 +222,7 @@ class StandardIntro
                     {
                         if (Options.ExRpcWeightR.GetBool())
                         {
-                            var sender = MessageWriter.Get(SendOption.None);
+                            var sender = MessageWriter.Get(SendOption.Reliable);
                             sender.StartMessage(5);
                             sender.Write(AmongUsClient.Instance.GameId);
                             i = 0;
