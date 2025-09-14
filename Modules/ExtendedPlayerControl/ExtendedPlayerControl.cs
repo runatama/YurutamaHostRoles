@@ -240,7 +240,7 @@ namespace TownOfHost
 
         public static bool CanUseKillButton(this PlayerControl pc)
         {
-            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && !Main.showkillbutton && Main.CustomSprite.Value) return false;
+            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId && !Main.showkillbutton) return false;
             if (!pc.IsAlive()) return false;
             if (pc?.Data?.Role?.Role == RoleTypes.GuardianAngel) return false;
 

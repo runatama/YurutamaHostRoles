@@ -38,4 +38,9 @@ public sealed class Viper : RoleBase, IImpostor
         AURoleOptions.ViperDissolveTime = ViperDissolveTime;
     }
     float IKiller.CalculateKillCooldown() => killcool;
+    bool IKiller.OverrideKillButtonText(out string text)
+    {
+        text = GetString(StringNames.ViperAbility);
+        return true;
+    }
 }
