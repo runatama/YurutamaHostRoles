@@ -142,6 +142,7 @@ namespace TownOfHost.Modules
             AURoleOptions.ShapeshifterLeaveSkin = false;
             AURoleOptions.NoisemakerImpostorAlert = true;
             AURoleOptions.NoisemakerAlertDuration = Noisemaker.NoisemakerAlertDuration.GetFloat();
+            AURoleOptions.ViperDissolveTime = Viper.ViperDissolveTime;
 
             if (player == null)
             {
