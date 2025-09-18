@@ -20,7 +20,8 @@ public sealed class Turncoat : RoleBase
             SetupOptionItem,
             "Tu",
             "#371a1a",
-            (7, 1)
+            (7, 1),
+            from: From.TownOfHost_K
         );
     public Turncoat(PlayerControl player)
     : base(

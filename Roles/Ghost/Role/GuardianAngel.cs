@@ -17,6 +17,7 @@ namespace TownOfHost.Roles.Ghost
         public static Dictionary<byte, float> Guarng = new();
         static OptionItem AssingMadmate;
         public static void SetupCustomOption()
+            
         {
             SetupRoleOptions(Id, TabGroup.GhostRoles, CustomRoles.GuardianAngel, fromtext: UtilsOption.GetFrom(From.AmongUs));
             Data = GhostRoleAssingData.Create(Id + 1, CustomRoles.GuardianAngel, CustomRoleTypes.Crewmate);
@@ -26,6 +27,7 @@ namespace TownOfHost.Roles.Ghost
             .SetValueFormat(OptionFormat.Seconds).SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]).SetParentRole(CustomRoles.GuardianAngel);
             AssingMadmate = BooleanOptionItem.Create(Id + 4, "AssgingMadmate", false, TabGroup.GhostRoles, false)
                                 .SetParent(CustomRoleSpawnChances[CustomRoles.GuardianAngel]).SetParentRole(CustomRoles.GuardianAngel);
+        
         }
 
         public static void Init()
@@ -35,6 +37,7 @@ namespace TownOfHost.Roles.Ghost
             Guarng.Clear();
             CustomRoleManager.OnFixedUpdateOthers.Add(FixUpdata);
             Data.SubRoleType = AssingMadmate.GetBool() ? CustomRoleTypes.Madmate : CustomRoleTypes.Crewmate;
+        
         }
         public static void Add(byte playerId)
         {

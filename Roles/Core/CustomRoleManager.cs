@@ -818,7 +818,10 @@ public enum CustomRoles
     Express,
     Inspector,
     AllArounder,
-    //DEBUG only Crewmate
+    //YHR
+    YuruSheriff,
+    VentSeer,
+    Angel,
     //DEBUG only Crewmate
     Satellite,
     //DEBUG only Crewmate
@@ -857,6 +860,9 @@ public enum CustomRoles
     Vulture,
     SantaClaus,
     TaskPlayerB,
+    //YHR
+    God,
+    Tuna,
     //DEBUG only Neutral.
     //HideAndSeek
     HASFox,
