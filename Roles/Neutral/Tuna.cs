@@ -105,8 +105,8 @@ namespace TownOfHost.Roles.Neutral
             if (!GameStates.IsInTask) return;
             if (!afterFirstMeeting) return;
             if (!Player.IsAlive()) return;
-
             tick -= Time.fixedDeltaTime;
+            UtilsNotifyRoles.NotifyRoles();
             if (tick <= 0f)
             {
                 tick = 1f;
