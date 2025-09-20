@@ -740,6 +740,8 @@ public enum CustomRoles
     Eraser,
     QuickKiller,
     CharismaStar,
+    //YHR
+    Copycat,
     //DEBUG only Impostor
     Ballooner,
     BorderKiller,

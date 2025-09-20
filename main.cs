@@ -452,8 +452,9 @@ namespace TownOfHost
                 PhantomThief = CustomRoles.PhantomThief,
                 MilkyWay = CustomRoles.Vega,
                 Tuna = CustomRoles.Tuna,
+                God = CustomRoles.God,
 
-                HASTroll = CustomRoles.HASTroll,
+        HASTroll = CustomRoles.HASTroll,
                 TaskPlayerB = CustomRoles.TaskPlayerB,
                 SuddenDeathRed = 1000, SuddenDeathBlue = 1001, SuddenDeathYellow = 1002, SuddenDeathGreen = 1003, SuddenDeathPurple = 1004
         }

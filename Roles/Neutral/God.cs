@@ -13,9 +13,9 @@ public sealed class God : RoleBase, IAdditionalWinner
             typeof(God),
             player => new God(player),
             CustomRoles.God,
-            () => RoleTypes.Crewmate,          // 表示カテゴリ（安全側）
-            CustomRoleTypes.Neutral,           // 実カテゴリ
-            17050,                             // ★一意のID（衝突したらさらに離す）
+            () => RoleTypes.Crewmate,
+            CustomRoleTypes.Neutral,
+            17050,
             SetupOptionItem,
             "gd",
             "#ffff00",
@@ -28,99 +28,82 @@ public sealed class God : RoleBase, IAdditionalWinner
     public God(PlayerControl player)
         : base(RoleInfo, player, () => HasTask.ForRecompute)
     {
-        _taskCompleteToWin = OptTaskCompleteToWin.GetBool();
         _revealVotes = OptRevealVotes.GetBool();
-
-        // 初期化直後に「自分視点だけ」名札（名前上の役職）を更新
-        NotifyNamesOnce();
+        _allowAdditionalWin = OptAllowAdditionalWin.GetBool();
+        _requireTaskComplete = OptRequireTaskComplete.GetBool();
     }
 
     // ===== Options =====
-    private static OptionItem OptTaskCompleteToWin;
     private static OptionItem OptRevealVotes;
+    private static OptionItem OptAllowAdditionalWin;
+    private static OptionItem OptRequireTaskComplete;
+    private static SoloWinOption GodWinPriority;
 
-    private static bool _taskCompleteToWin;
     private static bool _revealVotes;
-
-    private enum OptionName
-    {
-        GodTaskCompleteToWin,   // 「タスクを全て終えたら勝利」
-        GodViewVoteFor,         // 「投票先を公開（匿名投票OFF）」
-    }
+    private static bool _allowAdditionalWin;
+    private static bool _requireTaskComplete;
 
     private static void SetupOptionItem()
     {
-        // 既存ロールの並びに合わせる
-        SoloWinOption.Create(RoleInfo, 9, defo: 1);
-
-        OptTaskCompleteToWin = BooleanOptionItem.Create(
-            RoleInfo, 10, OptionName.GodTaskCompleteToWin, true, false);
-
-        // 既定は匿名投票（＝公開しない）
         OptRevealVotes = BooleanOptionItem.Create(
-            RoleInfo, 11, OptionName.GodViewVoteFor, false, false);
+            RoleInfo, 10, "GodViewVoteFor", false, false);
+
+        // 追加勝利ON/OFF
+        OptAllowAdditionalWin = BooleanOptionItem.Create(
+            RoleInfo, 11, "GodAllowAdditionalWin", true, false);
+
+        // タスク必須ON/OFF
+        OptRequireTaskComplete = BooleanOptionItem.Create(
+            RoleInfo, 12, "GodRequireTaskComplete", false, false);
+
+        // 勝利優先度 (1～50, デフォルト20)
+        GodWinPriority = SoloWinOption.Create(RoleInfo, 13, defo: 20);
     }
 
-    // ===== 他者の役職名を“名前の上”に表示（自分視点許可） =====
+    // ===== 役職公開 =====
     public override bool NotifyRolesCheckOtherName => true;
 
-    // 会議切替で1回だけ名札更新するための簡易トグル
-    private static bool _lastIsMeeting = false;
-    private static bool _notifiedThisPhase = false;
+    private float _notifyTimer = 0f;
+    private bool _lastIsMeeting = false;
 
-    // Kの多くの派生は publicメソッド名で定期呼び出しする仕組みがある（override不要）
-    public void OnFixedUpdate()
+    public override void OnFixedUpdate(PlayerControl player)
     {
-        bool isMeeting = MeetingHud.Instance != null;
+        if (!Player.IsAlive()) return;
 
-        // フェーズが変わったら通知リセット
+        // 0.5秒ごとに役職更新
+        _notifyTimer -= Time.fixedDeltaTime;
+        if (_notifyTimer <= 0f)
+        {
+            _notifyTimer = 0.5f;
+
+            try
+            {
+                UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
+            }
+            catch
+            {
+                UtilsNotifyRoles.NotifyRoles();
+            }
+        }
+
+        // 会議開始／終了の瞬間に強制更新
+        bool isMeeting = MeetingHud.Instance != null;
         if (isMeeting != _lastIsMeeting)
         {
             _lastIsMeeting = isMeeting;
-            _notifiedThisPhase = false;
-        }
-
-        // このフェーズで未通知なら1回だけ更新
-        if (!_notifiedThisPhase && Player != null)
-        {
-            NotifyNamesOnce();
-            _notifiedThisPhase = true;
+            UtilsNotifyRoles.NotifyRoles();
         }
     }
 
-    // 名札更新（存在しない環境でも落ちないように多段フォールバック）
-    private void NotifyNamesOnce()
+    // 会議開始時に保険でもう一度更新
+    public override void OnStartMeeting()
     {
-        // 1) UtilsNotifyRoles がある版（Chef/Bankerと同系） → これが最優先で最も自然
-        try
-        {
-            UtilsNotifyRoles.NotifyRoles(OnlyMeName: true, SpecifySeer: Player);
-            return;
-        }
-        catch { /* 次の経路へ */ }
-
-        // 2) 旧来の“seer想定フック”がある版（存在すれば）
-        try
-        {
-            // 一部版では Seer通知で名札更新が走る実装がある
-            // メソッド名や場所が違っても例外を飲み、次の経路へ進む
-            var m = typeof(UtilsNotifyRoles).GetMethod("NotifyRoles", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            if (m != null)
-            {
-                m.Invoke(null, new object[] { true, Player });
-                return;
-            }
-        }
-        catch { /* 次の経路へ */ }
-
-        // 3) 何も無い派生でも“最低限”は動くように、会議画面で再描画を誘発
-        // （MeetingHudの再生成やSelf更新は実装差が大きいので、ノーオペで安全終了）
+        UtilsNotifyRoles.NotifyRoles();
     }
 
-    // ===== 匿名投票の切り替え（投票先の公開/非公開） =====
+    // ===== 匿名投票切替 =====
     public override void ApplyGameOptions(IGameOptions opt)
     {
-        // _revealVotes = true → AnonymousVotes を false（＝投票先が見える）
         try
         {
             opt.SetBool(BoolOptionNames.AnonymousVotes, !_revealVotes);
@@ -131,29 +114,45 @@ public sealed class God : RoleBase, IAdditionalWinner
             {
                 GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.AnonymousVotes, !_revealVotes);
             }
-            catch
+            catch { }
+        }
+    }
+
+    // ===== 追加勝利 (IAdditionalWinner) =====
+    public bool CheckWin(ref CustomRoles winnerRole)
+    {
+        if (!_allowAdditionalWin) return false;
+        return CheckGodCondition();
+    }
+
+    // ===== 単独勝利 (CheckWinnerオーバーライド) =====
+    public override void CheckWinner()
+    {
+        if (!Player.IsAlive()) return;
+        if (_allowAdditionalWin) return; // 追加勝利モードでは無効
+
+        if (CheckGodCondition())
+        {
+            if (CustomWinnerHolder.ResetAndSetAndChWinner(CustomWinner.God, Player.PlayerId))
             {
-                // どうしても該当APIが無い場合は、その版にある「匿名投票オプション」を探して呼ぶ必要あり
+                CustomWinnerHolder.NeutralWinnerIds.Add(Player.PlayerId);
             }
         }
     }
 
-    // ===== 追加勝利（IAdditionalWinner 合流） =====
-    public bool CheckWin(ref CustomRoles winnerRole)
+    // ===== 共通勝利条件 =====
+    private bool CheckGodCondition()
     {
-        // 生存必須
         if (!Player.IsAlive()) return false;
 
-        // タスク完了不要なら、生存だけでOK
-        if (!_taskCompleteToWin) return true;
+        if (!_requireTaskComplete)
+            return true;
 
-        // 自タスク完了チェック（LINQ不使用）
         var data = Player.Data;
         if (data?.Tasks == null) return false;
 
-        for (int i = 0; i < data.Tasks.Count; i++)
+        foreach (var t in data.Tasks)
         {
-            var t = data.Tasks[i];
             if (t == null) return false;
             bool complete = false;
             try { complete = t.Complete; } catch { return false; }
@@ -162,10 +161,10 @@ public sealed class God : RoleBase, IAdditionalWinner
         return true;
     }
 
-    // ===== 進捗表示（タスク必須のときだけ） =====
+    // ===== タスク進捗 =====
     public override string GetProgressText(bool comms = false, bool gamelog = false)
     {
-        if (!_taskCompleteToWin) return "";
+        if (!_requireTaskComplete) return "";
 
         var data = Player?.Data;
         if (data?.Tasks == null) return "(0/0)";
@@ -180,25 +179,4 @@ public sealed class God : RoleBase, IAdditionalWinner
         }
         return Utils.ColorString(RoleInfo.RoleColor, $"({done}/{total})");
     }
-
-    // =====（任意）Yのサボ抑止：K側に同名フックがある場合だけ有効化 =====
-    // 署名不一致でロード落ちしやすいので“既定は無効”。K側に完全一致の ISystemTypeUpdateHook があると分かったら
-    // プロジェクトの定義シンボルに GOD_K_HAS_SYSTEM_HOOKS を追加して使ってください。
-#if GOD_K_HAS_SYSTEM_HOOKS
-    bool ISystemTypeUpdateHook.UpdateHudOverrideSystem(HudOverrideSystemType sys, byte amount)
-    {
-        if ((amount & HudOverrideSystemType.DamageBit) <= 0) return false;
-        return true; // 破壊通知は吸収（コミュ等の抑止）
-    }
-    bool ISystemTypeUpdateHook.UpdateHqHudSystem(HqHudSystemType sys, byte amount)
-    {
-        var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
-        if (tags == HqHudSystemType.Tags.FixBit) return false; // 修理は素通し
-        return true; // 破壊系は吸収
-    }
-    bool ISystemTypeUpdateHook.UpdateSwitchSystem(SwitchSystem sys, byte amount) => false;        // 停電は素通し
-    bool ISystemTypeUpdateHook.UpdateLifeSuppSystem(LifeSuppSystemType sys, byte amount) => false;// O2 素通し
-    bool ISystemTypeUpdateHook.UpdateReactorSystem(ReactorSystemType sys, byte amount) => false;  // リアクター素通し
-    bool ISystemTypeUpdateHook.UpdateHeliSabotageSystem(HeliSabotageSystem sys, byte amount) => false;
-#endif
 }

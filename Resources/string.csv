@@ -7,6 +7,13 @@
 "## 役職"
 "Neutral","Neutral","ニュートラル","中立阵营","中立陣營","Нейтрал","Neutro",""
 
+"Copycat","Copycat","コピーキャット"
+"CopycatInfo","", "コピーキャットはキルした相手の見た目と名前をコピーする。"
+"CopycatInfoLong","", "コピーキャットはキルした相手の色・名前・帽子・スキンを丸ごとコピーする！\nまるで分身の術……だが、時間が来ると正体がバレてしまうぞ。\n設定でコピー時間やクールダウンを調整可能。"
+"CopyDuration","コピー持続時間","どれくらいの間『お前』になれるか（秒）"
+"CopyCooldown","コピークールダウン","コピー解除後、次にコピーできるまでの待ち時間（秒）"
+"CopyShowMark","コピー時に★を付ける","ONにすると名前に★が付き、バレバレのコスプレになる"
+"CopycatKillCooldown","","キルクールダウン"
 
 "YuruSheriff","YuruSheriff","ゆるシェリフ"
 "YuruSheriffInfo","",キャピキャピしよう☆
@@ -48,6 +55,16 @@
 "AngelSuicideIfNeutral","",ニュートラル守護で虚無に消える☆
 "AngelSuicideIfNeutralRate","",虚無に消える確率
 
+"SpeedBooster","SpeedBooster","スピードブースター"
+"SpeedBoosterInfo","","タスクを一定数完了すると\n味方や自分、全員にスピードブーストを付与できる。"
+"SpeedBoosterUpSpeed","","加速倍率"
+"SpeedBoosterTaskTrigger","","発動に必要なタスク数"
+"SpeedBoosterTriggerChance","","発動確率"
+"SpeedBoosterTargetMode","","発動対象モード"
+"SpeedBoosterTargetMode_Self","","自分に発動"
+"SpeedBoosterTargetMode_RandomOne","","ランダムな1人に発動"
+"SpeedBoosterTargetMode_AllPlayers","","全員に発動"
+
 
 "Totocalcio","","トトカルチョ"
 "TotocalcioInfo","",勝利できそうな人に賭けよう！！
@@ -61,8 +78,10 @@
 "God","","神"
 "GodInfo","","絶対的な力を持つ存在。タスク完了で勝利できたり、投票先を暴くことができる。"
 "GodDesc","","生き残っていれば勝利条件を満たす。オプションでタスク完了が必須になる場合がある。投票先公開を有効にすると匿名投票が無効化される。"
-"GodTaskCompleteToWin","","タスクを全て終えたら勝利"
+"GodAllowAdditionalWin","","追加勝利にする"
+"GodRequireTaskComplete","","タスク完了が必須"
 "GodViewVoteFor","","投票先を公開（匿名投票OFF）"
+"GodWinPriority","","勝利優先度"
 
 
 "Tuna","Tuna","マグロ"
@@ -179,7 +198,6 @@
 "SabotageMaster","Sabotage Master","サボタージュマスター","修理工","修理工","Мастер Саботажа","Faz-Tudo","Mestre Sabotador"
 "Sheriff","Sheriff","シェリフ","警长","警長","Шериф","Xerife","Xerife"
 "Snitch","Snitch","スニッチ","告密者","告密者","Стукач","Dedo-Duro","Dedo-Duro"
-"SpeedBooster","Speed Booster","スピードブースター","增速者","增速者","Ускоритель","Corredor","Corredor"
 "Doctor","Doctor","ドクター","医生","法醫","Доктор","Médico","Médico"
 "Trapper","Beartrap","トラッパー","陷阱师","設陷者","Охотник","Armadilheiro","Armadilheiro"
 "Dictator","Dictator","ディクテーター","独裁者","獨裁主義者","Диктатор","Ditador","Ditador"
@@ -453,7 +471,6 @@
 "SabotageMasterInfo","Fix sabotages faster","より早くサボタージュを直そう","你是一个修理匠，修理本领强","更快的修理破壞","Устраните саботаж в одиночку","Conserte as sabotagens mais rápido","Conserte as sabotagens mais rápido"
 "SheriffInfo","Shoot the Impostors","インポスターを撃ち抜け","把内鬼统统执法掉","執法偽裝者及中立陣營玩家們","Убивайте Предателей и Нейтралов","Atire nos Impostores","Atire nos Impostores"
 "SnitchInfo","Finish your tasks to find the Impostors","タスクを早く済ませよう","完成任务 揪出内鬼","完成你的所有任務來找到偽裝者","Завершите свои задания чтобы узнать Предателей","Termine as suas tarefas para dedurar os Impostores","Termine as suas tarefas para dedurar os Impostores"
-"SpeedBoosterInfo","Boost others' speed","走らせろ","让其他人跑起来吧","讓其他人跑得更快","Ускорьте случайного игрока","Impulsione a velocidade dos jogadores","Impulsione a velocidade dos jogadores"
 "DoctorInfo","And thus they died...","斯くして奴は死んだ","调查他人死因","查看他們的死因","Вы знаете причину смерти игроков","Veja os sinais vitais e causa da morte","Veja os sinais vitais e causa da morte"
 "TrapperInfo","Trap your enemies","敵を罠にはめよう","引诱敌人落入你的陷阱当中","誘捕你的敵人","Ловите своих врагов","Prenda os seus inimigos","Prenda os seus inimigos"
 "DictatorInfo","Decide who to eject","独裁政治をしよう","让我统治世界，拥有无上的权利","讓所有人臣服於你","Повесьте своего врага на страх и риск","Escolha quem será exilado","Escolha quem será exilado"
@@ -689,7 +706,6 @@
 "SabotageMasterInfoLong","You can Fix Reactors, O2, Communications by yourself.\nLights can be fixed with the flick of one switch.\nOpening a door will open all doors to that room.","リアクター・O2・通信妨害を一人で修理可能。\n停電は一箇所のレバーに触れる事で全て直る。\nドアを開けるとその部屋の全てのドアが開く。","(船员阵营):\n氧气泄露、核反应堆熔毁以及米拉总部的通讯破坏维修大师只需要修复一边则另一边即可同时被修复。\n维修大师只需要按一个开关便可以修复照明破坏。\n维修大师打开波鲁斯与飞艇地图的门时维修大师所在房间的所有门同时打开。","(船員):\n反應堆, 氧氣, 通訊以及其他破壞可以修理工獨自修復。","(Член Экипажа):\nМастер Саботажа может в одиночку починить саботажи такие, как: Саботаж Реактора, Саботаж O2 и Саботаж Связи. \nТак же он может починить Саботаж Света коснувшись лишь одного рычага. \nОткрытие одной двери позволяет открыть все двери в этой комнате.","(Tripulantes):\nVocê pode consertar Reatores, O2, Comunicações sozinho.\nAs luzes podem ser reparadas apertando apenas um botão.\nAbrir uma porta, abre todas as outras daquela mesma sala.",""
 "SheriffInfoLong","You can kill anyone on Team Impostors.\nThe ability to kill Neutrals is a configurable setting.\nIf you try to kill a crew, you will kill yourself instead. You have no tasks.","インポスター陣営をキルすることができる。\n※ニュートラルをキル可能にする設定有。\nｸﾙｰﾒｲﾄをキルすると自殺する。タスクはない。","(船员阵营):\n警长可以击杀内鬼（根据房间设置，警长也可以击杀独立阵营玩家）。\n警长若尝试击杀船员阵营的玩家，警长将会走火自杀。\n警长没有任务。","(船員):\n警長可以殺死狼人陣營的人,\n*可以設定中立陣營是否可以被殺\n警長若槍到好人陣營將會自殺,警長沒有任務。","(Член Экипажа):\nШериф может убивать Предателей. \nЕсть настройка, позволяющая убить даже Нейтралов. \nОднако если Шериф попытается убить Члена Экипажа, то это приведёт к его смерти. У него нет заданий.","(Tripulantes):\nVocê pode matar qualquer um, no Time Impostor.\nA habilidade de matar neutros é configurável.\nSe você tentar matar um Tripulante, irá morrer no lugar dele. Você não tem tarefas.",""
 "SnitchInfoLong","Once you finish all your tasks, the Impostors' names will be displayed in red to you.\nWhen you have only one task left, a ★ mark will be displayed next to your name and you will be exposed to the Impostors.","タスク完了と同時にインポスターの名前の色が\n赤く表示され逆に自身のタスクが少なくなると\n名前の横に★が表示されｲﾝﾎﾟｽﾀｰに暴かれる。","(船员阵营):\n告密者完成所有任务后，将可以看到以红色昵称表示的所有内鬼。\n当告密者仅剩一个任务的时候，内鬼将会看到自己以及告密者的昵称旁边有「★」作为提示。\n（注:告密者同时作为恋人时，其技能将失效）","(船員):\n當告密者做完所有任務,狼人的名字將會變成紅色(僅告密者可見),\n但是當他剩下最後一個任務時,\n狼人會看見告密者頭上會有個星號標記。(中立或船員不可見)\n(P.S:戀人告密者技能失效)","(Член Экипажа):\nКак только Стукач выполнит все задания, то никнейм у всех Предателей будет отображаться \nкрасным цветом, и наоборот, если количество ваших заданий будет близка к завершению, \nто рядом с никнеймом Стукача появится звёздочка★, которая будет видна Предателям.","(Tripulantes): \nAssim que você terminar suas tarefas, os nomes dos Impostores serão revelados em vermelho para você. \nQuando estiver com apenas uma tarefa faltando, um símbolo (★) será mostrado no seu nome e você estará exposto aos Impostores.",""
-"SpeedBoosterInfoLong","Once you finish your tasks, a random living player will get a speed boost.","既定のタスク数を完了させると、ランダムな生存者のスピードを上げる事ができる。","(船员阵营):\n增速者完成所有任务后，场上任意一名存活玩家的速度将被加快。","(船員):加速器做完任務時可以讓隨機的活著玩家速度加快","(Член Экипажа):\nОн может увеличить скорость случайных живых игроков, если он будет выполнять задания.","(Tripulantes): \nAssim que você finalizar suas tarefas, um jogador vivo aleatório irá receber um aumento de velocidade.",""
 "DoctorInfoLong","You can see the cause of death for all players.\nIn addition, you can access vitals wherever you are while you still have battery.","プレイヤーの死因を知ることができる。(設定有)\nまた、充電がある限りどこでもバイタルを確認できる。","(船员阵营):\n医生可以查看生命监测装置并确认死亡玩家的死因。\n查看的时间长短与设备的充能数挂钩。","(船員):\n醫生可以知道每個玩家的死因\n還有醫生有一個跟科學家一樣的心電圖,它也需要充電。","(Член Экипажа):\nДоктор может узнать причину смерти игрока. \nКроме того, он имеет портативные пульсы как у учёного, которые он может использовать в любом месте, пока у него не закончится зарядка.","(Tripulantes): \nVocê pode ver a causa da morte de todos os jogadores. \nAdicionalmente, você tem acesso aos sinais vitais de todos enquanto tiver bateria.",""
 "TrapperInfoLong","When you are killed, you immobilize your killer for a configurable amount of time.","キルされると、キルした人を数秒間移動不可にすることができる。(設定有)","(船员阵营):\n陷阱师被击杀时，凶手一段时间内将不能移动。","(船員):\n如果設限者被殺,殺他的兇手將會被困在原地幾秒(可以設定)","(Член Экипажа):\nПосле того как Охотника убьют, то его убийца будет обездвижен на несколько секунд. (время зависит от настроек)","(Tripulantes): \nAo ser morto, imobilize o seu assassino por um certo período. (configurável)",""
 "DictatorInfoLong","When you vote someone, the meeting will end on the spot and the player you voted will be ejected.\nThe moment you vote someone out, you will also die.\nWhen you vote for someone in a meeting, they forcibly break that meeting and exile the player they vote for.\nAfter exercising the force, the Dictators die just after meeting.","会議中に誰かに投票をすると、会議を強制終了させて投票先を吊る事ができる。\n投票したタイミングでディクテーターは死ぬ。","(船员阵营):\n当独裁者在会议阶段投票给玩家后，会议会被强制结束并放逐其投票对象。\n该技能发动后独裁者将会死亡。","(船員):\n如果獨裁主義者在會議上投票給某位玩家,\n獨裁主義者將強制結束會議並無視場上票數將獨裁主義者投的那個人投出\n但是獨裁主義者將死於他投票的瞬間。","(Член Экипажа):\nЕсли Диктатор проголосует за любого игрока во время собрания, он сможет принудительно завершить собрание и кикнуть игрока за которого он отдал голос \nТак же Диктатор умрёт после собрания когда он отдаст голос.","(Tripulantes): \nQuando votar em alguém, durante uma reunião, a reunião será encerrada e a pessoa em que você votou, será exilada. \nAo exilar alguém, você morre-rá.",""
@@ -1467,8 +1483,6 @@
 "SnitchCanGetArrowColor","Can See Target Team Colored Arrow","矢印の色で陣営がわかる","对不同阵营的目标以不同颜色的箭头表示","對不同陣營的目標使用不同顏色的箭頭標示","Может видеть цвета стрелок","Pode Ver Seta Colorida Para Time Alvo",""
 "SnitchCanFindNeutralKiller","Can Find Neutral Killers","ニュートラルのキル可能役職を見つけることが出来る","告密者也可以和拥有击杀能力的独立阵营玩家互相发现","告密者也可以和中立陣營帶刀職業互認","Может видеть Нейтральных Убийц","Pode Achar Assassinos Neutros",""
 "SnitchRemainingTaskFound","Remaining tasks to be found","敵陣営に見つかるタスク残量","剩余任务数对敌对阵营可见","帶刀職業可見告密者剩餘任務數","Оставшиеся задания при которых он будет виден","Tarefas restantes para encontrar",""
-"SpeedBoosterUpSpeed","Random Player's Speed Boost","加速値","增速者加速时的移动速度","被加速器加速的玩家的移動速度","Повысить скорость игрока на","Impulso de Velocidade",""
-"SpeedBoosterTaskTrigger","Tasks Until Boost Activated","効果を発動するタスク数","效果发动所需任务数","效果發動所需任務數","Задачи повышающие скорость","Tarefas Para Ativar Impulso",""
 "MayorAdditionalVote","Additional Votes Count","追加投票の個数","附加票数","附加票數","Дополнительные голоса","Votos Adicionais",""
 "MayorHasPortableButton","Mayor Has Mobile Emergency Button","ポータブルボタンを持っている","市长跳通风管触发紧急会议","可以隨時拍桌","У Мэра есть портативная Кнопка","Botão Móvel de Emergência",""
 "MayorNumOfUseButton","Number Of Mobile Emergency Button","ポータブルボタンの使用可能回数","市长紧急会议最大次数","隨時拍桌最大次數","Количество портативных Кнопок","Número de Botões de Emergência",""

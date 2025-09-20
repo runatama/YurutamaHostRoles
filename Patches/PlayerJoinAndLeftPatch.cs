@@ -254,16 +254,19 @@ namespace TownOfHost
 
                         
 
-                       var text = "<size=80%>この部屋では\n" + $"<color={Main.ModColor}><size=180%><b>{Main.ModName}</b></size></color> v.{varsion}\n" + "を導入しております。</size>\n\n";
-                        var text2 = "<size=70%><color=red><u>modの勧誘行為で入ってきた方</u>はゲームへの参加はご遠慮ください</size></color>\n" +
+                        var text =  "<size=80%>この部屋では\n" + $"<color={Main.ModColor}><size=180%><b>{Main.ModName}</b></size></color> v.{varsion}\n" + "を導入しております。</size>\n\n";
+                        var text2 = "<size=75%><color=blue>modの勧誘行為</size></color><color=red><size=70%>で入ってきた方はゲームへの参加はご遠慮ください</size></color>\n" +
                                     "<size=57%>入ってきた方には申し訳ないのですが、</size>" +
                                     "<size=57%>現在、<color=red>勧誘行為が禁止</color>されております。</size>\n" +
                                     "<size=57%>入ること自体は問題ありませんが、意図せず何も知らないバニラユーザーが、</size>" +
                                     "<size=57%>AmongUs運営にmodのバグや仕様等を通報してしまう事を防ぐため、</size>\n" +
-                                    "<size=70%><color=red>この部屋ではゲ―ムに参加できません。</size></color>\n\n";
-                        var text3 = "<size=50%><voffset=0em>このmodは</voffset></size>" +
-                                    "<color=blue><size=70%>TownOfHost-K</size></color>";
-   　　　　　　　　　　 var text4 = "<size=57%><voffset=0em>を元に作られたmodです！！</voffset></size>\n"+
+                                    "<size=70%><color=red>この部屋ではゲ―ムに参加できません。</size></color>\n";
+                        var text3 = "<size=50%>この部屋は<color=red>ホワイトリスト</color>を使用している場合がございます。</size>\n" +
+                                    "<size=50%>次も入りたい場合、ホストに報告してください。\n</size>" +
+                                    "<size=60%><color=red>mod勧誘で入ったかたは、ホワイトリストに追加できません。</size></color>\n";
+                        var text4 = "\n<size=50%>このmodは</size>" +
+                                    "<color=blue><size=70%>TownOfHost-K</size></color>" +
+   　　　　　　　　　　             "<size=57%>を元に作られたmodです！！</size>\n"+
                                     "<size=50%>このmodに関して</size><size=57%><color=#007DC5>TOH</size></color><size=50%>または</size><size=57%><color=blue>TOH-K</size></color><size=50%>にフィードバックを送らないでください！！";
                         //"</size>\n<size=60%>\n☆参加型配信を行ったり、SNSで募集するのは?\n<size=50%>→<#352ac9>全然大丈夫です!!やっちゃってください!!</color>\n　<#fc8803>バニラAmongUsの公開ルーム</color>での<red>宣伝/勧誘/誘導</color>がダメなのです!!</size>";
                         //"\n☆開発者から許可貰ってるって言ってる?　　\n<size=50%>→<#c9145a>個々で許可を出しておりません</color>!!大噓つきですよ!!</size>\n☆公開ルームに参加し、コード宣伝して「来てね～」って言うのは?\n<size=50%>→<color=red>勧誘/誘導</color>に当たるのでダメです。迷惑考えてくださいよ!!";
@@ -294,7 +297,7 @@ namespace TownOfHost
                     if (Main.DebugVersion)
                     {
                         if (Main.UseingJapanese)
-                            Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。\nバグが発生した場合はTOH-KのDiscordで報告すること!", client.Character.PlayerId, "<color=red>【=====　これはデバッグ版です　=====】</color>");
+                            Utils.SendMessage($"<size=120%>☆これはデバッグ版です☆</size>\n<line-height=80%><size=80%>\n・正式リリース版ではありません。\n・バグが発生する場合があります。\nバグが発生した場合はゆるたまに報告すること！！", client.Character.PlayerId, "<color=red>【=====　これはデバッグ版です　=====】</color>");
                         else
                             Utils.SendMessage($"<size=120%>☆This is a debug version☆</size=120%>\n<line-height=80%><size=80%>This is not an official release version. \n If you encounter a bug, report it on TOH-K Discord!", client.Character.PlayerId, "<color=red>【==　This is Debug version　==】</color>");
                     }
