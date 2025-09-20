@@ -25,7 +25,7 @@ public sealed class Viper : RoleBase, IImpostor
         killcool = OptKillcool.GetFloat();
     }
     static OptionItem OptKillcool; static float killcool;
-    public static OptionItem OptViperDissolveTime; static float ViperDissolveTime;
+    public static OptionItem OptViperDissolveTime; public static float ViperDissolveTime;
     public static void SetUpCustomOption()
     {
         OptKillcool = FloatOptionItem.Create(RoleInfo, 4, GeneralOption.KillCooldown, OptionBaseCoolTime, 30, false)
@@ -38,4 +38,9 @@ public sealed class Viper : RoleBase, IImpostor
         AURoleOptions.ViperDissolveTime = ViperDissolveTime;
     }
     float IKiller.CalculateKillCooldown() => killcool;
+    bool IKiller.OverrideKillButtonText(out string text)
+    {
+        text = GetString(StringNames.ViperAbility);
+        return true;
+    }
 }

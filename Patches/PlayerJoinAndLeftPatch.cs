@@ -216,7 +216,7 @@ namespace TownOfHost
             {
                 Logger.Warn($"正常に完了しなかった切断 - 名前:{(data == null || data.PlayerName == null ? "(不明)" : data.PlayerName)}, 理由:{reason}, ping:{AmongUsClient.Instance.Ping}, Platform:{data?.PlatformData?.Platform ?? Platforms.Unknown} , friendcode:{data?.FriendCode ?? "???"} , PuId:{data?.ProductUserId ?? "???"}", "Session");
                 ErrorText.Instance.AddError(AmongUsClient.Instance.GameState is InnerNetClient.GameStates.Started ? ErrorCode.OnPlayerLeftPostfixFailedInGame : ErrorCode.OnPlayerLeftPostfixFailedInLobby);
-                IsIntroError = GameStates.Intro; //&& Options.ExIntroWeight.GetBool() is false;
+                IsIntroError = GameStates.Intro; //&& Options.ExOldIntroSystem.GetBool() is false;
             }
 
             void SetDisconnect(ClientData data)

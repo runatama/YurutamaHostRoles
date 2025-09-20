@@ -16,7 +16,7 @@ class StandardIntro
     public static void CoGameIntroWeight()
     {
         // イントロ通信分割
-        if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)//役職配布前に通信擬装をしておく。
+        if (!Options.ExOldIntroSystem.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)//役職配布前に通信擬装をしておく。
         {
             _ = new LateTask(() =>
             {
@@ -70,7 +70,7 @@ class StandardIntro
     public static void CoResetRoleY()
     {
         Logger.Info($"ShowIntro", "StandardIntro");
-        if (Options.ExIntroWeight.GetBool())
+        if (!Options.ExOldIntroSystem.GetBool())
         {
             var host = PlayerControl.LocalPlayer;
 
@@ -344,7 +344,7 @@ class StandardIntro
                 senders2 = null;
             }, 2.2f + (GameStates.IsOnlineGame ? 0.4f : 0), "", false);
             _ = new LateTask(() => SetRole(), 5.5f, "", true);
-            //}, Options.ExIntroWeight.GetBool() ? 1f : 0f, "gamestartsetrole");
+            //}, Options.ExOldIntroSystem.GetBool() ? 1f : 0f, "gamestartsetrole");
         }
     }
     public static void SetRole()
