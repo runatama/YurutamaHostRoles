@@ -51,8 +51,54 @@ namespace TownOfHost
                 if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
                 if (DebugModeManager.IsDebugMode)
                 {
-                    sb.Append("\r\n");
-                    sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
+                    sb.Clear();
+
+                    sb.Append("\r\n").Append($"<{Main.ModColor}>{Main.ModName}</color> v{Main.PluginShowVersion}");
+                    if (Main.DebugVersion) sb.Append($"<{Main.ModColor}>☆Debug☆</color>");
+
+                    if ((Options.NoGameEnd.OptionMeGetBool() && GameStates.IsLobby) || (Main.DontGameSet && !GameStates.IsLobby)) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
+                    if (Options.IsStandardHAS) sb.Append($"\r\n").Append(Utils.ColorString(Color.yellow, GetString("StandardHAS")));
+                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("HideAndSeek")));
+                    if (Options.CurrentGameMode == CustomGameMode.TaskBattle) sb.Append($"\r\n").Append(Utils.ColorString(Color.cyan, GetString("TaskBattle")));
+                    if (SuddenDeathMode.SuddenDeathModeActive.InfoGetBool()) sb.Append("\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.Comebacker), GetString("SuddenDeathMode")));
+                    if (Options.EnableGM.OptionMeGetBool()) sb.Append($"\r\n").Append(Utils.ColorString(UtilsRoleText.GetRoleColor(CustomRoles.GM), GetString("GM")));
+                    if (!GameStates.IsModHost) sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
+                    if (DebugModeManager.IsDebugMode)
+                    {
+                        sb.Append("\r\n");
+                        sb.Append(DebugModeManager.EnableTOHkDebugMode.OptionMeGetBool() ? "<#0066de>DebugMode</color>" : Utils.ColorString(Color.green, "デバッグモード"));
+                    }
+
+                    exSb.Clear();
+
+                    // #ffef39
+                    if (Options.ExHideChatCommand.GetBool())
+                        exSb.Append($"<#ffdfaf>Ⓗ</color> ");
+                    if (Options.ExAftermeetingflash.GetBool())
+                        exSb.Append($"<#d62c12>Ⓚ</color> ");
+                    if (Options.FixSpawnPacketSize.GetBool())
+                        exSb.Append($"<#ffef39>Ⓟ</color> ");
+                    if (!Options.ExOldIntroSystem.GetBool())
+                        exSb.Append($"<#8839ff>Ⓘ</color> ");
+                    if (Options.ExRpcWeightR.GetBool())
+                        exSb.Append($"<#3d83c5>Ⓡ</color> ");
+
+                    if (exSb.Length > 0)
+                    {
+                        sb.Append("\r\n<size=50%>").Append(exSb).Append("</size>");
+                    }
+
+                    var offset_x = 2.5f; //右端からのオフセット
+                    if (HudManager.InstanceExists && HudManager._instance.Chat.gameObject.active) offset_x += 0.6f; //チャットがある場合の追加オフセット
+                    credentialsText.transform.localPosition = new Vector3((5.6779f * GameSettingMenuStartPatch.Heightratio) - offset_x, 3.0745f, 0f);
+
+                    if (GameStates.IsLobby)
+                    {
+                        if (Options.IsStandardHAS && !CustomRoles.Sheriff.IsEnable() && !CustomRoles.SerialKiller.IsEnable() && CustomRoles.Egoist.IsEnable())
+                            sb.Append($"\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.EgoistCannotWin")));
+                    }
+
+                    credentialsText.text = sb.ToString();
                 }
 
                 exSb.Clear();

@@ -621,7 +621,7 @@ namespace TownOfHost
         }
         public static void MakeDesyncSender(Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), RoleTypes> rolesMap)
         {
-            if (Options.ExIntroWeight.GetBool()) return;
+            if (!Options.ExOldIntroSystem.GetBool()) return;
             var hostId = PlayerControl.LocalPlayer.PlayerId;
             foreach (var seer in PlayerCatch.AllPlayerControls)
             {
@@ -721,7 +721,7 @@ namespace TownOfHost
             }
             public static void Release()
             {
-                if (Options.ExIntroWeight.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
+                if (!Options.ExOldIntroSystem.GetBool() && Options.CurrentGameMode is CustomGameMode.Standard)
                 {
                     foreach (var pair in StoragedData)
                     {
